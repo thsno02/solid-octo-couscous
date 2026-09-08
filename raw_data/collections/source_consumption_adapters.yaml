@@ -1,0 +1,90 @@
+collection: source-consumption-adapters
+version: 1
+created_at: '2026-09-09'
+status: active
+purpose: >-
+  Define how each source family becomes a versioned, addressable and reviewable input for the
+  knowledge and LLM Wiki layers. A URL or repository name is discovery metadata, not a consumable artifact.
+
+principles:
+  - freeze a source revision before parsing or semanticization
+  - preserve canonical identity, retrieval time, content hash and rights state
+  - keep raw evidence separate from derived summaries, claims and wiki pages
+  - assign stable selectors that resolve to the frozen source revision
+  - treat parser and semanticizer versions as part of provenance
+  - never force heterogeneous sources through one universal parser
+  - keep materialization idempotent and dependency-aware
+  - source removal, retraction or repository history rewrite must trigger impact analysis
+
+adapters:
+  arxiv_latex:
+    source_types: [arxiv]
+    preferred_input: arxiv-source-bundle
+    fallbacks: [pdf]
+    outputs: [safe-extracted-tex-tree, main-tex-candidate, content-hashes, line-and-section-selectors, omission-report]
+    consumption_rule: 'Read TeX directly; use PDF for visual/layout evidence or unavailable source bundles.'
+
+  scholarly_document:
+    source_types: [biorxiv, journal, conference, paper]
+    preferred_input: licensed-structured-full-text
+    fallbacks: [publisher-html, pdf, metadata-only]
+    outputs: [normalized-document-tree, page-section-paragraph-selectors, citation-graph, extraction-loss-report]
+    consumption_rule: 'Metadata-only records are discovery inputs and cannot support factual promotion.'
+
+  github_repo_wiki:
+    source_types: [github]
+    preferred_input: frozen-git-commit
+    outputs:
+      - complete-file-path-and-blob-index
+      - selected-line-addressable-evidence-excerpts
+      - dependency-and-build-summary
+      - module-and-interface-map
+      - candidate-repo-wiki-pages
+      - semanticization-manifest
+    consumption_rule: >-
+      Do not pass a mutable repository URL directly to a knowledge agent. Freeze a commit, construct
+      a semantic capsule or repo wiki, and resolve material claims to file and line selectors.
+    non_goals: [vendor-the-entire-repository, infer-runtime-behavior-from-readme-alone, trust-generated-architecture-prose]
+
+  web_article:
+    source_types: [blog, x]
+    preferred_input: versioned-html-or-post-snapshot
+    outputs: [cleaned-text, dom-or-post-selectors, outbound-link-map, change-detection-hash]
+    consumption_rule: 'Keep author viewpoint distinct from verified claims and preserve edit/deletion state.'
+
+  structured_reference:
+    source_types: [standard, ontology, methodology, industry_doc]
+    preferred_input: official-versioned-specification
+    outputs: [section-addressable-reference, active-version, normative-markers, predecessor-successor-lineage]
+    consumption_rule: 'Do not collapse a standard, implementation, vendor methodology and community interpretation.'
+
+  versioned_data_asset:
+    source_types: [dataset, benchmark]
+    preferred_input: immutable-release-or-snapshot
+    outputs: [schema, split-identities, checksums, license, evaluation-protocol, contamination-notes]
+    consumption_rule: 'Benchmark claims bind to exact task, split, version, evaluator and environment.'
+
+  change_event:
+    source_types: [incident, retraction]
+    preferred_input: primary-event-correction-or-postmortem
+    outputs: [event-timeline, dependency-impact, status, remediation-signal]
+    consumption_rule: 'Events change confidence and promotion state without erasing historical lineage.'
+
+selector_schemes:
+  arxiv: 'arxiv://<id>@<revision>/<path>#L<start>-L<end>'
+  github: 'repo://<owner>/<repo>@<commit>/<path>#L<start>-L<end>'
+  web: 'web://<canonical-url>@<snapshot>/<dom-or-paragraph-selector>'
+  pdf: 'pdf://<source-id>@<revision>#page=<n>&region=<optional>'
+  dataset: 'dataset://<id>@<version>/<split>/<record-or-field>'
+
+materialization_states: [not_materialized, queued, partial, materialized, stale, invalid, failed, quarantined]
+
+admission_boundary:
+  discovery_metadata: 'May trigger acquisition but cannot support a promoted factual claim.'
+  materialized_source: 'Can support extraction when revision, selector and hash are present.'
+  semantic_capsule: 'Derived navigation layer; material statements still resolve to source evidence.'
+  trusted_knowledge: 'Requires the separate claim, evidence, validation and admission process.'
+
+initial_execution_batch:
+  arxiv: ['cs/0309048', '2505.22954', '2408.06292', '2402.14207', '2502.12110', '2501.13956']
+  github: [jennyzzt/dgm, SakanaAI/AI-Scientist, getzep/graphiti, xoai/sage-wiki, linkml/linkml, VectifyAI/OpenKB]
