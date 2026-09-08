@@ -1,0 +1,202 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: https://github.com/thsno02/solid-octo-couscous/raw_data/schemas/knowledge_model.schema.yaml
+title: Executable knowledge model object
+type: object
+additionalProperties: true
+required: [uid, kind, identity, provenance, status]
+
+properties:
+  uid:
+    type: string
+    minLength: 3
+  kind:
+    type: string
+    enum:
+      - Concept
+      - VocabularyTerm
+      - EntityType
+      - RelationType
+      - PropertyType
+      - Constraint
+      - OntologyModule
+      - SchemaVersion
+      - Mapping
+      - SourceBinding
+      - Entity
+      - Relation
+      - Claim
+      - Observation
+      - Evidence
+      - Source
+      - Inference
+      - Prediction
+      - Contradiction
+      - UncertaintyAssessment
+      - ValidityInterval
+      - ActionType
+      - ActionExecution
+      - Process
+      - Decision
+      - Policy
+      - Permission
+      - Agent
+      - ChangeSet
+      - SemanticDiff
+      - CompatibilityAssessment
+      - Migration
+      - Review
+      - Deprecation
+      - Supersession
+      - Retraction
+      - Rollback
+  identity:
+    type: object
+    required: [stable_id]
+    properties:
+      stable_id: {type: string}
+      labels:
+        type: array
+        items: {type: string}
+      aliases:
+        type: array
+        items: {type: string}
+      external_ids:
+        type: object
+        additionalProperties: {type: string}
+      identity_criteria: {type: [string, 'null']}
+      merge_lineage:
+        type: array
+        items: {type: string}
+      split_lineage:
+        type: array
+        items: {type: string}
+  semantics:
+    type: object
+    properties:
+      ontology_refs:
+        type: array
+        items: {type: string}
+      type_refs:
+        type: array
+        items: {type: string}
+      world_assumption:
+        type: string
+        enum: [open, closed, local-closed, mixed, not-applicable, undeclared]
+      asserted_or_inferred:
+        type: string
+        enum: [asserted, inferred, mixed, not-applicable]
+      property_assertions: {type: object}
+      constraint_refs:
+        type: array
+        items: {type: string}
+  epistemic:
+    type: object
+    properties:
+      assertion_kind:
+        type: string
+        enum: [observation, assertion, inference, prediction, decision, action, not-applicable]
+      confidence: {type: [number, 'null'], minimum: 0, maximum: 1}
+      uncertainty_type: {type: [string, 'null']}
+      evidence_refs:
+        type: array
+        items: {type: string}
+      contradiction_refs:
+        type: array
+        items: {type: string}
+      derivation_method: {type: [string, 'null']}
+      calibration_record: {type: [string, 'null']}
+  temporal:
+    type: object
+    properties:
+      valid_from: {type: ['string', 'null']}
+      valid_to: {type: ['string', 'null']}
+      observed_at: {type: ['string', 'null']}
+      recorded_at: {type: ['string', 'null']}
+      superseded_at: {type: ['string', 'null']}
+      temporal_reference_system: {type: [string, 'null']}
+      precision: {type: [string, 'null']}
+  provenance:
+    type: object
+    required: [source_refs, recorded_at]
+    properties:
+      source_refs:
+        type: array
+        items: {type: string}
+      agent_refs:
+        type: array
+        items: {type: string}
+      activity_ref: {type: [string, 'null']}
+      method: {type: [string, 'null']}
+      source_version: {type: [string, 'null']}
+      source_hash: {type: [string, 'null']}
+      generated_by_model: {type: [string, 'null']}
+      recorded_at: {type: string}
+  mapping:
+    type: object
+    properties:
+      subject_ref: {type: [string, 'null']}
+      predicate: {type: [string, 'null']}
+      object_ref: {type: [string, 'null']}
+      justification: {type: [string, 'null']}
+      confidence: {type: [number, 'null'], minimum: 0, maximum: 1}
+      subject_version: {type: [string, 'null']}
+      object_version: {type: [string, 'null']}
+  governance:
+    type: object
+    properties:
+      owner: {type: [string, 'null']}
+      policy_refs:
+        type: array
+        items: {type: string}
+      permissions:
+        type: array
+        items: {type: string}
+      review_status:
+        type: string
+        enum: [not-reviewed, proposed, approved, rejected, needs-revision]
+      promotion_state:
+        type: string
+        enum: [draft, candidate, trusted, deprecated, superseded, retracted, quarantined]
+      reviewer_refs:
+        type: array
+        items: {type: string}
+  versioning:
+    type: object
+    properties:
+      version: {type: [string, 'null']}
+      predecessor_ref: {type: [string, 'null']}
+      change_set_ref: {type: [string, 'null']}
+      semantic_diff_ref: {type: [string, 'null']}
+      compatibility_class:
+        type: [string, 'null']
+        enum: [backward-compatible, forward-compatible, additive-but-behavior-changing, breaking, epistemically-breaking, null]
+      migration_ref: {type: [string, 'null']}
+      impact_assessment_ref: {type: [string, 'null']}
+      rollback_ref: {type: [string, 'null']}
+  action:
+    type: object
+    properties:
+      precondition_refs:
+        type: array
+        items: {type: string}
+      effect_refs:
+        type: array
+        items: {type: string}
+      authorization_decision_ref: {type: [string, 'null']}
+      execution_trace_ref: {type: [string, 'null']}
+      compensating_action_ref: {type: [string, 'null']}
+  status:
+    type: string
+    enum: [draft, candidate, active, deprecated, superseded, retracted, quarantined]
+
+conditional_requirements:
+  Claim: [epistemic, temporal]
+  Observation: [epistemic, temporal]
+  Mapping: [mapping, versioning]
+  ChangeSet: [versioning, governance]
+  ActionExecution: [action, governance, temporal]
+
+validation_notes:
+  - 'SHACL or application validation may express graph-level conditional rules not represented here.'
+  - 'Cryptographic integrity, ontology consistency, schema conformance and epistemic truth are separate checks.'
+  - 'Unknown values must remain null or explicitly undeclared; never fabricate confidence or provenance.'

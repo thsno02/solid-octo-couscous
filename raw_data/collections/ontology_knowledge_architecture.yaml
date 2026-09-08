@@ -1,0 +1,290 @@
+collection: ontology-knowledge-architecture
+version: 1
+created_at: '2026-09-09'
+status: active
+purpose: >-
+  Define the ontology, schema and semantic-governance layer required for a self-evolving
+  knowledge base, and distinguish formal semantics from validation, operational actions,
+  evidence and lifecycle governance.
+
+central_thesis: >-
+  The durable unit of knowledge evolution is not a raw triple or document. It is a versioned,
+  typed and evidence-bearing assertion situated in an explicit model of identity, semantics,
+  time, context, provenance, policy and change lineage.
+
+terminology:
+  taxonomy:
+    role: organize terms for navigation and retrieval
+    typical_standard: SKOS
+    does_not_imply: [formal-world-model, executable-data-constraints]
+  vocabulary:
+    role: provide reusable identifiers, labels and definitions
+    examples: [Schema.org, domain-code-lists]
+  formal_ontology:
+    role: define classes, relations, axioms and entailments
+    typical_standard: OWL-2
+    assumption: open-world-by-default
+  structural_schema:
+    role: define record, API, event or storage structure
+    examples: [JSON-Schema, Avro, Protobuf, LinkML-generated-schema]
+  constraint_model:
+    role: validate candidate instances under declared conformance assumptions
+    typical_standard: SHACL
+    warning: conformance-is-not-truth
+  semantic_layer:
+    role: expose stable domain and metric meanings over changing physical data
+  data_contract:
+    role: govern producer-consumer expectations for schema, quality, ownership and SLA
+    typical_standard: Open-Data-Contract-Standard
+  operational_ontology:
+    role: connect domain semantics to live data, actions, functions, policies and decision lineage
+    examples: [Palantir-Foundry-Ontology, Microsoft-Fabric-Ontology-preview, NGSI-LD]
+
+palantir_methodology_decomposition:
+  semantic_model:
+    - object-types
+    - properties
+    - typed-links
+  source_binding:
+    - physical-data-to-object-mapping
+    - lineage
+    - synchronization
+  kinetic_model:
+    - action-types
+    - functions
+    - workflows
+    - side-effects
+  governance:
+    - dynamic-security
+    - action-authorization
+    - branch-proposal-review-merge
+    - decision-and-action-lineage
+  value:
+    - domain-language-shared-by-humans-applications-and-agents
+    - digital-twin-of-operational-state
+    - controlled-writeback-instead-of-read-only-semantics
+  limitations:
+    - proprietary-platform
+    - not-an-open-interoperability-standard
+    - not-equivalent-to-OWL-description-logic
+
+recommended_reference_stack:
+  L0_identity:
+    responsibilities: [stable-id, alias, source-id, entity-resolution, merge-split-lineage]
+    references: [DID-Core, persistent-URI-policy, OpenRefine]
+  L1_terminology:
+    responsibilities: [preferred-label, synonym, multilingual-label, taxonomy, code-list]
+    references: [SKOS, Schema.org]
+  L2_conceptual_semantics:
+    responsibilities: [type, relation, identity-criteria, role, phase, event, axioms]
+    references: [OWL-2, OntoUML-UFO, BFO, ontology-design-patterns]
+  L3_schema_and_constraints:
+    responsibilities: [record-shape, cardinality, datatype, required-field, validation-report]
+    references: [LinkML, SHACL, JSON-Schema]
+  L4_mapping_and_source_binding:
+    responsibilities: [ontology-mapping, source-mapping, transformation, mapping-confidence]
+    references: [SSSOM, R2RML, Ontop]
+  L5_epistemic_knowledge:
+    responsibilities: [claim, observation, evidence, inference, prediction, contradiction, uncertainty]
+    references: [PROV-O, Web-Annotation, Verifiable-Credentials, nanopublications]
+  L6_time_context_and_measurement:
+    responsibilities: [valid-time, transaction-time, observation-time, context, unit, precision]
+    references: [OWL-Time, SOSA-SSN, QUDT-or-OM]
+  L7_action_process_and_decision:
+    responsibilities: [action-type, command, process, precondition, effect, decision, outcome]
+    references: [NGSI-LD, workflow-provenance, operational-ontology-patterns]
+  L8_policy_and_rights:
+    responsibilities: [permission, prohibition, duty, purpose, privacy, role, capability]
+    references: [ODRL, DPV, OPA, Cedar]
+  L9_change_governance:
+    responsibilities: [change-set, semantic-diff, compatibility, migration, impact, review, rollback]
+    references: [ODK, ROBOT, WebProtege, TerminusDB]
+  L10_catalog_federation_and_packaging:
+    responsibilities: [catalog, dataset-series, distribution, ownership, lineage, research-object]
+    references: [DCAT-3, RO-Crate, DataHub, OpenMetadata, OpenLineage]
+
+minimum_knowledge_model:
+  semantic_objects:
+    - Concept
+    - VocabularyTerm
+    - EntityType
+    - RelationType
+    - PropertyType
+    - Constraint
+    - OntologyModule
+    - SchemaVersion
+    - Mapping
+    - SourceBinding
+  epistemic_objects:
+    - Entity
+    - Relation
+    - Claim
+    - Observation
+    - Evidence
+    - Source
+    - Inference
+    - Prediction
+    - Contradiction
+    - UncertaintyAssessment
+    - ValidityInterval
+  operational_objects:
+    - ActionType
+    - ActionExecution
+    - Process
+    - Decision
+    - Policy
+    - Permission
+    - Agent
+  lifecycle_objects:
+    - ChangeSet
+    - SemanticDiff
+    - CompatibilityAssessment
+    - Migration
+    - Review
+    - Deprecation
+    - Supersession
+    - Retraction
+    - Rollback
+
+assertion_kinds:
+  observation: direct or instrument-mediated report about an observed feature
+  assertion: claim made by a source
+  inference: result derived by an explicit rule, model or reasoning activity
+  prediction: statement about an unobserved or future state
+  decision: chosen commitment based on evidence and policy
+  action: intervention that may change operational state
+
+world_assumption_policy:
+  ontology_entailment: open-world
+  validation: declared-per-shape-or-application
+  application_defaults: explicit-and-versioned
+  negation:
+    distinguish:
+      - explicitly-false
+      - unknown
+      - not-observed
+      - not-applicable
+      - prohibited-to-disclose
+
+schema_change_protocol:
+  required_fields:
+    - change_id
+    - proposer
+    - base_schema_version
+    - target_schema_version
+    - semantic_diff
+    - compatibility_class
+    - affected_sources
+    - affected-queries-and-agents
+    - migration-plan
+    - validation-results
+    - reviewers
+    - policy-decision
+    - rollout-window
+    - rollback-plan
+  compatibility_classes:
+    - backward-compatible
+    - forward-compatible
+    - additive-but-behavior-changing
+    - breaking
+    - epistemically-breaking
+  epistemically_breaking_examples:
+    - changing identity criteria
+    - changing relation direction or meaning
+    - changing an observation into an asserted fact
+    - collapsing uncertainty or temporal validity
+    - broadening action permissions
+
+modern_patterns:
+  - name: schema-first-multi-artifact-generation
+    example: LinkML
+    value: keep code, validation, RDF and storage models traceable to one source model
+  - name: ontology-plus-shapes
+    example: OWL-plus-SHACL
+    value: separate entailment from executable conformance
+  - name: mappings-as-governed-artifacts
+    example: SSSOM
+    value: attach provenance, confidence, justification and versions to alignments
+  - name: ontology-gitops
+    example: ODK-ROBOT-WebProtege
+    value: test, review, release and roll back semantic changes
+  - name: operational-semantic-layer
+    example: Palantir-or-NGSI-LD
+    value: bind concepts to live state, actions and authorization
+  - name: active-metadata-and-semantic-observability
+    example: DataHub-or-OpenMetadata
+    value: detect source/schema changes and calculate downstream impact
+  - name: research-object-packaging
+    example: RO-Crate
+    value: preserve data, code, workflow and result context for later revision
+  - name: llm-assisted-ontology-engineering
+    example: OntoGPT
+    value: accelerate extraction and proposal generation while retaining validation and review gates
+
+non_negotiable_distinctions:
+  - taxonomy-is-not-ontology
+  - ontology-is-not-instance-validation
+  - graph-database-is-not-ontology
+  - schema-conformance-is-not-truth
+  - source-authenticity-is-not-claim-correctness
+  - label-equality-is-not-entity-identity
+  - mapping-is-not-necessarily-equivalence
+  - missing-is-not-false-under-open-world-semantics
+  - asserted-is-not-inferred
+  - prediction-is-not-observation
+  - latest-state-does-not-replace-history
+  - agent-tool-schema-is-not-the-domain-model-itself
+
+other_knowledge_domains_to_cover:
+  P0:
+    identity_and_entity_resolution:
+      why: duplicate, merged or split entities corrupt every later relation and claim
+      targets: [record-linkage, identity-criteria, persistent-identifiers, merge-split-lineage]
+    epistemic_claim_evidence_model:
+      why: facts must retain source, support, contradiction and derivation
+      targets: [claim-graphs, nanopublications, argumentation, evidence-grading]
+    ontology_and_schema_evolution:
+      why: ontology changes can silently alter query answers and agent behavior
+      targets: [semantic-diff, compatibility, migration, impact-analysis, rollback]
+    uncertainty_and_calibration:
+      why: confidence is not a single unqualified scalar
+      targets: [probabilistic-knowledge-graphs, calibrated-confidence, evidence-quality]
+    policy_permissions_and_privacy:
+      why: knowledge agents need typed write, merge, supersede, retract and action permissions
+      targets: [ODRL, DPV, OPA, Cedar, capability-security]
+    time_context_and_negative_knowledge:
+      why: truth depends on time, context, perspective and explicit unknown/false distinctions
+      targets: [bi-temporal-models, context, negation, absence, stale-knowledge]
+  P1:
+    causal_process_and_event_knowledge:
+      targets: [causal-graphs, process-ontology, intervention, counterfactuals]
+    units_measurements_and_multimodal_grounding:
+      targets: [QUDT, OM, uncertainty-of-measurement, sensor-and-image-grounding]
+    semantic_federation_and_data_spaces:
+      targets: [catalog-federation, contracts, decentralized-policy, cross-domain-mapping]
+    semantic_quality_and_observability:
+      targets: [competency-questions, drift-detection, query-regression, lineage-impact]
+    ontology_learning_mapping_and_repair:
+      targets: [llm-assisted-induction, alignment, anomaly-repair, human-review]
+    multilingual_and_lexical_semantics:
+      targets: [terminology, translation, lexicalization, ambiguity]
+    forgetting_compression_and_archival:
+      targets: [retention-policy, lossy-summarization, archival-tiers, right-to-erasure]
+  P2:
+    institutional_and_social_knowledge:
+      targets: [authority, consensus, dissent, peer-review, jurisdiction]
+    knowledge_economics_and_incentives:
+      targets: [ownership, licensing, contribution-credit, adversarial-publication]
+    commonsense_and_normative_knowledge:
+      targets: [defaults, exceptions, norms, defeasible-reasoning]
+
+acceptance_metrics:
+  semantic_layer_declared_for_every_collection: '100%'
+  stable_identity_policy: '100% of promoted entity types'
+  source_binding_versioned: '100% of production bindings'
+  mappings_with_provenance_and_justification: '100% of promoted mappings'
+  schema_changes_with_diff_migration_impact_and_rollback: '100% of breaking changes'
+  assertion_kind_and_provenance: '100% of promoted claims'
+  world_assumption_declared: '100% of validation and reasoning pipelines'
+  action_types_with_authorization_and_audit: '100%'
+  deprecated_terms_remain_resolvable: '100%'
