@@ -1,0 +1,55 @@
+quarantine: unverified-items
+version: 1
+created_at: '2026-09-09'
+policy: >-
+  This file does not assert that an item is false. It records items that must be re-resolved against
+  a canonical primary source before they are promoted into a trusted knowledge layer. Discovery
+  manifests may retain them so provenance and collection history are not lost.
+
+items:
+  - reference: 'arxiv:2607.07663'
+    current_title: 'Recursive Self-Improvement in AI: From Bounded Self-Refinement to Autonomous Research Loops'
+    reason: 'Frontier-dated record introduced before common verification fields existed.'
+    required_checks: [canonical_arxiv_resolution, title_match, author_match, version, source_bundle]
+    state: pending_revalidation
+  - reference: 'arxiv:2602.06855'
+    current_title: 'AIRS-Bench: a Suite of Tasks for Frontier AI Research Science Agents'
+    reason: 'Frontier benchmark record introduced before common verification fields existed.'
+    required_checks: [canonical_arxiv_resolution, title_match, benchmark_repository, dataset_version]
+    state: pending_revalidation
+  - reference: 'arxiv:2511.02824'
+    current_title: 'Kosmos: An AI Scientist for Autonomous Discovery'
+    reason: 'Recent autonomous-research record requires version and repository linkage confirmation.'
+    required_checks: [canonical_arxiv_resolution, title_match, official_repository, artifact_availability]
+    state: pending_revalidation
+  - reference: 'arxiv:2509.25651'
+    current_title: 'AutoLabs: Cognitive Multi-Agent Systems with Self-Correction for Autonomous Chemical Experimentation'
+    reason: 'Recent autonomous-lab record requires primary-source and implementation linkage confirmation.'
+    required_checks: [canonical_arxiv_resolution, title_match, experimental_evidence, official_repository]
+    state: pending_revalidation
+  - reference: 'biorxiv:10.64898/2026.08.16.745122'
+    current_title: 'A Persistent Fleet of AI Scientists Exhibits Cooperative and Autopoietic Behavior'
+    reason: 'Very recent preprint identifier and publication state require canonical DOI/preprint resolution.'
+    required_checks: [doi_resolution, preprint_server_record, title_match, version, withdrawal_status]
+    state: pending_revalidation
+  - reference: 'github:EvoAgentX/EvoAgentX'
+    reason: 'Owner/repository alias conflicts with the canonical project location used by the current audit.'
+    proposed_canonical: 'ANative-Lab/EvoAgentX'
+    required_checks: [redirect_resolution, fork_status, official_project_link]
+    state: alias_pending_migration
+  - reference: 'github:letta-ai/letta-code'
+    reason: 'Relationship to the main Letta repository and product boundaries should be recorded explicitly.'
+    required_checks: [canonical_resolution, official_relationship, license, archive_status]
+    state: pending_revalidation
+
+promotion_rule:
+  required:
+    - verification.state equals verified or partially_verified
+    - verification.checked_at is present
+    - canonical identifier resolves
+    - title or repository identity matches
+    - source version or commit is recorded where applicable
+  prohibited:
+    - silently deleting an unresolved item
+    - converting an unresolved claim into trusted knowledge
+    - inferring license or official status from popularity
