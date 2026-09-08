@@ -1,36 +1,183 @@
 collection: github-projects
-version: 1
-collected_at: '2026-09-08'
+version: 2
+collected_at: '2026-09-09'
 status: active
-purpose: 'Track open-source and source-available implementations that operationalize RSI, self-evolving agents, autonomous research, evolving memory/knowledge systems, and evaluation/governance.'
+purpose: >-
+  Track open-source and source-available implementations that operationalize RSI, open-ended
+  evolution, continual learning, autonomous research, evolving memory/knowledge systems,
+  scientific provenance, experiment automation, evaluation and governance.
 
 inclusion_rule: >-
-  Include projects only when the implementation exposes a meaningful evolution loop or a necessary substrate:
-  mutation/optimization, persistent learning, autonomous research, incremental knowledge maintenance,
-  evidence-based evaluation, or governance/verification. Generic agent orchestration alone is insufficient.
+  Include a project only when it exposes a meaningful evolution mechanism or necessary substrate:
+  mutation/optimization, persistent learning, knowledge revision, autonomous research,
+  incremental knowledge maintenance, executable evaluation, provenance, versioning, rollback,
+  experiment orchestration or governance. Generic agent orchestration alone is insufficient.
+
+canonicalization:
+  identity_key: lowercase_owner_repo_after_redirect_resolution
+  required_fields: [canonical_id, verification, versioning, rights, classification, collection]
+  aliases:
+    'EvoAgentX/EvoAgentX': 'ANative-Lab/EvoAgentX'
+  policy: 'Retain alias lineage, but count only the canonical repository in coverage metrics.'
 
 categories:
   rsi_self_evolution:
-    P0: ['jennyzzt/dgm', 'EvoAgentX/EvoAgentX', 'FoundationAgents/AFlow', 'gepa-ai/gepa']
-    P1: ['stanfordnlp/dspy', 'zou-group/textgrad', 'google-deepmind/opro']
-  auto_research:
-    P0: ['SakanaAI/AI-Scientist', 'SakanaAI/AI-Scientist-v2', 'SamuelSchmidgall/AgentLaboratory', 'Future-House/robin']
-    P1: ['Future-House/paper-qa', 'zou-group/virtual-lab', 'ur-whitelab/chemcrow-public', 'allenai/discoveryworld']
-  evaluation_governance:
-    P0: ['openai/frontier-evals', 'facebookresearch/MLGym']
+    P0:
+      - jennyzzt/dgm
+      - ANative-Lab/EvoAgentX
+      - FoundationAgents/AFlow
+      - gepa-ai/gepa
+    P1:
+      - stanfordnlp/dspy
+      - zou-group/textgrad
+      - google-deepmind/opro
+
+  open_ended_evolution_and_quality_diversity:
+    P0:
+      - adaptive-intelligent-robotics/QDax
+      - pyribs/pyribs
+    P1:
+      - DEAP/deap
+
+  continual_learning_and_model_editing:
+    P0:
+      - ContinualAI/avalanche
+      - zjunlp/EasyEdit
+    P1: []
+
+  auto_research_end_to_end:
+    P0:
+      - SakanaAI/AI-Scientist
+      - SakanaAI/AI-Scientist-v2
+      - SamuelSchmidgall/AgentLaboratory
+      - Future-House/robin
+      - google-deepmind/funsearch
+    P1:
+      - Future-House/paper-qa
+      - stanford-oval/storm
+      - zou-group/virtual-lab
+      - ur-whitelab/chemcrow-public
+      - allenai/discoveryworld
+
+  research_agent_benchmarks_and_formal_science:
+    P0:
+      - openai/mle-bench
+      - openai/frontier-evals
+      - facebookresearch/MLGym
+      - lean-dojo/LeanDojo
+    P1:
+      - mlfoundations/MLAgentBench
+
+  agent_observability_and_evaluation:
+    P0:
+      - langfuse/langfuse
+    P1:
+      - Arize-ai/phoenix
+
+  provenance_versioning_and_reproducibility:
+    P0:
+      - OpenLineage/OpenLineage
+      - iterative/dvc
+      - aiidateam/aiida-core
+    P1:
+      - treeverse/lakeFS
+
+  self_driving_lab_and_scientific_workflows:
+    P0:
+      - bluesky/bluesky
+      - aiidateam/aiida-core
+    P1:
+      - materialsproject/atomate2
+
   knowledge_memory_evolution:
-    P0: ['getzep/graphiti', 'letta-ai/letta-code', 'langchain-ai/langmem', 'OSU-NLP-Group/HippoRAG']
-    P1: ['mem0ai/mem0', 'topoteretes/cognee', 'HKUDS/LightRAG', 'OpenSPG/KAG', 'microsoft/graphrag']
+    P0:
+      - getzep/graphiti
+      - letta-ai/letta-code
+      - langchain-ai/langmem
+      - OSU-NLP-Group/HippoRAG
+    P1:
+      - mem0ai/mem0
+      - topoteretes/cognee
+      - HKUDS/LightRAG
+      - OpenSPG/KAG
+      - microsoft/graphrag
+
+  scientific_knowledge_and_claim_infrastructure:
+    P0:
+      - orkg/orkg-backend
+      - nanopub/nanopub-java
+      - getzep/graphiti
+    P1:
+      - OpenSPG/KAG
+      - microsoft/graphrag
 
 cross_domain_patterns:
-  variation: [self-code-edit, prompt-mutation, workflow-search, hypothesis-generation, memory-write, graph-update]
-  evaluation: [benchmarks, textual-feedback, scientific-evidence, replication, task-metrics]
-  selection: [pareto-frontier, score-ranking, tree-search, experiment-outcomes, verification-gates]
-  retention: [archives, persistent-memory, temporal-graphs, research-repositories, experiment-traces]
-  recombination: [workflow-composition, multi-agent-collaboration, cross-paper-synthesis, graph-reasoning]
-  governance: [sandboxing, provenance, temporal-validity, replication, permissions, rollback]
+  variation:
+    - self-code-edit
+    - prompt-mutation
+    - workflow-search
+    - hypothesis-generation
+    - memory-write
+    - graph-update
+    - evolutionary-operators
+    - data-branching
+  evaluation:
+    - benchmarks
+    - textual-feedback
+    - scientific-evidence
+    - executable-tests
+    - replication
+    - task-metrics
+    - formal-kernel-checks
+  selection:
+    - pareto-frontier
+    - score-ranking
+    - tree-search
+    - experiment-outcomes
+    - verification-gates
+    - quality-diversity-archives
+  retention:
+    - archives
+    - persistent-memory
+    - temporal-graphs
+    - research-repositories
+    - experiment-traces
+    - data-and-code-versions
+    - claim-provenance
+  recombination:
+    - workflow-composition
+    - multi-agent-collaboration
+    - cross-paper-synthesis
+    - graph-reasoning
+    - evolutionary-crossover
+    - branch-and-merge
+  governance:
+    - sandboxing
+    - provenance
+    - temporal-validity
+    - replication
+    - permissions
+    - rollback
+    - license-verification
+    - evaluator-independence
+
+coverage_requirements:
+  conceptual_plus_implementation: true
+  paper_code_bidirectional_linkage_target: '>= 90% for P0 implemented methods'
+  canonical_repository_verification_target: '100%'
+  license_status_target: '100% explicit verified or pending; never inferred'
+  snapshot_commit_target: '>= 95% after scheduled materialization'
+  archived_or_redirected_projects_remain_in_lineage: true
+
+known_followups:
+  - 'Resolve the relationship between letta-ai/letta-code and the canonical Letta platform repository.'
+  - 'Capture exact head commit, default branch, release, archive state and license for every project.'
+  - 'Add closed-loop laboratory optimization frameworks after canonical project verification.'
+  - 'Add causal-discovery, theorem-proving and mechanistic-interpretability research loops.'
+  - 'Add negative evidence: abandoned projects, failed replications and evaluator-gaming incidents.'
 
 notes:
   - 'The directory stores metadata only; source repositories are not vendored.'
-  - 'Source-available projects with custom licenses are explicitly distinguished from OSI-style open-source licenses.'
-  - 'Snapshot fields should be refreshed by a scheduled collector because project ownership, licenses, activity, and architecture may change.'
+  - 'Source-available projects with custom licenses are explicitly distinguished from OSI-style open source.'
+  - 'A project may appear in several categories but is counted once by canonical_id.'
+  - 'Snapshot fields must be refreshed by a scheduled collector because ownership, licenses, activity and architecture may change.'
