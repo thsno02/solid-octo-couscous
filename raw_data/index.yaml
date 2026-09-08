@@ -1,0 +1,38 @@
+index_version: 1
+updated_at: '2026-09-09'
+repository: thsno02/solid-octo-couscous
+
+base_manifest:
+  path: manifest.yaml
+  version: 3
+  role: 'Original seed inventory; retained for backward compatibility.'
+
+additive_manifests:
+  - path: manifests/coverage_backfill_2026-09-09.yaml
+    role: 'Coverage remediation batch: foundations, standards and GitHub infrastructure.'
+
+collections:
+  - {path: collections/auto_research.yaml, scope: automated-research}
+  - {path: collections/github_projects.yaml, scope: github-projects, version: 2}
+  - {path: collections/coverage_matrix.yaml, scope: coverage-audit}
+  - {path: collections/backfill_plan.yaml, scope: staged-backfill}
+
+audits:
+  - path: audits/coverage_audit_2026-09-09.yaml
+    status: current
+
+schemas:
+  - path: schemas/item.schema.yaml
+    applies_to: 'new and migrated metadata records'
+
+quarantine:
+  - path: quarantine/unverified_items.yaml
+    promotion_blocking: true
+
+consumer_rules:
+  - 'Load the base manifest and every additive manifest; deduplicate by canonical_id.'
+  - 'Resolve GitHub aliases before counting coverage.'
+  - 'Exclude quarantined and deprecated records from the trusted layer but retain them in lineage.'
+  - 'Prefer canonical_id and uid over folder names or titles.'
+  - 'Treat partially_verified records as discovery metadata, not final trusted knowledge.'
+  - 'Do not infer open-source status when license verification is pending.'
