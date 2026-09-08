@@ -1,0 +1,181 @@
+$schema: 'https://json-schema.org/draft/2020-12/schema'
+$id: 'https://github.com/thsno02/solid-octo-couscous/raw_data/schemas/item.schema.yaml'
+title: Raw collection item metadata
+type: object
+additionalProperties: true
+required:
+  - uid
+  - source_type
+  - title
+  - canonical_url
+  - verification
+  - classification
+  - collection
+properties:
+  uid:
+    type: string
+    description: 'Stable internal identifier; must not depend only on a mutable title.'
+    minLength: 3
+  source_type:
+    type: string
+    enum: [arxiv, journal, conference, paper, standard, blog, x, github, dataset, benchmark, incident, retraction]
+  canonical_id:
+    type: [string, 'null']
+    description: 'DOI, arXiv id, repository full name, standard id, dataset id, or another source-native stable identifier.'
+  title:
+    type: string
+    minLength: 1
+  aliases:
+    type: array
+    items: {type: string}
+    default: []
+  canonical_url:
+    type: string
+    format: uri
+  authors_or_maintainers:
+    type: array
+    items: {type: string}
+    default: []
+  publisher_or_owner:
+    type: [string, 'null']
+  dates:
+    type: object
+    properties:
+      first_published: {type: ['string', 'null']}
+      last_updated: {type: ['string', 'null']}
+      retrieved_at: {type: ['string', 'null']}
+  verification:
+    type: object
+    required: [state, checked_at, method]
+    properties:
+      state:
+        type: string
+        enum: [verified, partially_verified, pending, quarantined, deprecated, retracted]
+      checked_at: {type: string}
+      method: {type: string}
+      evidence_url: {type: ['string', 'null'], format: uri}
+      notes: {type: ['string', 'null']}
+  versioning:
+    type: object
+    properties:
+      source_version: {type: ['string', 'null']}
+      snapshot_commit: {type: ['string', 'null']}
+      release_or_tag: {type: ['string', 'null']}
+      content_sha256: {type: ['string', 'null']}
+      previous_versions:
+        type: array
+        items: {type: string}
+  rights:
+    type: object
+    properties:
+      license_spdx: {type: ['string', 'null']}
+      license_verified_at: {type: ['string', 'null']}
+      access: {type: string, enum: [open, source_available, metadata_only, restricted, unknown]}
+      notes: {type: ['string', 'null']}
+  classification:
+    type: object
+    required: [domains, evolution_objects, loop_roles]
+    properties:
+      domains:
+        type: array
+        minItems: 1
+        items: {type: string}
+      evolution_objects:
+        type: array
+        minItems: 1
+        items: {type: string}
+      loop_roles:
+        type: array
+        minItems: 1
+        items:
+          type: string
+          enum: [variation, evaluation, selection, retention, recombination, environment_generation, meta_evolution, writeback, rollback, governance]
+      research_lifecycle:
+        type: array
+        items: {type: string}
+  linkage:
+    type: object
+    properties:
+      papers:
+        type: array
+        items: {type: string}
+      repositories:
+        type: array
+        items: {type: string}
+      datasets:
+        type: array
+        items: {type: string}
+      benchmarks:
+        type: array
+        items: {type: string}
+      standards:
+        type: array
+        items: {type: string}
+      predecessors:
+        type: array
+        items: {type: string}
+      successors:
+        type: array
+        items: {type: string}
+  evidence:
+    type: object
+    properties:
+      level:
+        type: string
+        enum: [conceptual, simulation, benchmark, reproduced, field_deployed, independently_replicated, unknown]
+      replication_status:
+        type: string
+        enum: [not_applicable, not_checked, author_reproduced, independently_reproduced, failed_replication, mixed]
+      primary_source: {type: boolean}
+      known_contradictions:
+        type: array
+        items: {type: string}
+  governance:
+    type: object
+    properties:
+      provenance_preserved: {type: boolean}
+      reversible: {type: boolean}
+      evaluator_independence: {type: string, enum: [unknown, same_system, related_system, independent, mixed]}
+      risks:
+        type: array
+        items: {type: string}
+      promotion_requirements:
+        type: array
+        items: {type: string}
+  collection:
+    type: object
+    required: [priority, relevance, inclusion_reason]
+    properties:
+      priority: {type: string, enum: [P0, P1, P2, watch]}
+      relevance: {type: string, enum: [foundational, direct, adjacent, governance, infrastructure]}
+      inclusion_reason: {type: string}
+      exclusions_or_limits:
+        type: array
+        items: {type: string}
+      collector: {type: ['string', 'null']}
+      query_or_seed: {type: ['string', 'null']}
+
+allOf:
+  - if:
+      properties:
+        source_type: {const: github}
+    then:
+      properties:
+        canonical_id:
+          type: string
+          pattern: '^[^/]+/[^/]+$'
+  - if:
+      properties:
+        source_type: {const: arxiv}
+    then:
+      properties:
+        canonical_id:
+          type: string
+          minLength: 5
+
+migration_policy:
+  legacy_records: >-
+    Legacy source-specific YAML remains valid during migration, but every record should eventually
+    gain uid, canonical_id, verification, versioning, classification, linkage, rights and collection.
+  unknown_values: 'Use null or an explicit unknown/pending state; never invent metadata.'
+  title_directories: 'May remain for readability, but uid and canonical_id are authoritative.'
