@@ -1,16 +1,23 @@
-
 # Documentation
 
-This directory explains how the repository was collected, governed, and converted into durable knowledge.
+This directory explains how the repository was collected, materialized, governed, and converted into durable knowledge.
 
 ## Entry points
 
-- [`260909-collection/`](260909-collection/README.md) — the 2026-09-09 collection snapshot: research scope, coverage, omissions, schemas, trust policy, validation, and handoff rules.
-- [`llm-wiki/`](llm-wiki/README.md) — the repository's knowledge digestion and organization method: how raw sources become claims, pages, indexes, context packs, and governed wiki releases.
+- [`260909-collection/`](260909-collection/README.md) — the 2026-09-09 collection snapshot: scope, coverage, omissions, schemas, source-specific materialization, validation, and handoff rules.
+- [`llm-wiki/`](llm-wiki/README.md) — how frozen source revisions become claims, pages, indexes, context packs, and governed wiki releases.
 
-## Status model
+## Layer model
 
-`raw_data/` is the source collection and provenance layer. The future wiki is a compiled, reviewable projection over those sources and over atomic claim/evidence records. The two layers must never be silently collapsed.
+```text
+raw_data/              source metadata and provenance
+source_registry/       normalized source identity and adapter selection
+materialized_sources/  frozen, addressable source artifacts
+knowledge/             future atomic claims, evidence, identity and contradictions
+wiki/                  future reviewed knowledge views
+```
+
+These layers must not be silently collapsed. A URL is not materialization, a semantic capsule is not independent evidence, and a wiki page is not the sole truth record.
 
 ## Naming
 
