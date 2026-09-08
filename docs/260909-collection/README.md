@@ -1,4 +1,3 @@
-
 # 260909 Collection Snapshot
 
 This documentation records the collection work completed for `thsno02/solid-octo-couscous` on **2026-09-09**. It is the handoff contract for future humans and agents.
@@ -18,6 +17,7 @@ The snapshot covers the research background needed to study:
 7. [`07-known-gaps-and-roadmap.md`](07-known-gaps-and-roadmap.md)
 8. [`08-agent-handoff-and-operating-rules.md`](08-agent-handoff-and-operating-rules.md)
 9. [`09-batch-ledger.md`](09-batch-ledger.md)
+10. [`10-materialization-and-consumption.md`](10-materialization-and-consumption.md)
 
 ## Authoritative machine-readable entry points
 
@@ -28,9 +28,11 @@ The snapshot covers the research background needed to study:
 - `raw_data/schemas/*.yaml`
 - `raw_data/audits/*.yaml`
 - `raw_data/quarantine/*.yaml`
+- `source_registry/registry.yaml`
+- `materialized_sources/index.yaml`
 
 The prose in this directory explains intent. The YAML files define the current machine-readable inventory and policy.
 
 ## Important limitation
 
-Most arXiv records currently preserve the exact `/src/<id>` and PDF URLs, but their TeX bundles have not yet been downloaded, unpacked, hashed, and pinned. Metadata availability is not full-text acquisition.
+Most arXiv records preserve exact source and PDF URLs. The initial P0 batch materializes only a selected subset; the remainder still requires acquisition. Likewise, a GitHub metadata record is not consumable until a commit is frozen and converted into a semantic capsule or repo wiki.
