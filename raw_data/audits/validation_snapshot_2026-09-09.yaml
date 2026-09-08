@@ -1,0 +1,26 @@
+validation_id: yaml-syntax-validation-2026-09-09
+checked_at: '2026-09-09'
+repository: thsno02/solid-octo-couscous
+scope: 'raw_data/**/*.yaml'
+checks:
+  yaml_parse:
+    method: 'PyYAML safe_load over a fresh pull of the repository'
+    status: pass
+  common_schema_migration:
+    method: 'Not asserted as complete; legacy and seed records still require field migration.'
+    status: partial
+  canonical_primary_source_resolution:
+    method: 'Executed for a high-priority seed subset; full corpus validation remains P0.'
+    status: partial
+  source_snapshot_and_checksum:
+    method: 'Blocked for binary arXiv bundles in the current connector-only write path.'
+    status: incomplete
+notes:
+  - 'A YAML syntax pass does not mean metadata is semantically correct or fully verified.'
+  - 'Records in quarantine remain excluded from trusted promotion.'
+  - 'The common schema is a migration target; validation should become a CI check after legacy records are upgraded.'
+artifacts:
+  - 'raw_data/audits/coverage_audit_2026-09-09.yaml'
+  - 'raw_data/collections/coverage_matrix.yaml'
+  - 'raw_data/schemas/item.schema.yaml'
+  - 'raw_data/quarantine/unverified_items.yaml'
