@@ -1,14 +1,14 @@
-
 # LLM Wiki for This Repository
 
 LLM Wiki is the repository's intended **knowledge digestion and organization layer**.
 
-It converts the source collection into a persistent, navigable, reviewable body of knowledge that compounds over time. It is not a replacement for raw sources, atomic claims, ontology, or evidence governance.
+It converts the source collection into a persistent, navigable, reviewable body of knowledge that compounds over time. It is not a replacement for raw sources, atomic claims, ontology, evidence governance, or source-specific materialization.
 
 ## Core equation
 
 ```text
-immutable sources
+immutable source revisions
++ source-specific materialization
 + normalized metadata
 + claim/evidence graph
 + ontology and identity
@@ -31,6 +31,7 @@ immutable sources
 11. [`11-threat-model-and-failure-modes.md`](11-threat-model-and-failure-modes.md)
 12. [`12-open-questions-and-research-agenda.md`](12-open-questions-and-research-agenda.md)
 13. [`13-research-basis.md`](13-research-basis.md)
+14. [`14-source-specific-consumption.md`](14-source-specific-consumption.md)
 
 Architecture decisions:
 
@@ -81,3 +82,12 @@ From this repository's ontology work:
 - source bindings;
 - action and policy;
 - semantic diff, migration, and rollback.
+
+From the materialization layer:
+
+- source-specific adapters;
+- pinned revisions and hashes;
+- TeX-first arXiv consumption;
+- repository-to-wiki semantic capsules;
+- stable source selectors;
+- explicit extraction loss and semanticization status.
