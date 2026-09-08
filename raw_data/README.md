@@ -25,6 +25,14 @@ The collection therefore tracks both systems that *do research* and systems that
 
 For a cross-source taxonomy and priority list, see `collections/auto_research.yaml`.
 
+### Why GitHub implementations are first-class
+
+Papers describe mechanisms; open implementations show which mechanisms survive contact with engineering constraints. The `githubs/` collection therefore tracks implementations that expose at least one meaningful evolution substrate: mutation/optimization, persistent learning, autonomous research, incremental knowledge maintenance, evidence-based evaluation, or governance/verification.
+
+Generic agent orchestration alone is not enough for inclusion. Repository source is **not vendored** here; each project is represented by a small metadata YAML containing provenance, license, related papers, mechanisms, relevance, and governance notes.
+
+For the categorized project map and priorities, see `collections/github_projects.yaml`.
+
 ## Layout
 
 - `arxiv/<paper-title>/` — arXiv papers. Prefer unpacked TeX source when available; keep source metadata next to it.
@@ -32,11 +40,11 @@ For a cross-source taxonomy and priority list, see `collections/auto_research.ya
 - `journal/<paper-title>/` — peer-reviewed journal articles that are important primary sources and not primarily represented by arXiv.
 - `paper/<paper-title>/` — other foundational papers/book chapters not primarily distributed through arXiv.
 - `blog/<article-title>/` — public lab/researcher blog metadata, canonical URL, and research notes/summary.
-- `github/<project-or-article-title>/` — source/project metadata for implementations that materially describe evolving AI/knowledge systems.
+- `githubs/<owner>--<repo>/metadata.yaml` — open-source/source-available implementation metadata only; repository contents are not copied.
 - `x/<post-or-thread-title>/` — public post/thread metadata and canonical URL when relevant.
 - `collections/<topic>.yaml` — cross-source topic maps used for coverage, priority, deduplication and future scheduled collection.
 
-Each item should include a `metadata.yaml` with provenance, dates, authors, source URL, topic tags and (where useful) an explicit link to the knowledge-evolution thesis. For copyrighted web articles, store metadata + canonical URL + structured notes rather than copying the full article body.
+Each item should include a `metadata.yaml` with provenance, dates, authors/maintainers, source URL, topic tags and (where useful) an explicit link to the knowledge-evolution thesis. For copyrighted web articles, store metadata + canonical URL + structured notes rather than copying the full article body.
 
 For arXiv, `source_archive_url` points to `/src/<id>` and is the preferred acquisition target because it exposes the original TeX bundle. The current GitHub connector writes UTF-8 text but cannot directly ingest gzip/tar binary source archives, so metadata records preserve the exact source archive URL for a downloader/materializer stage.
 
