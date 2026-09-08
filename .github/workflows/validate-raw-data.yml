@@ -1,19 +1,26 @@
-
 name: Validate repository knowledge artifacts
 
 on:
   push:
     paths:
       - 'raw_data/**'
+      - 'source_registry/**'
+      - 'materialized_sources/**'
+      - 'pipeline/**'
       - 'docs/**'
       - 'scripts/validate_raw_data.py'
+      - 'scripts/validate_materialized.py'
       - 'scripts/validate_docs.py'
       - '.github/workflows/validate-raw-data.yml'
   pull_request:
     paths:
       - 'raw_data/**'
+      - 'source_registry/**'
+      - 'materialized_sources/**'
+      - 'pipeline/**'
       - 'docs/**'
       - 'scripts/validate_raw_data.py'
+      - 'scripts/validate_materialized.py'
       - 'scripts/validate_docs.py'
       - '.github/workflows/validate-raw-data.yml'
 
@@ -32,5 +39,12 @@ jobs:
         run: python -m pip install --disable-pip-version-check PyYAML jsonschema
       - name: Validate raw collection
         run: python scripts/validate_raw_data.py
+      - name: Validate materialized source layer
+        run: |
+          if [ -f source_registry/registry.yaml ]; then
+            python scripts/validate_materialized.py
+          else
+            echo 'Materialized source registry not created yet; skipping materialized-layer validation.'
+          fi
       - name: Validate documentation
         run: python scripts/validate_docs.py
