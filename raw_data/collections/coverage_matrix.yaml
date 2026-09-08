@@ -1,0 +1,122 @@
+collection: coverage-matrix
+version: 1
+created_at: '2026-09-09'
+purpose: >-
+  Make collection coverage auditable across evolving objects, evolution-loop mechanisms,
+  research lifecycle stages, source types and governance controls. A topic is considered covered
+  only when it has both conceptual primary sources and at least one implementation, benchmark,
+  dataset, standard or empirical case where appropriate.
+
+coverage_scale:
+  0: absent
+  1: isolated mention
+  2: partial seed
+  3: usable research seed
+  4: broad multi-source coverage
+  5: mature and continuously maintained
+
+axes:
+  evolving_objects:
+    model_weights: {score: 4, examples: [knowledge-editing, continual-learning, self-training]}
+    optimizer_or_learning_rule: {score: 3, examples: [learned-optimizers, PBT]}
+    agent_code: {score: 4, examples: [DGM, STOP]}
+    prompt_or_textual_program: {score: 4, examples: [DSPy, TextGrad, GEPA, OPRO]}
+    workflow_or_topology: {score: 4, examples: [AFlow, ADAS, EvoAgentX]}
+    memory: {score: 4, examples: [A-MEM, Letta, LangMem, Mem0]}
+    knowledge_graph: {score: 3, examples: [Zep, Graphiti, LightRAG, GraphRAG, KAG]}
+    belief_or_claim: {score: 2, examples: [AGM, TMS, provenance-backfill]}
+    hypothesis: {score: 4, examples: [AI-co-scientist, Robin, AI-Scientist]}
+    experiment_protocol: {score: 3, examples: [Agent-Laboratory, A-Lab, AutoLabs]}
+    scientific_world_model: {score: 2, examples: [Kosmos]}
+    evaluator_or_reward: {score: 3, examples: [self-reward, PaperBench, MLGym]}
+    environment_or_problem_distribution: {score: 3, examples: [POET, POWERPLAY, DiscoveryWorld]}
+    organization_or_agent_population: {score: 2, examples: [AgentRxiv, persistent-agent-fleet]}
+
+  evolution_loop_roles:
+    variation: {score: 4, required_examples: [mutation, editing, hypothesis-generation, workflow-search]}
+    evaluation: {score: 4, required_examples: [benchmarks, critics, experiments, replication]}
+    selection: {score: 3, required_examples: [ranking, Pareto-selection, review, promotion-gates]}
+    retention: {score: 4, required_examples: [archives, memory, graphs, repositories, traces]}
+    recombination: {score: 3, required_examples: [cross-paper-synthesis, crossover, workflow-composition]}
+    environment_generation: {score: 3, required_examples: [POET, POWERPLAY, generated-benchmarks]}
+    meta_evolution: {score: 3, required_examples: [optimizer-evolution, evaluator-evolution, self-code-edit]}
+    writeback: {score: 3, required_examples: [AgentRxiv, temporal-graph-updates, claim-revision]}
+    rollback_and_retraction: {score: 1, required_examples: [versioned-retractions, reversible-edits]}
+
+  research_lifecycle:
+    literature_discovery: {score: 4, examples: [OpenScholar, PaperQA2, STORM]}
+    evidence_synthesis: {score: 4, examples: [PaperQA2, OpenScholar]}
+    problem_generation: {score: 3, examples: [POWERPLAY, AI-co-scientist]}
+    hypothesis_generation: {score: 4, examples: [ResearchAgent, AI-co-scientist, Robin]}
+    study_design: {score: 3, examples: [AI-Scientist, Agent-Laboratory]}
+    execution_in_silico: {score: 4, examples: [AI-Scientist, MLAgentBench]}
+    execution_physical: {score: 3, examples: [A-Lab, autonomous-chemistry, Virtual-Lab]}
+    analysis: {score: 4, examples: [Robin, Kosmos]}
+    peer_review_or_critique: {score: 3, examples: [AI-Scientist-reviewer, meta-review]}
+    replication: {score: 3, examples: [PaperBench]}
+    publication: {score: 4, examples: [AI-Scientist, AgentRxiv]}
+    knowledge_promotion: {score: 2, examples: [promotion-policy]}
+    retraction_or_supersession: {score: 1, examples: []}
+
+  source_types:
+    papers_and_preprints: {score: 4}
+    surveys_and_positions: {score: 3}
+    github_implementations: {score: 4}
+    lab_and_researcher_viewpoints: {score: 3}
+    datasets: {score: 1}
+    benchmark_instances: {score: 2}
+    standards_and_ontologies: {score: 2, seed: [PROV-O]}
+    experiment_traces: {score: 1}
+    negative_results_and_failed_replications: {score: 0}
+    incidents_and_postmortems: {score: 0}
+    retractions_and_corrections: {score: 0}
+
+  governance_controls:
+    provenance: {score: 3, target: [PROV-O, OpenLineage, AiiDA, nanopublications]}
+    temporal_validity: {score: 3, target: [temporal-KG, event-history]}
+    contradiction_tracking: {score: 2, target: [TMS, belief-revision, contradiction-corpora]}
+    uncertainty_and_calibration: {score: 1, target: [claim-confidence, calibration-benchmarks]}
+    permissions_and_access_control: {score: 1, target: [write-policy, role-policy, capability-boundaries]}
+    evaluator_independence: {score: 2, target: [multiple-evaluators, hidden-tests, human-audit]}
+    replication: {score: 3, target: [PaperBench, independent-runs]}
+    rollback: {score: 1, target: [versioned-knowledge, reversible-promotion]}
+    goal_and_policy_stability: {score: 3, target: [self-modification-theory]}
+    license_and_usage_rights: {score: 2, target: [SPDX, source-snapshot, terms-check]}
+
+coverage_rules:
+  paper_only_is_not_full_coverage: true
+  implementation_only_is_not_conceptual_coverage: true
+  blog_only_is_not_primary_evidence: true
+  generated_output_is_not_verified_knowledge: true
+  latest_version_must_not_replace_lineage: true
+  source_available_must_not_be_labeled_open_source_without_license_evidence: true
+  deprecated_or_retracted_items_remain_in_lineage: true
+
+priority_gaps:
+  P0:
+    - rollback_and_retraction
+    - datasets_and_benchmark_versions
+    - negative_results_and_failed_replications
+    - uncertainty_and_calibration
+    - permissions_and_access_control
+  P1:
+    - scientific_world_models
+    - organization_and_multi-agent_population_evolution
+    - physical experiment traces
+    - causal discovery
+    - formal verification
+  P2:
+    - institutional peer review and consensus formation
+    - economic incentives and scientific governance
+    - production incidents involving self-updating systems
+
+scheduled_review:
+  cadence: monthly
+  checks:
+    - canonical source resolves
+    - metadata schema passes
+    - license and archive status unchanged
+    - latest paper version recorded without deleting older lineage
+    - code repository head and release snapshot recorded
+    - paper-code-dataset-benchmark links are reciprocal
+    - coverage score changes have evidence
