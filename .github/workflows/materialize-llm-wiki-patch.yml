@@ -1,0 +1,40 @@
+name: Materialize LLM Wiki patch
+
+on:
+  push:
+    paths:
+      - 'bootstrap/llmwiki-patch.part*.b64'
+      - '.github/workflows/materialize-llm-wiki-patch.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  materialize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Verify and extract patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat bootstrap/llmwiki-patch.part*.b64 > /tmp/llmwiki-patch.b64
+          echo '6ef631349717eef42e13f37882a13b273ed4e7447c7c9a4322a3bfe6c71f1c3b  /tmp/llmwiki-patch.b64' | sha256sum -c -
+          base64 --decode /tmp/llmwiki-patch.b64 > /tmp/llmwiki-patch.tar.bz2
+          echo 'b969bcd863a81c4572c3d06226ffa7a78420aa60eaf30b2b33eecee8f9f3b9cc  /tmp/llmwiki-patch.tar.bz2' | sha256sum -c -
+          tar -xjf /tmp/llmwiki-patch.tar.bz2 -C .
+      - name: Commit materialized files
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add docs raw_data scripts
+          if git diff --cached --quiet; then
+            echo 'Patch is already materialized.'
+            exit 0
+          fi
+          git commit -m 'Add LLM Wiki collection and documentation'
+          git push origin HEAD:main
