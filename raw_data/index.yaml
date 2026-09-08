@@ -1,4 +1,4 @@
-index_version: 1
+index_version: 2
 updated_at: '2026-09-09'
 repository: thsno02/solid-octo-couscous
 
@@ -10,24 +10,52 @@ base_manifest:
 additive_manifests:
   - path: manifests/coverage_backfill_2026-09-09.yaml
     role: 'Coverage remediation batch: foundations, standards and GitHub infrastructure.'
+  - path: manifests/ontology_backfill_2026-09-09.yaml
+    role: 'Ontology, schema, mapping, operational-semantic and knowledge-governance backfill.'
 
 collections:
   - {path: collections/auto_research.yaml, scope: automated-research}
   - {path: collections/github_projects.yaml, scope: github-projects, version: 2}
-  - {path: collections/coverage_matrix.yaml, scope: coverage-audit}
+  - {path: collections/coverage_matrix.yaml, scope: general-coverage-audit}
   - {path: collections/backfill_plan.yaml, scope: staged-backfill}
+  - {path: collections/ontology_knowledge_architecture.yaml, scope: ontology-and-executable-knowledge-model, version: 1}
+  - {path: collections/ontology_projects.yaml, scope: ontology-and-semantic-tooling, version: 1}
+  - {path: collections/ontology_coverage_matrix.yaml, scope: ontology-coverage-audit, version: 1}
 
 audits:
   - path: audits/coverage_audit_2026-09-09.yaml
     status: current
+  - path: audits/ontology_knowledge_gap_2026-09-09.yaml
+    status: current
 
 schemas:
   - path: schemas/item.schema.yaml
-    applies_to: 'new and migrated metadata records'
+    applies_to: 'source metadata records'
+  - path: schemas/knowledge_model.schema.yaml
+    applies_to: 'semantic, epistemic, operational and lifecycle knowledge objects'
+
+guides:
+  - path: ontology/README.md
+    scope: 'ontology terminology, Palantir interpretation, reference stack and governance rules'
 
 quarantine:
   - path: quarantine/unverified_items.yaml
     promotion_blocking: true
+
+source_directories:
+  - arxiv
+  - biorxiv
+  - journal
+  - paper
+  - standard
+  - methodology
+  - industry
+  - blog
+  - githubs
+  - dataset
+  - benchmark
+  - incident
+  - x
 
 consumer_rules:
   - 'Load the base manifest and every additive manifest; deduplicate by canonical_id.'
@@ -36,3 +64,9 @@ consumer_rules:
   - 'Prefer canonical_id and uid over folder names or titles.'
   - 'Treat partially_verified records as discovery metadata, not final trusted knowledge.'
   - 'Do not infer open-source status when license verification is pending.'
+  - 'Do not collapse taxonomy, vocabulary, ontology, schema, shape, semantic layer, data contract and operational ontology.'
+  - 'Declare open-world, closed-world or local-closed-world assumptions for every reasoning and validation pipeline.'
+  - 'Treat mappings and source bindings as versioned evidence-bearing objects.'
+  - 'Distinguish observation, assertion, inference, prediction, decision and action.'
+  - 'Every breaking semantic change requires compatibility assessment, migration, impact analysis and rollback.'
+  - 'Schema/SHACL conformance, source authenticity and factual truth are separate checks.'
