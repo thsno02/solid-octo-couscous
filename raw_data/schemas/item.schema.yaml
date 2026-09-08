@@ -152,7 +152,7 @@ properties:
     properties:
       level:
         type: string
-        enum: [conceptual, simulation, benchmark, reproduced, field_deployed, independently_replicated, unknown]
+        enum: [conceptual, simulation, benchmark, reproduced, author_reproduced, field_deployed, independently_replicated, unknown]
       replication_status:
         type: string
         enum: [not_applicable, not_checked, author_reproduced, independently_reproduced, failed_replication, mixed]
@@ -163,9 +163,17 @@ properties:
   governance:
     type: object
     properties:
-      provenance_preserved: {type: boolean}
-      reversible: {type: boolean}
-      evaluator_independence: {type: string, enum: [unknown, same_system, related_system, independent, mixed]}
+      provenance_preserved:
+        oneOf:
+          - {type: boolean}
+          - {type: string, enum: ['yes', 'no', partial, unknown, not_applicable]}
+      reversible:
+        oneOf:
+          - {type: boolean}
+          - {type: string, enum: ['yes', 'no', partial, mixed, conceptual, unknown, not_applicable]}
+      evaluator_independence:
+        type: string
+        enum: [unknown, same_system, related_system, independent, mixed, not_applicable]
       risks:
         type: array
         items: {type: string}
@@ -212,3 +220,10 @@ migration_policy:
   ontology_records: >-
     Every ontology/schema record should declare model kind, world assumption, constraint and
     inference capabilities, version, mappings and migration policy when known.
+  graded_governance_fields: >-
+    During migration, provenance_preserved and reversible accept graded legacy states such as
+    partial, mixed and conceptual. New records should prefer explicit booleans plus explanatory
+    notes or a future structured assessment object.
+  deprecated_legacy_value: >-
+    evidence.level=author_reproduced remains accepted for backward compatibility, but new records
+    should use evidence.level=reproduced and replication_status=author_reproduced.
