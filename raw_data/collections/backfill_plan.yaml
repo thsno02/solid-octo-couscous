@@ -1,0 +1,189 @@
+collection: coverage-backfill-plan
+version: 1
+created_at: '2026-09-09'
+objective: >-
+  Close structural gaps before increasing volume. The plan prioritizes foundations and validation
+  that change how the corpus is interpreted, then implementations and datasets, and only then
+  broad discovery.
+
+phases:
+  - id: P0-A
+    name: canonical_validation
+    status: started
+    tasks:
+      - resolve every DOI, arXiv id and repository full name against its canonical primary source
+      - add verification state and checked_at
+      - detect aliases, forks, duplicates, withdrawn and retracted records
+      - separate open-source, source-available and metadata-only items
+    outputs:
+      - raw_data/audits/coverage_audit_2026-09-09.yaml
+      - raw_data/schemas/item.schema.yaml
+      - raw_data/quarantine/unverified_items.yaml
+    exit_criteria:
+      - '100% P0 records have canonical id and verification state'
+      - '0 unresolved canonical duplicates in the trusted index'
+
+  - id: P0-B
+    name: missing_foundations
+    status: executed_seed
+    tracks:
+      continual_learning:
+        seeds:
+          - Overcoming catastrophic forgetting in neural networks
+          - Progressive Neural Networks
+          - Gradient Episodic Memory for Continual Learning
+          - Avalanche
+      belief_revision_and_truth_maintenance:
+        seeds:
+          - A Truth Maintenance System
+          - On the Logic of Theory Change
+      temporal_knowledge:
+        seeds:
+          - Know-Evolve
+          - DyRep
+          - RE-NET
+      open_ended_evolution:
+        seeds:
+          - Abandoning Objectives
+          - QDax
+          - pyribs
+      provenance:
+        seeds:
+          - PROV-O
+          - OpenLineage
+          - AiiDA
+          - DVC
+          - lakeFS
+    exit_criteria:
+      - 'each track has at least two primary conceptual sources'
+      - 'each engineering-relevant track has at least one maintained implementation'
+
+  - id: P0-C
+    name: paper_code_dataset_benchmark_linkage
+    status: started
+    tasks:
+      - create reciprocal paper-to-code links
+      - identify exact benchmark and dataset versions used by reported claims
+      - record commit, release or environment snapshot for reproduced results
+      - distinguish method repository from unofficial reproduction or wrapper
+    exit_criteria:
+      - '>=90% of implemented P0 methods have a canonical repository link'
+      - 'all benchmark claims identify benchmark version and evaluation protocol'
+
+  - id: P0-D
+    name: full_text_materialization
+    status: blocked_on_binary_downloader
+    tasks:
+      - download arXiv source bundle when available
+      - preserve all TeX, bibliography, figures and source manifest
+      - compute SHA-256 and record arXiv version
+      - fall back to PDF only when source is unavailable
+      - retain license and retrieval evidence
+    exit_criteria:
+      - '100% P0 papers have locally materialized primary text where legally and technically available'
+
+  - id: P1-A
+    name: datasets_benchmarks_and_failures
+    status: planned
+    tracks:
+      temporal_knowledge:
+        - ICEWS
+        - GDELT
+        - YAGO temporal variants
+        - temporal link-prediction benchmarks
+      freshness_and_staleness:
+        - time-sensitive QA
+        - knowledge-conflict datasets
+        - update and rollback tests
+      research_agents:
+        - exact MLE-bench tasks
+        - PaperBench replications
+        - MLGym environments
+        - scientific-discovery environments
+      negative_evidence:
+        - failed replications
+        - retractions and corrections
+        - benchmark leakage
+        - reward and evaluator hacking
+    exit_criteria:
+      - 'datasets, benchmarks and negative evidence are first-class source types'
+
+  - id: P1-B
+    name: self_driving_labs_and_formal_science
+    status: started
+    tracks:
+      laboratory_orchestration:
+        - Bluesky
+        - AiiDA
+        - atomate2
+      closed_loop_optimization:
+        - Bayesian optimization systems
+        - experiment schedulers
+        - robotic lab interfaces
+      formal_research:
+        - LeanDojo
+        - theorem proving benchmarks
+        - machine-verifiable mathematical discovery
+      causal_science:
+        - causal discovery agents
+        - simulation intervention loops
+    exit_criteria:
+      - 'at least three domains include real or high-fidelity closed-loop experiment traces'
+
+  - id: P1-C
+    name: knowledge_governance
+    status: planned
+    tasks:
+      - formalize claim, evidence, contradiction, version and lineage entities
+      - define write, merge, supersede, retract and rollback permissions
+      - require independent evaluation for promotion into trusted knowledge
+      - detect circular self-evaluation and lineage contamination
+      - keep rejected and negative results searchable
+    exit_criteria:
+      - 'every promoted claim has provenance, confidence, temporal validity and rollback path'
+
+  - id: P2-A
+    name: institutional_evolution
+    status: planned
+    tracks:
+      - peer review and reviewer calibration
+      - scientific consensus and controversy
+      - multi-lab coordination and competition
+      - incentives, publication bias and Goodhart effects
+      - standards, patents and production postmortems
+
+scheduled_collection:
+  daily:
+    - GitHub repository state and release deltas for P0 projects
+  weekly:
+    - arXiv and bioRxiv topic queries
+    - official lab publications and release notes
+    - benchmark and dataset release changes
+  monthly:
+    - coverage matrix review
+    - license and archive-state refresh
+    - duplicate and alias audit
+    - citation and paper-code linkage repair
+  quarterly:
+    - foundational backfill review
+    - governance and negative-result review
+    - remove low-value noise from active priority without deleting lineage
+
+deduplication_keys:
+  arxiv: canonical_id
+  doi: lowercase_doi
+  github: lowercase_owner_repo_after_redirect_resolution
+  standard: issuing_body_plus_standard_id
+  dataset: registry_id_plus_version
+  fallback: normalized_title_plus_first_author_plus_year
+
+promotion_pipeline:
+  - discovered
+  - canonicalized
+  - metadata_validated
+  - primary_source_acquired
+  - linked
+  - evidence_assessed
+  - independently_checked
+  - trusted_or_watchlisted
+  - superseded_or_retracted
