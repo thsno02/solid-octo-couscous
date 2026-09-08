@@ -1,0 +1,52 @@
+validation_id: llm-wiki-validation-2026-09-09
+created_at: '2026-09-09'
+repository: thsno02/solid-octo-couscous
+subject_commit: f169dcf66160a49e428b78dc920d85ef5cd9059e
+workflow: '.github/workflows/validate-raw-data.yml'
+workflow_run_id: 34261660236
+status: passed
+
+raw_collection:
+  yaml_files: 241
+  metadata_schema_migrated: 98
+  metadata_legacy_pending_migration: 117
+  migration_warnings: 117
+  blocking_errors: 0
+  canonical_id_duplicate_errors: 0
+  broken_index_or_manifest_references: 0
+
+documentation:
+  markdown_files: 28
+  yaml_examples: 3
+  relative_links_checked: 30
+  blocking_errors: 0
+
+batch_inventory:
+  llm_wiki_source_records: 27
+  papers_and_preprints: 11
+  methodology_and_governance_records: 4
+  github_project_records: 12
+  top_level_docs_files: 31
+  wiki_schemas: 2
+
+validated_contracts:
+  - raw source metadata and additive manifests are parseable
+  - migrated metadata records conform to the source-item schema
+  - canonical identifiers are unique across migrated records
+  - index and manifest references resolve
+  - LLM Wiki documentation navigation and relative links resolve
+  - YAML examples in the documentation parse
+  - wiki page and wiki change schemas parse and are indexed
+
+remaining_nonblocking_work:
+  - migrate 117 legacy source records to the common metadata schema
+  - materialize and hash legally available primary-source content
+  - add executable fixtures for claims, pages, changes, retractions and entity merges
+  - implement claim-level source-selector validation
+  - benchmark source removal, retraction propagation and dependency-aware recompilation
+  - add security tests for adversarial sources and prompt injection
+
+interpretation: >-
+  Passing this validation proves structural and referential integrity of the current collection and
+  documentation. It does not prove that every research claim is true, that every partially verified
+  source is fully resolved, or that the proposed LLM Wiki pipeline has already been implemented.
