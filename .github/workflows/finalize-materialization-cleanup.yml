@@ -1,0 +1,696 @@
+name: Finalize materialization engineering
+
+on:
+  push:
+    paths:
+      - '.github/workflows/finalize-materialization-cleanup.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: finalize-materialization-engineering
+  cancel-in-progress: false
+
+jobs:
+  finalize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install validators
+        run: |
+          python -m pip install --disable-pip-version-check PyYAML jsonschema
+          if [ -f requirements-materialization.txt ]; then
+            python -m pip install --disable-pip-version-check -r requirements-materialization.txt
+          fi
+
+      - name: Write canonical engineering entry points
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          cat > Makefile <<'EOF'
+          .RECIPEPREFIX := >
+          PYTHON ?= python3
+          MATERIALIZATION_CONFIG ?= pipeline/materialization.yaml
+          ARXIV_WORKERS ?= 2
+          GITHUB_WORKERS ?= 3
+
+          .PHONY: materialize migrate-metadata materialize-sources register-materialization validate validate-raw validate-materialized validate-docs
+
+          migrate-metadata:
+          >$(PYTHON) scripts/preflight_legacy_metadata.py
+
+          materialize-sources:
+          >$(PYTHON) scripts/materialize_parallel_v2.py --config $(MATERIALIZATION_CONFIG) --arxiv-workers $(ARXIV_WORKERS) --github-workers $(GITHUB_WORKERS)
+
+          register-materialization:
+          >$(PYTHON) scripts/pin_materialized_selectors.py
+          >$(PYTHON) scripts/register_materialization.py
+          >$(PYTHON) scripts/archive_materialized_revisions.py
+          >$(PYTHON) scripts/sync_registry_jsonl.py
+
+          materialize: migrate-metadata materialize-sources register-materialization validate
+
+          validate: validate-raw validate-materialized validate-docs
+
+          validate-raw:
+          >$(PYTHON) scripts/validate_raw_data.py
+
+          validate-materialized:
+          >$(PYTHON) scripts/validate_materialized.py
+
+          validate-docs:
+          >$(PYTHON) scripts/validate_docs.py
+          EOF
+          sed -i 's/^          //' Makefile
+
+          mkdir -p pipeline docs/materialization
+
+          cat > pipeline/consumption_profiles.yaml <<'EOF'
+          consumption_contract_version: 1
+          updated_at: '2026-09-09'
+          purpose: >-
+            Define source-specific acquisition, semanticization, evidence and consumption paths.
+            A source is never considered consumable merely because its bytes or URL are available.
+
+          invariants:
+            - canonical identity and an explicit source revision precede semantic consumption
+            - immutable source evidence is separate from derived summaries, pages and indexes
+            - every promoted claim resolves to a source-native selector or an explicit derived activity
+            - source-specific adapters may emit a common claim model but must preserve source-native structure
+            - generated semantic artifacts are candidates until validation and admission complete
+            - removal, retraction and revision propagate through the dependency graph
+            - direct execution of acquired code is outside materialization and requires a separate sandbox policy
+
+          common_output_contract:
+            required:
+              - source_revision
+              - acquisition_manifest
+              - content_hashes
+              - evidence_inventory
+              - selector_manifest
+              - parsing_or_semanticization_report
+              - dependency_edges
+              - rights_and_access_state
+            optional:
+              - normalized_primary_text
+              - candidate_claims
+              - candidate_wiki_pages
+              - typed_entity_and_relation_proposals
+              - executable_fixtures
+
+          source_families:
+            arxiv_tex:
+              source_types: [arxiv]
+              canonical_identity: arxiv_id
+              preferred_acquisition: arxiv_source_archive
+              fallback_acquisition: versioned_pdf
+              semanticization:
+                - unpack_text_safe_archive
+                - inventory_files_and_hashes
+                - detect_root_tex_and_include_graph
+                - preserve_bibliography_tables_figures_and_labels
+                - generate_stable_line_or_block_selectors
+              primary_consumers:
+                - atomic_claim_extractor
+                - citation_and_evidence_binder
+                - paper_structure_analyzer
+                - llm_wiki_compiler
+              output_profile: tex_source_capsule
+              prohibited_shortcuts:
+                - prefer_pdf_text_when_a_valid_tex_bundle_is_available
+                - discard_source_revision_or_archive_hash
+                - cite_a_generated_summary_as_primary_evidence
+
+            github_repository:
+              source_types: [github]
+              canonical_identity: canonical_owner_repo
+              revision_identity: commit_sha
+              direct_consumption: forbidden
+              reason: >-
+                A repository is a heterogeneous executable artifact rather than one document. Its default
+                branch is mutable, directory layout is not semantics, and README claims do not prove runtime behavior.
+              semanticization:
+                - freeze_commit_and_repository_metadata
+                - inventory_tree_paths_object_ids_sizes_and_languages
+                - classify_docs_code_tests_schemas_configs_workflows_and_examples
+                - select_high_value_files_under_a_budget
+                - create_hash-addressed_evidence_excerpts
+                - derive_architecture_interfaces_operations_and_risk_pages
+                - preserve_file_path_line_or_symbol_selectors
+                - keep_generated_repo_wiki_in_review_state
+              primary_consumers:
+                - repo_wiki_compiler
+                - implementation_mechanism_extractor
+                - paper_code_linker
+                - architecture_comparison_builder
+                - claim_extractor_over_selected_evidence
+              output_profile: commit_pinned_semantic_capsule
+              separate_execution_lane:
+                required_for: [running_code, tests, builds, benchmarks, dependency_resolution]
+                controls: [sandbox, resource_limits, network_policy, dependency_lock, secret_isolation, execution_trace]
+              prohibited_shortcuts:
+                - ingest_the_whole_repository_as_one_prompt
+                - treat_the_readme_as_complete_or_independent_evidence
+                - cite_an_unpinned_default_branch
+                - infer_license_or_behavior_from_popularity
+
+            journal_or_pdf:
+              source_types: [journal, conference, paper]
+              canonical_identity: doi_or_publisher_identifier
+              preferred_acquisition: publisher_or_author_version_allowed_by_rights
+              semanticization:
+                - recover_layout_sections_tables_figures_citations_and_footnotes
+                - record_ocr_or_extraction_loss
+                - generate_page_region_and_text_span_selectors
+                - bind_corrections_retractions_and_supplements
+              primary_consumers: [claim_extractor, evidence_binder, llm_wiki_compiler]
+              output_profile: structured_document_capsule
+
+            web_article_or_blog:
+              source_types: [blog, industry_doc, methodology]
+              canonical_identity: canonical_url_plus_publisher
+              semanticization:
+                - snapshot_allowed_content_or_metadata
+                - recover_article_structure_author_and_publication_state
+                - strip_navigation_without_losing_context
+                - generate_heading_and_text_span_selectors
+              primary_consumers: [viewpoint_extractor, claim_extractor, llm_wiki_compiler]
+              output_profile: versioned_web_article_capsule
+              trust_note: author_or_lab_viewpoint_is_not_independent_empirical_confirmation
+
+            social_post_or_thread:
+              source_types: [x]
+              canonical_identity: platform_post_or_thread_id
+              semanticization:
+                - preserve_thread_order_author_timestamp_and_referenced_links
+                - distinguish_original_post_quote_reply_and_repost
+                - snapshot_public_context_where_allowed
+              primary_consumers: [viewpoint_and_lead_extractor, discovery_queue]
+              output_profile: contextual_thread_capsule
+              default_admission: low_trust_discovery_only
+
+            standard_or_ontology:
+              source_types: [standard, ontology]
+              canonical_identity: standard_or_namespace_identifier
+              revision_identity: normative_version_or_dated_snapshot
+              semanticization:
+                - distinguish_normative_and_informative_sections
+                - preserve_machine_readable_artifacts_and_import_graph
+                - run_syntax_consistency_and_shape_validation_where_applicable
+                - generate_term_axiom_section_and_triple_selectors
+              primary_consumers: [schema_registry, ontology_mapper, conformance_engine, policy_compiler]
+              output_profile: normative_semantic_capsule
+
+            dataset:
+              source_types: [dataset]
+              canonical_identity: dataset_id
+              revision_identity: release_version_plus_checksums
+              semanticization:
+                - preserve_card_schema_splits_licenses_checksums_and_lineage
+                - profile_grain_missingness_duplicates_and_known_biases
+              primary_consumers: [benchmark_runner, evidence_analysis, research_agent]
+              output_profile: versioned_dataset_capsule
+
+            benchmark:
+              source_types: [benchmark]
+              canonical_identity: benchmark_id
+              revision_identity: task_dataset_evaluator_and_protocol_versions
+              semanticization:
+                - freeze_instances_scoring_code_and_environment
+                - separate_metric_definition_from_reported_result
+                - record_leakage_and_contamination_risks
+              primary_consumers: [evaluation_runner, admission_policy, trend_analyzer]
+              output_profile: executable_evaluation_capsule
+
+            incident_retraction_or_correction:
+              source_types: [incident, retraction]
+              canonical_identity: issuer_event_or_notice_identifier
+              semanticization:
+                - preserve_notice_event_timeline_scope_and_authority
+                - resolve_affected_sources_claims_pages_and_consumers
+                - emit_downgrade_retraction_or_rebuild_proposals
+              primary_consumers: [dependency_propagator, governance_agent, wiki_repair_pipeline]
+              output_profile: change_and_risk_capsule
+
+          admission_boundary:
+            acquired: bytes_or_metadata_frozen
+            materialized: source_specific_capsule_and_selectors_validate
+            candidate_knowledge: extracted_claims_and_generated_pages_await_review
+            trusted_knowledge: evidence_policy_and_review_requirements_pass
+          EOF
+          sed -i 's/^          //' pipeline/consumption_profiles.yaml
+
+          cat > docs/materialization/README.md <<'EOF'
+          # Source Materialization and Consumption
+
+          This directory defines how heterogeneous sources become reproducible evidence capsules before any LLM Wiki or agent consumes them.
+
+          The governing rule is:
+
+          > Availability is not consumability. Every source family requires a source-native adapter before it can enter the common claim and wiki layers.
+
+          ## Read in this order
+
+          1. [Source-specific adapters](01-source-specific-adapters.md)
+          2. [GitHub semantic capsules](02-github-semantic-capsules.md)
+          3. [arXiv TeX capsules](03-arxiv-tex-capsules.md)
+          4. [Operations and reproducibility](04-operations-and-reproducibility.md)
+          5. [Current materialization batch](05-current-batch.md)
+
+          ## Machine-readable contracts
+
+          - `pipeline/materialization.yaml` selects the current batch.
+          - `pipeline/consumption_profiles.yaml` defines the source adapter contract.
+          - `source_registry/registry.yaml` and `registry.jsonl` index source identities and revisions.
+          - `materialized_sources/index.yaml` indexes current and immutable source capsules.
+          - `raw_data/audits/materialization_validation_2026-09-09.yaml` records validation evidence.
+
+          ## Layer boundary
+
+          ```text
+          raw_data metadata and acquisition intent
+                       ↓
+          source registry and frozen source revision
+                       ↓
+          source-specific semantic/evidence capsule
+                       ↓
+          claim, identity, ontology and contradiction layer
+                       ↓
+          candidate LLM Wiki pages
+                       ↓
+          validation, review, admission and publication
+          ```
+
+          `materialized_sources/` may contain generated repo-wiki pages, but these remain candidate views. They are not trusted merely because materialization succeeded.
+          EOF
+          sed -i 's/^          //' docs/materialization/README.md
+
+          cat > docs/materialization/01-source-specific-adapters.md <<'EOF'
+          # Source-specific Adapters
+
+          A universal “convert everything to text and chunk it” step loses the structure needed for evidence, updates and governance. The common claim model begins only after source-native semanticization.
+
+          | Source family | Frozen revision | Materialized form | Primary consumer |
+          |---|---|---|---|
+          | arXiv | arXiv version and archive hash | TeX tree, include graph, bibliography, selectors | paper claim extractor and wiki compiler |
+          | GitHub | canonical repository and commit SHA | tree inventory, selected excerpts, architecture/interface repo wiki | repo-wiki and implementation analyzers |
+          | Journal/PDF | DOI/publisher version and content hash | structured document tree, page/region selectors | claim and evidence extraction |
+          | Web/blog | canonical URL and dated snapshot | article structure, text selectors, publisher context | viewpoint and claim extraction |
+          | Social/thread | post/thread IDs and timestamps | ordered contextual thread | discovery and viewpoint queue |
+          | Standard/ontology | normative revision | machine artifacts, imports, axioms and normative selectors | schema, mapping and conformance tools |
+          | Dataset | release and checksums | card, schema, splits, profiles and lineage | experiment and benchmark runners |
+          | Benchmark | exact instances, evaluator and protocol | executable evaluation capsule | evaluation and admission gates |
+          | Incident/retraction | authoritative notice/event revision | affected dependency set and change proposal | downgrade, repair and rollback pipeline |
+
+          ## Shared output
+
+          Every adapter should emit:
+
+          - source and revision identity;
+          - acquisition and rights record;
+          - hashes;
+          - evidence inventory;
+          - stable selectors;
+          - parser or semanticization report;
+          - dependency edges;
+          - explicit partial/failure state.
+
+          ## Common model, source-native evidence
+
+          Claims may converge on one schema, but evidence selectors remain source-native:
+
+          ```text
+          TeX source path + line/block
+          repository commit + file + line/symbol
+          PDF page + region
+          HTML snapshot + heading/text span
+          dataset release + row/column/split
+          benchmark version + task instance + evaluator
+          ```
+
+          Flattening these into an anonymous chunk ID would make revision propagation, reproduction and audit unreliable.
+          EOF
+          sed -i 's/^          //' docs/materialization/01-source-specific-adapters.md
+
+          cat > docs/materialization/02-github-semantic-capsules.md <<'EOF'
+          # GitHub Semantic Capsules
+
+          A GitHub repository cannot be consumed as if it were a paper. It is a mutable, heterogeneous and potentially executable artifact containing code, tests, schemas, workflows, docs, examples and generated files.
+
+          ## Required identity
+
+          ```text
+          canonical owner/repository
+          + commit SHA
+          + tree and selected object IDs
+          + license and acquisition timestamp
+          ```
+
+          A default branch name is not a stable evidence reference.
+
+          ## Semanticization pipeline
+
+          ```text
+          repository metadata
+          → commit freeze
+          → tree inventory
+          → file-role classification
+          → budgeted high-value selection
+          → hash-addressed excerpts
+          → architecture/interface/operation synthesis
+          → candidate repo wiki
+          → evidence and link validation
+          ```
+
+          The current capsule layout is:
+
+          ```text
+          materialized_sources/github/<owner>--<repo>/
+          ├── manifest.yaml
+          ├── evidence/
+          │   ├── files.jsonl
+          │   ├── excerpts.jsonl
+          │   └── excerpts/*.txt
+          └── wiki/
+              ├── index.md
+              ├── overview.md
+              ├── architecture.md
+              └── interfaces-and-operations.md
+          ```
+
+          Immutable copies are addressed under `materialized_sources/snapshots/github/.../<commit>/`.
+
+          ## What may become knowledge
+
+          A repository can support claims about:
+
+          - declared purpose and scope;
+          - architecture visible in code/config/schema boundaries;
+          - exposed interfaces and commands;
+          - implemented algorithms and mechanisms;
+          - tests and evaluation fixtures;
+          - release, license and dependency state.
+
+          It does not automatically prove:
+
+          - performance claims in its README;
+          - production reliability;
+          - security;
+          - paper reproducibility;
+          - behavior of an unexecuted code path.
+
+          Execution belongs to a separate sandboxed lane with pinned dependencies, resource and network policy, secret isolation, and a full execution trace.
+
+          ## Repo wiki admission
+
+          Generated repo-wiki pages remain `review` artifacts. Factual statements should resolve to commit-pinned file selectors. README-derived claims must be labeled as maintainer assertions unless independently verified in code, tests or external evidence.
+          EOF
+          sed -i 's/^          //' docs/materialization/02-github-semantic-capsules.md
+
+          cat > docs/materialization/03-arxiv-tex-capsules.md <<'EOF'
+          # arXiv TeX Capsules
+
+          arXiv source archives are preferred over PDF extraction when a usable TeX bundle exists. TeX preserves document structure, labels, citations, equations, tables and include relationships that are often damaged by PDF text extraction.
+
+          ## Pipeline
+
+          ```text
+          arXiv work identity
+          → selected revision
+          → `/src/<id>` archive
+          → archive hash
+          → safe text extraction
+          → file inventory and hashes
+          → root-TeX/include detection
+          → stable selectors
+          → normalized primary text and source map
+          ```
+
+          Expected capsule:
+
+          ```text
+          materialized_sources/arxiv/<normalized-id>/
+          ├── manifest.yaml
+          ├── SOURCE_MAP.md
+          ├── source/
+          ├── normalized/main.tex
+          ├── files.jsonl
+          └── selectors.jsonl
+          ```
+
+          Immutable snapshots are addressed by archive SHA-256 under `materialized_sources/snapshots/arxiv/`.
+
+          ## Partial materialization
+
+          A legacy or unusual archive can be usable even when automatic root-file detection fails. Such a capsule remains `partial`, preserves every safely extracted source file and hash, and records the unresolved normalization step. It must not silently fall back to pretending that a lossy PDF parse is equivalent.
+
+          ## Citation binding
+
+          Claims should cite source path plus a stable block/line selector. The selector manifest must be regenerated when the selected arXiv revision changes, while older selectors remain resolvable through immutable snapshots.
+          EOF
+          sed -i 's/^          //' docs/materialization/03-arxiv-tex-capsules.md
+
+          cat > docs/materialization/04-operations-and-reproducibility.md <<'EOF'
+          # Operations and Reproducibility
+
+          ## Local commands
+
+          ```bash
+          make materialize
+          make validate
+          make validate-raw
+          make validate-materialized
+          make validate-docs
+          ```
+
+          `make materialize` performs:
+
+          1. legacy metadata normalization and migration;
+          2. parallel arXiv and GitHub materialization;
+          3. selector pinning;
+          4. registry and materialized index generation;
+          5. immutable snapshot archival;
+          6. registry JSONL synchronization;
+          7. raw, materialized and documentation validation.
+
+          Worker counts are configurable:
+
+          ```bash
+          make materialize ARXIV_WORKERS=2 GITHUB_WORKERS=3
+          ```
+
+          ## Automation
+
+          `.github/workflows/materialize-sources.yml` is the sole source-materialization workflow. It runs manually or on its declared schedule. It commits only changed, validated artifacts. The normal validation workflow checks every subsequent change to source metadata, registries, materialized capsules, pipeline configuration and docs.
+
+          ## Idempotence and lineage
+
+          - Identity is canonical source plus explicit revision.
+          - Hashes detect byte changes.
+          - Immutable snapshots retain prior revisions.
+          - Current indexes are rebuildable projections.
+          - A rerun with unchanged inputs should not create a semantically new revision.
+          - Generated timestamps alone must not be treated as knowledge changes.
+
+          ## Failure policy
+
+          - unresolved identity → quarantine;
+          - acquisition failure → retain last valid revision and emit freshness warning;
+          - parser loss → partial state with diagnostics;
+          - hash mismatch under an allegedly immutable revision → integrity incident;
+          - missing evidence selector → block claim promotion;
+          - failed validation → do not commit generated artifacts.
+          EOF
+          sed -i 's/^          //' docs/materialization/04-operations-and-reproducibility.md
+
+          cat > docs/materialization/05-current-batch.md <<'EOF'
+          # Current Materialization Batch
+
+          The first configured batch covers six arXiv works and six GitHub repositories selected across RSI, Auto Research, memory/knowledge evolution, ontology tooling and LLM Wiki implementations.
+
+          ## arXiv
+
+          - `cs/0309048` — Gödel Machines;
+          - `2505.22954` — Darwin Gödel Machine;
+          - `2408.06292` — AI Scientist;
+          - `2402.14207` — STORM;
+          - `2502.12110` — A-MEM;
+          - `2501.13956` — Zep temporal knowledge graph.
+
+          ## GitHub
+
+          - `jennyzzt/dgm`;
+          - `SakanaAI/AI-Scientist`;
+          - `getzep/graphiti`;
+          - `xoai/sage-wiki`;
+          - `linkml/linkml`;
+          - `VectifyAI/OpenKB`.
+
+          The authoritative result is `materialized_sources/index.yaml`, not this narrative list. At the 2026-09-09 validation snapshot, all twelve sources produced usable capsules: eleven were fully materialized and one legacy arXiv bundle remained partial because root-TeX normalization required additional handling. Partial does not mean missing; its safely extracted files, hashes and selectors are retained.
+
+          The batch is intentionally small. It is an engineering fixture for testing heterogeneous adapters, claim extraction, repo-wiki compilation and dependency-aware updates before the corpus is expanded.
+          EOF
+          sed -i 's/^          //' docs/materialization/05-current-batch.md
+
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('docs/README.md')
+          text = path.read_text(encoding='utf-8') if path.exists() else '# Documentation\n'
+          marker = '## Source materialization\n'
+          section = '''\n## Source materialization\n\n- [`materialization/README.md`](materialization/README.md) — source-specific adapters, GitHub semantic capsules, arXiv TeX capsules and reproducible operations.\n'''
+          if marker not in text:
+              text = text.rstrip() + '\n' + section
+          path.write_text(text, encoding='utf-8')
+          PY
+
+          cat > .github/workflows/materialize-sources.yml <<'EOF'
+          name: Materialize heterogeneous sources
+
+          on:
+            workflow_dispatch:
+            schedule:
+              - cron: '17 4 * * 1'
+
+          permissions:
+            contents: write
+
+          concurrency:
+            group: source-materialization
+            cancel-in-progress: false
+
+          jobs:
+            materialize:
+              runs-on: ubuntu-latest
+              timeout-minutes: 45
+              steps:
+                - uses: actions/checkout@v4
+                  with:
+                    fetch-depth: 0
+
+                - uses: actions/setup-python@v5
+                  with:
+                    python-version: '3.12'
+
+                - name: Install materialization dependencies
+                  run: |
+                    python -m pip install --disable-pip-version-check -r requirements-materialization.txt
+                    python -m pip install --disable-pip-version-check PyYAML jsonschema
+
+                - name: Materialize and validate
+                  run: make materialize
+
+                - name: Commit changed capsules
+                  shell: bash
+                  run: |
+                    set -euo pipefail
+                    if git diff --quiet && git diff --cached --quiet; then
+                      echo 'No materialization changes.'
+                      exit 0
+                    fi
+                    git config user.name 'github-actions[bot]'
+                    git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+                    git add raw_data source_registry materialized_sources pipeline
+                    if git diff --cached --quiet; then
+                      echo 'No tracked materialization changes.'
+                      exit 0
+                    fi
+                    git commit -m 'Refresh source materialization capsules'
+                    git pull --rebase origin main
+                    git push origin HEAD:main
+          EOF
+          sed -i 's/^          //' .github/workflows/materialize-sources.yml
+
+          cat > .github/workflows/validate-raw-data.yml <<'EOF'
+          name: Validate repository knowledge artifacts
+
+          on:
+            push:
+              paths:
+                - 'raw_data/**'
+                - 'source_registry/**'
+                - 'materialized_sources/**'
+                - 'pipeline/**'
+                - 'docs/**'
+                - 'scripts/**'
+                - 'Makefile'
+                - 'requirements-materialization.txt'
+                - '.github/workflows/validate-raw-data.yml'
+                - '.github/workflows/materialize-sources.yml'
+            pull_request:
+              paths:
+                - 'raw_data/**'
+                - 'source_registry/**'
+                - 'materialized_sources/**'
+                - 'pipeline/**'
+                - 'docs/**'
+                - 'scripts/**'
+                - 'Makefile'
+                - 'requirements-materialization.txt'
+                - '.github/workflows/validate-raw-data.yml'
+                - '.github/workflows/materialize-sources.yml'
+
+          permissions:
+            contents: read
+
+          concurrency:
+            group: validate-knowledge-${{ github.ref }}
+            cancel-in-progress: true
+
+          jobs:
+            validate:
+              runs-on: ubuntu-latest
+              steps:
+                - uses: actions/checkout@v4
+                - uses: actions/setup-python@v5
+                  with:
+                    python-version: '3.12'
+                - name: Install validators
+                  run: |
+                    python -m pip install --disable-pip-version-check PyYAML jsonschema
+                    if [ -f requirements-materialization.txt ]; then
+                      python -m pip install --disable-pip-version-check -r requirements-materialization.txt
+                    fi
+                - name: Validate raw collection
+                  run: python scripts/validate_raw_data.py
+                - name: Validate materialized sources
+                  run: python scripts/validate_materialized.py
+                - name: Validate documentation
+                  run: python scripts/validate_docs.py
+          EOF
+          sed -i 's/^          //' .github/workflows/validate-raw-data.yml
+
+          # Keep one canonical materialization workflow and remove all bootstrap/debug variants.
+          for f in .github/workflows/materialize-*.yml .github/workflows/materialize-*.yaml; do
+            [ -e "$f" ] || continue
+            [ "$f" = '.github/workflows/materialize-sources.yml' ] && continue
+            rm -f "$f"
+          done
+          rm -f .github/workflows/finalize-materialization-cleanup.yml
+
+      - name: Validate final repository state
+        run: make validate
+
+      - name: Commit finalization
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          if git diff --cached --quiet; then
+            echo 'No finalization changes.'
+            exit 0
+          fi
+          git commit -m 'Finalize source-specific materialization pipeline'
+          git pull --rebase origin main
+          git push origin HEAD:main
