@@ -1,0 +1,56 @@
+collection: modern-semantic-layer
+version: 1
+created_at: '2026-09-09'
+purpose: 'Track current semantic-layer specifications and their relation to ontology, data contracts and operational knowledge.'
+
+landscape:
+  formal_domain_semantics:
+    standards: [OWL-2, SKOS]
+    answers: [what-kinds-of-things-exist, what-relations-mean, what-follows-logically]
+  instance_validation:
+    standards: [SHACL, LinkML-generated-validation]
+    answers: [does-this-candidate-instance-conform-to-declared-rules]
+  physical_data_contract:
+    standards: [ODCS-3.2.0]
+    answers: [what-data-is-delivered, quality, owner, sla, terms]
+  analytics_semantic_model:
+    standards: [Apache-Ossie]
+    answers: [datasets, joins, dimensions, metrics, business-definitions, ai-context]
+  property_graph_access:
+    standards: [ISO-IEC-39075-2024-GQL, ISO-IEC-9075-16-2023-SQL-PGQ]
+    answers: [how-to-query-and-update-property-graphs]
+  operational_context:
+    standards: [NGSI-LD]
+    answers: [how-live-entities-properties-and-relationships-are-read-subscribed-and-updated]
+  operational_ontology:
+    examples: [Palantir-Foundry-Ontology, Microsoft-Fabric-Ontology-preview]
+    answers: [how-domain-objects-connect-to-live-data-actions-functions-security-and-applications]
+
+important_2026_change:
+  from: Open Semantic Interchange
+  to: Apache Ossie
+  status: Apache-Incubating
+  significance: >-
+    Business semantic models are becoming portable, version-controlled inputs for both BI and
+    AI agents. This fills a layer that OWL, SHACL and data contracts do not directly standardize.
+
+composition_rule: >-
+  Do not select one of these layers as the universal model. Compose them through stable identity,
+  explicit mappings, source bindings and generated-artifact lineage.
+
+minimum_cross_layer_links:
+  - ontology-concept-to-semantic-model-dataset-or-field
+  - semantic-metric-to-formula-unit-grain-and-owner
+  - data-contract-schema-to-semantic-field
+  - source-column-to-entity-property
+  - action-to-entity-types-preconditions-effects-and-policy
+  - graph-query-to-schema-version
+  - every-generated-model-to-source-model-version
+
+risks:
+  - metric-layer-called-ontology-without-formal-domain-semantics
+  - ontology-called-schema-without-instance-validation
+  - data-contract-treated-as-business-meaning
+  - graph-query-standard-treated-as-knowledge-model
+  - ai-context-generated-without-source-provenance
+  - vendor-model-lock-in-through-non-portable-action-and-policy-semantics
