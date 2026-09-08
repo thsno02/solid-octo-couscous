@@ -1,0 +1,301 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: https://github.com/thsno02/solid-octo-couscous/raw_data/schemas/wiki_page.schema.yaml
+title: LLM Wiki page
+description: A compiled, reviewable knowledge view. The page is derived from claims and sources and is not the authoritative
+  truth record.
+type: object
+additionalProperties: true
+required:
+- uid
+- title
+- slug
+- page_type
+- status
+- summary
+- claim_refs
+- source_refs
+- provenance
+- review
+- freshness
+properties:
+  uid:
+    type: string
+    pattern: '^wiki-page:'
+  title:
+    type: string
+    minLength: 1
+  slug:
+    type: string
+    pattern: ^[a-z0-9][a-z0-9._/-]*$
+  page_type:
+    type: string
+    enum:
+    - map
+    - overview
+    - concept
+    - entity
+    - method
+    - system
+    - comparison
+    - timeline
+    - debate
+    - evidence
+    - source
+    - research_question
+    - synthesis
+    - collection
+    - gap
+    - decision
+    - evaluation
+  status:
+    type: string
+    enum:
+    - draft
+    - review
+    - published
+    - stale
+    - deprecated
+    - quarantined
+  summary:
+    type: string
+    minLength: 1
+  aliases:
+    type: array
+    items:
+      type: string
+    default: []
+  ontology_refs:
+    type: array
+    items:
+      type: string
+    default: []
+  claim_refs:
+    type: array
+    items:
+      type: string
+    description: Atomic claim, observation, inference or prediction IDs used in the page.
+  source_refs:
+    type: array
+    items:
+      type: string
+    description: Canonical source IDs. A page source list does not replace claim-level evidence selectors.
+  page_refs:
+    type: array
+    items:
+      type: string
+    default: []
+  outgoing_links:
+    type: array
+    items:
+      type: object
+      required:
+      - target
+      - relation
+      properties:
+        target:
+          type: string
+        relation:
+          type: string
+          enum:
+          - explains
+          - compares_with
+          - depends_on
+          - contradicts
+          - extends
+          - implements
+          - evaluates
+          - evidenced_by
+          - supersedes
+          - part_of
+          - related
+        claim_refs:
+          type: array
+          items:
+            type: string
+        notes:
+          type:
+          - string
+          - 'null'
+  sections:
+    type: array
+    items:
+      type: object
+      required:
+      - heading
+      - claim_refs
+      properties:
+        heading:
+          type: string
+        claim_refs:
+          type: array
+          items:
+            type: string
+        source_refs:
+          type: array
+          items:
+            type: string
+        editorial_intent:
+          type:
+          - string
+          - 'null'
+  temporal:
+    type: object
+    properties:
+      created_at:
+        type: string
+      updated_at:
+        type: string
+      valid_from:
+        type:
+        - string
+        - 'null'
+      valid_to:
+        type:
+        - string
+        - 'null'
+      as_of:
+        type:
+        - string
+        - 'null'
+  provenance:
+    type: object
+    required:
+    - build_id
+    - compiled_from_revisions
+    - created_at
+    - updated_at
+    properties:
+      build_id:
+        type: string
+      generated_by_agent:
+        type:
+        - string
+        - 'null'
+      generated_by_model:
+        type:
+        - string
+        - 'null'
+      prompt_or_skill_version:
+        type:
+        - string
+        - 'null'
+      compiled_from_revisions:
+        type: array
+        items:
+          type: string
+      created_at:
+        type: string
+      updated_at:
+        type: string
+      manual_edits_preserved:
+        type: boolean
+  review:
+    type: object
+    required:
+    - state
+    - reviewers
+    properties:
+      state:
+        type: string
+        enum:
+        - not_reviewed
+        - automated_checks_only
+        - needs_human
+        - approved
+        - rejected
+      reviewers:
+        type: array
+        items:
+          type: string
+      decision_ref:
+        type:
+        - string
+        - 'null'
+      checked_claim_refs:
+        type: array
+        items:
+          type: string
+      unresolved_issues:
+        type: array
+        items:
+          type: string
+  freshness:
+    type: object
+    required:
+    - status
+    - checked_at
+    properties:
+      status:
+        type: string
+        enum:
+        - fresh
+        - stale
+        - unknown
+        - degraded
+      checked_at:
+        type: string
+      max_age_days:
+        type:
+        - integer
+        - 'null'
+        minimum: 0
+      source_dependencies:
+        type: array
+        items:
+          type: string
+      staleness_reasons:
+        type: array
+        items:
+          type: string
+  consumption:
+    type: object
+    properties:
+      audiences:
+        type: array
+        items:
+          type: string
+      summary_tiers:
+        type: object
+        properties:
+          one_line:
+            type:
+            - string
+            - 'null'
+          short:
+            type:
+            - string
+            - 'null'
+          full:
+            type:
+            - string
+            - 'null'
+      estimated_tokens:
+        type:
+        - integer
+        - 'null'
+        minimum: 0
+      machine_entry_points:
+        type: array
+        items:
+          type: string
+allOf:
+- if:
+    properties:
+      status:
+        const: published
+  then:
+    properties:
+      claim_refs:
+        minItems: 1
+      source_refs:
+        minItems: 1
+      review:
+        properties:
+          state:
+            enum:
+            - approved
+design_notes:
+- The Markdown body is a rendering; frontmatter and referenced claim objects carry machine-readable state.
+- Published pages must not be produced only from other wiki pages.
+- Page status and claim promotion state are intentionally separate.
+- A source reference at page level is not sufficient evidence for every sentence.

@@ -1,4 +1,5 @@
-index_version: 2
+
+index_version: 3
 updated_at: '2026-09-09'
 repository: thsno02/solid-octo-couscous
 
@@ -14,6 +15,8 @@ additive_manifests:
     role: 'Ontology, schema, mapping, operational-semantic and knowledge-governance backfill.'
   - path: manifests/modern_semantic_layer_extension_2026-09-09.yaml
     role: 'Apache Ossie and property-graph standards extension.'
+  - path: manifests/llm_wiki_backfill_2026-09-09.yaml
+    role: 'LLM Wiki, Wikipedia/Wikidata governance, long-form compilation, evaluation and implementations.'
 
 collections:
   - {path: collections/auto_research.yaml, scope: automated-research}
@@ -24,6 +27,7 @@ collections:
   - {path: collections/ontology_projects.yaml, scope: ontology-and-semantic-tooling, version: 2}
   - {path: collections/ontology_coverage_matrix.yaml, scope: ontology-coverage-audit, version: 1}
   - {path: collections/modern_semantic_layer.yaml, scope: current-semantic-layer-and-graph-standards, version: 1}
+  - {path: collections/llm_wiki.yaml, scope: compiled-wiki-and-editorial-governance, version: 1}
 
 audits:
   - path: audits/coverage_audit_2026-09-09.yaml
@@ -32,16 +36,28 @@ audits:
     status: current
   - path: audits/ontology_validation_snapshot_2026-09-09.yaml
     status: passed
+  - path: audits/llm_wiki_gap_2026-09-09.yaml
+    status: current
 
 schemas:
   - path: schemas/item.schema.yaml
     applies_to: 'source metadata records'
   - path: schemas/knowledge_model.schema.yaml
     applies_to: 'semantic, epistemic, operational and lifecycle knowledge objects'
+  - path: schemas/wiki_page.schema.yaml
+    applies_to: 'compiled wiki pages and their machine-readable frontmatter'
+  - path: schemas/wiki_change.schema.yaml
+    applies_to: 'proposed, validated, reviewed, merged or rolled-back wiki changes'
 
 guides:
   - path: ontology/README.md
     scope: 'ontology terminology, Palantir interpretation, reference stack and governance rules'
+
+documentation:
+  - repo_path: docs/260909-collection/README.md
+    scope: '2026-09-09 collection handoff for humans and agents'
+  - repo_path: docs/llm-wiki/README.md
+    scope: 'LLM Wiki construction, evaluation, admission, evolution and consumption'
 
 quarantine:
   - path: quarantine/unverified_items.yaml
@@ -75,3 +91,8 @@ consumer_rules:
   - 'Distinguish observation, assertion, inference, prediction, decision and action.'
   - 'Every breaking semantic change requires compatibility assessment, migration, impact analysis and rollback.'
   - 'Schema/SHACL conformance, source authenticity and factual truth are separate checks.'
+  - 'Treat wiki pages as compiled views over source and claim layers, never as sole truth records.'
+  - 'Generated wiki edits are proposals and require the declared validation and admission path.'
+  - 'Every promoted factual paragraph has source support; high-risk claims require atomic evidence selectors.'
+  - 'Do not use the wiki itself or a derivative mirror as independent corroboration.'
+  - 'Preserve conflicting claims, source removal, supersession, retraction and rollback lineage.'

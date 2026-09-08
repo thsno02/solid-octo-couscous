@@ -1,0 +1,65 @@
+audit_id: llm-wiki-gap-2026-09-09
+created_at: '2026-09-09'
+repository: thsno02/solid-octo-couscous
+assessment: usable_methodological_seed_with_implementation_plan
+question: Does the collection cover LLM Wiki as a knowledge organization, maintenance, governance, evolution and
+  consumption paradigm rather than merely a Markdown-generation technique?
+finding: Before this backfill, the repository contained adjacent material on STORM, provenance, ontology, memory
+  and knowledge editing, but no first-class LLM Wiki collection, page/change schemas, Wikipedia/Wikidata governance
+  lineage or repo-specific construction design.
+gaps_before:
+- no explicit distinction between source, atomic claim and wiki page
+- no compiled-wiki lifecycle or page admission states
+- no Wikipedia core-content-policy transfer
+- no Wikidata qualifier-reference-rank transfer
+- no page and change proposal schemas
+- no benchmark map for long-form article generation, factuality and citations
+- no dependency-aware source deletion, retraction and wiki rebuild design
+- no durable documentation for future human and agent maintainers
+execution_completed:
+  papers_added: 11
+  methodology_records_added: 4
+  github_records_added: 12
+  schemas_added:
+  - raw_data/schemas/wiki_page.schema.yaml
+  - raw_data/schemas/wiki_change.schema.yaml
+  collection_files:
+  - raw_data/collections/llm_wiki.yaml
+  - raw_data/manifests/llm_wiki_backfill_2026-09-09.yaml
+  documentation_suites:
+  - docs/260909-collection/
+  - docs/llm-wiki/
+architectural_decisions:
+- decision: wiki_is_a_derived_projection
+  rationale: Readable narrative pages optimize orientation and synthesis, but claim/evidence records retain epistemic
+    authority.
+- decision: proposal_review_merge
+  rationale: LLM changes must be reviewable diffs rather than direct destructive overwrites.
+- decision: claim_level_provenance
+  rationale: Page-level source lists are insufficient for contradiction, retraction and precise citation validation.
+- decision: separate_truth_verifiability_and_inclusion
+  rationale: A source can be authentic, a claim can be verifiable, and an article can still exclude it for scope,
+    balance or quality reasons.
+- decision: dual_human_agent_interfaces
+  rationale: Markdown pages support human browsing; IDs, schemas, indexes and context packs support agents.
+remaining_blockers_before_build:
+- 117 legacy metadata records still need migration to the common source schema
+- arXiv TeX/PDF bodies are still URL-only for most papers
+- claim and evidence instances have not yet been materialized
+- no gold evaluation set exists for this repository's wiki pages
+- no canonical entity-resolution registry exists yet
+next_steps:
+- implement deterministic source registry and checksum materialization
+- implement claim extraction and claim-evidence storage
+- generate candidate wiki pages from claim bundles
+- add structural, citation, contradiction and neutrality gates
+- publish a small P0 wiki and evaluate it against fixed questions
+- add scheduled lint and dependency-aware incremental rebuild
+acceptance_criteria:
+- every published page references claim and source IDs
+- every factual paragraph has supporting sources
+- high-risk claims have atomic evidence selectors
+- source updates identify affected claims and pages before writing
+- source deletion or retraction cannot leave silently unsupported trusted text
+- all generated changes are reproducible from a build manifest
+- review and rollback are tested, not only documented

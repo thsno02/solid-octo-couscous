@@ -1,0 +1,260 @@
+collection: llm-wiki
+version: 1
+created_at: '2026-09-09'
+status: active
+purpose: 'Track LLM-compiled wiki systems as a distinct knowledge-organization paradigm: raw sources are transformed
+  into persistent, cross-linked, reviewable knowledge artifacts that can be maintained, governed, evaluated and
+  consumed by humans and agents.'
+scope_definition:
+  included:
+  - compiled Markdown or semantic wikis maintained by LLM agents
+  - research-to-outline and research-to-article systems
+  - claim, citation, contradiction and factuality evaluation
+  - Wikipedia-style editorial governance and consensus
+  - Wikidata-style statement, qualifier, reference and rank models
+  - revision, discussion, rollback and source-lineage infrastructure
+  - agent and human consumption interfaces for compiled knowledge
+  excluded_or_adjacent:
+  - generic chat-with-documents without persistent knowledge compilation
+  - vector retrieval alone without an editable durable knowledge layer
+  - automatic documentation generators without evidence or maintenance semantics
+  - ordinary note-taking applications unless they expose agent-maintained compilation or governance
+central_thesis: An LLM wiki is a compiled and continuously maintained projection over source and claim layers. It
+  is not itself the sole source of truth. Pages optimize navigation and synthesis; atomic claims, evidence, identity,
+  ontology, time and change lineage carry epistemic authority.
+lineages:
+  compiled_wiki_pattern:
+    P0:
+    - methodology:andrej-karpathy-llm-wiki
+    concepts:
+    - immutable-raw-sources
+    - LLM-owned-derived-wiki
+    - schema-contract
+    - ingest-query-lint
+  research_and_outline_generation:
+    P0:
+    - arxiv:2402.14207
+    - arxiv:2408.15232
+    - arxiv:2402.18264
+    P1:
+    - arxiv:1801.10198
+    concepts:
+    - perspective-discovery
+    - outline-first-generation
+    - mind-map
+    - full-length-article
+  factuality_attribution_and_citations:
+    P0:
+    - arxiv:2305.14251
+    - arxiv:2305.14627
+    - arxiv:2210.08726
+    P1:
+    - arxiv:2305.14292
+    concepts:
+    - atomic-fact-evaluation
+    - citation-correctness
+    - citation-completeness
+    - research-and-revision
+  contradiction_and_maintenance:
+    P0:
+    - arxiv:2509.23233
+    - arxiv:2406.13805
+    watch:
+    - arxiv:2606.09877
+    concepts:
+    - corpus-level-inconsistency
+    - conflict-preservation
+    - streaming-freshness
+    - human-editor-review
+  editorial_governance:
+    P0:
+    - methodology:wikipedia-editorial-governance
+    - methodology:mediawiki-revision-discussion
+    concepts:
+    - verifiability
+    - no-original-research
+    - neutrality
+    - due-weight
+    - consensus
+    - revision-history
+    - talk-and-review
+    - rollback
+  statement_governance:
+    P0:
+    - methodology:wikidata-statement-model
+    concepts:
+    - statement
+    - qualifier
+    - reference
+    - rank
+    - unknown-value
+    - no-value
+reference_implementations:
+  compiled_wiki:
+    P0:
+    - ddsyasas/llm-wiki
+    - nashsu/llm_wiki
+    - xoai/sage-wiki
+    - VectifyAI/OpenKB
+    P1:
+    - stanford-oval/storm
+    P2:
+    - emakhov/llm-wiki-agent
+  wiki_and_statement_infrastructure:
+    P0:
+    - wikimedia/mediawiki
+    - wikimedia/mediawiki-extensions-Wikibase
+    P1:
+    - SemanticMediaWiki/SemanticMediaWiki
+  evaluation_and_repair:
+    P0:
+    - shmsw25/FActScore
+    - princeton-nlp/ALCE
+    - anthonywchen/RARR
+  landscape_watch:
+    P1:
+    - gavischneider/awesome-llm-wiki
+knowledge_objects:
+  source_layer:
+  - RawSource
+  - SourceRevision
+  - SourceSelector
+  - RightsRecord
+  claim_layer:
+  - Entity
+  - Claim
+  - Observation
+  - Inference
+  - Prediction
+  - Evidence
+  - Contradiction
+  - UncertaintyAssessment
+  - ValidityInterval
+  wiki_layer:
+  - WikiPage
+  - PageSection
+  - PageRevision
+  - TypedLink
+  - MapOfContent
+  - Index
+  - GapPage
+  - DebatePage
+  - EvaluationPage
+  governance_layer:
+  - WikiChange
+  - Review
+  - AdmissionDecision
+  - Supersession
+  - Retraction
+  - Rollback
+  consumption_layer:
+  - ContextPack
+  - QueryAnswer
+  - AgentSkill
+  - HumanReadingView
+lifecycle:
+- discover
+- acquire_and_freeze_source
+- parse
+- normalize
+- extract_atomic_claims
+- resolve_identity
+- map_to_ontology
+- detect_novelty_and_conflict
+- plan_pages_and_outline
+- compile_change_proposal
+- validate_structure_and_evidence
+- review_and_admit
+- merge_and_release
+- build_indexes_and_context_packs
+- consume
+- monitor_staleness
+- repair_supersede_retract_or_rollback
+admission_states:
+  claim:
+  - raw
+  - parsed
+  - candidate
+  - corroborated
+  - contested
+  - trusted
+  - superseded
+  - retracted
+  - quarantined
+  page:
+  - draft
+  - review
+  - published
+  - stale
+  - deprecated
+  - quarantined
+  change:
+  - proposed
+  - validated
+  - approved
+  - rejected
+  - merged
+  - rolled_back
+quality_dimensions:
+- source-coverage
+- claim-citation-completeness
+- citation-entailment
+- atomic-factual-precision
+- contradiction-recall-and-precision
+- outline-breadth-and-depth
+- neutrality-and-due-weight
+- page-coherence
+- redundancy
+- identity-resolution-error
+- orphan-and-broken-link-rate
+- freshness-and-staleness
+- query-utility
+- token-and-latency-cost
+- lineage-completeness
+- rollback-success
+non_negotiable_rules:
+- raw sources are immutable and separately versioned
+- wiki pages are derived projections, not authoritative truth records
+- generated edits are proposals; admission is a separate decision
+- every promoted factual claim has evidence and source lineage
+- paragraph-level citations are the minimum; high-risk claims require atomic claim links
+- a citation must support the wording and scope of the claim
+- the wiki must never cite itself or a derivative mirror as independent corroboration
+- conflicting claims remain representable and must not be silently averaged away
+- observation, assertion, inference and prediction remain distinct
+- source removal or retraction triggers dependency-aware recompilation
+- all page, claim and schema changes are reversible or explicitly marked irreversible
+- LLM-as-judge is not the sole promotion gate
+coverage_score:
+  compiled_wiki_pattern: 4
+  research_and_outline_generation: 4
+  citation_and_atomic_factuality: 4
+  editorial_governance: 4
+  statement_governance: 3
+  contradiction_and_repair: 3
+  page_and_change_schema: 3
+  production_scale_and_incremental_build: 2
+  neutrality_and_consensus_evaluation: 2
+  multi-agent_concurrent_editing: 1
+  retraction_and_source-deletion_propagation: 1
+  security_and_prompt-injection-resistance: 2
+remaining_gaps:
+  P0:
+  - benchmark source deletion, retraction propagation and dependency-aware rebuild
+  - define claim-level neutral synthesis and due-weight evaluation
+  - test entity merge/split effects on page and link regeneration
+  - create a gold benchmark for semantic staleness and wiki repair
+  - formalize concurrent agent edit conflicts and review ownership
+  - measure whether saved query answers introduce circular evidence
+  P1:
+  - multilingual compilation and cross-language citation fidelity
+  - copyright-safe quotation and summarization policy by source type
+  - privacy, right-to-erasure and derived-knowledge deletion
+  - adversarial source and prompt-injection defenses
+  - page layout and routing at million-document scale
+  - human learning outcomes and editorial workload
+repo_guides:
+  collection_snapshot: docs/260909-collection/README.md
+  llm_wiki_system: docs/llm-wiki/README.md
+  core_build_pipeline: docs/llm-wiki/04-build-pipeline.md
+  implementation_plan: docs/llm-wiki/09-repo-implementation-plan.md

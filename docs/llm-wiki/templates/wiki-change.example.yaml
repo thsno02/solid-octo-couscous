@@ -1,0 +1,94 @@
+change_id: wiki-change:260909-example-source-update
+trigger: source_update
+trigger_ref: source-revision:arxiv-2402.14207@v2
+base_revision: wiki-release:260909.1
+proposed_revision: null
+build_id: build:260909-example
+source_deltas:
+- source_ref: arxiv:2402.14207
+  change_type: updated
+  before_revision: v1
+  after_revision: v2
+affected_pages:
+- wiki-page:storm
+- wiki-page:llm-wiki-evaluation
+affected_claims:
+- claim:storm-editor-evaluation
+affected_indexes_and_consumers:
+- map:auto-research
+- context-pack:llm-wiki-research
+operations:
+- operation: update
+  target_ref: wiki-page:storm
+  reason: Selected paper revision changed the reported evaluation and limitations.
+  patch_ref: patches/storm-v2.md.diff
+  claim_refs:
+  - claim:storm-editor-evaluation
+semantic_diff:
+  added_claims: []
+  removed_claims: []
+  changed_scope_or_qualifiers:
+  - claim:storm-editor-evaluation
+  identity_changes: []
+  ontology_changes: []
+  editorial_changes:
+  - Clarify that editor feedback identifies source-bias transfer.
+  compatibility: additive-behavior-change
+validation:
+  schema:
+    status: pass
+    details: null
+    artifact_ref: null
+  links:
+    status: pass
+    details: null
+    artifact_ref: null
+  citations:
+    status: pass
+    details: null
+    artifact_ref: eval:citation-260909
+  factuality:
+    status: warn
+    details: One qualitative sentence needs human review.
+    artifact_ref: null
+  contradictions:
+    status: pass
+    details: null
+    artifact_ref: null
+  identity:
+    status: pass
+    details: null
+    artifact_ref: null
+  neutrality:
+    status: warn
+    details: Preserve paper limitations beside reported gains.
+    artifact_ref: null
+  policy:
+    status: pass
+    details: null
+    artifact_ref: null
+  evaluation_run_refs:
+  - eval:citation-260909
+review:
+  required: true
+  state: in_review
+  reviewers:
+  - role:llm-wiki-editor
+  decision_ref: null
+  discussion_ref: discussion:260909-storm-update
+rollout:
+  mode: canary
+  canary_consumers:
+  - context-pack:llm-wiki-research
+  start_at: null
+  success_criteria:
+  - fixed evaluation questions do not regress
+rollback:
+  available: true
+  plan: Restore the base page revision and rebuild affected maps and context packs.
+  target_revision: wiki-release:260909.1
+  compensating_operations:
+  - rebuild_index
+  - rebuild_context_pack
+  tested: false
+status: proposed

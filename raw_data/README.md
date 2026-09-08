@@ -1,3 +1,4 @@
+
 # Raw data collection
 
 This directory stores source material for the knowledge-base self-evolution research pipeline.
@@ -15,8 +16,9 @@ The collection deliberately covers a wider evolutionary background than knowledg
 7. automated agent/workflow design and algorithm discovery,
 8. knowledge/memory/graph self-evolution,
 9. **ontology, schema, mapping, identity and operational semantic layers**,
-10. scientific provenance, reproducibility, experiment orchestration and knowledge promotion,
-11. governance of evolving agents: objective stability, evaluator reliability, permissions, rollback, provenance, replication, mesa-optimization, power-seeking and oversight.
+10. **LLM Wiki, long-form knowledge compilation and collaborative editorial governance**,
+11. scientific provenance, reproducibility, experiment orchestration and knowledge promotion,
+12. governance of evolving agents: objective stability, evaluator reliability, permissions, rollback, provenance, replication, mesa-optimization, power-seeking and oversight.
 
 ### Why auto research is first-class
 
@@ -46,22 +48,44 @@ Palantir Foundry's Ontology is treated as an important **operational ontology** 
 
 See `ontology/README.md`, `collections/ontology_knowledge_architecture.yaml`, and `audits/ontology_knowledge_gap_2026-09-09.yaml`.
 
+### Why LLM Wiki is first-class
+
+LLM Wiki is treated as a distinct knowledge-organization and maintenance paradigm, not as ordinary RAG or automatic Markdown generation.
+
+The intended architecture is:
+
+`immutable source -> normalized source -> atomic claim/evidence -> ontology and identity -> compiled wiki page -> index/context pack -> governed consumption`
+
+The wiki is a persistent, human- and agent-readable **derived projection**. It organizes and synthesizes knowledge, while claim/evidence records retain epistemic authority. Generated page changes are proposals; they require deterministic validation, evidence checks, review, admission, versioning, and rollback.
+
+The collection combines:
+
+- the compiled-wiki pattern: raw sources, wiki, schema, ingest/query/lint;
+- STORM/Co-STORM-style perspective discovery and outline-first research;
+- Wikipedia-style verifiability, neutrality, no-original-research, due weight, discussion and consensus;
+- Wikidata/Wikibase-style statements, qualifiers, references, ranks, unknown/no-value and deprecation;
+- factuality, citation and contradiction evaluation;
+- representative open implementations and wiki infrastructure.
+
+See `collections/llm_wiki.yaml`, `audits/llm_wiki_gap_2026-09-09.yaml`, `schemas/wiki_page.schema.yaml`, `schemas/wiki_change.schema.yaml`, and the top-level `docs/llm-wiki/` documentation suite.
+
 ### Why GitHub implementations are first-class
 
-Papers describe mechanisms; open implementations show which mechanisms survive contact with engineering constraints. The `githubs/` collection tracks implementations that expose at least one meaningful evolution substrate: mutation/optimization, persistent learning, autonomous research, incremental knowledge maintenance, evidence-based evaluation, ontology engineering, provenance, versioning, experiment orchestration or governance/verification.
+Papers describe mechanisms; open implementations show which mechanisms survive contact with engineering constraints. The `githubs/` collection tracks implementations that expose at least one meaningful evolution substrate: mutation/optimization, persistent learning, autonomous research, incremental knowledge maintenance, evidence-based evaluation, ontology engineering, wiki compilation, provenance, versioning, experiment orchestration or governance/verification.
 
 Generic agent orchestration alone is not enough for inclusion. Repository source is **not vendored** here; each project is represented by a small metadata YAML containing provenance, license state, related papers, mechanisms, relevance, and governance notes.
 
-For the categorized project maps and priorities, see `collections/github_projects.yaml` and `collections/ontology_projects.yaml`.
+For the categorized project maps and priorities, see `collections/github_projects.yaml`, `collections/ontology_projects.yaml`, and `collections/llm_wiki.yaml`.
 
 ## Coverage and auditability
 
 Collection volume is not treated as coverage. Coverage is evaluated across:
 
-- the object being evolved: weights, code, prompts, workflows, memory, graphs, claims, hypotheses, experiments, evaluators, schemas, mappings and organizations;
+- the object being evolved: weights, code, prompts, workflows, memory, graphs, claims, hypotheses, experiments, evaluators, schemas, mappings, wiki pages and organizations;
 - the evolution loop: variation, evaluation, selection, retention, recombination, environment generation, write-back and rollback;
 - the research lifecycle: literature, hypothesis, design, execution, analysis, review, replication, publication, promotion and retraction;
 - the semantic lifecycle: terminology, modeling, validation, mapping, binding, migration, deprecation and semantic impact;
+- the wiki lifecycle: source acquisition, claim extraction, page planning, compilation, citation, admission, release, consumption, lint and repair;
 - source type: primary papers, code, datasets, benchmarks, standards, industry methodology, experiment traces, negative results and incidents;
 - governance: provenance, temporal validity, contradiction handling, uncertainty, permissions, evaluator independence, replication and rollback.
 
@@ -69,15 +93,19 @@ Current audit artifacts:
 
 - `audits/coverage_audit_2026-09-09.yaml` — general findings, scorecard, risks and acceptance metrics;
 - `audits/ontology_knowledge_gap_2026-09-09.yaml` — ontology and knowledge-architecture audit;
+- `audits/llm_wiki_gap_2026-09-09.yaml` — LLM Wiki coverage and construction audit;
 - `collections/coverage_matrix.yaml` — general cross-domain coverage matrix;
 - `collections/ontology_coverage_matrix.yaml` — ontology-specific coverage matrix;
+- `collections/llm_wiki.yaml` — LLM Wiki taxonomy, lifecycle, quality dimensions and implementation map;
 - `collections/backfill_plan.yaml` — staged execution plan and collection cadence;
 - `schemas/item.schema.yaml` — common source metadata contract;
 - `schemas/knowledge_model.schema.yaml` — proposed executable knowledge-object contract;
+- `schemas/wiki_page.schema.yaml` — compiled wiki page contract;
+- `schemas/wiki_change.schema.yaml` — proposed wiki change, review and rollback contract;
 - `quarantine/unverified_items.yaml` — records retained for lineage but blocked from trusted promotion;
-- `manifests/coverage_backfill_2026-09-09.yaml` and `manifests/ontology_backfill_2026-09-09.yaml` — additive manifests preserving execution history.
+- `manifests/*.yaml` — additive manifests preserving execution history.
 
-A topic is not considered fully covered by a paper alone. Engineering-relevant topics should have conceptual primary sources plus implementations and evaluation artifacts. Generated research output is never automatically promoted to trusted knowledge.
+A topic is not considered fully covered by a paper alone. Engineering-relevant topics should have conceptual primary sources plus implementations and evaluation artifacts. Generated research output or wiki prose is never automatically promoted to trusted knowledge.
 
 ## Layout
 
@@ -86,7 +114,7 @@ A topic is not considered fully covered by a paper alone. Engineering-relevant t
 - `journal/<paper-title>/` — peer-reviewed journal articles that are important primary sources and not primarily represented by arXiv.
 - `paper/<paper-title>/` — other foundational papers/book chapters not primarily distributed through arXiv.
 - `standard/<standard-title>/` — standards, vocabularies and ontologies relevant to semantics, identity, mapping, provenance and governance.
-- `methodology/<method-title>/` — modeling and knowledge-engineering methodologies.
+- `methodology/<method-title>/` — modeling, editorial and knowledge-engineering methodologies.
 - `industry/<method-or-product-title>/` — industry operational patterns and official documentation.
 - `ontology/` — collection-level architecture and modeling guidance.
 - `blog/<article-title>/` — public blog/article metadata, canonical URL, and research notes/summary.
@@ -107,7 +135,7 @@ For arXiv, `source_archive_url` points to `/src/<id>` and is the preferred acqui
 
 ## Trust policy for evolving research knowledge
 
-A generated paper/report is evidence-bearing research output, **not automatically trusted knowledge**. Promotion into a durable knowledge layer must preserve:
+A generated paper, report, answer or wiki page is evidence-bearing output, **not automatically trusted knowledge**. Promotion into a durable knowledge layer must preserve:
 
 - stable identity and entity merge/split lineage,
 - ontology/schema/mapping version and semantic change lineage,
@@ -119,6 +147,7 @@ A generated paper/report is evidence-bearing research output, **not automaticall
 - replication or independent verification status,
 - evaluator/reviewer identity, independence and protocol,
 - confidence, temporal validity and status changes over time,
+- page and claim dependency lineage,
 - authorization for write, merge, supersede, retract and rollback.
 
-Schema or SHACL conformance, cryptographic authenticity and factual truth are separate checks. This distinction is critical because recursive research systems consume their own prior outputs; without explicit semantics, provenance, independent verification and rollback, the loop can compound conceptual error as easily as it compounds capability.
+Schema or SHACL conformance, cryptographic authenticity, verifiability, editorial inclusion and factual truth are separate checks. This distinction is critical because recursive research and wiki systems consume their own prior outputs; without explicit semantics, provenance, independent verification and rollback, the loop can compound conceptual error as easily as it compounds capability.
