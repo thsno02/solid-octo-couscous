@@ -1,6 +1,7 @@
 collection: ontology-projects
-version: 1
+version: 2
 created_at: '2026-09-09'
+updated_at: '2026-09-09'
 status: active
 purpose: 'Track open implementations across the full ontology and semantic-model lifecycle.'
 
@@ -18,6 +19,12 @@ categories:
     P0: [mapping-commons/sssom, OpenRefine/OpenRefine, ontop/ontop]
   versioned_operational_knowledge:
     P0: [terminusdb/terminusdb, FIWARE/context.Orion-LD]
+  business_semantic_layer_interchange:
+    P0: [apache/ossie]
+  enterprise_upper_ontology:
+    P1: [semanticarts/gist]
+  agent_semantic_context_and_virtual_kg:
+    P1: [aws/context-ontology-accelerator]
   ontology_learning_and_population:
     P1: [monarch-initiative/ontogpt]
   active_metadata_catalog_and_impact:
@@ -30,20 +37,25 @@ categories:
     P0: [bitol-io/open-data-contract-standard]
 
 open_stack_analogue_to_operational_ontology:
-  model: [LinkML, OWL-2, SKOS, OntoUML]
+  conceptual_model: [OntoUML, BFO, gist]
+  formal_semantics: [OWL-2, SKOS]
+  schema_and_compilation: [LinkML]
   validation: [SHACL, pySHACL, Apache-Jena]
   mapping: [SSSOM, R2RML, Ontop, OpenRefine]
+  analytics_semantic_model: [Apache-Ossie]
   live_context: [NGSI-LD, Orion-LD]
   versioning: [TerminusDB, ODK, ROBOT, WebProtege]
   action_and_policy: [ODRL, OPA, Cedar]
   provenance_and_research_objects: [PROV-O, RO-Crate, OpenLineage]
   catalog_and_impact: [DCAT-3, DataHub, OpenMetadata]
+  agent_context_delivery: [AWS-Context-Ontology-Accelerator]
 
 selection_rules:
   - 'A graph database alone is not enough; include it only for distinctive semantic, versioning, inference or governance capabilities.'
   - 'Track canonical repository, license, release, head commit and archive state on each refresh.'
   - 'Distinguish official implementation, research artifact and third-party reimplementation.'
   - 'A project can occupy several layers but is counted once by canonical_id.'
+  - 'Business metric semantic layers complement but do not replace formal domain ontologies.'
 
 known_gaps:
   - production-grade-open-action-ontology-framework
@@ -52,3 +64,4 @@ known_gaps:
   - probabilistic-knowledge-and-calibration-tooling
   - multilingual-ontology-engineering
   - ontology-change-impact-benchmarks-for-agents
+  - open-process-decision-and-causal-ontology-stack
