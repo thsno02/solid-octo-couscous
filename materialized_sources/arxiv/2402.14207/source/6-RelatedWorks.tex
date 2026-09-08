@@ -1,0 +1,25 @@
+\label{sec:related_work}
+\noindent
+\textbf{Retrieval-Augmented Generation (RAG)}\quad
+Augmenting language models (LMs) with retrieval at inference time is a typical way to leverage external knowledge stores%
+~\citep{ram2023ralm,JMLR:v24:23-0037}. While some works use retrieval to construct demonstrations for in-context learning~\citep{li-etal-2023-unified,liu-etal-2022-makes,agrawal-etal-2023-context,poesia2022synchromesh,shi-etal-2022-nearest,khattab2022demonstrate}, another line of works uses retrieval to provide additional information for LMs to ground on.~\citet{lewis2020retrieval} study RAG on knowledge-intensive NLP tasks and find it improves diversity and factuality. \citet{semnani-etal-2023-wikichat} designs a RAG-based chatbot grounded on English Wikipedia to stop LLM-based chatbots from hallucination. Besides, RAG can be used to generate text with citations~\citep{menick2022teaching,gao-etal-2023-enabling} and build attributed question answering systems~\citep{bohnet2023attributed}. %
+While RAG is widely studied in question answering, how to use it for long-form article generation is less investigated.%
+
+As a general framework, RAG is flexible in both the retrieval source and time. The retrieval sources can vary from domain databases~\citep{zakka2023almanac}, code documentation~\citep{zhou2023docprompting}, to the whole Internet~\citep{nakano2022webgpt,komeili-etal-2022-internet}. Regarding the time, %
+besides a one-time retrieval before generation, the system can be designed to self-decide when %
+to retrieve across the course of the generation~\citep{jiang-etal-2023-active, parisi2022talm,shuster-etal-2022-language,yao2023react}. %
+
+
+
+\noindent
+\textbf{Automatic Expository Writing}\quad
+Different from other types of long-form generation~\citep{yang-etal-2022-re3, feng2018topic}, %
+automatic expository writing requires grounding on external documents and leveraging the interplay between reading and writing. \citet{balepur-etal-2023-expository} propose the Imitate-Retrieve-Paraphrase framework for expository writing at the paragraph level to address the challenges in synthesizing information from multiple sources. Beyond summarizing sources, 
+\citet{shen2023summarization} highlight that expository writing requires the author's sensemaking process over source documents and good outline planning. We tackle these challenges by focusing on the pre-writing stage.
+
+
+\noindent
+\textbf{Question Asking in NLP}\quad
+Question asking capabilities in NLP systems have expanded across several fronts, including generating clarification questions to understand user intents~\citep{aliannejadi2019asking, rahmani-etal-2023-survey}, and breaking large questions into smaller ones to improve compositional reasoning~\citep{press-etal-2023-measuring}. While humans usually ask questions to learn new knowledge~\citep{tawfik2020role,booth2003craft}, how to optimize question informativeness and specificity in information-seeking conversations remains less explored. The closest work is~\citet{qi-etal-2020-stay} which defines the question informativeness using the unigram precision function and uses reinforcement learning to increase the question informativeness.
+
+

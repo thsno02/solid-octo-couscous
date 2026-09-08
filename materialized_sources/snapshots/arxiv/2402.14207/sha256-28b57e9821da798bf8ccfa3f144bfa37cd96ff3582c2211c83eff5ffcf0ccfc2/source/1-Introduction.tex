@@ -1,0 +1,66 @@
+\label{sec:intro}
+\begin{figure}[t]
+    \centering 
+    \resizebox{0.95\columnwidth}{!}{%
+    \includegraphics{img/task_and_question_asking.pdf}
+    }
+    \caption{We explore writing Wikipedia-like articles from scratch, which demands a pre-writing stage before producing the article. In this stage, simpler approaches like Direct Prompting have limited planning capacity. In contrast, \system researches the topic via perspective-guided question asking in simulated conversations.%
+    }
+    \label{Fig.question_asking}
+\vspace{-0.5em}
+\end{figure}
+
+Large language models (LLMs) have demonstrated impressive writing capabilities~\citep{yang-etal-2023-doc, pavlik2023collaborating,wenzlaff2022smarter,fitria2023artificial}, but it is unclear how we can use them to write grounded, long-form articles, like full-length Wikipedia pages. Such expository writing, which seeks to inform the reader on a topic in an organized manner~\citep{weaver1991expository, balepur-etal-2023-expository}, requires thorough research and planning in the \textit{pre-writing} stage~\citep{rohman1965pre}, even before the actual writing process can start.
+However, prior work on generating Wikipedia articles~\citep{banerjee-mitra-2015-wikikreator,minguillon2017semi,j.2018generating,fan-gardent-2022-generating} has generally bypassed the pre-writing stage: for instance, \citet{j.2018generating} presume reference documents are provided in advance, while \citet{fan-gardent-2022-generating} assume an article outline is available and focus on expanding each section. These assumptions do not hold in general, as collecting references and crafting outlines demand advanced information literacy skills~\citep{doyle1994information} to identify, evaluate, and organize external sources - a task that is challenging even for experienced writers. Automating this process can facilitate individuals in initiating in-depth learning about a topic and greatly reduce the expensive expert hours necessary for their expository writing.
+
+
+
+
+
+We explore these challenges by focusing on how to generate Wikipedia-like articles \textit{from scratch}. %
+We decompose this problem into two tasks. The first is to conduct research to generate an outline, \ie, a list of multi-level sections, and collect a set of reference documents. The second uses the outline and the references to produce the full-length article. Such a task decomposition mirrors the human writing process which usually includes phases of pre-writing, drafting, and revising~\citep{rohman1965pre,munoz2015main}.
+
+
+
+
+
+As pre-trained language models inherently possess a wealth of knowledge, a direct approach is to rely on their parametric knowledge for generating outlines or even entire articles (\textit{Direct Gen}). However, this approach is limited by a lack of details and hallucinations~\citep{xu-etal-2023-critical}, particularly in addressing long-tail topics~\cite{kandpal2023large}. This underscores the importance of leveraging external sources, and current strategies often involve retrieval-augmented generation (\textit{RAG}), which circles back to the problem of researching the topic in the pre-writing stage, as much information cannot be surfaced through simple topic searches.
+
+
+Human learning theories~\citep{tawfik2020role,booth2003craft}  highlight \textit{asking effective questions} in information acquisition.  
+Although instruction-tuned models~\citep{ouyang2022training} can be prompted directly to generate questions, we find that they typically produce basic ``What'', ``When'', and ``Where'' questions (\reffig{Fig.question_asking} (A)) which often only address surface-level facts about the topic. 
+To endow LLMs with the capacity to conduct better research, we propose the \textbf{\system} paradigm for the \textbf{S}ynthesis of \textbf{T}opic \textbf{O}utlines through \textbf{R}etrieval and \textbf{M}ulti-perspective Question Asking.
+
+The design of \system is based on two hypotheses: (1) diverse perspectives lead to varied questions; (2) formulating in-depth questions requires iterative research. Building upon these hypotheses, \system employs 
+a novel multi-stage approach. It first discovers diverse perspectives by retrieving and analyzing Wikipedia articles from similar topics and then personifies the LLM with specific perspectives for question asking (\reffig{Fig.question_asking} (B)). Next, to elicit follow-up questions for iterative research (\reffig{Fig.question_asking} (C)), %
+\system simulates multi-turn conversations where the answers to the generated questions are grounded on the Internet. Finally, based on the LLM's internal knowledge and the collected information, \system creates an outline that can be expanded section by section to develop a full-length Wikipedia-like article.
+
+
+
+
+
+
+
+
+
+
+
+We evaluate \system using our \textbf{FreshWiki} dataset (\refsec{sec:task_dataset}) which curates recent, high-quality Wikipedia articles to avoid data leakage during pre-training.\footnote{Our resources and code are released at \url{https://github.com/stanford-oval/storm}.}
+To facilitate the study of the pre-writing stage, we define metrics for evaluating the outline quality against human-written articles. 
+
+We further invited a group of experienced Wikipedia editors for expert evaluation. %
+The editors found STORM outperforms an outline-driven RAG baseline, especially regarding the breadth and organization of the articles. They also identified %
+challenges for future research, including addressing cases where:
+(1) the bias %
+on the Internet affects the generated articles; (2) LLMs fabricate connections between unrelated facts. 
+These challenges present new frontiers to grounded writing systems.
+
+
+Our main contributions include:
+\begin{itemize}
+\item {To evaluate the capacity of LLM systems at generating long-form grounded articles from scratch, and the pre-writing challenge in particular, we curate the FreshWiki dataset and establish evaluation criteria for both outline and final article quality.}
+\item {We propose \system, a novel system that automates the pre-writing stage. \system researches the topic and creates an outline by using LLMs to ask incisive questions and retrieving trusted information from the Internet.}
+\item{Both automatic and human evaluation demonstrate the effectiveness of our approach. Expert feedback further reveals new challenges in generating grounded long-form articles.}
+
+
+\end{itemize}

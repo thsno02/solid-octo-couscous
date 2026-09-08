@@ -1,99 +1,122 @@
-index_version: 3
+index_version: 4
 updated_at: '2026-09-09'
 repository: thsno02/solid-octo-couscous
-
 base_manifest:
   path: manifest.yaml
   version: 3
-  role: 'Original seed inventory; retained for backward compatibility.'
-
+  role: Original seed inventory; retained for backward compatibility.
 additive_manifests:
-  - path: manifests/coverage_backfill_2026-09-09.yaml
-    role: 'Coverage remediation batch: foundations, standards and GitHub infrastructure.'
-  - path: manifests/ontology_backfill_2026-09-09.yaml
-    role: 'Ontology, schema, mapping, operational-semantic and knowledge-governance backfill.'
-  - path: manifests/modern_semantic_layer_extension_2026-09-09.yaml
-    role: 'Apache Ossie and property-graph standards extension.'
-  - path: manifests/llm_wiki_backfill_2026-09-09.yaml
-    role: 'LLM Wiki, Wikipedia/Wikidata governance, long-form compilation, evaluation and implementations.'
-
+- path: manifests/coverage_backfill_2026-09-09.yaml
+  role: 'Coverage remediation batch: foundations, standards and GitHub infrastructure.'
+- path: manifests/ontology_backfill_2026-09-09.yaml
+  role: Ontology, schema, mapping, operational-semantic and knowledge-governance backfill.
+- path: manifests/modern_semantic_layer_extension_2026-09-09.yaml
+  role: Apache Ossie and property-graph standards extension.
+- path: manifests/llm_wiki_backfill_2026-09-09.yaml
+  role: LLM Wiki, Wikipedia/Wikidata governance, long-form compilation, evaluation and implementations.
 collections:
-  - {path: collections/auto_research.yaml, scope: automated-research}
-  - {path: collections/github_projects.yaml, scope: github-projects, version: 2}
-  - {path: collections/coverage_matrix.yaml, scope: general-coverage-audit}
-  - {path: collections/backfill_plan.yaml, scope: staged-backfill}
-  - {path: collections/ontology_knowledge_architecture.yaml, scope: ontology-and-executable-knowledge-model, version: 1}
-  - {path: collections/ontology_projects.yaml, scope: ontology-and-semantic-tooling, version: 2}
-  - {path: collections/ontology_coverage_matrix.yaml, scope: ontology-coverage-audit, version: 1}
-  - {path: collections/modern_semantic_layer.yaml, scope: current-semantic-layer-and-graph-standards, version: 1}
-  - {path: collections/llm_wiki.yaml, scope: compiled-wiki-and-editorial-governance, version: 1}
-
+- path: collections/auto_research.yaml
+  scope: automated-research
+- path: collections/github_projects.yaml
+  scope: github-projects
+  version: 2
+- path: collections/coverage_matrix.yaml
+  scope: general-coverage-audit
+- path: collections/backfill_plan.yaml
+  scope: staged-backfill
+- path: collections/ontology_knowledge_architecture.yaml
+  scope: ontology-and-executable-knowledge-model
+  version: 1
+- path: collections/ontology_projects.yaml
+  scope: ontology-and-semantic-tooling
+  version: 2
+- path: collections/ontology_coverage_matrix.yaml
+  scope: ontology-coverage-audit
+  version: 1
+- path: collections/modern_semantic_layer.yaml
+  scope: current-semantic-layer-and-graph-standards
+  version: 1
+- path: collections/llm_wiki.yaml
+  scope: compiled-wiki-and-editorial-governance
+  version: 1
+- path: collections/source_consumption_adapters.yaml
+  scope: source-specific-materialization-and-consumption
+  version: 1
 audits:
-  - path: audits/coverage_audit_2026-09-09.yaml
-    status: current
-  - path: audits/ontology_knowledge_gap_2026-09-09.yaml
-    status: current
-  - path: audits/ontology_validation_snapshot_2026-09-09.yaml
-    status: passed
-  - path: audits/llm_wiki_gap_2026-09-09.yaml
-    status: current
-  - path: audits/llm_wiki_validation_snapshot_2026-09-09.yaml
-    status: passed
-
+- path: audits/coverage_audit_2026-09-09.yaml
+  status: current
+- path: audits/ontology_knowledge_gap_2026-09-09.yaml
+  status: current
+- path: audits/ontology_validation_snapshot_2026-09-09.yaml
+  status: passed
+- path: audits/llm_wiki_gap_2026-09-09.yaml
+  status: current
+- path: audits/llm_wiki_validation_snapshot_2026-09-09.yaml
+  status: passed
+- path: audits/materialization_validation_2026-09-09.yaml
+  status: current
 schemas:
-  - path: schemas/item.schema.yaml
-    applies_to: 'source metadata records'
-  - path: schemas/knowledge_model.schema.yaml
-    applies_to: 'semantic, epistemic, operational and lifecycle knowledge objects'
-  - path: schemas/wiki_page.schema.yaml
-    applies_to: 'compiled wiki pages and their machine-readable frontmatter'
-  - path: schemas/wiki_change.schema.yaml
-    applies_to: 'proposed, validated, reviewed, merged or rolled-back wiki changes'
-
+- path: schemas/item.schema.yaml
+  applies_to: source metadata records
+- path: schemas/knowledge_model.schema.yaml
+  applies_to: semantic, epistemic, operational and lifecycle knowledge objects
+- path: schemas/wiki_page.schema.yaml
+  applies_to: compiled wiki pages and their machine-readable frontmatter
+- path: schemas/wiki_change.schema.yaml
+  applies_to: proposed, validated, reviewed, merged or rolled-back wiki changes
 guides:
-  - path: ontology/README.md
-    scope: 'ontology terminology, Palantir interpretation, reference stack and governance rules'
-
+- path: ontology/README.md
+  scope: ontology terminology, Palantir interpretation, reference stack and governance rules
 documentation:
-  - repo_path: docs/260909-collection/README.md
-    scope: '2026-09-09 collection handoff for humans and agents'
-  - repo_path: docs/llm-wiki/README.md
-    scope: 'LLM Wiki construction, evaluation, admission, evolution and consumption'
-
+- repo_path: docs/260909-collection/README.md
+  scope: 2026-09-09 collection handoff for humans and agents
+- repo_path: docs/llm-wiki/README.md
+  scope: LLM Wiki construction, evaluation, admission, evolution and consumption
+- repo_path: docs/260909-collection/10-materialization-and-consumption.md
+  scope: source adapters, registry and materialization
+- repo_path: docs/llm-wiki/14-source-specific-consumption.md
+  scope: LLM Wiki source-specific consumption
 quarantine:
-  - path: quarantine/unverified_items.yaml
-    promotion_blocking: true
-
+- path: quarantine/unverified_items.yaml
+  promotion_blocking: true
 source_directories:
-  - arxiv
-  - biorxiv
-  - journal
-  - paper
-  - standard
-  - methodology
-  - industry
-  - blog
-  - githubs
-  - dataset
-  - benchmark
-  - incident
-  - x
-
+- arxiv
+- biorxiv
+- journal
+- paper
+- standard
+- methodology
+- industry
+- blog
+- githubs
+- dataset
+- benchmark
+- incident
+- x
 consumer_rules:
-  - 'Load the base manifest and every additive manifest; deduplicate by canonical_id.'
-  - 'Resolve GitHub aliases before counting coverage.'
-  - 'Exclude quarantined and deprecated records from the trusted layer but retain them in lineage.'
-  - 'Prefer canonical_id and uid over folder names or titles.'
-  - 'Treat partially_verified records as discovery metadata, not final trusted knowledge.'
-  - 'Do not infer open-source status when license verification is pending.'
-  - 'Do not collapse taxonomy, vocabulary, ontology, schema, shape, semantic layer, data contract and operational ontology.'
-  - 'Declare open-world, closed-world or local-closed-world assumptions for every reasoning and validation pipeline.'
-  - 'Treat mappings and source bindings as versioned evidence-bearing objects.'
-  - 'Distinguish observation, assertion, inference, prediction, decision and action.'
-  - 'Every breaking semantic change requires compatibility assessment, migration, impact analysis and rollback.'
-  - 'Schema/SHACL conformance, source authenticity and factual truth are separate checks.'
-  - 'Treat wiki pages as compiled views over source and claim layers, never as sole truth records.'
-  - 'Generated wiki edits are proposals and require the declared validation and admission path.'
-  - 'Every promoted factual paragraph has source support; high-risk claims require atomic evidence selectors.'
-  - 'Do not use the wiki itself or a derivative mirror as independent corroboration.'
-  - 'Preserve conflicting claims, source removal, supersession, retraction and rollback lineage.'
+- Load the base manifest and every additive manifest; deduplicate by canonical_id.
+- Resolve GitHub aliases before counting coverage.
+- Exclude quarantined and deprecated records from the trusted layer but retain them in lineage.
+- Prefer canonical_id and uid over folder names or titles.
+- Treat partially_verified records as discovery metadata, not final trusted knowledge.
+- Do not infer open-source status when license verification is pending.
+- Do not collapse taxonomy, vocabulary, ontology, schema, shape, semantic layer, data contract and operational ontology.
+- Declare open-world, closed-world or local-closed-world assumptions for every reasoning and validation pipeline.
+- Treat mappings and source bindings as versioned evidence-bearing objects.
+- Distinguish observation, assertion, inference, prediction, decision and action.
+- Every breaking semantic change requires compatibility assessment, migration, impact analysis and rollback.
+- Schema/SHACL conformance, source authenticity and factual truth are separate checks.
+- Treat wiki pages as compiled views over source and claim layers, never as sole truth records.
+- Generated wiki edits are proposals and require the declared validation and admission path.
+- Every promoted factual paragraph has source support; high-risk claims require atomic evidence selectors.
+- Do not use the wiki itself or a derivative mirror as independent corroboration.
+- Preserve conflicting claims, source removal, supersession, retraction and rollback lineage.
+- Select a source-specific adapter before consumption; a canonical URL alone is not a consumable artifact.
+- A GitHub repository must be frozen at a commit and semanticized into a repo-wiki capsule before LLM Wiki use.
+- Direct TeX is preferred for arXiv; PDF is a fallback that must retain page selectors.
+- Deterministic repository capsules are review candidates, not verified runtime descriptions.
+generated_artifacts:
+- repo_path: source_registry/registry.yaml
+  role: source identity, adapter and materialization registry
+- repo_path: materialized_sources/index.yaml
+  role: materialized source manifest index

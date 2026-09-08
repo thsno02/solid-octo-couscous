@@ -1,229 +1,400 @@
-$schema: 'https://json-schema.org/draft/2020-12/schema'
-$id: 'https://github.com/thsno02/solid-octo-couscous/raw_data/schemas/item.schema.yaml'
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: https://github.com/thsno02/solid-octo-couscous/raw_data/schemas/item.schema.yaml
 title: Raw collection item metadata
 type: object
 additionalProperties: true
 required:
-  - uid
-  - source_type
-  - title
-  - canonical_url
-  - verification
-  - classification
-  - collection
+- uid
+- source_type
+- title
+- canonical_url
+- verification
+- classification
+- collection
 properties:
   uid:
     type: string
-    description: 'Stable internal identifier; must not depend only on a mutable title.'
+    description: Stable internal identifier; must not depend only on a mutable title.
     minLength: 3
   source_type:
     type: string
     enum:
-      - arxiv
-      - journal
-      - conference
-      - paper
-      - standard
-      - methodology
-      - industry_doc
-      - ontology
-      - blog
-      - x
-      - github
-      - dataset
-      - benchmark
-      - incident
-      - retraction
+    - arxiv
+    - biorxiv
+    - journal
+    - conference
+    - paper
+    - standard
+    - methodology
+    - industry_doc
+    - ontology
+    - blog
+    - x
+    - github
+    - dataset
+    - benchmark
+    - incident
+    - retraction
   canonical_id:
-    type: [string, 'null']
-    description: 'DOI, arXiv id, repository full name, standard id, dataset id, or another source-native stable identifier.'
+    type:
+    - string
+    - 'null'
+    description: DOI, arXiv id, repository full name, standard id, dataset id, or another source-native stable identifier.
   title:
     type: string
     minLength: 1
   aliases:
     type: array
-    items: {type: string}
+    items:
+      type: string
     default: []
   canonical_url:
     type: string
     format: uri
   authors_or_maintainers:
     type: array
-    items: {type: string}
+    items:
+      type: string
     default: []
   publisher_or_owner:
-    type: [string, 'null']
+    type:
+    - string
+    - 'null'
   dates:
     type: object
     properties:
-      first_published: {type: ['string', 'null']}
-      last_updated: {type: ['string', 'null']}
-      retrieved_at: {type: ['string', 'null']}
+      first_published:
+        type:
+        - string
+        - 'null'
+      last_updated:
+        type:
+        - string
+        - 'null'
+      retrieved_at:
+        type:
+        - string
+        - 'null'
   verification:
     type: object
-    required: [state, checked_at, method]
+    required:
+    - state
+    - checked_at
+    - method
     properties:
       state:
         type: string
-        enum: [verified, partially_verified, pending, quarantined, deprecated, retracted]
-      checked_at: {type: string}
-      method: {type: string}
-      evidence_url: {type: ['string', 'null'], format: uri}
-      notes: {type: ['string', 'null']}
+        enum:
+        - verified
+        - partially_verified
+        - pending
+        - quarantined
+        - deprecated
+        - retracted
+      checked_at:
+        type: string
+      method:
+        type: string
+      evidence_url:
+        type:
+        - string
+        - 'null'
+        format: uri
+      notes:
+        type:
+        - string
+        - 'null'
   versioning:
     type: object
     properties:
-      source_version: {type: ['string', 'null']}
-      snapshot_commit: {type: ['string', 'null']}
-      release_or_tag: {type: ['string', 'null']}
-      content_sha256: {type: ['string', 'null']}
+      source_version:
+        type:
+        - string
+        - 'null'
+      snapshot_commit:
+        type:
+        - string
+        - 'null'
+      release_or_tag:
+        type:
+        - string
+        - 'null'
+      content_sha256:
+        type:
+        - string
+        - 'null'
       previous_versions:
         type: array
-        items: {type: string}
+        items:
+          type: string
   rights:
     type: object
     properties:
-      license_spdx: {type: ['string', 'null']}
-      license_verified_at: {type: ['string', 'null']}
-      access: {type: string, enum: [open, source_available, metadata_only, restricted, unknown]}
-      notes: {type: ['string', 'null']}
+      license_spdx:
+        type:
+        - string
+        - 'null'
+      license_verified_at:
+        type:
+        - string
+        - 'null'
+      access:
+        type: string
+        enum:
+        - open
+        - source_available
+        - metadata_only
+        - restricted
+        - unknown
+      notes:
+        type:
+        - string
+        - 'null'
   model_characteristics:
     type: object
     properties:
       model_kind:
         type: string
-        enum: [taxonomy, vocabulary, ontology, schema, shape, semantic_layer, data_contract, operational_ontology, mapping, policy, not_applicable]
+        enum:
+        - taxonomy
+        - vocabulary
+        - ontology
+        - schema
+        - shape
+        - semantic_layer
+        - data_contract
+        - operational_ontology
+        - mapping
+        - policy
+        - not_applicable
       world_assumption:
         type: string
-        enum: [open, closed, local_closed, mixed, not_applicable, undeclared]
-      constraint_capability: {type: [string, 'null']}
-      inference_capability: {type: [string, 'null']}
-      action_capability: {type: [string, 'null']}
+        enum:
+        - open
+        - closed
+        - local_closed
+        - mixed
+        - not_applicable
+        - undeclared
+      constraint_capability:
+        type:
+        - string
+        - 'null'
+      inference_capability:
+        type:
+        - string
+        - 'null'
+      action_capability:
+        type:
+        - string
+        - 'null'
   classification:
     type: object
-    required: [domains, evolution_objects, loop_roles]
+    required:
+    - domains
+    - evolution_objects
+    - loop_roles
     properties:
       domains:
         type: array
         minItems: 1
-        items: {type: string}
+        items:
+          type: string
       evolution_objects:
         type: array
         minItems: 1
-        items: {type: string}
+        items:
+          type: string
       loop_roles:
         type: array
         minItems: 1
         items:
           type: string
-          enum: [variation, evaluation, selection, retention, recombination, environment_generation, meta_evolution, writeback, rollback, governance]
+          enum:
+          - variation
+          - evaluation
+          - selection
+          - retention
+          - recombination
+          - environment_generation
+          - meta_evolution
+          - writeback
+          - rollback
+          - governance
       research_lifecycle:
         type: array
-        items: {type: string}
+        items:
+          type: string
   linkage:
     type: object
     properties:
       papers:
         type: array
-        items: {type: string}
+        items:
+          type: string
       repositories:
         type: array
-        items: {type: string}
+        items:
+          type: string
       datasets:
         type: array
-        items: {type: string}
+        items:
+          type: string
       benchmarks:
         type: array
-        items: {type: string}
+        items:
+          type: string
       standards:
         type: array
-        items: {type: string}
+        items:
+          type: string
       methodologies:
         type: array
-        items: {type: string}
+        items:
+          type: string
       predecessors:
         type: array
-        items: {type: string}
+        items:
+          type: string
       successors:
         type: array
-        items: {type: string}
+        items:
+          type: string
   evidence:
     type: object
     properties:
       level:
         type: string
-        enum: [conceptual, simulation, benchmark, reproduced, author_reproduced, field_deployed, independently_replicated, unknown]
+        enum:
+        - conceptual
+        - simulation
+        - benchmark
+        - reproduced
+        - author_reproduced
+        - field_deployed
+        - independently_replicated
+        - unknown
       replication_status:
         type: string
-        enum: [not_applicable, not_checked, author_reproduced, independently_reproduced, failed_replication, mixed]
-      primary_source: {type: boolean}
+        enum:
+        - not_applicable
+        - not_checked
+        - author_reproduced
+        - independently_reproduced
+        - failed_replication
+        - mixed
+      primary_source:
+        type: boolean
       known_contradictions:
         type: array
-        items: {type: string}
+        items:
+          type: string
   governance:
     type: object
     properties:
       provenance_preserved:
         oneOf:
-          - {type: boolean}
-          - {type: string, enum: ['yes', 'no', partial, unknown, not_applicable]}
+        - type: boolean
+        - type: string
+          enum:
+          - 'yes'
+          - 'no'
+          - partial
+          - unknown
+          - not_applicable
       reversible:
         oneOf:
-          - {type: boolean}
-          - {type: string, enum: ['yes', 'no', partial, mixed, conceptual, unknown, not_applicable]}
+        - type: boolean
+        - type: string
+          enum:
+          - 'yes'
+          - 'no'
+          - partial
+          - mixed
+          - conceptual
+          - unknown
+          - not_applicable
       evaluator_independence:
         type: string
-        enum: [unknown, same_system, related_system, independent, mixed, not_applicable]
+        enum:
+        - unknown
+        - same_system
+        - related_system
+        - independent
+        - mixed
+        - not_applicable
       risks:
         type: array
-        items: {type: string}
+        items:
+          type: string
       promotion_requirements:
         type: array
-        items: {type: string}
+        items:
+          type: string
   collection:
     type: object
-    required: [priority, relevance, inclusion_reason]
+    required:
+    - priority
+    - relevance
+    - inclusion_reason
     properties:
-      priority: {type: string, enum: [P0, P1, P2, watch]}
-      relevance: {type: string, enum: [foundational, direct, adjacent, governance, infrastructure]}
-      inclusion_reason: {type: string}
+      priority:
+        type: string
+        enum:
+        - P0
+        - P1
+        - P2
+        - watch
+      relevance:
+        type: string
+        enum:
+        - foundational
+        - direct
+        - adjacent
+        - governance
+        - infrastructure
+      inclusion_reason:
+        type: string
       exclusions_or_limits:
         type: array
-        items: {type: string}
-      collector: {type: ['string', 'null']}
-      query_or_seed: {type: ['string', 'null']}
-
+        items:
+          type: string
+      collector:
+        type:
+        - string
+        - 'null'
+      query_or_seed:
+        type:
+        - string
+        - 'null'
 allOf:
-  - if:
-      properties:
-        source_type: {const: github}
-    then:
-      properties:
-        canonical_id:
-          type: string
-          pattern: '^[^/]+/[^/]+$'
-  - if:
-      properties:
-        source_type: {const: arxiv}
-    then:
-      properties:
-        canonical_id:
-          type: string
-          minLength: 5
-
+- if:
+    properties:
+      source_type:
+        const: github
+  then:
+    properties:
+      canonical_id:
+        type: string
+        pattern: ^[^/]+/[^/]+$
+- if:
+    properties:
+      source_type:
+        const: arxiv
+  then:
+    properties:
+      canonical_id:
+        type: string
+        minLength: 5
 migration_policy:
-  legacy_records: >-
-    Legacy source-specific YAML remains valid during migration, but every record should eventually
+  legacy_records: Legacy source-specific YAML remains valid during migration, but every record should eventually
     gain uid, canonical_id, verification, versioning, classification, linkage, rights and collection.
-  unknown_values: 'Use null or an explicit unknown/pending state; never invent metadata.'
-  title_directories: 'May remain for readability, but uid and canonical_id are authoritative.'
-  ontology_records: >-
-    Every ontology/schema record should declare model kind, world assumption, constraint and
-    inference capabilities, version, mappings and migration policy when known.
-  graded_governance_fields: >-
-    During migration, provenance_preserved and reversible accept graded legacy states such as
-    partial, mixed and conceptual. New records should prefer explicit booleans plus explanatory
-    notes or a future structured assessment object.
-  deprecated_legacy_value: >-
-    evidence.level=author_reproduced remains accepted for backward compatibility, but new records
-    should use evidence.level=reproduced and replication_status=author_reproduced.
+  unknown_values: Use null or an explicit unknown/pending state; never invent metadata.
+  title_directories: May remain for readability, but uid and canonical_id are authoritative.
+  ontology_records: Every ontology/schema record should declare model kind, world assumption, constraint and inference
+    capabilities, version, mappings and migration policy when known.
+  graded_governance_fields: During migration, provenance_preserved and reversible accept graded legacy states such
+    as partial, mixed and conceptual. New records should prefer explicit booleans plus explanatory notes or a future
+    structured assessment object.
+  deprecated_legacy_value: evidence.level=author_reproduced remains accepted for backward compatibility, but new
+    records should use evidence.level=reproduced and replication_status=author_reproduced.

@@ -1,0 +1,180 @@
+\pdfoutput=1
+
+\documentclass[11pt]{article}
+
+\usepackage[]{acl}
+
+\usepackage{times}
+\usepackage{latexsym}
+
+\usepackage[T1]{fontenc}
+
+\usepackage[utf8]{inputenc}
+
+\usepackage{microtype}
+
+\usepackage{inconsolata}
+
+
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{arydshln}
+\usepackage{tabularx}
+\usepackage{amsfonts}
+\usepackage{multirow}
+\usepackage{multicol}
+\usepackage{cleveref}
+\usepackage{xspace}
+\usepackage{makecell}
+\usepackage{fontawesome5}
+\usepackage{colortbl}
+\usepackage[ruled, lined, linesnumbered, commentsnumbered]{algorithm2e}
+\usepackage{todonotes}
+\usepackage{tablefootnote}
+\usepackage{tabularray}
+\usepackage{xspace}
+\usepackage{circledsteps}
+\usepackage{caption}
+\usepackage{longtable}
+\usepackage{multicol}
+\usepackage{array}
+
+\usepackage{listings}
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+\lstset{
+  language=Python,
+  basicstyle=\ttfamily\footnotesize\color{black}, %
+  numbers=left, %
+  numberstyle=\tiny\color{gray}, %
+  stepnumber=1, %
+  numbersep=10pt, %
+  backgroundcolor=\color{white}, %
+  showspaces=false, %
+  showstringspaces=false, %
+  showtabs=false, %
+  frame=single, %
+  rulecolor=\color{black}, %
+  tabsize=2, %
+  captionpos=b, %
+  breaklines=true, %
+  breakatwhitespace=false, %
+  title=\lstname, %
+  keywordstyle=\color{blue}, %
+  commentstyle=\color{dkgreen}, %
+  stringstyle=\color{dkgreen}, %
+  escapeinside={\%*}{*)}, %
+  morekeywords={}, %
+  deletekeywords={format}, %
+}
+
+\lstdefinelanguage{Python}{
+ keywords={and, as, assert, break, class, continue, def, del, elif, else,
+ except, False, finally, for, from, global, if, import, in, is, lambda,
+ None, nonlocal, not, or, pass, raise, return, True, try, while, with, yield, str, dspy},
+ keywordstyle=\color{blue},
+ emph={format}, %
+ emphstyle={\color{black}}, %
+ stringstyle=\color{dkgreen}, %
+ commentstyle=\color{dkgreen}, %
+ morecomment=[s]{"""}{"""},
+ morestring=[b]',
+ morestring=[s]{'''}{'''},
+}
+
+\renewcommand{\todo}[1]{{\color{red}{\{#1\}}}}
+\newcommand{\new}[1]{{\color{purple}{#1}}}
+\newcommand{\yijia}[1]{{\color{orange}{Yijia: #1}}}
+\newcommand{\sina}[1]{{\color{teal}{Sina: #1}}}
+\newcommand{\system}[0]{STORM\xspace}
+\newcommand{\TODO}[1]{{\color{blue} TODO: #1}}
+
+\newcommand{\nextitem}{\par\hspace*{\labelsep}\textbullet\hspace*{\labelsep}}
+\crefformat{section}{\S#2#1#3} %
+\crefformat{subsection}{\S#2#1#3}
+\crefformat{subsubsection}{\S#2#1#3}
+\newcommand{\refequ}[1]{Equation~(\ref{#1})}
+\newcommand{\reffig}[1]{Figure~\ref{#1}}
+\newcommand{\refsec}[1]{\S\ref{#1}} %
+\newcommand{\reftab}[1]{Table~\ref{#1}}
+\newcommand{\refdef}[1]{Definition~\ref{#1}}
+\newcommand{\tabincell}[2]{\begin{tabular}{@{}#1@{}}#2\end{tabular}}
+\newcommand{\red}[1]{\textcolor{red}{#1}}
+\newcommand{\blue}[1]{\textcolor{blue}{#1}}
+\def\eg{\textit{e.g.}\xspace}
+\def\Eg{\textit{E.g.}\xspace}
+\def\etal{\textit{et al.}\xspace}
+\def\etc{\textit{etc.}\xspace}
+\def\ie{\textit{i.e.}\xspace}
+\def\vs{\textit{vs.}\xspace}
+\def\wrt{\textit{w.r.t.}\xspace}
+
+\newcommand{\RNum}[1]{\uppercase\expandafter{\romannumeral #1\relax}}
+
+\definecolor{myyellow}{RGB}{249, 231, 173}
+\definecolor{mygreen}{RGB}{233, 242, 230}
+
+
+
+
+
+
+
+\title{Assisting in Writing Wikipedia-like Articles From Scratch \\ with Large Language Models}
+
+
+\author{Yijia Shao\quad Yucheng Jiang\quad Theodore A. Kanell\quad Peter Xu\\\textbf{Omar Khattab}\quad \textbf{Monica S. Lam}\\
+Stanford University\\
+\texttt{\{shaoyj, yuchengj, tkanell, peterxu, okhattab\}@stanford.edu}\\
+\texttt{lam@cs.stanford.edu}}
+
+\begin{document}
+\maketitle
+\begin{abstract}
+\input{0-Abstract}
+\end{abstract}
+
+\section{Introduction}
+\input{1-Introduction}
+
+\section{FreshWiki}
+\input{2-Task}
+
+\section{Method}
+\input{3-Method}
+
+\section{Experiments}
+\input{4-Experiments}
+
+\section{Results and Analysis}
+\input{5-Results}
+
+\section{Human Evaluation}
+\input{5_1-HumanEval}
+
+\section{Related Works}
+\input{6-RelatedWorks}
+
+\section{Conclusion}
+\input{7-Conclusion}
+
+\section*{Limitations}
+\input{99-Limitations}
+
+\section*{Acknowledgements}
+We thank You.com for generously providing the search API that supported our experiments. We also thank Sina J. Semnani, Shicheng Liu, Eric Zelikman for providing helpful feedback and the ACL ARR reviewers for their valuable comments. This work is supported in part by the Verdant Foundation and Microsoft Azure AI credits. Yijia Shao is supported by a Stanford School of Engineering Fellowship.
+
+\section*{Ethics Statement}
+\input{999-Ethics}
+
+
+\bibliography{anthology,custom}
+
+\clearpage
+\appendix
+\input{9999-Appendix}
+
+
+\end{document}
