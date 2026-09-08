@@ -18,7 +18,22 @@ properties:
     minLength: 3
   source_type:
     type: string
-    enum: [arxiv, journal, conference, paper, standard, blog, x, github, dataset, benchmark, incident, retraction]
+    enum:
+      - arxiv
+      - journal
+      - conference
+      - paper
+      - standard
+      - methodology
+      - industry_doc
+      - ontology
+      - blog
+      - x
+      - github
+      - dataset
+      - benchmark
+      - incident
+      - retraction
   canonical_id:
     type: [string, 'null']
     description: 'DOI, arXiv id, repository full name, standard id, dataset id, or another source-native stable identifier.'
@@ -72,6 +87,18 @@ properties:
       license_verified_at: {type: ['string', 'null']}
       access: {type: string, enum: [open, source_available, metadata_only, restricted, unknown]}
       notes: {type: ['string', 'null']}
+  model_characteristics:
+    type: object
+    properties:
+      model_kind:
+        type: string
+        enum: [taxonomy, vocabulary, ontology, schema, shape, semantic_layer, data_contract, operational_ontology, mapping, policy, not_applicable]
+      world_assumption:
+        type: string
+        enum: [open, closed, local_closed, mixed, not_applicable, undeclared]
+      constraint_capability: {type: [string, 'null']}
+      inference_capability: {type: [string, 'null']}
+      action_capability: {type: [string, 'null']}
   classification:
     type: object
     required: [domains, evolution_objects, loop_roles]
@@ -109,6 +136,9 @@ properties:
         type: array
         items: {type: string}
       standards:
+        type: array
+        items: {type: string}
+      methodologies:
         type: array
         items: {type: string}
       predecessors:
@@ -179,3 +209,6 @@ migration_policy:
     gain uid, canonical_id, verification, versioning, classification, linkage, rights and collection.
   unknown_values: 'Use null or an explicit unknown/pending state; never invent metadata.'
   title_directories: 'May remain for readability, but uid and canonical_id are authoritative.'
+  ontology_records: >-
+    Every ontology/schema record should declare model kind, world assumption, constraint and
+    inference capabilities, version, mappings and migration policy when known.
