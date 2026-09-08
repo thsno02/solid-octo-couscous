@@ -1,19 +1,19 @@
 collection: auto-research
-version: 1
-collected_at: '2026-09-08'
+version: 2
+collected_at: '2026-09-09'
 status: active
 purpose: >-
-  Track autonomous research as a concrete realization of self-evolution in a domain where
-  agents consume existing knowledge, generate hypotheses, produce new evidence, revise claims,
-  publish artifacts, and feed those artifacts back into future research cycles.
+  Track autonomous research as a concrete realization of self-evolution in a domain where agents
+  consume existing knowledge, generate hypotheses or programs, produce new evidence, revise claims,
+  publish artifacts, and feed verified artifacts back into future research cycles.
 
 core_loop:
   - literature_acquisition
   - evidence_synthesis
   - problem_or_hypothesis_generation
   - critique_and_selection
-  - experiment_design
-  - experiment_execution
+  - experiment_or_program_design
+  - execution
   - result_analysis
   - claim_update
   - provenance_and_verification
@@ -23,96 +23,107 @@ core_loop:
 subfields:
   literature_intelligence:
     description: 'Retrieve, synthesize, cross-check and detect contradictions in existing scientific knowledge.'
-    papers:
-      - '2411.14199' # OpenScholar
-      - '2409.13740' # PaperQA2
-      - '2504.03160' # DeepResearcher
+    papers: ['2411.14199', '2409.13740', '2504.03160']
+    projects: ['Future-House/paper-qa', 'stanford-oval/storm']
 
   hypothesis_and_idea_evolution:
     description: 'Generate populations of hypotheses/research ideas, critique, rank, preserve diversity and iteratively evolve them.'
-    papers:
-      - '2404.07738' # ResearchAgent
-      - '2502.18864' # AI co-scientist
-      - '2504.08066' # AI Scientist v2
+    papers: ['2404.07738', '2502.18864', '2504.08066']
+    projects: ['SakanaAI/AI-Scientist-v2', 'Future-House/robin']
 
   end_to_end_autonomous_research:
     description: 'Run substantial parts of the full research lifecycle from literature to experiments and research reports.'
-    papers:
-      - '2408.06292' # AI Scientist v1
-      - '2501.04227' # Agent Laboratory
-      - '2505.13400' # Robin
-      - '2511.02824' # Kosmos
+    papers: ['2408.06292', '2501.04227', '2505.13400', '2511.02824']
+    projects: ['SakanaAI/AI-Scientist', 'SamuelSchmidgall/AgentLaboratory', 'Future-House/robin']
 
   cumulative_and_collaborative_science:
     description: 'Persist research outputs so later agents/labs can retrieve, inherit, recombine and improve prior work.'
-    papers:
-      - '2503.18102' # AgentRxiv
-    frontier_sources:
-      - 'bioRxiv:10.64898/2026.08.16.745122' # Persistent AI scientist fleet
+    papers: ['2503.18102']
+    frontier_sources: ['biorxiv:10.64898/2026.08.16.745122']
+    infrastructure: ['orkg/orkg-backend', 'nanopub/nanopub-java', 'OpenLineage/OpenLineage']
 
   autonomous_experimentation:
     description: 'Connect scientific reasoning to tools, physical or simulated experiments, and evidence-generating environments.'
-    papers:
-      - '2304.05376' # ChemCrow
-      - '2509.25651' # AutoLabs
-      - '2406.06769' # DiscoveryWorld
-    non_arxiv_sources:
-      - 'Nature:10.1038/s41586-023-06792-0' # Autonomous chemical research
-      - 'bioRxiv:10.1101/2024.11.11.623004' # Virtual Lab
+    papers: ['2304.05376', '2509.25651', '2406.06769']
+    non_arxiv_sources: ['Nature:10.1038/s41586-023-06792-0', 'Nature:10.1038/s41586-023-06734-w', 'biorxiv:10.1101/2024.11.11.623004']
+    projects: ['ur-whitelab/chemcrow-public', 'allenai/discoveryworld', 'zou-group/virtual-lab', 'bluesky/bluesky', 'aiidateam/aiida-core', 'materialsproject/atomate2']
+
+  algorithm_discovery_and_formal_science:
+    description: 'Generate executable algorithms or formal proofs whose validity can be checked more directly than natural-language claims.'
+    sources:
+      - 'Nature:10.1038/s41586-023-06924-6' # FunSearch
+      - 'Nature:10.1038/s41586-022-05172-4' # AlphaTensor
+      - 'Nature:10.1038/s41586-023-06004-9' # AlphaDev
+      - 'arxiv:2306.15626' # LeanDojo
+    projects: ['google-deepmind/funsearch', 'lean-dojo/LeanDojo']
+
+  research_infrastructure_and_provenance:
+    description: 'Preserve data, code, workflow, experiment and claim lineage so autonomous research can be reproduced, branched and rolled back.'
+    standards: ['W3C-PROV-O']
+    projects: ['OpenLineage/OpenLineage', 'iterative/dvc', 'treeverse/lakeFS', 'aiidateam/aiida-core', 'langfuse/langfuse', 'Arize-ai/phoenix']
 
   research_evaluation_and_governance:
-    description: 'Evaluate whether autonomous research is reproducible, scientifically useful and safe to promote into durable knowledge.'
-    papers:
-      - '2410.07095' # MLE-bench
-      - '2502.14499' # MLGym
-      - '2504.01848' # PaperBench
-      - '2602.06855' # AIRS-Bench
+    description: 'Evaluate whether autonomous research is executable, reproducible, scientifically useful and safe to promote into durable knowledge.'
+    papers: ['2410.07095', '2502.14499', '2504.01848', '2602.06855']
+    projects: ['openai/mle-bench', 'openai/frontier-evals', 'facebookresearch/MLGym', 'mlfoundations/MLAgentBench']
 
 knowledge_evolution_mapping:
   variation:
     - new research questions
     - hypotheses
-    - methods
+    - methods and programs
     - experimental protocols
     - agent workflows
   evaluation:
     - literature evidence
     - automated critics and reviewers
-    - execution metrics
+    - executable tests and formal kernels
     - wet-lab or simulated experiments
     - replication
     - human/expert review
   selection:
     - hypothesis ranking
+    - program score
     - experiment outcomes
     - peer review
-    - benchmark performance
+    - knowledge-promotion gates
   retention:
     - papers and reports
-    - code and experiment traces
+    - code, data and environment versions
+    - experiment traces
     - world models
     - shared memory
-    - knowledge graphs
-    - preprint repositories
+    - knowledge graphs and nanopublications
+    - provenance graphs
   recombination:
     - cross-paper synthesis
     - cross-domain concept transfer
+    - program recombination
     - multi-agent collaboration
     - reuse of prior research artifacts
   meta_evolution:
     - improving research agents
     - improving evaluators
     - evolving research workflows
+    - evolving problem generators
     - generating the next research problem
+  rollback:
+    - retracting unsupported claims
+    - restoring prior data/code/model versions
+    - preserving rejected lineages for audit
 
 collection_priority:
   P0:
-    - '2503.18102' # AgentRxiv: direct knowledge write-back and cumulative progress
-    - '2511.02824' # Kosmos: long-horizon world-model-based discovery
-    - '2505.13400' # Robin: evidence-updating wet-lab loop
-    - '2502.18864' # AI co-scientist: explicit hypothesis evolution
-    - '2408.06292' # AI Scientist: open-ended automated research loop
-    - '2504.08066' # AI Scientist v2: tree-search research branching
+    - '2503.18102' # AgentRxiv
+    - '2511.02824' # Kosmos; pending scheduled revalidation
+    - '2505.13400' # Robin
+    - '2502.18864' # AI co-scientist
+    - '2408.06292' # AI Scientist
+    - '2504.08066' # AI Scientist v2
+    - 'Nature:10.1038/s41586-023-06924-6' # FunSearch
+    - 'Nature:10.1038/s41586-023-06734-w' # autonomous materials lab
+    - 'arxiv:2306.15626' # LeanDojo
+    - 'W3C-PROV-O'
   P1:
     - '2501.04227'
     - '2404.07738'
@@ -122,13 +133,26 @@ collection_priority:
     - '2406.06769'
     - '2504.01848'
     - '2602.06855'
+    - 'Nature:10.1038/s41586-022-05172-4'
+    - 'Nature:10.1038/s41586-023-06004-9'
   P2:
     - '2410.07095'
     - '2502.14499'
     - '2304.05376'
     - '2509.25651'
 
+remaining_gaps:
+  - failed replications and negative results as first-class records
+  - causal discovery and intervention planning
+  - autonomous peer-review calibration and reviewer independence
+  - real experiment traces with instrument and environment snapshots
+  - retraction, supersession and rollback workflows
+  - permissions for who or which agent may promote a claim
+  - benchmark contamination and circular self-evaluation detection
+
 notes:
-  - 'Auto research is treated as a first-class self-evolution domain, not merely an adjacent application.'
-  - 'Research outputs should be modeled as versioned claims with evidence, provenance and lineage rather than as unquestioned facts.'
-  - 'Generated papers are not automatically trusted knowledge; replication and provenance are governance gates.'
+  - 'Auto research is a first-class self-evolution domain, not merely an adjacent application.'
+  - 'Research outputs are versioned claims with evidence, provenance and lineage, not unquestioned facts.'
+  - 'Generated papers are not automatically trusted knowledge; replication and provenance are promotion gates.'
+  - 'Executable or formally verified outputs improve verification but do not eliminate objective and premise errors.'
+  - 'Frontier records in quarantine remain visible for lineage but are excluded from trusted promotion until revalidated.'
