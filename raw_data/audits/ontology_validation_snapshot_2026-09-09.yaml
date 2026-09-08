@@ -1,0 +1,51 @@
+validation_id: ontology-collection-validation-2026-09-09
+created_at: '2026-09-09'
+repository: thsno02/solid-octo-couscous
+workflow: '.github/workflows/validate-raw-data.yml'
+validator: scripts/validate_raw_data.py
+validated_commit: 47b907c825e73956f2a9adb3d50654895adc3654
+workflow_run_id: 34256856000
+status: passed
+
+results:
+  yaml_files: 208
+  yaml_parse_errors: 0
+  metadata_schema_migrated: 71
+  metadata_legacy_pending_migration: 117
+  migration_warnings: 117
+  blocking_errors: 0
+  duplicate_canonical_id_errors: 0
+  broken_index_reference_errors: 0
+  broken_manifest_reference_errors: 0
+
+initial_failure_and_fix:
+  failed_run_id: 34256569595
+  failed_commit: 8a4517598a5a45e1f421ebd8c462e2647b64dcb0
+  initial_blocking_errors: 33
+  cause: >-
+    The first schema modeled provenance preservation and reversibility as booleans, while existing
+    metadata used legitimate graded states such as partial, mixed, conceptual and not_applicable.
+    One legacy record also used author_reproduced as an evidence level rather than a replication status.
+  remediation:
+    - accept graded legacy governance states during migration
+    - add not_applicable to evaluator independence
+    - accept author_reproduced as a deprecated evidence-level compatibility value
+    - recommend structured assessments for new records instead of ambiguous scalar booleans
+  lesson: >-
+    Governance and epistemic attributes often require qualified, scoped assessments. Binary fields
+    can erase useful distinctions and cause a validation schema to reject more expressive evidence.
+
+remaining_nonblocking_work:
+  - migrate 117 legacy metadata records to uid, canonical_id, verification, classification and collection fields
+  - add exact source version or commit and verified license evidence where pending
+  - validate partially verified standards against exact active revisions
+  - materialize and hash legally available primary source content
+  - add dataset, benchmark and incident records as first-class sources
+
+ci_policy:
+  syntax_errors_block_merge: true
+  duplicate_canonical_ids_block_merge: true
+  broken_index_or_manifest_references_block_merge: true
+  migrated_record_schema_errors_block_merge: true
+  legacy_missing_fields_warn_only: true
+  legacy_warning_policy_is_temporary: true
