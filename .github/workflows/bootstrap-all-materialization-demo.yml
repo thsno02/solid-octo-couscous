@@ -77,4 +77,7 @@ jobs:
             exit 0
           fi
           git commit -m 'Materialize all collected sources and build v0 meta-KB initialization demo'
-          git push origin "HEAD:${GITHUB_REF_NAME}"
+          git push \
+            --force-with-lease="refs/heads/${GITHUB_REF_NAME}:${GITHUB_SHA}" \
+            origin \
+            "HEAD:refs/heads/${GITHUB_REF_NAME}"
