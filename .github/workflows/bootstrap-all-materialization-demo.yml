@@ -6,6 +6,7 @@ on:
       - work/v0-meta-kb-initialization-demo-260910
     paths:
       - '.github/workflows/bootstrap-all-materialization-demo.yml'
+      - '.bootstrap/materialize_bundle.part*'
 
 permissions:
   contents: write
@@ -27,11 +28,13 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Install the source-specific materialization pipeline
+      - name: Reassemble and install the source-specific materialization pipeline
         shell: bash
         run: |
           set -euo pipefail
-          tar -xzf .bootstrap/materialize_bundle.tgz -C .
+          cat .bootstrap/materialize_bundle.part* > /tmp/materialize_bundle.tgz
+          echo 'ef841e7fc9acfaf2aba42b198e4f422080572856c5092160658d84efe62aca13  /tmp/materialize_bundle.tgz' | sha256sum -c -
+          tar -xzf /tmp/materialize_bundle.tgz -C .
           rm -rf .bootstrap
           rm -f \
             .github/workflows/bootstrap-all-materialization-demo.yml \
