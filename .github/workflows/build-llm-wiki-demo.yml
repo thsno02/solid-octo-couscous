@@ -1,0 +1,78 @@
+name: Build v0 LLM Wiki demo
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - work/v0-meta-kb-initialization-demo-260910
+    paths:
+      - 'experiments/v0_meta_kb_initialization_demo_260910/pipeline/build_llm_wiki.py'
+      - 'experiments/v0_meta_kb_initialization_demo_260910/pipeline/llm_wiki_*.py'
+      - 'experiments/v0_meta_kb_initialization_demo_260910/pipeline/validate_llm_wiki.py'
+      - 'experiments/v0_meta_kb_initialization_demo_260910/config.yaml'
+      - 'experiments/v0_meta_kb_initialization_demo_260910/README.md'
+      - 'docs/llm-wiki/**'
+      - 'raw_data/schemas/wiki_page.schema.yaml'
+      - 'raw_data/schemas/wiki_change.schema.yaml'
+      - '.github/workflows/build-llm-wiki-demo.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-v0-llm-wiki-demo-260910
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install validators
+        run: python -m pip install --disable-pip-version-check -r requirements-materialization.txt
+
+      - name: Compile the LLM Wiki from the materialized claim and evidence layer
+        run: python experiments/v0_meta_kb_initialization_demo_260910/pipeline/build_llm_wiki.py
+
+      - name: Validate the compiled wiki release and deterministic manifest
+        run: python experiments/v0_meta_kb_initialization_demo_260910/pipeline/validate_llm_wiki.py
+
+      - name: Validate the complete v0 experiment
+        run: python experiments/v0_meta_kb_initialization_demo_260910/pipeline/validate_demo.py
+
+      - name: Run repository-level deterministic checks
+        run: |
+          python scripts/validate_raw_data.py
+          python scripts/validate_docs.py
+
+      - name: Commit the validated candidate wiki
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add \
+            experiments/v0_meta_kb_initialization_demo_260910/00_inputs/wiki_build_request.yaml \
+            experiments/v0_meta_kb_initialization_demo_260910/00_inputs/page_plan.yaml \
+            experiments/v0_meta_kb_initialization_demo_260910/05_wiki \
+            experiments/v0_meta_kb_initialization_demo_260910/06_evaluation \
+            experiments/v0_meta_kb_initialization_demo_260910/07_review/page_queue.yaml \
+            experiments/v0_meta_kb_initialization_demo_260910/08_release/manifest.yaml \
+            experiments/v0_meta_kb_initialization_demo_260910/08_release/wiki_change.yaml \
+            experiments/v0_meta_kb_initialization_demo_260910/08_release/wiki_build_manifest.yaml \
+            experiments/v0_meta_kb_initialization_demo_260910/08_release/change_feed.jsonl
+          if git diff --cached --quiet; then
+            echo 'No generated wiki changes.'
+            exit 0
+          fi
+          git commit -m 'Compile validated v0 LLM Wiki candidate'
+          git pull --rebase origin "${GITHUB_REF_NAME}"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
