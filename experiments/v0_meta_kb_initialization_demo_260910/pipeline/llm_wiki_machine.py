@@ -22,7 +22,7 @@ def machine(pages: list[dict[str, Any]], claims: list[dict[str, Any]], evidence:
     ppath = {p["uid"]: p["path"] for p in pages}; cpath = {str(c["uid"]): f"claims/{slug(str(c['uid']))}.md" for c in claims}; spath = {str(s["uid"]): f"sources/{slug(str(s['uid']))}.md" for s in sources}
     jwrite(WIKI / "catalog/pages.jsonl", ({"uid": p["uid"], "title": p["title"], "path": p["path"], "page_type": p["type"], "summary": p["summary"], "claim_refs": p["claims"], "source_refs": p["sources"]} for p in pages))
     jwrite(WIKI / "catalog/claims.jsonl", ({"uid": str(c["uid"]), "text": ctext(c), "scope": cscope(c), "domain": cdomain(c), "source_refs": srcs(c), "evidence_refs": evrefs(c), "page": cpath[str(c["uid"])]} for c in claims))
-    jwrite(WIKI / "catalog/sources.jsonl", ({"uid": str(s["uid"]), "title": text(s.get("title")), "source_type": s.get("source_type"), "content_tier": s.get("content_tier"), "revision": s.get("revision"), "page": spath{str(s["uid"])]} for s in sources))
+    jwrite(WIKI / "catalog/sources.jsonl", ({"uid": str(s["uid"]), "title": text(s.get("title")), "source_type": s.get("source_type"), "content_tier": s.get("content_tier"), "revision": s.get("revision"), "page": spath[str(s["uid"])]} for s in sources))
     nodes = [{"id": p["uid"], "kind": "page", "path": p["path"], "label": p["title"]} for p in pages] + [{"id": str(c["uid"]), "kind": "claim", "label": ctext(c)[:180]} for c in claims] + [{"id": str(e["uid"]), "kind": "evidence", "label": text(prop(e).get("selector"))} for e in evidence] + [{"id": str(s["uid"]), "kind": "source", "label": text(s.get("title"))} for s in sources]
     edges: list[dict[str, Any]] = []
     for p in pages:
