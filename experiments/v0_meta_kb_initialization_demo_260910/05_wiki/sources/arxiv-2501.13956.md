@@ -4,18 +4,47 @@ title: 'Zep: A Temporal Knowledge Graph Architecture for Agent Memory'
 slug: sources/arxiv-2501.13956
 page_type: source
 status: review
-summary: 'Candidate source page for Zep: A Temporal Knowledge Graph Architecture for Agent Memory'
+summary: 'Source page for Zep: A Temporal Knowledge Graph Architecture for Agent Memory with claim/evidence expansion.'
 aliases: []
 ontology_refs:
 - experiment:meta-kb-v0
-claim_refs:
-- claim:ef04f2ebbd2da425
+claim_refs: &id001
 - claim:419c77c89a471f8e
-source_refs: &id001
+- claim:ef04f2ebbd2da425
+source_refs: &id002
 - arxiv:2501.13956
-page_refs: []
-outgoing_links: []
-sections: []
+page_refs:
+- wiki-page:map-knowledge-memory
+- wiki-page:evidence-7781d7df52d59b86
+- wiki-page:evidence-410ef6d7fb5163de
+outgoing_links:
+- target: wiki-page:map-knowledge-memory
+  relation: part_of
+  claim_refs: *id001
+  notes: null
+- target: wiki-page:evidence-7781d7df52d59b86
+  relation: evidenced_by
+  claim_refs:
+  - claim:419c77c89a471f8e
+  notes: null
+- target: wiki-page:evidence-410ef6d7fb5163de
+  relation: evidenced_by
+  claim_refs:
+  - claim:ef04f2ebbd2da425
+  notes: null
+sections:
+- heading: Source-reported candidate statements
+  claim_refs:
+  - claim:ef04f2ebbd2da425
+  source_refs:
+  - arxiv:2501.13956
+  editorial_intent: Represent source statements.
+- heading: Collection assessments
+  claim_refs:
+  - claim:419c77c89a471f8e
+  source_refs:
+  - arxiv:2501.13956
+  editorial_intent: Keep collector interpretation separate.
 temporal:
   created_at: '2026-09-13T17:43:07Z'
   updated_at: '2026-09-13T17:43:07Z'
@@ -23,11 +52,12 @@ temporal:
   valid_to: null
   as_of: '2026-09-13T17:43:07Z'
 provenance:
-  build_id: build:v0-meta-kb-260910:88936dc16ae2c769
-  generated_by_agent: agent:deterministic-v0-builder
+  build_id: build:llm-wiki-v0:196d848b07caf422
+  generated_by_agent: pipeline/build_llm_wiki.py
   generated_by_model: null
-  prompt_or_skill_version: deterministic-v0.1
-  compiled_from_revisions: *id001
+  prompt_or_skill_version: deterministic-llm-wiki-v0.2
+  compiled_from_revisions:
+  - arxiv:2501.13956@sha256:d98c3a619caf66173e92e9a21829b32312db83156e30ede9e6bb45c1c6016d51
   created_at: '2026-09-13T17:43:07Z'
   updated_at: '2026-09-13T17:43:07Z'
   manual_edits_preserved: true
@@ -37,44 +67,64 @@ review:
   decision_ref: null
   checked_claim_refs: []
   unresolved_issues:
-  - Scientific and semantic review required before publication.
+  - Scientific, semantic, neutrality, and due-weight review remain required before publication.
 freshness:
   status: fresh
   checked_at: '2026-09-13T17:43:07Z'
   max_age_days: 30
-  source_dependencies: *id001
+  source_dependencies: *id002
   staleness_reasons: []
 consumption:
   audiences:
   - human
   - agent
   summary_tiers:
-    one_line: 'Candidate source page for Zep: A Temporal Knowledge Graph Architecture for Agent Memory'
-    short: 'Candidate source page for Zep: A Temporal Knowledge Graph Architecture for Agent Memory'
+    one_line: 'Source page for Zep: A Temporal Knowledge Graph Architecture for Agent Memory with claim/evidence
+      expansion.'
+    short: 'Source page for Zep: A Temporal Knowledge Graph Architecture for Agent Memory with claim/evidence expansion.'
     full: null
-  estimated_tokens: null
+  estimated_tokens: 199
   machine_entry_points:
   - ../../04_claims/claims.jsonl
   - ../../03_evidence/evidence.jsonl
+  - ../catalog/pages.jsonl
 ---
 
 # Zep: A Temporal Knowledge Graph Architecture for Agent Memory
+
+> Source-oriented candidate page. Source statements and collector interpretation remain separate.
+
+## Source identity
 
 - Source UID: `arxiv:2501.13956`
 - Canonical ID: `2501.13956`
 - Source type: `arxiv`
 - Content tier: `full_text`
-- Domain bucket: `knowledge-memory`
+- Revision: `sha256:d98c3a619caf66173e92e9a21829b32312db83156e30ede9e6bb45c1c6016d51`
+- Domain: [knowledge-memory](../maps/knowledge-memory.md)
 - Local document: `materialized_sources/corpus/arxiv-2501.13956--b93a114f/normalized/document.txt`
 
-## Source-reported assertion
+## Source-reported candidate statements
 
-We introduce Zep, a novel memory layer service for AI agents that outperforms the current state-of-the-art system, MemGPT, in the Deep Memory Retrieval (DMR) benchmark. Additionally, Zep excels in more comprehensive and challenging evaluations than DMR that better reflect real-world enterprise use cases.
+- We introduce Zep, a novel memory layer service for AI agents that outperforms the current state-of-the-art system, MemGPT, in the Deep Memory Retrieval (DMR) benchmark. Additionally, Zep excels in more comprehensive and challenging evaluations than DMR that better reflect real-world enterprise use cases. 〔[claim:ef04f2ebbd2da425](../claims/claim-ef04f2ebbd2da425.md)〕
 
-## Collection assessment
+## Collection assessments
 
-A directly relevant architecture for continuously integrating conversational and business data into a temporally-aware knowledge graph while preserving historical relationships.
+- A directly relevant architecture for continuously integrating conversational and business data into a temporally-aware knowledge graph while preserving historical relationships. 〔[claim:419c77c89a471f8e](../claims/claim-419c77c89a471f8e.md)〕
 
-## Governance state
+## Evidence inventory
 
-Both statements remain candidates. The source assertion is not treated as independently verified, and the collection assessment is not treated as source-authored evidence.
+| Claim | Evidence | Selector | Tier |
+|---|---|---|---|
+| `claim:419c77c89a471f8e` | `evidence:82efa10dc6344376` | `local://raw_data/arxiv/Zep: A Temporal Knowledge Graph Architecture for Agent Memory/metadata.yaml#collection-inclusion-reason` | `metadata_capsule` |
+| `claim:ef04f2ebbd2da425` | `evidence:420fd60b33cee2a7` | `local://materialized_sources/corpus/arxiv-2501.13956--b93a114f/normalized/document.txt#L73-L73` | `full_text` |
+
+## Governance boundary
+
+Source statements remain unverified candidates. Collection assessments explain inclusion but are not source-authored scientific evidence.
+
+## Related pages
+
+- [Knowledge Memory](../maps/knowledge-memory.md) — `part_of`
+- [Claim 419c77c89a471f8e](../claims/claim-419c77c89a471f8e.md) — `evidenced_by`
+- [Claim ef04f2ebbd2da425](../claims/claim-ef04f2ebbd2da425.md) — `evidenced_by`

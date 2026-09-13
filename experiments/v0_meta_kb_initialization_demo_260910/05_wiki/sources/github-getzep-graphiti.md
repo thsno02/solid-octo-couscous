@@ -4,18 +4,47 @@ title: getzep/graphiti
 slug: sources/github-getzep-graphiti
 page_type: source
 status: review
-summary: Candidate source page for getzep/graphiti
+summary: Source page for getzep/graphiti with claim/evidence expansion.
 aliases: []
 ontology_refs:
 - experiment:meta-kb-v0
-claim_refs:
+claim_refs: &id001
 - claim:bc85c4d0c6801c3a
 - claim:d6556415105fc41e
-source_refs: &id001
+source_refs: &id002
 - github:getzep/graphiti
-page_refs: []
-outgoing_links: []
-sections: []
+page_refs:
+- wiki-page:map-knowledge-memory
+- wiki-page:evidence-db6f515f9effd011
+- wiki-page:evidence-caedbc6d92b92e05
+outgoing_links:
+- target: wiki-page:map-knowledge-memory
+  relation: part_of
+  claim_refs: *id001
+  notes: null
+- target: wiki-page:evidence-db6f515f9effd011
+  relation: evidenced_by
+  claim_refs:
+  - claim:bc85c4d0c6801c3a
+  notes: null
+- target: wiki-page:evidence-caedbc6d92b92e05
+  relation: evidenced_by
+  claim_refs:
+  - claim:d6556415105fc41e
+  notes: null
+sections:
+- heading: Source-reported candidate statements
+  claim_refs:
+  - claim:bc85c4d0c6801c3a
+  source_refs:
+  - github:getzep/graphiti
+  editorial_intent: Represent source statements.
+- heading: Collection assessments
+  claim_refs:
+  - claim:d6556415105fc41e
+  source_refs:
+  - github:getzep/graphiti
+  editorial_intent: Keep collector interpretation separate.
 temporal:
   created_at: '2026-09-13T17:43:07Z'
   updated_at: '2026-09-13T17:43:07Z'
@@ -23,11 +52,12 @@ temporal:
   valid_to: null
   as_of: '2026-09-13T17:43:07Z'
 provenance:
-  build_id: build:v0-meta-kb-260910:88936dc16ae2c769
-  generated_by_agent: agent:deterministic-v0-builder
+  build_id: build:llm-wiki-v0:196d848b07caf422
+  generated_by_agent: pipeline/build_llm_wiki.py
   generated_by_model: null
-  prompt_or_skill_version: deterministic-v0.1
-  compiled_from_revisions: *id001
+  prompt_or_skill_version: deterministic-llm-wiki-v0.2
+  compiled_from_revisions:
+  - github:getzep/graphiti@c035afb7990b6077331a81e98b04efcfd9bf8184
   created_at: '2026-09-13T17:43:07Z'
   updated_at: '2026-09-13T17:43:07Z'
   manual_edits_preserved: true
@@ -37,44 +67,63 @@ review:
   decision_ref: null
   checked_claim_refs: []
   unresolved_issues:
-  - Scientific and semantic review required before publication.
+  - Scientific, semantic, neutrality, and due-weight review remain required before publication.
 freshness:
   status: fresh
   checked_at: '2026-09-13T17:43:07Z'
   max_age_days: 30
-  source_dependencies: *id001
+  source_dependencies: *id002
   staleness_reasons: []
 consumption:
   audiences:
   - human
   - agent
   summary_tiers:
-    one_line: Candidate source page for getzep/graphiti
-    short: Candidate source page for getzep/graphiti
+    one_line: Source page for getzep/graphiti with claim/evidence expansion.
+    short: Source page for getzep/graphiti with claim/evidence expansion.
     full: null
-  estimated_tokens: null
+  estimated_tokens: 168
   machine_entry_points:
   - ../../04_claims/claims.jsonl
   - ../../03_evidence/evidence.jsonl
+  - ../catalog/pages.jsonl
 ---
 
 # getzep/graphiti
+
+> Source-oriented candidate page. Source statements and collector interpretation remain separate.
+
+## Source identity
 
 - Source UID: `github:getzep/graphiti`
 - Canonical ID: `getzep/graphiti`
 - Source type: `github`
 - Content tier: `semantic_capsule`
-- Domain bucket: `knowledge-memory`
+- Revision: `c035afb7990b6077331a81e98b04efcfd9bf8184`
+- Domain: [knowledge-memory](../maps/knowledge-memory.md)
 - Local document: `materialized_sources/corpus/github-getzep-graphiti--e9af10ca/document.md`
 
-## Source-reported assertion
+## Source-reported candidate statements
 
-- Commit: `c035afb7990b6077331a81e98b04efcfd9bf8184` - Default branch: `main` - Description: getzep/graphiti - Selected evidence files: 8 of 21 files observed - Interpretation: maintainer documentation and static repository evidence; runtime behavior is not proven.
+- - Commit: `c035afb7990b6077331a81e98b04efcfd9bf8184` - Default branch: `main` - Description: getzep/graphiti - Selected evidence files: 8 of 21 files observed - Interpretation: maintainer documentation and static repository evidence; runtime behavior is not proven. 〔[claim:bc85c4d0c6801c3a](../claims/claim-bc85c4d0c6801c3a.md)〕
 
-## Collection assessment
+## Collection assessments
 
-Direct engineering implementation of an agent knowledge graph that changes over time while preserving temporal history.
+- Direct engineering implementation of an agent knowledge graph that changes over time while preserving temporal history. 〔[claim:d6556415105fc41e](../claims/claim-d6556415105fc41e.md)〕
 
-## Governance state
+## Evidence inventory
 
-Both statements remain candidates. The source assertion is not treated as independently verified, and the collection assessment is not treated as source-authored evidence.
+| Claim | Evidence | Selector | Tier |
+|---|---|---|---|
+| `claim:bc85c4d0c6801c3a` | `evidence:2d2d6e2c4b39b026` | `local://materialized_sources/corpus/github-getzep-graphiti--e9af10ca/document.md#L3-L6` | `semantic_capsule` |
+| `claim:d6556415105fc41e` | `evidence:d4d7cd076e23b0d2` | `local://raw_data/githubs/getzep--graphiti/metadata.yaml#collection-inclusion-reason` | `metadata_capsule` |
+
+## Governance boundary
+
+Source statements remain unverified candidates. Collection assessments explain inclusion but are not source-authored scientific evidence.
+
+## Related pages
+
+- [Knowledge Memory](../maps/knowledge-memory.md) — `part_of`
+- [Claim bc85c4d0c6801c3a](../claims/claim-bc85c4d0c6801c3a.md) — `evidenced_by`
+- [Claim d6556415105fc41e](../claims/claim-d6556415105fc41e.md) — `evidenced_by`

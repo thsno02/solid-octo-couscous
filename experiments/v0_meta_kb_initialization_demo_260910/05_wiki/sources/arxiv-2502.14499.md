@@ -4,18 +4,48 @@ title: 'MLGym: A New Framework and Benchmark for Advancing AI Research Agents'
 slug: sources/arxiv-2502.14499
 page_type: source
 status: review
-summary: 'Candidate source page for MLGym: A New Framework and Benchmark for Advancing AI Research Agents'
+summary: 'Source page for MLGym: A New Framework and Benchmark for Advancing AI Research Agents with claim/evidence
+  expansion.'
 aliases: []
 ontology_refs:
 - experiment:meta-kb-v0
-claim_refs:
+claim_refs: &id001
 - claim:4bf5ea8e6b4e37de
 - claim:4fd96c70e0c625fd
-source_refs: &id001
+source_refs: &id002
 - arxiv:2502.14499
-page_refs: []
-outgoing_links: []
-sections: []
+page_refs:
+- wiki-page:map-governance-evaluation
+- wiki-page:evidence-973c18c6200bf335
+- wiki-page:evidence-d3f9114eb1b08abf
+outgoing_links:
+- target: wiki-page:map-governance-evaluation
+  relation: part_of
+  claim_refs: *id001
+  notes: null
+- target: wiki-page:evidence-973c18c6200bf335
+  relation: evidenced_by
+  claim_refs:
+  - claim:4bf5ea8e6b4e37de
+  notes: null
+- target: wiki-page:evidence-d3f9114eb1b08abf
+  relation: evidenced_by
+  claim_refs:
+  - claim:4fd96c70e0c625fd
+  notes: null
+sections:
+- heading: Source-reported candidate statements
+  claim_refs:
+  - claim:4bf5ea8e6b4e37de
+  source_refs:
+  - arxiv:2502.14499
+  editorial_intent: Represent source statements.
+- heading: Collection assessments
+  claim_refs:
+  - claim:4fd96c70e0c625fd
+  source_refs:
+  - arxiv:2502.14499
+  editorial_intent: Keep collector interpretation separate.
 temporal:
   created_at: '2026-09-13T17:43:07Z'
   updated_at: '2026-09-13T17:43:07Z'
@@ -23,11 +53,12 @@ temporal:
   valid_to: null
   as_of: '2026-09-13T17:43:07Z'
 provenance:
-  build_id: build:v0-meta-kb-260910:88936dc16ae2c769
-  generated_by_agent: agent:deterministic-v0-builder
+  build_id: build:llm-wiki-v0:196d848b07caf422
+  generated_by_agent: pipeline/build_llm_wiki.py
   generated_by_model: null
-  prompt_or_skill_version: deterministic-v0.1
-  compiled_from_revisions: *id001
+  prompt_or_skill_version: deterministic-llm-wiki-v0.2
+  compiled_from_revisions:
+  - arxiv:2502.14499@sha256:de8bc15be762914dd2f056f00efe2b83d51ce852a7035d65e866e6cdecbbb65a
   created_at: '2026-09-13T17:43:07Z'
   updated_at: '2026-09-13T17:43:07Z'
   manual_edits_preserved: true
@@ -37,44 +68,65 @@ review:
   decision_ref: null
   checked_claim_refs: []
   unresolved_issues:
-  - Scientific and semantic review required before publication.
+  - Scientific, semantic, neutrality, and due-weight review remain required before publication.
 freshness:
   status: fresh
   checked_at: '2026-09-13T17:43:07Z'
   max_age_days: 30
-  source_dependencies: *id001
+  source_dependencies: *id002
   staleness_reasons: []
 consumption:
   audiences:
   - human
   - agent
   summary_tiers:
-    one_line: 'Candidate source page for MLGym: A New Framework and Benchmark for Advancing AI Research Agents'
-    short: 'Candidate source page for MLGym: A New Framework and Benchmark for Advancing AI Research Agents'
+    one_line: 'Source page for MLGym: A New Framework and Benchmark for Advancing AI Research Agents with claim/evidence
+      expansion.'
+    short: 'Source page for MLGym: A New Framework and Benchmark for Advancing AI Research Agents with claim/evidence
+      expansion.'
     full: null
-  estimated_tokens: null
+  estimated_tokens: 175
   machine_entry_points:
   - ../../04_claims/claims.jsonl
   - ../../03_evidence/evidence.jsonl
+  - ../catalog/pages.jsonl
 ---
 
 # MLGym: A New Framework and Benchmark for Advancing AI Research Agents
+
+> Source-oriented candidate page. Source statements and collector interpretation remain separate.
+
+## Source identity
 
 - Source UID: `arxiv:2502.14499`
 - Canonical ID: `2502.14499`
 - Source type: `arxiv`
 - Content tier: `full_text`
-- Domain bucket: `governance-evaluation`
+- Revision: `sha256:de8bc15be762914dd2f056f00efe2b83d51ce852a7035d65e866e6cdecbbb65a`
+- Domain: [governance-evaluation](../maps/governance-evaluation.md)
 - Local document: `materialized_sources/corpus/arxiv-2502.14499--a7f1a2e8/normalized/document.txt`
 
-## Source-reported assertion
+## Source-reported candidate statements
 
-amssymb amsmath adjustbox soul enumitem booktabs color xcolor bbding listings multicol xspace lmodern tablefootnote
+- amssymb amsmath adjustbox soul enumitem booktabs color xcolor bbding listings multicol xspace lmodern tablefootnote 〔[claim:4bf5ea8e6b4e37de](../claims/claim-4bf5ea8e6b4e37de.md)〕
 
-## Collection assessment
+## Collection assessments
 
-A Gym-style environment and benchmark for training/evaluating agents on open-ended ML research tasks requiring ideation, implementation, experimentation, analysis and iterative improvement.
+- A Gym-style environment and benchmark for training/evaluating agents on open-ended ML research tasks requiring ideation, implementation, experimentation, analysis and iterative improvement. 〔[claim:4fd96c70e0c625fd](../claims/claim-4fd96c70e0c625fd.md)〕
 
-## Governance state
+## Evidence inventory
 
-Both statements remain candidates. The source assertion is not treated as independently verified, and the collection assessment is not treated as source-authored evidence.
+| Claim | Evidence | Selector | Tier |
+|---|---|---|---|
+| `claim:4bf5ea8e6b4e37de` | `evidence:0b3ad94ceb672903` | `local://materialized_sources/corpus/arxiv-2502.14499--a7f1a2e8/normalized/document.txt#L1-L4` | `full_text` |
+| `claim:4fd96c70e0c625fd` | `evidence:751adf7b39d39c48` | `local://raw_data/arxiv/MLGym: A New Framework and Benchmark for Advancing AI Research Agents/metadata.yaml#collection-inclusion-reason` | `metadata_capsule` |
+
+## Governance boundary
+
+Source statements remain unverified candidates. Collection assessments explain inclusion but are not source-authored scientific evidence.
+
+## Related pages
+
+- [Governance Evaluation](../maps/governance-evaluation.md) — `part_of`
+- [Claim 4bf5ea8e6b4e37de](../claims/claim-4bf5ea8e6b4e37de.md) — `evidenced_by`
+- [Claim 4fd96c70e0c625fd](../claims/claim-4fd96c70e0c625fd.md) — `evidenced_by`

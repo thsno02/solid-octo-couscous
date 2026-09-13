@@ -4,18 +4,47 @@ title: Gradient Episodic Memory for Continual Learning
 slug: sources/arxiv-1706.08840
 page_type: source
 status: review
-summary: Candidate source page for Gradient Episodic Memory for Continual Learning
+summary: Source page for Gradient Episodic Memory for Continual Learning with claim/evidence expansion.
 aliases: []
 ontology_refs:
 - experiment:meta-kb-v0
-claim_refs:
+claim_refs: &id001
 - claim:12237a4df4847d59
 - claim:633b28ce5aca37bd
-source_refs: &id001
+source_refs: &id002
 - arxiv-1706.08840
-page_refs: []
-outgoing_links: []
-sections: []
+page_refs:
+- wiki-page:map-knowledge-memory
+- wiki-page:evidence-7bf74a1b5f4e9cda
+- wiki-page:evidence-c0a3f9f9a75f6453
+outgoing_links:
+- target: wiki-page:map-knowledge-memory
+  relation: part_of
+  claim_refs: *id001
+  notes: null
+- target: wiki-page:evidence-7bf74a1b5f4e9cda
+  relation: evidenced_by
+  claim_refs:
+  - claim:12237a4df4847d59
+  notes: null
+- target: wiki-page:evidence-c0a3f9f9a75f6453
+  relation: evidenced_by
+  claim_refs:
+  - claim:633b28ce5aca37bd
+  notes: null
+sections:
+- heading: Source-reported candidate statements
+  claim_refs:
+  - claim:12237a4df4847d59
+  source_refs:
+  - arxiv-1706.08840
+  editorial_intent: Represent source statements.
+- heading: Collection assessments
+  claim_refs:
+  - claim:633b28ce5aca37bd
+  source_refs:
+  - arxiv-1706.08840
+  editorial_intent: Keep collector interpretation separate.
 temporal:
   created_at: '2026-09-13T17:43:07Z'
   updated_at: '2026-09-13T17:43:07Z'
@@ -23,11 +52,12 @@ temporal:
   valid_to: null
   as_of: '2026-09-13T17:43:07Z'
 provenance:
-  build_id: build:v0-meta-kb-260910:88936dc16ae2c769
-  generated_by_agent: agent:deterministic-v0-builder
+  build_id: build:llm-wiki-v0:196d848b07caf422
+  generated_by_agent: pipeline/build_llm_wiki.py
   generated_by_model: null
-  prompt_or_skill_version: deterministic-v0.1
-  compiled_from_revisions: *id001
+  prompt_or_skill_version: deterministic-llm-wiki-v0.2
+  compiled_from_revisions:
+  - arxiv-1706.08840@sha256:330858b30f0963297c9d772fc29aabc8dfcff7d687856d91a2f167847d0fca88
   created_at: '2026-09-13T17:43:07Z'
   updated_at: '2026-09-13T17:43:07Z'
   manual_edits_preserved: true
@@ -37,44 +67,63 @@ review:
   decision_ref: null
   checked_claim_refs: []
   unresolved_issues:
-  - Scientific and semantic review required before publication.
+  - Scientific, semantic, neutrality, and due-weight review remain required before publication.
 freshness:
   status: fresh
   checked_at: '2026-09-13T17:43:07Z'
   max_age_days: 30
-  source_dependencies: *id001
+  source_dependencies: *id002
   staleness_reasons: []
 consumption:
   audiences:
   - human
   - agent
   summary_tiers:
-    one_line: Candidate source page for Gradient Episodic Memory for Continual Learning
-    short: Candidate source page for Gradient Episodic Memory for Continual Learning
+    one_line: Source page for Gradient Episodic Memory for Continual Learning with claim/evidence expansion.
+    short: Source page for Gradient Episodic Memory for Continual Learning with claim/evidence expansion.
     full: null
-  estimated_tokens: null
+  estimated_tokens: 194
   machine_entry_points:
   - ../../04_claims/claims.jsonl
   - ../../03_evidence/evidence.jsonl
+  - ../catalog/pages.jsonl
 ---
 
 # Gradient Episodic Memory for Continual Learning
+
+> Source-oriented candidate page. Source statements and collector interpretation remain separate.
+
+## Source identity
 
 - Source UID: `arxiv-1706.08840`
 - Canonical ID: `1706.08840`
 - Source type: `arxiv`
 - Content tier: `full_text`
-- Domain bucket: `knowledge-memory`
+- Revision: `sha256:330858b30f0963297c9d772fc29aabc8dfcff7d687856d91a2f167847d0fca88`
+- Domain: [knowledge-memory](../maps/knowledge-memory.md)
 - Local document: `materialized_sources/corpus/arxiv-1706.08840--acb7e7ed/normalized/document.txt`
 
-## Source-reported assertion
+## Source-reported candidate statements
 
-One major obstacle towards AI is the poor ability of models to solve new problems quicker, and without forgetting previously acquired knowledge. To better understand this issue, we study the problem of continual learning, where the model observes, once and one by one, examples concerning a sequence of tasks.
+- One major obstacle towards AI is the poor ability of models to solve new problems quicker, and without forgetting previously acquired knowledge. To better understand this issue, we study the problem of continual learning, where the model observes, once and one by one, examples concerning a sequence of tasks. 〔[claim:12237a4df4847d59](../claims/claim-12237a4df4847d59.md)〕
 
-## Collection assessment
+## Collection assessments
 
-Connects memory retention to constrained updates and positive backward transfer, directly informing governed knowledge updates.
+- Connects memory retention to constrained updates and positive backward transfer, directly informing governed knowledge updates. 〔[claim:633b28ce5aca37bd](../claims/claim-633b28ce5aca37bd.md)〕
 
-## Governance state
+## Evidence inventory
 
-Both statements remain candidates. The source assertion is not treated as independently verified, and the collection assessment is not treated as source-authored evidence.
+| Claim | Evidence | Selector | Tier |
+|---|---|---|---|
+| `claim:12237a4df4847d59` | `evidence:cd3d871f39cb6ece` | `local://materialized_sources/corpus/arxiv-1706.08840--acb7e7ed/normalized/document.txt#L45-L56` | `full_text` |
+| `claim:633b28ce5aca37bd` | `evidence:68121f105d3012a3` | `local://raw_data/arxiv/Gradient Episodic Memory for Continual Learning/metadata.yaml#collection-inclusion-reason` | `metadata_capsule` |
+
+## Governance boundary
+
+Source statements remain unverified candidates. Collection assessments explain inclusion but are not source-authored scientific evidence.
+
+## Related pages
+
+- [Knowledge Memory](../maps/knowledge-memory.md) — `part_of`
+- [Claim 12237a4df4847d59](../claims/claim-12237a4df4847d59.md) — `evidenced_by`
+- [Claim 633b28ce5aca37bd](../claims/claim-633b28ce5aca37bd.md) — `evidenced_by`

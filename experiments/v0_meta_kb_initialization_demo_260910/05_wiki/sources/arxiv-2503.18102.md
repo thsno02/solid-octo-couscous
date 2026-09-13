@@ -4,18 +4,47 @@ title: 'AgentRxiv: Towards Collaborative Autonomous Research'
 slug: sources/arxiv-2503.18102
 page_type: source
 status: review
-summary: 'Candidate source page for AgentRxiv: Towards Collaborative Autonomous Research'
+summary: 'Source page for AgentRxiv: Towards Collaborative Autonomous Research with claim/evidence expansion.'
 aliases: []
 ontology_refs:
 - experiment:meta-kb-v0
-claim_refs:
+claim_refs: &id001
 - claim:07439fdff0cc0aa3
 - claim:f5d2f5be4a498ca2
-source_refs: &id001
+source_refs: &id002
 - arxiv:2503.18102
-page_refs: []
-outgoing_links: []
-sections: []
+page_refs:
+- wiki-page:map-ontology-semantic-architecture
+- wiki-page:evidence-1b992220f722d044
+- wiki-page:evidence-1e3c274acc6e4c60
+outgoing_links:
+- target: wiki-page:map-ontology-semantic-architecture
+  relation: part_of
+  claim_refs: *id001
+  notes: null
+- target: wiki-page:evidence-1b992220f722d044
+  relation: evidenced_by
+  claim_refs:
+  - claim:07439fdff0cc0aa3
+  notes: null
+- target: wiki-page:evidence-1e3c274acc6e4c60
+  relation: evidenced_by
+  claim_refs:
+  - claim:f5d2f5be4a498ca2
+  notes: null
+sections:
+- heading: Source-reported candidate statements
+  claim_refs:
+  - claim:07439fdff0cc0aa3
+  source_refs:
+  - arxiv:2503.18102
+  editorial_intent: Represent source statements.
+- heading: Collection assessments
+  claim_refs:
+  - claim:f5d2f5be4a498ca2
+  source_refs:
+  - arxiv:2503.18102
+  editorial_intent: Keep collector interpretation separate.
 temporal:
   created_at: '2026-09-13T17:43:07Z'
   updated_at: '2026-09-13T17:43:07Z'
@@ -23,11 +52,12 @@ temporal:
   valid_to: null
   as_of: '2026-09-13T17:43:07Z'
 provenance:
-  build_id: build:v0-meta-kb-260910:88936dc16ae2c769
-  generated_by_agent: agent:deterministic-v0-builder
+  build_id: build:llm-wiki-v0:196d848b07caf422
+  generated_by_agent: pipeline/build_llm_wiki.py
   generated_by_model: null
-  prompt_or_skill_version: deterministic-v0.1
-  compiled_from_revisions: *id001
+  prompt_or_skill_version: deterministic-llm-wiki-v0.2
+  compiled_from_revisions:
+  - arxiv:2503.18102@sha256:f26720fb630b99a1ee6534baf2f49b4d8a89bdde3f6f4542b0d0c5ade40f67c0
   created_at: '2026-09-13T17:43:07Z'
   updated_at: '2026-09-13T17:43:07Z'
   manual_edits_preserved: true
@@ -37,44 +67,63 @@ review:
   decision_ref: null
   checked_claim_refs: []
   unresolved_issues:
-  - Scientific and semantic review required before publication.
+  - Scientific, semantic, neutrality, and due-weight review remain required before publication.
 freshness:
   status: fresh
   checked_at: '2026-09-13T17:43:07Z'
   max_age_days: 30
-  source_dependencies: *id001
+  source_dependencies: *id002
   staleness_reasons: []
 consumption:
   audiences:
   - human
   - agent
   summary_tiers:
-    one_line: 'Candidate source page for AgentRxiv: Towards Collaborative Autonomous Research'
-    short: 'Candidate source page for AgentRxiv: Towards Collaborative Autonomous Research'
+    one_line: 'Source page for AgentRxiv: Towards Collaborative Autonomous Research with claim/evidence expansion.'
+    short: 'Source page for AgentRxiv: Towards Collaborative Autonomous Research with claim/evidence expansion.'
     full: null
-  estimated_tokens: null
+  estimated_tokens: 209
   machine_entry_points:
   - ../../04_claims/claims.jsonl
   - ../../03_evidence/evidence.jsonl
+  - ../catalog/pages.jsonl
 ---
 
 # AgentRxiv: Towards Collaborative Autonomous Research
+
+> Source-oriented candidate page. Source statements and collector interpretation remain separate.
+
+## Source identity
 
 - Source UID: `arxiv:2503.18102`
 - Canonical ID: `2503.18102`
 - Source type: `arxiv`
 - Content tier: `full_text`
-- Domain bucket: `ontology-semantic-architecture`
+- Revision: `sha256:f26720fb630b99a1ee6534baf2f49b4d8a89bdde3f6f4542b0d0c5ade40f67c0`
+- Domain: [ontology-semantic-architecture](../maps/ontology-semantic-architecture.md)
 - Local document: `materialized_sources/corpus/arxiv-2503.18102--1133e9d5/normalized/document.txt`
 
-## Source-reported assertion
+## Source-reported candidate statements
 
-Progress in scientific discovery is rarely the result of a single "Eureka" moment, but is rather the product of hundreds of scientists incrementally working together toward a common goal. While existing agent workflows are capable of producing research autonomously, they do so in isolation, without the ability to continuously improve upon prior research results.
+- Progress in scientific discovery is rarely the result of a single "Eureka" moment, but is rather the product of hundreds of scientists incrementally working together toward a common goal. While existing agent workflows are capable of producing research autonomously, they do so in isolation, without the ability to continuously improve upon prior research results. 〔[claim:07439fdff0cc0aa3](../claims/claim-07439fdff0cc0aa3.md)〕
 
-## Collection assessment
+## Collection assessments
 
-A direct bridge between autonomous research and knowledge self-evolution: agent laboratories upload, retrieve and build on each others research, creating cumulative improvement across generations of work.
+- A direct bridge between autonomous research and knowledge self-evolution: agent laboratories upload, retrieve and build on each others research, creating cumulative improvement across generations of work. 〔[claim:f5d2f5be4a498ca2](../claims/claim-f5d2f5be4a498ca2.md)〕
 
-## Governance state
+## Evidence inventory
 
-Both statements remain candidates. The source assertion is not treated as independently verified, and the collection assessment is not treated as source-authored evidence.
+| Claim | Evidence | Selector | Tier |
+|---|---|---|---|
+| `claim:07439fdff0cc0aa3` | `evidence:3eb5d79a34cdce67` | `local://materialized_sources/corpus/arxiv-2503.18102--1133e9d5/normalized/document.txt#L595-L610` | `full_text` |
+| `claim:f5d2f5be4a498ca2` | `evidence:4b7e0c84f5a212e4` | `local://raw_data/arxiv/AgentRxiv: Towards Collaborative Autonomous Research/metadata.yaml#collection-inclusion-reason` | `metadata_capsule` |
+
+## Governance boundary
+
+Source statements remain unverified candidates. Collection assessments explain inclusion but are not source-authored scientific evidence.
+
+## Related pages
+
+- [Ontology Semantic Architecture](../maps/ontology-semantic-architecture.md) — `part_of`
+- [Claim 07439fdff0cc0aa3](../claims/claim-07439fdff0cc0aa3.md) — `evidenced_by`
+- [Claim f5d2f5be4a498ca2](../claims/claim-f5d2f5be4a498ca2.md) — `evidenced_by`

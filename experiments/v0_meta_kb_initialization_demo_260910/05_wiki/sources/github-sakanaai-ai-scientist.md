@@ -4,18 +4,47 @@ title: SakanaAI/AI-Scientist
 slug: sources/github-sakanaai-ai-scientist
 page_type: source
 status: review
-summary: Candidate source page for SakanaAI/AI-Scientist
+summary: Source page for SakanaAI/AI-Scientist with claim/evidence expansion.
 aliases: []
 ontology_refs:
 - experiment:meta-kb-v0
-claim_refs:
-- claim:334565c7ebb30cb5
+claim_refs: &id001
 - claim:21bdaa7b130a7cc4
-source_refs: &id001
+- claim:334565c7ebb30cb5
+source_refs: &id002
 - github:SakanaAI/AI-Scientist
-page_refs: []
-outgoing_links: []
-sections: []
+page_refs:
+- wiki-page:map-cross-cutting
+- wiki-page:evidence-f683286a0f170b38
+- wiki-page:evidence-99cfc321f0f45e32
+outgoing_links:
+- target: wiki-page:map-cross-cutting
+  relation: part_of
+  claim_refs: *id001
+  notes: null
+- target: wiki-page:evidence-f683286a0f170b38
+  relation: evidenced_by
+  claim_refs:
+  - claim:21bdaa7b130a7cc4
+  notes: null
+- target: wiki-page:evidence-99cfc321f0f45e32
+  relation: evidenced_by
+  claim_refs:
+  - claim:334565c7ebb30cb5
+  notes: null
+sections:
+- heading: Source-reported candidate statements
+  claim_refs:
+  - claim:334565c7ebb30cb5
+  source_refs:
+  - github:SakanaAI/AI-Scientist
+  editorial_intent: Represent source statements.
+- heading: Collection assessments
+  claim_refs:
+  - claim:21bdaa7b130a7cc4
+  source_refs:
+  - github:SakanaAI/AI-Scientist
+  editorial_intent: Keep collector interpretation separate.
 temporal:
   created_at: '2026-09-13T17:43:07Z'
   updated_at: '2026-09-13T17:43:07Z'
@@ -23,11 +52,12 @@ temporal:
   valid_to: null
   as_of: '2026-09-13T17:43:07Z'
 provenance:
-  build_id: build:v0-meta-kb-260910:88936dc16ae2c769
-  generated_by_agent: agent:deterministic-v0-builder
+  build_id: build:llm-wiki-v0:196d848b07caf422
+  generated_by_agent: pipeline/build_llm_wiki.py
   generated_by_model: null
-  prompt_or_skill_version: deterministic-v0.1
-  compiled_from_revisions: *id001
+  prompt_or_skill_version: deterministic-llm-wiki-v0.2
+  compiled_from_revisions:
+  - github:SakanaAI/AI-Scientist@1de1dbc1f4ee2c5f61e9c94348d55eb51d7fa2eb
   created_at: '2026-09-13T17:43:07Z'
   updated_at: '2026-09-13T17:43:07Z'
   manual_edits_preserved: true
@@ -37,44 +67,63 @@ review:
   decision_ref: null
   checked_claim_refs: []
   unresolved_issues:
-  - Scientific and semantic review required before publication.
+  - Scientific, semantic, neutrality, and due-weight review remain required before publication.
 freshness:
   status: fresh
   checked_at: '2026-09-13T17:43:07Z'
   max_age_days: 30
-  source_dependencies: *id001
+  source_dependencies: *id002
   staleness_reasons: []
 consumption:
   audiences:
   - human
   - agent
   summary_tiers:
-    one_line: Candidate source page for SakanaAI/AI-Scientist
-    short: Candidate source page for SakanaAI/AI-Scientist
+    one_line: Source page for SakanaAI/AI-Scientist with claim/evidence expansion.
+    short: Source page for SakanaAI/AI-Scientist with claim/evidence expansion.
     full: null
-  estimated_tokens: null
+  estimated_tokens: 169
   machine_entry_points:
   - ../../04_claims/claims.jsonl
   - ../../03_evidence/evidence.jsonl
+  - ../catalog/pages.jsonl
 ---
 
 # SakanaAI/AI-Scientist
+
+> Source-oriented candidate page. Source statements and collector interpretation remain separate.
+
+## Source identity
 
 - Source UID: `github:SakanaAI/AI-Scientist`
 - Canonical ID: `SakanaAI/AI-Scientist`
 - Source type: `github`
 - Content tier: `semantic_capsule`
-- Domain bucket: `cross-cutting`
+- Revision: `1de1dbc1f4ee2c5f61e9c94348d55eb51d7fa2eb`
+- Domain: [cross-cutting](../maps/cross-cutting.md)
 - Local document: `materialized_sources/corpus/github-SakanaAI-AI-Scientist--2b41a05d/document.md`
 
-## Source-reported assertion
+## Source-reported candidate statements
 
-- Commit: `1de1dbc1f4ee2c5f61e9c94348d55eb51d7fa2eb` - Default branch: `main` - Description: SakanaAI/AI-Scientist - Selected evidence files: 1 of 21 files observed - Interpretation: maintainer documentation and static repository evidence; runtime behavior is not proven.
+- - Commit: `1de1dbc1f4ee2c5f61e9c94348d55eb51d7fa2eb` - Default branch: `main` - Description: SakanaAI/AI-Scientist - Selected evidence files: 1 of 21 files observed - Interpretation: maintainer documentation and static repository evidence; runtime behavior is not proven. 〔[claim:334565c7ebb30cb5](../claims/claim-334565c7ebb30cb5.md)〕
 
-## Collection assessment
+## Collection assessments
 
-Canonical open implementation of an end-to-end automated research loop where research artifacts become inputs to subsequent iterations.
+- Canonical open implementation of an end-to-end automated research loop where research artifacts become inputs to subsequent iterations. 〔[claim:21bdaa7b130a7cc4](../claims/claim-21bdaa7b130a7cc4.md)〕
 
-## Governance state
+## Evidence inventory
 
-Both statements remain candidates. The source assertion is not treated as independently verified, and the collection assessment is not treated as source-authored evidence.
+| Claim | Evidence | Selector | Tier |
+|---|---|---|---|
+| `claim:21bdaa7b130a7cc4` | `evidence:43f58962b84d0fd8` | `local://raw_data/githubs/SakanaAI--AI-Scientist/metadata.yaml#collection-inclusion-reason` | `metadata_capsule` |
+| `claim:334565c7ebb30cb5` | `evidence:63f97f6fe4380c7d` | `local://materialized_sources/corpus/github-SakanaAI-AI-Scientist--2b41a05d/document.md#L3-L6` | `semantic_capsule` |
+
+## Governance boundary
+
+Source statements remain unverified candidates. Collection assessments explain inclusion but are not source-authored scientific evidence.
+
+## Related pages
+
+- [Cross Cutting](../maps/cross-cutting.md) — `part_of`
+- [Claim 21bdaa7b130a7cc4](../claims/claim-21bdaa7b130a7cc4.md) — `evidenced_by`
+- [Claim 334565c7ebb30cb5](../claims/claim-334565c7ebb30cb5.md) — `evidenced_by`

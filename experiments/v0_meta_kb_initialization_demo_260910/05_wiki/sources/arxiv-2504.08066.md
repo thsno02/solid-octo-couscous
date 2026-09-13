@@ -4,19 +4,48 @@ title: 'The AI Scientist-v2: Workshop-Level Automated Scientific Discovery via A
 slug: sources/arxiv-2504.08066
 page_type: source
 status: review
-summary: 'Candidate source page for The AI Scientist-v2: Workshop-Level Automated Scientific Discovery via Agentic
-  Tree Search'
+summary: 'Source page for The AI Scientist-v2: Workshop-Level Automated Scientific Discovery via Agentic Tree Search
+  with claim/evidence expansion.'
 aliases: []
 ontology_refs:
 - experiment:meta-kb-v0
-claim_refs:
-- claim:9077f46d7f30e565
+claim_refs: &id001
 - claim:8798b3dc1ae125ea
-source_refs: &id001
+- claim:9077f46d7f30e565
+source_refs: &id002
 - arxiv:2504.08066
-page_refs: []
-outgoing_links: []
-sections: []
+page_refs:
+- wiki-page:map-automated-research
+- wiki-page:evidence-638ecd816dce953d
+- wiki-page:evidence-caa99c40bb0689a1
+outgoing_links:
+- target: wiki-page:map-automated-research
+  relation: part_of
+  claim_refs: *id001
+  notes: null
+- target: wiki-page:evidence-638ecd816dce953d
+  relation: evidenced_by
+  claim_refs:
+  - claim:8798b3dc1ae125ea
+  notes: null
+- target: wiki-page:evidence-caa99c40bb0689a1
+  relation: evidenced_by
+  claim_refs:
+  - claim:9077f46d7f30e565
+  notes: null
+sections:
+- heading: Source-reported candidate statements
+  claim_refs:
+  - claim:9077f46d7f30e565
+  source_refs:
+  - arxiv:2504.08066
+  editorial_intent: Represent source statements.
+- heading: Collection assessments
+  claim_refs:
+  - claim:8798b3dc1ae125ea
+  source_refs:
+  - arxiv:2504.08066
+  editorial_intent: Keep collector interpretation separate.
 temporal:
   created_at: '2026-09-13T17:43:07Z'
   updated_at: '2026-09-13T17:43:07Z'
@@ -24,11 +53,12 @@ temporal:
   valid_to: null
   as_of: '2026-09-13T17:43:07Z'
 provenance:
-  build_id: build:v0-meta-kb-260910:88936dc16ae2c769
-  generated_by_agent: agent:deterministic-v0-builder
+  build_id: build:llm-wiki-v0:196d848b07caf422
+  generated_by_agent: pipeline/build_llm_wiki.py
   generated_by_model: null
-  prompt_or_skill_version: deterministic-v0.1
-  compiled_from_revisions: *id001
+  prompt_or_skill_version: deterministic-llm-wiki-v0.2
+  compiled_from_revisions:
+  - arxiv:2504.08066@sha256:ea458b4c4212b9e61d909193504485986780026a962727da8669877f6f76740e
   created_at: '2026-09-13T17:43:07Z'
   updated_at: '2026-09-13T17:43:07Z'
   manual_edits_preserved: true
@@ -38,46 +68,65 @@ review:
   decision_ref: null
   checked_claim_refs: []
   unresolved_issues:
-  - Scientific and semantic review required before publication.
+  - Scientific, semantic, neutrality, and due-weight review remain required before publication.
 freshness:
   status: fresh
   checked_at: '2026-09-13T17:43:07Z'
   max_age_days: 30
-  source_dependencies: *id001
+  source_dependencies: *id002
   staleness_reasons: []
 consumption:
   audiences:
   - human
   - agent
   summary_tiers:
-    one_line: 'Candidate source page for The AI Scientist-v2: Workshop-Level Automated Scientific Discovery via
-      Agentic Tree Search'
-    short: 'Candidate source page for The AI Scientist-v2: Workshop-Level Automated Scientific Discovery via Agentic
-      Tree Search'
+    one_line: 'Source page for The AI Scientist-v2: Workshop-Level Automated Scientific Discovery via Agentic Tree
+      Search with claim/evidence expansion.'
+    short: 'Source page for The AI Scientist-v2: Workshop-Level Automated Scientific Discovery via Agentic Tree
+      Search with claim/evidence expansion.'
     full: null
-  estimated_tokens: null
+  estimated_tokens: 197
   machine_entry_points:
   - ../../04_claims/claims.jsonl
   - ../../03_evidence/evidence.jsonl
+  - ../catalog/pages.jsonl
 ---
 
 # The AI Scientist-v2: Workshop-Level Automated Scientific Discovery via Agentic Tree Search
+
+> Source-oriented candidate page. Source statements and collector interpretation remain separate.
+
+## Source identity
 
 - Source UID: `arxiv:2504.08066`
 - Canonical ID: `2504.08066`
 - Source type: `arxiv`
 - Content tier: `full_text`
-- Domain bucket: `automated-research`
+- Revision: `sha256:ea458b4c4212b9e61d909193504485986780026a962727da8669877f6f76740e`
+- Domain: [automated-research](../maps/automated-research.md)
 - Local document: `materialized_sources/corpus/arxiv-2504.08066--22ed15f2/normalized/document.txt`
 
-## Source-reported assertion
+## Source-reported candidate statements
 
-AI is increasingly playing a pivotal role in transforming how scientific discoveries are made. We introduce , an end-to-end agentic system capable of producing the first entirely AI-generated peer-review-accepted workshop paper.
+- AI is increasingly playing a pivotal role in transforming how scientific discoveries are made. We introduce , an end-to-end agentic system capable of producing the first entirely AI-generated peer-review-accepted workshop paper. 〔[claim:9077f46d7f30e565](../claims/claim-9077f46d7f30e565.md)〕
 
-## Collection assessment
+## Collection assessments
 
-End-to-end autonomous scientific discovery without a fixed human-authored template. Iteratively formulates hypotheses, designs and executes experiments, analyzes results, and writes papers using an agentic tree-search process.
+- End-to-end autonomous scientific discovery without a fixed human-authored template. Iteratively formulates hypotheses, designs and executes experiments, analyzes results, and writes papers using an agentic tree-search process. 〔[claim:8798b3dc1ae125ea](../claims/claim-8798b3dc1ae125ea.md)〕
 
-## Governance state
+## Evidence inventory
 
-Both statements remain candidates. The source assertion is not treated as independently verified, and the collection assessment is not treated as source-authored evidence.
+| Claim | Evidence | Selector | Tier |
+|---|---|---|---|
+| `claim:8798b3dc1ae125ea` | `evidence:924a40542eeaca58` | `local://raw_data/arxiv/The AI Scientist-v2: Workshop-Level Automated Scientific Discovery via Agentic Tree Search/metadata.yaml#collection-inclusion-reason` | `metadata_capsule` |
+| `claim:9077f46d7f30e565` | `evidence:85c1017952d003b4` | `local://materialized_sources/corpus/arxiv-2504.08066--22ed15f2/normalized/document.txt#L598-L607` | `full_text` |
+
+## Governance boundary
+
+Source statements remain unverified candidates. Collection assessments explain inclusion but are not source-authored scientific evidence.
+
+## Related pages
+
+- [Automated Research](../maps/automated-research.md) — `part_of`
+- [Claim 8798b3dc1ae125ea](../claims/claim-8798b3dc1ae125ea.md) — `evidenced_by`
+- [Claim 9077f46d7f30e565](../claims/claim-9077f46d7f30e565.md) — `evidenced_by`

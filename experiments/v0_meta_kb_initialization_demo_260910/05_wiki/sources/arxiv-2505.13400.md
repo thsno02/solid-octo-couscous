@@ -4,18 +4,47 @@ title: 'Robin: A multi-agent system for automating scientific discovery'
 slug: sources/arxiv-2505.13400
 page_type: source
 status: review
-summary: 'Candidate source page for Robin: A multi-agent system for automating scientific discovery'
+summary: 'Source page for Robin: A multi-agent system for automating scientific discovery with claim/evidence expansion.'
 aliases: []
 ontology_refs:
 - experiment:meta-kb-v0
-claim_refs:
+claim_refs: &id001
 - claim:3c6cef89711e89f2
 - claim:852bc42ef50e89c7
-source_refs: &id001
+source_refs: &id002
 - arxiv:2505.13400
-page_refs: []
-outgoing_links: []
-sections: []
+page_refs:
+- wiki-page:map-automated-research
+- wiki-page:evidence-f561a2ece83db79d
+- wiki-page:evidence-1f89e493aa80fc8b
+outgoing_links:
+- target: wiki-page:map-automated-research
+  relation: part_of
+  claim_refs: *id001
+  notes: null
+- target: wiki-page:evidence-f561a2ece83db79d
+  relation: evidenced_by
+  claim_refs:
+  - claim:3c6cef89711e89f2
+  notes: null
+- target: wiki-page:evidence-1f89e493aa80fc8b
+  relation: evidenced_by
+  claim_refs:
+  - claim:852bc42ef50e89c7
+  notes: null
+sections:
+- heading: Source-reported candidate statements
+  claim_refs:
+  - claim:3c6cef89711e89f2
+  source_refs:
+  - arxiv:2505.13400
+  editorial_intent: Represent source statements.
+- heading: Collection assessments
+  claim_refs:
+  - claim:852bc42ef50e89c7
+  source_refs:
+  - arxiv:2505.13400
+  editorial_intent: Keep collector interpretation separate.
 temporal:
   created_at: '2026-09-13T17:43:07Z'
   updated_at: '2026-09-13T17:43:07Z'
@@ -23,11 +52,12 @@ temporal:
   valid_to: null
   as_of: '2026-09-13T17:43:07Z'
 provenance:
-  build_id: build:v0-meta-kb-260910:88936dc16ae2c769
-  generated_by_agent: agent:deterministic-v0-builder
+  build_id: build:llm-wiki-v0:196d848b07caf422
+  generated_by_agent: pipeline/build_llm_wiki.py
   generated_by_model: null
-  prompt_or_skill_version: deterministic-v0.1
-  compiled_from_revisions: *id001
+  prompt_or_skill_version: deterministic-llm-wiki-v0.2
+  compiled_from_revisions:
+  - arxiv:2505.13400@sha256:1abd0b99271884b6f1a8fd9db0185e8042f079a61879ec0c9a7febae6a0c942c
   created_at: '2026-09-13T17:43:07Z'
   updated_at: '2026-09-13T17:43:07Z'
   manual_edits_preserved: true
@@ -37,44 +67,65 @@ review:
   decision_ref: null
   checked_claim_refs: []
   unresolved_issues:
-  - Scientific and semantic review required before publication.
+  - Scientific, semantic, neutrality, and due-weight review remain required before publication.
 freshness:
   status: fresh
   checked_at: '2026-09-13T17:43:07Z'
   max_age_days: 30
-  source_dependencies: *id001
+  source_dependencies: *id002
   staleness_reasons: []
 consumption:
   audiences:
   - human
   - agent
   summary_tiers:
-    one_line: 'Candidate source page for Robin: A multi-agent system for automating scientific discovery'
-    short: 'Candidate source page for Robin: A multi-agent system for automating scientific discovery'
+    one_line: 'Source page for Robin: A multi-agent system for automating scientific discovery with claim/evidence
+      expansion.'
+    short: 'Source page for Robin: A multi-agent system for automating scientific discovery with claim/evidence
+      expansion.'
     full: null
-  estimated_tokens: null
+  estimated_tokens: 198
   machine_entry_points:
   - ../../04_claims/claims.jsonl
   - ../../03_evidence/evidence.jsonl
+  - ../catalog/pages.jsonl
 ---
 
 # Robin: A multi-agent system for automating scientific discovery
+
+> Source-oriented candidate page. Source statements and collector interpretation remain separate.
+
+## Source identity
 
 - Source UID: `arxiv:2505.13400`
 - Canonical ID: `2505.13400`
 - Source type: `arxiv`
 - Content tier: `full_text`
-- Domain bucket: `automated-research`
+- Revision: `sha256:1abd0b99271884b6f1a8fd9db0185e8042f079a61879ec0c9a7febae6a0c942c`
+- Domain: [automated-research](../maps/automated-research.md)
 - Local document: `materialized_sources/corpus/arxiv-2505.13400--6cb0cfb6/normalized/document.txt`
 
-## Source-reported assertion
+## Source-reported candidate statements
 
-Scientific discovery is driven by the iterative process of background research, hypothesis generation, experimentation, and data analysis. Despite recent advancements in applying artificial intelligence to scientific discovery, no system has yet automated all of these stages in a single workflow.
+- Scientific discovery is driven by the iterative process of background research, hypothesis generation, experimentation, and data analysis. Despite recent advancements in applying artificial intelligence to scientific discovery, no system has yet automated all of these stages in a single workflow. 〔[claim:3c6cef89711e89f2](../claims/claim-3c6cef89711e89f2.md)〕
 
-## Collection assessment
+## Collection assessments
 
-One of the strongest demonstrations of a lab-in-the-loop discovery cycle: background research, hypothesis generation, experimental planning, human-executed wet-lab experiments, data analysis, and updated hypotheses.
+- One of the strongest demonstrations of a lab-in-the-loop discovery cycle: background research, hypothesis generation, experimental planning, human-executed wet-lab experiments, data analysis, and updated hypotheses. 〔[claim:852bc42ef50e89c7](../claims/claim-852bc42ef50e89c7.md)〕
 
-## Governance state
+## Evidence inventory
 
-Both statements remain candidates. The source assertion is not treated as independently verified, and the collection assessment is not treated as source-authored evidence.
+| Claim | Evidence | Selector | Tier |
+|---|---|---|---|
+| `claim:3c6cef89711e89f2` | `evidence:42eb6cb152f003dc` | `local://materialized_sources/corpus/arxiv-2505.13400--6cb0cfb6/normalized/document.txt#L96-L96` | `full_text` |
+| `claim:852bc42ef50e89c7` | `evidence:876eba3abd8faafc` | `local://raw_data/arxiv/Robin: A multi-agent system for automating scientific discovery/metadata.yaml#collection-inclusion-reason` | `metadata_capsule` |
+
+## Governance boundary
+
+Source statements remain unverified candidates. Collection assessments explain inclusion but are not source-authored scientific evidence.
+
+## Related pages
+
+- [Automated Research](../maps/automated-research.md) — `part_of`
+- [Claim 3c6cef89711e89f2](../claims/claim-3c6cef89711e89f2.md) — `evidenced_by`
+- [Claim 852bc42ef50e89c7](../claims/claim-852bc42ef50e89c7.md) — `evidenced_by`

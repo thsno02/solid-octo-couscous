@@ -4,18 +4,47 @@ title: jennyzzt/dgm
 slug: sources/github-jennyzzt-dgm
 page_type: source
 status: review
-summary: Candidate source page for jennyzzt/dgm
+summary: Source page for jennyzzt/dgm with claim/evidence expansion.
 aliases: []
 ontology_refs:
 - experiment:meta-kb-v0
-claim_refs:
-- claim:d38b49dc4376d4b0
+claim_refs: &id001
 - claim:1b6ae1229c17cacd
-source_refs: &id001
+- claim:d38b49dc4376d4b0
+source_refs: &id002
 - github:jennyzzt/dgm
-page_refs: []
-outgoing_links: []
-sections: []
+page_refs:
+- wiki-page:map-recursive-self-improvement
+- wiki-page:evidence-c0dc9e55b2e9b137
+- wiki-page:evidence-c7e5f49d25efb6ba
+outgoing_links:
+- target: wiki-page:map-recursive-self-improvement
+  relation: part_of
+  claim_refs: *id001
+  notes: null
+- target: wiki-page:evidence-c0dc9e55b2e9b137
+  relation: evidenced_by
+  claim_refs:
+  - claim:1b6ae1229c17cacd
+  notes: null
+- target: wiki-page:evidence-c7e5f49d25efb6ba
+  relation: evidenced_by
+  claim_refs:
+  - claim:d38b49dc4376d4b0
+  notes: null
+sections:
+- heading: Source-reported candidate statements
+  claim_refs:
+  - claim:d38b49dc4376d4b0
+  source_refs:
+  - github:jennyzzt/dgm
+  editorial_intent: Represent source statements.
+- heading: Collection assessments
+  claim_refs:
+  - claim:1b6ae1229c17cacd
+  source_refs:
+  - github:jennyzzt/dgm
+  editorial_intent: Keep collector interpretation separate.
 temporal:
   created_at: '2026-09-13T17:43:07Z'
   updated_at: '2026-09-13T17:43:07Z'
@@ -23,11 +52,12 @@ temporal:
   valid_to: null
   as_of: '2026-09-13T17:43:07Z'
 provenance:
-  build_id: build:v0-meta-kb-260910:88936dc16ae2c769
-  generated_by_agent: agent:deterministic-v0-builder
+  build_id: build:llm-wiki-v0:196d848b07caf422
+  generated_by_agent: pipeline/build_llm_wiki.py
   generated_by_model: null
-  prompt_or_skill_version: deterministic-v0.1
-  compiled_from_revisions: *id001
+  prompt_or_skill_version: deterministic-llm-wiki-v0.2
+  compiled_from_revisions:
+  - github:jennyzzt/dgm@a565fd2d1dca504ef5104a7cc0f3bdc4ab9b4fd2
   created_at: '2026-09-13T17:43:07Z'
   updated_at: '2026-09-13T17:43:07Z'
   manual_edits_preserved: true
@@ -37,44 +67,63 @@ review:
   decision_ref: null
   checked_claim_refs: []
   unresolved_issues:
-  - Scientific and semantic review required before publication.
+  - Scientific, semantic, neutrality, and due-weight review remain required before publication.
 freshness:
   status: fresh
   checked_at: '2026-09-13T17:43:07Z'
   max_age_days: 30
-  source_dependencies: *id001
+  source_dependencies: *id002
   staleness_reasons: []
 consumption:
   audiences:
   - human
   - agent
   summary_tiers:
-    one_line: Candidate source page for jennyzzt/dgm
-    short: Candidate source page for jennyzzt/dgm
+    one_line: Source page for jennyzzt/dgm with claim/evidence expansion.
+    short: Source page for jennyzzt/dgm with claim/evidence expansion.
     full: null
-  estimated_tokens: null
+  estimated_tokens: 180
   machine_entry_points:
   - ../../04_claims/claims.jsonl
   - ../../03_evidence/evidence.jsonl
+  - ../catalog/pages.jsonl
 ---
 
 # jennyzzt/dgm
+
+> Source-oriented candidate page. Source statements and collector interpretation remain separate.
+
+## Source identity
 
 - Source UID: `github:jennyzzt/dgm`
 - Canonical ID: `jennyzzt/dgm`
 - Source type: `github`
 - Content tier: `semantic_capsule`
-- Domain bucket: `recursive-self-improvement`
+- Revision: `a565fd2d1dca504ef5104a7cc0f3bdc4ab9b4fd2`
+- Domain: [recursive-self-improvement](../maps/recursive-self-improvement.md)
 - Local document: `materialized_sources/corpus/github-jennyzzt-dgm--c8b75f99/document.md`
 
-## Source-reported assertion
+## Source-reported candidate statements
 
-- Commit: `a565fd2d1dca504ef5104a7cc0f3bdc4ab9b4fd2` - Default branch: `main` - Description: jennyzzt/dgm - Selected evidence files: 2 of 21 files observed - Interpretation: maintainer documentation and static repository evidence; runtime behavior is not proven.
+- - Commit: `a565fd2d1dca504ef5104a7cc0f3bdc4ab9b4fd2` - Default branch: `main` - Description: jennyzzt/dgm - Selected evidence files: 2 of 21 files observed - Interpretation: maintainer documentation and static repository evidence; runtime behavior is not proven. 〔[claim:d38b49dc4376d4b0](../claims/claim-d38b49dc4376d4b0.md)〕
 
-## Collection assessment
+## Collection assessments
 
-One of the clearest open implementations of a system that edits its own agent code, evaluates variants, and keeps an archive instead of overwriting a single lineage.
+- One of the clearest open implementations of a system that edits its own agent code, evaluates variants, and keeps an archive instead of overwriting a single lineage. 〔[claim:1b6ae1229c17cacd](../claims/claim-1b6ae1229c17cacd.md)〕
 
-## Governance state
+## Evidence inventory
 
-Both statements remain candidates. The source assertion is not treated as independently verified, and the collection assessment is not treated as source-authored evidence.
+| Claim | Evidence | Selector | Tier |
+|---|---|---|---|
+| `claim:1b6ae1229c17cacd` | `evidence:1f00e2f956a2afe4` | `local://raw_data/githubs/jennyzzt--dgm/metadata.yaml#collection-inclusion-reason` | `metadata_capsule` |
+| `claim:d38b49dc4376d4b0` | `evidence:86f2cb90e58dd2e2` | `local://materialized_sources/corpus/github-jennyzzt-dgm--c8b75f99/document.md#L3-L6` | `semantic_capsule` |
+
+## Governance boundary
+
+Source statements remain unverified candidates. Collection assessments explain inclusion but are not source-authored scientific evidence.
+
+## Related pages
+
+- [Recursive Self Improvement](../maps/recursive-self-improvement.md) — `part_of`
+- [Claim 1b6ae1229c17cacd](../claims/claim-1b6ae1229c17cacd.md) — `evidenced_by`
+- [Claim d38b49dc4376d4b0](../claims/claim-d38b49dc4376d4b0.md) — `evidenced_by`

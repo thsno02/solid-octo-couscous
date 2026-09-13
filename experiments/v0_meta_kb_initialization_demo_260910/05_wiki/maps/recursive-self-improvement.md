@@ -4,30 +4,119 @@ title: Recursive Self Improvement
 slug: maps/recursive-self-improvement
 page_type: map
 status: review
-summary: Candidate map of recursive self improvement sources and claims.
+summary: Routing map for recursive self improvement sources, questions, and claims.
 aliases: []
 ontology_refs:
 - experiment:meta-kb-v0
 claim_refs:
-- claim:2a05950fe0a0b64d
-- claim:9243c79fad41f2cb
-- claim:ae45b8d667e29552
-- claim:90ae7352bb085ae8
-- claim:d38b49dc4376d4b0
 - claim:1b6ae1229c17cacd
-- claim:f159011ee6ccddaf
+- claim:2a05950fe0a0b64d
+- claim:90ae7352bb085ae8
+- claim:9243c79fad41f2cb
 - claim:97fae8cc4d519755
-- claim:f810d086e0a4a305
+- claim:ae45b8d667e29552
+- claim:d38b49dc4376d4b0
+- claim:f159011ee6ccddaf
 - claim:f43359e01e4c4b0b
+- claim:f810d086e0a4a305
 source_refs: &id001
-- arxiv:2410.04444
-- arxiv:2505.22954
-- arxiv:cs/0309048
 - github:jennyzzt/dgm
+- arxiv:cs/0309048
+- arxiv:2505.22954
 - standard:w3c-dcat-3
-page_refs: []
-outgoing_links: []
-sections: []
+- arxiv:2410.04444
+page_refs:
+- wiki-page:source-e3fe88d81aab6499
+- wiki-page:source-0e73b118b5b15597
+- wiki-page:source-c29f716871f80314
+- wiki-page:source-608b8babe77a1d70
+- wiki-page:source-d04ae5d37f10547b
+- wiki-page:knowledge-evolution-loop
+- wiki-page:automation-vs-editorial-review
+outgoing_links:
+- target: wiki-page:source-e3fe88d81aab6499
+  relation: explains
+  claim_refs:
+  - claim:d38b49dc4376d4b0
+  - claim:1b6ae1229c17cacd
+  notes: null
+- target: wiki-page:source-0e73b118b5b15597
+  relation: explains
+  claim_refs:
+  - claim:2a05950fe0a0b64d
+  - claim:9243c79fad41f2cb
+  notes: null
+- target: wiki-page:source-c29f716871f80314
+  relation: explains
+  claim_refs:
+  - claim:ae45b8d667e29552
+  - claim:90ae7352bb085ae8
+  notes: null
+- target: wiki-page:source-608b8babe77a1d70
+  relation: explains
+  claim_refs:
+  - claim:f159011ee6ccddaf
+  - claim:97fae8cc4d519755
+  notes: null
+- target: wiki-page:source-d04ae5d37f10547b
+  relation: explains
+  claim_refs:
+  - claim:f810d086e0a4a305
+  - claim:f43359e01e4c4b0b
+  notes: null
+- target: wiki-page:knowledge-evolution-loop
+  relation: related
+  claim_refs:
+  - claim:1b6ae1229c17cacd
+  - claim:2a05950fe0a0b64d
+  - claim:90ae7352bb085ae8
+  - claim:9243c79fad41f2cb
+  - claim:97fae8cc4d519755
+  - claim:ae45b8d667e29552
+  notes: null
+- target: wiki-page:automation-vs-editorial-review
+  relation: related
+  claim_refs:
+  - claim:1b6ae1229c17cacd
+  - claim:2a05950fe0a0b64d
+  - claim:90ae7352bb085ae8
+  - claim:9243c79fad41f2cb
+  - claim:97fae8cc4d519755
+  - claim:ae45b8d667e29552
+  notes: null
+sections:
+- heading: Source coverage
+  claim_refs: []
+  source_refs: *id001
+  editorial_intent: Route by source family.
+- heading: Source-reported signals
+  claim_refs:
+  - claim:2a05950fe0a0b64d
+  - claim:ae45b8d667e29552
+  - claim:d38b49dc4376d4b0
+  - claim:f159011ee6ccddaf
+  - claim:f810d086e0a4a305
+  source_refs:
+  - arxiv:cs/0309048
+  - arxiv:2505.22954
+  - github:jennyzzt/dgm
+  - standard:w3c-dcat-3
+  - arxiv:2410.04444
+  editorial_intent: Preserve source-authored scope.
+- heading: Collector assessments
+  claim_refs:
+  - claim:1b6ae1229c17cacd
+  - claim:90ae7352bb085ae8
+  - claim:9243c79fad41f2cb
+  - claim:97fae8cc4d519755
+  - claim:f43359e01e4c4b0b
+  source_refs:
+  - github:jennyzzt/dgm
+  - arxiv:2505.22954
+  - arxiv:cs/0309048
+  - standard:w3c-dcat-3
+  - arxiv:2410.04444
+  editorial_intent: Preserve collector scope.
 temporal:
   created_at: '2026-09-13T17:43:07Z'
   updated_at: '2026-09-13T17:43:07Z'
@@ -35,11 +124,16 @@ temporal:
   valid_to: null
   as_of: '2026-09-13T17:43:07Z'
 provenance:
-  build_id: build:v0-meta-kb-260910:88936dc16ae2c769
-  generated_by_agent: agent:deterministic-v0-builder
+  build_id: build:llm-wiki-v0:196d848b07caf422
+  generated_by_agent: pipeline/build_llm_wiki.py
   generated_by_model: null
-  prompt_or_skill_version: deterministic-v0.1
-  compiled_from_revisions: *id001
+  prompt_or_skill_version: deterministic-llm-wiki-v0.2
+  compiled_from_revisions:
+  - github:jennyzzt/dgm@a565fd2d1dca504ef5104a7cc0f3bdc4ab9b4fd2
+  - arxiv:cs/0309048@sha256:ab75c69deb1c4b41ae77f5f817735922ad52fc9a8d51ec5184f4978a88b4052e
+  - arxiv:2505.22954@sha256:9ce27273d9175badbb14d1181bc6166c7afd5e7989ac274d3d5187413e19b9ed
+  - standard:w3c-dcat-3@sha256:068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb
+  - arxiv:2410.04444@sha256:d33fb4b64b53231411e0d14e65e6a3fc4f3dbfbcfe3ab4b5113f8ffa8c16cd52
   created_at: '2026-09-13T17:43:07Z'
   updated_at: '2026-09-13T17:43:07Z'
   manual_edits_preserved: true
@@ -49,7 +143,7 @@ review:
   decision_ref: null
   checked_claim_refs: []
   unresolved_issues:
-  - Scientific and semantic review required before publication.
+  - Scientific, semantic, neutrality, and due-weight review remain required before publication.
 freshness:
   status: fresh
   checked_at: '2026-09-13T17:43:07Z'
@@ -61,75 +155,62 @@ consumption:
   - human
   - agent
   summary_tiers:
-    one_line: Candidate map of recursive self improvement sources and claims.
-    short: Candidate map of recursive self improvement sources and claims.
+    one_line: Routing map for recursive self improvement sources, questions, and claims.
+    short: Routing map for recursive self improvement sources, questions, and claims.
     full: null
-  estimated_tokens: null
+  estimated_tokens: 660
   machine_entry_points:
   - ../../04_claims/claims.jsonl
   - ../../03_evidence/evidence.jsonl
+  - ../catalog/pages.jsonl
 ---
 
 # Recursive Self Improvement
 
-This map is compiled from candidate source assertions and collection assessments.
+Systems that modify agents, programs, prompts, or search processes under evaluation.
 
-## `claim:2a05950fe0a0b64d`
+## Routing questions
 
-**Scope:** source-reported assertion
+- What can modify itself?
+- What evaluator and archive constrain change?
+- How are regressions and unsafe changes detected?
 
-We present the first class of mathematically rigorous, general, fully self-referential, self-improving, optimally efficient problem solvers. Inspired by Kurt G\" o del's celebrated self-referential formulas (1931), such a problem solver rewrites any part of its own code as soon as it has found a proof that the rewrite is useful, where the problem-dependent utility function and the hardware and the entire initial code are described by axioms encoded in an initial proof searcher which is also part of the initial code.
+## Source coverage
 
-## `claim:9243c79fad41f2cb`
+| Source | Type | Tier | Claims |
+|---|---|---|---|
+| [jennyzzt/dgm](../sources/github-jennyzzt-dgm.md) | `github` | `semantic_capsule` | 2 |
+| [Goedel Machines: Self-Referential Universal Problem Solvers Making Provably Optimal Self-Improvements](../sources/arxiv-cs-0309048.md) | `arxiv` | `full_text` | 2 |
+| [Darwin Godel Machine: Open-Ended Evolution of Self-Improving Agents](../sources/arxiv-2505.22954.md) | `arxiv` | `full_text` | 2 |
+| [Data Catalog Vocabulary (DCAT) - Version 3](../sources/standard-w3c-dcat-3.md) | `standard` | `full_text` | 2 |
+| [Goedel Agent: A Self-Referential Agent Framework for Recursive Self-Improvement](../sources/arxiv-2410.04444.md) | `arxiv` | `full_text` | 2 |
 
-**Scope:** collector assessment, not source-authored scientific fact
+## Source-reported signals
 
-Foundational formal RSI work: a self-referential problem solver rewrites any part of its own code after proving that the rewrite improves expected utility.
+- **Goedel Machines: Self-Referential Universal Problem Solvers Making Provably Optimal Self-Improvements** (source assertion): We present the first class of mathematically rigorous, general, fully self-referential, self-improving, optimally efficient problem solvers. Inspired by Kurt G\" o del's celebrated self-referential formulas (1931), such a problem solver rewrites any part of its own code as soon as it has found a proof that the rewrite is useful, where the problem-dependent utility function and the hardware and the entire initial code 〔[claim:2a05950fe0a0b64d](../claims/claim-2a05950fe0a0b64d.md)〕
+- **Darwin Godel Machine: Open-Ended Evolution of Self-Improving Agents** (source assertion): Most of today's AI systems are constrained by human-designed, fixed architectures and cannot autonomously and continuously improve themselves. The scientific method, on the other hand, is a cumulative and open-ended system, where each innovation builds upon previous artifacts, enabling future discoveries. 〔[claim:ae45b8d667e29552](../claims/claim-ae45b8d667e29552.md)〕
+- **jennyzzt/dgm** (source assertion): - Commit: `a565fd2d1dca504ef5104a7cc0f3bdc4ab9b4fd2` - Default branch: `main` - Description: jennyzzt/dgm - Selected evidence files: 2 of 21 files observed - Interpretation: maintainer documentation and static repository evidence; runtime behavior is not proven. 〔[claim:d38b49dc4376d4b0](../claims/claim-d38b49dc4376d4b0.md)〕
+- **Data Catalog Vocabulary (DCAT) - Version 3** (source assertion): DCAT is an RDF vocabulary designed to facilitate interoperability between data catalogs published on the Web. This document defines the schema and provides examples for its use. 〔[claim:f159011ee6ccddaf](../claims/claim-f159011ee6ccddaf.md)〕
+- **Goedel Agent: A Self-Referential Agent Framework for Recursive Self-Improvement** (source assertion): The rapid advancement of large language models (LLMs) has significantly enhanced the capabilities of agents across various tasks. However, existing agentic systems, whether based on fixed pipeline algorithms or pre-defined meta-learning frameworks, cannot search the whole agent design space due to the restriction of human-designed components, and thus might miss the more optimal agent design. 〔[claim:f810d086e0a4a305](../claims/claim-f810d086e0a4a305.md)〕
 
-## `claim:ae45b8d667e29552`
+## Collector assessments
 
-**Scope:** source-reported assertion
+- **jennyzzt/dgm** (collection assessment): One of the clearest open implementations of a system that edits its own agent code, evaluates variants, and keeps an archive instead of overwriting a single lineage. 〔[claim:1b6ae1229c17cacd](../claims/claim-1b6ae1229c17cacd.md)〕
+- **Darwin Godel Machine: Open-Ended Evolution of Self-Improving Agents** (collection assessment): A central modern RSI result: iteratively modifies an agent codebase, empirically validates changes, and preserves a diverse archive/tree of agents so improvement can proceed through multiple open-ended stepping-stone paths. 〔[claim:90ae7352bb085ae8](../claims/claim-90ae7352bb085ae8.md)〕
+- **Goedel Machines: Self-Referential Universal Problem Solvers Making Provably Optimal Self-Improvements** (collection assessment): Foundational formal RSI work: a self-referential problem solver rewrites any part of its own code after proving that the rewrite improves expected utility. 〔[claim:9243c79fad41f2cb](../claims/claim-9243c79fad41f2cb.md)〕
+- **Data Catalog Vocabulary (DCAT) - Version 3** (collection assessment): Catalog and dataset-series interoperability for a federated KB. 〔[claim:97fae8cc4d519755](../claims/claim-97fae8cc4d519755.md)〕
+- **Goedel Agent: A Self-Referential Agent Framework for Recursive Self-Improvement** (collection assessment): Modernizes the Goedel-machine idea for LLM agents: the agent dynamically modifies its own logic and behavior under high-level objectives rather than following a fixed human-designed optimization routine. 〔[claim:f43359e01e4c4b0b](../claims/claim-f43359e01e4c4b0b.md)〕
 
-Most of today's AI systems are constrained by human-designed, fixed architectures and cannot autonomously and continuously improve themselves. The scientific method, on the other hand, is a cumulative and open-ended system, where each innovation builds upon previous artifacts, enabling future discoveries.
+## Current synthesis boundary
 
-## `claim:90ae7352bb085ae8`
+The map routes candidate evidence; it does not flatten sources into consensus or resolve contradictions automatically.
 
-**Scope:** collector assessment, not source-authored scientific fact
+## Related pages
 
-A central modern RSI result: iteratively modifies an agent codebase, empirically validates changes, and preserves a diverse archive/tree of agents so improvement can proceed through multiple open-ended stepping-stone paths.
-
-## `claim:d38b49dc4376d4b0`
-
-**Scope:** source-reported assertion
-
-- Commit: `a565fd2d1dca504ef5104a7cc0f3bdc4ab9b4fd2` - Default branch: `main` - Description: jennyzzt/dgm - Selected evidence files: 2 of 21 files observed - Interpretation: maintainer documentation and static repository evidence; runtime behavior is not proven.
-
-## `claim:1b6ae1229c17cacd`
-
-**Scope:** collector assessment, not source-authored scientific fact
-
-One of the clearest open implementations of a system that edits its own agent code, evaluates variants, and keeps an archive instead of overwriting a single lineage.
-
-## `claim:f159011ee6ccddaf`
-
-**Scope:** source-reported assertion
-
-DCAT is an RDF vocabulary designed to facilitate interoperability between data catalogs published on the Web. This document defines the schema and provides examples for its use.
-
-## `claim:97fae8cc4d519755`
-
-**Scope:** collector assessment, not source-authored scientific fact
-
-Catalog and dataset-series interoperability for a federated KB.
-
-## `claim:f810d086e0a4a305`
-
-**Scope:** source-reported assertion
-
-The rapid advancement of large language models (LLMs) has significantly enhanced the capabilities of agents across various tasks. However, existing agentic systems, whether based on fixed pipeline algorithms or pre-defined meta-learning frameworks, cannot search the whole agent design space due to the restriction of human-designed components, and thus might miss the more optimal agent design.
-
-## `claim:f43359e01e4c4b0b`
-
-**Scope:** collector assessment, not source-authored scientific fact
-
-Modernizes the Goedel-machine idea for LLM agents: the agent dynamically modifies its own logic and behavior under high-level objectives rather than following a fixed human-designed optimization routine.
+- [jennyzzt/dgm](../sources/github-jennyzzt-dgm.md) — `explains`
+- [Goedel Machines: Self-Referential Universal Problem Solvers Making Provably Optimal Self-Improvements](../sources/arxiv-cs-0309048.md) — `explains`
+- [Darwin Godel Machine: Open-Ended Evolution of Self-Improving Agents](../sources/arxiv-2505.22954.md) — `explains`
+- [Data Catalog Vocabulary (DCAT) - Version 3](../sources/standard-w3c-dcat-3.md) — `explains`
+- [Goedel Agent: A Self-Referential Agent Framework for Recursive Self-Improvement](../sources/arxiv-2410.04444.md) — `explains`
+- [Knowledge evolution loop](../concepts/knowledge-evolution-loop.md) — `related`
+- [Automation versus editorial review](../debates/automation-editorial-review.md) — `related`

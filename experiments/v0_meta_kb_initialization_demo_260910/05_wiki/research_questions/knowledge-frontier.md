@@ -1,0 +1,169 @@
+---
+uid: wiki-page:knowledge-frontier
+title: Knowledge frontier
+slug: research_questions/knowledge-frontier
+page_type: research_question
+status: review
+summary: Open questions requiring more evidence, testing, conflict analysis, or editorial decisions.
+aliases: []
+ontology_refs:
+- experiment:meta-kb-v0
+claim_refs: &id002
+- claim:2f8ebd974fc7b5fd
+- claim:38c95b3e2bcfcf51
+- claim:3c6cef89711e89f2
+- claim:9077f46d7f30e565
+- claim:0d2b54965305cf83
+- claim:32d4ab82e7394fa1
+- claim:334565c7ebb30cb5
+- claim:bc939bb7895ea88e
+- claim:4bf5ea8e6b4e37de
+- claim:dcf2fa8645f61032
+- claim:ecdd2719fa55751c
+- claim:37a1c59affa857e1
+source_refs: &id001
+- arxiv:2501.04227
+- arxiv:2408.06292
+- arxiv:2505.13400
+- arxiv:2504.08066
+- arxiv:2408.08435
+- arxiv:2509.25651
+- github:SakanaAI/AI-Scientist
+- arxiv:2304.05376
+- arxiv:2502.14499
+- standard:w3c-odrl-2.2
+- arxiv:2602.06855
+- arxiv:2405.14768
+page_refs:
+- wiki-page:materialization-and-trust-gaps
+- wiki-page:v0-quality-gates
+outgoing_links:
+- target: wiki-page:materialization-and-trust-gaps
+  relation: extends
+  claim_refs:
+  - claim:2f8ebd974fc7b5fd
+  - claim:38c95b3e2bcfcf51
+  - claim:3c6cef89711e89f2
+  - claim:9077f46d7f30e565
+  - claim:0d2b54965305cf83
+  - claim:32d4ab82e7394fa1
+  notes: null
+- target: wiki-page:v0-quality-gates
+  relation: depends_on
+  claim_refs:
+  - claim:2f8ebd974fc7b5fd
+  - claim:38c95b3e2bcfcf51
+  - claim:3c6cef89711e89f2
+  - claim:9077f46d7f30e565
+  - claim:0d2b54965305cf83
+  - claim:32d4ab82e7394fa1
+  notes: null
+sections:
+- heading: Purpose
+  claim_refs: []
+  source_refs: *id001
+  editorial_intent: State the page's editorial purpose.
+- heading: Candidate evidence
+  claim_refs: *id002
+  source_refs: *id001
+  editorial_intent: Expose claim-backed signals without automatic admission.
+- heading: Review boundary
+  claim_refs: []
+  source_refs: *id001
+  editorial_intent: Declare unresolved review work.
+temporal:
+  created_at: '2026-09-13T17:43:07Z'
+  updated_at: '2026-09-13T17:43:07Z'
+  valid_from: null
+  valid_to: null
+  as_of: '2026-09-13T17:43:07Z'
+provenance:
+  build_id: build:llm-wiki-v0:196d848b07caf422
+  generated_by_agent: pipeline/build_llm_wiki.py
+  generated_by_model: null
+  prompt_or_skill_version: deterministic-llm-wiki-v0.2
+  compiled_from_revisions:
+  - arxiv:2501.04227@sha256:1b28bfd8ca8a9dcb1930f7fcd49164300a984bd1abf533d3d28b475fe7dd7f85
+  - arxiv:2408.06292@sha256:4ddccff8b6e49dec4c7bb219d4330f1faf47255b5b1b33d01f207eae23e119e9
+  - arxiv:2505.13400@sha256:1abd0b99271884b6f1a8fd9db0185e8042f079a61879ec0c9a7febae6a0c942c
+  - arxiv:2504.08066@sha256:ea458b4c4212b9e61d909193504485986780026a962727da8669877f6f76740e
+  - arxiv:2408.08435@sha256:9e5b2a49f62b2d5218e018666a195c85fc5d186d3939e0070303fab4fb7622e2
+  - arxiv:2509.25651@sha256:14424738e0ad14b8fd5891102b89d9a3e4888beb22605f723e1cc044231eb803
+  - github:SakanaAI/AI-Scientist@1de1dbc1f4ee2c5f61e9c94348d55eb51d7fa2eb
+  - arxiv:2304.05376@sha256:21c607b0c71631e362d318e2424cac73dacb38fd528e463f02a9f030bef5ed23
+  - arxiv:2502.14499@sha256:de8bc15be762914dd2f056f00efe2b83d51ce852a7035d65e866e6cdecbbb65a
+  - standard:w3c-odrl-2.2@sha256:af187a2c26b2429a579039403f34d9a5d5f29a1e01019662043068fa1ca2beaa
+  - arxiv:2602.06855@sha256:ac1ba940f1bdc54e012cc384c428f78bd01d50d7a947f052117944c03e790d9a
+  - arxiv:2405.14768@sha256:60420a5c24efe0a4ea70983fb86ae62aaa3342d538d30e020d73efcf6d105ea5
+  created_at: '2026-09-13T17:43:07Z'
+  updated_at: '2026-09-13T17:43:07Z'
+  manual_edits_preserved: true
+review:
+  state: needs_human
+  reviewers: []
+  decision_ref: null
+  checked_claim_refs: []
+  unresolved_issues:
+  - Scientific, semantic, neutrality, and due-weight review remain required before publication.
+freshness:
+  status: fresh
+  checked_at: '2026-09-13T17:43:07Z'
+  max_age_days: 30
+  source_dependencies: *id001
+  staleness_reasons: []
+consumption:
+  audiences:
+  - human
+  - agent
+  summary_tiers:
+    one_line: Open questions requiring more evidence, testing, conflict analysis, or editorial decisions.
+    short: Open questions requiring more evidence, testing, conflict analysis, or editorial decisions.
+    full: null
+  estimated_tokens: 670
+  machine_entry_points:
+  - ../../04_claims/claims.jsonl
+  - ../../03_evidence/evidence.jsonl
+  - ../catalog/pages.jsonl
+---
+
+# Knowledge frontier
+
+## Purpose
+
+Open questions requiring more evidence, testing, conflict analysis, or editorial decisions.
+
+## Candidate evidence
+
+- **Agent Laboratory: Using LLM Agents as Research Assistants** (source assertion): Historically, scientific discovery has been a lengthy and costly process, demanding substantial time and resources from initial conception to final results. To accelerate scientific discovery, reduce research costs, and improve research quality, we introduce Agent Laboratory , an autonomous LLM-based framework capable of completing the entire research process. 〔[claim:2f8ebd974fc7b5fd](../claims/claim-2f8ebd974fc7b5fd.md)〕
+- **The AI Scientist: Towards Fully Automated Open-Ended Scientific Discovery** (source assertion): One of the grand challenges of artificial general intelligence is developing agents capable of conducting scientific research and discovering new knowledge. While frontier models have already been used as aides to human scientists, e.g. 〔[claim:38c95b3e2bcfcf51](../claims/claim-38c95b3e2bcfcf51.md)〕
+- **Robin: A multi-agent system for automating scientific discovery** (source assertion): Scientific discovery is driven by the iterative process of background research, hypothesis generation, experimentation, and data analysis. Despite recent advancements in applying artificial intelligence to scientific discovery, no system has yet automated all of these stages in a single workflow. 〔[claim:3c6cef89711e89f2](../claims/claim-3c6cef89711e89f2.md)〕
+- **The AI Scientist-v2: Workshop-Level Automated Scientific Discovery via Agentic Tree Search** (source assertion): AI is increasingly playing a pivotal role in transforming how scientific discoveries are made. We introduce , an end-to-end agentic system capable of producing the first entirely AI-generated peer-review-accepted workshop paper. 〔[claim:9077f46d7f30e565](../claims/claim-9077f46d7f30e565.md)〕
+- **Automated Design of Agentic Systems** (source assertion): Researchers are investing substantial effort in developing powerful general-purpose agents, wherein Foundation Models are used as modules within agentic systems (e.g. Chain-of-Thought, Self-Reflection, Toolformer). 〔[claim:0d2b54965305cf83](../claims/claim-0d2b54965305cf83.md)〕
+- **AutoLabs: Cognitive Multi-Agent Systems with Self-Correction for Autonomous Chemical Experimentation** (source assertion): graphicx multirow amsmath,amssymb,amsfonts amsthm mathrsfs appendix xcolor textcomp manyfoot booktabs algorithm algorithmicx algpseudocode listings geometry subcaption lipsum xcolor xcolor 〔[claim:32d4ab82e7394fa1](../claims/claim-32d4ab82e7394fa1.md)〕
+- **SakanaAI/AI-Scientist** (source assertion): - Commit: `1de1dbc1f4ee2c5f61e9c94348d55eb51d7fa2eb` - Default branch: `main` - Description: SakanaAI/AI-Scientist - Selected evidence files: 1 of 21 files observed - Interpretation: maintainer documentation and static repository evidence; runtime behavior is not proven. 〔[claim:334565c7ebb30cb5](../claims/claim-334565c7ebb30cb5.md)〕
+- **ChemCrow: Augmenting large-language models with chemistry tools** (source assertion): Over the last decades, excellent computational chemistry tools have been developed. Integrating them into a single platform with enhanced accessibility could help reaching their full potential by overcoming steep learning curves. 〔[claim:bc939bb7895ea88e](../claims/claim-bc939bb7895ea88e.md)〕
+- **MLGym: A New Framework and Benchmark for Advancing AI Research Agents** (source assertion): amssymb amsmath adjustbox soul enumitem booktabs color xcolor bbding listings multicol xspace lmodern tablefootnote 〔[claim:4bf5ea8e6b4e37de](../claims/claim-4bf5ea8e6b4e37de.md)〕
+- **ODRL Information Model 2.2** (source assertion): The Open Digital Rights Language (ODRL) is a policy expression language that provides a flexible and interoperable information model, vocabulary, and encoding mechanisms for representing statements about the usage of content and services. The ODRL Information Model describes the underlying concepts, entities, and relationships that form the foundational basis for the semantics of the ODRL policies. 〔[claim:dcf2fa8645f61032](../claims/claim-dcf2fa8645f61032.md)〕
+- **AIRS-Bench: a Suite of Tasks for Frontier AI Research Science Agents** (source assertion): graphicx booktabs makecell subcaption hyperref url array xcolor tikz calc xcolor amssymb comment lipsum enumitem multirow xcolor caption pifont xcolor longtable 〔[claim:ecdd2719fa55751c](../claims/claim-ecdd2719fa55751c.md)〕
+- **WISE: Rethinking the Knowledge Memory for Lifelong Model Editing of Large Language Models** (source assertion): Large language models (LLMs) need knowledge updates to meet the ever-growing world facts and correct the hallucinated responses, facilitating the methods of lifelong model editing. Where the updated knowledge resides in memories is a fundamental question for model editing. 〔[claim:37a1c59affa857e1](../claims/claim-37a1c59affa857e1.md)〕
+
+## Compiled interpretation
+
+This page reorganizes candidate knowledge around a stable reader task. It is not source concatenation and it does not turn retrieval, maintainer claims, preprints, or generated prose into verified truth.
+
+## Review boundary
+
+Check evidence entailment, source independence, contradiction, neutrality, due weight, freshness, and downstream impact before publication.
+
+## Open questions
+
+- Which source assertions survive independent entailment and replication checks?
+- Which apparent conflicts are true contradictions rather than scope/time differences?
+- What page split/merge decisions improve navigation?
+- Which runtime claims require executable evaluation?
+- What thresholds justify promotion beyond candidate status?
+
+## Related pages
+
+- [Materialization, evidence, and trust gaps](../gaps/evidence-and-trust.md) — `extends`
+- [v0 LLM Wiki quality gates](../evaluations/v0-quality-gates.md) — `depends_on`

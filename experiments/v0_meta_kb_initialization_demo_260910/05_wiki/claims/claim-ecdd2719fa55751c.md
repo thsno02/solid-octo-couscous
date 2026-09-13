@@ -1,0 +1,115 @@
+---
+uid: wiki-page:evidence-36c1729b09de22fd
+title: Claim ecdd2719fa55751c
+slug: claims/claim-ecdd2719fa55751c
+page_type: evidence
+status: review
+summary: graphicx booktabs makecell subcaption hyperref url array xcolor tikz calc xcolor amssymb comment lipsum
+  enumitem multirow xcolor caption pifont xcolor longtable
+aliases: []
+ontology_refs:
+- experiment:meta-kb-v0
+claim_refs:
+- claim:ecdd2719fa55751c
+source_refs: &id001
+- arxiv:2602.06855
+page_refs:
+- wiki-page:source-a264f295a5ce5604
+- wiki-page:map-governance-evaluation
+outgoing_links:
+- target: wiki-page:source-a264f295a5ce5604
+  relation: evidenced_by
+  claim_refs:
+  - claim:ecdd2719fa55751c
+  notes: null
+- target: wiki-page:map-governance-evaluation
+  relation: part_of
+  claim_refs:
+  - claim:ecdd2719fa55751c
+  notes: null
+sections:
+- heading: Candidate statement
+  claim_refs:
+  - claim:ecdd2719fa55751c
+  source_refs: *id001
+  editorial_intent: Expose the exact candidate statement.
+- heading: Evidence bindings
+  claim_refs:
+  - claim:ecdd2719fa55751c
+  source_refs: *id001
+  editorial_intent: Resolve to local selectors.
+temporal:
+  created_at: '2026-09-13T17:43:07Z'
+  updated_at: '2026-09-13T17:43:07Z'
+  valid_from: null
+  valid_to: null
+  as_of: '2026-09-13T17:43:07Z'
+provenance:
+  build_id: build:llm-wiki-v0:196d848b07caf422
+  generated_by_agent: pipeline/build_llm_wiki.py
+  generated_by_model: null
+  prompt_or_skill_version: deterministic-llm-wiki-v0.2
+  compiled_from_revisions:
+  - arxiv:2602.06855@sha256:ac1ba940f1bdc54e012cc384c428f78bd01d50d7a947f052117944c03e790d9a
+  created_at: '2026-09-13T17:43:07Z'
+  updated_at: '2026-09-13T17:43:07Z'
+  manual_edits_preserved: true
+review:
+  state: needs_human
+  reviewers: []
+  decision_ref: null
+  checked_claim_refs: []
+  unresolved_issues:
+  - Scientific, semantic, neutrality, and due-weight review remain required before publication.
+freshness:
+  status: fresh
+  checked_at: '2026-09-13T17:43:07Z'
+  max_age_days: 30
+  source_dependencies: *id001
+  staleness_reasons: []
+consumption:
+  audiences:
+  - human
+  - agent
+  summary_tiers:
+    one_line: graphicx booktabs makecell subcaption hyperref url array xcolor tikz calc xcolor amssymb comment lipsum
+      enumitem multirow xcolor caption pifont xcolor longtable
+    short: graphicx booktabs makecell subcaption hyperref url array xcolor tikz calc xcolor amssymb comment lipsum
+      enumitem multirow xcolor caption pifont xcolor longtable
+    full: null
+  estimated_tokens: 131
+  machine_entry_points:
+  - ../../04_claims/claims.jsonl
+  - ../../03_evidence/evidence.jsonl
+  - ../catalog/pages.jsonl
+---
+
+# Source assertion from AIRS-Bench: a Suite of Tasks for Frontier AI Research Science Agents
+
+> **Candidate only.** This page exposes one atomic claim and its evidence bindings.
+
+## Candidate statement
+
+graphicx booktabs makecell subcaption hyperref url array xcolor tikz calc xcolor amssymb comment lipsum enumitem multirow xcolor caption pifont xcolor longtable
+
+## Scope
+
+- Claim ID: `claim:ecdd2719fa55751c`
+- Scope: `source-reported assertion`
+- Domain: [governance-evaluation](../maps/governance-evaluation.md)
+- Promotion state: `candidate`
+
+## Evidence bindings
+
+| Evidence | Selector | Local artifact | Tier |
+|---|---|---|---|
+| `evidence:3c0c7c9546c2ec15` | `local://materialized_sources/corpus/arxiv-2602.06855--0b517136/normalized/document.txt#L1-L4` | `materialized_sources/corpus/arxiv-2602.06855--0b517136/normalized/document.txt` | `full_text` |
+
+## Review requirements
+
+Check entailment, selector precision, source quality, identity, scope, contradiction, and due weight before promotion.
+
+## Related pages
+
+- [AIRS-Bench: a Suite of Tasks for Frontier AI Research Science Agents](../sources/arxiv-2602.06855.md) — `evidenced_by`
+- [Governance Evaluation](../maps/governance-evaluation.md) — `part_of`

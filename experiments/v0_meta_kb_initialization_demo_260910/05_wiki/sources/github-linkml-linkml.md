@@ -4,18 +4,47 @@ title: linkml/linkml
 slug: sources/github-linkml-linkml
 page_type: source
 status: review
-summary: Candidate source page for linkml/linkml
+summary: Source page for linkml/linkml with claim/evidence expansion.
 aliases: []
 ontology_refs:
 - experiment:meta-kb-v0
-claim_refs:
-- claim:fc57f26307cefee3
+claim_refs: &id001
 - claim:3adb88340e0eb2b6
-source_refs: &id001
+- claim:fc57f26307cefee3
+source_refs: &id002
 - github:linkml/linkml
-page_refs: []
-outgoing_links: []
-sections: []
+page_refs:
+- wiki-page:map-ontology-semantic-architecture
+- wiki-page:evidence-2764359fa43284d2
+- wiki-page:evidence-c558445f37ca3e5f
+outgoing_links:
+- target: wiki-page:map-ontology-semantic-architecture
+  relation: part_of
+  claim_refs: *id001
+  notes: null
+- target: wiki-page:evidence-2764359fa43284d2
+  relation: evidenced_by
+  claim_refs:
+  - claim:3adb88340e0eb2b6
+  notes: null
+- target: wiki-page:evidence-c558445f37ca3e5f
+  relation: evidenced_by
+  claim_refs:
+  - claim:fc57f26307cefee3
+  notes: null
+sections:
+- heading: Source-reported candidate statements
+  claim_refs:
+  - claim:fc57f26307cefee3
+  source_refs:
+  - github:linkml/linkml
+  editorial_intent: Represent source statements.
+- heading: Collection assessments
+  claim_refs:
+  - claim:3adb88340e0eb2b6
+  source_refs:
+  - github:linkml/linkml
+  editorial_intent: Keep collector interpretation separate.
 temporal:
   created_at: '2026-09-13T17:43:07Z'
   updated_at: '2026-09-13T17:43:07Z'
@@ -23,11 +52,12 @@ temporal:
   valid_to: null
   as_of: '2026-09-13T17:43:07Z'
 provenance:
-  build_id: build:v0-meta-kb-260910:88936dc16ae2c769
-  generated_by_agent: agent:deterministic-v0-builder
+  build_id: build:llm-wiki-v0:196d848b07caf422
+  generated_by_agent: pipeline/build_llm_wiki.py
   generated_by_model: null
-  prompt_or_skill_version: deterministic-v0.1
-  compiled_from_revisions: *id001
+  prompt_or_skill_version: deterministic-llm-wiki-v0.2
+  compiled_from_revisions:
+  - github:linkml/linkml@0e401cef2711b0f12f5a1870805c5cfa999b0858
   created_at: '2026-09-13T17:43:07Z'
   updated_at: '2026-09-13T17:43:07Z'
   manual_edits_preserved: true
@@ -37,44 +67,63 @@ review:
   decision_ref: null
   checked_claim_refs: []
   unresolved_issues:
-  - Scientific and semantic review required before publication.
+  - Scientific, semantic, neutrality, and due-weight review remain required before publication.
 freshness:
   status: fresh
   checked_at: '2026-09-13T17:43:07Z'
   max_age_days: 30
-  source_dependencies: *id001
+  source_dependencies: *id002
   staleness_reasons: []
 consumption:
   audiences:
   - human
   - agent
   summary_tiers:
-    one_line: Candidate source page for linkml/linkml
-    short: Candidate source page for linkml/linkml
+    one_line: Source page for linkml/linkml with claim/evidence expansion.
+    short: Source page for linkml/linkml with claim/evidence expansion.
     full: null
-  estimated_tokens: null
+  estimated_tokens: 163
   machine_entry_points:
   - ../../04_claims/claims.jsonl
   - ../../03_evidence/evidence.jsonl
+  - ../catalog/pages.jsonl
 ---
 
 # linkml/linkml
+
+> Source-oriented candidate page. Source statements and collector interpretation remain separate.
+
+## Source identity
 
 - Source UID: `github:linkml/linkml`
 - Canonical ID: `linkml/linkml`
 - Source type: `github`
 - Content tier: `semantic_capsule`
-- Domain bucket: `ontology-semantic-architecture`
+- Revision: `0e401cef2711b0f12f5a1870805c5cfa999b0858`
+- Domain: [ontology-semantic-architecture](../maps/ontology-semantic-architecture.md)
 - Local document: `materialized_sources/corpus/github-linkml-linkml--5f0806ef/document.md`
 
-## Source-reported assertion
+## Source-reported candidate statements
 
-- Commit: `0e401cef2711b0f12f5a1870805c5cfa999b0858` - Default branch: `main` - Description: linkml/linkml - Selected evidence files: 8 of 21 files observed - Interpretation: maintainer documentation and static repository evidence; runtime behavior is not proven.
+- - Commit: `0e401cef2711b0f12f5a1870805c5cfa999b0858` - Default branch: `main` - Description: linkml/linkml - Selected evidence files: 8 of 21 files observed - Interpretation: maintainer documentation and static repository evidence; runtime behavior is not proven. 〔[claim:fc57f26307cefee3](../claims/claim-fc57f26307cefee3.md)〕
 
-## Collection assessment
+## Collection assessments
 
-Modern schema-first bridge between developer data models and linked-data/ontology artifacts.
+- Modern schema-first bridge between developer data models and linked-data/ontology artifacts. 〔[claim:3adb88340e0eb2b6](../claims/claim-3adb88340e0eb2b6.md)〕
 
-## Governance state
+## Evidence inventory
 
-Both statements remain candidates. The source assertion is not treated as independently verified, and the collection assessment is not treated as source-authored evidence.
+| Claim | Evidence | Selector | Tier |
+|---|---|---|---|
+| `claim:3adb88340e0eb2b6` | `evidence:253deb651ed5a168` | `local://raw_data/githubs/linkml--linkml/metadata.yaml#collection-inclusion-reason` | `metadata_capsule` |
+| `claim:fc57f26307cefee3` | `evidence:e35d83f60d15f992` | `local://materialized_sources/corpus/github-linkml-linkml--5f0806ef/document.md#L3-L6` | `semantic_capsule` |
+
+## Governance boundary
+
+Source statements remain unverified candidates. Collection assessments explain inclusion but are not source-authored scientific evidence.
+
+## Related pages
+
+- [Ontology Semantic Architecture](../maps/ontology-semantic-architecture.md) — `part_of`
+- [Claim 3adb88340e0eb2b6](../claims/claim-3adb88340e0eb2b6.md) — `evidenced_by`
+- [Claim fc57f26307cefee3](../claims/claim-fc57f26307cefee3.md) — `evidenced_by`
