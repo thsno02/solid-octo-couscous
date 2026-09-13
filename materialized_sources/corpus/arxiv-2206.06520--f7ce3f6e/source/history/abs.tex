@@ -1,0 +1,40 @@
+
+%%%%%%%%%%%%%%%%%
+%%%%% Abs v4 %%%%%
+%%%%%%%%%%%%%%%%%
+\cm{This leaps from world state being dynamic in first sentence to models having errors in the 3rd sentence. I think you probably do want to mention both cases, but more symmetrically. You also spend 3 sentences on this scene setting whereas you might think one or two is sufficient: Large pre-trained neural networks harbor errors and beyond that the state of the world continually changes with elections and death. It is therefore highly desirable to model editors that can quickly and precisely apply local updates to model behavior.}
+World knowledge is dynamic: heads of state change every few years and medical best practices are updated based on new research. Methods for quickly and precisely editing deployed machine learning models to reflect new knowledge are therefore valuable. \textit{Model editors} make such local updates to the behavior of base (pre-trained) models to correct errors or modulate behavior. While existing model editors have shown promising results, they also have shortcomings that limit their practical utility. In particular, existing approaches struggle to accurately capture the scope of an edit, leading to inaccurate predictions when test inputs are loosely related to the edit, and sometimes fail altogether when many edits are needed. In this work, we propose an explicit memory-based approach to model editing, which not only addresses both of the challenges above, but also produces an editor that can be reused across multiple base models. To enable more rigorous evaluation of model editors, we also introduce three new challenging language model editing problems based on question answering, fact-checking, and dialogue generation, finding that the memory-based model editor produces edits that generalize better and scale to a greater number of edits than existing approaches. \cm{Delete ``new'' -- it's hard to introduce something pre-existing!}
+%% Can't include specific numbers until we have the experiments, but will add later
+
+
+
+%%%%%%%%%%%%%%%%%
+%%%%% Abs 3 %%%%%
+%%%%%%%%%%%%%%%%%
+The ability to make fast, targeted edits to a neural network's behavior would enable an otherwise-accurate model to remain deployed when specific facts about the world change, such as when a new head of state is elected or a medical best practice is updated. 
+%%CF.1.22: I like Antoine's suggested start. Though, I would tweak the phrasing to: "World knowledge is dynamic: e.g. heads of state change every few years, and medical best practices are updated based on new research. Thus, we need the ability to quickly and precisely edit models to reflect new knowledge.
+\textit{model editors} make such local updates to the behavior of base (pre-trained) models to correct errors or modulate behavior. While existing model editors have shown promising results, they also have shortcomings that limit their practical utility. In particular, existing approaches fail when many edits are needed and cause spurious predictions from the edited model for inputs related to the edit example. 
+%%CF.1.22: potential revision: existing approaches struggle when many edits are needed and also struggle to accurately capture the scope of an edit, leading to inaccurate predictions when test inputs are loosely related to the edit. 
+In this work, we propose an explicit memory-based approach to model editing, which not only addresses both of the challenges above, but can also be re-used across multiple base models.
+%%CF.1.22: but also produces an editor that can be reused across multiple base models.
+To enable more rigorous evaluation of model editors, we also introduce three new challenging language model editing problems based on question answering, fact-checking, and dialogue generation, finding that the memory-based model editor produces edits that generalize better and scale to a greater number of edits than existing approaches.
+%% Can't include specific numbers until we have the experiments, but will add later
+
+
+%%%%%%%%%%%%%%%%%
+%%%%% Abs 2 %%%%%
+%%%%%%%%%%%%%%%%%
+Model editors locally modify the behavior of a base (pre-trained) model to correct errors or modulate behavior, often using only a single example to do so. 
+%%✓CF.1.17: I think it would be helpful to have some additional motivation here, to explain why you might want to locally modify a model. (e.g. knowledge becoming out-of-date, etc). While this is apparent to you, it will not be apparent to your reader.
+%%CF.1.17: Also be careful with wording like "using only a single example". Learned model editors rely on an entire dataset of edits for training, not just a single example.
+Existing model editors directly update the parameters of the base model in order to modify their behavior, but recent works have noted that the effectiveness of these approaches drops significantly when multiple edits are applied, model degradation is measured using inputs related to the edit example,
+%%✓CF.1.17: The above is not at all easy to parse or understand, even when reading multiple times. I also think that the point about directly updating the parameters of the base model, since this bit of info isn't crucial at this point. I might rephrase the whole sentence to: "While recent approaches have shown promising results, they also have a number of drawbacks that severely limit their practical utility. These limitations include the ability to handle large batches of edits and the ability to accurately make predictions on inputs near the edit example. In this work, we introduce..."
+or edits are required to generalize beyond simple paraphrases of the edit example. In this work, we introduce an expressive new memory-based approach to model editing, which improves on existing methods in each of these circumstances and allows an editor to be re-used across multiple base models, unlike existing methods. 
+%%CF.1.17: Your sentences are quite long. It is often better for readability to break it up into shorter sentences, covering only one idea per sentence. e.g. "In this work, we propose an explicit memory-based approach to model editing. This memory-based editor not only addresses both of the challenges above, but can also be re-used across multiple base models." Note how by revision is two sentences, but is actually a bit shorter than the original sentence.
+To enable more rigorous evaluation of model editors, we also introduce three new challenging language model editing problems based on question answering, fact-checking, and dialogue generation, finding that the memory-based model editor produces edits that generalize better and scale to a greater number of edits than existing approaches.
+%%CF.1.17: If you can give more specific numbers to the above, that would be nice
+
+%%%%%%%%%%%%%%%%%
+%%%%% Abs 1 %%%%%
+%%%%%%%%%%%%%%%%%
+Model editors aim to enable fast, targeted adjustments to a deployed neural network’s behavior without retraining. However, in this paper, we find that gradient-based editors are insufficiently expressive to make successful model edits in a variety of realistic settings. We propose a gradient-free, semi-parametric approach to editing that learns to correct a trained model’s predictions using an explicit memory of edits. We show that this approach enjoys significant advantages over past model editors in terms of both edit reliability and computational efficiency as model size, number of edits, or edit difficulty increases.

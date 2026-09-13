@@ -1,0 +1,51 @@
+\section{State visit distribution functions quantify the agent's available options}\label{sec:visit-dists}
+\begin{figure}[!ht]\centering
+     \includegraphics{main-tex/assets/tikz/main-paper/pdfs/case-fig.pdf}
+    \caption{$\farleft$ is a {\stateEnd}, and $\sink$ is a terminal state. Arrows represent deterministic transitions induced by taking some action $a\in\A$. Since the {\rightA} subgraph contains a copy of the {\leftA} subgraph, \cref{graph-options} will prove that more reward functions have optimal policies which go {\rightA} than which go {\leftA} at state $\start$, and that such policies seek power—both intuitively, and in a reasonable formal sense.} 
+    \label{fig:case-study}
+\end{figure} 
+
+We clarify the power-seeking discussion by proving what optimal policies usually look like in a given environment. We illustrate our results with a simple case study, before explaining how to reason about a wide range of {\mdp}s. Appendix \ref{app:contrib} lists  {\mdp} theory contributions  of independent interest, appendix \ref{app:thms} lists definitions and theorems, and appendix \ref{app:proofs} contains the proofs.
+
+\begin{restatable}[Rewardless {\mdp}]{definition}{rewardless}
+$\langle \mathcal{S}, \mathcal{A}, T \rangle$ is a rewardless {\mdp} with finite state and action spaces $\mathcal{S}$ and $\mathcal{A}$, and stochastic transition function $T: \St \times \A \to \Delta(\St)$. We treat the discount rate $\gamma$ as a variable with domain $[0,1]$.
+\end{restatable} 
+
+\begin{restatable}[{\stateEnd} states]{definition}{oneCycState}\label{def:onecyc}
+Let $\unitvec[s]\in \reals^{\abs{\St}}$ be the standard basis vector for state $s$, such that there is a 1 in the entry for state $s$ and 0 elsewhere. State $s$ is a \emph{\stateEnd} if $\exists a\in\A: T(s,a)=\unitvec$. State $s$ is a \emph{{\terminal} state} if $\forall a\in\A:T(s,a)=\unitvec$.
+\end{restatable}
+
+Our theorems apply to stochastic environments, but we present a deterministic case study for clarity. The environment of \cref{fig:case-study} is small, but its structure is rich. For example, the agent has more ``options'' at $\start$  than at the terminal state $\sink$. Formally, $\start$ has more \emph{visit distribution functions} than $\sink$ does. 
+
+\begin{restatable}[State visit distribution \citep{sutton_reinforcement_1998}]{definition}{DefVisit}\label{def:visit}
+$\Pi\defeq \A^\St$, the set of stationary deterministic policies. The \emph{visit distribution} induced by following policy $\pi$ from state $s$ at discount rate $\gamma\in[0,1)$ is $\fpi{s}(\gamma) \defeq \sum_{t=0}^\infty \gamma^t \E{s_{t} \sim \pi\mid s}{\unitvec[s_t]}$.
+$\fpi{s}$ is a \emph{visit distribution function}; $\F(s)\defeq \{ \fpi{s} \mid \pi \in \Pi\}$. 
+\end{restatable}
+
+In \cref{fig:case-study}, starting from $\farleft$, the agent can stay at $\farleft$ or alternate between $\farleft$ and $\topleft$, and so $\F(\farleft)= \{\geom\unitvec[\farleft],\frac{1}{1-\gamma^2}(\unitvec[\farleft] + \gamma\unitvec[\topleft])\}$. In contrast, at $\sink$, all policies $\pi$ map to visit distribution function $\geom\unitvec[\sink]$.
+
+Before moving on, we introduce two important concepts used in our main results. First, we sometimes restrict our attention to visit distributions which take certain actions (\cref{fig:case-study-restrict}).
+
+\begin{figure}[!ht]\centering
+    \includegraphics{main-tex/assets/tikz/main-paper/pdfs/right-subgraph}
+    \caption{The subgraph corresponding to $\FRestrictAction[\start]{\start}{\rightA}$. Some trajectories cannot be strictly optimal for any reward function, and so our results can ignore them. Gray dotted actions are only taken by the policies of dominated $\fpi{}\in\F(\start)\setminus \Fnd(\start)$.} 
+    \label{fig:case-study-restrict}
+\end{figure}
+
+
+
+\begin{restatable}[$\F$ single-state restriction]{definition}{DefRestrictSingle}\label{def:restrict-single} Considering only visit distribution functions induced by policies taking action $a$ at state $s'$, $\FRestrictAction{s'}{a}\defeq \set{\f\in\F(s) \mid \exists \pi\in\Pi: \pi(s')=a,\fpi{s}=\f}$.
+\end{restatable} 
+
+Second, some $\f\in\F(s)$ are ``unimportant.'' Consider an agent optimizing reward function $\unitvec[\farright]$ (1 reward when at $\farright$, 0 otherwise) at \eg{} $\gamma=\half$. Its optimal policies navigate to $\farright$ and stay there. Similarly, for reward function $\unitvec[\topright]$, optimal policies navigate to $\topright$ and stay there. However, for no reward function is it uniquely optimal to alternate between $\topright$ and $\farright$. Only \emph{dominated} visit distribution functions alternate between $\topright$ and $\farright$ (\cref{def:nd}).
+
+\begin{restatable}[Value function]{definition}{valFn}
+Let $\pi\in\Pi$. For any reward function $R \in \rewardSpace$ over the state space, the \emph{on-policy value} at state $s$ and discount rate $\gamma\in[0,1)$ is $\Vf[\pi]{s,\gamma}\defeq \fpi{s}(\gamma)^\top  \rf$, where $\rf\in\rewardVS$ is $R$ expressed as a column vector (one entry per state). The \emph{optimal value} is $\OptVf{s,\gamma}\defeq\max_{\pi\in\Pi} \Vf[\pi]{s,\gamma}$.
+\end{restatable} 
+
+\begin{restatable}[Non-domination]{definition}{DefND}\label{def:nd}
+\begin{equation}
+    \Fnd(s)\defeq\{\fpi{}\in\F(s)\mid \exists\rf\in\rewardVS,\gamma\in(0,1): \fpi{}(\gamma)^\top \rf > \max_{\fpi[\pi']{}\in\F(s)\setminus\set{\fpi{}}}\fpi[\pi']{}(\gamma)^\top\rf\}.
+\end{equation} 
+For any reward function $R$ and discount rate $\gamma$, $\fpi{} \in \F(s)$ is (weakly) dominated by $\fpi[\pi']{}\in\F(s)$  if $V^\pi_R(s,\gamma) \leq V^{\pi'}_R(s,\gamma)$. $\fpi{}\in\Fnd(s)$ is \emph{non-dominated} if there exist $R$ and $\gamma$ at which $\fpi{}$ is not dominated by any other $\fpi[\pi']{}$. 
+\end{restatable} 

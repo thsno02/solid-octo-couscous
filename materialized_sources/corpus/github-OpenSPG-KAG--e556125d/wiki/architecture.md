@@ -1,0 +1,35 @@
+# Architecture evidence: OpenSPG/KAG
+
+- `README.md:1` — KAG: Knowledge Augmented Generation
+- `README.md:34` — 1. What is KAG?
+- `README.md:49` — 2. Core Features
+- `README.md:51` — 2.1 Knowledge Representation
+- `README.md:63` — 2.2 Mixed Reasoning Guided by Logic Forms
+- `README.md:73` — 3. Release Notes
+- `README.md:75` — 3.1 Latest Updates
+- `README.md:91` — 3.2 Future Plans
+- `README.md:95` — 4. Quick Start
+- `README.md:97` — 4.1 product-based (for ordinary users)
+- `README.md:99` — 4.1.1 Engine & Dependent Image Installation
+- `README.md:119` — set the HOME environment variable (only Windows users need to execute this command)
+- `README.md:120` — set HOME=%USERPROFILE%
+- `README.md:126` — 4.1.2 Use the product
+- `README.md:135` — 4.2 toolkit-based (for developers)
+- `README.md:137` — 4.2.1 Engine & Dependent Image Installation
+- `README.md:141` — 4.2.2 Installation of KAG
+- `README.md:147` — Create conda env: conda create -n kag-demo python=3.10 && conda activate kag-demo
+- `README.md:149` — Clone code: git clone https://github.com/OpenSPG/KAG.git
+- `README.md:151` — Install KAG: cd KAG && pip install -e .
+- `README.md:157` — Install the official Python 3.10 or later, install Git.
+- `README.md:159` — Create and activate Python venv: py -m venv kag-demo && kag-demo\Scripts\activate
+- `README.md:161` — Clone code: git clone https://github.com/OpenSPG/KAG.git
+- `README.md:163` — Install KAG: cd KAG && pip install -e .
+- `README.md:166` — 4.2.3 Use the toolkit
+- `README.md:170` — 5. Technical Architecture
+- `README.md:180` — 6. Community & Support
+- `README.md:186` — Discord <a href="https://discord.gg/PURG77zhQ7"> <img src="https://img.shields.io/discord/1329648479709958236?style=for-the-badge&logo=discord&label=Discord" alt="Discord"></a>
+- `README.md:190` — WeChat
+- `README.md:201` — 7. Differences between KAG, RAG, and GraphRAG
+- `README.md:205` — 8. Citation
+- `README.md:227` — License
+- `README.md:231` — KAG Core Team

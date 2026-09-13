@@ -1,0 +1,73 @@
+\section{Details in Methodology}
+\subsection{Self-Update Process}
+In Section \ref{ssub:self_update_process}, we illustrate the self-update process with the scenario of the input context $x_c$ having more than $K$ tokens. As for the case when $x_c$ has less than $K$ tokens, we draw the process in Figure \ref{fig:injection_additional}. As shown in this figure, we input $e_\theta^l$ and $h_l$ into the transformer layer $\phi_l$ to obtain ${e_\theta^l}'$ where the last $n_{x_c}$ tokens are passed into the next layer. 
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.6\linewidth]{figures/injection3.png}
+    \caption{Self-Update process when the number of tokens is smaller than the number of memory tokens needed.}
+    \label{fig:injection_additional}
+\end{figure}
+
+\subsection{Training Strategy for New Knowledge Incorporation}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.6\linewidth]{figures/idea_training1.png}
+    \caption{Ideal Training Routine for Latest Knowledge Incorporation}
+    \label{fig:ideal_new-information-incorporation}
+\end{figure}
+As shown in Figure \ref{fig:ideal_new-information-incorporation}, compared with Section \ref{ssub:newest_information_incorporation}, the ideal case is to perform the whole process, i.e., self-update and the prediction on $x_2$, with gradient flow, so that the cross-entropy loss could be backpropagated to $x_1$. However, this would induce unaffordable memory consumption, thus we decompose this process into two processes in Figure \ref{fig:training-process-for-new-information-incorporation}. 
+
+\section{Implementation Details}
+\subsection{Details for Mitigating Forgetting Problems}
+\label{ssub:implementation_details_of_non_forgetting}
+As mentioned in Section \ref{ssub:mitigating_forgetting_problems}, we need to sample one main document $d$ = $\{x_1,\cdots,x_n\}$ and multiple side documents and inject all the side documents into the memory after the injection of $\{x_1,\cdots,x_{n-1}\}$, then we calculate the loss on $x_n$ to update the model. However, instead of sampling multiple documents at each step, we develop a more efficient strategy during training. We provide the pseudo-code in Algorithm \ref{alg:training_strategy}. 
+
+\begin{algorithm}[H]
+\caption{Training Strategy for Mitigating Forgetting Problems}
+\label{alg:training_strategy}
+\begin{algorithmic}[1]
+\REQUIRE Training data $\mathcal{D}$;
+\STATE Initialize the indicator $r_0=1$, $l=0$;
+\STATE Initialize the cache $x_{cache}$ = None;
+\FOR{$d \in \mathcal{D}$}
+\STATE $n = $ the number of contexts in $d$;
+\STATE $\{x_1, \cdots, x_n\} = d$;
+\IF{$r_0 == 1$ or $l==0$}
+    \STATE $r$ = 0; 
+\ELSE
+    \STATE $r$ = Random(0, 2);
+\ENDIF
+\IF{$r==0$ and $r_0==0$}
+    \STATE Inject $\{x_1,\cdots,x_{n-1}\}$ into the memory pool; 
+    \STATE Calculate the cross-entropy loss on $x_n$ and update the model;
+    \STATE $l+=n$;
+\ELSIF{$r==0$ and $r_0==1$}
+    \STATE Inject $\{x_1,\cdots,x_{n-1}\}$ into the memory pool; 
+    \STATE Calculate the cross-entropy loss on $x_n$ and update the model;
+    \STATE $x_{cache} = x_n$;
+    \STATE $l+=n$;
+\ELSIF{$r==1$}
+    \STATE Calculate the cross-entropy loss on $x_{cache}$ and update the model; 
+    \STATE $l=0$;
+\ENDIF
+\STATE $r_0=r$;
+\ENDFOR
+\end{algorithmic}
+\end{algorithm}
+Note that at every step, we inject the knowledge into the memory pool, thus after a random number of steps, the useful knowledge for predicting $x_{cache}$ must be somewhere in the memory pool, we need to encourage the model to extract the relevant knowledge. If the model could extract the knowledge from the memory that was injected long ago, we could mitigate the forgetting problems. 
+
+
+\section{Additional Experiments}
+\subsection{Baselines for Model Editing}
+\label{sub:baselines_for_model_editing}
+We introduce the details of the baselines for the model editing experiments here: 
+
+\textbf{FT} (Finetuning): which applies Adam with early stopping at one layer to finetune the model on the given fact.
+
+\textbf{FT-L} (Constrained Finetuning)~\citep{ModifyingMemories}: a parameter-space $L_{\infty}$ norm constraint is imposed on the weight changes. 
+
+\textbf{IKE} (In-context knowledge editing)~\citep{ike}: The facts used to edit the model are saved in the contexts, which are inputted into the model during inference. This method is only implemented on CounterFactual so we compare our model with it on the CounterFactual benchmark. 
+
+\textbf{ROME} (Rank-One Model Editing)~\citep{ROME}: After identifying that MLPs in LLMs are the major modules for saving knowledge, ROME proposes to alter the MLP matrix by regarding the matrix as a key-value store and then insert a new key-value pair into the matrix, obtaining a new one that contains the injected information. 
+
+

@@ -1,0 +1,84 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "qdax"
+dynamic = ["version"]
+description = "QDax: Accelerated Quality-Diversity"
+readme = "README.md"
+authors = [
+    {name = "AIRL and InstaDeep Ltd", email = "adaptive.intelligent.robotics@gmail.com"}
+]
+license = "MIT"
+license-files = ["LICENSE"]
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+keywords = ["quality-diversity", "open-endedness", "neuroevolution", "reinforcement learning"]
+requires-python = ">=3.11"
+dependencies = [
+	"numpy>=2.3",
+    "jax>=0.8.0",
+    "flax>=0.12.0",
+    "distrax>=0.1.7",
+    "optax>=0.1.9",
+    "scikit-learn>=1.5.1",
+    "scipy>=1.10.1",
+    "brax>=0.11.0",
+]
+
+[project.optional-dependencies]
+dev = [
+	"coverage",
+	"pre-commit",
+	"pytest",
+	"pytest-assume",
+	"mypy",
+]
+docs = [
+	"mkdocs",
+	"mkdocs-material",
+	"mkdocstrings[python]",
+	"mkdocs-jupyter",
+	"mkdocs-autorefs",
+]
+examples = [
+	"tqdm",
+	"ipykernel",
+	"ipywidgets",
+	"mediapy",
+	"requests",
+	"jumanji>=1.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/adaptive-intelligent-robotics/QDax"
+
+[tool.hatch.version]
+path = "qdax/__init__.py"
+
+[tool.mypy]
+python_version = "3.11"
+namespace_packages = true
+incremental = false
+warn_redundant_casts = true
+warn_return_any = true
+warn_unused_configs = true
+warn_unused_ignores = false
+allow_redefinition = true
+disallow_untyped_calls = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = false
+strict_optional = true
+strict_equality = true
+explicit_package_bases = true
+follow_imports = "skip"
+ignore_missing_imports = true

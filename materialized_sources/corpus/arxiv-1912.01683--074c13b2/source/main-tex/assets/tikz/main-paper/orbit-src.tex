@@ -1,0 +1,24 @@
+\documentclass{standalone}
+\usepackage{main-tex/preamble}
+\input{main-tex/macros.tex}
+\begin{document}
+\begin{tikzpicture}[
+            > = latex, % arrow head style
+            shorten > = 1pt, % don't touch arrow head to node
+            auto,
+            node distance = 1.2cm, % distance between nodes
+            line width = 0.08 em 
+        ]
+
+%\draw[step=.5,black,opacity=\opacity,thin,xshift=0cm,yshift=0cm] (0,0) grid (4,4);
+\draw[-] (0,0)--(4.04,0) node[below=2pt,midway]{$x$};
+\draw[-] (0,0)--(0,4.04) node[left=2pt,midway]{$y$};
+\draw[-,dashed] (0,0) edge[opacity=.25] (4.04, 4.04) {};
+%\draw[-] (0,0) edge[opacity=.5] node[sloped,right=30pt] {$y=x$} (4,4);
+\node at (2,2) {\includegraphics[width=4cm,trim=0 0 100pt 100pt,clip]{main-tex/assets/normal-orbit.pdf}};
+\node at (1.4,2.6) (d) {$\D$};
+\node at (2.6,1.4) (dprime) {$\D'$};
+\draw[<->, dashed] (d) edge[in=90,out=0,line width=.15em, shorten >= -.9pt, shorten <= -1.6pt,color=\graphColor]  (dprime);
+\node[color=\graphColor] at (2.95,2.18) {$\phi_\text{swap}$};
+\end{tikzpicture}
+\end{document}

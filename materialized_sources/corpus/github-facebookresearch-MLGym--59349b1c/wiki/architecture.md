@@ -1,0 +1,54 @@
+# Architecture evidence: facebookresearch/MLGym
+
+- `README.md:15` — Table of contents
+- `README.md:24` — Introduction
+- `README.md:35` — Installation
+- `README.md:124` — Troubleshooting
+- `README.md:134` — Quick Start
+- `README.md:136` — Docker
+- `README.md:151` — Podman
+- `README.md:171` — Trajectory Visualizer
+- `README.md:178` — An example
+- `README.md:188` — Contributions and Maintenance
+- `README.md:192` — Citation
+- `README.md:208` — License
+- `CLAUDE.md:1` — CLAUDE.md
+- `CLAUDE.md:5` — Common Development Commands
+- `CLAUDE.md:7` — Environment Setup
+- `CLAUDE.md:9` — Create conda environment
+- `CLAUDE.md:14` — Install development dependencies
+- `CLAUDE.md:18` — Code Quality and Testing
+- `CLAUDE.md:20` — Run linting
+- `CLAUDE.md:23` — Run type checking
+- `CLAUDE.md:26` — Format code
+- `CLAUDE.md:29` — Fix linting issues automatically
+- `CLAUDE.md:33` — Container Management
+- `CLAUDE.md:35` — Pull the MLGym container image
+- `CLAUDE.md:38` — Test GPU container support
+- `CLAUDE.md:42` — Running Tasks
+- `CLAUDE.md:44` — Basic run with Docker
+- `CLAUDE.md:56` — Use Podman instead of Docker
+- `CLAUDE.md:59` — Replay trajectory visualization
+- `CLAUDE.md:62` — Demo interface
+- `CLAUDE.md:66` — Code Architecture
+- `CLAUDE.md:70` — Core Architecture
+- `CLAUDE.md:76` — Configuration System
+- `CLAUDE.md:81` — Task Structure
+- `CLAUDE.md:86` — Key Files
+- `CLAUDE.md:93` — Development Notes
+- `CLAUDE.md:106` — Environment Variables
+- `CONTRIBUTING.md:1` — Contributing to <span style="font-variant:small-caps;">MLGym</span>
+- `CONTRIBUTING.md:6` — Development
+- `CONTRIBUTING.md:44` — Pull Requests
+- `CONTRIBUTING.md:54` — Contributor License Agreement ("CLA")
+- `CONTRIBUTING.md:61` — Issues
+- `CONTRIBUTING.md:70` — License
+- `pyproject.toml:1` — Choosing a build backend:
+- `pyproject.toml:19` — Classifiers help users find your project by categorizing it.
+- `pyproject.toml:82` — Exclude a variety of commonly ignored directories.
+- `pyproject.toml:83` — Same excludes as black
+- `pyproject.toml:127` — Enable linters
+- `pyproject.toml:146` — Disable specific rules to match pylint configuration
+- `pyproject.toml:155` — Allow unused variables when underscore-prefixed.
+- `pyproject.toml:158` — Add rules to enforce native Python types over typing
+- `docs/README.md:1` — Docs

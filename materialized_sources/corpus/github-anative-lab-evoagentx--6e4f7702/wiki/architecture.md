@@ -1,0 +1,81 @@
+# Architecture evidence: ANative-Lab/EvoAgentX
+
+- `README.md:38` — What is EvoAgentX
+- `README.md:41` — ✨ Key Features
+- `README.md:71` — 🚀 What You Can Do with EvoAgentX
+- `README.md:95` — 🔥 EAX Latest News
+- `README.md:113` — ⚡ Get Started
+- `README.md:143` — Installation
+- `README.md:164` — Create a new conda environment
+- `README.md:167` — Activate the environment
+- `README.md:170` — Install the package
+- `README.md:172` — OR install in development mode
+- `README.md:177` — LLM Configuration
+- `README.md:179` — API Key Configuration
+- `README.md:227` — Configure and Use the LLM
+- `README.md:234` — Load the API key from environment
+- `README.md:237` — Define LLM configuration
+- `README.md:245` — Initialize the language model
+- `README.md:248` — Generate a response from the LLM
+- `README.md:254` — Automatic WorkFlow Generation
+- `README.md:286` — 🧰 EvoAgentX Built-in Tools Summary
+- `README.md:343` — Tool-Enabled Workflows Generation:
+- `README.md:351` — Initialize a command-line toolkit for file operations
+- `README.md:354` — Generate a workflow with the toolkit available to agents
+- `README.md:358` — Instantiate agents with access to the toolkit
+- `README.md:369` — Human-in-the-Loop (HITL) Support:
+- `README.md:382` — Interceptor agent to approve/reject the DummyEmailSendAction of DataSendingAgent
+- `README.md:389` — Map the interceptor’s output field back to the workflow’s input field for continuity
+- `README.md:392` — Add the interceptor to the AgentManager and include HITL in the workflow execution
+- `README.md:401` — Demo Video
+- `README.md:428` — ✨ Final Results
+- `README.md:443` — Evolution Algorithms
+- `README.md:461` — 📊 Results
+- `README.md:472` — Applications
+- `README.md:493` — Tutorial and Use Cases
+- `README.md:517` — 🗣️ EvoAgentX TALK
+- `README.md:541` — 🎯 Roadmap
+- `README.md:548` — 🙋 Support
+- `README.md:550` — Join the Community
+- `README.md:559` — Add the meeting to your calendar
+- `README.md:569` — Contact Information
+- `README.md:577` — Community Call
+- `README.md:580` — 🙌 Contributing to EvoAgentX
+- `README.md:591` — 📖 Citation
+- `README.md:614` — 📚 Acknowledgements
+- `README.md:617` — 📄 License
+- `CONTRIBUTING.md:1` — Contributing to EvoAgentX
+- `CONTRIBUTING.md:5` — 🚀 Getting Started for Contributors
+- `CONTRIBUTING.md:20` — 🛠 How to Contribute
+- `CONTRIBUTING.md:22` — **1. Reporting Bugs** 🐞
+- `CONTRIBUTING.md:36` — **2. Suggesting Features** 💡
+- `CONTRIBUTING.md:46` — **3. Asking Questions / Getting Help** 🤔
+- `CONTRIBUTING.md:55` — ✨ Tip
+- `CONTRIBUTING.md:58` — **4. Code Contributions** 👨‍💻
+- `CONTRIBUTING.md:59` — **Step 1: Create a Branch**
+- `CONTRIBUTING.md:65` — **Step 2: Implement Your Changes**
+- `CONTRIBUTING.md:70` — **Step 3: Commit Your Changes**
+- `CONTRIBUTING.md:77` — **Step 4: Push Your Changes**
+- `CONTRIBUTING.md:82` — **Step 5: Submit a Pull Request**
+- `CONTRIBUTING.md:88` — 📏 Coding Guidelines
+- `CONTRIBUTING.md:90` — Google-Style Docstring Guidelines
+- `CONTRIBUTING.md:97` — Basic Structure
+- `CONTRIBUTING.md:156` — 🧪 Testing
+- `CONTRIBUTING.md:162` — 🔄 Syncing Your Fork
+- `CONTRIBUTING.md:171` — 🤝 Community Guidelines
+- `CONTRIBUTING.md:176` — 📩 Contact
+- `docs/index.md:1` — **EvoAgentX**
+- `docs/index.md:12` — What is EvoAgentX
+- `docs/index.md:17` — ✨ Key Features
+- `docs/index.md:48` — 🚀 What You Can Do with EvoAgentX
+- `docs/index.md:77` — 🔥 EAX Latest News
+- `docs/index.md:95` — 🎥 Demo Video
+- `docs/index.md:128` — 🧰 EvoAgentX Built-in Tools Overview
+- `docs/index.md:150` — 🎯 Roadmap
+- `docs/index.md:157` — 🙋 Support
+- `docs/index.md:159` — Join the Community
+- `docs/index.md:168` — Add the meeting to your calendar
+- `docs/index.md:178` — Contact Information
+- `docs/index.md:186` — Community Call
+- `docs/index.md:189` — 🙌 Contributing to EvoAgentX
+- `docs/index.md:200` — 📖 Citation

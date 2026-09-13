@@ -1,0 +1,71 @@
+% \yijia{I suggest talk about the task formulation in one subsection and how we collect the dataset in another subsection - some examples in the dataset can make people understand why complex information seeking is different from simple QA.}
+
+
+%\subsection{Complex Information Seeking}
+%\subsection{Task Setup}
+\subsection{Problem Formulation}
+\label{sec:task_setup}
+
+\citet{pirolli2009powers} defines complex information-seeking as part of the broader sensemaking process, involving collecting, sifting, understanding, and organizing information from large collections to generate a knowledge product. Prevalent in domains such as investigative journalism, scientific research, and market analysis, this task has the following properties: (1) it requires seeking information from \textit{multiple sources} to address various facets of a topic rather than retrieving a document that best matches a query; (2) it involves \textit{ongoing user interaction} rather than processing a single query; (3) it produces \textit{report-like curated information product} rather than a single short-form answer. As shown in \reftab{table:setup_comparison}, %such a task differs from the classic information retrieval model~\citep{Robertson1977THEORIESAM} and the traditional question answering setup~\citep{chen-etal-2017-reading} 
+% such a task, characterized by the berrypicking conceptual framework~\citep{Bates1989TheDO}, differs from the setups of 
+none of the existing information-seeking assistance systems~\citep[e.g.,][]{Robertson1977THEORIESAM,chen-etal-2017-reading,reddy-etal-2019-coqa,shao2024assisting} can  fully support this task.
+%\TODO{I am surprised that you cite only one IR, Single-turn, Conv, and just storm - but the table 1 refers to a category at a time.}
+
+\begin{table}
+\resizebox{\columnwidth}{!}{%
+\centering
+\begin{tabular}{lccc} 
+\toprule
+        & \begin{tabular}[c]{@{}c@{}}\textbf{Multiple}\\\textbf{Sources}\end{tabular} & \begin{tabular}[c]{@{}c@{}}\textbf{Ongoing}\\\textbf{Interact}\end{tabular} & \begin{tabular}[c]{@{}c@{}}\textbf{Curated}\\\textbf{Report}\end{tabular}  \\ 
+\midrule
+Information Retrieval & $\xmark$                                                                      & $\xmark$                                                                                           & $\xmark$                                                                     \\
+Single-Turn QA       & $\cmark$                                                                      & $\xmark$                                                                                           & $\xmark$                                                                     \\
+Conversational QA     & $\cmark$                                                                      & $\cmark$                                                                                           & $\xmark$                                                                     \\
+Report Generation     & $\cmark$                                                                      & $\xmark$                                                                                           & $\cmark$                                                                     \\ 
+\midrule
+\textbf{\system}         & $\cmark$                                                                      & $\cmark$                                                                                           & $\cmark$                                                                     \\
+\bottomrule
+\end{tabular}
+}
+\caption{Comparison of different information-seeking assistance systems.}
+\label{table:setup_comparison}
+\vspace{-0.5em}
+\end{table}
+
+Given a user with an initial topic of interest $t$ and an initial goal $g$, and a repository of information $R$, the task is to {\em interact} with the user and write a custom long-form report tailored to the users' interest; the report is a sequence of sentences $\mathcal{S}=s_1s_2...s_n$, with each sentence citing a set of retrieved information $\mathcal{I} \subset \mathcal{R}$,  for the sake of verifiability.
+
+\iffalse
+, we define the user's interaction with the system (\eg, formulating new queries or questions) as a policy $\pi$. To satisfy the goal $g$, the system aims to respond to $\pi$, retrieve\fi
+
+%Formally, we define a complex information seek task as a user with latent intent $l$ conduct complex information seeking on topic $t$, search and collect a set of information $I$, and generate long form report $R$ with citations for verifiability.
+
+\subsection{\data: An In-the-Wild Information Seeking Dataset}
+\label{sec:task_data}
+\begin{table}
+\centering
+\resizebox{0.9\columnwidth}{!}{%
+    
+    \begin{tabularx}{\columnwidth}{X}
+    \toprule
+        \small{\textbf{Domain}: Economics} \\
+        \midrule[0.5pt]
+        \small{\textbf{Topic:} Development of a Shared Trading Currency to Facilitate International Trade} \\
+        \midrule[0.5pt]
+        \small{\textbf{Goal:} Investigate how a new shared currency could eliminate transaction costs and boost GDP among member countries.} \\
+    \bottomrule
+    \end{tabularx}
+}
+    \caption{A sample data point in the \data dataset for studying complex information-seeking tasks; the topic and goal are provided by users on the publicly available STORM website, the domain is assigned manually.}
+    \label{tab:data_point}
+\vspace{-1em}
+\end{table}
+
+
+To study users’ interests in complex information-seeking tasks in the wild,
+we utilized data collected from the open-source STORM web application\footnote{Available at \url{https://storm.genie.stanford.edu}}, which generates comprehensive long-form reports based on users’ specified topics of interest and goals for using the site. %Following the definition of complex information seeking tasks in \refsec{sec:task_setup}, 
+%\TODO{Why Not LLM?} \yucheng{you mean why not directly generate the topic + latent goal using LLM? I think because we have collected the data in the wild and its not synthesized, which is much more expensive and difficult to get. Many other works resort to synthesized because they don't have the real data}I am wondering why not LLM but LM. Never mind.
+Each data point is a pair comprising a topic and the user's goal. 
+To improve the quality of the dataset, we retain only those data points that are well motivated by applying rule-based filtering followed by binary classification using an LM (\texttt{gpt-4o-2024-05-13}). Next, we use the same LM to predict the taxonomy class of each topic, followed by manual review and refinement. Finally, we downsample the data to create a dataset with 100 data points across 24 different domains. \reftab{tab:data_point} shows a sample data point from the dataset; further details about the dataset are in Appendix~\ref{appendix:dataset}. 
+
+
+% We build a web application for complex information seeking tasks, where the system generates a comprehensive long-form report on demand from user's request. We collect the topic and purpose of searching (i.e., the user’s intent) with the user’s permission and construct a dataset (N=100) consisting of topic-intent pairs from 24 domains (topic taxonomy included in the appendix). ~\reftab{table:example_tasks} shows a few examples from the dataset.

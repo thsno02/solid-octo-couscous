@@ -1,0 +1,70 @@
+# Architecture evidence: open-policy-agent/opa
+
+- `README.md:1` — ![logo](./logo/logo-144x144.png) Open Policy Agent
+- `README.md:9` — Get started with OPA
+- `README.md:20` — Want to talk about OPA or get support?
+- `README.md:26` — Interested to learn what others are doing with OPA?
+- `README.md:31` — Want to integrate OPA?
+- `README.md:40` — Want to contribute to OPA?
+- `README.md:46` — How does OPA work?
+- `README.md:80` — Presentations
+- `README.md:102` — Security
+- `AGENTS.md:1` — AGENTS.md
+- `AGENTS.md:7` — General Rules and Guidelines
+- `AGENTS.md:22` — Developer Environment
+- `AGENTS.md:31` — PR instructions
+- `AGENTS.md:59` — Fixing security issues or security related dependency updates
+- `CONTRIBUTING.md:1` — Contributing
+- `Dockerfile:1` — Copyright 2019 The OPA Authors.  All rights reserved.
+- `Dockerfile:2` — Use of this source code is governed by an Apache2
+- `Dockerfile:3` — license that can be found in the LICENSE file.
+- `Dockerfile:12` — Any non-zero number will do, and unfortunately a named user will not, as k8s
+- `Dockerfile:13` — pod securityContext runAsNonRoot can't resolve the user ID:
+- `Dockerfile:14` — https://github.com/kubernetes/kubernetes/issues/40958.
+- `Dockerfile:18` — TARGETOS and TARGETARCH are automatic platform args injected by BuildKit
+- `Dockerfile:19` — https://docs.docker.com/engine/reference/builder/#automatic-platform-args-in-the-global-scope
+- `Makefile:1` — Copyright 2016 The OPA Authors.  All rights reserved.
+- `Makefile:2` — Use of this source code is governed by an Apache2
+- `Makefile:3` — license that can be found in the LICENSE file.
+- `Makefile:9` — See https://golang.org/cmd/go/#hdr-Build_modes:
+- `Makefile:10` — > -buildmode=exe
+- `Makefile:11` — > Build the listed main packages and everything they import into
+- `Makefile:12` — > executables. Packages not named main are ignored.
+- `Makefile:29` — For image, the UID/GID is overridden so that the built binary isn't root-owned.
+- `Makefile:41` — BuildKit is required for automatic platform arg injection (see Dockerfile)
+- `Makefile:44` — Supported platforms to include in image manifest lists
+- `Makefile:49` — Optional external configuration useful for forks of OPA
+- `Makefile:71` — Development targets
+- `Makefile:75` — If you update the 'all' target make sure the 'ci-release-test' target is consistent.
+- `Makefile:181` — build/release is a separate module, so the root `test` and `check` targets do
+- `Makefile:182` — not reach it.
+- `Makefile:202` — Documentation targets
+- `Makefile:206` — The docs-% pattern target will shim to the
+- `Makefile:207` — makefile in ./docs
+- `Makefile:218` — Linux distro package targets
+- `Makefile:228` — Wasm targets
+- `Makefile:271` — CI targets
+- `Makefile:350` — % = arch
+- `Makefile:381` — % = base tag
+- `Makefile:424` — % = arch
+- `Makefile:451` — Don't tag and push "latest" image tags if the version is a release candidate or a bugfix branch
+- `Makefile:452` — where the changes don't exist in main
+- `Makefile:465` — Kept for compatibility. Use `make fuzz` instead.
+- `Makefile:469` — GOPRIVATE=* causes go to fetch all dependencies from their corresponding VCS
+- `Makefile:470` — source, not through the golang-provided proxy services. We're cleaning out
+- `Makefile:471` — /src/.go by providing a tmpfs mount, so the `go mod vendor -v` command will
+- `Makefile:472` — not be able to use any module cache.
+- `Makefile:494` — Release targets
+- `Makefile:498` — Fills in the CHANGELOG section for the release range and updates the version
+- `Makefile:499` — artefacts.
+- `Makefile:501` — make release-prepare VERSION=1.19.0
+- `Makefile:502` — make release-prepare VERSION=1.19.0 LAST_VERSION=v1.18.2
+- `Makefile:504` — To update changelog or artefacts in isolation, or with flags this target doesn't expose
+- `Makefile:505` — (--dry-run, --out, --include-local, --record):
+- `Makefile:507` — cd build/release && go run . changelog --help
+- `Makefile:508` — cd build/release && go run . artefacts --help
+- `Makefile:527` — Reopens development after a release.
+- `Makefile:529` — make dev-prepare VERSION=1.19.1
+- `Makefile:541` — Deprecated targets. To be removed.
+- `SECURITY.md:1` — Security Policy
+- `docs/README.md:1` — Documentation and Website Development

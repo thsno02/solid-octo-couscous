@@ -1,0 +1,138 @@
+\section{The \model\ Architecture}
+\label{sec:solution}
+
+% This section presents the technical details of our \model\ framework, illustrated in Figure~\ref{fig:framework}. It features a graph-based document indexing method that maintains extensibility for rapid adaptation and supports efficient retrieval. Additionally, we have designed an efficient retrieval algorithm that not only performs quick data retrieval but also generates global summaries for high-level queries.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{figs/framework.pdf}
+    \vspace{-0.2in}
+    \caption{Overall architecture of the proposed \model\ framework.}
+    \label{fig:framework}
+    \vspace{-0.1in}
+\end{figure}
+
+\subsection{Graph-based Text Indexing}
+
+\textbf{Graph-Enhanced Entity and Relationship Extraction}. Our \model\ enhances the retrieval system by segmenting documents into smaller, more manageable pieces. This strategy allows for quick identification and access to relevant information without analyzing entire documents. Next, we leverage LLMs to identify and extract various entities (e.g., names, dates, locations, and events) along with the relationships between them. The information collected through this process will be used to create a comprehensive knowledge graph that highlights the connections and insights across the entire collection of documents. We formally represent this graph generation module as follows:
+% To extract global information from raw external documents, our \model\ framework employs a graph-structured data form to uncover the high-order dependencies between entities in the documents. Specifically, \model\ leverages LLMs to process the raw document text for graph construction. It identifies entities and their correlations within the text and profiles these entities and relationships using descriptive text. This process can be summarized as:
+\begin{align}
+    \hat{\mathcal{D}} = (\hat{\mathcal{V}},\hat{\mathcal{E}}) = \text{Dedupe}\circ\text{Prof}(\mathcal{V}, \mathcal{E}),~~~\mathcal{V}, \mathcal{E} = \cup_{\mathcal{D}_i\in\mathcal{D}} \text{Recog}(\mathcal{D}_i)
+\end{align}
+% where $\hat{\mathcal{D}}$ represents the resulting graph-structured data. To generate this graph data, three primary processing steps are applied to the raw text documents $\mathcal{D}_i$. These processing steps employ LLM for text analysis and processing. Prompt templates and specific settings of this part are detailed in Appendix~\ref{app:graph_construct_prompt}.The functions used in our graph indexing process are elaborated as follows:
+where $\hat{\mathcal{D}}$ represents the resulting knowledge graphs. To generate this data, we apply three main processing steps to the raw text documents $\mathcal{D}_i$. These steps utilize a LLM for text analysis and processing. Details about the prompt templates and specific settings for this part can be found in Appendix~\ref{app:graph_construct_prompt}. The functions used in our graph-based text indexing paradigm are described as:
+
+\begin{itemize}[leftmargin=*]
+
+    % \item $\text{Recog}(\cdot)$: This function prompts a Large Language Model (LLM) to identify entities and their relationships within text data. For instance, entities such as "Beekeepers", "Honey Bees" and relationships like "Beekeepers manage Honey Bees", "Miller depends on the health and productivity of the Honey Bees for his beekeeping business" can be extracted from the raw text "Beekeepers control swarming by recognizing and relievin...". Additionally, to enhance the efficiency of this process, the raw text $\mathcal{D}$ is segmented into multiple chunks $\mathcal{D}_i$.
+
+    \item \textbf{Extracting Entities and Relationships}. $\text{R}(\cdot)$: This function prompts a LLM to identify entities (nodes) and their relationships (edges) within the text data. For instance, it can extract entities like "Cardiologists" and "Heart Disease," and relationships such as "Cardiologists diagnose Heart Disease" from the text: "Cardiologists assess symptoms to identify potential heart issues." To improve efficiency, the raw text $\mathcal{D}$ is segmented into multiple chunks $\mathcal{D}_i$.
+    
+    % \item $\text{P}(\cdot)$: We then employ a profiling function, $\text{Prof}(\cdot)$, to generate a text key-value pair $(K, V)$ for each entity in $\mathcal{V}$ and each edge in $\mathcal{E}$. Each index key consists of a word or short phrase, which facilitates efficient retrieval of the entity or relation. Correspondingly, the value for each entity or relation is a text paragraph that encapsulates pertinent snippets of information from the external data, which serves as the retrieved text to aid the generation. Entities utilize their names as the sole index key. In contrast, relations may possess multiple index keys, derived through LLM-based enhancements that incorporate related global tags and themes from their connected entities.
+
+    \item \textbf{LLM Profiling for Key-Value Pair Generation}. $\text{P}(\cdot)$: We employ a LLM-empowered profiling function, $\text{P}(\cdot)$, to generate a text key-value pair $(K, V)$ for each entity node in $\mathcal{V}$ and relation edge in $\mathcal{E}$. Each index key is a word or short phrase that enables efficient retrieval, while the corresponding value is a text paragraph summarizing relevant snippets from external data to aid in text generation. Entities use their names as the sole index key, whereas relations may have multiple index keys derived from LLM enhancements that include global themes from connected entities.
+    
+    % \item $\text{Dedupe}(\cdot)$: Finally, we implement a deduplication function, $\text{Dedupe}(\cdot)$, which identifies and merges identical entities and relations extracted from various parts of the raw text $\mathcal{D}_i$. This significantly decreases the overhead associated with graph operations on $\hat{\mathcal{D}}$ by minimizing the size of the graph.
+
+    \item \textbf{Deduplication to Optimize Graph Operations}. $\text{D}(\cdot)$: Finally, we implement a deduplication function, $\text{D}(\cdot)$, that identifies and merges identical entities and relations from different segments of the raw text $\mathcal{D}_i$. This process effectively reduces the overhead associated with graph operations on $\hat{\mathcal{D}}$ by minimizing the graph's size, leading to more efficient data processing.
+    
+\end{itemize}
+
+Our \model\ offers two advantages through its graph-based text indexing paradigm. \emph{First}, \textbf{Comprehensive Information Understanding}. The constructed graph structures enable the extraction of global information from multi-hop subgraphs, greatly enhancing \model's ability to handle complex queries that span multiple document chunks. \emph{Second}, \textbf{Enhanced Retrieval Performance}. the key-value data structures derived from the graph are optimized for rapid and precise retrieval. This provides a superior alternative to less accurate embedding matching methods~\citep{gao2023retrieval} and inefficient chunk traversal techniques~\citep{edge2024local} commonly used in existing approaches.
+
+% There are two noteworthy advantages to the graph-based document indexing method of our \model. First, the constructed graph structures facilitate the extraction of global information from multi-hop subgraphs. This capability significantly enhances \model\ in addressing complex queries that span multiple document chunks. Second, the key-value data structures derived from the graph are optimized for both rapid and precise retrieval, offering a superior alternative to the less accurate embedding matching methods~\citep{gao2023retrieval} and the inefficient chunk traversal techniques~\citep{edge2024local} commonly employed in existing approaches.
+
+% LLM-based Graph Index (segamentation, entity/relation recognition, profiling (relation keywords), 去重
+
+% \textbf{Fast Adaptation of Index Graphs}. To efficiently adapt to evolving datasets while maintaining accurate and relevant responses, our \model\ incrementally updates the knowledge base without requiring complete reprocessing of the entire external database. Specifically, for a new document $\mathcal{D}'$, the incremental update algorithm processes it through the same graph-based indexing steps $\varphi$ as before, acquiring $\hat{\mathcal{D}}' = (\hat{\mathcal{V}}', \hat{\mathcal{E}}')$. Then, \model\ combines the new graph data with the original by taking the union of the node sets $\hat{\mathcal{V}}$ and $\hat{\mathcal{V}}'$, as well as the edge sets $\hat{\mathcal{E}}$ and $\hat{\mathcal{E}}'$.
+
+\textbf{Fast Adaptation to Incremental Knowledge Base}. To efficiently adapt to evolving data changes while ensuring accurate and relevant responses, our \model\ incrementally updates the knowledge base without the need for complete reprocessing of the entire external database. For a new document $\mathcal{D}'$, the incremental update algorithm processes it using the same graph-based indexing steps $\varphi$ as before, resulting in $\hat{\mathcal{D}}' = (\hat{\mathcal{V}}', \hat{\mathcal{E}}')$. Subsequently, \model combines the new graph data with the original by taking the union of the node sets $\hat{\mathcal{V}}$ and $\hat{\mathcal{V}}'$, as well as the edge sets $\hat{\mathcal{E}}$ and $\hat{\mathcal{E}}'$.
+
+% By applying this consistent methodology to new information, the incremental update module enables the proposed \model\ framework to seamlessly integrate new external database without disrupting the existing graph structure. This uniform processing approach preserves the integrity of previously established connections, ensuring that historical data remains accessible while enhancing the graph's richness without causing conflicts or redundancies. By avoiding the need to rebuild the entire index graph, the method reduces computational overhead and allows for quick assimilation of new data. Consequently, \model\ maintains system accuracy, responds with the most current information, and conserves computational resources, ensuring that users receive timely and relevant information and enhancing the overall effectiveness of the RAG system.
+Two key objectives guide our approach to fast adaptation for the incremental knowledge base: \textbf{Seamless Integration of New Data}. By applying a consistent methodology to new information, the incremental update module allows the \model\ to integrate new external databases without disrupting the existing graph structure. This approach preserves the integrity of established connections, ensuring that historical data remains accessible while enriching the graph without conflicts or redundancies. \textbf{Reducing Computational Overhead
+}. By eliminating the need to rebuild the entire index graph, this method reduces computational overhead and facilitates the rapid assimilation of new data. Consequently, \model\ maintains system accuracy, provides current information, and conserves resources, ensuring users receive timely updates and enhancing the overall RAG effectiveness.
+
+% Fast-Adaptation of Indexing Graphs
+
+\subsection{Dual-level Retrieval Paradigm}
+% To fetch related information from both specific document chunks and their complex interdependencies, our \model\ proposes generating query keys at both specific and general levels. Specifically, low-level queries are detail-oriented and often reference particular entities within the graph, requiring precise retrieval of information associated with specific nodes or edges—for example, "What is the capital of France?". In contrast, high-level queries are more abstract and conceptual, involving broader topics, summaries, or overarching themes not directly tied to specific entities but related to higher-level concepts within the graph, such as "Discuss the impact of climate change on agriculture."
+To retrieve relevant information from both specific document chunks and their complex inter-dependencies, our \model\ proposes generating query keys at both detailed and abstract levels.\vspace{-0.05in}
+\begin{itemize}[leftmargin=*]
+
+\item \textbf{Specific Queries}. These queries are detail-oriented and typically reference specific entities within the graph, requiring precise retrieval of information associated with particular nodes or edges. For example, a specific query might be, ``Who wrote 'Pride and Prejudice'?''
+
+\item \textbf{Abstract Queries}. In contrast, abstract queries are more conceptual, encompassing broader topics, summaries, or overarching themes that are not directly tied to specific entities. An example of an abstract query is, ``How does artificial intelligence influence modern education?''
+
+\end{itemize}
+
+% To accommodate these different query types, the \model\ framework adopts two distinct retrieval strategies. For low-level queries containing specific keywords directly related to entities within the graph, our \model\ approach directly retrieves the relevant entities, their associated relationships, and the corresponding values including the node-specific and the original text segments. For high-level queries that involve overarching themes or concepts requiring the aggregation of information across multiple related entities and relationships, our \model\ first generates high-level keywords from the query. It then utilizes the high-level keywords extracted during the indexing phase to retrieve pertinent relationships, entities, and text segments. This dual-strategy approach enables the system to efficiently handle both detailed and abstract queries, providing comprehensive responses that cover specific details and broader topics without redundancy.
+
+To accommodate diverse query types, the \model\ employs two distinct retrieval strategies within the dual-level retrieval paradigm. This ensures that both specific and abstract inquiries are addressed effectively, allowing the system to deliver relevant responses tailored to user needs.
+\begin{itemize}[leftmargin=*]
+
+\item \textbf{Low-Level Retrieval}. This level is primarily focused on retrieving specific entities along with their associated attributes or relationships. Queries at this level are detail-oriented and aim to extract precise information about particular nodes or edges within the graph.
+
+\item \textbf{High-Level Retrieval}. This level addresses broader topics and overarching themes. Queries at this level aggregate information across multiple related entities and relationships, providing insights into higher-level concepts and summaries rather than specific details.
+
+\end{itemize}
+
+% \textbf{Efficient Retrieval with Global Awareness}.
+\textbf{Integrating Graph and Vectors for Efficient Retrieval}.
+% For a given query $q$, the retrieval algorithm of \model\ initially extracts both local query keywords $k^{(l)}$ and global query keywords $k^{(g)}$. Utilizing an efficient vector database approach, the algorithm matches the local query keywords with candidate entities and the global query keywords with candidate relations, which are associated with global keys. To incorporate high-order relatedness into the query, our \model\ further gathers neighboring nodes within the local subgraphs of the retrieved graph elements. This includes the set $\{v_i | v_i \in \mathcal{V} \land (v_i \in \mathcal{N}_v \lor v_i \in \mathcal{N}_e)\}$, where $\mathcal{N}_v$ and $\mathcal{N}_e$ denote the sets of one-hop neighboring nodes of the retrieved nodes $v$ and retrieved edges $e$, respectively. This approach not only facilitates efficient retrieval of related entities and relations through keyword matching but also enhances the comprehensiveness of the results by incorporating structurally related information.
+By combining graph structures with vector representations, the model gains a deeper insight into the interrelationships among entities. This synergy enables the retrieval algorithm to effectively utilize both local and global keywords, streamlining the search process and improving the relevance of results.\vspace{-0.05in}
+
+\begin{itemize}[leftmargin=*]
+
+\item (i) \textbf{Query Keyword Extraction}. For a given query $q$, the retrieval algorithm of \model\ begins by extracting both local query keywords $k^{(l)}$ and global query keywords $k^{(g)}$.
+
+\item (ii) \textbf{Keyword Matching}. The algorithm uses an efficient vector database to match local query keywords with candidate entities and global query keywords with relations linked to global keys.
+
+\item (iii) \textbf{Incorporating High-Order Relatedness}. To enhance the query with higher-order relatedness, \model further gathers neighboring nodes within the local subgraphs of the retrieved graph elements. This process involves the set $\{v_i | v_i \in \mathcal{V} \land (v_i \in \mathcal{N}_v \lor v_i \in \mathcal{N}_e)\}$, where $\mathcal{N}_v$ and $\mathcal{N}_e$ represent the one-hop neighboring nodes of the retrieved nodes $v$ and edges $e$, respectively.
+
+\end{itemize}
+
+This dual-level retrieval paradigm not only facilitates efficient retrieval of related entities and relations through keyword matching, but also enhances the comprehensiveness of results by integrating relevant structural information from the constructed knowledge graph.
+
+% Multi-level Key Generation for Queries
+% Efficient Retrieval with Global Awareness
+% Complexity Analysis
+% Question Answering based on Retrieved Content
+
+\subsection{Retrieval-Augmented Answer Generation}
+% Utilizing the retrieved information $\psi(q;\hat{\mathcal{D}})$, our \model\ leverages any general-purpose LLM to generate answers based on the collected data. This information consists of the concatenated values $V$ from all relevant entities and relations, produced by the profiling function $\text{Prof}(\cdot)$, including the names and textual descriptions of entities and relations, along with associated excerpts from the original raw text. By combining the query with these multi-source text, the LLM generates an answer that is both informative and tailored to the user's specific needs, ensuring that the final output aligns with the intent of the query. This approach simplifies the answer generation process by feeding both the context and the query into the LLM model, as demonstrated in detailed examples (Appendix~\ref{app:retrieval_and_generation_examples}).
+\textbf{Utilization of Retrieved Information}. Utilizing the retrieved information $\psi(q;\hat{\mathcal{D}})$, our \model\ employs a general-purpose LLM to generate answers based on the collected data. This data comprises concatenated values $V$ from relevant entities and relations, produced by the profiling function $\text{P}(\cdot)$. It includes names, descriptions of entities and relations, and excerpts from the original text.
+
+\textbf{Context Integration and Answer Generation}. By unifying the query with this multi-source text, the LLM generates informative answers tailored to the user's needs, ensuring alignment with the query's intent. This approach streamlines the answer generation process by integrating both context and query into the LLM model, as illustrated in detailed examples (Appendix~\ref{app:retrieval_and_generation_examples}).
+
+\subsection{Complexity Analysis of the \model\ Framework}
+% In this section, we analyze the complexity of our proposed LightRAG framework. The complexity is primarily divided into two parts. The first part is the graph-based Index phase. During this phase, we utilize the LLM to extract entities and relationships from each chunk of text. Thus, the LLM needs to be called \(\frac{\text{total tokens}}{\text{chunk size}}\) times. Apart from this, there is no additional overhead, making this approach highly efficient in handling new text updates.
+In this section, we analyze the complexity of our proposed LightRAG framework, which can be divided into two main parts. The first part is the graph-based Index phase. During this phase, we use the large language model (LLM) to extract entities and relationships from each chunk of text. As a result, the LLM needs to be called \(\frac{\text{total tokens}}{\text{chunk size}}\) times. Importantly, there is no additional overhead involved in this process, making our approach highly efficient in managing updates to new text.
+
+% The second part is the graph-based retrieval phase. For each query, we first invoke the LLM to generate the relevant keywords. Similar to traditional RAG systems \cite{gao2023retrieval, hyde, chan2024rq}, the retrieval process relies on vector-based search. However, instead of retrieving chunks as in traditional RAG, we focus on retrieving entities and relationships. Compared to the community-based traversal retrieval method used in GraphRAG, our approach significantly reduces the retrieval overhead.
+The second part of the process involves the graph-based retrieval phase. For each query, we first utilize the large language model (LLM) to generate relevant keywords. Similar to current Retrieval-Augmented Generation (RAG) systems \cite{gao2023retrieval, hyde, chan2024rq}, our retrieval mechanism relies on vector-based search. However, instead of retrieving chunks as in conventional RAG, we concentrate on retrieving entities and relationships. This approach markedly reduces retrieval overhead compared to the community-based traversal method used in GraphRAG.
+
+
+% novelty/challenges/limitations to tackle:
+% 1. high cost: 
+% keyword-based and multi-grained retrieval
+% 2. static: fast-adaptation
+% our high-level construction is positioned on low-level structures
+
+% 1. graph construction: entity recognition, keywords generation
+% 2. increment graph update for new documents
+% 3. query classification
+% 4. multi-grained retrieval
+% 5. retrieval-augmented generation
+
+% 1. indexing
+% 1.a graph construction (segmentation) entity/relation recognition, profiling (relation keywords), 去重
+% 1.b incremental update
+
+% 2. query
+% 2.a multi-grained/local-global keywords generation
+% 2.b low-level: 1-hop subgraph
+%     high-level: relations and their related entities
+
+% 3. RAG
+% 3.a context construction
+% 3.b prompt and answer

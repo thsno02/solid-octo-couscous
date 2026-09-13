@@ -1,0 +1,545 @@
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{xcolor}         % colors
+
+% Newly added packages
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{arydshln}
+\usepackage{tabularx}
+\usepackage{multirow}
+\usepackage{multicol}
+\usepackage{cleveref}
+\usepackage{xspace}
+\usepackage{makecell}
+\usepackage{fontawesome5}
+\usepackage{colortbl}
+\usepackage{tablefootnote}
+\usepackage{tabularray}
+\usepackage{xspace}
+\usepackage{circledsteps}
+\usepackage{caption}
+\usepackage{longtable}
+\usepackage{multicol}
+\usepackage{array}
+\usepackage{wrapfig}
+\usepackage{pifont}% http://ctan.org/pkg/pifont
+\usepackage{lipsum}
+\usepackage{relsize}
+\usepackage{bbm}
+
+
+\usepackage{csquotes}
+\renewcommand{\mkbegdispquote}[2]{\itshape}
+
+\usepackage{xparse}
+\NewDocumentCommand{\scnum}{ >{\SplitArgument{1}{e}}m }
+ {\scnumaux#1}
+ \NewDocumentCommand{\scnumaux}{ m m }
+ {#1\,\mathrm e\,{#2}}
+
+\usepackage{import}         % Importing subdocuments
+\usepackage{standalone}     % Compilable subdocuments and inclusion thereof
+\usepackage{titlesec}       % Tweak titles
+
+\usepackage{enumitem}
+  \newlist{inlinelist}{enumerate*}{1}
+  \setlist*[inlinelist,1]{%
+          label=(\roman*),
+      }
+
+%%%%%%%%%%%% If you want to add a TOC for appendices %%%%%%%%%%%%
+\usepackage[toc,page,header]{appendix}
+\usepackage{minitoc}
+\setcounter{tocdepth}{2}
+
+% Make the "Part I" text invisible
+\renewcommand \thepart{}
+\renewcommand \partname{}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage{amssymb}        % Math Symbols
+\usepackage{amsmath}        % Math
+\usepackage{cases}          % Cases in math
+\usepackage{amsthm}         % Theorems
+\usepackage{thmtools}       % Tools for theorems
+\usepackage{mathtools}      % More math commands
+\usepackage{bm}             % Bold math
+\usepackage{dsfont}         % indicator funciton
+%\usepackage[vlined]{algorithm2e}
+%\usepackage[linesnumbered]{algorithm2e} 
+%\usepackage[ruled,vlined]{algorithm2e}
+\usepackage[linesnumbered,ruled,vlined]{algorithm2e}
+\usepackage{float}
+% \usepackage{algorithm,algpseudocode}
+\usepackage{extarrows}
+\usepackage{empheq}
+\usepackage{mathrsfs} % for \mathscr command
+\allowdisplaybreaks         % allow break in equation
+
+
+% Fix interference of parfill option of parskip package with amsmath environments.
+\begingroup
+    \makeatletter
+    \@for\theoremstyle:=theorem,corollary,lemma,model,definition,remark,plain\do{%
+        \expandafter\g@addto@macro\csname th@\theoremstyle\endcsname{%
+            \setlength\thm@preskip\parskip
+            \setlength\thm@postskip\parskip%{0pt}
+            \addtolength\thm@preskip\parskip
+            }%
+        }
+    \makeatother
+\endgroup
+\newcommand{\pcref}[1]{(\cref{#1})}
+% Restatable theorems 
+\usepackage{thmtools,thm-restate}
+\newtheorem{lem}{Lemma}
+\newtheorem{thm}{Theorem}
+\newtheorem{prop}{Proposition}
+\newtheorem{corr}{Corollary}
+% Environments
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\newtheorem*{definition*}{Definition}
+\newtheorem{property}{Property}
+\newtheorem*{property*}{Property}
+\newtheorem{assumption}{Assumption}
+\newtheorem*{assumption*}{Assumption}
+\newtheorem*{assumptions*}{Assumptions}
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}
+\newtheorem*{theorem*}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem*{lemma*}{Lemma}
+\newtheorem{proposition}{Proposition}
+\newtheorem*{proposition*}{Proposition}
+\newtheorem{corollary}{Corollary}
+\newtheorem*{corollary*}{Corollary}
+\newtheorem{fact}{Fact}
+\newtheorem*{fact*}{Fact}
+\theoremstyle{remark}
+\newtheorem{remark}{Remark}
+\newtheorem*{remark*}{Remark}
+\newtheorem{condition}{Condition}[lemma]
+\newtheorem*{condition*}{Condition}
+\newtheorem{example}{Example}
+\newtheorem*{example*}{Example}
+\newtheorem{question}{Question}
+\newtheorem*{question*}{Question}
+
+% \newreptheorem{theorem}{Theorem}
+% \newreptheorem{lemma}{Lemma}
+
+% Cleverref environments
+% Long
+\crefname{theorem}{Theorem}{Theorems}
+\Crefname{theorem}{Theorem}{Theorems}
+\crefname{lemma}{Lemma}{Lemmas}
+\Crefname{lemma}{Lemma}{Lemmas}
+\crefname{proposition}{Proposition}{Propositions}
+\Crefname{proposition}{Proposition}{Propositions}
+\crefname{definition}{Definition}{Definitions}
+\Crefname{definition}{Definition}{Definitions}
+\crefname{property}{Property}{Properties}
+\Crefname{property}{Property}{Properties}
+\crefname{example}{Example}{Examples}
+\Crefname{example}{Example}{Examples}
+\crefname{cor}{Corollary}{Corollaries}
+\Crefname{cor}{Corollary}{Corollaries}
+\crefname{equation}{Eq.}{Equations}
+\Crefname{equation}{Eq.}{Equations}
+\crefname{assumption}{Assumption}{Assumptions}
+\Crefname{assumption}{Assumption}{Assumptions}
+\crefname{remark}{Remark}{Remarks}
+\Crefname{remark}{Remark}{Remarks}
+\crefname{condition}{Cond.}{Cond.}
+\Crefname{condition}{Cond.}{Cond.}
+
+% Short
+\crefname{theorem}{Thm.}{Theorems}
+\crefname{proposition}{Prop.}{Props.}
+%\Crefname{proposition}{Proposition}{Propositions}
+\crefname{definition}{Def.}{Defs}
+%\Crefname{definition}{Definition}{Definitions}
+% \crefname{property}{Prop.}{Props}
+% \Crefname{property}{Prop.}{Props}
+\crefname{equation}{Eq.}{Eqs.}
+%\Crefname{equation}{Eq.}{Eqs.}
+\crefname{section}{Sec.}{Secs.}
+%\Crefname{section}{Sec.}{Secs}
+\crefname{figure}{Fig.}{Figs.}
+% \Crefname{figure}{Fig.}{Figs.}
+\crefname{appendix}{Appx.}{Appxs.}
+%\Crefname{appendix}{App.}{Apps}
+\crefname{corollary}{Corollary}{Corollaries}
+\crefname{assumption}{Asmp.}{Assumptions}
+\crefname{condition}{Cond.}{Cond.}
+
+% To repeat environments with desired number
+\newtheorem{manualpropinner}{Proposition}
+\newenvironment{manualprop}[1]{%
+  \renewcommand\themanualpropinner{#1}%
+  \manualpropinner
+}{\endmanualpropinner}
+
+\newtheorem{manualthminner}{Theorem}
+\newenvironment{manualthm}[1]{%
+  \renewcommand\themanualthminner{#1}%
+  \manualthminner
+}{\endmanualthminner}
+
+
+
+
+% Symbols
+\renewcommand{\O}{\mathcal{O}} % Landau's symbol
+\newcommand{\R}{\mathbb{R}}   % Real numbers
+\newcommand{\C}{\mathbb{C}}   % Complex numbers
+\newcommand{\N}{\mathbb{N}}   % Natural numbers
+
+% Special math commands
+\newcommand{\sci}[1]{\text{e-}#1} % scientific notation
+\newcommand{\defeq}{\vcentcolon=}
+\newcommand{\eqdef}{=\vcentcolon}
+\newcommand{\f}[2]{\operatorname{#1}\lpa[,]{#2}} 
+\newcommand{\sd}[1]{\, \mathrm{d} #1}     % Straight 'd'
+% \newcommand{\pa}[1]{\negthinspace\left(#1\right)}      % Parenthesis
+% \newcommand{\br}[1]{\negthinspace\left[#1\right]}      % Brackets
+% \newcommand{\set}[1]{\negthinspace\left\{#1\right\}}     % Set
+\newcommand{\pa}[1]{\left(#1\right)}      % Parenthesis
+\newcommand{\br}[1]{\left[#1\right]}      % Brackets
+\newcommand{\set}[1]{\left\{#1\right\}}     % Set
+\newcommand{\norm}[1]{\left|#1\right|}     % Norm
+\newcommand{\normdouble}[1]{\left\|#1\right\|}     % Norm double
+\newcommand{\frob}{\mathrm{F}}     % Frobenius Norm
+\newcommand{\sce}{\text{\sc{e}}}          % Scientific notation
+\newcommand{\cond}{\, \vert \,}               % Conditioning
+\newcommand{\vardot}{\,\cdot\,}           % Dot for a variable
+\newcommand{\dirac}[1]{\delta_{#1}\br{\uppercase{#1}}}     % Dirac delta
+\newcommand{\iidsim}{\overset{\raisebox{-2pt}{\smash{\text{\tiny i.i.d.}}}}{\sim}}    % Compact \sim with iid above it
+\newcommand{\dsim}{\overset{\raisebox{-2pt}{\smash{\text{\tiny d}}}}{\sim}}    % Compact \sim with iid above it
+\newcommand{\ssim}{\overset{\raisebox{-2pt}{\smash{\text{\tiny s}}}}{\sim}}    % Compact \sim with iid above it
+\newcommand{\deq}{\stackrel{\text{d}}{=}}    % equal in distribution
+\newcommand{\aseq}{\stackrel{\text{a.s.}}{=}}    % equal almost surely
+\newcommand{\distaseq}[1]{\stackrel{#1-\text{a.s.}}{=\joinrel=}}    % equal almost surely
+\DeclarePairedDelimiter{\ceil}{\lceil}{\rceil}      % ceil
+\DeclarePairedDelimiter\floor{\lfloor}{\rfloor}
+\newcommand{\const}{\text{const}}     % constant
+\newcommand{\softmax}{\operatorname{softmax}}
+
+% Delimited Lists
+\def\my@concat #1,#2\@eolst{%
+   \ifx\relax#2\relax
+      #1
+   \else
+      #1\my@delim
+      \my@concat #2\@eolst%
+   \fi}
+
+\newcommand\lbr[2][;\,]{%                  
+\global\def\my@delim{#1}%
+\br{\my@concat #2,\relax\noexpand\@eolst%
+}}
+
+\newcommand\lpa[2][,\,]{%                  
+\global\def\my@delim{#1}%
+\pa{\my@concat #2,\relax\noexpand\@eolst%
+}}
+
+\newcommand\lset[2][,\,]{%                  
+\global\def\my@delim{#1}%
+\set{\my@concat #2,\relax\noexpand\@eolst%
+}}
+
+% Linear algebra
+\renewcommand{\vec}[1]{\bm{\mathrm{#1}}} % Vector
+\newcommand{\mat}[1]{\bm{\uppercase{#1}}}  % Matrix (does not uppercase greeks)
+\newcommand{\vcat}[1]{\lbr[;]{#1}}               % Vertical concatenation
+\newcommand{\hcat}[1]{\lbr[,]{#1}}               % Horizontal concatenation
+\renewcommand{\det}[1]{\operatorname{det}\pa{#1}}% Deterimant
+\DeclareMathOperator{\Tr}{Tr}
+\newcommand{\T}{\text{\textsf{T}}}        % Transpose
+% \newcommand{\T}{\text{T}}        % Transpose
+\newcommand{\stackvec}[1]{\mathrm{vec}\pa{#1}} % Vectorization of matrices
+\newcommand{\diag}[1]{\mathrm{diag}\pa{#1}} % Diagonal of matrices
+
+% Operators
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator*{\argsup}{arg\,sup}
+\DeclareMathOperator*{\arginf}{arg\,inf}
+\newcommand{\subject}{\mathrm{s.t.}}
+\newcommand{\op}[2]{\operatorname{#1}\lbr[;]{{#2}}}  
+% \newcommand{\E}[2]{\operatorname{\mathbb{E}}_{#1}\lbr[,]{{#2}}} 
+\newcommand{\E}[2]{\underset{\substack{#1}}{\operatorname{\mathbb{E}}}\lbr[,]{{#2}}} 
+\newcommand{\hE}[2]{\hat{\operatorname{\mathbb{E}}}_{#1}\lbr[,]{{#2}}} 
+\newcommand{\KL}[1]{\operatorname{D}_{\text{KL}}\lbr[\middle\|]{#1}}
+\newcommand{\MI}[2]{\op{I}{#1  ; #2}}  % Mutual information
+\newcommand{\MIL}[2]{\op{I_{\ell}}{#1  ; #2}}
+\renewcommand{\H}[1]{\op{H}{#1}}  % entropy
+\newcommand{\CH}[2]{\op{H}{#1 \cond #2}}
+\newcommand{\CE}[2]{\op{H^{\times}}{#1, #2}} % cross entropy
+\newcommand{\preimage}[2]{#1^{\scriptscriptstyle \leftarrow}\pa{#2}}
+\newcommand{\image}[2]{#1^{\scriptscriptstyle \rightarrow}\pa{#2}}
+\newcommand{\ind}[1]{\mathds{1}\br{#1}}
+\newcommand{\indin}[2]{\mathds{1}\br{#1 \in #2}}
+\newcommand{\indeq}[2]{\mathds{1}\br{#1=#2}}
+\newcommand{\indneq}[2]{\mathds{1}\br{#1\neq #2}}
+\newcommand{\pushforward}[2]{{#1}_{\sharp} (#2)}
+\newcommand{\unifdist}[1]{\mathcal{U}\pa{#1}} % uniform dist
+\newcommand{\normdist}[2]{\mathcal{N}\pa{#1, #2}} % normal dist
+
+% Stat
+%\newcommand{\rv}[1]{\mathrm{\uppercase{#1}}} % does not upper case greeks
+\newcommand{\rv}[1]{\uppercase{#1}} % does not upper case greeks
+\newcommand{\hrv}[1]{\hat{\mathrm{\uppercase{#1}}}} % does not upper case greeks
+
+
+% Abbreviations
+\usepackage{xspace} 
+\makeatletter
+\DeclareRobustCommand\onedot{\futurelet\@let@token\@onedot}
+\def\@onedot{\ifx\@let@token.\else.\null\fi\xspace}
+
+\newcommand{\nextitem}{\par\hspace*{\labelsep}\textbullet\hspace*{\labelsep}}
+\crefformat{section}{\S#2#1#3} % see manual of cleveref, section 8.2.1
+\crefformat{subsection}{\S#2#1#3}
+\crefformat{subsubsection}{\S#2#1#3}
+\newcommand{\refequ}[1]{Eq.~\ref{#1}}
+\newcommand{\reffig}[1]{Figure~\ref{#1}}
+\newcommand{\refsec}[1]{\S\ref{#1}} % \textsection
+\newcommand{\reftab}[1]{Table~\ref{#1}}
+\newcommand{\refdef}[1]{Definition~\ref{#1}}
+\newcommand{\refalg}[1]{Algorithm~\ref{#1}}
+
+\def\eg{\textit{e.g\onedot}} 
+\def\Eg{\textit{E.g\onedot}}
+\def\ie{\textit{i.e\onedot}} 
+\def\Ie{\textit{I.e\onedot}}
+\def\cf{\textit{c.f\onedot}} 
+\def\Cf{\textit{C.f\onedot}}
+\def\iid{\textit{i.i.d\onedot}}
+\def\etc{\textit{etc\onedot}} 
+\def\aka{\textit{a.k.a\onedot}}
+\def\vs{\textit{vs\onedot}}
+\def\etal{\textit{et al\onedot}}
+\def\wrt{\textit{w.r.t\onedot}} 
+\def\st{s.t\onedot} 
+\def\tvi{t.v.i\onedot} 
+\def\lhs{l.h.s\onedot} 
+\def\rhs{r.h.s\onedot} 
+\def\resp{resp\onedot} 
+\def\pp{p.p\onedot} 
+\makeatother
+
+% Missing
+\def\figplaceholder{\fbox{\colorbox{white}{\parbox[c][4cm][c]{4cm}{\centering Placeholder}}}}
+\newcommand{\tocite}[1]{\textcolor{orange}{\bf [Cite #1]}}
+\newcommand{\tocref}[1]{\textcolor{orange}{\bf [Cref #1]}}
+\newcommand{\toappx}[1]{\textcolor{green}{\bf [Appx #1]}}
+\newcommand{\placeholder}[1]{\textcolor{blue}{\bf [Placeholder #1]}}
+\newcommand{\tofill}[1]{{\textcolor{red}{\bf [Fill #1]}}} 
+\newcommand{\torun}[1]{{\textcolor{red}{\bf [Run #1]}}} 
+\newcommand{\tofig}[1]{{\textcolor{blue}{\bf [Fig #1]}}} 
+\newcommand{\totab}[1]{{\textcolor{blue}{\bf [Table #1]}}} 
+
+% marks
+\newcommand{\cmark}{\text{\ding{51}}}
+\newcommand{\xmark}{\text{\ding{55}}}
+
+% Miniscule font size
+\makeatletter
+\ifcase \@ptsize \relax% 10pt
+  \newcommand{\miniscule}{\@setfontsize\miniscule{4}{5}}% \tiny: 5/6
+\or% 11pt
+  \newcommand{\miniscule}{\@setfontsize\miniscule{5}{6}}% \tiny: 6/7
+\or% 12pt
+  \newcommand{\miniscule}{\@setfontsize\miniscule{5}{6}}% \tiny: 6/7
+\fi
+\makeatother
+
+
+% Make inner emphasis to be italic bold
+\renewcommand\eminnershape{\bfseries}
+
+% color
+\definecolor{LightCyan}{rgb}{0.88,1,1}
+\definecolor{LightYellow}{rgb}{1,1,0.85}
+
+% Pyyhon-like pseudo code
+\definecolor{commentcolor}{RGB}{110,154,155}   % define comment color
+\newcommand{\PyComment}[1]{\ttfamily\textcolor{commentcolor}{\# #1}}  % add a "#" before the input text "#1"
+\newcommand{\PyCode}[1]{\ttfamily\textcolor{black}{#1}} % \ttfamily is the code font
+
+% Roman number
+\newcommand{\RNum}[1]{\uppercase\expandafter{\romannumeral #1\relax}}
+
+% Draft
+\newcommand{\new}[1]{{\color{purple}{#1}}}
+\newcommand{\ph}[1]{{\color{red}place holder: #1}}
+
+%%%%%%%%%%%%%%%%%%%%% PROJECT SPECIFIC %%%%%%%%%%%%%%%%%%%%%
+\newcommand{\system}[0]{Co-STORM\xspace}
+\newcommand{\data}[0]{WildSeek\xspace}
+\newcommand{\moderator}[0]{moderator\xspace}
+%\newcommand{\expert}[0]{roundtable participant\xspace}
+%\newcommand{\experts}[0]{roundtable participants\xspace}
+\newcommand{\expert}[0]{expert\xspace}
+\newcommand{\experts}[0]{experts\xspace}
+
+\newcommand{\yijia}[1]{{\color{orange}{Yijia: #1}}}
+\newcommand{\yucheng}[1]{{\color{blue}{\{Yucheng: #1\}}}}
+\newcommand{\todo}[1]{{\color{red}{\{#1\}}}}
+\newcommand{\TODO}[1]{{\color{red}{\{#1\}}}}
+\newcommand{\intent}[1]{{\small {\sc {#1}}}}
+%% showcase
+% Colors
+\definecolor{myblue}{RGB}{221, 233, 247}
+\definecolor{myorange}{RGB}{238, 133, 74}
+\definecolor{mygreen}{RGB}{232, 247, 227}
+\definecolor{myred}{RGB}{214, 95, 95}
+\definecolor{mypurple}{RGB}{149, 108, 180}
+\definecolor{mycyan}{RGB}{130, 198, 226}
+\definecolor{mypink}{RGB}{253, 237, 230}
+\definecolor{mybrown}{RGB}{140, 97, 60}
+\definecolor{mygrey}{RGB}{128, 128, 128}
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+
+% For showcase
+\newcommand{\userbg}[1]{\setlength{\fboxsep}{1pt}\colorbox{mygreen}{\textbf{#1}}}
+\newcommand{\moderatorbg}[1]{\setlength{\fboxsep}{1pt}\colorbox{mypink}{\textbf{#1}}}
+\newcommand{\expertbg}[1]{\setlength{\fboxsep}{1pt}\colorbox{myblue}{\textbf{#1}}}
+
+
+% {\vphantom{\rule[-0.0cm]{0pt}{0.0cm}}\smash{#1}}}
+
+\usepackage{tcolorbox}
+\usepackage{listings}
+\tcbuselibrary{listings, most}
+\lstdefinelanguage{mycase}{
+    basicstyle=\scriptsize\ttfamily, 
+    % keywordstyle=\color{myblue}\bfseries, % style for keywords
+    % morekeywords={result}, % add your custom keywords here
+    moredelim = [s][\color{mygrey}]{\{}{\}},
+}
+\newtcblisting{showcase}[1][]{
+  enhanced,
+  arc=0em,
+  boxrule=.5pt,
+  listing only,
+  listing options={
+    language=mycase,
+    upquote=true,
+    basicstyle=\scriptsize \ttfamily \setlength{\baselineskip}{1.1\baselineskip},
+    breaklines=true,
+    breakindent=0pt,
+    xleftmargin=-8pt,
+    xrightmargin=-8pt,
+    aboveskip=-4pt,
+    belowskip=-4pt,
+    columns=fullflexible,
+    escapeinside={|}{|},
+  },
+  colback=white,
+  colframe=gray,
+  breakable,
+  % title=#1,                    % Add this line to support titles
+  colbacktitle=gray!10,        % Optional: Set the background color for the title
+  coltitle=black,              % Optional: Set the title text color
+  attach boxed title to top center={yshift=-3mm},
+  % boxed title style={sharp corners}
+  #1
+}
+
+\lstdefinelanguage{myjson}{
+    basicstyle=\ttfamily, 
+    keywordstyle=\color{myorange}\bfseries, % style for keywords
+    morekeywords={parameters,returns,exceptions}, % add your custom keywords here
+    literate=%
+      {:}{{{\color{mybrown}{:}}}}1
+      {,}{{{\color{mybrown}{,}}}}1
+      {"}{{{\color{mybrown}{"}}}}1
+      {\{}{{{\color{mycyan}{\{}}}}1
+      {\}}{{{\color{mycyan}{\}}}}}1
+      {[}{{{\color{mycyan}{[}}}}1
+      {]}{{{\color{mycyan}{]}}}}1,
+}
+\newcounter{jsoncounter}
+\newtcblisting[use counter=jsoncounter]{showjson}[1][]{
+  enhanced,
+  arc=0em,
+  boxrule=.5pt,
+  listing only,
+  % breakable,
+  % float, % enable would allow it float.
+  listing options={
+    language=myjson,
+    upquote=true,
+    basicstyle=\tiny \ttfamily \setlength{\baselineskip}{1.1\baselineskip},
+    breaklines=true,
+    breakindent=8pt,
+    xleftmargin=-8pt,
+    xrightmargin=-8pt,
+    aboveskip=-4pt,
+    belowskip=-4pt,
+    columns=fullflexible,
+    escapeinside={|}{|},
+  },
+  colback=white,
+  colframe=gray,
+  % title=#2,                    % Add this line to support titles
+  colbacktitle=gray!10,        % Optional: Set the background color for the title
+  coltitle=black,              % Optional: Set the title text color
+  attach boxed title to top center={yshift=-3mm},
+  % boxed title style={sharp corners}
+  #1
+}
+
+\lstdefinelanguage{prompt}{
+    basicstyle=\scriptsize\ttfamily,
+    keywordstyle=\color{blue},
+    keywords={class, dspy},
+    moredelim = [s][\color{dkgreen}]{"""}{"""},
+}
+
+
+\newcounter{promptcounter}
+\newtcblisting[use counter=promptcounter]{prompt}[1][]{
+  enhanced,
+  arc=0em,
+  boxrule=.5pt,
+  listing only,
+  breakable,
+  % float,
+  listing options={
+    language=prompt,
+    upquote=true,
+    basicstyle=\scriptsize \ttfamily \setlength{\baselineskip}{1.1\baselineskip},
+    breaklines=true,
+    breakindent=8pt,
+    xleftmargin=-8pt,
+    xrightmargin=-8pt,
+    aboveskip=-4pt,
+    belowskip=-4pt,
+    columns=fullflexible,
+    escapeinside={|}{|},
+  },
+  colback=white,
+  colframe=gray,
+  % title=#2,                    % Prompt \thepromptcounter: 
+  colbacktitle=gray!5,        % Optional: Set the background color for the title
+  coltitle=black,              % Optional: Set the title text color
+  attach boxed title to top center={yshift=-3mm},
+  % boxed title style={sharp corners}
+  #1
+}
+
+% alternative: http://mirrors.ibiblio.org/CTAN/macros/latex/contrib/mdframed/mdframed-example-default.pdf
+% \usepackage{mdframed}
+

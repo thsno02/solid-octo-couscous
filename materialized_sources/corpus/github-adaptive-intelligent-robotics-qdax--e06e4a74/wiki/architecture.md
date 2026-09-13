@@ -1,0 +1,22 @@
+# Architecture evidence: adaptive-intelligent-robotics/QDax
+
+- `README.md:6` — QDax: Accelerated Quality-Diversity
+- `README.md:22` — Installation
+- `README.md:36` — Build the documentation
+- `README.md:51` — Basic API Usage
+- `README.md:77` — Init a random key
+- `README.md:80` — Init population of controllers
+- `README.md:89` — Define emitter
+- `README.md:104` — Define a metrics function
+- `README.md:110` — Instantiate MAP-Elites
+- `README.md:117` — Compute the centroids
+- `README.md:124` — Initializes repertoire and emitter state
+- `README.md:128` — Jit the update function for faster iterations
+- `README.md:131` — Run MAP-Elites loop
+- `README.md:141` — Get contents of repertoire
+- `README.md:146` — QDax core algorithms
+- `README.md:168` — QDax baseline algorithms
+- `README.md:182` — QDax Tasks
+- `README.md:189` — Contributing
+- `README.md:194` — Citing QDax
+- `README.md:210` — Contributors

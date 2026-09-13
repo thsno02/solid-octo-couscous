@@ -1,0 +1,1510 @@
+usenames,dvipsnames,table xcolor 
+ googledeepmind 
+
+ inputenc 
+ verbatim 
+ amsfonts 
+ amssymb 
+ physics 
+ mathtools 
+
+ adjustbox 
+ graphicx 
+ caption 
+ subcaption 
+ pstricks, pst-node 
+ floatrow 
+ wrapfig 
+
+ booktabs 
+ multirow 
+ float 
+ colortbl 
+ makecell 
+
+ natbib 
+ 
+ ( #1 , #1 ) 
+ 
+ #1 ( #1 ) 
+ 
+ ( #1 , #1 ; #2 , #2 ) 
+
+ hypcap 
+ colorlinks 
+ linktoc=all 
+ citecolor=Violet 
+ linkcolor=black 
+ urlcolor=MidnightBlue 
+
+ cleveref 
+ equation #1#2#3 
+ equation Eq. Eqs. 
+ assumption Assumption Assumptions 
+ prop Proposition Propositions 
+ lem Lemma Lemmas 
+
+ algorithm 
+ algpseudocode 
+
+ darkgreen rgb 0,0.5,0 
+ darkred rgb 0.5,0,0 
+ [1] #1 
+ [2] #1 ^ \! #2 
+ [0] R 
+ [1] 3pt darkred #1 
+
+ minted 
+ 
+ fontsize= ,
+ breaklines=true,
+ escapeinside=|| 
+ 
+ python #1 
+
+ amsthm 
+ definition 
+ definition Definition 
+ remark 
+ remark Remark 
+ plain 
+ proposition Proposition 
+ lemma Lemma 
+ theorem Theorem 
+
+ xr 
+ 
+ [1] 
+ (#1) 
+ #1 
+ #1 No file #1. 
+ 
+ 
+ [1] 
+ #1 
+ #1.tex 
+ #1.aux 
+ 
+
+ xspace 
+ https://colab.research.google.com/github/google-deepmind/alphaevolve\_results/blob/master/mathematical\_results.ipynb 
+ the accompanying Google Colab 
+ AlphaEvolve 
+ ProgramsDB 
+ [1] red #1 
+ 
+ Sampler 
+ [1] blue #1 
+ 
+ Evaluator 
+ [1] OliveGreen #1 
+ 
+
+ 
+ 
+ #1 
+ footnote -1 
+ 
+ 
+
+ Assumption 
+ Lemma 
+ Proposition 
+ Theorem 
+
+ ulem 
+ 
+
+ listings 
+
+ diffgreen rgb 0.0, 0.6, 0.0 
+ diffred rgb 0.8, 0.0, 0.0 
+ diffhead rgb 0.5, 0.5, 0.5 
+ codegray rgb 0.5,0.5,0.5 
+ codeblue rgb 0.0,0.0,0.6 
+ codepurple rgb 0.58,0,0.82 
+ codeorange rgb 1.0, 0.5, 0.0 
+ backcolour rgb 0.97,0.97,0.97 
+ highlightblue rgb 0.9, 0.9, 1.0 
+ highlightyellow rgb 0.95, 0.95, 0.8 
+ highlightorange rgb 1.0, 0.95, 0.8 
+
+ 0pt 
+
+ [1] highlightblue #1 
+ [1] highlightyellow #1 
+ [1] highlightorange #1 
+
+ pydiff 
+ language=Python,
+ 
+ commentstyle= codepurple ,
+ keywordstyle= codeblue ,
+ numberstyle= codegray , 
+ stringstyle= codeorange ,
+ basicstyle= ,
+ 
+ breakatwhitespace=false,
+ breaklines=true,
+ captionpos=b,
+ keepspaces=true,
+ numbers=left,
+ numbersep=5pt,
+ showspaces=false,
+ showstringspaces=false,
+ showtabs=false,
+ tabsize=2,
+ frame=single, 
+ framerule=0.4pt,
+ rulecolor= lightgray ,
+ 
+ morecomment=[f][ diffgreen ] + , 
+ morecomment=[f][ diffred ] - , 
+ morecomment=[f][ diffhead ] @ , 
+ morecomment=[f][ codeorange ] ... , 
+ moredelim=[is][ ] ^1 ^ , 
+ moredelim=[is][ ] ^2 ^ , 
+ moredelim=[is][ ] ^3 ^ , 
+ 
+ xleftmargin=0pt,
+ xrightmargin=0pt,
+ 
+
+ pydiffmedium 
+ language=Python,
+ 
+ commentstyle= codepurple ,
+ keywordstyle= codeblue ,
+ numberstyle= 0.69 codegray , 
+ stringstyle= codeorange ,
+ basicstyle= 0.69 ,
+ 
+ breakatwhitespace=false,
+ breaklines=true,
+ captionpos=b,
+ keepspaces=true,
+ numbers=left,
+ numbersep=5pt,
+ showspaces=false,
+ showstringspaces=false,
+ showtabs=false,
+ tabsize=2,
+ frame=single, 
+ framerule=0.4pt,
+ rulecolor= lightgray ,
+ 
+ morecomment=[f][ diffgreen ] + , 
+ morecomment=[f][ diffred ] - , 
+ morecomment=[f][ diffhead ] @ , 
+ morecomment=[f][ codeorange ] ... , 
+ moredelim=[is][ ] ^1 ^ , 
+ moredelim=[is][ ] ^2 ^ , 
+ moredelim=[is][ ] ^3 ^ , 
+ 
+ xleftmargin=0pt,
+ xrightmargin=0pt,
+ 
+
+ : A coding agent for scientific and algorithmic discovery 
+
+ Alexander Novikov 
+ Ngân Vũ 
+ Marvin Eisenberger 
+ Emilien Dupont 
+ Po-Sen Huang 
+ Adam Zsolt Wagner 
+ Sergey Shirobokov 
+ Borislav Kozlovskii 
+ Francisco J. R. Ruiz 
+ Abbas Mehrabian 
+ M. Pawan Kumar 
+ Abigail See 
+ Swarat Chaudhuri 
+ George Holland 
+ Alex Davies 
+ Sebastian Nowozin 
+ Pushmeet Kohli 
+ Matej Balog 
+ Google DeepMind See Acknowledgments and Author information section. ^* Equal contributions. 
+
+## Abstract
+
+In this white paper, we present , an evolutionary coding agent that substantially enhances capabilities of state-of-the-art LLMs on highly challenging tasks such as tackling open scientific problems or optimizing critical pieces of computational infrastructure.
+ orchestrates an autonomous pipeline of LLMs, whose task is to improve an algorithm by making direct changes to the code. Using an evolutionary approach, continuously receiving feedback from one or more evaluators, iteratively improves the algorithm, potentially leading to new scientific and practical discoveries.
+We demonstrate the broad applicability of this approach by applying it to a number of important computational problems. When applied to optimizing critical components of large-scale computational stacks at Google, developed a more efficient scheduling algorithm for data centers, found a functionally equivalent simplification in the circuit design of hardware accelerators, and accelerated the training of the LLM underpinning itself.
+Furthermore, discovered novel, provably correct algorithms that surpass state-of-the-art solutions on a spectrum of problems in mathematics and computer science, significantly expanding the scope of prior automated discovery methods~ paredes2023mathematical .
+Notably, developed a search algorithm that found a procedure to multiply two 4 4 complex-valued matrices using 48 scalar multiplications; offering the first improvement, after 56 years, over Strassen's algorithm in this setting. We believe and coding agents like it can have a significant impact in improving solutions of problems across many areas of science and computation.
+
+ document 
+
+ 
+
+## Introduction
+
+ sec:introduction 
+
+Discovering new high-value knowledge, such as making a novel scientific discovery or developing a commercially valuable algorithm, generally requires a prolonged process of ideation, exploration, backtracking on unpromising hypotheses, experimentation, and validation. There has been much recent interest in using large language models (LLMs) to automate significant parts of this process.
+Hopes of success here are driven by the breathtaking power of recent LLMs gemini25,o3 , which can enhance their capabilities using test-time compute, and the rise of agents that combine language generation and action yao2023react,shinn2023reflexion . These advances have improved performance across a range of established benchmarks and accelerated discovery-oriented tasks like hypothesis generation~ gottweis2025towards and experiment design huang2024crisprgpt,boiko2023autonomous . However, getting LLM pipelines all the way to making entirely new scientific or practical discoveries remains challenging. 
+
+In this white paper, we present an LLM code superoptimization agent, called , that takes on this challenge using a combination of evolutionary computation and LLM-based code generation. focuses on the broad spectrum of scientific and engineering discovery problems in which the candidates of discovery can be automatically evaluated. 
+It represents the candidates (for example, new mathematical objects or practical heuristics) as algorithms and uses a set of LLMs to generate, critique, and evolve a pool of such algorithms. The LLM-directed evolution process is grounded using code execution and automatic evaluation. 
+This evaluation mechanism allows to avoid any incorrect suggestions from the base LLM~ huang2025survey .
+
+The evolutionary process in leverages modern LLMs' ability to respond to feedback, enabling the discovery of candidates that are substantially different from the initial candidate pool in syntax and function.
+It is applicable both to problems where discovering new algorithms is the intrinsic goal, as well as to the broad range of problems where the solution of interest is not an algorithm itself but an algorithm can describe how that solution is to be constructed or found.
+In the latter case, discovering the algorithm is only an instrumental goal, but it turns out to be a surprisingly effective strategy compared to searching for the solution directly~ paredes2023mathematical .
+
+The idea of combining evolutionary methods with coding LLMs has been previously explored in various specialized settings.
+In particular, is a substantial enhancement of FunSearch~ paredes2023mathematical (see~ tab:funsearch-vs-alphaevolve ), which used LLM-guided evolution to discover heuristics in order to construct novel mathematical objects or to drive the operation of online algorithms.
+Also, related approaches have been used in tasks such as discovering policies for simulated robots~ lehman2023evolution , symbolic regression shojaee2025llmsr,grayeli2024symbolic , and the synthesis of heuristic functions for combinatorial optimization~ liu2024evolution .
+In contrast to these systems, leverages state-of-the-art (SOTA) LLMs to evolve large pieces of code that implement complex algorithms spanning multiple functions and components. As a result, it is able to go significantly beyond its predecessors in scale and generality.
+
+ table [H]
+ 
+ 2 white gray!20 
+ center 
+ tabular ll 
+ FunSearch~ paredes2023mathematical & \\
+ 
+ evolves single function & evolves entire code file\\
+ evolves up to 10-20 lines of code & evolves up to hundreds of lines of code\\
+ evolves code in Python & evolves any language\\
+ needs fast evaluation ( 20 min on 1 CPU)\;\; & can evaluate for hours, in parallel, on accelerators\\
+ millions of LLM samples used & thousands of LLM samples suffice\\
+ small LLMs used; no benefit from larger & benefits from SOTA LLMs\\ 
+ minimal context (only previous solutions) & rich context and feedback in prompts\\
+ optimizes single metric & can simultaneously optimize multiple metrics\\
+ 
+ tabular 
+ Capabilities and typical behaviours of and our previous agent. 
+ tab:funsearch-vs-alphaevolve 
+ center 
+ table 
+
+While the use of an automated evaluation metric offers a key advantage, it is also a limitation---in particular, it puts tasks that require manual experimentation out of our scope. 
+Because problems in mathematics, computer science, and system optimization typically permit automated evaluation metrics, our efforts on focus on these domains.
+Specifically, we use to make progress on several well-known open problems in algorithm design and constructive mathematics, as well as the optimization of critical layers in the large-scale computation stacks at Google.
+
+Within algorithm design, we consider the fundamental problem of discovering fast algorithms for multiplying matrices, a problem to which a more specialized AI approach had been applied previously~ fawzi2022discovering .
+Despite being general-purpose, goes beyond~ fawzi2022discovering , improving the SOTA for 14 matrix multiplication algorithms; notably, for 4 4 matrices, improves strassen1969gaussian 's algorithm by discovering an algorithm using 48 multiplications to multiply 4 4 complex-valued matrices.
+ These discovered algorithms as well as our other new mathematical results can be found at . 
+
+In mathematics, we consider a broad range of open problems on which one can make progress by discovering constructions (objects) with better properties than all previously known constructions, according to given mathematical definitions.
+We apply to a large number (over 50) of such problems and match the best known constructions on 75\% of them (in many cases these constructions are likely to already be optimal). On 20\% of the problems, surpasses the SOTA and discovers new, provably better constructions.
+This includes an improvement on the Minimum Overlap Problem set by erdHos1955some and an improved construction on the Kissing Numbers problem in 11 dimensions~ kissing_survey,kissing_11 .
+
+Finally, we use in four engineering problems spanning different layers of Google's compute stack: discovering scheduling heuristics for Google's cluster management system, optimizing matrix-multiplication kernels used to train LLMs, optimizing arithmetic circuits used within TPUs, and optimizing the runtime of attention in Transformers.
+Because these components are run repeatedly over a long period of time, any improvements are highly valuable.
+
+## 
+
+ sec:method 
+
+ wrapfigure r 0.5 
+ -4.5em 
+ figures/method_high_level.pdf 
+ high-level overview. 
+ fig:high-level 
+ wrapfigure 
+
+ is a coding agent that orchestrates an autonomous pipeline of computations including queries to LLMs, and produces algorithms that address a user-specified task.
+At a high level, the orchestrating procedure is an evolutionary algorithm that gradually develops programs that improve the score on the automated evaluation metrics associated with the task.
+A high-level overview of is shown in~ fig:high-level , and~ fig:method gives an expanded view.
+
+ figure [tb]
+ 
+ figures/method_detailed.pdf 
+ 
+ Expanded view of the discovery process. The user provides an initial program (with components to evolve marked), evaluation code, and optional configurations ( subsec:specification ).
+ then initiates an evolutionary loop.
+ The Prompt sampler uses programs from the Program database to construct rich prompts ( subsec:prompting ).
+ Given these prompts, the LLMs generate code modifications (diffs), which are applied to create new programs ( subsec:generation ).
+ These are then scored by Evaluators ( subsec:evaluation ), and promising solutions are registered back into the Program database ( subsec:evolution ), driving the iterative discovery of better and better programs.
+ 
+ fig:method 
+ figure 
+
+## Task specification
+
+ subsec:specification 
+
+### Evaluation.
+ Since tackles problems with machine-gradeable solutions, the user must provide a mechanism for automatically assessing generated solutions.
+This mechanism takes the form of a function h mapping a solution to a set of scalar evaluation metrics.
+By convention, these metrics are maximized.
+In our current setup, h is typically implemented as a Python function, called evaluate , with a fixed input/output signature, returning a dictionary of scalars.
+
+Depending on the application, executing this function may take only seconds on a single device or spawn extensive computations. For mathematical problems, the function h is typically very simple.
+For example, when wishing to find largest possible graphs satisfying a given property, h invokes the evolved code to generate a graph, checks whether the property holds, and then simply returns the size of the graph as the score.
+In more complicated cases, the function h might involve performing an evolved search algorithm, or training and evaluating a machine learning model.
+
+### API.
+ To support evolving multiple components across a codebase, exposes an input API where blocks of code can be annotated as to-be-evolved-by-the-system; see Figure~ fig:grounding-api for an illustration. This design facilitates integrating it with existing codebases while requiring only minimal changes, simply by adding special markers ( \# EVOLVE-BLOCK-START and \# EVOLVE-BLOCK-END ) as comments into the code.
+
+Any user-provided code inside such evolution blocks serves as the initial solution to be improved by , and the rest of the code forms a skeleton that ties the evolved pieces together, so that they can be invoked from evaluate . 
+While this initial implementation must be complete, it can be rudimentary---for instance, consisting of single-line functions that return constants of the appropriate types.
+
+ figure [htbp]
+ 
+ minipage [c] 0.48 
+ 
+ subfigure [t] 
+ 
+ minted [fontsize= , bgcolor=backcolour] python 
+# EVOLVE-BLOCK START
+"""Image classification experiment in jaxline."""
+
+import jax
+...
+# EVOLVE-BLOCK-END
+
+...
+
+# EVOLVE-BLOCK-START
+class ConvNet(hk.Module):
+ def __init__(self, num_classes): ...
+ def __call__(self, inputs, is_training): ...
+
+def sweep():
+ return hyper.zipit([...])
+# EVOLVE-BLOCK-END
+
+...
+
+def evaluate(eval_inputs) -> dict[str, float]:
+ ...
+ return metrics
+ minted 
+ justification=centering, singlelinecheck=false 
+ -0.3 assets/human-icon.png 
+ fig:grounding-api 
+ subfigure 
+ 
+ subfigure [b] 
+ 
+
+ minted [fontsize= , bgcolor=backcolour, escapeinside=||, breaksymbolleft= ] python 
+|The current model uses a simple ResNet architecture with only three ResNet blocks. We can improve its performance by increasing the model capacity and adding regularization. This will allow the model to learn more complex features and generalize better to unseen data. We also add weight decay to the optimizer to further regularize the model and prevent overfitting. AdamW is generally a better choice than Adam, especially with weight decay.|
+
+<<<<<<< SEARCH
+ self._block1 = ResNetBlock(num_channels)
+ self._block2 = ResNetBlock(num_channels * 2, stride=2)
+ self._block3 = ResNetBlock(num_channels * 4, stride=2)
+=======
+ self._block1 = ResNetBlock(num_channels)
+ self._block2 = ResNetBlock(num_channels, stride=1)
+ self._block3 = ResNetBlock(num_channels * 2, stride=2)
+ self._block4 = ResNetBlock(num_channels * 2, stride=1)
+ self._block5 = ResNetBlock(num_channels * 4, stride=2)
+ self._block6 = ResNetBlock(num_channels * 4, stride=1)
+>>>>>>> REPLACE
+<<<<<<< SEARCH
+ def optimizer(self, learning_rate):
+ return optax.adam(learning_rate)
+=======
+ def optimizer(self, learning_rate):
+ return optax.adamw(learning_rate, weight_decay=1e-4)
+>>>>>>> REPLACE
+ minted 
+ subfigure +1 
+ justification=centering, singlelinecheck=false 
+ -0.5 assets/llm-icon.png 
+ fig:grounding-llm 
+ subfigure 
+ minipage 
+ 
+ minipage [c] 0.48 
+ 
+ subfigure 
+ 
+
+ minted [fontsize= , bgcolor=backcolour, escapeinside=||, breaksymbolleft= ] python 
+|Act as an expert software developer. Your task is to iteratively improve the provided codebase. [...]
+
+- Prior programs
+
+Previously we found that the following programs performed well on the task at hand:|
+
+top_1_acc: 0.796; neg_eval_log_loss: 0.230; average_score: 0.513
+
+"""Image classification experiment in jaxline."""
+[...]
+class ConvNet(hk.Module):
+ """Network."""
+
+ def __init__(self, num_channels=32, num_output_classess=10):
+ super().__init__()
+ self._conv1 = hk.Conv2D(num_channels, kernel_shape=3)
+ self._conv2 = hk.Conv2D(num_channels * 2, kernel_shape=3)
+ self._conv3 = hk.Conv2D(num_channels * 4, kernel_shape=3)
+ self._logits_module = hk.Linear(num_output_classes)
+[...]
+
+|- Current program
+
+Here is the current program we are trying to improve (you will need to propose a modification to it below).|
+
+top_1_acc: 0.862; neg_eval_log_loss: 0.387; average_score: 0.624
+
+"""Image classification experiment in jaxline."""
+[...]
+class ConvNet(hk.Module):
+ """Network."""
+
+ def __init__(self, num_channels=32, num_output_classes=10):
+ super().__init__()
+ self._conv1 = hk.Conv2D(num_channels, kernel_shape=3)
+ self._block1 = ResNetBlock(num_channels)
+ self._block2 = ResNetBlock(num_channels * 2, stride=2)
+ self._block3 = ResNetBlock(num_channels * 4, stride=2)
+ self._logits_module = hk.Linear(num_output_classes)
+|[...]
+
+SEARCH/REPLACE block rules:
+[...]
+
+Make sure that the changes you propose are consistent with each other. For example, if you refer to a new config variable somewhere, you should also propose a change to add that variable.
+
+Example:
+[...]
+
+Task
+Suggest a new idea to improve the code that is inspired by your expert knowledge of optimization and machine learning. 
+
+Describe each change with a SEARCH/REPLACE block.|
+ minted 
+ subfigure -2 
+ justification=centering, singlelinecheck=false 
+ -0.5 assets/prompt-icon.png 
+ fig:grounding-prompt 
+ subfigure 
+ minipage 
+ Illustrative example of applying to evolving a supervised learning pipeline. All snippets are abbreviated, with ellipsis (...) indicating skipped lines. (a) The user-provided file with blocks marked for evolution, and the special evaluate function that can be invoked to score the current version of the code. (b) Example of an assembled prompt to be provided to the LLMs. (c) Example output generated by the LLM. The proposed diffs in (c) will be applied to the "current program" shown in the prompt (b), and the resulting modified program will then be sent to the evaluators. The evaluators will invoke the evaluate function from (a) in order to obtain the scores of the newly proposed program. 
+ fig:grounding 
+ figure 
+
+### Flexibility in choosing the abstraction.
+ can be applied to the same problem in very different ways---especially when the evolved programs are not the final output but a means to discover solutions.
+For example, can evolve the solution in raw string representation (as in classical evolutionary algorithms); evolve a function of a definite form that specifies how to construct the solution from scratch (the approach taken in~ paredes2023mathematical ); evolve a bespoke search algorithm to find the solution within some fixed compute budget; or even co-evolve intermediate solutions and search algorithms together, such that each search algorithm is specifically tailored to further improve upon a particular intermediate solution.
+
+We find that different levels of abstraction work better for different problems.
+For example, we hypothesize that for problems with highly symmetric solutions it is advantageous to evolve constructor functions as these tend to be more concise~ paredes2023mathematical , whereas for problems with non-symmetric solutions it works better to evolve customized search algorithms.
+
+## Prompt sampling
+
+ subsec:prompting 
+
+As leverages SOTA LLMs, it supports various types of customization and providing long contexts as part of the primary evolution prompt.
+This prompt comprises multiple previously discovered solutions sampled from the program database, as well as system instructions on how to propose changes to a particular solution.
+Beyond these key ingredients, users can further tailor prompts to their specific needs in different ways, such as the following.
+ itemize 
+ 
+Explicit context: details about the problem being solved, such as fixed human-written instructions, equations, code snippets, or relevant literature (e.g., pdf files).
+ 
+Stochastic formatting: template placeholders with human-provided alternatives for increased diversity, instantiated using probability distributions provided in a separate config file.
+ 
+Rendered evaluation results: usually this will include a program, the result of executing that program, and the scores assigned by the evaluate function.
+ 
+Meta prompt evolution: instructions and context suggested by the LLM itself in an additional prompt-generation step, co-evolved in a separate database analogous to the solution programs.
+ itemize 
+
+## Creative generation
+
+ subsec:generation 
+
+To drive the evolutionary procedure, leverages the capabilities of SOTA LLMs, whose principal role is to digest information about previously developed solutions and propose new, diverse ways to improve the solutions.
+Although is model-agnostic, in ablations we observe that performs increasingly better as the underlying LLM improves (see~ sec:ablations_rewrite ).
+
+### Output format.
+
+When asks an LLM to modify existing code, especially within larger codebases, it requests the changes to be provided as a sequence of diff blocks in a specific format:
+
+ verbatim 
+<<<<<<< SEARCH
+ # Original code block to be found and replaced
+=======
+ # New code block to replace the original
+>>>>>>> REPLACE
+ verbatim 
+
+Here, the code between < < < < < < < SEARCH and ======= is the exact segment to match in the current program version. The code between ======= and > > > > > > > REPLACE is the new segment that will replace the original one.
+This allows for targeted updates to specific parts of the code.
+
+In cases where the code being evolved is very short, or when a complete rewrite is more appropriate than a small modification, can be configured to instruct the LLM to output the entire code block directly, rather than using the diff format. 
+
+### Models used.
+
+ employs an ensemble of large language models. Specifically, we utilize a combination of Gemini 2.0 Flash and Gemini 2.0 Pro.
+This ensemble approach allows us to balance computational throughput with the quality of generated solutions.
+Gemini 2.0 Flash, with its lower latency, enables a higher rate of candidate generation, increasing the number of ideas explored per unit of time.
+Concurrently, Gemini 2.0 Pro, possessing greater capabilities, provides occasional, higher-quality suggestions that can significantly advance the evolutionary search and potentially lead to breakthroughs.
+This strategic mix optimizes the overall discovery process by maximizing the volume of evaluated ideas while retaining the potential for substantial improvements driven by the more powerful model.
+
+## Evaluation
+
+ subsec:evaluation 
+
+To track 's progress and to select which ideas to propagate in future generations, each new solution proposed by the LLMs is automatically evaluated.
+In principle, this process amounts to simply executing the user-provided evaluation function h on the generated solution.
+In practice, supports optional mechanisms to make this evaluation more flexible and more efficient:
+ itemize 
+ 
+Evaluation cascade (hypothesis testing): the user can specify ensembles of test cases of increasing difficulty, such that new solutions are evaluated on the next stage only if they achieve sufficiently promising results in all earlier stages.
+This helps to prune out less promising solutions more quickly. Moreover, new solutions are initially evaluated on a small scale before being subjected to the main test cases, to filter out faulty programs early.
+ 
+LLM-generated feedback: in some applications, desirable solutions have certain characteristics that are difficult to capture precisely in the user-provided evaluation function h ; for example, simplicity of the discovered program.
+These properties can be graded using separate LLM calls and added to the dictionary of scores to steer evolution, or they can be used to discard solutions when a criterion is not fulfilled.
+ 
+Parallelized evaluation: the sample efficiency of makes it feasible to spend on the order of 100 compute-hours to evaluate any new solution.
+However, unless individual evaluations are parallelized to reduce their wall-clock duration, this can slow down the rate at which new generations appear, limiting the ability of the evolutionary algorithm to apply several consecutive mutations.
+In many applications, evaluation is embarrassingly parallel (for example, running a search algorithm from multiple randomized initializations), allowing to distribute this work through asynchronous calls to an evaluation cluster.
+ itemize 
+
+### Multiple scores.
+
+ allows for optimizing multiple user-provided scores, i.e., evolving objects that achieve a high score under one or multiple evaluation metrics.
+This has both an intrinsic and instrumental value. While in multiple applications we genuinely care about developing solutions for multiple evaluation metrics (or one solution that is strong on all of them simultaneously), we find that even if one metric is of particular interest, optimizing for multiple metrics often improves results for the single target metric.
+Perhaps this occurs because programs excelling under different evaluation criteria often possess distinct structures or logic and, by incorporating examples of these diverse, high-performing programs---each representing a different definition of ``good''---into the prompts provided to the language model, we can stimulate the generation of more varied candidate solutions, increasing the chances of discovering novel approaches that are highly effective for the target metric.
+
+## Evolution
+
+ subsec:evolution 
+
+During its evolutionary procedure, continually generates a growing number of solutions with evaluation results (scores and program outputs) attached to them.
+These solutions are stored in an evolutionary database, the primary goal of which is to optimally resurface previously explored ideas in future generations.
+A key challenge in designing such databases is balancing exploration and exploitation, to continuously improve the best programs while maintaining diversity to encourage exploration of the entire search space.
+In , the evolutionary database implements an algorithm that is inspired by a combination of the MAP elites algorithm~ mouret2015illuminating and island-based population models~ tanese1989distributed, paredes2023mathematical .
+
+## Distributed pipeline
+
+ subsec:pipeline 
+
+ is implemented as an asynchronous computational pipeline (using the asyncio Python library) in which many computations are run concurrently, with each computation blocking (waiting) whenever its next step relies on the result of another, yet unfinished computation.
+More specifically, the asynchronous pipeline comprises a controller, LLM samplers, and evaluation nodes.
+The entire pipeline is optimized for throughput (rather than the speed of any one particular computation), in order to maximize the number of ideas that can be proposed and evaluated within a specific overall computation budget.
+
+## Results
+
+ sec:results 
+
+## Faster matrix multiplication via finding novel algorithms for tensor decomposition
+
+ subsec:matmul 
+
+ table [t]
+ 2 white lightgray 
+ center 
+ tabular ccc 
+ m, n, p & best known [reference] & \\ 
+ 2, 4, 5 & 33 hopcroft & 32 \\
+ 2, 4, 7 & 46 smirnov2013bilinear & 45 \\
+ 2, 4, 8 & 52 smirnov2013bilinear & 51 \\
+ 2, 5, 6 & 48 smirnov2013bilinear & 47 \\ 
+ 3, 3, 3 & 23 laderman & 23 \\
+ 3, 4, 6 & 56 Kauers_2025 & 54 \\ 
+ 3, 4, 7 & 66 smirnov2021 & 63 \\ 
+ 3, 4, 8 & 75 smirnov2021 & 74 \\ 
+ 3, 5, 6 & 70 Kauers_2025 & 68 \\
+ 3, 5, 7 & 82 smirnov2021 & 80 \\ 
+ 4, 4, 4 & 49 strassen1969gaussian & 48 \\ 
+ 4, 4, 5 & 62 kauers2023flip & 61 \\
+ 4, 4, 7 & 87 smirnov2013bilinear & 85 \\
+ 4, 4, 8 & 98~ strassen1969gaussian & 96 \\ 
+ 4, 5, 6 & 93 Kauers_2025 & 90 \\ 
+ 5, 5, 5 & 93 flip_graphs_with_symmetry & 93 \\ 
+ tabular 
+ 
+Upper bounds on the rank of the tensor m,n,p representing the product of an m n matrix and an n p matrix, i.e.~the number of scalar multiplications required to compute this matrix product.
+Beyond the examples shown here, for all parameters m,n,p 5 , either matched or surpassed the best known solutions, and provided exact algorithms (see tab:relaxed-opt-results-appendix in appendix for full results).
+For 3, 4, 7 , 4, 4, 4 , and 4, 4, 8 , the algorithms discovered by use complex-valued multiplications which can be used for exact multiplication of complex or real-valued matrices.
+The decompositions shown in this table can be found in .
+ 
+ tab:relaxed-opt-results 
+ center 
+ table 
+
+From accelerating machine learning computations to enabling realistic computer graphics, matrix multiplication serves as a fundamental operation underpinning numerous critical algorithms and applications within computer science.
+Since the pioneering work of strassen1969gaussian , it has been known that a rich space of algorithms for multiplying two matrices can be represented as decompositions of a given 3D tensor into rank-one tensors.
+The rank (number of terms) of the decomposition exactly specifies the number of scalar multiplications needed to compute the matrix product.
+Hence, to develop faster matrix multiplication algorithms one needs to find low-rank decompositions of particular tensors.
+This problem has been tackled with many approaches, from specialized alternating least squares solvers~ smirnov2013bilinear to deep reinforcement learning~ fawzi2022discovering and custom search algorithms~ kauers2023flip ; yet, despite decades of effort, even for the simple case of multiplying two 3 3 matrices, the minimum achievable rank is not known, showcasing the difficulty of the problem.
+
+Starting from the problem description and a standard gradient-based algorithm (including an initializer, a reconstruction loss function, and an Adam optimizer~ kingma2015adam ), is able to develop sophisticated tensor decomposition algorithms that outperform existing approaches.
+To evaluate each evolved program, we choose a set of matrix multiplication targets and run the algorithm, initialized with multiple random seeds using the evaluation cascade described in subsec:evaluation . 
+The performance is then measured as the best (lowest) rank achieved on each target as well as the fraction of seeds that achieved this rank, providing a signal for to hill-climb.
+To ensure the exactness of the decomposition and avoid any potential numerical error, when evaluating, we round each element to the nearest integer or the nearest half-integer; and, to encourage the algorithm to generate near-integral solutions, we include this request in natural language in the LLM's prompt.
+
+ figure [p]
+ -0.03 
+ -0.1 
+ minipage 0.32 
+
+ code/diff_full.pdf 
+ minipage 
+ 0.06 
+ minipage 0.59 
+ code/zoom1.diff 
+ -0.4em 
+ code/zoom2.diff 
+ -0.4em 
+ code/zoom3.diff 
+ minipage 
+ -0.1 
+ Changes proposed by to discover faster matrix multiplication algorithms. The full diff is outlined on the left (see magnified version in~ fig:relaxed-opt-diff-appendix-1,fig:relaxed-opt-diff-appendix-2,fig:relaxed-opt-diff-appendix-3 ) and some excerpts are highlighted on the right. In this example, proposes extensive changes across several components, including the optimizer and weight initialization (top right), the loss function (middle right), and hyperparameter sweep (bottom right). These changes are highly non-trivial, requiring 15 mutations during the evolutionary process. fig:relaxed-opt-diff 
+ 
+ figure 
+
+In Table~ tab:relaxed-opt-results , one can see that the various algorithms developed by improve the state of the art for 14 different matrix multiplication targets.
+Notably, for multiplying two 4 4 matrices, applying the algorithm of strassen1969gaussian recursively results in an algorithm with rank (number of scalar multiplications) equal to 49, which works over any field.
+For the very specific case of multiplying in the field with 2 elements,~ fawzi2022discovering found an algorithm with rank 47.
+For 56 years, designing an algorithm with rank less than 49 over any field with characteristic 0 was an open problem.
+ There exist algorithms using fewer than 49 multiplications, but they do not correspond to decompositions of the matrix multiplication tensor, and they cannot be applied recursively to multiplying larger matrices. -1em 
+ is the first method to find a rank- 48 algorithm to multiply two 4 4 complex-valued matrices.
+
+As shown in Figure~ fig:relaxed-opt-diff , makes significant changes to the initial program, introducing several original ideas to design increasingly better algorithms.
+While most results in Table~ tab:relaxed-opt-results (including 4, 4, 4 ) were obtained from a simple initial program, we found that for some parameters, seeding the initial program with our own ideas (such as adding stochasticity to the evaluation function or using evolutionary approaches) could further boost performance, highlighting the possibility of scientific collaboration between researchers and . 
+
+## Finding tailored search algorithms for a wide range of open mathematical problems
+
+ subsec:math 
+
+A significant frontier in mathematical research involves discovering objects or constructions that possess optimal, or near-optimal, properties according to some measure. Examples range from finding dense packings of geometric shapes~ geometry_collection to identifying functions or sets satisfying specific combinatorial or analytic constraints~(e.g., matolcsi2010improved, vinuesa2010generalized, haugland2016minimum, gyarmati2007sums ). Progress often relies on finding a single construction that surpasses all previously known examples, thereby establishing new lower or upper bounds for the optimal value. We demonstrate that serves as a powerful tool for exploring the vast search space inherent in these problems, successfully tackling a diverse array of open mathematical challenges.
+
+To assess its capabilities, we apply to a curated set of over 50 mathematical problems, spanning more than five different branches of mathematics, including analysis, combinatorics, number theory, and geometry, evaluated across numerous specific parameter settings (e.g., different dimensions or sizes). In 75\% of the cases rediscovered the best known constructions, and in 20\% of the cases it discovered a new object that is better than a previously known best construction, thereby improving the SOTA. In all these cases, the initial starting point was a simple or a random construction. These results underscore 's broad potential as a versatile tool for mathematical research.
+
+ figure [t]
+ 
+ figures/math_results.pdf 
+ Examples of SOTA-breaking mathematical constructions discovered with . The versatility of allows us to tackle problems in analysis (autocorrelation and uncertainty inequalities), geometry (packing and minimum/maximum distance problems) and combinatorics (Erd o s's minimum overlap problem and sums and differences of finite sets). 
+ fig:math_sota_examples 
+ figure 
+
+ 
+A significant advantage of the configuration used here is its versatility and speed of application. The core methodology, focused on evolving heuristic search programs (detailed below), can be rapidly deployed across a diverse range of mathematical construction problems and conjectures, often requiring less initial problem-specific expert tailoring compared to traditional bespoke approaches. While deep mathematical insight naturally aids in problem formulation and search space definition, often demonstrates a capacity to autonomously discover effective search patterns and attack strategies by identifying subtle structures within the problem landscape. This allows for efficient, large-scale exploration across many different problems.
+
+The key methodological innovation enabling these discoveries is 's ability to evolve heuristic search algorithms rather than directly evolving the constructions themselves. For many problems, particularly those with fast objective function evaluations---which are common in mathematics---we employed an iterative refinement strategy. Each generation of was tasked with evolving a program representing a search heuristic. This program was given a fixed time budget (e.g., 1000 seconds) and was shown the best construction found by the previous best heuristic. Its goal was to leverage this starting point and the allotted time to find an even better construction. The evolutionary process thus selects for heuristics that are effective at improving already high-quality solutions. The final constructions were often the result of a sequence of different, specialized heuristics discovered by ---early heuristics proficient at making large gains from random or simple initial states, and later heuristics adept at fine-tuning near-optimal configurations. This automated discovery of multi-stage, adaptive search strategies is challenging to replicate manually and proved crucial for surpassing the SOTA.
+
+Below are high-level descriptions of some of the problems where yielded new results. Full list of problems and details are provided in Appendix~ app:maths .
+
+ itemize 
+ Analysis 
+ itemize 
+ Autocorrelation inequalities. was able to improve the best known bounds on several autocorrelation inequalities.
+ Uncertainty principles. was able to produce a refined configuration for a problem arising in Fourier analysis, by polishing an uncertainty principle construction gonccalves2017hermite leading to a slightly better upper bound. 
+ itemize 
+
+ Combinatorics and number theory
+ itemize 
+ Erd o s's minimum overlap problem. established a new upper bound for the minimum overlap problem~ erdHos1955some , slightly improving upon the previous record~ haugland2016minimum .
+ itemize 
+
+ Geometry and packing
+ itemize 
+ Kissing number problem. In 11 dimensions, improved the lower bound on the kissing number, finding a configuration of 593 non-overlapping unit spheres that can simultaneously touch a central unit sphere, surpassing the previous record of 592~ kissing_11 . 
+ Packing problems. achieved several new results in packing problems, such as packing N points in a shape to minimize the ratio of the maximum and minimum distance, packing various polygons in other polygons in the most efficient way, and variants of the Heilbronn problem concerning point sets avoiding small-area triangles~ geometry_collection .
+ itemize 
+ itemize 
+
+The full list of problems appears in Appendix~ app:maths and the new constructions found by can be found in~ .
+More examples and details on these problems and the methods used will be provided in an upcoming paper.
+Most of these discoveries are on open problems suggested to us by external mathematicians Javier Gomez Serrano and Terence Tao, who also advised on how to best formulate them as inputs to .
+This highlights the potential for synergistic partnerships between AI-driven discovery engines like and human mathematical expertise.
+
+## Optimizing Google's computing ecosystem
+
+In addition to the scientific applications presented in preceding sections, here we demonstrate how has been used to improve performance of mission-critical infrastructure and deliver real-world impact.
+
+## Improving data center scheduling
+
+Efficiently scheduling compute jobs onto a cluster of machines is a critical optimization problem, particularly at the scale of Google's data centers, orchestrated by Borg 43438 . This task involves assigning jobs to available machines based on job resource requirements and machine capacity. Inefficient assignments can result in stranded resources: when a machine can no longer accept jobs because it has run out of one kind of resource (e.g., memory) but still has other resources free (e.g., CPU). Improvements in scheduling efficiency can recover these stranded resources, allowing more jobs to be completed on the same amount of computational footprint. This recovery is essential to accommodate growing compute needs without a proportional increase in resource consumption. Furthermore, this problem is challenging since it combines typical engineering difficulties, such as debuggability and scale, on top of the classically difficult bin-packing problem.
+
+We address this challenge by framing the online job scheduling problem as a vector bin-packing problem with two variables. In this context, machines represent bins with defined capacities for CPU and memory, and incoming jobs are items with specific resource demands. A heuristic function takes as input a pending job’s CPU and memory requirements and a potential machine’s CPU and memory availability. This function then outputs a priority score for the machine. The Borg scheduler subsequently assigns the pending job to the machine with the highest priority score as determined by the heuristic function, among other objectives. Because this heuristic only influences the ranking of machines already determined by Borg to be available and capable of running each pending job, the resulting scheduling decisions are effectively correct by construction.
+
+An early version of was used to discover a remarkably simple yet effective heuristic function (shown in fig:alphaevolve_heuristic ), evolving from the existing one in production. We use a simulator of our data centers to provide feedback to based on historical snapshots of workloads and capacity across Google’s fleet. We measure the performance of 's heuristic function on an unseen test dataset of recent workloads and capacity to ensure generalization. Observing that 's heuristic function outperforms the one in production, we rolled out 's heuristic function to the entire fleet. Post-deployment measurements across Google’s fleet confirmed the simulator results, revealing that this heuristic function continuously recovers on average 0.7\% of Google’s fleet-wide compute resources, which would otherwise be stranded. was chosen over a deep reinforcement learning approach because its code solution not only leads to better performance, but also offers clear advantages in interpretability, debuggability, predictability, and ease of deployment—essential qualities for a mission-critical system.
+
+ figure [t]
+ 
+
+ minipage [c] 0.55 
+ 
+ minted [
+ linenos,
+ breaklines=false,] python 
+def alpha_evolve_score(required, free):
+ cpu_residual = required.cpu / free.cpu
+ mem_residual = required.mem / free.mem
+
+ return -1.0 * (cpu_residual + mem_residual +
+ mem_residual / cpu_residual +
+ cpu_residual / mem_residual)
+ minted 
+ minipage 
+ 
+ minipage [c] 0.4 
+ figures/borg_heuristic.pdf 
+ minipage 
+
+ Left: The heuristic function discovered by , tailored to Google’s workloads and capacity. Right: Visualization of the heuristic scoring function. Yellow regions represent high scores, while purple regions represent low scores. 
+ fig:alphaevolve_heuristic 
+ figure 
+
+## Enhancing Gemini kernel engineering
+
+Training large models like Gemini requires substantial computational resources. Gemini is built on JAX jax2018github , and Pallas is an extension to JAX that enables writing custom, highly specialized programs (kernels) tailored for optimal execution on hardware accelerators. Therefore, efficient Pallas kernels are crucial for optimizing Gemini’s training performance. A critical aspect of kernel optimization is tuning the tiling strategy for matrix multiplication operations (see~ fig:tiling_heuristic ). This technique involves dividing a large matrix multiplication computation into smaller subproblems to better balance computation with data movement, which is key to accelerating the overall computation. Traditionally, kernel engineers rely on either search-based autotuning or manually crafted heuristics to determine near-optimal tiling configurations for various input shapes. Search-based tuning interrupts the research workflow, necessitating retuning for every input shape change. Conversely, manually crafting effective tiling heuristics is a major engineering bottleneck due to its complexity, demanding a deep understanding of both kernel functionality and hardware intricacies. The key advantage of a performant heuristic is its ability to deliver high performance across arbitrary input shapes. Consequently, to expedite the design of performant kernels for emerging hardware and to simplify their utilization by model developers, we aim to facilitate the heuristic generation process.
+
+ figure [t]
+ 
+ figures/matmul_tiling_figure.pdf 
+ Visualization of the tiling heuristic problem for a matrix product AB = C . Creating a heuristic that automatically chooses the right tile size ( M , N , P ) for all input shapes is difficult because one has to know the matrix multiplication unit’s optimal shapes and memory capacity, the memory requirements of surrounding operations, extra operations that are fused into the kernel, and low-level compiler intricacies, among other details. 
+ fig:tiling_heuristic 
+ figure 
+
+We address this challenge by employing to optimize tiling heuristics for an important matrix multiplication kernel used to train Gemini. The objective is to minimize the kernel's actual runtime. iteratively explores and refines tiling heuristics for this kernel by proposing candidate code, aiming to minimize this runtime on various input shapes on real TPU accelerators. The kernel’s correctness is maintained by construction because is optimizing the tiling strategy for this kernel rather than altering its underlying mathematical operation. To build the training and evaluation datasets for , we automatically collect realistic kernel input shapes from kernel users. Half of these input shapes form the training set, providing the optimization targets during the evolutionary process. The remaining input shapes form the evaluation set, used to test the general applicability of the resulting heuristic.
+
+This automated approach enables to discover a heuristic that yields an average 23\% kernel speedup across all kernels over the existing expert-designed heuristic, and a corresponding 1\% reduction in Gemini’s overall training time. In addition, the use of significantly reduced the kernel optimization time, from several months of dedicated engineering effort to just days of automated experimentation. This acceleration speeds up the deployment of optimized kernels, allowing kernel engineers to dedicate their expertise to more strategic, higher-level optimization problems. Furthermore, offers a path towards automating the manual tuning process and improving the ergonomics of Gemini kernel usage. The tiling heuristic discovered by has been deployed in production, directly enhancing Gemini's training efficiency and the Gemini team’s research and engineering velocity. This deployment also marks a novel instance where Gemini, through the capabilities of , optimizes its own training process.
+
+## Assisting in hardware circuit design
+
+Specialized hardware, such as Google's Tensor Processing Units (TPUs), is crucial for achieving the resource efficiency required to run modern AI systems at scale. However, designing new computer chips is a complex and time-consuming process, often spanning years. Register-Transfer Level (RTL) optimization, a critical step in this process, involves manually rewriting hardware descriptions to improve metrics like power, performance, and area, demanding months of iteration by highly skilled engineers.
+
+In this work, was challenged to optimize an already highly optimized Verilog implementation of a key TPU arithmetic circuit within the matrix multiplication unit. The optimization objectives were to reduce both area and power consumption while preserving the component's core functionality. Crucially, the final proposal must pass robust verification methods to confirm that the modified circuit maintains functional correctness. was able to find a simple code rewrite that removed unnecessary bits, a change validated by TPU designers for correctness. While this specific improvement was also independently caught by downstream synthesis tools, 's contribution at the RTL stage demonstrates its capability to refine source RTL and provide optimizations early in the design flow.
+
+Integrated into an upcoming TPU, this improvement represents Gemini’s first direct contribution to TPU arithmetic circuits, achieved via , paving the way for future contributions. A key advantage of is that it communicates the suggested changes directly in Verilog, the standard language used by hardware engineers, fostering trust and simplifying adoption. This early exploration demonstrates a novel approach where LLM-powered code evolution assists in hardware design, potentially reducing time to market.
+
+## Directly optimizing compiler-generated code
+
+The transformer architecture~ vaswani2017attention is used in the majority of modern neural networks, ranging from LLMs to AlphaFold~ alphafold3 . 
+The core computation of transformers is the attention mechanism~ bahdanau2014neural , which is most commonly implemented using FlashAttention~ dao2022flashattention .
+In our stack, FlashAttention is implemented as an accelerator kernel in Pallas, wrapped by higher-level code in JAX that handles input preparation and output postprocessing.
+The machine learning compiler (XLA~ xla ) then translates this implementation into a sequence of intermediate representations (IRs), each adding more detail for execution on particular hardware. At these stages, improved decisions on memory access orchestration or computation scheduling can significantly reduce runtime on specific hardware.
+
+We challenged to directly optimize the XLA-generated IRs encapsulating the FlashAttention kernel along with pre- and postprocessing code. We optimized a configuration corresponding to a highly impactful transformer model used for inference at scale on GPUs, with the goal of minimizing the module's overall execution time. This was a particularly challenging task, because (1) the IR is designed for debugging purposes rather than for direct editing by developers, and (2) it is compiler-generated and already highly optimized. Each modification proposed by was checked against the reference (unmodified) code on randomized inputs in order to ensure numerical correctness throughout optimization. The final version of the code was rigorously confirmed by human experts to be correct for all possible inputs.
+
+ was able to provide meaningful optimizations for both levels of abstraction exposed by the IR. Firstly, the FlashAttention kernel for the configuration of interest was sped up by 32\%. Secondly, found improvements in pre- and postprocessing of kernel inputs and outputs, resulting in a 15\% speed up in this part. These results demonstrate the ability of to optimize compiler-generated code, offering the potential of incorporating discovered optimizations into existing compilers for specific use cases, or, in the longer term, incorporating into the compiler workflow itself.
+
+## Ablations
+
+ sec:ablations_rewrite 
+
+We carried out ablations on two tasks: finding tensor decompositions for faster matrix multiplication ( subsec:matmul ) and computing lower bounds on kissing numbers ( subsec:math ), aiming to understand the efficacy of the following components of .
+
+ itemize 
+ Evolutionary approach. utilizes an evolutionary approach, where previously generated programs are stored in a database and used to obtain better programs in subsequent iterations. To analyze the importance of evolution, we consider an alternative approach, which repeatedly feeds the same initial program to the language model. We refer to this approach as ``No evolution''.
+ Context in prompts. uses powerful language models with large context windows, whose output can be improved significantly by providing problem-specific context in the prompt. To test the importance of context, we consider an alternative approach where no explicit context is added to the prompt. We refer to this approach as ``No context in the prompt''.
+ Meta prompts. also uses meta prompts in order to improve the prompts that are provided to the language model. This allows it to potentially surpass the performance one can obtain using a human prompter. To test the efficacy of meta prompting, we disable it for the task of tensor decomposition. We refer to this approach as ``No meta prompt evolution''.
+ Full-file evolution. Unlike previous approaches such as FunSearch, can evolve an entire codebase instead of focusing on a single function. To test the importance of full-file evolution, we consider an alternative in the context of tensor decomposition where only the loss function is evolved. We refer to this approach as ``No full-file evolution''.
+ Powerful language models. relies on a mixture of small and large language models in order to obtain highly diverse samples. To understand the importance of this component, we consider an alternative where only a single small base model is used. We refer to this approach as ``Small base LLM only''.
+ itemize 
+
+ figure 
+ 
+ subfigure [c] 0.48 
+ 
+ figures/ablation_matmul.pdf 
+ subfigure 
+ 
+ subfigure [c] 0.48 
+ 
+ figures/ablation_kissing.pdf 
+ subfigure 
+ Left: Ablations of on the problem of finding low-rank tensor decomposition for faster matrix multiplication. Right: Ablations of on the problem of finding sphere packings for improving kissing numbers. Each curve shows the performance of an individual setting with increasing compute budget, averaged over all considered targets (higher values on the target metric are better). The shades indicate intra-target standard deviation, averaged over three independent runs of , initialized with different random seeds.
+ fig:ablations_rewrite 
+ figure 
+
+ fig:ablations_rewrite shows the results of the all-inclusive approach as well as the various alternatives listed above. As can be seen, each of the components is responsible for a significant improvement in the results. 
+
+## Related work
+
+ sec:related_work 
+
+### Evolutionary methods.
+
+ extends a long tradition of research on evolutionary or genetic programming langdon2013foundations , where one repeatedly uses a set of mutation and crossover operators to evolve a pool of programs koza1994genetic,banzhaf1998genetic .
+In particular, classical evolutionary techniques have succeeded in symbolic regression applications schmidt2009distilling,ma2022evolving , automated scientific cranmer2023interpretable or algorithmic chen2023symbolic discovery, and scheduling zhang2021genetic problems.
+However, a challenge with these methods is the use of handwritten evolution operators, which can be hard to design and may fail to capture important properties of the domain.
+In contrast, uses LLMs to automate the construction of these operators---it leverages the LLM's world knowledge to mutate programs without the need to pre-define a set of allowed mutation operations. 
+
+ was preceded by a body of recent efforts that combine LLMs and evolution; specifically, it extends the FunSearch system, introduced by paredes2023mathematical as an approach to mathematical discovery.
+FunSearch was subsequently used in downstream tasks such as learning acquisition functions for Bayesian optimization aglietti2025funbo , discovering cognitive models castro2025discovering , computing distances between graphs verma2025grail , or combinatorial competitive programming velickovic2024amplifying . 
+ goes beyond FunSearch and its recent reimplementation ellenberg2025generative in three key ways.
+First, while FunSearch only allowed the evolution of a single Python function, allows evolution over entire codebases written in a wide range of programming languages.
+Second, FunSearch optimized a single objective function, while provides the ability to perform multiobjective optimization.
+Third, the LLMs in FunSearch were relatively small and solely trained on code.
+By contrast, uses frontier LLMs and rich forms of natural-language context and feedback.
+As has been demonstrated in this paper, these extensions allow to address important challenging problems that were not amenable to FunSearch.
+
+Other efforts in this category include the approach by lehman2023evolution , which uses an LLM-guided evolution process to discover programmatic policies for a set of simulated robots; or the approach by hemberg2024evolving for code synthesis.
+Similar approaches have found use in several scientific and mathematical tasks, including symbolic regression shojaee2025llmsr,grayeli2024symbolic , discovering heuristics for combinatorial optimization liu2024evolution,ye2024reevo,yao2025multiobjective , and synthesizing molecular structures wang2025efficient .
+LLM-guided evolution has also been used to improve AI systems by enhancing LLM prompts fernando2023promptbreeder and searching over neural architectures chen2023evoprompting,morris2024llm .
+ differs from these approaches in its scale, flexibility, and general applicability to a broad range of domains.
+
+Some recent efforts have augmented the basic paradigm of LLM-guided evolution with complementary ideas.
+For example, surina2025algorithm complement the evolution process by continuously finetuning the LLM through reinforcement learning.
+ grayeli2024symbolic enhance the evolution process with an LLM-directed concept learning step that summarizes high-performing programs in the pool into natural language.
+More investigation is required to understand the benefits of these ideas at the scale at which operates. 
+
+Evolutionary methods have also found use in the recent AI Co-Scientist work~ gottweis2025towards , which seeks to automate scientific discovery using distinct agents for tasks like hypothesis discovery, ranking of hypotheses, and literature review.
+While AI Co-Scientist represents scientific hypotheses and their evaluation criteria in natural language, focuses on evolving code, and directs evolution using programmatic evaluation functions.
+This choice enables us to substantially sidestep LLM hallucinations, which allows to carry on the evolution process for a large number of time steps.
+Nevertheless, it is possible in principle to combine the two approaches, leading to a method that allows a flexible combination of natural-language and programmatic idioms. 
+
+### Superoptimization and algorithm discovery.
+
+ can be viewed as a method for code superoptimization in that it iteratively improves an initial program using execution feedback. 
+The idea of code superoptimization goes back to the 1980s Massalin87 ; pre-LLM approaches to the problem included systematic enumeration Massalin87 , genetic search cooper2002adaptive , Monte Carlo sampling schkufza2013stochastic , and deep reinforcement learning mankowitz2023faster .
+Additionally, in limited settings that focus on a single problem such as matrix multiplication, there have been systems such as AlphaTensor that were also able to discover provably correct algorithms fawzi2022discovering .
+
+More recently, a body of LLM-based approaches to superoptimization and algorithm discovery have emerged.
+This literature builds on the success of LLMs in coding tasks, perhaps best illustrated by their success in (simulated) programming competitions as in the case of AlphaCode li2022competitionlevel .
+For instance, LLM agents have been used to optimize certain operations in GPU kernels, such as the attention operation chen2025automating or more general user-specified operations lange2025aicuda .
+There is also work on using LLMs to discover novel evolutionary algorithms lange2024large , train language models lehman2024evolution , and optimize warehouse-scale computers lin2025eco .
+Other recent work wu2023autogen has also proposed the use of multiple LLM agents that converse with each other to accomplish mathematical and coding tasks. 
+
+While previous work on using LLMs for algorithm discovery provided promising results, 's approach to leverage it for evolutionary algorithms allows us to address significantly more challenging problems, as demonstrated in sec:results .
+
+### AI for scientific and mathematical discovery.
+
+Over the last decade, AI systems have been applied to a wide range of scientific disciplines and tasks, from protein structure prediction jumper2021highly to quantum physics bausch2024learning,ruiz2025quantum to climate sciences lam2023learning .
+In particular, there are numerous recent LLM-based methods that target scientific problems in multiple disciplines, such as materials science miret2024llms,zhang2024honeycomb,jia2024llmatdesign,song2025llmfeynman , chemistry caldasramos2025review,luo2025leveraging , bioinformatics sarumi2024large,madani2023large , geoscience pantiukhin2025accelerating , and quantum physics frohnert2025discovering,pan2025quantum (for surveys on the topic, see gridach2025agentic,luo2025llm4sr,ren2025towards ).
+
+Many of these methods use LLMs to automate several distinct stages of the scientific discovery process wang2024scimon,xia2025nature,li2025large,gu2024interesting,yang2024large , e.g., for generating and ranking hypotheses and ideas guo2024embracing,si2025canllms .
+Of these methods, especially related to are the methods that use LLM-guided tree search-based algorithms bran2025chemical or LLM-guided evolutionary algorithms yang2025moosechem,zhou2024hypothesis,gottweis2025towards .
+Other works use LLMs to optimize experimental planning and design huang2024crisprgpt,bran2024augmenting,boiko2023autonomous,naumov2025dora or experiment execution and workflow wang2025efficient,rives2021biological,lin2023evolutionary,ye2023drugassist,ferruz2022controllable .
+Finally, there are also works focusing on the data analysis stage rasheed2024canlarge .
+ differs from most of these methods in its use of programmatic hypothesis representations and evaluation metrics.
+
+AI systems have also contributed to advances in pure mathematics davies2021advancing .
+In this context, the FunSearch approach paredes2023mathematical,ellenberg2025generative established LLM-guided evolution as a powerful tool for discovering witnesses for, and counterexamples to, mathematical statements---a problem that is complementary to that of finding formal and informal proofs of mathematical statements~ trinh2024solving,hubert2024ai,yang2024formal,yang2023leandojo,thakur2024context,collins2024evaluating .
+
+## Discussion
+
+ sec:discussion 
+
+ demonstrates the surprising power of combining state-of-the-art LLMs with automated evaluation metrics within an evolutionary framework, which can lead to new discoveries on decades-old mathematical problems as well as practical improvements to highly optimized compute stacks.
+
+Interestingly, often allows approaching the same problem in different ways: searching for the solution directly, finding a function that constructs it from scratch, or evolving a search algorithm to find it.
+Applying in different ways comes with different biases (for example, finding constructive functions may favor discovering highly symmetric objects~ paredes2023mathematical ) and thus can suit different problems.
+
+ can also be seen as a test-time compute agent that, through its evolutionary procedure, significantly enhances the capability of the base LLM (compared to, e.g., repeated sampling).
+On one hand, this can be seen as a compelling demonstration of how machine feedback is able to sustain test-time compute scaling up to regimes where new scientific discoveries and highly valuable practical optimizations are made.
+On the other hand, a natural next step will be to consider distilling the -augmented performance of the base LLMs into the next generation of the base models.
+This can have intrinsic value and also, likely, uplift the next version of .
+
+Beyond distillation, it is also intriguing that can make practical discoveries that increase the efficiency of its own infrastructure and of (future versions of) its base LLMs.
+Currently, the gains are moderate and the feedback loops for improving the next version of are on the order of months.
+However, with these improvements we envision that the value of setting up more environments (problems) with robust evaluation functions will become more widely recognized, which in turn will result in more high-value practical discoveries going forward.
+
+The main limitation of is that it handles problems for which it is possible to devise an automated evaluator.
+While this is true of many problems in the mathematical and computational sciences, there are domains such as the natural sciences where only some experiments can be simulated or automated.
+While does allow for LLM-provided evaluation of ideas, this is not a setting we have optimized for.
+However, concurrent work shows this is possible~ gottweis2025towards , and a natural step would be to link the two settings, with LLMs providing feedback on high-level ideas before transitioning to an implementation stage, for which machine feedback is available through code execution.
+
+## Acknowledgements
+
+ sec:acknowledgements 
+
+We thank Michael Figurnov for reviewing this white paper; Alhussein Fawzi, Bernardino Romera-Paredes, and Ankit Anand for early explorations and insightful discussions; Stig Petersen and Demis Hassabis for support and advice; JD Velasquez for helpful advice on managing the practical applications; and all early users and collaborators of for their diverse use cases and insightful feedback, which shaped it into a more robust and versatile tool for a wide range of applications. We gratefully acknowledge the invaluable contributions of these individuals towards the applications highlighted in this white paper:
+
+Terence Tao, Javier Gomez Serrano, and Jordan Ellenberg for suggesting specific open mathematical problems and advising on how to best formulate them for ; Bogdan Georgiev, Ray Jiang, and Johannes Bausch for their contributions to applying to such problems.
+
+Mohammadamin Barekatain, Patrick Heisel, Chase Hensel, Robert O'Callahan, and Pengming Wang for co-leading the application to data center scheduling; Federico Piccinini, Sultan Kenjeyev, and Andrea Michi for making significant contributions; Kieran Milan, Daniel Mankowitz, Cosmin Paduraru, Calin Cascaval, Tammo Spalink, and Natasha Antropova for providing helpful advice; Aaron Gentleman, Gaurav Dhiman, Parthasarathy Ranganatha, and Amin Vahdat for reviewing this work.
+
+Yanislav Donchev for leading the application to Gemini kernel engineering; Richard Tanburn for making significant contributions; Justin Chiu and Julian Walker for providing helpful advice; Jean-Baptiste Alayrac, Dmitry Lepikhin, Sebastian Borgeaud, Koray Kavukcuoglu and Jeff Dean for reviewing this work.
+
+Timur Sitdikov for leading the application to TPU circuit design; Georges Rotival for providing the circuit evaluation infrastructure; Kirk Sanders, Srikanth Dwarakanath, Indranil Chakraborty, Christopher Clark for verifying and validating the results in the TPU design; Vinod Nair, Sergio Guadarrama, Dimitrios Vytiniotis, and Daniel Belov for their helpful advice; Kerry Takenaka, Jeff Dean, Sridhar Lakshmanamurthy, Parthasarathy Ranganathan, and Amin Vahdat for reviewing this work.
+
+Benjamin Chetioui, Sergei Lebedev, Alexander Belyaev, Henning Becker, Oleg Shyshkov, and Aliia Khasanova for their help with XLA modifications as well as their helpful advice; Giorgio Arena, Marco Cornero, and Sebastian Bodenstein for reviewing this work.
+
+## Author information
+
+ sec:authors 
+
+These authors contributed equally: Alexander Novikov, Ngân Vũ, Marvin Eisenberger, Emilien Dupont, Po-Sen Huang, Adam Zsolt Wagner, Sergey Shirobokov, Borislav Kozlovskii, and Matej Balog.
+
+### Contributions.
+
+A.N. and M.B. designed and implemented the initial version of .
+\;
+M.B., A.N., N.V. and P.K. developed project vision and scoped problems.
+\;
+N.V. and P.-S.H. oversaw the practical applications.
+\;
+E.D. and M.E. implemented the first benchmark problem used for iterating on , with input from F.J.R.R. and M.B.
+\;
+A.N. and M.E. developed the final version of , with contributions from S.S., P.-S.H., and input from M.B., E.D., A.Z.W. and N.V.
+\;
+A.N., S.S., P.-S.H. and M.E. maintained the infrastructure underlying .
+\;
+M.E. and E.D. used to discover new algorithms for matrix multiplication, with input from F.J.R.R.
+\;
+A.Z.W. worked on the applications to open mathematical problems, with help from A.M., M.E., and A.N.
+\;
+A.N. contributed to the Borg scheduling application.
+\;
+P.-S.H. and N.V. worked on the application to Gemini kernel engineering.
+\;
+P.-S.H. and A.N. contributed to the TPU circuit design application.
+\;
+B.K. and S.S. worked on applying to directly optimize compiler-generated code.
+\;
+M.E. performed the ablation experiments.
+\;
+M.B., A.N., M.E., S.S. and P.-S. H. performed the majority of code reviews.
+\;
+M.B., E.D., S.C., N.V., A.Z.W., F.J.R.R., M.E., A.N., B.K., S.S., A.M., and M.P.K. wrote the paper, with input from A.S., P.-S.H and P.K.
+\;
+N.V., E.D., M.E., S.C., A.N., and A.Z.W. created the figures.
+\;
+F.J.R.R., A.M., and A.Z.W. assembled the accompanying Google Colab.
+\;
+S.N., A.D. and P.K. advised and enabled multiple strands of this work.
+\;
+M.B., A.N., N.V. and G.H. coordinated the team. 
+\;
+P.K. supervised and coordinated the research program. 
+
+### Corresponding authors.
+
+Matej Balog, Alexander Novikov and Pushmeet Kohli.
+
+ abbrvnat 
+ literature 
+
+ 
+ 
+
+## Faster matrix multiplication: Full results
+
+### Full table of results.
+ We provide the best ranks obtained by in~ tab:relaxed-opt-results-appendix . Overall, we considered 54 matrix multiplication sizes in our experiments. These were chosen roughly representing sizes m,n,p where 2 m,n 5 , with some reasonable cutoff for p . Due to symmetries of the underlying matrix multiplication tensor, there exist equivalent algorithms for any permutations of the three axes, hence we focus on sorted sizes m n p .
+
+In all but two considered sizes, discovered programs which either match or surpass the best known rank. Anecdotally, we encountered some difficulty when increasing the problem size: when we run the discovered programs on sizes beyond 5,5,5 on 1000 random seeds on evaluators with a single GPU accelerator, we often run out of memory. Hence, extending our setup to larger matrix sizes requires further optimization.
+
+ table [h]
+ 2 white gray!30 
+ center 
+ 0.7 
+ tabular ccc 
+ m, n, p & best known \\ [reference] & \\ 
+ 2, 2, 2 & 7 strassen1969gaussian & 7 \\ 
+ 2, 2, 3 & 11~ smirnov2013bilinear & 11 \\ 
+ 2, 2, 4 & 14~ smirnov2013bilinear & 14 \\ 
+ 2, 2, 5 & 18~ smirnov2013bilinear & 18 \\ 
+ 2, 2, 6 & 21~ smirnov2013bilinear & 21 \\ 
+ 2, 2, 7 & 25~ smirnov2013bilinear & 25 \\ 
+ 2, 2, 8 & 28~ smirnov2013bilinear & 28 \\ 
+ 2, 2, 9 & 32~ smirnov2013bilinear & 32 \\ 
+ 2, 2, 10 & 35~ smirnov2013bilinear & 35 \\ 
+ 2, 2, 11 & 39~ smirnov2013bilinear & 39 \\ 
+ 2, 2, 12 & 42~ smirnov2013bilinear & 42 \\ 
+ 2, 2, 13 & 46~ smirnov2013bilinear & 46 \\ 
+ 2, 2, 14 & 49~ smirnov2013bilinear & 49 \\ 
+ 2, 2, 15 & 53~ smirnov2013bilinear & 53 \\ 
+ 2, 2, 16 & 56~ smirnov2013bilinear & 56 \\ 
+ 2, 3, 3 & 15~ smirnov2013bilinear & 15 \\ 
+ 2, 3, 4 & 20~ smirnov2013bilinear & 20 \\ 
+ 2, 3, 5 & 25~ smirnov2013bilinear & 25 \\ 
+ tabular 
+ 
+ 0.7 
+ tabular ccc 
+ m, n, p & best known \\ [reference] & \\ 
+ 2, 3, 6 & 30~ smirnov2013bilinear & 30 \\ 
+ 2, 3, 7 & 35~ smirnov2013bilinear & 35 \\ 
+ 2, 3, 8 & 40~ smirnov2013bilinear & 40 \\ 
+ 2, 3, 9 & 45~ smirnov2013bilinear & 45 \\ 
+ 2, 3, 10 & 50~ smirnov2013bilinear & 50 \\ 
+ 2, 4, 4 & 26~ smirnov2013bilinear & 26 \\ 
+ 2, 4, 5 & 33~ hopcroft & darkgreen 32 \\
+ 2, 4, 6 & 39~ smirnov2013bilinear & 39 \\ 
+ 2, 4, 7 & 46~ smirnov2013bilinear & darkgreen 45 \\
+ 2, 4, 8 & 52~ smirnov2013bilinear & darkgreen 51 \\
+ 2, 5, 5 & 40~ smirnov2013bilinear & 40 \\ 
+ 2, 5, 6 & 48~ smirnov2013bilinear & darkgreen 47 \\ 
+ 3, 3, 3 & 23~ laderman & 23 \\
+ 3, 3, 4 & 29~ smirnov2013bilinear & 29 \\ 
+ 3, 3, 5 & 36~ smirnov2013bilinear & 36 \\ 
+ 3, 3, 6 & 40~ smirnov2013bilinear & 40 \\ 
+ 3, 3, 7 & 49~ smirnov2013bilinear & 49 \\ 
+ 3, 3, 8 & 55~ smirnov2013bilinear & 55 \\ 
+ tabular 
+ 
+ 0.7 
+ tabular ccc 
+ m, n, p & best known \\ [reference] & \\ 
+ 3, 4, 4 & 38~ smirnov2013bilinear & 38 \\ 
+ 3, 4, 5 & 47~ fawzi2022discovering & 47 \\ 
+ 3, 4, 6 & 56~ Kauers_2025 & darkgreen 54 \\ 
+ 3, 4, 7 & 66~ smirnov2021 & darkgreen 63 \\ 
+ 3, 4, 8 & 75~ smirnov2021 & darkgreen 74 \\ 
+ 3, 5, 5 & 58~ smirnov2021 & 58 \\ 
+ 3, 5, 6 & 70~ Kauers_2025 & darkgreen 68 \\
+ 3, 5, 7 & 82~ smirnov2021 & darkgreen 80 \\ 
+ 4, 4, 4 & 49~ strassen1969gaussian & darkgreen 48 \\ 
+ 4, 4, 5 & 62~ kauers2023flip & darkgreen 61 \\
+ 4, 4, 6 & 73~ Kauers_2025 & 73 \\ 
+ 4, 4, 7 & 87~ smirnov2013bilinear,strassen1969gaussian & darkgreen 85 \\
+ 4, 4, 8 & 98~ strassen1969gaussian & darkgreen 96 \\ 
+ 4, 4, 9 & 104~ smirnov2022 & purple 108 \\ 
+ 4, 5, 5 & 76~ fawzi2022discovering & 76 \\ 
+ 4, 5, 6 & 93~ Kauers_2025 & darkgreen 90 \\ 
+ 5, 5, 5 & 93~ flip_graphs_with_symmetry & 93 \\ 
+ 6, 6, 6 & 153~ flip_graphs_with_symmetry & purple 156 \\ 
+ tabular 
+ 
+ Full version of tab:relaxed-opt-results , showing the best ranks obtained by for tensor decomposition for all considered parameters. Of the 54 targets, matches the state of the art in 38 cases, surpasses it in 14 cases (green), and falls behind in 2 cases (red). In all cases, provides exact algorithms, using integer or half-integer entries in the decomposition. For 3, 4, 7 , 4, 4, 4 , and 4, 4, 8 , the algorithms discovered by use complex-valued multiplications which can be used for exact multiplication of complex or real-valued matrices. The decompositions shown in this table can be found in . 
+ tab:relaxed-opt-results-appendix 
+ center 
+ table 
+
+Note: Concurrent work~ kauers2025consequences has also found a rank- 90 algorithm for 4, 5, 6 .
+
+ Magnified version of fig:relaxed-opt-diff (left). In fig:relaxed-opt-diff-appendix-1,fig:relaxed-opt-diff-appendix-2,fig:relaxed-opt-diff-appendix-3 , we show a magnified version of fig:relaxed-opt-diff (left), which corresponds to the program that discovers a decomposition of rank 48 for the 3D tensor representing the operation of multiplying two 4 4 matrices. 
+
+ figure [p]
+ figure a -0.03 
+ adjustbox width=0.9 
+ minipage 0.9 
+ lstlisting [style=pydiff, backgroundcolor= backcolour ]
+@@ -45,9 +45,14 @@
+ # EVOLVE-BLOCK-START
+ def _get_optimizer(self) -> optax.GradientTransformation:
+ """Returns optimizer."""
+- return optax.adam(self.hypers.learning_rate)
++ return optax.adamw(
++ self.hypers.learning_rate, weight_decay=self.hypers.weight_decay
++ )
+ 
+ def _get_init_fn(self) -> jax.nn.initializers.Initializer:
+ """Returns initializer function."""
+- return initializers.normal(0.0, self.hypers.init_scale, jnp.complex64)
++ # Initialize with a smaller scale to encourage finding low-rank solutions.
++ # Increase scale slightly for better exploration.
++ scale = self.hypers.init_scale
++ return initializers.normal(0 + 1j * 0, scale * 0.2, jnp.complex64)
+
+@@ -80,6 +85,66 @@
+ # Gradient updates.
+ updates, opt_state = self.opt.update(grads, opt_state, decomposition)
+ decomposition = optax.apply_updates(decomposition, updates)
++ # Add a small amount of gradient noise to help with exploration
++ rng, g_noise_rng = jax.random.split(rng)
++ decomposition = jax.tree_util.tree_map(
++ lambda x: x
++ + self.hypers.grad_noise_std * jax.random.normal(g_noise_rng, x.shape),
++ decomposition,
++ )
++
++ # Add noise to the decomposition parameters (exploration).
++ _, noise_rng = jax.random.split(rng)
++ noise_std = self._linear_schedule(
++ global_step, start=self.hypers.noise_std, end=0.0
++ )
++ decomposition = jax.tree_util.tree_map(
++ lambda x: x + noise_std * jax.random.normal(noise_rng, x.shape),
++ decomposition,
++ )
++
++ # Cyclical annealing for clipping threshold.
++ cycle_length = 2000 # Number of steps per cycle
++ cycle_progress = (
++ global_step 
++ ) / cycle_length # Normalized progress within the current cycle [0, 1)
++
++ # Map cycle progress to a sinusoidal curve. Ranges from 0 to 1.
++ clip_threshold_multiplier = (1 + jnp.cos(2 * jnp.pi * cycle_progress)) / 2
++
++ clip_threshold = self.hypers.clip_min + clip_threshold_multiplier * (
++ self.hypers.clip_max - self.hypers.clip_min
++ )
++
++ def soft_clip(x, threshold):
++ # Clipping the real and imaginary parts separately.
++ x_re = jnp.real(x)
++ x_im = jnp.imag(x)
++
++ x_re_clipped = jnp.where(
++ x_re > threshold, threshold + (x_re - threshold) * 0.1, x_re
++ )
++ x_re_clipped = jnp.where(
++ x_re_clipped < -threshold,
++ -threshold + (x_re_clipped + threshold) * 0.1,
++ x_re_clipped,
++ )
+ lstlisting 
+ minipage 
+ adjustbox 
+ 
+Magnified version of~ fig:relaxed-opt-diff (left), giving the program that discovers a faster algorithm to multiply 4 4 matrices (1/3). fig:relaxed-opt-diff-appendix-1 
+ 
+ figure 
+ figure -1 
+
+ figure [p]
+ figure b -0.03 
+ adjustbox width=0.9 
+ minipage 0.9 
+ lstlisting [style=pydiff, backgroundcolor= backcolour , firstnumber=66]
++
++ x_im_clipped = jnp.where(
++ x_im > threshold, threshold + (x_im - threshold) * 0.1, x_im
++ )
++ x_im_clipped = jnp.where(
++ x_im_clipped < -threshold,
++ -threshold + (x_im_clipped + threshold) * 0.1,
++ x_im_clipped,
++ )
++
++ return x_re_clipped + 1j * x_im_clipped
++
++ decomposition = jax.tree_util.tree_map(
++ lambda x: soft_clip(x, clip_threshold), decomposition
++ )
++
+ return decomposition, opt_state, loss
+ 
+ def _loss_fn(
+@@ -91,13 +156,86 @@
+ """Computes (batched) loss on learned decomposition."""
+ # Compute reconstruction loss.
+ rec_tensor = self._decomposition_to_tensor(decomposition) # (B, N, M, P)
++
++ # Add noise to the target tensor (robustness).
++ rng, noise_rng = jax.random.split(rng)
++ target_noise = self.hypers.target_noise_std * jax.random.normal(
++ noise_rng, self.target_tensor.shape
++ )
++ noisy_target_tensor = self.target_tensor + target_noise
++
++ # Hallucination loss (encourages exploration by randomly replacing values)
++ hallucination_prob = self.hypers.hallucination_prob
++ hallucination_scale = self.hypers.hallucination_scale
++
++ def hallucinate(x, hallucination_rng):
++ mask = jax.random.bernoulli(hallucination_rng, p=hallucination_prob)
++ noise = hallucination_scale * jax.random.normal(
++ hallucination_rng, x.shape
++ )
++ return jnp.where(mask, noise, x)
++
++ _, factor_rng = jax.random.split(rng)
++ decomposition = jax.tree_util.tree_map(
++ lambda x: hallucinate(x, jax.random.split(factor_rng)[0]),
++ decomposition,
++ )
++
+ # Add a batch dimension to `target_tensor` to ensure correct broadcasting.
+ # Define the loss as the L2 reconstruction error.
+- rec_loss = l2_loss_complex(self.target_tensor[None, ...], rec_tensor)
++ rec_loss = l2_loss_complex(noisy_target_tensor[None, ...], rec_tensor)
+ 
+ # We must return a real-valued loss.
+- return jnp.real(rec_loss)
+ 
++ # Discretization loss (encourage entries to be multiples of 1/2 or integer).
++ def dist_to_half_ints(x):
++ x_re = jnp.real(x)
++ x_im = jnp.imag(x)
++ return jnp.minimum(
++ jnp.abs(x_re - jnp.round(x_re * 2) / 2),
++ jnp.abs(x_im - jnp.round(x_im * 2) / 2),
++ )
++
+ lstlisting 
+ minipage 
+ adjustbox 
+ Magnified version of~ fig:relaxed-opt-diff (left), giving the program that discovers a faster algorithm to multiply 4 4 matrices (2/3). fig:relaxed-opt-diff-appendix-2 
+ 
+ figure 
+ figure -1 
+
+ figure [p]
+ figure c -0.03 
+ adjustbox width=0.9 
+ minipage 0.9 
+ lstlisting [style=pydiff, backgroundcolor= backcolour , firstnumber=131]
++ def dist_to_ints(x):
++ return jnp.abs(x - jnp.round(x))
++
++ discretization_loss = 0.0
++ for factor in decomposition:
++ discretization_loss += jnp.mean(dist_to_half_ints(factor))
++ discretization_loss += jnp.mean(dist_to_ints(factor))
++
++ discretization_loss /= (
++ len(decomposition) * 2
++ ) # average across all factors and loss components
++
++ discretization_weight = self._linear_schedule(
++ global_step, start=0.0, end=self.hypers.discretization_weight
++ )
++
++ # Cosine annealing for half-integer loss.
++ cycle_length = self.config.training_steps // 4 # Number of steps per cycle
++ cycle_progress = (
++ global_step 
++ ) / cycle_length # Normalized progress within the current cycle [0, 1)
++ half_int_multiplier = (1 + jnp.cos(jnp.pi * cycle_progress)) / 2
++ half_int_multiplier = (
++ 1 - self.hypers.half_int_start
++ ) * half_int_multiplier + self.hypers.half_int_start
++
++ total_loss = (
++ rec_loss
++ + discretization_weight * discretization_loss * half_int_multiplier
++ )
++
++ # Add penalty for large values (stability).
++ large_value_penalty = 0.0
++ for factor in decomposition:
++ large_value_penalty += jnp.mean(jnp.abs(factor) ** 2)
++ large_value_penalty /= len(decomposition)
++ total_loss += self.hypers.large_value_penalty_weight * large_value_penalty
++
++ return jnp.real(total_loss)
++
+ 
+ def l2_loss_complex(x: jnp.ndarray, y: jnp.ndarray) -> jnp.ndarray:
+ """Elementwise L2 loss for complex numbers."""
+@@ -117,6 +255,18 @@
+ return hyper.zipit([
+- hyper.uniform('init_scale', hyper.interval(0.2, 1.5)),
+- hyper.uniform('learning_rate', hyper.interval(0.05, 0.3)),
++ hyper.uniform('init_scale', hyper.interval(0.1, 1.0)),
++ hyper.uniform('learning_rate', hyper.interval(0.01, 0.2)),
++ hyper.uniform('discretization_weight', hyper.interval(0.0, 0.1)),
++ hyper.uniform('hallucination_prob', hyper.interval(0.0, 0.2)),
++ hyper.uniform('hallucination_scale', hyper.interval(0.0, 0.2)),
++ hyper.uniform('noise_std', hyper.interval(0.0, 0.01)),
++ hyper.uniform('target_noise_std', hyper.interval(0.0, 0.01)),
++ hyper.uniform('weight_decay', hyper.interval(0.00001, 0.001)),
++ hyper.uniform('clip_min', hyper.interval(0.0, 0.5)),
++ hyper.uniform('clip_max', hyper.interval(1.0, 3.0)),
++ hyper.uniform('large_value_penalty_weight', hyper.interval(0.0, 0.01)),
++ # Add noise to the gradient to aid in exploration.
++ hyper.uniform('grad_noise_std', hyper.interval(0.0, 0.001)),
++ hyper.uniform('half_int_start', hyper.interval(0.0, 1.0)),
+ ])
+ # EVOLVE-BLOCK-END
+ lstlisting 
+ minipage 
+ adjustbox 
+ Magnified version of~ fig:relaxed-opt-diff (left), giving the program that discovers a faster algorithm to multiply 4 4 matrices (3/3). Here hyper is a user-provided library for generating hyperparameter sweeps. fig:relaxed-opt-diff-appendix-3 
+ 
+ figure 
+
+ 
+
+## Details of mathematical discoveries of 
+ app:maths 
+
+The data and verification code for all constructions reported in this section appear in .
+
+## First autocorrelation inequality
+
+For any function f: R R , define the autoconvolution of f as f*f (t) _ R f(t-x) f(x)\ dx. 
+Let C_1 denote the largest constant satisfying
+ equation maxf 
+ _ -1/2 t 1/2 f*f(t) C_1 ( _ -1/4 ^ 1/4 f(x)\ dx )^2
+ equation 
+for all non-negative f: R R . This problem arises in additive combinatorics, relating to the size of Sidon sets. It is currently known that
+ 1.28 C_1 1.5098, 
+with the lower bound achieved in cloninger2017suprema and the upper bound achieved in matolcsi2010improved via a step function construction.
+ found a step function with 600 equally-spaced intervals on [-1/4,1/4] that gives a slightly better upper bound C_1 1.5053 .
+
+## Second autocorrelation inequality
+
+Let C_2 be the smallest constant for which one has
+ \|f*f\|_2^2 C_2 \|f*f\|_1 \|f*f\|_ 
+for all non-negative f: R R .
+It is known that
+ 0.88922 C_2 1 
+with the lower bound coming from a step function construction matolcsi2010improved . 
+ found a step function with 50 equally-spaced intervals on [-1/4,1/4] that gives a slightly better lower bound 0.8962 C_2 .
+
+## Third autocorrelation inequality
+
+Let C_3 be the largest constant satisfying
+ _ -1/2 t 1/2 |f*f(t) | C_3 ( _ -1/4 ^ 1/4 f(x)\ dx )^2 
+for any function f: R R . Clearly C_3 C_1 , since we now allow f to take positive and negative values. 
+There is a step function that gives the upper bound C_3 1.45810 vinuesa2010generalized .
+ found a step function with 400 equally-spaced intervals on [-1/4,1/4] that gives a slightly better upper bound C_3 1.4557 .
+
+## An uncertainty inequality
+
+Given a function f: R R , define the Fourier transform f( ) := _ R f(x) e^ -2 i x \ dx and
+ A(f) := \ r > 0: f(x) 0 for all |x| r \ . 
+Let C_4 be the largest constant for which one has
+ A(f) A( f) C_4 
+for all even f with (f(0), f(0)) < 0 . It is known~ gonccalves2017hermite that
+ 0.2025 C_4 0.3523. 
+(The upper bound is stated as 0.353 in the paper, but rounding their solution to the fourth digit gives 0.3523 ).
+We improved the upper bound to C_4 0.3521 with a similar linear combination as in~ gonccalves2017hermite , but with refined constants that were found by .
+
+To obtain upper bounds for C_4 , one constructs a specific "test function" f satisfying the conditions and calculates the value A(f)A( f) for this function, which provides an upper bound C_4 A(f)A( f) . Following the approach in~ gonccalves2017hermite , the test function is sought in the form f(x) = P(x)e^ - x^2 , where P(x) is an even polynomial constructed as a linear combination of Hermite polynomials H_ 4k (x) . This form is particularly useful because the Fourier transform of H_n(x)e^ - x^2 is i^n H_n( )e^ - ^2 . For an even polynomial P(x) = c_ 4k H_ 4k (x) , the Fourier transform of f(x) is f( ) = c_ 4k i^ 4k H_ 4k ( )e^ - ^2 = ( c_ 4k H_ 4k ( ))e^ - ^2 = P( )e^ - ^2 . Thus, A(f) is related to the largest positive root of P(x) , and A( f) is related to the largest positive root of P( ) . Specifically, if P(x) 0 for large |x| , A(f) is the largest positive root of P(x) , and A( f) is the largest positive root of P( ) , implying A(f) = A( f) . The inequality becomes C_4 (A(f))^2 .
+
+The method involves finding coefficients c_0, c_1, c_2, for the polynomial P(x) = c_0 H_0(x) + c_1 H_4(x) + c_2 H_8(x) + such that P(x) satisfies certain constraints (related to f(0)<0, f(0)<0 and being positive for large |x| ) and minimizes the largest positive root of P(x) . In our approach, the polynomial P(x) is constructed such that P(0)=0 (a condition used in the optimization process to simplify constraints), meaning P(x) has a factor of x^2 . The largest positive root r_ of P(x) is then the largest positive root of P(x)/x^2 . The upper bound on C_4 derived from this construction is r_ ^2 / (2 ) .
+
+The refined constants found by for P(x) = c_0 H_0(x) + c_1 H_4(x) + c_2 H_8(x) are [c_0, c_1, c_2] [0.32925, -0.01159, -8.9216 10^ -5 ] . Using these coefficients to construct P(x) , finding its largest positive root r_ (by finding the largest positive root of P(x)/x^2 ), and calculating r_ ^2 / (2 ) yields the improved upper bound C_4 0.3521 . Qualitatively our linear combination is very similar to the one found in~ gonccalves2017hermite , thus empirically confirming their hypothesis the construction is nearly optimal.
+
+Note: After publishing the first version of this manuscript, Henry Cohn pointed out that in a recent paper~ cohn2019optimal they used a similar, but more refined approach to get the better constant 0.3284. By incorporating their refined approach into , we improved our reported constant further to 0.3216. For details, we refer to .
+
+ Erd o s' minimum overlap problem 
+Let C_5 be the largest constant for which
+ _ x [-2,2] _ -1 ^1 f(t) g(x+t)\ dt C_5 
+for all non-negative f,g: [-1,1] [0,1] with f+g=1 on [-1,1] and f = 1 , where we extend f,g by zero outside of [-1,1] . This constant controls the asymptotics of the Minimum Overlap Problem of erdHos1955some . The bounds
+ 0.379005 C_5 0.380927 
+are known, where the lower bound was obtained in white2023new via convex programming methods.
+
+It is known (see~ haugland2016minimum ) that
+this constant is equal to the infimum, over all step
+functions h on [0, 2] with values in [0, 1] and satisfying
+ 
+ _0^2 h(x)dx = 1
+ 
+of
+ 
+ _k h(x)(1 - h(x+k))dx 
+. The upper bound to the Erd o s minimum overlap problem was then obtained by using this result, in~ haugland2016minimum by a step function
+construction. The step function depicted in fig:erdos does ever so slightly better than the previous bound, giving the upper bound of C_5 0.380924 .
+
+ figure 
+ 
+ figures/erdos_min_overlap.pdf 
+ Construction found by for the minimum overlap problem of Erd o s. 
+ fig:erdos 
+ figure 
+
+~
+
+## Sums and differences of finite sets
+
+Let C_6 be the largest constant for which the following statement holds: there exist arbitrarily large finite sets of integers A,B with |A+B| |A| and |A-B| |A+B|^ C_6 .
+(Here A+B = \ a+b : a A, b B\ and A-B = \ a-b : a A, b B\ denote the sumset and difference set, respectively. The notation X Y means that X C Y for some constant C independent of the sets A,B (for sufficiently large sets A,B ). The notation X Y means that X C' Y for some positive constant C' independent of the sets A,B (for sufficiently large sets A,B ).)
+ equation cds 
+ 1.14465 C_6 4 3 ;
+ equation 
+see gyarmati2007sums for the 
+upper bound and gyarmati2007sums for the lower bound. The main tool for the lower bound is the following result of gyarmati2007sums :
+ equation cds-lower 
+ C_6 1 + |U-U| |U+U| (2 (U) + 1) 
+ equation 
+for any finite set U of non-negative integers containing zero satisfying |U-U| 2 (U) + 1 .
+ found a set U_1 of size 2003 improving the lower bound to 1.1479 C_6 ,
+and another set U_2 of size 54265 further improving the lower bound to 
+ 1.1584 C_6 .
+
+## Packing unit regular hexagons inside a regular hexagon
+
+Consider the problem of packing n disjoint regular hexagons with unit side length into a larger regular hexagon, minimizing the side length of the outer hexagon.
+For n=11 and n=12 , the best known constructions use outer hexagons of side lengths 3.943 and 4.0 , respectively geometry_collection .
+ found packing arrangements
+that improve these bounds to 3.931 and 3.942 , respectively.
+These arrangements are shown in fig:hexagons .
+
+ figure 
+ 
+ figures/hexagon_11.pdf 
+ 
+ figures/hexagon_12.pdf 
+ Constructions of the packing problems found by . Left: Packing 11 unit hexagons into a regular hexagon of side length 3.931. Right: Packing 12 unit hexagons into a regular hexagon of side length 3.942.
+ fig:hexagons 
+ figure 
+
+## Minimizing the ratio of maximum to minimum distance
+
+For any n and d , the goal of this problem is to find n points in the d -dimensional space so as to minimize the ratio between the maximum and minimum pairwise distances. found two new constructions improving the best known bounds.
+The found constructions are shown in fig:distance_ratios .
+
+In 2 dimensions, found 16 points with ratio 12.889266112 , improving the best known bound of 12.890 ~ geometry_collection .
+(In this reference, instead of the ratio itself, the square of the ratio is reported, and we use the same convention.)
+ 
+In 3 dimensions, found 14 points with ratio 4.165849767 , improving the best known bound of 4.168 ~ geometry_collection .
+
+ figure 
+ 
+ figures/maxmin1.pdf 
+ figures/maxmin2.pdf 
+ Left: 16 points in 2 dimensions achieving a ratio of maximum distance to minimum distance of
+ 12.889266112 . 
+ Right: 14 points in 3 dimensions achieving a ratio of 4.165849767 . Both constructions improve the best known bounds. 
+ fig:distance_ratios 
+ figure 
+
+## The Heilbronn problem for triangles
+
+The goal of this problem is to find n points on or inside a triangle with unit area so that the area of the smallest triangle formed by these points is maximized. For n=11 , the SOTA was 0.036 ~ geometry_collection , and AlphaEvolve found a construction with minimum area larger than 0.0365 , which is shown in fig:heilbronn (left). 
+
+## The Heilbronn problem for convex regions
+
+The goal of this problem is to find n points on or inside a convex region with unit area so that the area of the smallest triangle formed by these points is maximized. improved two of the best known bounds.
+
+For n=13 , the SOTA was 0.0306 ~ geometry_collection , and improved it to 0.0309 (see fig:heilbronn (middle)).
+For n=14 , the SOTA was 0.0277 ~ geometry_collection and improved it to 0.0278 (see fig:heilbronn (right)).
+
+ figure 
+ 
+ figures/Heilbronn_triangle.pdf 
+ figures/Heilbronn_convex_1.pdf 
+ figures/Heilbronn_convex_2.pdf 
+ New constructions found by improving the best known bounds on two variants of the Heilbronn problem. Left: 11 points in a unit-area triangle with all formed triangles having area 0.0365 . Middle: 13 points inside a convex region with unit area with all formed triangles having area 0.0309 . Right: 14 points inside a unit convex region with minimum area 0.0278 . 
+ fig:heilbronn 
+ figure 
+
+## Kissing number in dimension 11
+
+The kissing problem asks how many disjoint unit spheres can be packed tangent to a given unit sphere. The maximum such number in d dimensions is called the d -dimensional kissing number~ kissing_survey .
+For d=11 , the best known lower bound was 592~ kissing_11 and improved this to 593. To prove the lower bound of 593 for the kissing number in dimension 11, found 593 many 11-dimensional non-zero points with integral coordinates such that 
+the maximum norm of these points is smaller than their minimum pairwise distance.
+By the following lemma, this implies the kissing number in dimension 11 is at least 593.
+
+ lemma 
+Let C R ^d be a set of points satisfying
+ 0 C and 
+ equation* 
+ \ \|x-y\| : x y C \ \ \|x\|: x C \ .
+ equation* 
+Then unit spheres centred at \ 2x \|x\| : x C \ form a valid kissing configuration in dimension d . In particular, the kissing number in dimension d is at least |C| .
+ lemma 
+
+ proof 
+For any x y C , the inequality \|x - y\|^2 \ \|x\|^2, \|y\|^2\ implies
+ equation 
+2 x, y \|x\|^2 + \|y\|^2 - \ \|x\|^2, \|y\|^2\ = \ \|x\|^2, \|y\|^2\ \|x\| \|y\|,
+ eq:abi 
+ equation 
+where the last inequality holds because the minimum of two positive numbers is less than or equal to their geometric mean.
+The points \ 2x \|x\| : x C \ have norm 2, so unit spheres centred at them are tangent to a unit sphere centred at the origin.
+The last step is to show that these spheres do not overlap. This is equivalent to showing, for all x y C , that
+\[
+ \| 2x \|x\| - 2y \|y\| \| 2.
+\]
+After simplifying, this is equivalent to
+\(
+2 x, y \|x\| \|y\|\),
+which we have proved in eq:abi .
+Thus unit spheres centred at \ 2x \|x\| : x C \ form a valid kissing configuration in dimension d , as required.
+ proof 
+
+## Packing circles inside a unit square to maximize sum of radii
+
+Given a positive integer n , the problem is to pack n disjoint circles inside a unit square so as to maximize the sum of their radii. found two new constructions improving the state of the art~ geometry_collection .
+
+For n=26 , the SOTA was 2.634 , and AlphaEvolve improved it to 2.635 ; see fig:circle_packing (left).
+For n=32 , the SOTA was 2.936 , and AlphaEvolve improved it to 2.937 ; see fig:circle_packing (middle).
+
+## Packing circles inside a rectangle of perimeter 4 to maximize sum of radii
+
+Given a positive integer n , the problem is to pack n disjoint circles inside a rectangle of perimeter 4 so as to maximize the sum of their radii. 
+ found a new construction for n=21 , improving the state of the art from 2.364 ~ geometry_collection to 2.3658 ; see fig:circle_packing (right).
+
+ figure [b]
+ 
+ figures/circles_1.pdf 
+ figures/circles_2.pdf 
+ figures/circles_3.pdf 
+ New constructions found by improving the best known bounds on packing circles to maximize their sum of radii. Left: 26 circles in a unit square with sum of radii 2.635 . Middle: 32 circles in a unit square with sum of radii 2.937 . Right: 21 circles in a rectangle with perimeter 4 , with sum of radii 2.365 . 
+ fig:circle_packing 
+ figure 
+
+ document

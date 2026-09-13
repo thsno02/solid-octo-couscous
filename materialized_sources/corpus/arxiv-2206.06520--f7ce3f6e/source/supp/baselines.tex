@@ -1,0 +1,16 @@
+\section{Baselines}
+\label{sec:baselines}
+
+For all gradient-based methods, we adapt the fully-connected layers of the last 3 transformer blocks for encoder-only models, and fully-connected layers in the last 2 transformer blocks of both encoder and decoder for encoder-decoder models.
+
+\paragraph{Fine-tuning (FT)}
+Given edit samples $[x_e; y_e]$, we fine-tune pretrained models to minimize the negative log-likelihood of predicting $y_e$ conditioned on $x_e$. We use the Adam optimizer with a learning rate of $1\times 10^{-4}$ for T5 and $5\times 10^{-6}$ for BERT-base. 
+
+\paragraph{Cache+lookup (LU)}
+LU \cite{mitchell2021fast} is a gradient-free, training-free editing algorithm which uses an external memory to store representations of previous edit samples. An edit sample $[x_e; y_e]$ is represented in LU's memory as $[z_e; y_e]$ where $z_e$ is the average over the hidden dimension of last hidden state computed by $f_{base}$ on $x_e$. For a test input $[x_e']$, LU computes the hidden representation $z_e'$ of $x_e'$ and finds the nearest edit-sample representation in its memory, say $z_e$. LU outputs $y_e$ if $\|z_e' - z_e\|_2 < \delta$ where $\delta$ is a hyperparameter, and otherwise outputs the pretrained model's prediction on $x_e'$. We used $\delta = 2.75$ for the question-answering settings and $\delta = 4$ for the fact-checking setting.
+
+\paragraph{Editable Neural Networks (ENN)}
+\cite{Sinitsin2020Editable} introduce a post-training procedure to make a pretrained model quickly adaptable for fine-tuning for edits. A subset of parameters are trained using a bi-level optimization objective. We use Adam with an outer-loop learning rate of $1\times 10^{-5}$, and an initial inner-loop learning of $1\times 10^{-2}$ which is learned in the outer loop. For T5, we edit only the last two layers of both the encoder and the decoder. For BERT-base, we edit the last two layers of the encoder. Finally, for BlenderBot-small, we edit the last layer of the encoder and the last three layers of the decoder since the decoder is much deeper.
+
+\paragraph{Model Editor Networks with Gradient Decomposition (MEND)}
+\cite{mitchell2021fast} train a hypernetwork to predict a rank-1 decomposition of a fine-tuning gradient. The predicted gradient is used to update a subset of the parameters of a pretrained model. In our experiments, we use MEND to update the same parameters as in ENN.

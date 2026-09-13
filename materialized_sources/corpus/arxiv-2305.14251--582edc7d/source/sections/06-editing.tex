@@ -1,0 +1,109 @@
+
+Our experiments in Section~\ref{sec:method} focuses on automatically identifying factual precision errors in long-form generations by language models. Can these labels be used to actually correct errors in the long-form generations? In this section, we perform a preliminary exploration of methods to edit long-form LM generations to reflect factually correct information. We assume we have access to the human-annotated set of \ours\ labels, and measure how good models are at editing incorrect sentences. In other words, we evaluate our editor models independent of the errors arising from the estimator. % \estimator.
+
+\subsection{Methods}\label{subsubsec:editing-methods}
+
+We adopt a similar set of methods as Section~\ref{subsec:models-validation} for our editing models. All methods below use four exemplar examples for in-context learning which were sampled from our dataset and removed for subsequent analysis. For all methods, we use OpenAI's ChatGPT~\citep{chatgpt} as the base language model due to its generative capabilities.
+\vspace{.3em}
+
+\noindent \textbf{No-context LM}. We feed language models the prompt \texttt{Input: <sentence> Edit:} and ask it to edit the text, without any retrieved context. 
+
+\vspace{.3em}
+
+\noindent \textbf{\rtgShort}. To assist an editor model, we use a passage retrieval system to find supporting evidence from an external knowledge source (Wikipedia in our case). Our retrieval pipeline is identical to Appendix~\ref{subsubsec:setup-validation}, but uses 3 retrieved passages instead of 5 due to context length restrictions.
+
+\vspace{.3em}
+
+\noindent \textbf{+ Atomic Facts}. Additionally, we explore whether adding atomic facts and their labels assist a model with fine-grained editing. Specifically, after the input sentence we add information to the prompt of the form \texttt{Fact 1 (True/False): <atomic fact 1> Fact 2 (True/False): <atomic fact 2> ..}. This data is also provided in the exemplars.
+
+\vspace{.3em}
+
+\noindent \textbf{Non-edit baselines}. Finally, we add some trivial baselines to lower-bound our editing metrics. Specifically, we measure the performance of input copying (no edits), as well as an editor with random token dropping / replacement on a random 25\% subset of tokens.
+
+%\subsubsection{Setup}\label{subsubsec:editing-setup}
+
+\begin{table*}[t]
+    \center \footnotesize
+    \begin{tabular}{
+            lrrrrrrrrr
+        }
+        \toprule
+         & \multicolumn{3}{c}{InstructGPT} & \multicolumn{3}{c}{ChatGPT} & \multicolumn{3}{c}{PerplexityAI} \\
+         \cmidrule(lr){2-4} \cmidrule(lr){5-7} \cmidrule(lr){8-10}
+        Editor & ErrLoc & ErrCorr & SimAl & ErrLoc & ErrCorr & SimAl & ErrLoc & ErrCorr & SimAl  \\ 
+        \midrule
+        Input copying & 37.1 & 0.0 & 0.0 & 38.8 & 0.0 & 0.0 & 45.6 & 0.0 & 0.0 \\
+        25\% random noise & 44.1 & 0.1 & 0.5 & 45.5 & 0.1 & 0.4 & 45.2 & 0.0 & 0.3  \\
+        \midrule
+        % \multicolumn{5}{l}{\textbf{\em LLAMA 7B}} & \\
+        % No-context \\
+        % \rtgShort\ \\
+        % \rtgShort\ + atomic facts \\
+        % \midrule
+        \multicolumn{5}{l}{\textbf{\em ChatGPT}} \\
+        No-context & 49.0 & 8.5  &  6.2 & 45.3 & 6.8 & 4.0 & 48.3 & 6.2 & 4.1 \\
+        No-context + atomic facts & 58.7 & 12.7 & 10.5 & 53.4 & 10.0  & 6.6 & 56.0 & 9.6 & 6.1 \\
+        \rtgShort\ & 52.6 & 21.8 & 15.7 & 43.9 & 16.8 & 9.5 & 46.3 & 13.5 & 6.8 \\
+        \rtgShort\ + atomic facts & \textbf{65.4} & \textbf{30.4} & \textbf{25.5} & \textbf{63.5} & \textbf{28.3}  & \textbf{19.3} & \textbf{62.4} & \textbf{23.6} & \textbf{15.9} \\
+        \bottomrule
+    \end{tabular}
+    \caption{Results after automatic editing with ChatGPT assuming ground truth verification labels. All editors perform better than trivial lowerbound baselines, and using retrieval and atomic fact labels boosts editing performance. Details of automatic metrics (ErrLoc, ErrCorr, SimAl) are defined in Section~\ref{subsubsec:editing-eval}. 
+    }\label{tab:editing-results}
+\end{table*}
+
+\subsection{Evaluation}\label{subsubsec:editing-eval}
+
+In our data collection process (Section~\ref{subsec:data}), along with our verification data we also collected gold-standard human written edits. Let $X = x_1,...x_{N_X}$ be the input sentence and $G = g_1,...g_{N_G}$ be the gold edited sentence.
+We evaluate the quality of the model-generated edit ($E = e_1,...,e_{N_E}$) using three automatic metrics,
+
+\vspace{0.3em}
+
+\noindent (1) \textbf{Error Localization} (ErrLoc): Our first metric measures how well the editor identifies errors within the input sentence. Specifically, we first create a ``token preservation string'', marking token $x_i$ in the input sentence $X$ as "Preserved" or "Not Preserved". We then compute the macro-averaged F1 score between the token preservation strings derived from the gold edit and the model-generated edit. We remove stopwords, punctuation and lowercase all words before performing this calculation. To equally weigh every sentence, F1 scores are independently computed for each sentence before a final averaging.
+
+\vspace{0.3em}
+
+\noindent (2) \textbf{Edit Correctness} (EditCorr): Our second metric assesses the quality of the additional tokens added by the model-generated edit. Specifically, we check the token-level F1 score~\citep{rajpurkar2016squad} comparing the new tokens added by the gold edit $G$ and the new tokens added by the model-generated edit $E$. More concretely,
+\begin{align*}
+N_\text{common} &= \sum_{e_i \in E, e_i \notin X} e_i \in G \\
+\text{precision} &= N_\text{common} ~/~ || \{e_i \in E, e_i \notin X\} || \\
+\text{recall} &= N_\text{common} ~/~ || \{g_i \in G, g_i \notin X\} || \\
+\text{EditCorr (F1)} &= \text{HM} (\text{precision}, \text{recall})
+\end{align*}
+
+where $||\cdot||$ is the set cardinality and HM denotes a harmonic mean. For this metric, we discard data points where the gold edit did not add new tokens. Similar to ErrLoc, we also remove stopwords, remove punctuation and lowercase strings before calculating EditCorr scores.
+
+\vspace{.3em}
+
+\noindent (3) \textbf{SIM alignment} (SimAl): Finally, due to the large output space of possible edits, we also adopt a metric which rewards paraphrases of the gold edits. We use semantic similarity embeddings from~\citet{wieting-etal-2022-paraphrastic} which map paraphrases to a similar part of a vector space. We check the similarity between the model edit $E$ and the gold edit $G$, normalizing it by the similarity between $G$ and the original input $X$.\footnote{We avoid taking the vector differences between the original / edited text since edit vectors~\citep{guu2018generating} were not explicitly modeled in~\citet{wieting-etal-2022-paraphrastic}.} Specifically,
+\begin{align*}
+    \text{Sim} &= \max\left(0, \frac{s(G, E) - s(G, X)}{1 - s(G, X)} \right)
+\end{align*}
+
+where $s(A,B)$ is the semantic similarity score (normalized to $[0, 1]$) from the model in~\citet{wieting-etal-2022-paraphrastic}. Intuitively, this metric measures how much closer $G$ and $E$ are compared to $G$ and $X$.
+
+
+\subsection{Results}\label{subsubsec:editing-results}
+
+We present our editing results in Table~\ref{tab:editing-results}. Overall, we find that:
+
+\vspace{.3em}
+
+\noindent \textbf{All editing models perform better than trivial lower bounds.} Overall, we find that all editor models outperform lower-bound baselines like random noise. This even happens in the no-context LM setting, where ChatGPT is editing its own output (or search engine augmented Perplexity AI's outputs), but can still perform non-trivial corrections (6.8 ErrCorr for ChatGPT correcting its own outputs vs 0.1 for a random noise editor baseline).
+
+%\kalpesh{Sewon, is there some paper which tries to use LLMs for self-correction?}
+
+\vspace{.3em}
+
+\noindent \textbf{Retrieval significantly helps with editing performance.} Across all base language models and metrics, augmenting the editor with retrieved paragraphs boosts performance (6.8 $\rightarrow$ 16.8 ErrCorr, 4.0 $\rightarrow$ 9.5 SimAl for ChatGPT correcting its own outputs). We hypothesize that the internal parametric knowledge in ChatGPT has insufficient information about the topic (as we also observed in Section~\ref{subsec:annotation-results}) to perform fine-grained editing, and using external knowledge from Wikipedia greatly simplifies error localization and correction. This also corroborates with our findings in Section~\ref{subsec:models-validation-result}.
+
+\vspace{.3em}
+
+\noindent \textbf{Atomic fact labels improve error localization and improve editing performance.} Across all base language models (with or without retrieval) we observe that providing fine-grained atomic fact labels improves editing performance (16.8 $\rightarrow$ 28.3 ErrCorr, 9.5 $\rightarrow$ 19.3 SimAl for ChatGPT correcting its own outputs). Fine-grained fact correctness labels help the editor easily identify problematic tokens, as seen by the consistent improvements in ErrLoc scores (43.9 $\rightarrow$ 63.5 for ChatGPT correcting itself). We hypothesize atomic facts help guide the editor with its editing process (for instance, perform a more targeted search in the retrieved paragraphs), resulting in ErrCorr improvements. We also find that atomic fact labels reduces the frequency of editor copying the input verbatim or saying \emph{The input has no errors} from 37.3\% to 3.9\%.
+
+\vspace{.3em}
+
+\noindent \textbf{PerplexityAI outputs are the hardest to edit}. Overall, we find the highest editing success for InstructGPT, followed by ChatGPT and the least success for Perplexity AI. We hypothesize this is because PerplexityAI already uses a search engine, so errors are much more subtle as extensively discussed in Appendix~\ref{subsec:annotation-qualitative}.
+
+
+
+%\kalpesh{main thing missing now is, intuitively how good is the score in bottom row of Table 10? we should do a human eval of the bottom row only, say ChatGPT correcting its own outputs}.

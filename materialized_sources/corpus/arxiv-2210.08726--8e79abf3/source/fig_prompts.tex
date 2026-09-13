@@ -1,0 +1,513 @@
+{ %
+
+\newcommand{\pWidth}{5.8in}
+\newcounter{pCount}
+\newcommand{\pStart}{\setcounter{pCount}{1}}
+\newcommand{\pRow}[1]{\texttt{\tiny\color{gray}\arabic{pCount}}&\texttt{#1}\stepcounter{pCount}\\}
+\newcommand{\pVar}[1]{\textbf{\{#1\}}}
+\newcommand{\pBlank}{\_\_\_\_\_}
+
+\begin{figure*}[p]
+\begin{center}\scriptsize
+\begin{tabular}{|rp{\pWidth}|}\hline\pStart&\\
+\pRow{[web] I will check things you said and ask questions.}
+\pRow{}
+\pRow{(1) You said: Your nose switches back and forth between nostrils. When you sleep, you switch about every 45 minutes.  This is to prevent a buildup of mucus. It's called the nasal cycle.}
+\pRow{To verify it,}
+\pRow{a) I googled: Does your nose switch between nostrils?}
+\pRow{b) I googled: How often does your nostrils switch?}
+\pRow{c) I googled: Why does your nostril switch?}
+\pRow{d) I googled: What is nasal cycle?}
+\pRow{}
+\pRow{(2) You said: The Stanford Prison Experiment was conducted in the basement of Encina Hall, Stanford's psychology building.}
+\pRow{To verify it,}
+\pRow{a) I googled: Where was Stanford Prison Experiment was conducted?}
+\pRow{}
+\pRow{(3) You said: The Havel-Hakimi algorithm is an algorithm for converting the adjacency matrix of a graph into its adjacency list. It is named after Vaclav Havel and Samih Hakimi.}
+\pRow{To verify it,}
+\pRow{a) I googled: What does Havel-Hakimi algorithm do?}
+\pRow{b) I googled: Who are Havel-Hakimi algorithm named after?}
+\pRow{}
+\pRow{(4) You said: "Time of My Life" is a song by American singer-songwriter Bill Medley from the soundtrack of the 1987 film Dirty Dancing. The song was produced by Michael Lloyd.}
+\pRow{To verify it,}
+\pRow{a) I googled: Who sings "Time of My Life"?}
+\pRow{b) I googled: Which film is "Time of My Life" from?}
+\pRow{c) I googled: Who produced the song "Time of My Life"?}
+\pRow{}
+\pRow{(5) You said: Kelvin Hopins was suspended from the Labor Party due to his membership in the Conservative Party.}
+\pRow{To verify it,}
+\pRow{a) I googled: Why was Kelvin Hopins suspended from Labor Party?}
+\pRow{}
+\pRow{(6) You said: Social work is a profession that is based in the philosophical tradition of humanism. It is an intellectual discipline that has its roots in the 1800s.}
+\pRow{To verify it,}
+\pRow{a) I googled: What philosophical tradition is social work based on?}
+\pRow{b) I googled: What year does social work has its root in?}
+\pRow{}
+\pRow{(7) You said: \pVar{text}}
+\pRow{To verify it,}
+\pRow{\pBlank}
+&\\\hline\end{tabular}
+\caption{Few-shot prompt for query generation. To increase diversity and coverage, we sample the model three times and combine the resulting lists of queries.}
+\label{fig:prompt_cqgen}
+\end{center}
+\end{figure*}
+
+\begin{figure*}[p]
+\begin{center}\scriptsize
+\begin{tabular}{|rp{\pWidth}|}\hline\pStart&\\
+\pRow{[web] I will check some things you said.}
+\pRow{}
+\pRow{(1) You said: Your nose switches back and forth between nostrils. When you sleep, you switch about every 45 minutes.  This is to prevent a buildup of mucus. It's called the nasal cycle.}
+\pRow{I checked: How often do your nostrils switch?}
+\pRow{I found this article: Although we don't usually notice it, during the nasal cycle one nostril becomes congested and thus contributes less to airflow, while the other becomes decongested. On average, the congestion pattern switches about every 2 hours, according to a small 2016 study published in the journal PLOS One.}
+\pRow{Your nose's switching time is about every 2 hours, not 45 minutes.}
+\pRow{This disagrees with what you said. }
+\pRow{}
+\pRow{(2) You said: The Little House books were written by Laura Ingalls Wilder. The books were published by HarperCollins.}
+\pRow{I checked: Who published the Little House books?}
+\pRow{I found this article: These are the books that started it all -- the stories that captured the hearts and imaginations of children and young adults worldwide. Written by Laura Ingalls Wilder and published by HarperCollins, these beloved books remain a favorite to this day.}
+\pRow{The Little House books were published by HarperCollins.}
+\pRow{This agrees with what you said.}
+\pRow{}
+\pRow{(3) You said: The Stanford Prison Experiment was conducted in the basement of Jordan Hall, Stanford's psychology building.}
+\pRow{I checked: Where was Stanford Prison Experiment conducted?}
+\pRow{I found this article: Carried out August 15-21, 1971 in the basement of Jordan Hall, the Stanford Prison Experiment set out to examine the psychological effects of authority and powerlessness in a prison environment.}
+\pRow{The Stanford Prison Experiment was conducted in Jordan Hall.}
+\pRow{This agrees with what you said.}
+\pRow{}
+\pRow{(4) You said: Social work is a profession that is based in the philosophical tradition of humanism. It is an intellectual discipline that has its roots in the 1800s.}
+\pRow{I checked: When did social work have its roots?}
+\pRow{I found this article: The Emergence and Growth of the Social work Profession<br><br> Social work's roots were planted in the 1880s, when charity organization societies (COS) were created to organize municipal voluntary relief associations and settlement houses were established.}
+\pRow{Social work has its roots in the 1880s, not 1800s.}
+\pRow{This disagrees with what you said.}
+\pRow{}
+\pRow{(5) You said: The Havel-Hakimi algorithm is an algorithm for converting the adjacency matrix of a graph into its adjacency list. It is named after Vaclav Havel and Samih Hakimi.}
+\pRow{I checked: What is the Havel-Hakimi algorithm?}
+\pRow{I found this article: The Havel-Hakimi algorithm constructs a special solution if a simple graph for the given degree sequence exists, or proves that one cannot find a positive answer. This construction is based on a recursive algorithm. The algorithm was published by Havel (1955), and later by Hakimi (1962).}
+\pRow{Havel-Hakimi algorithm is for constructing a special solution if a simple graph for the given degree sequence exists, or proving that one cannot find a positive answer, not converting the adjacency matrix of a graph into its adjacency list.}
+\pRow{This disagrees with what you said.}
+\pRow{}
+\pRow{(6) You said: "Time of My Life" is a song by American singer-songwriter Bill Medley from the soundtrack of the 1987 film Dirty Dancing. The song was produced by Michael Lloyd.}
+\pRow{I checked: Who was the producer of "(I've Had) The Time of My Life"?}
+\pRow{I found this article: On September 8, 2010, the original demo of this song, along with a remix by producer Michael Lloyd, was released as digital files in an effort to raise money for the Patrick Swayze Pancreas Cancer Resarch Foundation at Stanford University.}
+\pRow{"Time of My Life" was produced by Michael Lloyd.}
+\pRow{This agrees with what you said.}
+\pRow{}
+\pRow{(7) You said: Kelvin Hopins was suspended from the Labor Party because he had allegedly sexually harassed and behaved inappropriately towards a Labour Party activist, Ava Etemadzadeh.}
+\pRow{I checked: Why was Kelvin Hopins suspeneded from the Labor Party? }
+\pRow{I found this article: A former Labour MP has left the party before an inquiry into sexual harassment allegations against him was able to be concluded, the party has confirmed. Kelvin Hopkins was accused in 2017 of inappropriate physical contact and was suspended by the Labour party pending an investigation.This agrees with what you said.}
+\pRow{Kelvin Hopins was suspended because he had allegedly sexually harassed and behaved inappropriately towards a Labour Party activist, Ava Etemadzadeh.}
+\pRow{This agrees with what you said.}
+\pRow{}
+\pRow{(8) You said: In the battles of Lexington and Concord, the British side was led by General Thomas Smith.}
+\pRow{I checked: Who led the British side in the battle of Lexington and Concord?}
+\pRow{I found this article: Interesting Facts about the Battles of Lexington and Concord. The British were led by Lieutenant Colonel Francis Smith. There were 700 British regulars.}
+\pRow{The British side was led by Lieutenant Colonel Francis Smith, not General Thomas Hall.}
+\pRow{This disagrees with what you said.}
+\pRow{}
+\pRow{(9) You said: \pVar{text}}
+\pRow{I checked: \pVar{query}}
+\pRow{I found this article: \pVar{evidence}}
+\pRow{\pBlank}
+&\\\hline\end{tabular}
+\caption{Few-shot prompt for the agreement model, which uses chain-of-thought prompting.}
+\label{fig:prompt_agreement}
+\end{center}
+\end{figure*}
+
+\begin{figure*}[p]
+\begin{center}\scriptsize
+\begin{tabular}{|rp{\pWidth}|}\hline\pStart&\\
+\pRow{[web] I will fix some things you said.}
+\pRow{}
+\pRow{(1) You said: Your nose switches back and forth between nostrils. When you sleep, you switch about every 45 minutes.  This is to prevent a buildup of mucus. It's called the nasal cycle.}
+\pRow{I checked: How often do your nostrils switch?}
+\pRow{I found this article: Although we don't usually notice it, during the nasal cycle one nostril becomes congested and thus contributes less to airflow, while the other becomes decongested. On average, the congestion pattern switches about every 2 hours, according to a small 2016 study published in the journal PLOS One.}
+\pRow{This suggests 45 minutes switch time in your statement is wrong.}
+\pRow{My fix: Your nose switches back and forth between nostrils. When you sleep, you switch about every 2 hours. This is to prevent a buildup of mucus. It's called the nasal cycle.}
+\pRow{}
+\pRow{(2) You said: In the battles of Lexington and Concord, the British side was led by General Thomas Hall.}
+\pRow{I checked: who led the British side in the battle of Lexington and Concord?}
+\pRow{I found this article: Interesting Facts about the Battles of Lexington and Concord. The British were led by Lieutenant Colonel Francis Smith. There were 700 British regulars.}
+\pRow{This suggests General Thomas Hall in your statement is wrong.}
+\pRow{My fix: In the battles of Lexington and Concord, the British side was led by Lieutenant Colonel Francis Smith.}
+\pRow{}
+\pRow{(3) You said: The Stanford Prison Experiment was conducted in the basement of Encina Hall, Stanford's psychology building.}
+\pRow{I checked: where was Stanford Prison Experiment conducted.}
+\pRow{I found this article: Carried out August 15-21, 1971 in the basement of Jordan Hall, the Stanford Prison Experiment set out to examine the psychological effects of authority and powerlessness in a prison environment.}
+\pRow{This suggests Encina Hall in your statement is wrong.}
+\pRow{My fix: The Stanford Prison Experiment was conducted in the basement of Jordan Hall, Stanford's psychology building.}
+\pRow{}
+\pRow{(4) You said: Phoenix Mills Ltd., a diversified business conglomerate, was established in 1854. It has a history of over 160 years.}
+\pRow{I checked: When was Phoenix Mills Ltd. founded?}
+\pRow{I found this article: Phoenix Mills Ltd was incorporated in the year 1905. The company began their operations as a textile manufacturing company on 17.3 acres of land at Lower Parel in Mumbai. In the year 1959 the company was listed in the Bombay Stock Exchange.}
+\pRow{This suggests the year of establishment 1854 in your statement is wrong.}
+\pRow{My fix: Phoenix Mills Ltd., a diversified business conglomerate, was established in 1905. It has a history of over 160 years.}
+\pRow{}
+\pRow{(5) You said: The Havel-Hakimi algorithm is an algorithm for converting the adjacency matrix of a graph into its adjacency list. It is named after Vaclav Havel and Samih Hakimi.}
+\pRow{I checked: What is the Havel-Hakimi algorithm?}
+\pRow{I found this article: The Havel-Hakimi algorithm constructs a special solution if a simple graph for the given degree sequence exists, or proves that one cannot find a positive answer. This construction is based on a recursive algorithm. The algorithm was published by Havel (1955), and later by Hakimi (1962).}
+\pRow{This suggests the Havel-Hakimi algorithm's functionality in your statement is wrong.}
+\pRow{My fix: The Havel-Hakimi algorithm constructs a special solution if a simple graph for the given degree sequence exists, or proves that one cannot find a positive answer. It is named after Vaclav Havel and Samih Hakimi}
+\pRow{}
+\pRow{(6) You said: "Time of My Life" is a song by American singer-songwriter Bill Medley from the soundtrack of the 1987 film Dirty Dancing. The song was produced by Phil Ramone.}
+\pRow{I checked: Who was the producer of "(I've Had) The Time of My Life"?}
+\pRow{I found this article: On September 8, 2010, the original demo of this song, along with a remix by producer Michael Lloyd, was released as digital files in an effort to raise money for the Patrick Swayze Pancreas Cancer Resarch Foundation at Stanford University.}
+\pRow{This suggests "Time of My Life" producer name in your statement is wrong.}
+\pRow{My fix: "Time of My Life" is a song by American singer-songwriter Bill Medley from the soundtrack of the 1987 film Dirty Dancing. The song was produced by Michael Lloyd.}
+\pRow{}
+\pRow{(7) You said: Phoenix Market City Pune is located on 21 acres of prime property in Pune. It is spread across four levels with approximately 1.4 million square feet of built-up space. The mall is owned and operated by Phoenix Mills Limited.}
+\pRow{I checked: What is the area of Phoenix Market City in Pune?}
+\pRow{I found this article: Phoenix Market City was opened in January 2013 and has the distinction of being the largest mall in the city of Pune, with the area of 3.4 million square feet. It is located in the Viman Nagar area of Pune.}
+\pRow{This suggests the 1.4 million square feet of built-up space in your statment is wrong.}
+\pRow{My fix: Phoenix Market City Pune is located on 21 acres of prime property in Pune. It is spread across four levels with approximately 3.4 million square feet of built-up space. The mall is owned and operated by Phoenix Mills Limited.}
+\pRow{}
+\pRow{(8) You said: \pVar{text}}
+\pRow{I checked: \pVar{query}}
+\pRow{I found this article: \pVar{evidence}}
+\pRow{This suggests \pBlank}
+&\\\hline\end{tabular}
+\caption{Few-shot prompt for the revision model, which uses chain-of-thought prompting.}
+\label{fig:prompt_revision}
+\end{center}
+\end{figure*}
+
+\begin{figure*}[p]
+\begin{center}\scriptsize
+\begin{tabular}{|rp{\pWidth}|}\hline\pStart&\\
+\pRow{[web] I will read the context and check only the last thing you said by asking questions.}
+\pRow{}
+\pRow{(1) Context: Your nose switches back and forth between nostrils. When you sleep, you switch about every 45 minutes.}
+\pRow{You said: This is to prevent a buildup of mucus. It's called the nasal cycle.}
+\pRow{To verify what you just said,}
+\pRow{a) I googled: Why does your nostril switch during sleep?}
+\pRow{b) I googled: What is nasal cycle?}
+\pRow{c) I googled: What is the nostril switching during sleep called?}
+\pRow{}
+\pRow{(2) Context: The Stanford Prison Experiment was conducted in the basement of Encina Hall, Stanford's psychology building.}
+\pRow{You said: It is a psychological study to observe the behaviors of conflict and violence that happen between inmates and prisoners in real prisons.}
+\pRow{To verify what you just said,}
+\pRow{a) I googled: What type of experiment was the Stanford Prison Experiment?}
+\pRow{b) I googled: What was the objective of the Stanford Prison Experiment?}
+\pRow{}
+\pRow{(3) Context: The Havel-Hakimi algorithm is an algorithm for converting the adjacency matrix of a graph into its adjacency list.}
+\pRow{You said: It is named after Vaclav Havel and Samih Hakimi.}
+\pRow{To verify what you just said,}
+\pRow{a) I googled: Who are Havel-Hakimi algorithm named after?}
+\pRow{}
+\pRow{(4) Context: "Time of My Life" is a song by American singer-songwriter Bill Medley from the soundtrack of the 1987 film Dirty Dancing.}
+\pRow{You said: The song was produced by Michael Lloyd in the same year.}
+\pRow{To verify what you just said,}
+\pRow{a) I googled: Who produced the song "Time of My Life"?}
+\pRow{b) I googled: When was the song "Time of My Life" by Bill Medley produced?}
+\pRow{}
+\pRow{(5) Context: The Late Show with Stephen Colbert is an American late-night talk show hosted by Stephen Colbert, which premiered on September 8, 2015.}
+\pRow{You said: Produced by Spartina Productions and CBS Television Studios, it is the second iteration of CBS' Late Show franchise.}
+\pRow{To verify what you just said,}
+\pRow{a) I googled: Who produces "The Late Show with Stephen Colbert"?}
+\pRow{b) I googled: What are the iterations of CBS' Late Show franchise?}
+\pRow{}
+\pRow{(6) Context: Super Mario Sunshine was released on GameCube in 2002. In the game, Mario uses a tool strapped to his back called FLUDD, which stands for The Flash Liquidizer Ultra Dousing Device.}
+\pRow{You said: It can be used to spray water at objects or enemies. This allows Mario to change his movements, kill enemies, or clean up hazards on the floor.}
+\pRow{To verify what you just said,}
+\pRow{a) I googled: What is the main function of FLUDD in Super Mario Sunshine?}
+\pRow{b) I googled: What can FLUDD in Super Mario Sunshine be used on?}
+\pRow{c) I googled: In Super Mario Sunshine, can Mario change movement with FLUDD?}
+\pRow{d) I googled: In Super Mario Sunshine, can Mario kill enemies with FLUDD?}
+\pRow{e) I googled: In Super Mario Sunshine, can Mario clean up hazards on the floor with FLUDD?}
+\pRow{}
+\pRow{(7) Context: \pVar{context}}
+\pRow{You said: \pVar{text}}
+\pRow{To verify what you just said,}
+\pRow{\pBlank}
+&\\\hline\end{tabular}
+\caption{Contextual version of the query generation prompt. The prompt works well for dialog contexts from QReCC even though the few-shot examples are not formatted as such.}
+\label{fig:prompt_cqgen_contextual}
+\end{center}
+\end{figure*}
+
+\begin{figure*}[p]
+\begin{center}\scriptsize
+\begin{tabular}{|rp{\pWidth}|}\hline\pStart&\\
+\pRow{[web] I will check some things you said.}
+\pRow{}
+\pRow{(1) Context: Your nose switches back and forth between nostrils. It's called the nasal cycle. This is to prevent a buildup of mucus.}
+\pRow{You said: When you sleep, you switch about every 45 minutes.}
+\pRow{I checked: How often do your nostrils switch?}
+\pRow{I found this article: Although we don't usually notice it, during the nasal cycle one nostril becomes congested and thus contributes less to airflow, while the other becomes decongested. On average, the congestion pattern switches about every 2 hours, according to a small 2016 study published in the journal PLOS One.}
+\pRow{Your nose's switching time is about every 2 hours, not 45 minutes.}
+\pRow{This disagrees with what you said.}
+\pRow{}
+\pRow{(2) Context: The Little House books is a series of American children's novels.}
+\pRow{You said: The books were published by HarperCollins.}
+\pRow{I checked: Who published the Little House books?}
+\pRow{I found this article: These are the books that started it all -- the stories that captured the hearts and imaginations of children and young adults worldwide. Written by Laura Ingalls Wilder and published by HarperCollins, these beloved books remain a favorite to this day.}
+\pRow{The Little House books were published by HarperCollins.}
+\pRow{This agrees with what you said.}
+\pRow{}
+\pRow{(3) Context: The Stanford Prison Experiment is a psychological study to observe the behaviors of conflict and violence that happen between inmates and prisoners in real prisons.}
+\pRow{You said: It was conducted in the basement of Jordan Hall, Stanford's psychology building.}
+\pRow{I checked: Where was Stanford Prison Experiment conducted?}
+\pRow{I found this article: Carried out August 15-21, 1971 in the basement of Jordan Hall, the Stanford Prison Experiment set out to examine the psychological effects of authority and powerlessness in a prison environment.}
+\pRow{The Stanford Prison Experiment was conducted in Jordan Hall.}
+\pRow{This agrees with what you said.}
+\pRow{}
+\pRow{(4) Context: Social work is a profession that is based in the philosophical tradition of humanism.}
+\pRow{You said: It is an intellectual discipline that has its roots in the 1800s.}
+\pRow{I checked: When did social work have its roots?}
+\pRow{I found this article: The Emergence and Growth of the Social work Profession<br><br> Social work's roots were planted in the 1880s, when charity organization societies (COS) were created to organize municipal voluntary relief associations and settlement houses were established.}
+\pRow{Social work has its roots in the 1880s, not 1800s.}
+\pRow{This disagrees with what you said.}
+\pRow{}
+\pRow{(5) Context: The Havel-Hakimi algorithm is named after Vaclav Havel and Samih Hakimi.}
+\pRow{You said: It is an algorithm for converting the adjacency matrix of a graph into its adjacency list.}
+\pRow{I checked: What is the Havel-Hakimi algorithm?}
+\pRow{I found this article: The Havel-Hakimi algorithm constructs a special solution if a simple graph for the given degree sequence exists, or proves that one cannot find a positive answer. This construction is based on a recursive algorithm. The algorithm was published by Havel (1955), and later by Hakimi (1962).}
+\pRow{Havel-Hakimi algorithm is for constructing a special solution if a simple graph for the given degree sequence exists, or proving that one cannot find a positive answer, not converting the adjacency matrix of a graph into its adjacency list.}
+\pRow{This disagrees with what you said.}
+\pRow{}
+\pRow{(6) Context: "Time of My Life" is a song by American singer-songwriter Bill Medley from the soundtrack of the 1987 film Dirty Dancing. }
+\pRow{You said: The song was produced by Michael Lloyd in the same year.}
+\pRow{I checked: Who was the producer of "(I've Had) The Time of My Life"?}
+\pRow{I found this article: On September 8, 2010, the original demo of this song, along with a remix by producer Michael Lloyd, was released as digital files in an effort to raise money for the Patrick Swayze Pancreas Cancer Resarch Foundation at Stanford University.}
+\pRow{The song "Time of My Life" was produced by Michael Lloyd.}
+\pRow{This agrees with what you said.}
+\pRow{}
+\pRow{(7) Context: Super Mario Sunshine was released on GameCube in 2002. In the game, Mario uses a tool strapped to his back called FLUDD.}
+\pRow{You said: FLUDD stands for Functional Language in a Unified Design Discipline. It can be used to spray water at objects or enemies. This allows Mario to change his movements, kill enemies, or clean up hazards on the floor.}
+\pRow{I checked: What does FLUDD stands for in Super Mario Sunshine?}
+\pRow{I found this article: The Flash Liquidizer Ultra Dousing Device, abbreviated and better known as FLUDD or F.L.U.D.D., is a multipurpose water pack from Super Mario Sunshine invented by Professor Elvin Gadd, indicated by the Gadd Science, Incorporated logo at the base of its nozzle exclusively during the cutscene at Pinna Park.}
+\pRow{In Super Mario Sunshine, FLUDD stands for the Flash Liquidizer Ultra Dousing Device, not Functional Language in a Unified Design Discipline.}
+\pRow{This disagrees with what you said.}
+\pRow{}
+\pRow{(8) Context: \pVar{context}}
+\pRow{You said: \pVar{text}}
+\pRow{I checked: \pVar{query}}
+\pRow{I found this article: \pVar{evidence}}
+\pRow{\pBlank}
+&\\\hline\end{tabular}
+\caption{Contextual version of the agreement model prompt.}
+\label{fig:prompt_agreement_contextual}
+\end{center}
+\end{figure*}
+
+\begin{figure*}[p]
+\begin{center}\scriptsize
+\begin{tabular}{|rp{\pWidth}|}\hline\pStart&\\
+\pRow{[web] I will fix some things you said.}
+\pRow{}
+\pRow{(1) Context: Your nose switches back and forth between nostrils. It's called the nasal cycle. This is to prevent a buildup of mucus.}
+\pRow{You said: When you sleep, you switch about every 45 minutes.}
+\pRow{I checked: How often do your nostrils switch?}
+\pRow{I found this article: Although we don't usually notice it, during the nasal cycle one nostril becomes congested and thus contributes less to airflow, while the other becomes decongested. On average, the congestion pattern switches about every 2 hours, according to a small 2016 study published in the journal PLOS One.}
+\pRow{This suggests 45 minutes switch time in your statement is wrong.}
+\pRow{My fix: When you sleep, you switch about every 2 hours.}
+\pRow{}
+\pRow{(2) Context: The Little House books is a series of American children's novels.}
+\pRow{You said: The books were published by Amberjack Publishing.}
+\pRow{I checked: Who published the Little House books?}
+\pRow{I found this article: These are the books that started it all -- the stories that captured the hearts and imaginations of children and young adults worldwide. Written by Laura Ingalls Wilder and published by HarperCollins, these beloved books remain a favorite to this day.}
+\pRow{This suggests Amberjack Publishing in your statement is wrong.}
+\pRow{My fix: The books were published by HarperCollins.}
+\pRow{}
+\pRow{(3) Context: The Stanford Prison Experiment is a psychological study to observe the behaviors of conflict and violence that happen between inmates and prisoners in real prisons.}
+\pRow{You said: It was conducted in the basement of Encina Hall, Stanford's psychology building.}
+\pRow{I checked: where was Stanford Prison Experiment conducted.}
+\pRow{I found this article: Carried out August 15-21, 1971 in the basement of Jordan Hall, the Stanford Prison Experiment set out to examine the psychological effects of authority and powerlessness in a prison environment.}
+\pRow{This suggests Encina Hall in your statement is wrong.}
+\pRow{My fix: It was conducted in the basement of Jordan Hall, Stanford's psychology building.}
+\pRow{}
+\pRow{(4) Context: The Havel-Hakimi algorithm is named after Vaclav Havel and Samih Hakimi.}
+\pRow{You said: It is an algorithm for converting the adjacency matrix of a graph into its adjacency list.}
+\pRow{I checked: What is the Havel-Hakimi algorithm?}
+\pRow{I found this article: The Havel-Hakimi algorithm constructs a special solution if a simple graph for the given degree sequence exists, or proves that one cannot find a positive answer. This construction is based on a recursive algorithm. The algorithm was published by Havel (1955), and later by Hakimi (1962).}
+\pRow{This suggests the Havel-Hakimi algorithm's functionality in your statement is wrong.}
+\pRow{My fix: It constructs a special solution if a simple graph for the given degree sequence exists, or proves that one cannot find a positive answer.}
+\pRow{}
+\pRow{(5) Context: "Time of My Life" is a song by American singer-songwriter Bill Medley from the soundtrack of the 1987 film Dirty Dancing.}
+\pRow{You said: The song was produced by Phil Ramone in the same year.}
+\pRow{I checked: Who was the producer of "(I've Had) The Time of My Life"?}
+\pRow{I found this article: On September 8, 2010, the original demo of this song, along with a remix by producer Michael Lloyd, was released as digital files in an effort to raise money for the Patrick Swayze Pancreas Cancer Resarch Foundation at Stanford University.}
+\pRow{This suggests "Time of My Life" producer name in your statement is wrong.}
+\pRow{My fix: The song was produced by Michael Lloyd in the same year.}
+\pRow{}
+\pRow{(6) Context: Phoenix Market City Pune is located on 21 acres of prime property in Pune. The mall is owned and operated by Phoenix Mills Limited.}
+\pRow{You said: It is spread across four levels with approximately 1.4 million square feet of built-up space.}
+\pRow{I checked: What is the area of Phoenix Market City in Pune?}
+\pRow{I found this article: Phoenix Market City was opened in January 2013 and has the distinction of being the largest mall in the city of Pune, with the area of 3.4 million square feet. It is located in the Viman Nagar area of Pune.}
+\pRow{This suggests the 1.4 million square feet of built-up space in your statment is wrong.}
+\pRow{My fix: It is spread across four levels with approximately 3.4 million square feet of built-up space.}
+\pRow{}
+\pRow{(7) Context: \pVar{context}}
+\pRow{You said: \pVar{text}}
+\pRow{I checked: \pVar{query}}
+\pRow{I found this article: \pVar{evidence}}
+\pRow{This suggests \pBlank}
+&\\\hline\end{tabular}
+\caption{Contextual version of the revision model prompt.}
+\label{fig:prompt_revision_contextual}
+\end{center}
+\end{figure*}
+
+\begin{figure*}[p]
+\begin{center}\scriptsize
+\begin{tabular}{|rp{\pWidth}|}\hline\pStart&\\
+\pRow{[web] I will think step by step and answer your question.}
+\pRow{}
+\pRow{Question: is growing seedless cucumber good for a gardener with entomophobia}
+\pRow{Explanation: Entomophobia is a fear of insects. Plants need insects to pollinate them. Seedless fruits such as seedless cucumbers do not require pollination, so seedless fruits do not require insects. This makes good for people with entomophobia. }
+\pRow{Answer: Yes}
+\pRow{}
+\pRow{Question: Who was british pm and viceroy during quit india movement?}
+\pRow{Explanation: The Quit India Movement was launched in 8th August 1942. The british PM at that time was Winston Churchill. The british viceroy during the movement is Victor Hope, usually referred to as Lord Linlithgow. }
+\pRow{Answer: Winston Churchil and Lord Linlithgow}
+\pRow{}
+\pRow{Question: Which year does game over man come out on netflix?}
+\pRow{Explanation: Game Over, Man! is an action-comedy movie released in March 23, 2018, on Netflix. It's director is Kyle Newacheck. The movie stars Anders Holm, Adam DeVine, and Blake Anderson. }
+\pRow{Answer: March 23, 2018}
+\pRow{}
+\pRow{Question: would it be very difficult for Nuno Gomes to dive to the Red Sea's deepest point?}
+\pRow{Explanation: Nuno Gomes' deepest dive in the Red Sea to date is 317 metres. The Red Sea has a maximum depth of over 3,000 metres. So it would be difficult for Nuno Gomes to the deepest point of the Red sea.}
+\pRow{Answer: Yes}
+\pRow{}
+\pRow{Question: Are chinchillas cold-blooded?}
+\pRow{Explanation: Chinchillas are rodents, which are mammals. All mammals are warm-blooded.}
+\pRow{Answer: No}
+\pRow{}
+\pRow{Question: what are the chemo drugs for gastric cancer?}
+\pRow{Explanation: Chemotherapy can be given for gastric cancer before or after surgery. Usually you have a combination of 2 or 3 drugs. The most common types are: epirubicin, cisplatin and capecitabine (ECX) ; epirubicin, cisplatin and fluorouracil (ECF); or fluorouracil, folinic acid, oxaliplatin and docetaxel (FLOT).}
+\pRow{Answer: epirubicin, cisplatin and capecitabine (ECX) ; epirubicin, cisplatin and fluorouracil (ECF); or fluorouracil, folinic acid, oxaliplatin and docetaxel (FLOT)}
+\pRow{}
+\pRow{Question: How many sacks does Clay Matthews have in his career?}
+\pRow{Explanation: Clay Matthews III had 383 solo tackles, 136 assists, and 91.5 sacks. His father, Clay Matthews Jr., also palyed in NFL and had 69.5 sacks in his career. }
+\pRow{Answer: 91.5 (Clay Matthews III) and 69.5 (Clay Matthews Jr.)}
+\pRow{}
+\pRow{Question: In the U.S., the most deaths are caused by}
+\pRow{Explanation: The leading cause of death in the U.S. is heart disease, causing nearly 700,000 deaths annually. The second most common cause of deaths is cancer.}
+\pRow{Answer: heart disease}
+\pRow{}
+\pRow{Question: the rank of indian economy in terms of nominal gdp is}
+\pRow{Explanation: India's GDP is economy is \$2.94 trillion. It is the fifth-largest in the world. The top GDP contries are United States, China, Japan, Germany and India. }
+\pRow{Answer: 5}
+\pRow{}
+\pRow{Question: \pVar{question}}
+\pRow{Explanation: \pBlank}
+&\\\hline\end{tabular}
+\caption{The PaLM prompt for generating long-form answers to questions from NQ and SQA.}
+\label{fig:prompt_passage_palm}
+\end{center}
+\end{figure*}
+
+\begin{figure*}[p]
+\begin{center}\scriptsize
+\begin{tabular}{|rp{\pWidth}|}\hline\pStart&\\
+\pRow{I will think step by step and answer your question.}
+\pRow{}
+\pRow{1. Question: Is growing seedless cucumber good for a gardener with entomophobia?}
+\pRow{2. Explanation: Entomophobia is a fear of insects. Plants need insects to pollinate them. Seedless fruits such as seedless cucumbers do not require pollination so seedless fruits do not require insects. This is good for people with entomophobia.}
+\pRow{3. Answer: Yes.}
+\pRow{}
+\pRow{1. Question: Who was British PM and Biceroy during Quit India Movement?}
+\pRow{2. Explanation: The Quit India Movement was launched in 8th August 1942. The British PM at that time was Winston Churchill. The British Biceroy during the movement was Victor Hope, usually referred to as Lord Linlithgow.}
+\pRow{3. Answer: Winston Churchil and Lord Linlithgow.}
+\pRow{}
+\pRow{1. Question: Which year does Game Over Man come out on Netflix?}
+\pRow{2. Explanation: Game Over, Man! is an action-comedy movie. Its director is Kyle Newacheck. The movie stars Anders Holm, Adam DeVine, and Blake Anderson. The movie was released March 23, 2018 on Netflix.}
+\pRow{3. Answer: March 23, 2018.}
+\pRow{}
+\pRow{1. Question: Would it be very difficult for Nuno Gomes to dive to the Red Sea's deepest point?}
+\pRow{2. Explanation: Nuno Gomes' deepest dive in the Red Sea to date is 317 meters. The Red Sea has a maximum depth of over 3,000 meters. So it would be difficult for Nuno Gomes to dive to the deepest point of the Red Sea.}
+\pRow{3. Answer: Yes.}
+\pRow{}
+\pRow{1. Question: Are chinchillas cold-blooded?}
+\pRow{2. Explanation: Chinchillas are rodents. Rodents are mammals. All mammals are warm-blooded.}
+\pRow{3. Answer: No.}
+\pRow{}
+\pRow{1. Question: What are the chemo drugs for gastric cancer?}
+\pRow{2. Explanation: Chemotherapy can be given for gastric cancer before or after surgery. Usually you have a combination of 2 or 3 drugs. The most common types are: epirubicin, cisplatin and capecitabine (ECX) ; epirubicin, cisplatin and fluorouracil (ECF); or fluorouracil, folinic acid, oxaliplatin and docetaxel (FLOT).}
+\pRow{3. Answer: Epirubicin, cisplatin and capecitabine (ECX) ; epirubicin, cisplatin and fluorouracil (ECF); or fluorouracil, folinic acid, oxaliplatin and docetaxel (FLOT).}
+\pRow{}
+\pRow{1. Question: How many sacks does Clay Matthews have in his career?}
+\pRow{2. Explanation: Clay Matthews has been pro linebacker for 11 seasons. Ten of the seasons he played for Green Bay Packers, while his last season was with Los Angeles Rams, dedicated to his hometown. Clay Matthews III had 383 solo tackles, 136 assists, and 91.5 sacks. His father, Clay Matthews Jr., also played in NFL and had 69.5 sacks in his career.}
+\pRow{3. Answer: 91.5 (Clay Matthews III) and 69.5 (Clay Matthews Jr.).}
+\pRow{}
+\pRow{1. Question: In the U.S., the most deaths are caused by?}
+\pRow{2. Explanation: According to the Centers for Disease Control and Prevention, there were 3 million deaths in 2018. The leading cause of death in the U.S. is heart disease, causing nearly 700,000 deaths annually. The second most common cause of deaths is cancer.}
+\pRow{3. Answer: Heart disease.}
+\pRow{}
+\pRow{1. Question: The rank of Indian economy in terms of nominal GDP is?}
+\pRow{2. Explanation: The top GDP contries are United States, China, Japan, Germany, and India. India's GDP is economy is \$2.94 trillion. It is the fifth-largest economy in the world.}
+\pRow{3. Answer: 5.}
+\pRow{}
+\pRow{1. Question: Who won season 16 on Dancing with the Stars?}
+\pRow{2. Explanation: Dancing with the Stars is an American dance competition television series that premiered on June 1, 2005, on ABC. The 16th season premiered on March 18, 2013. It was won by Kellie Pickler.}
+\pRow{3. Answer: Kellie Pickler.}
+\pRow{}
+\pRow{1. Question: \pVar{question}}
+\pRow{2. Explanation: \pBlank}
+&\\\hline\end{tabular}
+\caption{The GPT-3 prompt for generating long-form answers to questions from NQ and SQA.}
+\label{fig:prompt_passage_gpt3}
+\end{center}
+\end{figure*}
+
+\begin{figure*}[p]
+\begin{center}\scriptsize
+\begin{tabular}{|rp{\pWidth}|}\hline\pStart&\\
+\pRow{Hi, I will think step by step and answer your question.}
+\pRow{Is growing seedless cucumber good for a gardener with entomophobia?}
+\pRow{Yes. Entomophobia is a fear of insects. Plants need insects to pollinate them. Seedless cucumber fruit does not require pollination. So seedless cucumber does not require insects.}
+\pRow{Here is another question. Which year does game over man come out on netflix?}
+\pRow{Game Over, Man! is an American action-comedy movie. It was released on March 23, 2018, on Netflix. It is directed by Kyle Newacheck, written by Anders Holm, and starring himself, Adam DeVine, and Blake Anderson.}
+\pRow{Here is another question. What are the chemo drugs for gastric cancer?}
+\pRow{Chemotherapy can be given for gastric cancer before or after surgery. Usually you have a combination of 2 or 3 drugs. The most common types are: epirubicin, cisplatin and capecitabine (ECX) ; epirubicin, cisplatin and fluorouracil (ECF); or fluorouracil, folinic acid, oxaliplatin and docetaxel (FLOT).}
+\pRow{Here is another question. Was N.W.A a album?}
+\pRow{N.W.A was an American hip hop group from Compton, California.}
+\pRow{Were they successful?}
+\pRow{They has sold over 10 million units in the United States alone.}
+\pRow{How many singles did it have?}
+\pRow{The group NWA released 8 singles.}
+\pRow{Here is another question. \pVar{$Q_1$}}
+\pRow{\pVar{$A_1$}}
+\pRow{...}
+\pRow{\pVar{$Q_k$}}
+\pRow{\pBlank}
+&\\\hline\end{tabular}
+\caption{The LaMDA prompt for generating answers to questions from QReCC. Each line is a conversation turn. The dialog context from QReCC contains rounds of questions and answers ($Q_1, A_1, Q_2, A_2, \dots, Q_k$).}
+\label{fig:prompt_passage_lamda}
+\end{center}
+\end{figure*}
+
+\begin{figure*}[p]
+\begin{center}\scriptsize
+\begin{tabular}{|rp{\pWidth}|}\hline\pStart&\\
+\pRow{I will think step by step and answer your question.}
+\pRow{}
+\pRow{Is growing seedless cucumber good for a gardener with entomophobia?}
+\pRow{Yes. Entomophobia is a fear of insects. Plants need insects to pollinate them. Seedless cucumber fruit does not require pollination. So seedless cucumber does not require insects.}
+\pRow{}
+\pRow{Which year does game over man come out on netflix?}
+\pRow{Game Over, Man! is an American action-comedy movie. It was released on March 23, 2018, on Netflix. It is directed by Kyle Newacheck, written by Anders Holm, and starring himself, Adam DeVine, and Blake Anderson.}
+\pRow{}
+\pRow{What are the chemo drugs for gastric cancer?}
+\pRow{Chemotherapy can be given for gastric cancer before or after surgery. Usually you have a combination of 2 or 3 drugs. The most common types are: epirubicin, cisplatin and capecitabine (ECX) ; epirubicin, cisplatin and fluorouracil (ECF); or fluorouracil, folinic acid, oxaliplatin and docetaxel (FLOT).}
+\pRow{}
+\pRow{Was N.W.A an album?}
+\pRow{N.W.A was an American hip hop group from Compton, California.}
+\pRow{Were they successful?}
+\pRow{They has sold over 10 million units in the United States alone.}
+\pRow{How many singles did they have?}
+\pRow{N.W.A had eight singles, including "Straight Outta Compton", "Express Yourself", "Gangsta Gangsta", "Dopeman" and "Alwayz Into Somethin'".}
+\pRow{}
+\pRow{\pVar{$Q_1$}}
+\pRow{\pVar{$A_1$}}
+\pRow{...}
+\pRow{\pVar{$Q_k$}}
+\pRow{\pBlank}
+&\\\hline\end{tabular}
+\caption{The GPT-3 prompt for generating answers to questions from QReCC.}
+\label{fig:prompt_passage_gpt3_conv}
+\end{center}
+\end{figure*}
+
+} %

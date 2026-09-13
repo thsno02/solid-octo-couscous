@@ -1,0 +1,40 @@
+\begin{prompt}
+class KnowledgeBaseSummmary(dspy.Signature):
+    """Your job is to give brief summary of what's been discussed in a roundtable conversation. Contents are themantically organized into hierarchical sections.
+    You will be presented with these sections where "#" denotes level of section.
+    """
+    topic = dspy.InputField(prefix="topic: ", format=str)
+    structure = dspy.InputField(prefix="Tree structure: \n", format=str)
+    output = dspy.OutputField(prefix="Now give brief summary:\n", format=str)
+
+class GroundedQuestionGeneration(dspy.Signature):
+    """Your job is to find next discussion focus in a roundtable conversation. You will be given previous conversation summary and some information that might assist you discover new discussion focus.
+       Note that the new discussion focus should bring new angle and perspective to the discussion and avoid repetition. The new discussion focus should be grounded on the available information and push the boundaries of the current discussion for broader exploration.
+       The new discussion focus should have natural flow from last utterance in the conversation.
+       Use [1][2] in line to ground your question. 
+    """
+    topic = dspy.InputField(prefix="topic: ", format=str)
+    summary = dspy.InputField(prefix="Discussion history: \n", format=str)
+    information = dspy.InputField(prefix="Available information: \n", format=str)
+    last_utterance = dspy.InputField(prefix="Last utterance in the conversation: \n", format=str)
+    output = dspy.OutputField(prefix="Now give next discussion focus in the format of one sentence question:\n", format=str)
+
+class GenerateExpertWithFocus(dspy.Signature):
+    """
+    You need to select a group of speakers who will be suitable to have roundtable discussion on the [topic] of specific [focus].
+    You may consider inviting speakers having opposite stands on the topic; speakers representing different interest parties; Ensure that the selected speakers are directly connected to the specific context and scenario provided.
+    For example, if the discussion focus is about a recent event at a specific university, consider inviting students, faculty members, journalists covering the event, university officials, and local community members.
+    Use the background information provided about the topic for inspiration. For each speaker, add a description of their interests and what they will focus on during the discussion.
+    No need to include speakers name in the output.
+    Strictly follow format below:
+    1. [speaker 1 role]: [speaker 1 short description]
+    2. [speaker 2 role]: [speaker 2 short description]
+    """
+
+    topic = dspy.InputField(prefix='Topic of interest:', format=str)
+    background_info = dspy.InputField(prefix='Background information:\n', format=str)
+    focus = dspy.InputField(prefix="Discussion focus: ", format=str)
+    topN = dspy.InputField(prefix="Number of speakers needed: ", format=str)
+    experts = dspy.OutputField(format=str)
+    
+\end{prompt}

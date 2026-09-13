@@ -1,0 +1,91 @@
+
+
+%%%%%%%%%%%%%%%##%%
+%%%%% Intro 2 %%%%%
+%%%%%%%%%%%%%##%%%%
+
+
+Large neural networks, notably language models, are typically deployed as static artifacts, whose behavior is difficult to modify during deployment without re-training \citep{lazaridou2021mind}. While prepending either manually-written or automatically-retrieved prompts to the input can sometimes be effective for modulating behavior \citep{brown2020language}, model predictions often do not update to reflect the content of the prompts \citep{lewis2020retrieval}. However, in order to respond to changes in the world 
+%%CF.1.22: to respond to changes in the world
+(e.g., new heads of state or evolving public sentiment on a particular topic) or correcting for instances of underfitting or overfitting of original training data,
+%%CF.1.22: in the original training data?
+the ability to quickly make targeted updates to model behavior after deployment is desirable. To address this need, \textit{model editing} is an emerging area of research that aims to enable fast, data-efficient updates to a pre-trained \textit{base model}'s behavior for only a small region of the domain, without damaging model performance on other inputs of interest \citep{Sinitsin2020Editable,zhu2020modifying,sotoudeh2019correcting,Cao2021EditingFK,dai2021knowledge,mitchell2021fast,hase2021language,anon2021moving}.
+
+A popular approach to model editing involves learnable model editors, which are trained to predict updates to the weights of the base model that ultimately produce the desired change in behavior \citep{Sinitsin2020Editable,Cao2021EditingFK,mitchell2021fast,hase2021language}. While these approaches have shown promise, in line with recent work \citep{hase2021language}, we find that existing methods produce model updates that fail to discriminate between entailed and non-entailed facts
+%%CF.1.22: in scope and out of scope?
+%%EM: Thinking about leaving this as-is because we haven't introduced that terminology yet
+and cannot handle large numbers of edits. Further, existing editors coupling 
+%%CF.1.22: couple or "existing editors are trained for a particular base model"
+the model editor and base model, and thus the model editor must be re-trained for each new base model to be edited. This coupling also leads to computational costs of model editor training that scale with the size of the base model, which can prove unwieldy for even for models an order of magnitude smaller than the largest deployed language models \citep{mitchell2021fast}. In aggregate, existing model editors still have shortcomings regarding edit performance, compute efficiency, and ultimately practicality. We hypothesize that these shortcomings are related to the reliance of existing methods on the \textit{gradient} of the edit example label with respect to the pre-edit model parameters. Leveraging the observation in \citet{csordas2021are} that for two related inputs to a neural network, the two corresponding subsets of the model's parameters responsible for its predictions may be nearly disjoint sub-networks.
+%%CF.1.22: The above is not a complete sentence. (i.e. "leveraging the observation that the two corresponding subsets" is not a sentence)
+The gradient for one example (e.g., the edit example) may therefore contain almost no information about how to update parameters that are needed to make predictions for distant, but related examples.
+%%CF.1.22: I would shorten this above part to a single sentence rather than three. The intro is already quite long (especially considering that you will be adding stuff to the end of the last paragraph), and this info seems like it is helpful for motivation, but not critical especially given how long-winded it is.
+
+\input{figures/tex/fig1}
+
+Building on the hypothesis that gradients are an impoverished signal for model editing, we propose a gradient-free \textit{memory-based} approach to model editing. This approach `wraps' a black-box base model with an explicit cache of applied edit examples
+%%CF.1.22: an explicit cache of used-provided edit examples
+(arbitrary utterances)
+%%CF.1.22: I don't think this adds anything
+and a small auxiliary \textit{classifier} and \textit{counterfactual model}. Rather than making model edits in parameter space, this editor simply stores edit examples in the cache without modifying the base model. When a post-edit test input is received, the classifier determines if any edit in the cache is relevant. If an edit is classified as relevant, the counterfactual model uses the test input and edit example together to predict the test input label under the counterfactual world described by the edit. If no edit examples are deemed relevant to the test input, the base model simply predicts the test input label. See Figure~\ref{fig:method-overview} for an example of both cases. Intuitively, this approach delegates the sub-problems of \textit{when} the model's predictions should change to the classifier and \textit{how} they should change to the counterfactual model. While existing methods attempt to solve both of these problems implicitly in base model parameter space by transforming the raw edit example gradient, the memory-based approach solves each with its own small but expressive neural network, reducing interference between these two sub-problems. Further, the classifier reduces interference between edits by predicting relevance scores for each pair of (test input, edit cache example) separately. Finally, access to the base model is not longer necessary with this decoupling\footnote{We only need its tokenization.}, enabling the trained editor to be applied to multiple models without modification and decoupling the cost of editor training from base model size.
+
+Our primary contribution is a framework for memory-based editing that shows far better performance and computational efficiency than existing methods. We also introduce three new editing problems, based on the tasks of question-answering, fact-checking, and dialogue generation, which are far more challenging than existing editing benchmarks. Our experiments indicate that the memory-based editor consistently outperforms past approaches to model editing and enables successful model editing in more realistic scenarios than existing methods.
+%%% Will add more specific numbers when we have them
+
+%%CF.1.22: Overall, this looks much better than the last version that I looked at!
+
+
+
+%%%%%%%%%%%%%%%##%%
+%%%%% Intro 1 %%%%%
+%%%%%%%%%%%%%##%%%%
+
+Large neural networks, notably language models, are typically deployed as static artifacts, whose behavior is difficult to modify during deployment without re-training \citep{lazaridou2021mind}.
+%%CF.1.17: what about prompting? that seems to be a bit of an elephant in the room here. though, maybe it's fine to not address here.
+However, the ability to quickly make targeted updates to model behavior after deployment is useful for a variety of purposes, including responding to changes in the state of the world (e.g., new heads of state or evolving public sentiment on a particular topic) or correcting for instances of underfitting or overfitting of original training data.
+%%CF.1.17: I would flip this around, and start by saying the issues with static models and then say that making targeted updates would be useful for addressing it.
+Model editing is an emerging area of research that aims to create \textit{model editors},
+%%CF.1.17: model editing aims to create model editors? The above is more long winded than it needs to be. The full sentence is also quite long.
+which enable fast, data-efficient\footnote{Often using only a single example}
+%%CF.1.17: Footnotes break up the flow a lot. I wouldn't recommend it in this case. Keep in mind that readability is as important if not more important than trying to include all of these details.
+updates to a pre-trained \textit{base model}'s behavior for only a small region of the domain, without damaging model performance on other inputs of interest \citep{Sinitsin2020Editable,zhu2020modifying,sotoudeh2019correcting,Cao2021EditingFK,dai2021knowledge,mitchell2021fast,hase2021language,anon2021moving}.
+
+% \textbf{[summarize issues with gradient-based editors]} 
+The most successful approaches to model editing generally use learnable model editors \citep{Sinitsin2020Editable,Cao2021EditingFK,mitchell2021fast,hase2021language},
+%%CF.1.17: Saying that they are the most successful seems like it may be unnecessarily controversial/subjective. Overall success can be measured in a number of ways, and some people may view the need to train model editors as a large flaw. It's also not necessary to make a statement about what is most successful. You can just say "Learned model editors approach the editing problem by learning to predict updates to the weights of the base model that ultimately produce the desired change in behavior~\cite{}." 
+which are trained to predict updates to the weights of the base model that ultimately produce the desired change in behavior. While these approaches have shown promise, in line with recent work \citep{hase2021language}, we find that their performance degrades significantly when evaluated on editing problems that are more aligned with real-world conditions. Specifically, existing methods fail to reliably produce model parameter updates that can discriminate between entailed and non-entailed facts, and parameter updates for different examples exhibit interference when many simultaneous or sequential edits are needed. 
+%%CF.1.17: You can phrase this more cleanly and concisely as: Specifically, existing methods produce updates that cannot reliably discriminate between entailed and non-entailed facts and cannot handle large numbers of edits.
+Further, learning to estimate parameter updates directly has the conceptual drawback of coupling the model editor and base model, which induces both a requirement to re-train the model editor for each new base model to be edited and computational costs of model editor training that scale with the size of the base model \citep{mitchell2021fast}.
+%%CF.1.17: the phrasing of the last part could be improved
+Ultimately, these factors lead to significant computational costs for training model editors for multiple large base models. 
+%%CF.1.17: I would make this last sentence a bit broader in scope, more towards the entire paragraph. e.g. "Ultimately, these factors lead to significant drawbacks in terms of performance, compute, and practicality."
+
+\input{figures/tex/fig1}
+
+% \textbf{[briefly describe semi-parametric editor]} 
+%%CF.1.17: Can you guide the reader towards the answer instead of just stating the answer? As written, this first sentence does not make it clear how the method addresses the issues raised before, making this first sentence a bit more confusing.
+As an alternative, we propose a \textit{memory-based} approach to model editing, which stores edits (input/output pairs) as they are received in an explicit cache, treats the base model as a black box, and ultimately decouples the model editor from the base model.
+%%CF.1.17: The above has too much info in one sentence.
+The editor learns a \textit{classifier} that predicts if a post-edit model input is relevant to any existing edit example; if an edit in the cache is deemed relevant, the cached edit and model input are both passed to a learned \textit{counterfactual model} that learns to make counterfactual predictions for a given model input, conditioned on the information in the edit. If no edit examples are deemed relevant to the new model input, the input is simply passed to the base model. We describe a training procedure for both the classifier and counterfactual model that do not require access to the base model at all, only its tokenization, enabling the trained editor to be applied to multiple models without modification and decoupling the cost of editor training from base model size. 
+%%CF.1.17: The above paragraph doesn't do anything to describe how or why the new approach addresses the three challenges. It only says that it does not require access to the base model, but doesn't explain how/why, and it doesn't say anything about the other two challenges. Explaining this intuition is super important, since intuition and new ideas/concepts are often more valuable than new methods themselves, since it's the intuition and ideas that drive the field forward. (unless you are expecting people to use the method as is and not the ideas in future work, which seems unlikely to me)
+%%CF.1.17: I would leave the below to the last paragraph when you talk about the experimental results, so that this paragraph can focus entirely on the method.
+To evaluate the generalization and scalability of the memory-based editor, we introduce three new editing problems, including question-answering, fact-checking, and dialogue generation. We find that these editing problems are far more challenging than existing benchmarks for editing.
+
+% \textbf{[summarize benefits/novelties]} 
+%%CF.1.17: I would recommend putting this in paragraph form, starting with stating the main contribution (e.g. a framework/method for memory-based editing), then discussing some of the secondary contributions like the description of the challenges and the new suite of challenging editing tasks, and then finally discussing the experimental results.
+%%CF.1.17: I think that the current list doesn't have enough detail on the experimental results, and it also puts these contributions on equal footing, which isn't quite accurate.
+Our primary contributions are:
+\begin{compactenum}
+    \item Three new challenging editing tasks, which evaluate models for sequence classification, transduction, and generation
+    \item The description of the problematic behaviors of \textit{over-generalization} and \textit{under-generalization} behavior in existing model editors
+    \item The memory-based model editor, which demonstrates better generalization behavior and far better computational efficiency than existing model editors
+    %%CF.1.17: how much better, and on what kinds of problems? This description is not very precise, and is also rather generic -- many papers could say that they get better generalization and efficiency than existing methods. What is more interesting is -- how much is the improvement, what are the points of comparison, what are the ablations, and what do these experiments tell us about the model editing problem?
+\end{compactenum}
+
+% \begin{compactenum}
+%     \item The computational cost of training {\name} is \textbf{constant} with respect to the size of the model to be edited.
+%     \item {\name} can be trained \textbf{once} and immediately deployed without modification to edit \textbf{many} models.\footnote{For language models, the counterfactual model and base model must share the same tokenization.}
+%     \item {\name} can make many \textbf{simultaneous} or \textbf{sequential} edits to a model with essentially no drop in performance.
+%     \item {\name} is expressive enough to learn to make \textbf{deep model edits} that generalize beyond simple paraphrases of the edit provided.
+%     \item {\name} can \textbf{distill} the semi-parametric edited model back into the original pre-edit model's parameters, avoiding a constantly-growing cache of model edits.
+% \end{compactenum}

@@ -1,0 +1,41 @@
+# Architecture evidence: emakhov/llm-wiki-agent
+
+- `README.md:1` — LLM Wiki Agent
+- `README.md:7` — How it works
+- `README.md:16` — Architecture
+- `README.md:33` — Prerequisites
+- `README.md:39` — Setup
+- `README.md:42` — 1. Start PostgreSQL + pgvector
+- `README.md:45` — 2. Install dependencies
+- `README.md:48` — 3. Configure environment
+- `README.md:50` — Set your API key:
+- `README.md:51` — ANTHROPIC_API_KEY=sk-ant-...
+- `README.md:52` — Or for OpenAI:
+- `README.md:53` — LLM_PROVIDER=openai
+- `README.md:54` — OPENAI_API_KEY=sk-...
+- `README.md:55` — Or for OpenRouter:
+- `README.md:56` — LLM_PROVIDER=openrouter
+- `README.md:57` — OPENROUTER_API_KEY=sk-or-...
+- `README.md:59` — 4. Start the agent
+- `README.md:67` — Usage
+- `README.md:69` — Ingest a source
+- `README.md:82` — Query the wiki
+- `README.md:90` — Lint the wiki
+- `README.md:98` — Configuration
+- `README.md:113` — Tips
+- `CLAUDE.md:1` — LLM Wiki Agent
+- `CLAUDE.md:3` — Project Overview
+- `CLAUDE.md:7` — Architecture
+- `CLAUDE.md:14` — Tech Stack
+- `CLAUDE.md:21` — Key Files
+- `CLAUDE.md:32` — Wiki Conventions
+- `CLAUDE.md:34` — Page Types
+- `CLAUDE.md:42` — Filenames
+- `CLAUDE.md:46` — Page Structure
+- `CLAUDE.md:48` — Page Title
+- `CLAUDE.md:52` — Sources
+- `CLAUDE.md:56` — Special Files
+- `CLAUDE.md:61` — Cross-References
+- `CLAUDE.md:66` — Commands
+- `CLAUDE.md:74` — Environment Variables
+- `CLAUDE.md:83` — Development Notes

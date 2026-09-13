@@ -1,0 +1,214 @@
+\vspace{-5pt}
+\section{Experiments}
+\vspace{-5pt}
+\subsection{Evaluation Protocols}
+\vspace{-5pt}
+As illustrated in Section \ref{sec:introduction}, we need to evaluate \ours in the following three aspects: (1) Integration of New Knowledge: this evaluation is conducted with the model editing tasks (Section~\ref{sub:model_editing}) and QA tasks (long context QA benchmarks, Section~\ref{sub:long_context_evaluation}); 
+(2) 
+\wy{Knowledge Retention Ability:}
+the model is evaluated with long context QA benchmarks (Section~\ref{sub:long_context_evaluation}) and our knowledge retention experiments (Section~\ref{sub:customized_experiments}); (3) Robustness: we make nearly a million updates to our memory pool and then test the functionality of our model (Section~\ref{sub:model_integrity_analysis}).
+
+\vspace{-5pt}
+\subsection{Implementation Details}
+\vspace{-5pt}
+We train our model on the processed version of the C4 dataset~\citep{c4} from Red-Pajama~\citep{together2023redpajama}. For the training processes in Section \ref{ssub:newest_information_incorporation}, we sample documents from the entire dataset, while the training process in Section \ref{ssub:enhancing_continuous_contexts_understanding} is based on a subset of C4 (we call this the long context subset) where all documents are of length greater than 2048. For the last part, Section \ref{ssub:mitigating_forgetting_problems}, the documents are sampled randomly from the original C4 dataset and the long context subset. The training is performed on 8 A100-80GB GPUs for three days.  
+
+\begin{table*}[ht]
+    \centering
+    \caption{\textbf{Quantitative Editing Results on Llama2-7B} for ZsRE and CounterFactual Datasets. ``w/EF" means ``with editing facts", indicating the model after updating the memory pool with the new fact.}
+    \label{tab:model_editing_results_llama-7b}
+    \resizebox{\linewidth}{!}{
+    \begin{tabular}{c|cccc|cccc}
+\toprule
+& \multicolumn{4}{c|}{\textbf{ZsRE Dataset}} & \multicolumn{4}{c}{\textbf{CounterFactual Dataset}} \\
+\cmidrule(lr){2-5} \cmidrule(lr){6-9}
+\textbf{Editor} & \textbf{Score} & \textbf{Efficacy} & \textbf{Generalization} & \textbf{Specificity} & \textbf{Score} & \textbf{Efficacy} & \textbf{Generalization} & \textbf{Specificity} \\
+\midrule
+Llama2-7B & 55.6 & 55.9 & 54.7 & 56.3 & 20.7 & 13.7 & 16.6 & 83.4\\
+MemoryLLM-7B & 51.2 & 50.0 & 49.1 & 54.8 & 22.6 & 15.7 & 17.6 & 82.1 \\
+\midrule
+FT & 50.3 & 78.6 & 80.6 & 29.0 & 10.0 & 99.7 & 96.9 & 3.6\\
+FT-L & 69.8 & 81.4 & 76.8 & 56.6 & 33.8 & 47.2 & 18.0 & 83.3 \\
+ROME & 69.3 & 88.7 & 70.2 & 56.3 & 69.2 & 82.6 & 75.2 & 55.8 \\
+IKE & - & - & - & - & 70.7 & 99.8 & 96.2 & 45.4 \\
+MemoryLLM-7B (w/ EF) & \textbf{79.2} & 99.8 & 96.7 & 57.1 & \textbf{75.3} & 98.5 & 82.2 & 57.0 \\
+\bottomrule
+\end{tabular}}
+\vspace{-10pt}
+\end{table*}
+
+\vspace{-5pt}
+\subsection{Model Editing}
+\label{sub:model_editing}
+
+\vspace{-5pt}
+\subsubsection{Experimental Setup}
+\vspace{-5pt}
+
+We follow the experimental setup in \cite{ROME}. The benchmarks are: 
+
+\textbf{zsRE}~\citep{zsre}: Zero-Shot Relation Extraction(zsRE) is first used in \citet{mend, KE} for model editing evaluations.  we use the first $10,000$ records in the dataset as the evaluation set, with each record containing one factual statement. 
+
+\textbf{CounterFactual}~\citep{ROME}: A set of more difficult false facts in which the LLMs would have low scores when prompted with these facts. Then after editing the model, the model is queried again with these facts. Each example includes the question, the original fact, and the false fact, where we aim to inject the false fact into the model. The first $2,000$ examples in this dataset are used for evaluation (following the evaluation of GPT-J in \cite{ROME}). 
+
+Evaluation metrics include \textbf{Efficiency} (the post-edit accuracy), \textbf{Generalization} (post-edit accuracy of the paraphrased version of the factual statement), and \textbf{Specificity} (the post-edit accuracy on unrelated facts). The harmonic mean of the three metrics is reported in column \textbf{ Score}. 
+
+We compare our model with the following baselines\footnote{We tried MEND~\citep{mend}, but the existing code is for GPT-style models. Our re-implementation of MEND on Llama2 based on the published code constantly encounters \texttt{nan}. In addition, MEND is inferior in the experiments in \cite{ROME}, thus we omit MEND in our experiments. }:
+\textbf{FT}, \textbf{FT-L}~\citep{ModifyingMemories}, \textbf{IKE}~\citep{ike}, \textbf{ROME}~\citep{ROME}. The details of the baselines are described in Appendix \ref{sub:baselines_for_model_editing}. 
+
+
+
+
+
+
+
+\vspace{-5pt}
+\subsubsection{Overall Performance Comparison}
+The experimental results on dataset ZsRE and CounterFactual are shown in
+Table \ref{tab:model_editing_results_llama-7b}. From the table, 
+We observe (1) 
+Our model outperforms all baseline models in both datasets, achieving the highest overall performance metrics. 
+(2) While Fine-Tuning (FT) 
+performs better in terms of Efficacy and Generalization, which means the model absorbs the knowledge, but it tends to lag in ``Specificity", meaning the model's knowledge of other facts is affected by the tuning.
+(3) With enforced constraints (FT-L), 
+the model performs better in terms of Specificity while compromising Efficacy and Generalization, representing that the knowledge is not absorbed by the model effectively.
+(4) ROME, striking a reasonable balance between efficacy and specificity, compared with \ours, may fall short in the overall performance measurement. 
+(5) IKE, conceptually similar to our approach by incorporating the information into the context, faces limitations in specificity, which could be ascribed to the complexity of the prompts used in the implementation, potentially disrupting the accuracy. 
+
+
+\vspace{-5pt}
+\subsection{Long Context Evaluation}
+\label{sub:long_context_evaluation}
+\vspace{-2pt}
+\subsubsection{Experimental Setup}
+In this section, we evaluate the long-context modeling capabilities of our model. Our assessment utilizes the LongBench benchmark \citep{longbench}, specifically designed to test performance in long-context scenarios. 
+Since our model has not undergone instruction fine-tuning, the baselines for comparison are also not instruction finetuned. The baselines include \textbf{Llama2-7B}: our backbone; \textbf{Longllama-3B-v1-1}\citep{fot}: The model employs contrastive learning to extend the effective context length of existing models. We adopt the 3B model here as only the 3B model is open-sourced, derived from Openllama-V2; \textbf{Openllama-V2}~\citep{openlm2023openllama}: An open-sourced reproduction of Llama. \textbf{Llama2-LongLora-7B-16k}~\citep{longlora}: A novel attention mechanism, Shift Short Attention, is proposed and used for longer context pertaining. This model, based on Llama2-7B, is extended to accommodate a 16k context length; 
+% with fewer resources. 
+% We adopt the published model based on Llama2-7B, extended to 16k context length. 
+\textbf{Llama2-LongLora-7B-100k}~\citep{longlora}. The same method but context length is extended to 100k. 
+For 7B models, we omit the results of maximum length being $16,384$ as we encounter the out-of-memory (OOM) error even when using eight A100-80GB GPUs. This shows another advantage of \ours, as our model needs one 48 GB GPU or two 40GB GPUs to run inference regardless of the input length.
+
+\vspace{-5pt}
+\subsubsection{Overall Performance Comparison}
+The results in Figure \ref{fig:experimental_results_on_longbench} reveal that: 
+(1) \ours outperforms baselines in four out of six datasets when provided with extended contexts. However, a notable exception is observed in the Qasper dataset, where \ours exhibits suboptimal performance. This could be attributed to the model's training predominantly on the C4 dataset, without incorporating the arxiv dataset. \wy{Thus, the training may affect the model’s ability on scientific datasets (such as Qasper).} 
+(2) As the context length grows, the performance of \ours continues to improve, demonstrating the knowledge retention ability of \ours, where the knowledge from multiple updates earlier could boost performance. 
+The performance of \ours, when the context length is less than 4k, is not the same as that of Llama2-7B, which can be attributed to the subset we used for training \ours, as we do not need to use the entire dataset for pertaining Llama2-7B for our model and a subset would inevitably have distribution shift from the original dataset. 
+
+
+
+\wy{
+\subsubsection{Comparison with RAG methods}
+In this section, we aim to explore the role of RAG methods in QA tasks which we argue is orthogonal to \ours. 
+The primary goal of MemoryLLM is to achieve self-updatable LLM where the memory module serves as the parameters that could keep updating along the inference process, whereas RAG methods aim to retrieve the most relevant piece of information from the history. Intuitively, RAG is used to conduct coarse retrieval from millions of documents, while MemoryLLM can process the retrieved documents. We use BM25 retriever to extract 4k tokens from the whole context and use MemoryLLM to process these 4k tokens to generate the answer. The results are shown in Table \ref{tab:rag}. Here MemoryLLM-7b-16k corresponds to the results in Figure \ref{fig:experimental_results_on_longbench}, and MemoryLLM-7b-all-BM25 means retrieving 4k tokens from the whole given context and using MemoryLLM to process the retrieved 4k tokens. The results show that using the BM25 retriever could enhance the model performance on certain datasets while not universally beneficial. 
+
+\begin{table}[t]
+    \centering
+    \caption{The performance comparison on long context QA benchmarks of our model with and without BM25 retriever.}
+    \label{tab:rag}
+    \resizebox{\linewidth}{!}{
+    \begin{tabular}{ccc}
+    \toprule
+     & \ours-16k & \ours-all-BM25 \\
+    \midrule
+    narrativeqa & \textbf{20.64} & 15.60 \\
+    qasper & 19.57&\textbf{20.30}\\
+    multifieldqa\_en & 29.56 & \textbf{33.08} \\
+    hotpotqa & \textbf{34.03}& 32.27 \\
+    2wikimqa & \textbf{27.22}& 24.17 \\
+    musique & 13.47 &	\textbf{15.36} \\
+    \bottomrule
+    \end{tabular}}
+    \vspace{-25pt}
+\end{table}
+}
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\linewidth]{figures/longbench.pdf}
+    \vspace{-15pt}
+    \caption{\textbf{Experimental Results on LongBench}. 
+    The x-axis is the maximum context length for the QA task. For instance, with a maximum length of $4096$, we truncate $4096$ tokens from the given context as input to the model. The y-axis is the F1 score. 
+    }
+    \vspace{-10pt}
+\label{fig:experimental_results_on_longbench}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\subfigure[SQuAD]{\label{fig:squad_acc}\includegraphics[width=0.490\linewidth]{figures/squad.pdf}}
+\hfill
+\subfigure[NaturalQA]{\label{fig:naturalqa_acc}\includegraphics[width=0.490\linewidth]{figures/naturalqa.pdf}}
+\caption{\textbf{Performance Comparison on SQuAD and NaturalQA.} The x-axis shows the number of updates we perform on the model, where the context that contains the knowledge to answer the question is injected in Step 1. The y-axis reveals the accuracy of the model's prediction after a certain number of updates. The accuracy is higher than the borderline indicating that the knowledge is not completely forgotten, while we wish the model to be more aligned with the exponential decay, i.e., the theoretical upper bound. }
+\label{fig:performance_comparison_on_nqa_and_squad}
+% \vspace{-10pt}
+\end{figure}
+
+
+\begin{figure}
+    \centering
+    \subfigure[SQuAD]{\includegraphics[width=0.49\linewidth]{figures/squad_inf.pdf}}
+    \subfigure[NaturalQA]{\includegraphics[width=0.49\linewidth]{figures/naturalqa_inf.pdf}}
+    \vspace{-5pt}
+    \caption{\textbf{Model Integrity Check} with SQuAD and NaturalQA. We plot accuracy along the updating process as well as the exponential moving average as the \textit{Smoothed} (99.99\%) value. \textbf{We do not observe any decrease over 650k updates.}
+    }
+    % \vspace{-15pt}
+    \label{fig:model_integrity_check}
+\end{figure}
+
+
+\begin{figure}[ht]
+\centering
+\subfigure[NaturalQA Acc Percentage]{\label{fig:ablation_naturalqa_acc_percentage}\includegraphics[width=0.490\linewidth]{figures/nqa_ablation_ratio.pdf}}
+\hfill
+\subfigure[SQuAD Acc Percentage]{\label{fig:ablation_squad_acc_percentage}\includegraphics[width=0.490\linewidth]{figures/squad_ablation_ratio.pdf}}
+\subfigure[NaturalQA Accuracy]{\label{fig:ablation_naturalqa_acc}\includegraphics[width=0.490\linewidth]{figures/nqa_ablation.pdf}}
+\hfill
+\subfigure[SQuAD Accuracy]{\label{fig:ablation_squad_acc}\includegraphics[width=0.490\linewidth]{figures/squad_ablation.pdf}}
+\caption{\textbf{Ablation Study} with our knowledge retention experiments on NaturalQA and SQuAD. All models are trained with the same setting, $30\times 256$ is our main model. 
+The relevant knowledge for answering the question is injected in step 1, and the x-axis means the number of updates (steps) performed.
+The top figures show the ratio of the accuracy at each step compared with the accuracy at step 1 for better visualization of knowledge retention.  }
+\label{fig:ablation_study_on_nqa_and_squad}
+% \vspace{-20pt}
+\end{figure}
+
+
+
+\vspace{-5pt}
+\subsection{Knowledge Retention Experiments}
+\label{sub:customized_experiments}
+
+\vspace{-2pt}
+\subsubsection{Experimental Setup}
+The datasets are prepared as below:\\
+\textbf{SQuAD}: Formatted as \texttt{(context, question, answer)}, where \texttt{context} and \texttt{question} are sentences, \texttt{answer} refers to the first answer in the list of ground-truth acceptable answers. Then we extract all the samples with \texttt{answer} shorter or equal to $3$ tokens. The model generates 10 new tokens from the prompt ``Question: \texttt{Question} Answer:". Correct predictions cover the 3-token answer within the 10 generated tokens. A total of $2,250$ samples are used for the accuracy calculation. \\
+\textbf{NaturalQA}: Formatted as \texttt{(context, question, answer)}, using the long answer as the context and the short answer as the ground truth. Samples with answers of 4 tokens or less are selected. Like SQuAD, the model generates 10 new tokens, and the correct predictions cover the 4-token answer. This yields 1,004 samples for analysis. 
+
+The results are shown in Figure \ref{fig:performance_comparison_on_nqa_and_squad}. We assess \ours's forgetting rate, comparing it against a baseline (accuracy without context injected into the memory) and a theoretical upper bound. 
+Denote the accuracy at step 1 as $a_u$, and the borderline accuracy as $a_b$. Then at step $t$, we calculate the point on the curve with the following equation: 
+\begin{equation}
+    a_t = (a_u - a_b) * \Big(\frac{N-K}{N}\Big)^{t-1}
+\end{equation}
+In our instantiation, $N=7,680$ and $K=256$. Our findings indicate that the model retains knowledge even after 20 updates. However, it falls short of the exponential decay curve representing the upper bound. This gap can be attributed to the fact that even if the knowledge is partially corrupted after 20 steps of updating, it might be hard for the model to reveal the exact answer. The performance exceeding the upper bound at step 2 on the dataset SQuAD might be due to (a) the variation of inference and (b) dropping a small part of the memory may not affect the model predicting the words, while the exponential curve would drop.
+
+
+\subsection{Model Integrity Analysis}
+\label{sub:model_integrity_analysis}
+To illustrate the integrity of our model, 
+We update our model with NaturalQA and SQuAD mentioned in Section \ref{sub:customized_experiments}. 
+Each time we go through the whole dataset, we shuffle the dataset and inject it into the memory again. In this way, we can simulate infinite updates. Then during the updating process, we track if our model could answer the question related to the most recent context, obtaining a long binary array that indicates whether our model successfully answers the question related to the most recently injected context. With this binary array, we calculate the average accuracy of the last $2,250$ samples for SQuAD and the last $1,004$ samples for NaturalQA. The results are shown in Figure \ref{fig:model_integrity_check}. We continue running for up to $650,000$ steps for $3$ days. As shown in the figure, there is no sign of decreasing in accuracy even after the $650,000$ steps, demonstrating the integrity of our model. From this observation, we argue that our model could be potentially updated for arbitrarily many times without affecting the functioning ability. 
+
+
+\vspace{-5pt}
+\subsection{Ablation Study}
+\wy{
+\subsubsection{Ablation Study of different $K$ and $N$}
+}
+In this section, we study the effects of different $K$ and $N$ in Eq.(\ref{eq:NK}) with our knowledge-retention experiments. 
+Our primary goal is to explore the forgetting ratio when the model has different memory sizes ($N$) and numbers of tokens to store the new knowledge ($K$). We vary $N$ to be $\{10 \times 256, 20 \times 256, 30 \times 256\}$, and $K$ to be $\{256, 512\}$. We also tried $K=128$, but to find that the accuracy is much worse than the other settings \wy{(the step 1 accuracy of NQA and SQuAD under the setting $K=128$ are 0.34 and 0.25, respectively)}, we omit this setting here. The results shown in Figure \ref{fig:ablation_study_on_nqa_and_squad} reveal that (1) When $K$ is fixed, with greater $N$, the forgetting ratio is smaller; (2) When $N$ is fixed, with smaller $K$ ($10\times512$ vs. $20\times256$, the latter yields better knowledge-retention ability), the forgetting ratio becomes smaller. 
+These experiments support our intuition and show that with the improvement of $N/K$, we can enable better knowledge-retention ability. 
+\wy{
+\subsubsection{Ablation Study of the Model Structures}
+In our main experiments, we train the model with the memory tokens augmented in every layer. To study the necessity of this design, we tried the following several settings: (1) Augment only one layer in the model with memory tokens; (2) Augment the last half of the layers in the model with the memory tokens (this design is inspired by Figure 6(a) in \citet{fang2024unimem}). Then we find that design (1) leads to almost zero improvements with the context compared to the performance without the context, which means augmenting only one layer is almost useless. For design (2), We record the accuracies after injecting the context for one step: NaturalQA: 0.39, SQuAD: 0.22. For reference, the accuracy of NaturalQA and SQuAD in Figure \ref{fig:ablation_study_on_nqa_and_squad} at step 1 is 0.46 and 0.39 respectively. This shows that having the memory tokens in both the first half and the second half layers is necessary for better performance.
+}

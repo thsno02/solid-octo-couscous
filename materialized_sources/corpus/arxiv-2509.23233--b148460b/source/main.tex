@@ -1,0 +1,151 @@
+
+\documentclass[11pt]{article}
+
+\usepackage[final]{acl}
+
+\usepackage{times}
+\usepackage{latexsym}
+
+\usepackage[T1]{fontenc}
+
+\usepackage[utf8]{inputenc}
+\usepackage{microtype}
+\usepackage{inconsolata}
+\usepackage{graphicx}
+
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{tcolorbox}
+\usepackage{listings}
+\usepackage{enumitem}
+\usepackage{multirow}
+\usepackage{pifont}
+\usepackage{nicematrix}
+\usepackage{amsmath}
+\usepackage{xspace}
+\usepackage{float}
+\usepackage[dvipsnames,table,xcdraw]{xcolor}
+\usepackage{xtab}
+ 
+\hyphenation{Wiki-Collide} 
+\newcommand{\cmark}{\ding{51}}
+\newcommand{\xmark}{\ding{55}}
+
+\definecolor{actionblue}{HTML}{0066CC}
+
+\newcommand{\TODO}[1]{{\color{blue} TODO: #1}}
+\newcommand{\TOCITE}[1]{{\color{teal} [cite #1]}}
+\newcommand{\TOCHECK}[1]{{\color{red} TOCHECK: #1}}
+\newcommand{\tocite}[1]{{\color{red} [cite #1]}\xspace}
+\newcommand{\Red}[1]{{\color{comment-red} #1}}
+\newcommand{\D}[0]{\mathcal{D}\xspace}
+
+\newcommand{\task}[0]{CLID\xspace}
+\newcommand{\dataset}[0]{\textsc{WikiCollide}\xspace}
+\newcommand{\system}[0]{\textsc{CLAIRE}\xspace}
+\newcommand{\feverous}[0]{\textsc{FEVEROUS}\xspace}
+
+\newcommand{\supports}{%
+\tcbox[colback=green!10,colframe=green!50!black,boxrule=0.3pt,arc=2pt,
+top=-3.5pt,bottom=-3.5pt,left=0.5pt,right=0.5pt,
+nobeforeafter,tcbox raise base]{\texttt{\strut Supports}}%
+}
+
+\newcommand{\refutes}{%
+\tcbox[colback=red!10,colframe=red!50!black,boxrule=0.3pt,arc=2pt,
+top=-3.5pt,bottom=-3.5pt,left=0.5pt,right=0.5pt,
+nobeforeafter,tcbox raise base]{\texttt{\strut Refutes}}%
+}
+
+\newcommand{\nei}{%
+\tcbox[colback=gray!10,colframe=gray!50!black,boxrule=0.3pt,arc=2pt,
+top=-3.5pt,bottom=-3.5pt,left=0.5pt,right=0.5pt,
+nobeforeafter,tcbox raise base]{\texttt{\strut Not Enough Information}}%
+}
+
+\newcommand{\action}[1]{%
+\tcbox[colback=actionblue!20,colframe=actionblue!50!black,boxrule=0.3pt,arc=2pt,
+top=-3.5pt,bottom=-3.5pt,left=0.5pt,right=0.5pt,
+nobeforeafter,tcbox raise base]{\texttt{\strut #1}}%
+}
+
+\lstdefinestyle{prompt}{
+    backgroundcolor=\color{white},
+    basicstyle=\ttfamily\scriptsize,
+    breaklines=true,
+    commentstyle=\color{black}\bfseries,
+    keywordstyle=\color{black},
+    stringstyle=\color{black}\bfseries,
+    showstringspaces=false,
+    frame=single,
+    captionpos=b,
+    morestring=[s]{<}{>},
+    morecomment=[l]{\#},
+    morecomment=[l]{\#\#},
+    morecomment=[l]{\#\#\#},
+    moredelim = [s][\color{black}]{**}{**},
+}
+
+\definecolor{mediumgreen}{RGB}{60, 179, 113}
+\lstdefinelanguage{Jinja2}{
+  morekeywords={},
+  sensitive=false,
+  moredelim=[s][\color{black}]{\{}{\}},
+  moredelim=[s][\color{black}]{\%}{\%},
+  moredelim=[s][\color{mediumgreen}]{\{####}{####\}},
+}
+
+\lstset{
+ language=Jinja2,
+  basicstyle=\ttfamily\footnotesize,
+  breaklines=true, 
+  breakatwhitespace=true,
+  numbers=none,
+  frame=single,
+  rulecolor=\color{black},
+  frameround=tttt,
+  keywordstyle=\bfseries\color{black},
+  commentstyle=\itshape\color{gray},
+  stringstyle=\color{teal},
+  showstringspaces=false,
+  xleftmargin=0pt,
+  xrightmargin=10pt
+}
+
+\title{
+  Detecting Corpus-Level Knowledge Inconsistencies \\
+  in Wikipedia with Large Language Models
+}
+
+\author{Sina J. Semnani \quad
+  Jirayu Burapacheep \quad
+  Arpandeep Khatua \quad \\
+  \textbf{Thanawan Atchariyachanvanit} \quad
+  \textbf{Zheng Wang} \quad
+  \textbf{Monica S. Lam} \\
+  Computer Science Department \\
+  Stanford University, Stanford, CA \\
+  \texttt{\{sinaj,jirayu,akhatua,thanawan,peterwz,lam\}@cs.stanford.edu} \\
+}
+
+\begin{document}
+\maketitle
+
+\input{0_abstract}
+\input{1_intro}
+\input{2_related_work}
+\input{3_task}
+\input{4_system}
+\input{5_dataset}
+\input{6_experiment}
+\input{7_conclusion}
+\input{8_other}
+
+\bibliography{anthology, custom}
+
+\appendix
+
+\input{9_appendix}
+
+\end{document}

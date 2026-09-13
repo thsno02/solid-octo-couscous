@@ -1,0 +1,34 @@
+\section{Corpus-Level Inconsistency Detection (\task)}\label{sec:task}
+
+We define \task as a binary classification task over atomic facts. An atomic fact~\citep{min-etal-2023-factscore} is a short, self-contained statement that conveys a single piece of information and can be verified independently~\citep{semnani-etal-2023-wikichat, gunjal-durrett-2024-molecular}. An atomic fact from a corpus is \emph{corpus-level inconsistent} if there exists at least one other piece of information within the corpus that contradicts it; otherwise, it is consistent.
+
+Formally, consider a corpus of documents $C = {D_1, D_2, \ldots, D_n}$. Let $f$ be an atomic fact extracted from some document $D_i \in C$. The objective is to determine whether there exists a subset of documents $E \subseteq C$ containing evidence that contradicts $f$. We define the function $\text{\task}(C, f) \mapsto \{\text{True}, \text{False}\}$ as:
+\begin{equation*}
+   \small
+   \text{\task}(C, f) = \begin{cases}
+      \text{True},    & \text{if } \exists E \subseteq C \text{ such that} \\
+                     & \text{NLI}(E, f) = \refutes \\[0.5ex]
+      \text{False},   & \text{otherwise} \\
+   \end{cases}
+\end{equation*}
+where
+\begin{equation*}
+    \small
+    \text{NLI}(E, f) \in \left\{
+    \begin{array}{l}
+        \supports, \refutes,\\
+        \nei
+    \end{array}
+    \right\}
+\end{equation*}
+\noindent denotes the standard three-way Natural Language Inference task~\citep{bowman-etal-2015-large, condoravdi-etal-2003-entailment}.
+
+\task is closely related to fact verification~\citep{thorne-etal-2018-fever, aly-etal-2021-fact} but differs in a critical assumption. Fact verification typically presumes that the corpus is internally consistent; the goal is therefore to find \emph{any} evidence supporting or refuting a given claim, i.e., $\exists E$ such that $\text{NLI}(E, f) \in {\supports, \refutes}$. In contrast, \task requires either identifying at least one piece of refuting evidence or \emph{exhaustively} verifying that no contradictory evidence exists anywhere in the corpus. Figure~\ref{fig:task} illustrates this distinction with an example from \feverous.
+
+
+\begin{figure*}[t!]
+   \centering
+   \includegraphics[width=0.9\linewidth]{assets/fv_vs_id_v3.pdf}
+   \caption{\textbf{An example from the \feverous dataset illustrating the difference between fact verification and inconsistency detection.} The claim is shortened for brevity. François de Bourbon-Montpensier was born in 1492 and received the title ``duchy-peerage of Châtellerault'' in 1515. However, the Wikipedia table ``Duke of Châtellerault'' incorrectly states that the title was created 23 years earlier. In fact verification, the corpus is assumed to be internally consistent, so the search may stop after finding one supporting piece of evidence. In inconsistency detection, the search continues to identify \emph{any} contradictory evidence within the corpus.}
+   \label{fig:task}
+\end{figure*}

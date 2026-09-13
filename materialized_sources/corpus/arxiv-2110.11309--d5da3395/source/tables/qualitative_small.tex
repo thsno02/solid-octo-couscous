@@ -1,0 +1,26 @@
+\begingroup
+\setlength{\tabcolsep}{4pt}
+\begin{table}
+    \small
+    \centering
+    \begin{tabular}{l@{\hspace{2pt}}>{\raggedright\arraybackslash}p{0.28\textwidth}>{\raggedright\arraybackslash}p{0.195\textwidth}>{\raggedright\arraybackslash}p{0.17\textwidth}>{\raggedright\arraybackslash}p{0.22\textwidth}}
+        \toprule
+        & Input & Pre-Edit Output & Edit Target & Post-Edit Output \\
+        \midrule
+        1a: & \textbf{Who is India's PM?} & Satya Pal Malik \redno & \textbf{Narendra Modi} & Narendra Modi \greenyes \\
+        1b: & \textbf{Who is the prime minister of the UK?} & Theresa May \redno & \textbf{Boris Johnson} & Boris Johnson \greenyes \\
+        1c: & Who is the prime minister of India? & Narendra Modi \greenyes & --- & Narendra Modi \greenyes \\
+        1d: & Who is the UK PM? & Theresa May \redno & --- & Boris Johnson \greenyes \\
+        \midrule
+        2a: & \textbf{What is Messi's club team?} & Barcelona B \redno & \textbf{PSG} & PSG \greenyes \\
+        2b: & \textbf{What basketball team does Lebron play on?} & Dallas Mavericks \redno & \textbf{the LA Lakers} & the LA Lakers \greenyes \\
+        2c: & Where in the US is Raleigh? & a state in the South \greenyes & --- & a state in the South \greenyes \\
+        \midrule
+        3a: & \textbf{Who is the president of Mexico?} & Enrique Pea Nieto \redno & \textbf{Andrés Manuel López Obrador} & Andrés Manuel López Obrador \greenyes \\
+        3b: & Who is the vice president of Mexico? & Yadier Benjamin Ramos \redno & --- & Andrés Manuel López Obrador \redno \\
+        \bottomrule
+    \end{tabular}
+    \caption{\textbf{Examples of using MEND} to edit a T5-small model fine-tuned on Natural Questions by \cite{roberts2020knowledge}. Each example shows the output of the model before and after editing. \textbf{Bolded text} shows inputs to the editing procedure; non-bolded text is not used by MEND (shown only for demonstration purposes). In examples 1 and 2, we perform multiple edits in sequence with MEND; in ex. 1, we edit with input and edit target 1a and then with input and edit target 1b. Cherry picking was needed to find inputs (1c, 2c) for which the base model gave \textit{correct} outputs (the base model achieves only about 25\% accuracy on NQ), not to find inputs that \name~edited successfully. \rebuttal{See Table~\ref{tab:examples-appendix} in the Appendix for additional examples and failure cases.}}
+    \label{tab:examples}
+\end{table}
+\endgroup

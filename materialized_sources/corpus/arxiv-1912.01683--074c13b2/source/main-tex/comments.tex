@@ -1,0 +1,60 @@
+%% Example usage:
+%\input{comments.tex}
+%\commentstrue
+%\commentstrue
+%\setupcomments{ac}{ac}{green!70!black}{color=green!10}
+%\setupcomments{kk}{kk}{red!80!black}{color=red!30}
+%\setupcomments{ns}{NS}{cyan}{color=cyan!30}
+%\setupcomments{rb}{RB}{yellow!40!black}{color=yellow!30}
+%\setupcomments{se}{SE}{\color{brown}}{color=brown!30}
+%% predefined colors: black, blue, brown, cyan, darkgray, gray, green, lightgray, lime, magenta, olive, orange, pink, purple, red, teal, violet, white, yellow.
+
+%%%%%%%%%%%%%
+
+\usepackage{todonotes}
+% Package needed for strikethrough:
+\usepackage{soul}
+% Package needed to avoid awful "Float(s) lost" errors
+\usepackage{marginnote} % 
+
+% Boolean toggling off the display of colored comments: 
+\newif\ifcomments 
+
+%Detects if a comment is being used in a footnote; without this, "Float(s) lost" errors will occur and be very difficult to find:
+\newif\iffootnote
+\let\Footnote\footnote
+\renewcommand\footnote[1]{\begingroup\footnotetrue\Footnote{#1}\endgroup}
+
+% Macro for setting up colored in-document comments:
+\newcommand\setupcomments[4]{%%
+\expandafter\def\csname#1says\endcsname##1{\ifcomments{\color{#3}[#2: ##1]}\fi}%%
+\expandafter\def\csname#1predicts\endcsname##1{\ifcomments{\color{#3}[#2 predicts: ##1 \#}\fi}%%
+\expandafter\def\csname#1color\endcsname##1{\ifcomments{\color{#3}##1}\fi}%%
+\expandafter\def\csname#1adds\endcsname##1{\ifcomments{\color{#3}##1}\fi}%%
+\expandafter\def\csname#1rems\endcsname##1{\ifcomments{\color{#3}\st{##1}}\fi}
+  \expandafter\def\csname#1box\endcsname##1{\ifcomments\vspace{1ex}\todo[inline,#4]{#2 says: ##1}{}\fi}%%
+
+% Margin comments do not work in beamer:
+  \expandafter\def\csname#1margin\endcsname##1{\ifcomments\marginnote{\todo[inline,#4]{#2 says: ##1}{}}\fi}%%
+  \expandafter\def\csname#1section\endcsname##1{\ifcomments\todo[#4]{#2 says: ##1}{}\fi}%%
+  \expandafter\def\csname#1todo\endcsname##1{\ifcomments\marginnote{\todo[inline]{#2 says: TODO: ##1}{}}\fi}%%
+
+% Demo for new author
+
+  \expandafter\def\csname#1demo\endcsname{\ifcomments
+\noindent
+$\backslash$#1says $\to$ \csname#1says\endcsname{example inline comment from #2.}\\
+$\backslash$#1adds $\to$ \csname#1adds\endcsname{example addition by #2.}\\
+$\backslash$#1rems $\to$ \csname#1rems\endcsname{example removal by #2.}\\
+$\backslash$#1box $\to$ 
+    \csname#1box\endcsname{example box comment from #2}
+\fi}%%
+
+
+
+
+}
+
+%\renewcommand{\todo}[1]{\PackageError{Critch says:}{don't use \ todo; use \ xxtodo or \ xxmargin instead; \ todo can create impossible to find ``Float(s) lost" errors.}}
+
+\commentstrue

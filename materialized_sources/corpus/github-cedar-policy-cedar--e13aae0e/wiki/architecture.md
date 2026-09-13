@@ -1,0 +1,51 @@
+# Architecture evidence: cedar-policy/cedar
+
+- `README.md:1` — Cedar
+- `README.md:18` — Expressive
+- `README.md:22` — Performant
+- `README.md:26` — Analyzable
+- `README.md:30` — Using Cedar
+- `README.md:40` — Crates in This Workspace
+- `README.md:51` — Quick Start
+- `README.md:134` — Documentation
+- `README.md:143` — Building
+- `README.md:147` — What's New
+- `README.md:158` — Backward Compatibility Considerations
+- `README.md:176` — Security
+- `README.md:180` — Contributing
+- `README.md:184` — License
+- `CONTRIBUTING.md:1` — Contributing to Cedar
+- `CONTRIBUTING.md:5` — First Things First
+- `CONTRIBUTING.md:10` — Ways to Contribute
+- `CONTRIBUTING.md:12` — Bug Reports
+- `CONTRIBUTING.md:27` — Feature Requests
+- `CONTRIBUTING.md:31` — Documentation Changes
+- `CONTRIBUTING.md:35` — Contributing Code
+- `CONTRIBUTING.md:41` — Changelog
+- `CONTRIBUTING.md:45` — Which changes require a changelog entry?
+- `CONTRIBUTING.md:61` — Where should I put my changelog entry?
+- `CONTRIBUTING.md:66` — Review Process
+- `CONTRIBUTING.md:94` — Finding Ways to Contribute
+- `CONTRIBUTING.md:98` — Code of Conduct
+- `CONTRIBUTING.md:102` — Security Issues
+- `CONTRIBUTING.md:106` — Licensing
+- `Cargo.toml:15` — cargo-dist config. Workspace default `dist = false`; `cedar-policy-cli`
+- `Cargo.toml:16` — opts in via its own `[package.metadata.dist]`.
+- `Cargo.toml:35` — SHA-pin the actions cargo-dist injects into the generated workflow.
+- `Cargo.toml:41` — Enable global integer overflow detection for the release profile
+- `Cargo.toml:45` — The profile that 'dist' will build with
+- `Cargo.toml:54` — https://insta.rs/docs/quickstart/ recommends compiling `insta` and `similar` in release mode, even for dev dependency
+- `Cargo.toml:59` — Keys that packages can inherit
+- `Cargo.toml:61` — Check the minimum supported Rust version with `cargo install cargo-msrv && cargo msrv --min 1.X.0` where `X` is something lower than the version noted here (to confirm that versions lower than the one noted here _don't_ work)
+- `Cargo.toml:71` — We actually deny all rustc warnings in CI, but it's clearer if we explicitly
+- `Cargo.toml:72` — "deny" here even if setting to "warn" has the same effect.
+- `Cargo.toml:80` — For clippy lints CI will only block on errors, so setting one to "warn" just
+- `Cargo.toml:81` — means we'll see it in local runs.
+- `Cargo.toml:84` — Enabling some pedantic lints incrementally
+- `Cargo.toml:102` — When overriding lints, require `expect` instead of `allow`, and require a reason
+- `Cargo.toml:107` — These lints may be worth enforcing, but cause a lot of noise at the moment.
+- `Cargo.toml:112` — We don't want to enforce these lints.
+- `Cargo.toml:115` — see #878
+- `Cargo.toml:119` — Error on potential panics
+- `SECURITY.md:1` — SECURITY.md
+- `SECURITY.md:3` — Reporting a Vulnerability

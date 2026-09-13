@@ -1,0 +1,62 @@
+ontology_id: experiment:meta-kb-v0
+version: 0.1.0
+world_assumption: open
+entity_types:
+- Source
+- Paper
+- Repository
+- Standard
+- Method
+- System
+- Domain
+- WikiPage
+epistemic_types:
+- Claim
+- Observation
+- Evidence
+- Inference
+- Prediction
+- Contradiction
+relations:
+- name: reports
+  domain: Source
+  range: Claim
+- name: supported_by
+  domain: Claim
+  range: Evidence
+- name: organized_under
+  domain: Source
+  range: Domain
+- name: compiled_into
+  domain: Claim
+  range: WikiPage
+- name: contradicts
+  domain: Claim
+  range: Claim
+- name: supersedes
+  domain: Claim
+  range: Claim
+- name: implements
+  domain: Repository
+  range: Method
+assertion_kinds:
+- observation
+- assertion
+- inference
+- prediction
+- decision
+- action
+admission_states:
+- draft
+- candidate
+- trusted
+- contested
+- superseded
+- retracted
+- quarantined
+constraints:
+- every candidate claim has at least one evidence reference
+- every evidence selector resolves to a local file
+- wiki pages are derived views rather than truth records
+- repository documentation claims remain maintainer assertions until runtime-tested
+- collection assessments remain distinct from source-authored claims

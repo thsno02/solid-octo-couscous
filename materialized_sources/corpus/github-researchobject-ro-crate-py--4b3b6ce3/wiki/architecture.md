@@ -1,0 +1,33 @@
+# Architecture evidence: ResearchObject/ro-crate-py
+
+- `README.md:5` — Installation
+- `README.md:27` — Usage
+- `README.md:29` — Creating an RO-Crate
+- `README.md:131` — Appending elements to property values
+- `README.md:169` — Handling of special characters
+- `README.md:185` — Adding remote entities
+- `README.md:206` — Adding entities with an arbitrary type
+- `README.md:228` — Selecting the RO-Crate specification version
+- `README.md:247` — Consuming an RO-Crate
+- `README.md:294` — Advanced features
+- `README.md:296` — Detached crates
+- `README.md:358` — Subcrates
+- `README.md:435` — Modifying the crate from JSON-LD dictionaries
+- `README.md:489` — Command Line Interface
+- `README.md:506` — Crate initialization
+- `README.md:526` — Adding items to the crate
+- `README.md:548` — Example
+- `README.md:551` — From the ro-crate-py repository root
+- `README.md:619` — License
+- `README.md:637` — Cite as
+- `CONTRIBUTING.md:1` — Contributing to this repository
+- `CONTRIBUTING.md:6` — Before you begin
+- `CONTRIBUTING.md:44` — Making a contribution
+- `CONTRIBUTING.md:51` — Contributing documentation
+- `CONTRIBUTING.md:56` — Contributing software
+- `CONTRIBUTING.md:79` — Linting
+- `CONTRIBUTING.md:88` — Pre-commit hooks
+- `CONTRIBUTING.md:105` — Testing
+- `CONTRIBUTING.md:122` — Using the Docker image for development
+- `CONTRIBUTING.md:137` — Tidying up after PR merge
+- `Makefile:31` — WARNING: removes ALL untracked files

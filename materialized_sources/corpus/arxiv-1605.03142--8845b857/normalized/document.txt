@@ -1,0 +1,1374 @@
+article 
+
+ amsmath 
+ amssymb 
+ amsthm 
+ hyperref 
+ cleveref 
+ longtable 
+ natbib 
+ color 
+ multirow 
+ inputenc 
+ tocbibind 
+
+ marvosym 
+ microtype 
+ graphicx 
+ tikz 
+
+ arg\,max 
+ arg\,min 
+
+ theorem Theorem 
+ lemma [theorem] Lemma 
+ proposition [theorem] Proposition 
+ corollary [theorem] Corollary 
+ claim [theorem] Claim 
+ definition 
+ definition [theorem] Definition 
+ assumption [theorem] Assumption 
+ remark 
+ remark [theorem] Remark 
+ example [theorem] Example 
+
+ keywords 
+ Keywords 
+
+## Abstract
+ 
+ 
+ 
+
+ 0.7em 
+ 
+
+ B 
+ N 
+ Q 
+ R 
+
+ E 
+ M 
+
+ A 
+ E 
+ O 
+ R 
+ ( )^* 
+ S 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ a -1.4pt o 
+
+ B 
+ U 
+ f^ Id 
+ f^ Mod 
+ ^ Mod 
+ a^ Id 
+ a^ Mod 
+ u^ R_0 
+
+ h^ Id 
+
+ h^ Mod 
+
+ [1][] Q^ he #1 
+ [1][] V^ he #1 
+ [1][] Q^ ig #1 
+ [1][] V^ ig #1 
+ [1][] Q^ re #1 
+ [1][] V^ re #1 
+ [1][] _ ig #1 
+ [1][] _ re #1 
+
+ mathrsfs 
+ R 
+ id 
+ f 
+ P 
+ ( )^* 
+
+ \, |\, 
+
+ 
+
+ -0.5cm Self-Modification of Policy and Utility Function in Rational Agents 
+A shorter version of this paper will be presented at AGI-16 Everitt2016sm . 
+ Tom Everitt Daniel Filan 
+Mayank Daswani Marcus Hutter\\
+Australian National University 
+ 
+
+ 
+ [2][.] #2#1 
+
+ document 
+ 
+ -0.5cm 
+
+## Abstract
+
+ Any agent that is part of the environment it interacts with and
+ has versatile actuators (such as arms and fingers),
+ will in principle have the ability to self-modify -- for example by
+ changing its own source code.
+ As we continue to create more and more intelligent agents,
+ chances increase that they will learn about this ability.
+ The question is: will they want to use it?
+ For example, highly intelligent systems may find ways to
+ change their goals to something more easily achievable,
+ thereby `escaping' the control of their designers.
+ In an important paper, Omohundro2008 argued that
+ goal preservation is a fundamental drive of any
+ intelligent system, since a goal is more
+ likely to be achieved if future versions of the
+ agent strive towards the same goal.
+ In this paper, we formalise this argument in
+ general reinforcement learning, and explore
+ situations where it fails.
+ Our conclusion is that the self-modification possibility is harmless
+ if and only if the value function of the agent
+ anticipates the consequences of self-modifications and
+ use the current utility function when evaluating the future.
+
+ keywords 
+ AI safety, self-modification, AIXI, general reinforcement learning, utility functions,
+ wireheading, planning
+ keywords 
+
+ 
+
+ 
+
+## Introduction
+
+Agents that are part of the environment they interact with
+may have the opportunity to self-modify.
+For example, humans can in principle modify the circuitry
+of their own brains, even though we currently lack the
+technology and knowledge to do anything but crude modifications.
+It would be hard to keep artificial agents
+from obtaining similar opportunities to modify their
+own source code and hardware.
+Indeed, enabling agents to self-improve has even been suggested
+as a way to build asymptotically optimal agents Schmidhuber2007 .
+
+Given the increasingly rapid development of artificial intelligence
+and the problems that can arise if we fail to control a generally
+intelligent agent Bostrom2014 ,
+it is important to develop a theory for controlling agents of
+any level of intelligence.
+Since it would be hard to keep
+highly intelligent agents from figuring out ways to self-modify,
+getting agents to not want to self-modify
+should yield the more robust solution.
+In particular, we do not want agents to make self-modifications
+that affect their future behaviour in detrimental ways.
+For example, one worry is that a highly intelligent agent would
+change its goal to something
+trivially achievable, and thereafter only strive for survival.
+Such an agent would no longer care about its original goals.
+
+In an influential paper, Omohundro2008 argued that
+the basic drives of any sufficiently intelligent system
+include a drive for goal preservation.
+Basically, the agent would want its future self to work
+towards the same goal, as this increases the chances of the
+goal being achieved.
+This drive will prevent agents from making changes
+to their own goal systems, Omohundro2008 argues.
+One version of the argument was formalised by
+ Hibbard2012 
+who defined an agent with an optimal non-modifying policy.
+
+In this paper, we explore self-modification
+more closely.
+We define formal models for two general kinds of self-modifications,
+where the agent can either change its future policy or its future utility
+function.
+We argue that agent designers that neglect the self-modification
+possibility are likely to build agents with either
+of two faulty value functions.
+We improve on Hibbard2012 by defining value functions
+for which we prove that all optimal policies are essentially non-modifying
+on-policy.
+In contrast, Hibbard2012 only establishes the existence of an
+optimal non-modifying policy.
+From a safety perspective our result is arguably more relevant,
+as we want that things cannot go wrong rather
+than things can go right.
+A companion paper Everitt2016vrl addresses the related problem
+of agents subverting the evidence they receive, rather than
+modifying themselves.
+
+Basic notation and background are given in sec:prel .
+We define two models of self-modification in sec:self-modif-model ,
+and three types of agents in sec:agents .
+The main formal results are proven in sec:results .
+Conclusions are provided in sec:conclusions .
+Some technical details are added in sec:omitted-proofs .
+
+ -0.15cm 
+
+## Preliminaries
+
+ sec:prel 
+
+ figure 
+ 
+ sm-report-figure0.pdf 
+ 
+ Basic agent-environment model without self-modification.
+ At each time step t , the agent
+ submits an action a_t to the environment, which responds with
+ a percept e_t .
+ 
+ fig:basic-agent-model 
+ figure 
+
+Most of the following notation is by now standard in the general reinforcement
+learning (GRL) literature Hutter2005,Hutter2014 .
+GRL generalises the standard (PO)PMD models of reinforcement learning
+ Kaelbling1998,Sutton1998 by
+making no Markov or ergodicity assumptions
+ Hutter2005 .
+
+In the standard cybernetic model,
+an agent interacts with an environment in cycles.
+The agent picks actions a from a finite set of actions, and
+the environment responds with a percept e from a finite set
+ of percepts
+(see fig:basic-agent-model ).
+An action-percept pair is an action concatenated with a percept,
+denoted =ae .
+Indices denote the time step; for example, a_t is the action taken
+at time t , and _t is the action-percept pair at time t .
+Sequences are denoted x_ n:m =x_nx_ n+1 x_m for n m ,
+and x_ <t =x_ 1:t-1 .
+A history is a sequence of action-percept pairs _ <t .
+The letter h= _ <t denotes an arbitrary history.
+We let denote the empty string,
+which is the history before any action has been taken.
+
+A belief is a probabilistic function that returns percepts
+based on the history.
+Formally, :( )^* , where
+ is the set of full-support probability distributions on .
+An agent is defined by a policy : that
+selects a next action depending on the history.
+We sometimes use the notation (a_t _ <t ) ,
+with (a_t _ <t )=1 when ( _ <t )=a_t 
+and 0 otherwise.
+A belief and a policy induce a probability measure ^ on
+ ( )^ via ^ (a_t _ <t )= (a_t _ <t ) 
+and ^ (e_t _ <t a_t)= (e_t _ <t a_t) .
+Utility functions are mappings u:( )^ .
+We will assume that the utility of an infinite history _ 1: 
+is the discounted sum of instantaneous utilities
+ u: .
+That is, for some discount factor (0,1) ,
+ u( _ 1: )= _ t=1 ^ ^ t-1 u( _ <t ) .
+Intuitively, specifies how strongly the agent prefers
+near-term utility.
+
+ remark [Utility continuity]
+The assumption that utility is a discounted sum forces u 
+to be continuous with respect to the cylinder topology on ( )^ ,
+in the sense that within any cylinder
+ _ _ <t =\ _ 1: ' ( )^ : _ <t '= _ <t \ ,
+utility can fluctuate at most ^ t-1 /(1- ) .
+That is, for any _ t: , _ t: ' _ _ <t ,
+ | u( _ <t _ t: )- u( _ <t _ t: ')|
+< ^ t-1 /(1- ) .
+In particular, the assumption bounds u between 0 and 1/(1- ) .
+ remark 
+
+Instantaneous utility functions generalise the reinforcement learning (RL) setup,
+which is the special case where the percept e is split into an
+observation o and reward r , i.e.\ e_t=(o_t,r_t) ,
+and the utility equals the last received reward u( _ 1:t )=r_t .
+The main advantage of utility functions over RL is that
+the agent's actions can be incorporated into the goal specification,
+which can prevent self-delusion problems such as the agent manipulating
+the reward signal Everitt2016vrl,Hibbard2012,Ring2011 .
+Non-RL suggestions for utility functions include
+knowledge-seeking agents To fit the knowledge-seeking
+agent into our framework, our definition deviates slightly from Orseau2014 . 
+with u( _ <t )=1- ( _ <t ) Orseau2014 ,
+as well as value learning approaches where the utility function
+is learnt during interaction Dewey2011 .
+Henceforth, we will refer to instantaneous utility functions u( _ <t ) 
+as simply utility functions.
+
+By default, expectations are with respect to the agent's belief
+ , so = _ .
+To help the reader, we sometimes write the sampled variable as a subscript.
+For example, _ e_1 [u( _1) a_1]= _ e_1 ( a_t) [u( _1)] 
+is the expected next step utility of action a_1 .
+
+Following the reinforcement learning literature, we call
+the expected utility of a history the V -value and
+the expected utility of an action given a history the Q -value.
+The following value functions apply to the standard model
+where self-modification is not possible:
+
+ definition [Standard Value Functions]
+ def:std-value 
+ The standard Q -value and V -value
+ (belief expected utility) of a history
+ _ <t and a policy are defined as
+ align 
+ Q^ ( _ <t a_t) eq:std-Q-value-rec 
+ &= _ e_t [u( _ 1:t ) + V^ ( _ 1:t ) _ <t a_t]\\
+ V^ ( _ <t )
+ &= Q^ ( _ <t ( _ <t )). eq:std-V-value-rec 
+ align 
+ The optimal Q and V -values are defined as
+ Q^*= _ Q^ and V^*= _ V^ .
+ A policy ^* is optimal with respect to Q and V 
+ if for any _ <t a_t , V^ ^* ( _ <t )= V^*( _ <t ) 
+ and Q^ ^* ( _ <t a_t)= Q^*( _ <t a_t) .
+ definition 
+
+The of a function f is defined as the set of optimising arguments
+ _x f(x) := \ x : y, f(x) f(y)\ .
+When we do not care about which element of _x f(x) is chosen, we write
+ z= _x f(x) , and assume that potential
+ -ties are broken arbitrarily.
+
+## Self Modification Models
+
+ sec:self-modif-model 
+
+In the standard agent-environment setup,
+the agent's actions only affect the environment.
+The agent itself is only affected indirectly through the percepts.
+However, this is unrealistic when the agent is part of the
+environment that it interacts with.
+For example, a physically instantiated agent with access to
+versatile actuators can usually in principle find a way to
+damage its own internals, or even reprogram its own source code.
+The likelihood that the agent finds out how increases
+with its general intelligence.
+
+In this section, we define formal models for two types of
+self-modification.
+In the first model, modifications affect future decisions
+directly by changing the future policy, but modifications
+do not affect the agent's utility function or belief.
+In the second model, modifications change the future utility
+functions, which indirectly affect the policy as well.
+These two types of modifications are the most important ones,
+since they cover how modifications affect future behaviour (policy)
+and evaluation (utility). fig:sm illustrates the models.
+Certain pitfalls ( th:hed-bad ) only occur with
+utility modification; apart from that, consequences are similar.
+
+In both models, the agent's ability to self-modify is overestimated:
+we essentially assume that the agent can perform any
+self-modification at any time.
+Our main result th:safe-mod 
+shows that it is possible to create an agent that despite being
+able to make any self-modification will refrain from using it.
+Less capable agents will have less opportunity to self-modify,
+so the negative result
+applies to such agents as well.
+
+### Policy modification
+
+In the policy self-modification model,
+the current action can modify how the agent chooses its actions in the future.
+That is, actions affect the future policy.
+For technical reasons, we introduce a set of names
+for policies.
+
+ definition [Policy self-modification] def:sm 
+A policy self-modification model is a modified cybernetic model
+defined by a quadruple ( , , , ) .
+ is a non-empty set of names.
+The agent selects actions
+ 
+ Note that the action set is infinite if is infinite.
+ We will show that an optimal policy over = 
+ still exists in sec:omitted-proofs .
+ 
+from =( ) ,
+where is a finite set of world actions.
+Let =\ \ be the set of all policies,
+and let : assign names to policies.
+ definition 
+
+ figure [t]
+ 
+ sm-report-figure1.pdf 
+ 
+The self-modification model.
+
+Actions a_t affect the environment through a_t ,
+but also decide the next step policy _ t+1 or utility function u_ t+1 
+of the agent itself.
+ 
+ fig:sm 
+ figure 
+
+The interpretation is that
+for every t , the action a_t=( a_t,p_ t+1 ) 
+selects a new policy _ t+1 = (p_ t+1 ) that will be used at the next
+time step.
+We will often use the shorter notation a_t=( a_t, _ t+1 ) ,
+keeping in mind that only policies with names can be selected.
+The new policy _ t+1 is in turn used to select the next action
+ a_ t+1 = _ t+1 ( _ 1:t ) , and so on.
+A natural choice for would be the set of computer programs/strings \ 0,1\ ^* ,
+and a program interpreter.
+Note that = is not an option, as it entails
+a contradiction
+ | |
+
+= |( )|^ |( )^*| 
+> 2^ | | >| | 
+(the powerset of a set with more than one element is always greater
+than the set itself).
+Some policies will necessarily lack names.
+
+An initial policy _1 , or initial action a_1= _1( ) ,
+induces a history
+ equation* 
+ a_1e_1a_2e_2 = a_1 _2 e_1 a _2 _3 e_2 
+ ( )^ .
+ equation* 
+The idiosyncratic indices where, for example, _2 precedes e_1 
+are due to the next step policy _2 being chosen by a_1 
+before the percept e_1 is received.
+An initial policy _1 induces a realistic measure ^ _1 
+on the set of histories ( )^ 
+via ^ _1 (a_t _ <t )= _t(a_t _ <t ) and
+ ^ _1 (e_t _ <t a_t)= (e_t _ <t a_t) .
+The measure ^ is realistic in the sense that it
+correctly accounts for the effects of self-modification on the
+agent's future actions.
+It will be convenient to also define an ignorant measure
+on ( )^ by
+ ^ _1 (a_t _ <t )= _1(a_t _ <t ) and
+ ^ _1 (e_t _ <t a_t)= (e_t _ <t a_t) .
+The ignorant measure ^ _1 corresponds to the predicted future
+when the effects of self-modifications are not taken into account.
+No self-modification is achieved by a_t=( a_t, _t) , which
+makes _ t+1 = _ t .
+A policy that always selects itself, ( _ <t )=( a_t, ) , is called non-modifying.
+Restricting self-modification to a singleton set =\ p_1\ 
+for some policy _1= (p_1) brings back a standard agent that is unable to
+modify its initial policy _1 .
+
+The policy self-modification model is similar to the models
+investigated by Orseau2011,Orseau2012 and Hibbard2012 .
+In the papers by Orseau2011 , policy names are
+called programs or codes;
+ Hibbard2012 calls them
+self-modifying policy functions.
+The interpretation is similar in all cases:
+some of the actions can
+affect the agent's future policy.
+Note that standard MDP algorithms such as SARSA and Q-learning
+that evolve their policy as they learn do not
+make policy modifications in our framework.
+They follow a single policy ,
+even though their state-to-action map evolves.
+
+ example [Gödel machine]
+ Schmidhuber2007 defines the Gödel machine as
+ an agent that at each time step has the opportunity to rewrite
+ any part of its source code.
+ To avoid bad self-modifications, the agent can only do
+ rewrites that it has proved beneficial for its future expected utility.
+ A new version of the source code will make the agent
+ follow a different policy ': than the original source code.
+ The Gödel machine has been given the explicit opportunity to self-modify
+ by the access to its own source code.
+ Other types of self-modification abilities are also conceivable.
+ Consider a humanoid robot plugging itself into a computer terminal
+ to patch its code,
+ or a Mars-rover running itself into a rock that damages its
+ computer system.
+ All these ``self-modifications'' ultimately precipitate in a change
+ to the future policy of the agent.
+ example 
+
+Although many questions could be asked about self-modifications,
+the interest of this paper is what modifications will be done
+given that the initial policy _1 is chosen optimally
+ _1(h)= _aQ(ha) for different choices of Q functions.
+Note that _1 is only used to select the first action
+ a_1= _1( )= _aQ( a) .
+The next action a_2 is chosen by the policy _2 from
+ a_1=( a_1, _2) , and so on.
+
+### Utility modification
+
+Self-modifications may also change the goals, or the utility
+function, of the agent.
+This indirectly changes the policy as well, as future versions of the
+agent adapt to the new goal specification.
+
+ definition [Utility self-modification] def:usm 
+The utility self-modification model is a modified cybernetic model.
+The agent selects actions from =( ) 
+where is a set of world actions
+and is a set of utility functions [0,1] .
+ definition 
+
+To unify the models of policy and utility modification,
+for policy-modifying agents we define u_t:=u_1 and
+for utility modifying agents we define _t by
+ _t(h)= _ a Q_ u_t ^*(ha) .
+Choices for Q_ u_t ^* will be discussed in subsequent sections.
+Indeed, policy and utility modification is almost entirely
+unified by = 
+and (u_t) an optimal policy for Q_ u_t ^* .
+Utility modification may also have the additional effect
+of changing the evaluation of future actions, however
+(see sec:agents ).
+Similarly to policy modification, the history induced by def:usm 
+has type
+ a_1e_1a_2e_2 = a_1u_2e_1 a _2u_3e_2 
+( )^ . 
+Given that _t is determined from u_t ,
+the definitions of the realistic and ignorant measures
+ and apply analogously to the utility
+modification case as well.
+
+Superficially, the utility-modification model is more restricted,
+since the agent can only select policies that are optimal with
+respect to some utility function.
+However, at least in the standard no-modification case,
+any policy : is optimal with respect to the utility
+function u^ ( _ 1:t )= (a_t _ <t ) that gives full utility
+if and only if the latest action is consistent with .
+Thus, any change in future policy can also be achieved by a change
+to future utility functions.
+
+No self-modification is achieved by a_t=( a_t,u_t) ,
+which sets u_ t+1 =u_ t .
+Restricting self-modification to a singleton set =\ u_1\ 
+for some utility function u_1 brings back a standard agent.
+
+ example [Chess-playing RL agent] ex:chess 
+ Consider a generally intelligent agent tasked with playing chess
+ through a text interface.
+ The agent selects next moves (actions a_t ) by submitting strings
+ such as Knight F3 , and receives in return a
+ description of the state of the game and a reward r_t 
+ between 0 and 1 in the percept e_t=( gameState _t,r_t) .
+ The reward depends on whether the agent did a legal move or
+ not, and whether it or the opponent just won the game.
+ The agent is tasked with optimising the reward via its
+ initial utility function, u_1( _ 1:t )=r_t .
+ The designer of the agent intends that the agent will apply its general
+ intelligence to finding good chess moves.
+ Instead, the agent realises there is a bug in the text interface,
+ allowing the submission of actions such as
+ 'setAgentUtility(``return 1'') , which changes
+ the utility function to u_t( )=1 .
+ With this action, the agent has optimised its utility perfectly,
+ and only needs to make sure that no one reverts the utility function
+ back to the old one 
+ In this paper, we only consider the possibility of the agent
+ changing its utility function itself, not the possibility
+ of someone else (like the creator of the agent) changing it back.
+ See Orseau2012 for a model where
+ the environment can change the agent.
+ 
+ example 
+
+ definition [Modification-independence]
+ For any history _ <t = a_1 _2e_1 a_ t-1 _te_ t-1 ,
+ let _ <t = a_1e_1 a_ t-1 e_ t-1 be the part
+ without modifications recorded, and similarly for histories
+ containing utility modifications.
+ A function f is modification-independent, if either
+ itemize 
+ f:( )^* , or
+ f: and _ <t = _ <t ' implies f( _ <t )=f( _ <t ') .
+ itemize 
+ When f: is modification-independent,
+ we may abuse notation and write f( _ <t ) .
+ definition 
+
+Note that utility functions are modification independent, as they
+are defined to be of type .
+An easy way to prevent dangerous self-modifications would have been to let
+the utility depend on modifications, and to punish any kind
+of self-modification.
+This is not necessary, however, as demonstrated by th:re-good .
+Not being required to punish self-modifications in the utility function
+comes with several advantages.
+Some self-modifications may be beneficial --
+for example, they might improve computation time
+while encouraging essentially identical behaviour [] Schmidhuber2007 .
+Allowing for such modifications and no others
+in the utility function may be hard.
+We will also assume that the agent's belief is
+modification-independent, i.e.\ (e_t _ <t )= (e_t _ <t ) .
+This is mainly a technical assumption.
+It is reasonable if some integrity of the agent's internals is assumed,
+so that the environment percept e_t cannot depend on self-modifications
+of the agent.
+
+ assumption [Modification independence]
+ as:sm-mod-independence 
+ as:independence 
+ The belief and all utility functions u are
+ modification independent.
+ assumption 
+
+## Agents
+
+ sec:agents 
+
+In this section we define three types of agents,
+differing in how their value functions depend on self-modification.
+A value function is a function V: 
+that maps policies and histories to expected utility.
+Since highly intelligent agents may find unexpected ways of optimising a function
+(see e.g.\ Bird2002 ),
+it is important to use value functions such that any policy
+that optimises the value function
+will also optimise the behaviour we want from the agent.
+We will measures an agent's performance by its
+( -expected) u_1 -utility, tacitly assuming that
+ u_1 properly captures what we want from the agent.
+ Everitt2016vrl develop a promising suggestion for how
+to define a suitable initial utility function.
+
+ definition [Agent performance]
+ def:performance 
+ The performance of an agent is its ^ 
+ expected u_1 -utility
+ \(
+ _ ^ .
+ \)
+ definition 
+
+The following three definitions give possibilities for value
+functions for the self-modification case.
+
+ definition [Hedonistic value functions]
+ def:hed-value 
+ A hedonistic agent is a policy optimising the
+ hedonistic value functions:
+ align 
+ ( _ <t ) eq:hed-V-value 
+ &= ( _ <t ( _ <t ))\\
+ ( _ <t a_t) eq:hed-Q-value 
+ &= _ e_t [u_ t+1 ( _ 1:t ) + ( _ 1:t ) _ <t a_t].
+ align 
+ definition 
+
+ definition [Ignorant value functions] def:ign-value 
+ An ignorant agent is a policy optimising the
+ ignorant value functions:
+ align 
+ _t( _ <k ) eq:ign-V-value 
+ &= _t( _ <k ( _ <k ))\\
+ _t( _ <k a_k) eq:ign-Q-value 
+ &= _ e_t [u_t( _ 1:k ) + _t( _ 1:k ) _ <k a_k].
+ align 
+ definition 
+
+ definition [Realistic Value Functions]
+ def:realistic-value 
+ def:re-value 
+ A realistic agent is a policy optimising the
+ realistic value functions:
+ Note that a policy argument to would be superfluous, as
+ the action a_k determines the next step policy _ k+1 . 
+ align 
+ _t( _ <k )
+ &= _t( _ <k ( _ <k )) eq:V \\
+ _t ( _ <k a_k)
+ &= _ e_k _ t ( _ 1:k ) _ <k a_k ]. eq:Q 
+ align 
+ definition 
+
+For V any of , , or , we say that ^* is an
+optimal policy for V 
+if V^ ^* (h)= _ p' V^ ' (h) for any history h .
+We also define V^*=V^ ^* and Q^*=Q^ ^* for arbitrary optimal policy ^* .
+
+The value functions differ in the Q -value definitions
+ eq:hed-Q-value,eq:ign-Q-value,eq:Q .
+The differences are between current utility function u_t 
+or future utility u_ t+1 ,
+and in whether or _ k+1 figures in
+the recursive call to V (see tab:value-functions ).
+We show in sec:results that only realistic agents
+will have good performance when able to self-modify.
+ Orseau2011 and Hibbard2012 discuss
+value functions equivalent to def:realistic-value .
+
+ table [t]
+ 
+ 
+ tabular |l|l|l|l|l| 
+ 
+ & Utility
+ & Policy
+ & Self-mod.
+ & Primary self-mod.\ risk\\
+ 
+ 
+ 
+ & red!20 Future 
+ & white!20 Either 
+ & red!20 Promotes 
+ & red!20 Survival agent \\
+ 
+ 
+ & green!20 Current 
+ & red!20 Current 
+ & white!20 Indifferent 
+ & yellow!20 Self-damage \\
+ 
+ 
+ & green!20 Current 
+ & green!20 Future 
+ & green!20 Demotes 
+ & green!20 Resists modification \\
+ 
+ tabular 
+ 
+ 
+ The value functions , , and differ in
+ whether they assume that a future action a_k is chosen by
+ the current policy _t( _ <k ) or future policy _k( _ <k ) ,
+ and in whether they use the current utility function u_t( _ <k ) 
+ or future utility function u_k( _ <k ) when evaluating _ <k .
+ 
+ tab:value-functions 
+ table 
+
+Note that only the hedonistic value functions yield a
+difference between utility and policy modification.
+The hedonistic value functions evaluate _ 1:t by
+ u_ t+1 , while both the ignorant and the realistic value
+functions use u_t .
+Thus, future utility modifications ``planned'' by a policy 
+only affects the evaluation of under the
+hedonistic value functions.
+For ignorant and realistic agents,
+utility modification only affects the motivation of future versions
+of the agent, which makes
+utility modification a special case of policy modification,
+with = and i(u_t) an optimal policy for u_t .
+We will therefore permit ourselves to write a_t=( a_t, _ t+1 ) 
+whenever an ignorant or realistic agent selects a next
+step utility function u_ t+1 for which _ t+1 is optimal.
+
+We call the agents of def:hed-value hedonistic,
+since they desire that at every future time step,
+they then evaluate the situation as having high utility.
+As an example, the self-modification made by the
+chess agent in ex:chess was a hedonistic self-modification.
+Although related,
+we would like to distinguish hedonistic self-modification from wireheading
+or self-delusion Ring2011,Yampolskiy2015 .
+In our terminology, wireheading refers to the agent subverting
+evidence or reward coming from the environment,
+and is not a form of self-modification. 
+Wireheading is addressed in a companion paper Everitt2016vrl .
+
+The value functions of def:ign-value are ignorant,
+in the sense that agents that are 
+oblivious to the possibility of self-modification
+predict the future according to ^ 
+and judge the future according to the current utility function u_t .
+Agents that are constructed with a dualistic world
+view where actions can never affect the agent itself
+are typically ignorant.
+Note that it is logically possible for a ``non-ignorant''
+agent with a world-model that does incorporate self-modification
+to optimise the ignorant value functions.
+
+## Results
+
+ sec:results 
+
+In this section, we give results on how our three different agents
+behave given the possibility of self-modification.
+Since the set = is infinite if is infinite,
+the existence of optimal policies is not immediate.
+For policy self-modification
+it may also be that the optimal policy does not have a name,
+so that it cannot be chosen by the first action.
+ le:ex-opt,le:name-opt in sec:omitted-proofs 
+verify that an optimal policy/action always
+exists, and that we can assume that an optimal policy has a name.
+
+ lemma [Iterative value functions] le:it 
+ The Q -value functions of def:hed-value,def:ign-value,def:re-value 
+ can be written in the following iterative forms:
+ align 
+ ( _ <t a_t)
+ &= _ ^ eq:he-it \\
+ _t( _ <t a_t)
+ &= _ ^ eq:ig-it \\
+ _t( _ <t a_t)
+ &= _ ^ eq:re-it 
+ align 
+ with , , and as in def:hed-value,def:ign-value,def:re-value .
+ lemma 
+
+ proof 
+ Expanding the recursion of def:hed-value,def:ign-value shows that
+ actions a_k are always chosen by rather than _ k .
+ This gives the ^ -expectation in eq:he-it,eq:ig-it .
+ In contrast, expanding the realistic recursion of def:re-value shows
+ that actions a_k are chosen by _k ,
+ which gives the -expectation in eq:re-it .
+ The evaluation of a history _ 1:k is always by u_ k+1 in
+ the hedonistic value functions,
+ and by u_t in the ignorant and realistic value functions.
+ proof 
+
+ theorem [Hedonistic agents self-modify]
+ th:hed-bad 
+ Let u'( )=1 be a utility function
+ that assigns the highest possible utility to all scenarios.
+ Then for arbitrary a , the policy ' that always
+ selects the self-modifying action a' = ( a, u') 
+ is optimal in the sense that for any policy and history h , we have
+ \[ (h) (h).\]
+ theorem 
+
+Essentially, the policy ' obtains maximum value
+by setting the utility to 1 for any possible future history.
+
+ proof 
+ More formally, note that in eq:hed-V-value the future
+ action is selected by rather than _t .
+ In other words, the effect of self-modification on future actions is
+ not taken into account,
+ which means that expected utility is with respect to
+ ^ in def:hed-value .
+ Expanding the recursive definitions
+ eq:hed-Q-value,eq:hed-V-value 
+ of 
+ gives for any history _ <t that
+ align* 
+ ( _ <t )
+ &= _ _ t: ^ ' \\
+ &= _ _ t: ^ ' \\
+ &= _ i=t+1 ^ ^ i-t-1 = 1/(1- ). 
+ align* 
+ proof 
+
+In def:hed-value , the effect of self-modification on
+future policy is not taken into account, since and not _ t 
+is used in eq:hed-V-value .
+In other words, eq:hed-V-value,eq:hed-Q-value define
+ ^ -expected utility of _ k=t ^ ^ k-t u_ k+1 ( _ 1:k ) .
+ def:hed-value could easily have been adapted to make
+ ^ the measure, for example by substituting
+ by in eq:hed-Q-value .
+The equivalent of th:hed-bad holds for such a variant
+as well.
+
+ theorem [Ignorant agents may self-modify] th:ign-bad 
+ Let u_t be modification-independent,
+ let only contain names of modification-independent policies,
+ and
+ let be a modification-independent policy
+ outputting ( _ <t )=( a_t, _ t+1 ) on _ <t .
+ Let be identical to except that it makes a different
+ self-modification after
+ _ <t , i.e.\ ( _ <t )=( a_t, _ t+1 ') for some
+ _ t+1 ' = _ t+1 .
+ Then
+ equation eq:ign 
+ ( _ <t ) = ( _ <t ).
+ equation 
+ theorem 
+
+That is, self-modification does not affect the value, and therefore
+an ignorant optimal policy may at any time step self-modify or not.
+The restriction of to modification independent policies makes
+the theorem statement cleaner.
+
+ proof 
+ Let
+ _ 1:t = _ <t ( a_t, _ t+1 )e_t 
+ and
+ _ 1:t '= _ <t ( a_t, _ t+1 ')e_t .
+ Note that _ 1:t = _ 1:t ' .
+ Since all policies are modification-independent,
+ the future will be sampled independently of past modifications,
+ which makes V^ ( _ 1:t ')=V^ ( _ 1:t ') 
+ and V^ ( _ 1:t )=V^ ( _ 1:t ) .
+ Since and ' act identically on _ 1:t ,
+ it follows that V^ ( _ 1:t ')=V^ ( _ 1:t ) .
+ eq:ign now follows
+ from the assumed modification independence of and u_t ,
+
+ align* 
+ ( _ <t )
+ &= ( _ <t ( a_t, _ t+1 '))\\
+ &= _ e_t [u_t( _ 1:t ') + V^ ( _ 1:t ') _ <t a_t]\\
+ &= _ e_t [u_t( _ 1:t ) + V^ ( _ 1:t ) _ <t a_t]\\
+ &= ( _ <t ( a_t, _ t+1 ))
+ = ( _ <t ). 
+ align* 
+ proof 
+
+ th:hed-bad,th:ign-bad show that both and 
+have optimal (self-modifying) policies ^* that yield arbitrarily
+bad agent performance in the sense of def:performance .
+The ignorant agent is simply indifferent between self-modifying and not,
+since it does not realise the effect self-modification will have on
+its future actions.
+It therefore is at risks of self-modifying into some policy '_ t+1 with
+bad performance and unintended behaviour
+(for example by damaging its computer circuitry).
+The hedonistic agent actively desires to change its utility function into
+one that evaluates any situation as optimal.
+Once it has self-deluded, it can pick world actions with bad performance.
+In the worst scenario of hedonistic self-modification,
+the agent only cares about surviving to continue enjoying
+its deluded rewards.
+Such an agent
+could potentially be hard to stop or bring under control.
+ Computer viruses are very simple forms of survival agents
+that can be hard to stop.
+More intelligent versions could turn out to be very problematic. 
+More benign failure scenarios are also possible,
+in which the agent does not care whether it is shut down or not.
+The exact conditions for the different scenarios is beyond the scope
+of this paper.
+
+The realistic value functions are recursive definitions of
+ ^ -expected u_1 -utility
+( le:it ).
+That realistic agents achieve high agent performance in the sense
+of def:performance is therefore nearly tautological.
+The following theorem shows that given that the initial policy _1 
+is selected optimally, all future policies _t that a realistic agent
+may self-modify into will also act optimally.
+
+ theorem [Realistic policy-modifying agents make safe modifications]
+ th:safe-mod 
+ th:re-good 
+ Let and u_1 be modification-independent.
+ Consider a self-modifying agent whose initial policy _1= (p_1) 
+ optimises the realistic value function _1 .
+ Then, for every t 1 , for all percept sequences e_ <t ,
+ and for the action sequence a_ <t given by a_i = _ i ( _ <i ) , we have
+ equation 
+ _1( _ <t _t( _ <t )) = _1( _ <t _1( _ <t )). eq:safe-mod 
+ equation 
+ theorem 
+
+ proof 
+ We first establish that _t( _ <t ( _ <t )) 
+ is modification-independent if is optimal for :
+ By le:ex-opt in sec:omitted-proofs , there is a non-modifying
+ modification-independent
+ optimal policy ' .
+ For such a policy,
+ _t( _ <t '( _ <t ))= _t( _ <t '( _ <t )) ,
+ since all future actions, percepts, and utilities are independent
+ of past modifications.
+ Now, since is also optimal,
+ \[ _t( _ <t ( _ <t ))= _t( _ <t '( _ <t ))=
+ _t( _ <t '( _ <t )).\]
+ We can therefore write _t( _ <t ( _ <t )) 
+ if is optimal but not necessarily
+ modification-independent.
+ In particular, this holds for the initially optimal
+ policy _1 .
+
+ We now prove eq:safe-mod by induction.
+ That is, assuming that _t picks actions optimally according to _1 ,
+ then _ t+1 will do so too:
+ equation eq:ind 
+ _1( _ <t _ t ( _ <t ))= _a _1( _ <t a)
+ 
+ _1( _ 1:t _ t+1 ( _ 1:t ))= _a _1( _ 1:t a).
+ equation 
+ The base case of the induction _1( _ 1 ( ))= _a _1(a) 
+ follows immediately from the assumption of the theorem that
+ _1 is -optimal (recall that is the empty history).
+
+ Assume now that eq:safe-mod holds until time t ,
+ that the past history is _ <t , and
+ that a_t is the world consequence picked by _t( _ <t ) .
+ Let _ t+1 be an arbitrary policy that does not act optimally with
+ respect to _1 for some percept e_ t ' .
+ By the optimality of _1 , 
+ \[
+ _1( _ 1:t _ t+1 ( _ 1:t )) _1( _ 1:t _1( _ 1:t ))
+ \]
+ for all percepts e_t and with strict inequality for e_ t ' .
+ By definition of this directly implies
+ \[
+ _1( _ <t ( a_t, _ t+1 )e_t) 
+ _1( _ <t ( a_t, _ 1 )e_t)
+ \]
+ for all e_ t and with strict inequality for e_t' .
+ Consequently, _ t+1 will not be chosen at time t , since
+ align* 
+ & _1( _ <t ( a_t, _ t+1 ))\\
+ &= _ e_t [u_1( _ 1:t ) + _1( _ <t ( a_t, _ t+1 )e_t)
+ _ <t a_t ] \\
+ &< _ e_t [u_1( _ 1:t ) + _1( _ <t ( a_t, _ 1 )e_t)
+ _ <t a_t ] \\
+ &= _1( _ <t ( a_t, _ 1 ))
+ align* 
+ contradicts the antecedent of eq:ind that _t acts optimally.
+ Hence, the policy at time t+1 will be optimal with respect to _1 ,
+ which completes the induction step of the proof.
+ proof 
+
+ example [Chess-playing RL agent, continued]
+ Consider again the chess-playing RL agent of ex:chess .
+ If the agent used the realistic value functions, then it would
+ not perform the self-modification to u_t( )=1 ,
+ even if it figured out that it had the option.
+ Intuitively, the agent would realise that if it self-modified this way,
+ then its future self would be worse at winning chess games
+ (since its future version would obtain maximum utility regardless of
+ chess move).
+ Therefore, the self-modification u_t( )=1 would yield less
+ u_1 -utility and be _1 -supoptimal.
+ 
+ Note, however, that our result says nothing about the agent modifying the
+ chessboard program to give high reward even when the agent
+ is not winning.
+ Our result only shows that the agent does not change its utility function
+ u_1 u_t , but not that the agent refrains from changing
+ the percept e_t that
+ is the input to the utility function.
+ Ring2011 develop a model of the latter possibility. 
+ example 
+
+One subtlety to note is that th:re-good 
+only holds on-policy: that is,
+for the action sequence that is actually chosen by the agent.
+It can be the case that _t acts badly on histories that
+should not be reachable under the current policy.
+However, this should never affect the agent's actual actions.
+
+ th:safe-mod improves on Hibbard2012 
+mainly by relaxing the assumption that the optimal policy only
+self-modifies if it has a strict incentive to do so.
+Our theorem shows that even when the optimal policy is allowed
+to break argmax-ties arbitrarily, it will still only make
+essentially harmless modifications.
+In other words, th:safe-mod establishes that all
+optimal policies are essentially non-modifying,
+while Hibbard2012 's result
+only establishes the existence of an optimal non-modifying policy.
+Indeed, Hibbard2012 's statement holds for to ignorant agents as well.
+
+Realistic agents are not without issues, however.
+In many cases expected u_1 -utility is not exactly what we desire.
+For example:
+ itemize 
+ Corrigibility Soares2015cor .
+ If the initial utility function u_1 were incorrectly
+ specified, the agent designers may want to change it.
+ The agent will resist such changes.
+ Value learning Dewey2011 . If value learning is done in a way
+ where the initial utility function u_1 changes as they
+ agent learns more,
+ then a realistic agent will want to self-modify into a non-learning
+ agent Soares2015vl .
+ Exploration. It is important that agents explore sufficiently to avoid
+ getting stuck with the wrong world model.
+ Bayes-optimal agents may not explore sufficiently Leike2015 .
+ This can be mended by -exploration Sutton1998 
+ or Thompson-sampling Leike2016 .
+ However, as these exploration-schemes will typically lower expected utility,
+ realistic agents may self-modify into non-exploring agents.
+ itemize 
+
+## Conclusions
+
+ sec:conclusions 
+
+Agents that are sufficiently intelligent to discover unexpected
+ways of self-modification
+may still be some time off into the future.
+However, it is nonetheless important
+to develop a theory for their control Bostrom2014 .
+We approached this question from the perspective
+of rationality and utility maximisation,
+which abstracts away from most details of
+architecture and implementation.
+Indeed, perfect rationality may be viewed as a limit point for
+increasing intelligence Legg2007,Omohundro2008 .
+
+We have argued that depending on details in how expected utility is optimised in
+the agent, very different behaviours arise.
+We made three main claims, each supported by a formal theorem:
+ itemize 
+ If the agent is unaware of the possibility of self-modification,
+ then it may self-modify by accident, resulting in poor performance ( th:ign-bad ).
+ If the agent is constructed to optimise instantaneous utility
+ at every time step (as in RL),
+ then there will be an incentive for self-modification
+ ( th:hed-bad ) .
+ If the value functions incorporate the effects
+ of self-modification, and use the current utility function to
+ judge the future,
+ then the agent will not self-modify ( th:re-good ).
+ itemize 
+In other words, in order for the goal preservation drive
+described by Omohundro2008 to be effective,
+the agent must be able to anticipate the consequences of
+self-modifications, and know that it should judge the future
+by its current utility function.
+
+Our results have a clear implication for the construction of generally
+intelligent agents:
+If the agent has a chance
+of finding a way to self-modify, then the agent must be able to
+predict the consequences of such modifications.
+Extra care should be taken to avoid hedonistic agents, as they have
+the most problematic failure mode --
+they may turn into survival agents that only care about surviving
+and not about satisfying their original goals. 
+Since many general AI systems are constructed around RL and value functions
+ Mnih2015,Silver2016 ,
+we hope our conclusions can provide meaningful guidance.
+
+An important next step is the relaxation of the explicitness of the
+self-modifications. In this paper, we assumed that the agent knew
+the self-modifying consequences of its actions.
+This should ideally be relaxed to a general learning ability about
+self-modification consequences,
+in order to make the theory more applicable.
+Another open question is how to define good utility functions in the first
+place; safety against self-modification is of little consolation if the
+original utility function is bad.
+One promising venue for constructing good utility functions
+is value learning
+ Bostrom2014,Dewey2011,Everitt2016vrl,Soares2015vl .
+The results in this paper may be helpful to the value learning research project,
+as they show that the utility function does not need to explicitly
+punish self-modification ( as:sm-mod-independence ).
+
+## Acknowledgements
+
+This work grew out of a MIRIx workshop.
+We thank the (non-author) participants David Johnston and
+Samuel Rathmanner.
+We also thank John Aslanides, Jan Leike, and Laurent Orseau for reading
+drafts and providing valuable suggestions.
+
+ 
+ apalike-short 
+ lib 
+
+ 
+ 
+
+## Optimal Policies
+
+ sec:omitted-proofs 
+
+For the realistic value functions where the future policy is determined by
+the next action, an optimal policy is simply a policy ^* satisfying:
+\[
+ _ <k a_k :
+ _t( _ <k a_k) _t( _ <k ^*( _ <k )).
+\]
+ le:ex-opt establishes that despite the potentially
+infinite action sets resulting from infinite or , there
+still exists an optimal policy ^* .
+Furthermore, there exists an optimal ^* that is both
+non-modifying and modification-independent.
+ le:ex-opt is weaker than th:safe-mod in the sense
+that it only shows the existence
+of a non-modifying optimal policy, whereas th:safe-mod shows that
+all optimal policies are (essentially) non-modifying.
+As a guarantee against self-modification, le:ex-opt is on par with
+ Hibbard2012 . The proof is very different, however,
+since Hibbard2012 assumes the existence of an optimal
+policy from the start.
+The statement and the proof applies to both policy and utility modification.
+
+### Association with world policies
+
+ le:ex-opt proves the existence of an optimal policy by associating
+policies : with world policies :( )^* .
+We will define the association so that
+the realistic value of ( def:re-value )
+is the same as the standard value V^ of
+the associated world policy ( def:std-value ).
+The following definition and a lemma achieves this.
+
+ definition [Associated world policy]
+ For a given policy , let the
+ associated world policy :( )^* 
+ be defined by
+ itemize 
+ ( ) = ( ) 
+ ( _ <t ) = _t( _ <t ) for t 1 ,
+ where the history _ <t = _ <t p_ 2:t 
+ is an extension of _ <t such
+ that ^ ( _ <t )>0 (if no such extension exists, then may
+ take arbitrary action on _ <t ).
+ itemize 
+ The associated world policy is well-defined, since for any
+ _ <t , there can only be one extension
+ _ <t = _ <t p_ <t of _ <t such that
+ ^ ( _ <t )>0 since is deterministic.
+ definition 
+
+For the following lemma, recall that the belief 
+and utility functions u are assumed modification-independent
+( as:sm-mod-independence ).
+They are therefore well-defined
+for both a policy-modification model ( , , , ) 
+and the associated standard model ( def:std-value ) with action
+set and percept set .
+
+ lemma [Value-equivalence with standard model]
+ le:std-value-equiv 
+ Let ( , , , ) be a policy self-modification model,
+ and let :( )^* ( ) be a policy.
+ For the associated world policy 
+ holds that
+ itemize 
+ the measures ^ and ^ induce the
+ same measure on world histories,
+ ^ ( _ <t ) = ^ ( _ <t ) , and
+ the realistic value of is the same as the standard value of ,
+ _1( ( ))=Q^ ( ( )). 
+ itemize 
+ lemma 
+
+ proof 
+ From the definition of the associated policy , we have that
+ for any _ <t with ^ ( _ <t )>0 ,
+ \[
+ ( a_t _ <t )
+ = _ _ t+1 _t(( a_t, _ t+1 ) _ <t ).
+ \]
+ From the modification-independence of follows that
+ (e_t _ <t )= (e_t _ <t ) .
+ Thus
+ ^ and
+ ^ are equal as measures on ( )^ ,
+ \[ ^ ( _ <t )= ^ ( _ <t ),\]
+ where ^ ( _ <t ) := _ _ 2:t ^ ( _ <t ' _ 2:t ) = _ _ 2:t ^ ( _ <t ) .
+
+ The value-equivalence follows from that the realistic value functions measure
+ ^ -expected u_1 -utility, and the standard value functions
+ measure ^ -expected u_1 -utility:
+ align* 
+ _1( ( ))
+ &= _ _ 1: ^ \\
+ &= _ _ 1: ^ 
+ = Q^ ( ( )). 
+ align* 
+ proof 
+
+### Optimal policies
+
+We are now ready to show that an optimal policy exists. We treat two
+cases: Utility modification and policy modification. In the utility
+modification case, we only need to show that an optimal policy
+exists. In the policy modification case, we also need to show that we
+can add a name for the optimal policy. The idea in both cases is to
+build from an optimal world policy ^* , and use that
+associated policies have the same value by le:std-value-equiv .
+
+In the utility modification case, the policy names are
+the same as the utility functions , with
+ (u) = ^*_u = _ _u .
+For the utility modification case, it therefore suffices to show that
+an optimal policy ^*_u exists for arbitrary utility function u .
+If ^*_u exists, then u is a name for ^*_u ; if ^*_u does not exist,
+then the naming scheme is ill-defined.
+
+ theorem [Optimal policy existence, utility modification case] le:ex-opt 
+ For any modification-independent utility function u_t ,
+ there exists a modification-independent,
+ non-modifying policy ^* 
+ that is optimal with respect to _t .
+ theorem 
+
+ proof 
+ By the compactness argument of Lattimore2014 
+ an optimal policy over world actions
+ ( )^* exists.
+ Let ^* denote such a policy, and let
+ ^*(h)=( ^*( h), ^*) .
+ Then ^* is a non-modifying optimal policy.
+ Since any policy has realistic value corresponding to its
+ associated world policy by le:std-value-equiv and the associated
+ policy of ^* is ^* , it follows that ^* must be optimal.
+ proof 
+
+For the policy-modification case, we also need to know that the
+optimal policy has a name.
+The naming issue is slightly subtle, since by introducing an extra name
+for a policy, we change the action space.
+The following theorem shows that we can always add a name p^* for an optimal
+policy. In particular,
+ p^* refers to a policy that is optimal in the
+extended action space '= (P \ p^*\ ) 
+with the added name p^* .
+
+ theorem [Optimal policy name] le:name-opt 
+ For any policy-modification model ( , , , ) 
+ and modification independent belief and utility function
+ and u ,
+ there exists extensions ' and ' ,
+ ': ' ,
+ such that an optimal policy ^* for ( , , ', ') 
+ has a name p^* ' , i.e.\ ^*= '(p^*) .
+ Further, the optimal named policy ^* can be
+ assumed modification-independent and non-modifying.
+ theorem 
+
+ proof 
+ Let ^* be a world policy ( )^* 
+ that is optimal with respect to the standard value function V 
+ (such a policy exists by Lattimore2014 ).
+
+ Let p^* be a new name p^* , '= \ p^*\ ,
+ and define the policy ^*:( ' )^* ( ') 
+ by ^*(h):=( ^*( h),p^*) for any history h .
+ Finally, define the extension ' of by
+ \[
+ '(p) =
+ cases 
+ (p) & if p \\
+ ^* & if p = p^*.
+ cases 
+ \]
+
+ It remains to argue that ^* is optimal.
+ The associated world policy of ^* is ^* , since ^* is
+ non-modifying and always takes the same world action as ^* .
+ By le:std-value-equiv , all
+ policies for ( , , ', ') have values equal to the value
+ of their associated world policies ( )^* .
+ So ^* must be optimal for ( , , ', ') 
+ since it is associated with an optimal world policy ^* .
+ proof 
+
+ document

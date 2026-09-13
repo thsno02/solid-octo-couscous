@@ -1,106 +1,109 @@
-# Materialization and Source-Specific Consumption
+# 来源物化与消费（Materialization and Consumption）
 
-## Why this layer exists
+## 目标与不变量
 
-A source record is not automatically consumable. Different source families expose different units of meaning, version semantics, selectors, rights constraints, and failure modes.
+来源记录存在，不代表消费者能够直接使用。论文、repository、标准、网页和受限出版物具有不同的版本语义、证据定位方式、权利边界与失败模式。本层保证：
 
-Examples:
+1. 每条 `raw_data/**/metadata.yaml` 都对应一个本地胶囊（local capsule）；
+2. 每个胶囊都记录来源身份、获取状态、本地文件、hash 和降级诊断；
+3. 可消费内容具有可解析的证据定位器（evidence selector）；
+4. 无法合法或技术性取得全文时，显式降级为摘录或 metadata，不伪装成全文；
+5. 物化成功不等于知识已可信（trusted）。
 
-- arXiv is best consumed from a versioned TeX source tree;
-- a PDF needs page, region, table, and figure selectors;
-- a GitHub repository is a mutable software system rather than a linear document;
-- a blog needs a time-stamped HTML snapshot and paragraph selectors;
-- a standard needs an exact edition and normative-section identity;
-- a dataset needs release, split, row/field identity, checksum, and license;
-- a retraction is a change event that must propagate through dependencies.
-
-The repository therefore separates four layers:
+当前分层为：
 
 ```text
-raw_data/              discovery metadata and provenance
-source_registry/       normalized identity and adapter selection
-materialized_sources/  frozen source-specific artifacts
-knowledge/ and wiki/   future claims, evidence, pages, and consumer views
+raw_data/                         来源 metadata 与 provenance
+source_registry/                  统一身份、adapter 与物化状态
+materialized_sources/corpus/      每条记录一个来源专属胶囊
+experiments/v0_meta_kb_.../       从本地胶囊构建的候选知识 demo
 ```
 
-## Source registry
+权威机器入口是 `materialized_sources/index.yaml` 和 `source_registry/registry.yaml`。
 
-`source_registry/registry.yaml` is generated from every `raw_data/**/metadata.yaml` record. Each entry states:
+## 内容层级（Content Tiers）
 
-- stable `uid` and canonical identity;
-- verification and collection priority;
-- metadata path;
-- selected consumption adapter;
-- whether semanticization is required;
-- current materialization state and manifest path.
+| 层级 | 含义 | 可用于什么 |
+|---|---|---|
+| `full_text` | 开放或来源原生的完整文本已保存在本地 | 结构解析、claim/evidence 抽取 |
+| `semantic_capsule` | repository 固定到 commit，并保存预算内的高价值证据文件 | 架构、接口与实现线索分析 |
+| `excerpt_capsule` | 因权利或访问约束只保存有边界摘录 | 有限证据与来源发现 |
+| `metadata_capsule` | 只保存 metadata 与获取诊断 | 身份、缺口与后续补采计划 |
 
-`registry.jsonl` provides the same information one source per line.
+`partial` 表示胶囊可用但某一步不完整，例如 TeX root detection 失败或只允许保存摘录；它不等于记录缺失。
 
-## Adapter contract
+## arXiv adapter
 
-The machine-readable catalog is `raw_data/collections/source_consumption_adapters.yaml`. Every adapter must:
-
-1. freeze a source revision;
-2. retain retrieval time, hash, and rights state;
-3. produce stable selectors;
-4. report extraction loss and omitted content;
-5. keep evidence separate from summaries;
-6. be idempotent for the same revision and configuration;
-7. expose dependency information for update, removal, or retraction propagation.
-
-## arXiv materialization
-
-The `arxiv_latex` adapter downloads a source bundle, records its archive hash, safely extracts text-bearing files, detects a root TeX candidate, and creates:
+arXiv 优先获取 source archive，而不是把 PDF 粗略切块：
 
 ```text
-materialized_sources/arxiv/<id>/
-├── manifest.yaml
-├── SOURCE_MAP.md
-├── files.jsonl
-├── selectors.jsonl
-├── source/
-└── normalized/main.tex
+arXiv ID → source archive → archive hash → 安全解包
+→ TeX/include 结构 → normalized document → file/line selectors
 ```
 
-The archive is hashed but not retained. Binary figures are omitted from the first text-oriented pass and listed in the manifest. PDF materialization remains the fallback for visual and layout evidence.
+胶囊保存文本型 source files、文件清单、normalized document 和 selectors。图片等二进制成员不会在文本优先通道中盲目复制，但其省略状态会被记录。
 
-## GitHub repository materialization
+## GitHub adapter
 
-A mutable repository URL must not be passed directly to a knowledge compiler. The `github_repo_wiki` adapter freezes one commit and constructs:
+Repository 是可变软件系统，不是线性文档。GitHub adapter 会：
 
-```text
-materialized_sources/github/<owner>--<repo>/
-├── manifest.yaml
-├── evidence/
-│   ├── files.jsonl
-│   ├── excerpts.jsonl
-│   └── excerpts/
-└── wiki/
-    ├── index.md
-    ├── overview.md
-    ├── architecture.md
-    └── interfaces-and-operations.md
+1. 固定默认分支的 commit；
+2. 在预算内选择 README、架构文档、接口文档、依赖与构建配置等高价值文件；
+3. 将选中证据保存到本地；
+4. 生成 commit-pinned file/line selectors；
+5. 生成候选 mini-wiki，但不执行第三方代码，也不把 README 声明自动当成实现事实。
+
+正常路径使用 GitHub API 获取 repository tree 和 blob。API token 缺失、失效或触发限额时，adapter 使用 `git ls-remote` 固定 commit，再从 `raw.githubusercontent.com` 探测一组明确的高价值路径。fallback 会标记 `tree_truncated: true`，不会冒充完整 tree inventory。
+
+## 通用文档与网页 adapter
+
+Journal、blog、methodology、standard 等来源按以下顺序处理：
+
+- 根据 canonical URL 和 metadata 构造候选 URL；
+- 记录 resolved URL、content type、bytes 与 hash；
+- 对开放内容保存全文；
+- 未确认再分发权利时只保存 bounded excerpt；
+- 全部候选失败时保存 metadata capsule 与错误诊断。
+
+## 运行与增量重建
+
+```bash
+make materialize
+make validate
 ```
 
-The complete repository is not copied. The file index preserves paths and blob SHAs. Selected documentation and manifest excerpts receive `repo://...#Lx-Ly` selectors. Candidate pages organize the evidence, but remain in review state.
+`make materialize` 执行全量物化、构建 v0 demo，并运行所有验证。也可以分别执行：
 
-This deterministic capsule does not prove runtime behavior, build success, or agreement between README and implementation. A later repo-wiki pass should add symbol graphs, call relations, tests, releases, issues, paper-to-code mappings, and execution evidence.
+```bash
+make materialize-all
+make build-demo
+make validate-materialized
+```
 
-## Legacy metadata migration
+单一来源类型可增量重建。例如 GitHub API 状态变化后，只重建 repository 胶囊：
 
-`scripts/materialize_pipeline.py` first adds missing common-schema fields without overwriting source-specific fields. Structurally migrated records receive `verification.state: pending`, not a false verified state. Unknown values remain unknown.
+```bash
+python scripts/materialize_all_sources.py \
+  --config pipeline/materialization_all_260910.yaml \
+  --only-source-type github
+```
 
-## Validation boundary
+增量模式要求其他记录已经存在本地 manifest；完成后仍会统一重建 registry、index 和 completeness audit。
 
-`scripts/validate_materialized.py` checks hashes, selector targets, required capsule files, wiki frontmatter schema, unique registry identities, and local evidence references.
+## 2026-09-14 验收快照
 
-Passing proves structural integrity. It does not prove a scientific claim or repository runtime behavior.
+- metadata records：215；
+- local manifests：215；
+- `full_text`：91；
+- `semantic_capsule`：80；
+- `excerpt_capsule`：27；
+- `metadata_capsule`：17；
+- hashed files：2,820；
+- selectors：24,841；
+- materialization validation errors：0。
 
-## Initial batch
+`raw_data/audits/materialization_completeness_2026-09-10.yaml` 保存完整审计，实际权威计数仍以最新 `materialized_sources/index.yaml` 为准。
 
-The first materialization batch covers:
+## 信任边界（Trust Boundary）
 
-- Gödel Machines, DGM, AI Scientist, STORM, A-MEM, and Zep from arXiv;
-- DGM, AI Scientist, Graphiti, sage-wiki, LinkML, and OpenKB from GitHub.
-
-This spans RSI, Auto Research, knowledge evolution, ontology/schema, and compiled-wiki implementations while remaining small enough to inspect.
+验证通过只证明本地胶囊、hash、selector、registry 和 index 结构一致。它不证明论文结论已复现、repository 能运行、网页声明为真，或候选 wiki 已获准发布。后续知识层仍必须执行 claim-level evidence binding、冲突检查、风险评审与可回滚准入。

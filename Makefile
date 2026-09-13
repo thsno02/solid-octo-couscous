@@ -1,24 +1,29 @@
 PYTHON ?= python3
-MATERIALIZATION_CONFIG ?= pipeline/materialization.yaml
-ARXIV_WORKERS ?= 2
-GITHUB_WORKERS ?= 3
+MATERIALIZATION_CONFIG ?= pipeline/materialization_all_260910.yaml
+EXPERIMENT ?= experiments/v0_meta_kb_initialization_demo_260910
 
-.PHONY: materialize validate validate-raw validate-materialized validate-docs
+.PHONY: materialize materialize-all build-demo validate validate-raw validate-materialized validate-materialization validate-docs validate-demo
 
-materialize:
-	$(PYTHON) scripts/preflight_legacy_metadata.py
-	$(PYTHON) scripts/materialize_parallel.py --config $(MATERIALIZATION_CONFIG) --arxiv-workers $(ARXIV_WORKERS) --github-workers $(GITHUB_WORKERS)
-	$(PYTHON) scripts/pin_materialized_selectors.py
-	$(PYTHON) scripts/register_materialization.py
-	$(MAKE) validate
+materialize: materialize-all build-demo validate
 
-validate: validate-raw validate-materialized validate-docs
+materialize-all:
+	$(PYTHON) scripts/materialize_all_sources.py --config $(MATERIALIZATION_CONFIG)
+
+build-demo:
+	$(PYTHON) $(EXPERIMENT)/pipeline/build_demo.py
+
+validate: validate-raw validate-materialization validate-docs validate-demo
 
 validate-raw:
 	$(PYTHON) scripts/validate_raw_data.py
 
-validate-materialized:
-	$(PYTHON) scripts/validate_materialized.py
+validate-materialization:
+	$(PYTHON) scripts/validate_materialization_completeness.py
+
+validate-materialized: validate-materialization
 
 validate-docs:
 	$(PYTHON) scripts/validate_docs.py
+
+validate-demo:
+	$(PYTHON) $(EXPERIMENT)/pipeline/validate_demo.py

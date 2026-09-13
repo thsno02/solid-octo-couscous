@@ -1,0 +1,48 @@
+\section{Seeking \texorpdfstring{$\pwrNoDist$}{POWER} can be a detour}\label{app:not-always}
+\newcommand*{\sne}{s_3}
+\newcommand*{\sn}{s_2}
+\newcommand*{\startApp}{\col{blue}{s_1}}
+\begin{remark}
+The results of appendix \ref{app:proofs} do not depend on this section's results.
+\end{remark}
+
+One might suspect that optimal policies tautologically tend to seek $\pwrNoDist$. This intuition is wrong.
+
+\begin{figure}[!ht]\centering
+    \includegraphics{main-tex/assets/tikz/main-appendix/detour.pdf}
+    \caption{}\label{fig:power-not-ic}
+\end{figure} 
+
+\begin{restatable}[Greater $\pwr$ does not imply greater $\Prb_{\Dbd}$]{prop}{PowerNotIC}\label{prop:power-not-ic} Action $a$ seeking more $\pwr$ than $a'$ at state $s$ and $\gamma$ does not imply that $\optprob[\Dbd]{s,a,\gamma}\geq\optprob[\Dbd]{s,a',\gamma}$.
+\end{restatable}
+\begin{proof}
+Consider the environment of \cref{fig:power-not-ic}. Let $\Dist_u\defeq \text{unif}(0,1)$, and consider $\Diid[\Dist_u]$, which has bounded support. Direct computation\footnote{In small deterministic {\mdp}s, the $\pwrNoDist$ and optimality probability of the maximum-entropy reward function distribution can be computed using  \href{https://github.com/loganriggs/Optimal-Policies-Tend-To-Seek-Power}{https://github.com/loganriggs/Optimal-Policies-Tend-To-Seek-Power}.} of the $\pwrNoDist$ expectation (\cref{def:power}) yields $\pwr[\sn,1][\Diid[\Dist_u]]=\frac{3}{4}> \frac{2}{3}=\pwr[\sne,1][\Diid[\Dist_u]]$. Therefore, $\texttt{N}$ seeks more $\pwr[][\Diid[\Dist_u]]$ than $\texttt{NE}$ at state $\startApp$ and $\gamma=1$. 
+
+However, $\optprob[\Diid[\Dist_u]]{\startApp,\texttt{N},1}=\frac{1}{3}<\frac{2}{3}=\optprob[\Diid[\Dist_u]]{\startApp,\texttt{NE},1}$.
+\end{proof}
+
+\begin{restatable}[Fraction of orbits which agree on weak optimality]{lem}{fracOrbi}\label{lem:half-orbit-geq}
+Let $\distSet\subseteq \Delta(\rewardVS)$, and suppose $f_1,f_2:\Delta(\rewardVS)\to \reals$ are such that $f_1(\D) \geqMost[][\distSet] f_2(\D)$. Then for all $\D\in\distSet$, $\frac{\abs{\set{\D' \in\orbi[\D]\mid f_1(\D')\geq f_2(\D')}}}{\abs{\orbi[\D]}}\geq \dfrac{1}{2}$.
+\end{restatable}
+\begin{proof}
+All $\D'\in \orbi[\D]$ such that $f_1(\D')= f_2(\D')$ satisfy $f_1(\D')\geq f_2(\D')$.
+
+Otherwise, consider the $\D'\in \orbi[\D]$ such that $f_1(\D')\neq f_2(\D')$. By the definition of $\geqMost[][]$ (\cref{def:ineq-most-dists}), at least $\frac{1}{2}$ of these $\D'$ satisfy $f_1(\D')> f_2(\D')$, in which case $f_1(\D')\geq f_2(\D')$. Then the desired inequality follows.
+\end{proof}
+
+\begin{restatable}[$\geq_\text{most}$ and trivial orbits]{lem}{identGeqMost}\label{lem:ident-geq-most}
+Let $\distSet\subseteq \Delta(\rewardVS)$ and suppose $f_1(\D) \geqMost[][\distSet] f_2(\D)$. For all reward function distributions $\D\in\distSet$ with one-element orbits, $f_1(\D)\geq f_2(\D)$. In particular, $\D$ has a one-element orbit when it distributes reward identically and independently ({\iid}) across states.
+\end{restatable}
+\begin{proof}
+By \cref{lem:half-orbit-geq}, at least half of the elements $\D'\in \orbi[\D]$ satisfy $f_1(\D')\geq f_2(\D')$. But $\abs{\orbi[\D]}=1$, and so $f_1(\D)\geq f_2(\D)$ must hold.
+
+If $\D$ is {\iid}, it has a one-element orbit due to the assumed identical distribution of reward.
+\end{proof}
+
+\begin{restatable}[Actions which tend to seek $\pwrNoDist$ do not necessarily tend to be optimal]{prop}{PowerNotICMost}\label{prop:power-not-ic-most} Action $a$ tending to seek more $\pwrNoDist$ than $a'$ at state $s$ and $\gamma$ does not imply that $\optprob[\Dany]{s,a,\gamma}\geqMost \optprob[\Dany]{s,a',\gamma}$.
+\end{restatable}
+\begin{proof}
+Consider the environment of \cref{fig:power-not-ic}. Since $\RSDnd[\sne]\subsetneq\RSD[\sn]$, \cref{RSDSimPower} shows that $\pwr[\sn,1][\Dbd]\geqMost[][\DSetBd] \pwr[\sne,1][\Dbd]$ via $s'\defeq \sne,s\defeq \sn,\phi$ the identity permutation (which is an involution). Therefore, $\texttt{N}$ tends to seek more $\pwrNoDist$ than $\texttt{NE}$ at state $\startApp$ and $\gamma=1$.
+
+If $\optprob[\Dany]{\startApp,\texttt{N},1}\geqMost\optprob[\Dany]{\startApp,\texttt{NE},1}$, then \cref{lem:ident-geq-most} shows that $\optprob[\Diid]{\startApp,\texttt{N},1}\geq\optprob[\Diid]{\startApp,\texttt{NE},1}$ for all $\Diid$. But the proof of \cref{prop:power-not-ic} showed that $\optprob[\Diid[\Dist_u]]{\startApp,\texttt{N},1}<\optprob[\Diid[\Dist_u]]{\startApp,\texttt{NE},1}$ for $\Dist_u\defeq\text{unif}(0,1)$. Therefore, it cannot be true that $\optprob[\Dany]{\startApp,\texttt{N},1}\geqMost\optprob[\Dany]{\startApp,\texttt{NE},1}$.
+\end{proof} 

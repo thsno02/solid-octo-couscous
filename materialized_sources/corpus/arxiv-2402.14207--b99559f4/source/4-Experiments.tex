@@ -1,0 +1,97 @@
+\label{sec:exp}
+\subsection{Article Selection}
+\system is capable of researching complicated topics and writing long articles from detailed outlines. However, in this controlled experiment, we limit the final output to at most 4000 tokens (roughly 3000 words). For a meaningful comparison, we randomly select 100 samples from the FreshWiki dataset (see~\refsec{sec:task_dataset}) that have human-written articles not exceeding 3000 words.%
+
+\subsection{Automatic Metrics}
+\label{sec:automatic_metrics}
+As discussed in~\refsec{sec:task_outline}, we evaluate the outline quality %
+to assess the pre-writing stage by calculating the \textit{heading soft recall} and \textit{heading entity recall}. %
+A higher recall score signifies a more comprehensive outline relative to the human-written article.
+
+To assess the full-length article quality, %
+we adopt \textit{ROUGE scores}~\citep{lin-2004-rouge} and compute the \textit{entity recall} in the article level based on FLAIR NER results. %
+Moreover, based on Wikipedia criteria\footnote{\url{https://en.wikipedia.org/wiki/Wikipedia:Good_article_criteria}}, we evaluate the article from the aspects of (1) \textit{Interest Level}, (2) \textit{Coherence and Organization}, (3) \textit{Relevance and Focus}, (4) \textit{Coverage}, and (5) \textit{Verifiability}. 
+For aspects (1)-(4), we use Prometheus~\citep{kim2023prometheus}, a 13B evaluator LLM to score the article based on a 5-point rubric collaboratively developed with two experienced Wikipedia editors (see Appendix~\ref{appendix:rubric}). For verifiability, we calculate the \textit{citation recall} and \textit{citation precision} based on the definition in~\citet{gao-etal-2023-enabling}. We use Mistral 7B-Instruct~\citep{jiang2023mistral} to examine whether the cited passages entail the generated sentence.
+
+
+
+
+
+
+\begin{table*}[h]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{l!{\vrule width \lightrulewidth}ccc!{\vrule width \lightrulewidth}cccc} 
+\toprule
+                         & \multicolumn{3}{c!{\vrule width \lightrulewidth}}{\textbf{Comparsion with Human-written Articles}} & \multicolumn{4}{c}{\textbf{Rubric Grading}}                     \\
+                         & ROUGE-1        & ROUGE-L        & Entity Recall                                                    & Interest Level & Organization  & Relevance     & Coverage       \\ 
+\midrule
+Direct Gen               & 25.62          & 12.63          & 5.08                                                             & 2.87           & 4.60          & 3.10          & 4.16           \\
+RAG     & 28.52          & 13.18          & 7.57                                                             & 3.14           & 4.22          & 3.05          & 4.08           \\
+oRAG & 44.26          & 16.51          & 12.57                                                            & 3.90           & 4.79          & 4.09          & 4.70           \\ 
+\midrule
+\textbf{STORM}           & \textbf{45.82} & \textbf{16.70} & \textbf{14.10}\dag                                                   & \textbf{3.99}\dag  & 4.82 & \textbf{4.45}\dag & \textbf{4.88}\dag  \\
+~ w/o Outline Stage      & 26.77          & 12.77          & 7.39                                                             & 3.33           & \textbf{4.87}          & 3.35          & 4.37           \\
+\bottomrule
+\end{tabular}
+}
+\caption{Results of automatic article quality evaluation. \dag~ denotes significant differences ($p<0.05$) from a paired $t$-test between \system and the best baseline, \ie, oRAG.
+The rubric grading uses a 1-5 scale. 
+}
+\label{table:article_quality}
+\vspace{-0.3em}
+\end{table*}
+
+\begin{table}[h]
+\centering
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{llcc} 
+\toprule
+                         &                    & \begin{tabular}[c]{@{}c@{}}\textbf{Heading}\\\textbf{Soft Recall}\end{tabular} & \begin{tabular}[c]{@{}c@{}}\textbf{Heading}\\\textbf{Entity Recall}\end{tabular}  \\ 
+\midrule
+
+\multirow{5}{*}{GPT-3.5} & Direct Gen         & 80.23                                                                          & 32.39                                                                             \\
+                         & RAG/oRAG                & 73.59                                                                          & 33.85                                                                             \\
+                         & ~ RAG-expand  & 74.40                                                                          & 33.85                                                                             \\
+\cmidrule{2-4}
+                         & \textbf{STORM}     & \textbf{86.26}\dag                                                                 & \textbf{40.52}\dag                                                                    \\
+                         & ~ w/o Perspective  & 84.49                                                                          & 40.12                                                                             \\
+                         & ~ w/o Conversation & 77.97                                                                          & 31.98                                                                             \\
+
+\midrule
+
+
+\multirow{5}{*}{GPT-4} & Direct Gen         & 87.66                                                                          & 34.78                                                                             \\
+                         & RAG/oRAG                & 89.55                                                                          & 42.38                                                                             \\ 
+                         & ~ RAG-expand  & 91.36                                                                          & 43.53                                                                             \\
+\cmidrule{2-4}
+                         & \textbf{STORM}     & \textbf{92.73}\dag                                                                 & \textbf{45.91}                                                                    \\
+                         & ~ w/o Perspective  & 92.39                                                                          & 42.70                                                                             \\
+                         & ~ w/o Conversation & 88.75                                                                          & 39.30                                                                             \\ 
+\bottomrule
+\end{tabular}
+}
+\caption{Results of outline quality evaluation (\%). \dag~ denotes significant differences ($p<0.05$) from a paired $t$-test between \system and baselines.}
+\label{table:outline_quality}
+\vspace{-0.7em}
+\end{table}
+
+
+
+\subsection{Baselines}
+As prior works use different setups and do not use LLMs, they are hard to compare directly. Instead, we use the following three LLM-based baselines.
+
+\begin{enumerate}
+\item {\textit{Direct Gen}, a baseline that directly prompts the LLM to generate an outline, which is then used to generate the full-length article.}
+\item {\textit{RAG}, a retrieval-augmented generation baseline that searches with the topic and uses the searched results together with the topic $t$ to generate an outline or the entire article.} 
+\item {\textit{Outline-driven RAG (oRAG)}, which is identical to \textit{RAG} in outline creation, but further searches additional information with section titles to generate the article section by section.}
+\end{enumerate}
+
+
+\subsection{\system Implementation}
+We build \system with zero-shot prompting using the DSPy framework~\citep{khattab2023dspy}. Appendix~\ref{appendix:pseudo_code} includes the pseudo code and corresponding prompts. The hyperparameters $N$ and $M$ in \system are both set as 5. We use the chat model \texttt{gpt-3.5-turbo} for question asking and use \texttt{gpt-3.5-turbo-instruct} for other parts of \system. We also experiment with using \texttt{gpt-4} for drafting and refining the outline (\reffig{Fig.method}~\Circled{7}-\Circled{8}). For reported results, the simulated topic expert in \system is grounded on the You.com search API\footnote{\url{https://documentation.you.com/api-reference/search}}, although the proposed pipeline is compatible with other search engines. The ground truth Wikipedia article is excluded from the search results.
+
+For final article generation, we only report the results using \texttt{gpt-4} as \texttt{gpt-3.5} is not faithful to sources when generating text with citations~\citep{gao-etal-2023-enabling}. We set temperature as 1.0 and top\_p as 0.9 for all experiments.
+
+
+

@@ -1,0 +1,29 @@
+\section{Retrieval-Augmented Generation}
+\label{sec:model}
+% To address queries with an awareness of large-scale external knowledge, Retrieval-Augmented Generation (RAG) integrates the capabilities of retrieval algorithms and generative models. Specifically, the retrieval module develops efficient data structures from external documents, excelling in rapid query-based indexing and comprehensive information summarization. Utilizing this retrieved content, the general-purpose generative module, such as a Large Language Model (LLM), generates responses that are contextually informed by the relevant information from the external database. 
+Retrieval-Augmented Generation (RAG) integrates user queries with a collection of pertinent documents sourced from an external knowledge database, incorporating two essential elements: the \textbf{Retrieval Component} and the \textbf{Generation Component}. 1) The retrieval component is responsible for fetching relevant documents or information from the external knowledge database. It identifies and retrieves the most pertinent data based on the input query. 2) After the retrieval process, the generation component takes the retrieved information and generates coherent, contextually relevant responses. It leverages the capabilities of the language model to produce meaningful outputs.
+Formally, this RAG framework, denoted as $\mathcal{M}$, can be defined as follows:
+\begin{align}
+    \mathcal{M} = \Big( \mathcal{G}, ~~ \mathcal{R}=(\varphi, \psi) \Big),~~~
+    \mathcal{M}(q; \mathcal{D}) = \mathcal{G}\Big(q, \psi(q; \hat{\mathcal{D}})\Big),~~~\hat{\mathcal{D}} = \varphi(\mathcal{D})
+\end{align}
+In this framework, $\mathcal{G}$ and $\mathcal{R}$ represent the generation module and the retrieval module, respectively, while $q$ denotes the input query and $D$ refers to the external database. The retrieval module $\mathcal{R}$ includes two key functionalities: i) \textbf{Data Indexer} $\varphi (\cdot)$: which involves building a specific data structure $\hat{\mathcal{D}}$ based on the external database $D$. ii) \textbf{Data Retriever} $\psi(\cdot)$: The relevant documents are obtained by comparing the query against the indexed data, also denoted as ``relevant documents''. By leveraging the information retrieved through $\psi(\cdot)$ along with the initial query $q$, the generative model $\mathcal{G}(\cdot)$ efficiently produces high-quality, contextually relevant responses.
+
+% $\varphi$, which involves building a specific data structure $\hat{\mathcal{D}}$ based on $D$, and $\psi$, which denotes the retrieval algorithm optimized for this data structure. Leveraging the information retrieved by $\psi$ along with the initial query $q$, the generative model $\mathcal{G}$ efficiently delivers high-quality, contextually relevant responses.
+
+% Based on this formulation, several key points emerge for the retrieval module of a RAG framework. $\bullet$ Firstly, the constructed data structure $\hat{\mathcal{D}}$ should support \textbf{efficient and low-cost retrieval} to accommodate a large volume of queries. $\bullet$  Secondly, the indexing function $\varphi$ should be able to \textbf{extract global information} that aids in answering high-level queries. $\bullet$ Lastly, the \textbf{extensibility of the data structure} is crucial for fast-adapting the external knowledge base $\mathcal{D}$. Based on the discussions, our \model\ framework is designed to achieve these objectives through an extensible graph-based indexing method that enables efficient retrieval and effective global summarization.
+
+In this work, we target several key points essential for an efficient and effective Retrieval-Augmented Generation (RAG) system which are elaborated below:\vspace{-0.05in}
+\begin{itemize}[leftmargin=*]
+
+\item \textbf{Comprehensive Information Retrieval}: The indexing function $\varphi(\cdot)$ must be adept at extracting global information, as this is crucial for enhancing the model's ability to answer queries effectively.
+
+\item \textbf{Efficient and Low-Cost Retrieval}: The indexed data structure $\hat{\mathcal{D}}$ must enable rapid and cost-efficient retrieval to effectively handle a high volume of queries.
+
+\item \textbf{Fast Adaptation to Data Changes}: The ability to swiftly and efficiently adjust the data structure to incorporate new information from the external knowledge base, is crucial for ensuring that the system remains current and relevant in an ever-changing information landscape.
+
+\end{itemize}
+
+% target of RAG
+% formulation of RAG
+% challenges of RAG

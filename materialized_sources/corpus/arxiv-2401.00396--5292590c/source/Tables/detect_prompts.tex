@@ -1,0 +1,52 @@
+\begin{table*}[!ht]
+
+\renewcommand{\arraystretch}{1.1}
+
+\small
+\centering
+    \begin{tabular}{p{1.0\textwidth}}
+    \toprule
+    \textbf{\textsc{Summarization}}\\
+    \midrule
+    Below is the original news:\\
+\{article\}\\
+Below is a summary of the news:\\
+\{summary\}\\
+Your task is to determine whether the summary contains either or both of the following two types of hallucinations:\\
+1. conflict: instances where the summary presents direct contraction or opposition to the original news;\\
+2. baseless info: instances where the generated summary includes information which is not substantiated by or inferred from the original news. \\
+Then, compile the labeled hallucinated spans into a JSON dict, with a key "hallucination list" and its value is a list of hallucinated spans. If there exist potential hallucinations, the output should be in the following JSON format: \{"hallucination list": [hallucination span1, hallucination span2, ...]\}. Otherwise, leave the value as a empty list as following: \{"hallucination list": []\}.\\
+Output:\\
+    \midrule
+    \textbf{\textsc{Question answering}}\\
+    \midrule
+        Below is a question:\\
+\{question\}\\
+Below are related passages:\\
+\{passages\}\\
+Below is an answer:\\
+\{answer\}\\
+Your task is to determine whether the answer contains either or both of the following two types of hallucinations: \\
+1. conflict: instances where the answer presents direct contraction or opposition to the passages;\\
+2. baseless info: instances where the answer includes information which is not substantiated by or inferred from the passages.\\
+Then, compile the labeled hallucinated spans into a JSON dict, with a key "hallucination list" and its value is a list of hallucinated spans. If there exist potential hallucinations, the output should be in the following JSON format: \{"hallucination list": [hallucination span1, hallucination span2, ...]\}. Otherwise, leave the value as a empty list as following: \{"hallucination list": []\}.\\
+Output:\\
+    
+    \midrule
+    \textbf{\textsc{Data-to-text Writing}}\\
+    \midrule
+Below is a structured data in the JSON format:\\
+\{business info\}\\
+Below is an overview article written in accordance with the structured data:\\
+\{overview\}\\
+Your task is to determine whether the overview contains either or both of the following two types of hallucinations: \\
+1. conflict: instances where the overview presents direct contraction or opposition to the structured data;\\
+2. baseless info: instances where the generated overview includes information which is not substantiated by or inferred from the structured data.\\
+In JSON, "null" or "None" represents an unknown value rather than a negation. \\
+Then, compile the labeled hallucinated spans into a JSON dict, with a key "hallucination list" and its value is a list of hallucinated spans. If there exist potential hallucinations, the output should be in the following JSON format: \{"hallucination list": [hallucination span1, hallucination span2, ...]\}. Otherwise, leave the value as a empty list as following: \{"hallucination list": []\}.\\
+Output:\\
+    \bottomrule
+    \end{tabular}
+    \caption{Prompts for detecting hallucination for the three types of tasks. In the prompt for data-to-text writing, we clarified that null or None in JSON should be treated as unknown rather than a negation.} 
+    \label{tab:prompts}
+\end{table*}

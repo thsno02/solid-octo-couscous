@@ -1,0 +1,23 @@
+\begin{table}
+    \centering
+    \small
+    \begin{tabular}{llcccc}
+        \toprule
+        && \multicolumn{2}{c}{\textbf{Wikitext Generation}} & \multicolumn{2}{c}{\textbf{zsRE Question-Answering}} \\
+        \cmidrule(lr){3-4} \cmidrule(lr){5-6}
+        && \multicolumn{2}{c}{distilGPT-2 (82M)} & \multicolumn{2}{c}{BART-base (139M)} \\
+        \midrule
+        \name~Variant & Editor Parameters & ES $\uparrow$ & ppl. DD $\downarrow$ & ES $\uparrow$ & acc. DD $\downarrow$ \\
+        \midrule
+        No sharing & $O((m+n)^2N)$        & \textbf{0.86} & \textbf{0.195} & \textbf{\textgt{0.99}} & 0.001\\
+        No norm. & $O((m+n)^2)$           & 0.02 & 0.370 & 0.97 & \textbf{\textlt{0.001}} \\
+        No ID init. & $O((m+n)^2)$        & 0.27 & 0.898 & 0.94 & \textbf{\textlt{0.001}} \\
+        Only $u_\ell$ & $O(m^2)$          & 0.63 & 0.559 & 0.98 & 0.002 \\
+        Only $\delta_{\ell+1}$ & $O(n^2)$ & 0.80 & 0.445 & \textbf{0.99} & 0.001 \\
+        Only smaller & $O(\min(m,n)^2)$   & 0.80 & 0.593 & 0.98 & 0.002 \\
+        \midrule
+        \name & $O((m+n)^2)$              & \textbf{0.86} & {0.225} & \textbf{\textgt{0.99}} & 0.001 \\
+        \bottomrule
+    \end{tabular}\caption{\textbf{Ablating various properties of \name}~on the Wikitext and zsRE question-answering editing problems. $m = \text{dim}(u_\ell)$, $n = \text{dim}(\delta_{\ell+1})$, and $N$ is the number of layers being edited. Removing \name's identity initialization and input normalization noticeably lowers editing performance, and relaxations of \name, particularly the `only smaller' variant that only outputs pseudoactivations \textit{or} pseudodeltas, whichever is smaller, show competitive performance, which bodes well for scaling \name~to 100 billion+ parameter models.}
+  \label{tab:ablations}
+\end{table}

@@ -1,0 +1,29 @@
+\section{Lists of results}\label{app:thms}
+
+\renewcommand\listtheoremname{List of definitions}
+\listoftheorems[ignoreall, show={definition}]  
+
+\renewcommand\listtheoremname{List of theorems}
+\ignoretheorems{cor-no-num,conjecture,remark,definition}
+\listoftheorems[]  
+
+\subsection{Contributions of independent interest}\label{app:contrib}
+We developed new basic {\mdp} theory by exploring the structural properties of visit distribution functions. Echoing \citet{wang_dual_2007,wang_stable_2008}, we believe that this area is interesting and underexplored.
+
+\subsubsection{Optimal value theory} 
+\Cref{lem:norm-value-lip} shows that $f(\gamma^*)\defeq\lim_{\gamma^*\to \gamma}(1-\gamma^*)\OptVf{s,\gamma^*}$ is Lipschitz continuous on $\gamma\in[0,1]$, with Lipschitz constant depending only on $\lone{R}$.  For all states $s$ and policies $\pi\in\Pi$, \cref{smoothOnPol} shows that $V^\pi_R(s,\gamma)$ is rational on $\gamma$. 
+
+Optimal value has a well-known dual formulation: $\OptVf{s,\gamma}=\max_{\f\in\F(s)}\f(\gamma)^\top \rf$. 
+\begin{restatable*}[$\forall\gamma\in[0,1):\OptVf{s,\gamma}=\max_{\f\in\Fnd(s)}\f(\gamma)^\top \rf$]{lem}{optVfFndRestrict}\label{cor:opt-vf-restrict-fnd}
+\end{restatable*}
+In a fixed rewardless {\mdp}, \cref{cor:opt-vf-restrict-fnd} may enable more efficient computation of optimal value functions for multiple reward functions.
+
+\subsubsection{Optimal policy theory} 
+\Cref{transferDiscount} demonstrates how to preserve optimal incentives while changing the discount rate.
+
+\begin{restatable*}[How to transfer optimal policy sets across discount rates]{prop}{transferDiscount}\label{transferDiscount}
+Suppose reward function $R$ has optimal policy set $\optPi[R,\gamma]$ at discount rate $\gamma\in(0,1)$. For any $\gamma^*\in(0,1)$, we can construct a reward function $R'$ such that $\optPi[R',\gamma^*]=\optPi$. Furthermore, $\OptVf[R']{\cdot,\gamma^*}=\OptVf[R]{\cdot, \gamma}$.
+\end{restatable*} 
+
+\subsubsection{Visit distribution theory} 
+While \citet{regan_robust_2010} consider  a visit distribution function $\f\in\F(s)$ to be non-dominated if it is optimal for some reward function in a set $\R\subseteq \rewardVS$, our stricter \cref{def:nd} considers $\f$ to be non-dominated when $\exists\rf\in\rewardVS, \gamma\in(0,1):\f(\gamma)^\top \rf > \max_{\f'\in\F(s)\setminus\set{\f}}\f'(\gamma)^\top\rf$.

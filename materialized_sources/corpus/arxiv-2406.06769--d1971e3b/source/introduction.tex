@@ -1,0 +1,81 @@
+
+\section{Introduction}
+
+A long-standing dream of AI has been to build systems that can perform scientific
+discovery, potentially leading to new breakthroughs for the benefit of humanity \citep{kitano2016artificial}.
+Recently, with the rise of neural techniques, there have been several successful discovery
+systems developed for specialized problems such as protein folding \citep{Jumper2021HighlyAP,Krishna2023GeneralizedBM},
+mathematics \citep{RomeraParedes2023MathematicalDF}, and material science \citep{Sendek2018MachineLD}. However, while
+the results have been impressive, these systems (deliberately) bypass the full
+discovery process of ideation, hypothesis formation, experiment design, etc.,
+and instead (expertly) perform systematic searches over a pre-defined hypothesis space,
+with pre-defined goals. This raises the question: how much more can be
+achieved if AI is applied to the broader scientific process?
+Some works have indeed developed early systems for this, for example, in chemistry \citep{Boiko2023AutonomousCR}, and genetics \citep{King2004FunctionalGH}.
+These systems can also generate hypotheses, design experiments, and execute
+them (via robotics) in real environments. However, operating in real environments is
+expensive and complex, creating a barrier for entry. In addition, real environments
+inevitably encourage a focus on task-specific details, at the potential cost of
+developing more general discovery skills in an agent.
+
+Our goal is to help remedy these by creating the first virtual discovery environment
+where solving tasks {\it demands all of the key facets in end-to-end
+scientific discovery},\footnote{
+   While a precise definition of "scientific discovery" is somewhat elusive
+   \citep[][]{langley1987scientific,popper2005logic}, we here adopt a pragmatic
+   approach: Our goal is to help develop systems that can perform the end-to-end
+   research process that human scientists engage in as they work on a problem,
+   attempt to answer a question, or more generally advance their field of study.
+   We use the term "scientific discovery" here to refer to this process.}
+and which covers a {\it broad variety} of discovery topics.
+Our approach is to develop a text-based simulated world (with optional 2D visual overlay), called \env,
+where agents can navigate around, interact with objects in the world,
+use scientific equipment (measuring devices, tools, etc.), and make observations.
+Agents can then form hypotheses, plan and execute experiments, and draw conclusions
+to solve challenge tasks developed for this virtual world.
+\env tasks are grounded in eight varied topics,
+such as radioisotope dating, rocket science, and proteomics, to encourage
+development of agents with {\it general} discovery skills rather than hard-wiring
+to a particular challenge (see Figure~\ref{discoveryworld-poster}).
+The tasks themselves are realistic (but simplified),
+allowing agents to apply both scientific and commonsense
+knowledge when attempting them.
+\env thus provides an environment for exercising and evaluating
+general-purpose skills in end-to-end AI discovery systems (see Figure~\ref{fig:discovery_process}).
+
+
+\env is inspired by a growing number of text-based simulation environments
+\citep[inter alia]{Ct2018TextWorldAL,Wang2022ScienceWorldIY}, while also being novel in both its environment and tasks:
+\begin{ite}
+\item \env tasks are long-horizon, requiring multiple facets of
+ discovery including ideation, experimentation, systematic search,
+ and analysis to be performed to solve a task.
+\item The tasks do not suggest a solution approach, instead requiring the agent
+  to ideate and define hypotheses to explore. This contrasts with
+  tasks in many adventure game environments where solution approaches
+  are often more stylistic or constrained.
+\item \env is realistic (but simplified) rather than counterfactual,
+  so that background knowledge can be sensibly applied.
+\item The tasks cover eight diverse topics, from identifying the cause of space illnesses to reactor tuning,
+  to encourage development of general rather than task-specific solutions.
+\end{ite}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[scale=0.85]{figures/discovery-figure-1c1.pdf}
+  \caption{\footnotesize \env tasks require end-to-end scientific discovery, from ideation, hypothesis formation, experiment design, data collection and analysis, forming conclusions, and acting on results.  Distractors and task solutions that provide only descriptive discoveries require agents to frequently iterate hypotheses and experiments to reach full explanatory discoveries. }
+  \label{fig:discovery_process}
+\end{figure}
+
+Finally, automatically evaluating an agent's progress on a discovery task is itself challenging. We devise a three-part evaluation strategy to help with this, more on this in Section~\ref{sec:evaluation_metrics}.
+
+Our contributions are thus:
+\begin{ite}
+\item We introduce the first virtual environment for benchmarking an agent's general ability to perform complete cycles of novel scientific discovery.
+\item A comprehensive evaluation set of 120 different tasks for this environment, spanning eight diverse topics,
+  each with three levels of difficulty and several parametric variations.
+\item An evaluation framework allowing automatic evaluation of agents in \env.
+\item Baseline results for agents in this environment, illustrating that \env captures several novel challenges that contemporary agent models struggle with.
+\end{ite}  
+Together, we hope \env will inspire and accelerate the development of new, general AI discovery agents by the community.
+

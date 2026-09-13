@@ -1,0 +1,69 @@
+% ---- Discourse trace evaluation ---- %
+%\begin{table*}[!h]
+%\centering
+%\resizebox{\textwidth}{!}{%
+%\begin{tabular}{l|ccc|ccc} 
+%\toprule
+%\textbf{} & \multicolumn{3}{c|}{\textbf{ Question Asking Turn}} & \multicolumn{3}{c}{\textbf{Question Answering Turn}} \\ 
+%\cmidrule(lr){2-4} \cmidrule(lr){5-7} 
+%& Novelty & Intent Alignment & No Repetition & Consistency & Engagement & \# Cited URLs \\ 
+%\midrule
+%RAG Chatbot & - & - & - & 4.35 & 4.14 & 2.94 \\
+%STORM + QA & - & - & - & 4.35 & 4.20 & 2.89 \\
+%\midrule
+%\textbf{\system} & \textbf{3.92} & \textbf{4.15} & \textbf{3.73} & \textbf{4.45} & \textbf{4.39} & \textbf{6.04\dag} \\
+%~  w/o Moderator & 2.99 & 3.12 & 2.57 & 4.37 & 4.31 & 5.67 \\
+%~  w/o Multi-Participant & 3.68 & 3.82 & 3.67 & 4.42 & 4.34 & 5.91 \\
+%\bottomrule
+%\end{tabular}
+%}
+%\caption{Evaluation results for discourse quality. The evaluation is conducted at the utterance level and we report the average results across all turns. \dag~denotes significant differences ($p<0.05$) from a paired $t$-test between \system and the second-best method in each column.}
+%\label{table:discourse_grading}
+%\vspace{-0.3em}
+%\end{table*}
+
+\label{sec:results}
+%\TODO{Justify why you are doing and why the automatic results are trustworthy.}
+%\subsection{Final Report Quality}
+%\TODO{Why is the main result?  I think the main result is the user studies.}
+
+
+%\subsection{Main Results}
+\subsection{Automatic Evaluation Results}
+\label{sec:automatic_evaluation_results}
+\reftab{table:report_grading} presents the evaluation results for report quality and the quality of question-answering turns in the discourse. The question-answering turns and the final report are the primary sources for human learning when they interact with \system. STORM + QA considers multiple perspectives in researching the given topic, indeed leading to improved performance across all four grading dimensions of the report quality compared to the RAG Chatbot. However, \system outperforms it, particularly in the \textit{Depth} and \textit{Novelty} aspects, by simulating collaborative discourse with multiple agentic roles, akin to a thought-provoking round table discussion. %Further analysis of the multi-agent design of \system is provided in \refsec{sec:automatic_evaluation_results}. 
+For discourse quality, the question-answering turns in \system significantly outperform both baselines in terms of \textit{Consistency} and \textit{Engagement}. This improvement is attributed to collaborative discourse setup, where the LM is prompted to generate the answer only when the retrieved information matches the current question according to the discourse history (see Listing~\ref{lst:participants_prompt}). The utterance polishing step (see \reffig{Fig.method}) also helps as it serves as a self-improving mechanism.
+
+
+%We use the generated final report as a proxy to evaluate the overall quality of the discourse trace ~\reftab{table:report_grading}. We use the same search engine and the same number of search engine queries for all methods for fair comparison.  \system has the best information-seeking coverage both in breadth and depth with good relevance to the user’s latent intent. The RAG Chatbot baseline relies on the user to lead the discourse, which can easily lead to an echo chamber issue. STORM + QA baseline simulates multi-perspective question-answering to provide broad information, it indeed increases performance on all breadth, depth, and relevance dimensions. However, \system outperforms it by simulating collaborative discourse mimicking a round table conversation with a moderator and multi-perspective experts. 
+
+
+%We further analyze whether the discourse is thought-provoking by evaluating the novelty and interest level, which measures if the collected information is novel and interesting with respect to the user’s latent goal but cannot be directly derived from the initial input topic and user’s utterance. We highlight that for the RAG Chatbot baseline, the user takes the lead, needing to provide utterances 50\% of the time during the discourse, mimicking a real-world chatbot setting. The user has slightly lower engagement effort by having 30\% of the time needed to engage, simulating the scenario where the user reads a comprehensive report on the topic and has follow-up questions to search either on the internet or an LLM-based chatbot. In the \system setting, the user only occasionally needs to steer the discourse to better align with their latent intent and can step back to observe the discourse. The derived result is both interesting, novel, and aligned with their intent.
+
+\begin{figure}[t]
+    \centering 
+    \resizebox{\columnwidth}{!}{%
+    \includegraphics{img/question_quality.pdf}
+    }
+    \caption{Rubric grading results for question-asking turn quality in automatic evaluation with simulated users.}
+    \label{fig:question_quality}
+\vspace{-1em}
+\end{figure}
+
+%\subsection{Discourse Quality and Ablation Studies}
+% \subsection{Ablation Studies}
+% \label{sec:ablation}
+%\noindent
+
+\subsection{Ablation Studies}
+As discussed in~\refsec{sec:method}, a major innovation of \system is the orchestration of two types of LM agents. % to emulate collaborative discourses. 
+To assess the benefit, we compare \system with two ablations: (1) without multiple \experts with different perspectives (``w/o Multi-Expert''), \ie, only a single \expert and a \moderator, and (2) multiple experts but no \moderator steering the discourse (``w/o Moderator''). As shown in~\reftab{table:report_grading}, the ablated systems perform worse than the full system across all metrics in both report and question-answering turn quality. Notably, removing the \moderator has a greater negative impact than reducing the number of \experts.
+
+A key feature of \system is that LM agents can ask questions on the user's behalf. As shown in~\reffig{fig:question_quality}, the advantage of \system's multi-agent design becomes clearer when inspecting the question-asking turns. \textit{Having just one \expert and one \moderator can already provide most of the benefits.} Importantly, the \moderator role in \system raises questions based on unused information about the topic---such a role represents somebody with a much larger \textit{known unknowns}, effectively steering the discourse to help users discover more in the space of their \textit{unknown unknowns}.
+
+Another key innovation of \system is the dynamic mind map. %its dynamic maintenance of a mind map to track the discourse. 
+We include controlled experiments on mind map quality in Appendix~\ref{sec:mind_map_insertion}.
+
+
+
+%As shown in~\reffig{fig:question_quality}, for the question-asking turns, it is evident that without a \moderator, the system’s ability to produce novel questions that can potentially be serendipitous is greatly diminished, leading to repetition or deviation from the user's intent. In the ``w/o Multi-Participant'' condition, a single expert tends to only delve deeply into the topic but struggles to balance the breadth and has much lower information diversity as according to the ablation results in \reftab{table:report_grading}.%To enhance the measurement of information coverage, we use deterministic metrics to evaluate information diversity and the unique number of cited sources, in addition to the rubric grading in Table 1.

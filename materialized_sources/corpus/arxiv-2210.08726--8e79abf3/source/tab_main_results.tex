@@ -1,0 +1,49 @@
+\newcommand{\mainTableDatasetName}[1]{\multicolumn{9}{c}{\textbf{#1}}}
+
+\begin{table}[!t]
+\setlength{\tabcolsep}{4pt}
+\centering
+\adjustbox{max width=\columnwidth}{%
+\begin{tabular}{
+@{}l
+r@{ $\to$ }r
+r@{ $\to$ }r
+rrrr
+@{}}
+\toprule
+ & \multicolumn{4}{c}{Attribution} & \multicolumn{3}{c}{Preservation}
+ \\
+ \cmidrule(lr){2-5} \cmidrule(lr){6-8}
+ Model
+ & \multicolumn{2}{c}{auto-AIS} & \multicolumn{2}{c}{AIS} & \MN{intent} & \MN{Lev} & \MN{comb} & $\HM{}$
+ \\
+\midrule
+\mainTableDatasetName{PaLM outputs on NQ} \\
+EFEC
+& 45.6 & 64.3 & 35.4 & 48.3 & 16.0 & 39.1 & 10.4 & 17.1 \\
+LaMDA
+& 39.5 & 49.9 & 18.3 & 30.4 & 26.0 & 39.6 & 21.1 & 24.9 \\
+\approach{}
+& 45.6 & 54.9 & 35.4 & 43.4 & 90.0 & 89.6 & 83.1 & \textbf{57.0} \\ \midrule
+\mainTableDatasetName{PaLM outputs on SQA} \\
+EFEC
+& 37.8 & 58.6 & 24.5 & 51.7 & 6.0 & 31.0 & 3.8 & 7.1 \\
+LaMDA
+& 32.7 & 43.2 & 15.8 & 27.0 & 40.0 & 46.4 & 33.7 & 30.0 \\
+\approach{}
+& 37.6 & 45.1 & 24.5 & 31.5 & 92.6 & 89.9 & 84.6 & \textbf{45.9} \\ \midrule
+\mainTableDatasetName{LaMDA outputs on QReCC} \\
+EFEC
+& 19.1 & 47.4 & 13.2 & 48.7 & 39.7 & 39.4 & 23.7 & 31.9 \\
+LaMDA
+& 16.4 & 36.2 & 16.0 & 27.1 & 21.3 & 24.8 & 12.0 & 16.6 \\
+\approach{}
+& 18.8 & 29.4 & 13.2 & 28.3 & 95.6 & 80.2 & 78.1 & \textbf{41.5} \\
+\bottomrule
+\end{tabular}
+}
+\caption{\textbf{Evaluation results.} For attribution, we report the AIS scores of the texts both before and after editing (before $\rightarrow$ after). For preservation, we report intent preservation $\presintent$, Levenshtein similarity $\preslev$, and the combined $\prescomb$. We summarize $\attrais$ and $\prescomb$ using their harmonic mean ($\HM{}$). %
+}
+\label{tab:main_results}
+\end{table}
+

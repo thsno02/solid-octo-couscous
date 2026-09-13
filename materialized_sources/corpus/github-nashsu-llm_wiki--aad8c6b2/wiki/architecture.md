@@ -1,0 +1,42 @@
+# Architecture evidence: nashsu/llm_wiki
+
+- `README.md:1` — LLM Wiki
+- `README.md:31` — Features
+- `README.md:55` — What is this?
+- `README.md:65` — Credits
+- `README.md:69` — What We Kept from the Original
+- `README.md:86` — What We Changed & Added
+- `README.md:88` — 1. From CLI to Desktop Application
+- `README.md:98` — 2. Purpose.md — The Wiki's Soul
+- `README.md:106` — 3. Two-Step Chain-of-Thought Ingest
+- `README.md:138` — 4. Knowledge Graph with Relevance Model
+- `README.md:162` — 5. Louvain Community Detection
+- `README.md:176` — 6. Graph Insights — Surprising Connections & Knowledge Gaps
+- `README.md:199` — 7. Optimized Query Retrieval Pipeline
+- `README.md:234` — 8. Multi-Conversation Chat with Persistence
+- `README.md:247` — 9. Rust Backend Chat Agent & Skills
+- `README.md:257` — 10. Thinking / Reasoning Display
+- `README.md:265` — 11. Markdown Rendering: KaTeX Math & Mermaid Diagrams
+- `README.md:276` — 12. Review System (Async Human-in-the-Loop)
+- `README.md:285` — 13. Deep Research
+- `README.md:304` — 14. Browser Extension (Web Clipper)
+- `README.md:320` — 15. Multi-format Document Support
+- `README.md:337` — 16. File Deletion with Cascade Cleanup
+- `README.md:347` — 17. Configurable Context Window
+- `README.md:355` — 18. Cross-Platform Compatibility
+- `README.md:366` — 19. Other Additions
+- `README.md:379` — Tech Stack
+- `README.md:396` — Installation
+- `README.md:398` — Pre-built Binaries
+- `README.md:405` — Build from Source
+- `README.md:408` — Prerequisites: Node.js 20+, Rust 1.88+, protoc
+- `README.md:409` — macOS:  brew install protobuf
+- `README.md:410` — Linux:  sudo apt install protobuf-compiler
+- `README.md:411` — Windows: choco install protoc
+- `README.md:420` — Chrome Extension
+- `README.md:428` — Quick Start
+- `README.md:440` — Local HTTP API + MCP Server + AI Agent Skill
+- `README.md:460` — Plug your AI agent in with one command
+- `README.md:473` — Project Structure
+- `README.md:496` — Star History
+- `README.md:506` — License

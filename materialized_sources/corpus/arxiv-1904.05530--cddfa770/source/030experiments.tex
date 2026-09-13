@@ -1,0 +1,316 @@
+
+
+
+% \begin{table*}[tb!]
+% \caption{Performance comparison on temporal link prediction (average metrics in \% over 5 runs) on three event-based TKG datasets (ICEWS18 and GDELT) and two public knowledge graphs (WIKI and YAGO). \method achieves the best results. 
+% Results with raw setting are in the supplementary material. 
+% }
+% \label{result:filtered}
+% \centering
+% \resizebox{0.9\textwidth}{!}{
+% \begin{tabular}{ll|ccc|ccc|ccc|ccc}
+% \cmidrule[1pt](){2-14}
+%     \multicolumn{2}{c}{\multirow{2}{*}{\vspace{-2.2mm}\hspace{-11mm}\textbf{Method}}} & \multicolumn{3}{c}{\textbf{ICEWS18}} & \multicolumn{3}{c}{\textbf{GDELT}}  &\multicolumn{3}{c}{\textbf{WIKI}}& \multicolumn{3}{c}{\textbf{YAGO}} \\ \cmidrule(lr){3-5} \cmidrule(lr){6-8} \cmidrule(lr){9-11} \cmidrule(lr){12-14}
+%     &                   &MRR    &H@3    &H@10   &MRR    &H@3    &H@10   &MRR   &H@3    &H@10   &MRR    &H@3    &H@10  \\ 
+% \cmidrule{2-14}
+% \multirow{4}{*}{\rotatebox{90}{\hspace*{-6pt}Static}} 
+% &DistMult&22.16  &26.00  &42.18  &18.71  &20.05  &32.55  &46.12  &49.81  &51.38  &59.47  &60.91  &65.26  \\
+% &R-GCN&23.19  &25.34  &36.48  &23.31  &24.94  &34.36  &37.57  &39.66  &41.90  &41.30  &44.44  &52.68  \\
+% &ConvE&36.67  &39.80  &50.69  &35.99  &39.32  &49.44  &47.57  &50.10  &50.53  &62.32  &63.97  &65.60  \\
+% &RotatE&23.10  &27.61  &38.72  &22.33  &23.89  &32.29  &50.67  &50.74  &50.88  &65.09  &65.67  &66.16  \\
+% \cmidrule[0.6pt](){2-14}
+% \multirow{12}{*}{\rotatebox{90}{\hspace*{-6pt}Temporal}}
+% &TA-DistMult&28.53  &31.57  &44.96  &29.35  &31.56  &41.39  &48.09  &49.51  &51.70  &61.72  &65.32  &67.19  \\ 
+% &HyTE&7.31   &7.50   &14.95  &6.37   &6.72   &18.63  &43.02  &45.12  &49.49  &23.16  &45.74  &51.94  \\ 
+% \cmidrule{2-14}
+% &dyngraph2vecAE&1.52   &1.99   &2.02   &4.53   &1.87   &1.87  &5.30   &5.27   &5.45   &0.93   &0.84   &0.95    \\
+% % &DynTriad               &3.48   &3.55   &11.47  &xxx    &xxx    &xxx    &8.4    &12.45  &24.24  &2.62   &4.26   &6.63   &xxx    &xxx    &xxx    \\
+% &tNodeEmbed&8.32   &9.74   &17.47  &19.97  &22.62  &32.72  &9.54   &10.44  &16.60  &4.22   &4.16   &8.4    \\
+% &EvolveRGCN&16.59  &18.32  &34.01  &15.55  &19.23  &31.54  &46.49  &47.83  &49.23    &59.74  &61.03  &61.69    \\
+% &Know-Evolve*&3.27   &3.23   &3.26   &2.43   &2.35   &2.41   &0.09   &00.03  &0.10   &00.07  &0      &0.04   \\ 
+% &Know-Evolve+MLP        &9.29   &9.62   &17.18  &22.78  &25.49  &35.41  &12.64  &14.33  &21.57  &6.19   &6.59   &11.48  \\ 
+% &DyRep+MLP&9.86   &10.66  &18.66  &23.94  &27.88  &36.58  &11.60  &12.74  &21.65  &5.87   &6.54   &11.98  \\ 
+% &R-GCRN+MLP&35.12  &38.26  &50.49  &37.29  &41.08  &51.88  &47.71  &48.14  &49.66  &53.89  &56.06  &61.19  \\ 
+% \cmidrule{2-14}
+% &\method w. mean agg.   &40.70  &43.27   &53.65 &38.35  &42.13  &52.52  &51.13  &51.37  &53.01  &65.10  &65.24  &67.34  \\
+% &\method w. attn agg.   &40.96  &44.08   &54.32 &38.54  &42.25  &52.85	&51.25  &52.54  &53.12  &65.13  &65.54  &67.87  \\
+% &\method                &\textbf{42.93} &\textbf{45.47} &\textbf{55.80} &\textbf{40.42} &\textbf{43.40} &\textbf{53.70}  &\textbf{51.97} &\textbf{52.07} &\textbf{53.91} &\textbf{65.16} &\textbf{65.63} &\textbf{68.08}\\
+% \cmidrule[1pt](){2-14}
+% \end{tabular}}
+% \end{table*}
+
+
+\begin{table*}[tb!]
+\caption{Performance comparison on temporal link prediction (average metrics in \% over 5 runs) on three event-based TKG datasets (ICEWS18, GDELT, and ICEWS14) and two public knowledge graphs (WIKI and YAGO). \method achieves the best results.
+% \footnote{Results with raw setting are in the appendix.}
+}
+\label{result:filtered}
+\centering
+\resizebox{1.0\textwidth}{!}{
+\begin{tabular}{ll|ccc|ccc|ccc|ccc|ccc}
+\cmidrule[1pt](){2-17}
+    \multicolumn{2}{c}{\multirow{2}{*}{\vspace{-2.2mm}\hspace{-14mm}\textbf{Method}}} & \multicolumn{3}{c}{\textbf{ICEWS18}} & \multicolumn{3}{c}{\textbf{GDELT}} & \multicolumn{3}{c}{\textbf{ICEWS14}} &\multicolumn{3}{c}{\textbf{WIKI}}& \multicolumn{3}{c}{\textbf{YAGO}} \\ \cmidrule(lr){3-5} \cmidrule(lr){6-8} \cmidrule(lr){9-11} \cmidrule(lr){12-14} \cmidrule(lr){15-17}
+    &                   &MRR    &H@3    &H@10   &MRR    &H@3    &H@10   &MRR    &H@3    &H@10   &MRR    &H@3    &H@10   &MRR    &H@3    &H@10  \\ 
+\cmidrule{2-17}
+\multirow{4}{*}{\rotatebox{90}{\hspace*{-6pt}Static}} 
+&DistMult &22.16  &26.00  &42.18  &18.71  &20.05  &32.55  &19.06  &22.00  &36.41  &46.12  &49.81  &51.38  &59.47  &60.91  &65.26  \\
+&R-GCN&23.19  &25.34  &36.48  &23.31  &24.94  &34.36  &26.31  &30.43  &45.34  &37.57  &39.66  &41.90  &41.30  &44.44  &52.68  \\
+&ConvE&36.85  &39.92  &50.54  &35.56  &39.45  &49.16  &40.46  &43.33  &54.75  &47.55  &49.78  &49.42  &62.66  &63.36  &65.57  \\
+&RotatE&23.10  &27.61  &38.72  &22.33  &23.89  &32.29  &29.56  &32.92  &42.68  &48.67  &49.74  &49.88  &64.09  &64.67  &66.16  \\
+\cmidrule[0.6pt](){2-17}
+\multirow{12}{*}{\rotatebox{90}{\hspace*{-6pt}Temporal}}
+&TA-DistMult&28.53  &31.57  &44.96  &29.35  &31.56  &41.39  &20.78  &22.80  &35.26  &48.09  &49.51  &51.70  &61.72  &63.32  &65.19  \\ 
+&HyTE&7.31   &7.50   &14.95  &6.37   &6.72   &18.63  &11.48  &13.04  &22.51  &43.02  &45.12  &49.49  &23.16  &45.74  &51.94  \\ 
+% \cmidrule{2-17}
+&dyngraph2vecAE&1.52   &1.99   &2.02   &4.53   &1.87   &1.87   &10.83  &12.70  &15.02  &5.30   &5.27   &5.45   &0.93   &0.84   &0.95    \\
+% &DynTriad               &3.48   &3.55   &11.47  &xxx    &xxx    &xxx    &8.4    &12.45  &24.24  &2.62   &4.26   &6.63   &xxx    &xxx    &xxx    \\
+&tNodeEmbed&8.32   &9.74   &17.47  &19.97  &22.62  &32.72  &17.84  &20.16  &32.88  &9.54   &10.44  &16.60  &4.22   &4.16   &8.4    \\
+&EvolveRGCN&16.59  &18.32  &34.01  &15.55  &19.23  &31.54  &17.01  &18.97  &32.58  &46.49  &47.83  &49.23    &59.74  &61.03  &61.69    \\
+&Know-Evolve* &3.27   &3.23   &3.26   &2.43   &2.35   &2.41   &1.42   &1.37   &1.43   &0.09   &00.03  &0.10   &00.07  &0      &0.04   \\ 
+&Know-Evolve+MLP        &9.29   &9.62   &17.18  &22.78  &25.49  &35.41  &22.89  &26.68  &38.57  &12.64  &14.33  &21.57  &6.19   &6.59   &11.48  \\ 
+&DyRep+MLP &9.86   &10.66  &18.66  &23.94  &27.88  &36.58  &24.61  &28.87  &39.34  &11.60  &12.74  &21.65  &5.87   &6.54   &11.98  \\ 
+&R-GCRN+MLP&35.12  &38.26  &50.49  &37.29  &41.08  &51.88  &36.77  &40.15  &52.33  &47.71  &48.14  &49.66  &53.89  &56.06  &61.19  \\ 
+\cmidrule{2-17}
+&\method w. mean agg.   &40.70  &43.27   &53.65 &38.35  &42.13  &52.52  &43.79  &47.34  &57.47  &51.13  &51.37  &53.01  &65.10  &65.24  &67.34  \\
+&\method w. attn agg.   &40.96  &44.08   &54.32 &38.54  &42.25  &52.85  &43.94  &47.85  &57.91	&51.25  &52.54  &53.12  &65.13  &65.54  &67.87  \\
+&\method                &\textbf{42.93} &\textbf{45.47} &\textbf{55.80} &\textbf{40.42} &\textbf{43.40} &\textbf{53.70} &\textbf{45.71} &\textbf{49.06} &	\textbf{59.12}  &\textbf{51.97} &\textbf{52.07} &\textbf{53.91} &\textbf{65.16} &\textbf{65.63} &\textbf{68.08}\\
+\cmidrule[1pt](){2-17}
+\end{tabular}}
+\end{table*}
+
+
+Evaluating the quality of generated graphs is non-trivial, especially for knowledge graphs~\citep{theis2015note}.
+In our experiments, we evaluate the proposed method on a \textit{extrapolation} link prediction task on TKGs. 
+The task of predicting future links aims to predict unseen relationships with object entities given $(\bs,\br,?,t)$ (or subject entities given $(?,\br,\bo,t)$) at future time $t$, based on the past observed events in the TKG. Essentially, the task is a ranking problem over all the events $(\bs,\br,?,t)$ (or $(?,\br,\bo,t)$). \method can approach this problem by computing the probability of each event in a distant future with the inference algorithm in Algorithm~\ref{alg:renet}, and further rank all the events according to their probabilities.
+Note that we are only given a training set as ground truth at inference and we do not use any ground truth in the test set for the next time step predictions when performing multi-step inference.
+This is the main difference from previous work; they use previous ground truth in the test set.
+
+
+We evaluate our proposed method on three benchmark tasks: (1) predicting future events on three event-based datasets; (2) predicting future facts on two knowledge graphs which include facts with time spans, and (3) studying ablation of our proposed method.
+Section~\ref{exp:setup} summarizes the datasets.
+% and the appendix contains additional information.
+In all these experiments, we perform predictions on time stamps that are not observed during training.
+
+
+
+
+
+
+
+\subsection{Experimental Setup}
+\label{exp:setup}
+We compare the performance of our model against various traditional models for knowledge graphs, as well as some recent temporal reasoning models on five public datasets.
+
+\para{Datasets.}
+We use five TKG datasets in our experiments: 1) three event-based TKGs: ICEWS18~\citep{boschee2015icews}, ICEWS14~\citep{Trivedi2017KnowEvolveDT}, and GDELT~\citep{leetaru2013gdelt}; and 2) two knowledge graphs where temporally associated facts have meta-facts as $(\bs,\br,\bo, [t_s, t_e])$ where $t_s$ is the starting time point and $t_e$ is the ending time point:  WIKI~\citep{leblay2018deriving} and YAGO~\citep{Mahdisoltani2014YAGO3AK}.
+% \footnote{Details of the datasets are described in Section~\ref{append:dataset} of appendix.}
+
+
+
+\para{Evaluation Setting and Metrics.}
+For each dataset 
+except ICEWS14\footnote{We used the splits as provided in \citep{Trivedi2017KnowEvolveDT}.}, 
+we split it into three subsets, i.e., train(80\%)/valid(10\%)/test(10\%), by time stamps. Thus, (time stamps of train) $<$ (time stamps of valid) $<$ (time stamps of test).
+% Note that this is different from the previous way which randomly picks train, valid, and test sets regardless of time stamps.
+We report a filtered version of Mean Reciprocal Ranks (MRR) and Hits$@3$/$10$. 
+Similar to the definition of filtered setting in \citep{Bordes2013TranslatingEF}, during evaluation, we remove all the valid triplets that appear in the train, valid, or test sets from the list of corrupted triplets.
+
+
+
+
+
+\para{Baselines.}
+We compare our approach to baselines for static graphs and temporal graphs as follows:
+
+\para{(1) \textit{Static Methods.}}
+By ignoring the edge time stamps, we construct a static, cumulative graph for all the training events, and apply multi-relational graph representation learning methods including DistMult~\citep{Yang2015EmbeddingEA}, R-GCN~\citep{Schlichtkrull2018ModelingRD}, ConvE~\citep{Dettmers2018Convolutional2K}, and RotatE~\citep{sun2019rotate}. 
+
+
+
+
+
+\begin{figure}[!tb]
+    \centering
+    {\includegraphics[width=0.8\columnwidth]{figures/legend.pdf}
+    % \vspace{-3mm}
+    }
+    \\
+    \subfloat[ICEWS18]{\includegraphics[width=0.46\columnwidth]{figures/ICEWS_h3.pdf}}
+    \quad
+    \subfloat[GDELT]{\includegraphics[width=0.48\columnwidth]{figures/GDELT_h3.pdf}}
+    \caption{\textbf{Performance of temporal link prediction over future timestamps with filtered Hits@3.} \method consistently outperforms the baselines. 
+    % Results on other datasets are in the appendix.
+    }
+    \label{fig:timeh3}
+\end{figure}
+
+
+\para{(2) \textit{Temporal Reasoning Methods.}}
+We also compare state-of-the-art temporal reasoning methods for knowledge graphs, including Know-Evolve\footnote{*: We found a problematic formulation in Know-Evolve. Details of this issues are discussed in Section~\ref{supp:know} of appendix.}~\citep{Trivedi2017KnowEvolveDT}, TA-DistMult~\citep{GarcaDurn2018LearningSE}, and HyTE~\citep{Dasgupta2018HyTEHT}. 
+TA-DistMult and HyTE are for an interpolation task whereas we focus on an extrapolation task. To do this, we assign random values to temporal embeddings that are not observed during training.
+To see the effectiveness of our recurrent event encoder, we use encoders of previous work and our MLP decoder as baselines; we compare Know-Evolve, Dyrep~\citep{Trivedi2019DyRepLR}, and GCRN~\citep{Seo2017StructuredSM} combined with our MLP decoder, called Know-Evolve+MLP, DyRep+MLP, and R-GCRN+MLP. The GCRN utilizes Graph Gonvolutional Network~\citep{Kipf2016SemiSupervisedCW}. Instead, we use RGCN~\citep{Schlichtkrull2018ModelingRD} to deal with multi-relational graphs. 
+
+We also compare our method with dynamic methods on homogeneous graphs: dyngraph2vecAE~\citep{goyal2019dyngraph2vec}, tNodeEmbed~\citep{singer2019node}, and EvolveRGCN~\citep{Pareja2019EvolveGCNEG}. 
+These methods were proposed to predict interactions at future time on homogeneous graphs. 
+Thus, we modified the methods to apply them on multi-relational graph.
+% \footnote{Details are provided in Section~\ref{append:base} of appendix.}
+
+\para{(3) \textit{Variants of \method.}} 
+To evaluate the importance of different components of \method, we varied our model in different ways:
+\method w/o multi-step which does not update history during inference, \method without the aggregator (\method w/o agg.), \method with a mean aggregator (\method w. mean agg.), and \method with an attentive aggregator (\method w. attn agg.). \method w/o agg. takes a zero vector instead of an aggregator.
+\method w. GT denotes \method with ground truth history.
+
+Please refer to Section~\ref{append:base} of appendix for detailed experimental settings.
+% \footnote{Experimental details of \method and baselines are described in Section~\ref{append:base} of appendix.}
+% or interactions during multi-step inference, and thus the model knows all the interactions before the time for testing. 
+% It does not update history (or generate a graph) since it already has ground truth history.
+
+
+
+\begin{figure}[!tb]
+    \centering
+        \subfloat[\method with different aggregators]{\includegraphics[width=0.35\columnwidth]{figures/aggre.pdf} \label{fig:diffaggre}}
+        \qquad
+        %\hspace{-0.5cm}
+        % \subfloat[Effect of global representations]{\includegraphics[width=0.35\columnwidth]{figures/global.pdf} \label{fig:global}}
+        % \qquad
+        %\hspace{-0.5cm}
+        \subfloat[Study of empirical $\prob(s)$ and $\prob(s,r)$]{\includegraphics[width=0.37\columnwidth]{figures/pspr.pdf}
+        \label{fig:empps}}
+        % \qquad
+        % \subfloat[\# layers of RGCN]{\includegraphics[width=0.36\columnwidth]{figures/layers.pdf} \label{fig:layers}}
+        \caption{\textbf{Performance study on model variations.} We study the effects of (a) \method with different aggregators, and (b) empirical $\prob(\bs)$ and $\prob(\bs,\br)$.
+        % , and (d) number of RGCN layers in neighborhood aggregation.
+        }
+        % length of RNN history in recurrent event encoder, and  (d) cutoff position used in entity prediction at inference time.}
+        \label{fig:variation}
+        % , and (c) number of RGCN layers in neigborhood aggregation.}
+\end{figure}
+
+
+
+
+
+\subsection{Performance Comparison on TKGs.}
+We compare our proposed method  with other baselines.
+The test results are obtained by averaged metrics (5 runs) over the entire test sets on datasets.
+
+\para{Results on Event-based TKGs.}
+Table~\ref{result:filtered} summarizes results on all datasets. 
+% Among them, ICEWS18 and GDELT are event-based datasets.
+Our proposed \method outperforms all other baselines on ICEWS18 and GDELT.
+Static methods underperform compared to our method since they do not consider temporal factors.
+Also, \method outperforms all other temporal methods including TA-DistMult, HyTE, and dynamic methods on homogeneous graphs.
+Know-Evovle+MLP significantly improves Know-Evolve, which shows effectiveness of our MLP decoder.
+However, there is still a large gap from our model, which also indicates effectiveness of our recurrent event encoder. 
+% We notice that Know-Evolve and DyRep has a gradient exploding issue on their encoder since their RNN-like structures keep accumulating embedding over time. This issue degrades their performance.
+% Graph Convolutional Recurrent Network (GCRN) is not for dynamic and multi-relational graphs, and is not capable of link prediction.
+% We modified GCRN to work on dynamic graphs and our problem setting by using RGCN instead of GCN, and our MLP decoder.
+% R-GCRN+MLP shows good performance but it does not outperform our method.
+R-GCRN+MLP has a similar structure to ours in that it has a recurrent encoder and an RGCN aggregator but it lacks multi-step inference, global information, and the sophisticated modeling for the recurrent encoder. Thus, it underperforms compared to our method.
+% These results of the combined models suggest the our recurrent event encoder shows better performance in link prediction.
+More importantly, none of the prior temporal methods are capable of multi-step inference, while \method can sequentially infer multi-step events (Details in Section~\ref{exp:ablation}).
+
+
+
+
+
+
+\para{Results on Public KGs.}
+Previous results have demonstrated the effectiveness of \method on event-based KGs. In Table~\ref{result:filtered} we compare \method with other baselines on the Public KGs  WIKI and YAGO.
+Our proposed \method outperforms all other baselines on these datasets. 
+In these datasets, baselines show better results than in the event-based TKGs.
+This is due to the characteristics of the datasets; they have facts that are valid within a time span. 
+However, our proposed method consistently outperforms the static and temporal methods, which implies that \method effectively infers new events using a powerful event encoder and an aggregator, and provides accurate prediction results.
+
+
+
+% \subsection{Performance of Prediction over Time.}
+\para{Performance of Prediction over Time.}
+% Previous results have proved the effectiveness of \method.
+Next, we further study performance of \method over time. 
+% \meng{Give a background about this section, i.e., why we analyze the performance of prediction over time. For example, previous results have proved the effectiveness of \method in... Next, we further study......}
+Figs.~\ref{fig:timeh3} shows the performance comparisons over different time stamps on the ICEWS18, GDELT, WIKI, and YAGO datasets with filtered Hits@3 metrics.
+% \method outperforms other baselines with the MRR metric on both datasets. \meng{Where can we see the MRR results?}
+% However, \method and ConvE are comparable on the Hits$@3$ metric.
+\method consistently outperforms baseline methods for all different time stamps.
+Performance of each method fluctuate since testing entities are different at each time step.
+We notice that with increasing time steps, the difference between \method and ConvE gets smaller as shown in Fig.~\ref{fig:timeh3}.
+This is expected since further future events are harder to predict.
+% Thus, we conjecture that the decline of the performance is due to the generation of a long graph sequence.
+To estimate the joint probability distribution of events in a distant future, \method needs to generate a long graph sequence.
+The quality of generated graphs deteriorates when \method generates a long graph sequence. 
+
+
+\begin{table}[tb!]
+\centering
+\caption{\textbf{Ablation study on the ICEWS18 and GDELT datasets.}
+}
+\label{result:aggre}
+\resizebox{1\columnwidth}{!}{
+\begin{tabular}{l|ccc|ccc}
+\cmidrule[1pt](){1-7}
+\multicolumn{1}{c}{\multirow{1}{*}{\hspace{-15mm}\vspace{-4.8mm}\textbf{Method}}} & \multicolumn{3}{c}{\textbf{ICEWS18}} & \multicolumn{3}{c}{\textbf{GDELT}} \\ 
+\cmidrule(lr){2-4} \cmidrule(lr){5-7}
+                        &MRR    &H@3    &H@10   &MRR    &H@3    &H@10     \\
+
+\cmidrule{1-7}
+\method w/o agg.        &33.46  &35.98  &46.62  &38.10  &41.26  &51.61 \\
+\method w/o multi-step  &40.05  &42.60  &52.92  &38.72  &42.52  &52.78 \\
+\method                 &42.93  &45.47  &55.80  &40.42  &43.40  &53.70 \\
+\cmidrule{1-7}
+\method w. GT           &44.33  &46.83  &57.27  &41.80  &45.71  &56.03\\
+\cmidrule[1pt](){1-7}
+\end{tabular}}
+\end{table}
+
+
+
+
+
+\subsection{Ablation Study}
+\label{exp:ablation}
+In this section, we study the effect of variations in \method on the ICEWS18 dataset.
+% To evaluate the importance of different components of \method, we varied our model in different ways, measuring the change in performance on the link prediction task on the ICEWS18 dataset. 
+We present the results in Tables~\ref{result:filtered}, \ref{result:aggre}, and Fig.~\ref{fig:variation}. 
+
+
+\para{Different Aggregators.}
+% We first analyze the effect of different aggregators.
+In Table~\ref{result:aggre}, we observe that \method w/o agg. hurts model quality, suggesting that introducing aggregators makes the model capable of dealing with concurrent events and improves performance.
+% This suggests that introducing aggregators makes the model capable of dealing with concurrent events and the proposed aggregators improve the prediction performance.
+Table~\ref{result:filtered} and Fig.~\ref{fig:diffaggre} show the performance of \method with different aggregators. 
+Among them, RGCN aggregator outperforms other aggregators.
+This aggregator has the advantage of exploring multi-relational neighbors. 
+% not limited to neighbors under the same relation.
+Also, \method with an attentive aggregator shows better performance than \method with a mean aggregator, which implies that giving different attention weights to each neighbor helps predictions.
+
+\para{Multi-step Inference.}
+In Table~\ref{result:aggre}, we observe that \method outperforms \method w/o multi-step. The latter one does not update history during inference; keeps its last history in the training set. So it is not affected by time stamps. 
+Without the multi-step inference, the performance of \method is decreased as is shown.
+Also we expect that \method w. GT shows significant improvement when \method uses ground truth of triples at the previous time step which are not allowed in our setup.
+
+% \para{Global Information.}
+% We further observe that representations from global graph structures help the predictions. Fig.~\ref{fig:global} shows effectiveness of a representation of global graph structures. 
+% The improvement is marginal, but we consider that global representations at different time steps give distinct information beyond local graph structures.
+
+\para{Empirical Probabilities.}
+Here, we study the role of $\prob(\bs_{t}|\calE_{t-m:t-1})$ and $\prob(\br_{t}|\bs,\calE_{t-m:t-1})$. 
+We denote them as $\prob(\bs)$ and $\prob(\br)$ for brevity. 
+$\prob(\bs_t, \br_t| \calE_{t-m:t-1})$ (or simply $\prob(\bs, \br)$) is equivalent to $\prob(\bs) \prob(\br)$.
+In Fig~\ref{fig:empps}, emp. $\prob(\bs)$ (or $\prob_e(\bs)$) denotes a model with empirical $\prob(\bs)$, defined as $\prob_e(\bs)=$ (\# of $\bs$-related triples) / (total \# of triples). 
+emp. $\prob(\bs,\br)$ (or $\prob_e(\bs,\br)$) denotes a model with $\prob_e(\bs)$ and $\prob_e(\br)$,defined as $\prob_e(\br)=$ (\# of $\br$-related triples) / (total \# of triples). Thus, $\prob_e(\bs,\br) = \prob_e(\bs) \prob_e(\br)$. 
+Note that \method use a trained $\prob(\bs)$ and $\prob(\br)$.
+The results show that the trained $\prob(\bs)$ and $\prob(\br)$ help \method for multi-step predictions. 
+$\prob_e(\bs)$ underperforms \method, and $\prob_e(\bs,\br)=\prob_e(\bs) \prob_e(\br)$ shows the worst performance, suggesting that training each part of the probability in equation~\eqref{eq:prob_event_t} improves performance.
+
+
+
+% \para{Additional Analysis.}
+% We refer readers to Sections~\ref{append:additional} and \ref{supp:case} of appendix for sensitivity analysis and case study.
+
+
+
+
+
+

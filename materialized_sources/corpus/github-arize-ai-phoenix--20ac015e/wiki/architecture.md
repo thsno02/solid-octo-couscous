@@ -1,0 +1,122 @@
+# Architecture evidence: Arize-ai/phoenix
+
+- `README.md:69` — Table of Contents
+- `README.md:81` — Run Locally
+- `README.md:96` — Trace Your Application
+- `README.md:102` — or, with Phoenix installed: px setup
+- `README.md:107` — Deploy
+- `README.md:128` — Packages
+- `README.md:132` — Python Subpackages
+- `README.md:140` — TypeScript Subpackages
+- `README.md:150` — Tracing Integrations
+- `README.md:193` — Span Processors
+- `README.md:202` — JavaScript Integrations
+- `README.md:216` — Java Integrations
+- `README.md:224` — Go Integrations
+- `README.md:231` — Platforms
+- `README.md:245` — Sandboxes
+- `README.md:256` — For Humans and Coding Agents
+- `README.md:272` — Security & Privacy
+- `README.md:276` — Telemetry
+- `README.md:282` — Community
+- `README.md:296` — Breaking Changes
+- `README.md:300` — Copyright, Patent, and License
+- `AGENTS.md:1` — Agent Instructions
+- `AGENTS.md:3` — Build & Development
+- `AGENTS.md:10` — Python Dependency Version Policy
+- `CONTRIBUTING.md:1` — Contributing to Arize-Phoenix
+- `CONTRIBUTING.md:3` — Read This First
+- `CONTRIBUTING.md:11` — What We Are Most Likely To Accept
+- `CONTRIBUTING.md:18` — What We Are Least Likely To Accept
+- `CONTRIBUTING.md:27` — Opening A PR
+- `CONTRIBUTING.md:37` — Issues First
+- `CONTRIBUTING.md:45` — Expectations
+- `CONTRIBUTING.md:51` — Code of Conduct
+- `CONTRIBUTING.md:55` — Branch Organization
+- `CONTRIBUTING.md:61` — Bugs
+- `CONTRIBUTING.md:65` — Pull Requests
+- `CONTRIBUTING.md:77` — Claude Code Review On Forks
+- `CONTRIBUTING.md:92` — Pull Request (PR) Descriptions
+- `CONTRIBUTING.md:102` — Small Simple Pull Requests
+- `CONTRIBUTING.md:118` — Code Reviews
+- `CONTRIBUTING.md:133` — Code Review Conduct
+- `CONTRIBUTING.md:142` — Contributor License Agreement (CLA)
+- `Dockerfile:1` — This Dockerfile is provided for convenience if you wish to run Phoenix in a
+- `Dockerfile:2` — container or sidecar. To build the image, run the following commmand:
+- `Dockerfile:4` — > docker build -t phoenix
+- `Dockerfile:6` — You can then run the image in the background with:
+- `Dockerfile:8` — > docker run -d --name phoenix -p 6006:6006 phoenix
+- `Dockerfile:10` — or in the foreground with:
+- `Dockerfile:12` — > docker run -it -p 6006:6006 phoenix
+- `Dockerfile:14` — How are you using Phoenix in production? Let us know!
+- `Dockerfile:16` — To get support or provide feedback, contact the team in the #phoenix-support
+- `Dockerfile:17` — channel in the Arize AI Slack community or file an issue on GitHub:
+- `Dockerfile:19` — - https://join.slack.com/t/arize-ai/shared_invite/zt-3r07iavnk-ammtATWSlF0pSrd1DsMW7g
+- `Dockerfile:20` — - https://github.com/Arize-ai/phoenix/issues
+- `Dockerfile:23` — To deploy it on an arm64, like Raspberry Pi or Apple-Silicon, chose this image instead:
+- `Dockerfile:24` — ARG BASE_IMAGE=gcr.io/distroless/python3-debian13:nonroot-arm64
+- `Dockerfile:26` — Two stages build on this image, so it is pinned once: they must resolve to
+- `Dockerfile:27` — the same digest or the build pulls twice. Keep the uv version equal to
+- `Dockerfile:28` — [tool.uv] required-version in pyproject.toml.
+- `Dockerfile:31` — This Dockerfile is a multi-stage build. The first stage builds the frontend.
+- `Dockerfile:38` — The app's workspace dependency @arizeai/phoenix-client regenerates its
+- `Dockerfile:39` — OpenAPI types from the repo-level schema during its build.
+- `Dockerfile:45` — Build the app (phoenix-ui) and its workspace dependencies in topological
+- `Dockerfile:46` — order. The vite build writes to /phoenix/src/phoenix/server/static.
+- `Dockerfile:49` — The second stage builds the backend.
+- `Dockerfile:68` — Bundle the Deno runtime so the local DENO sandbox provider works inside
+- `Dockerfile:69` — the distroless image. denoland/deno:bin-<version> is a scratch-based
+- `Dockerfile:70` — image that contains a single statically-linked /deno binary, which is
+- `Dockerfile:71` — safe to COPY into the distroless final stage without dragging in a
+- `Dockerfile:72` — shell or libc. Pinning the version (NOT :latest) keeps builds
+- `Dockerfile:73` — reproducible.
+- `Dockerfile:76` — Pre-download the CPython WASM binary so the WASM sandbox provider works
+- `Dockerfile:77` — inside the distroless final image without network egress or a writable
+- `Dockerfile:78` — home cache. The URL/filename/sha256 here MUST stay in sync with
+- `Dockerfile:79` — src/phoenix/server/sandbox/_download.py (_WASM_URL / _WASM_FILENAME /
+- `Dockerfile:80` — _WASM_SHA256); the env var PHOENIX_WASM_BINARY_PATH (set in the final
+- `Dockerfile:81` — stage) is the authoritative resolver hook consumed by
+- `Dockerfile:82` — ensure_wasm_binary(). The sha256 assertion guards against upstream
+- `Dockerfile:83` — release-asset tampering — TLS alone is not enough for a binary that
+- `Dockerfile:84` — executes user code in the sandbox.
+- `Dockerfile:86` — Its own stage, and it must stay that way: nothing here depends on the
+- `Dockerfile:87` — repo, so the layer is keyed on the URL and digest alone and survives
+- `Dockerfile:88` — every source change. Folded back into backend-builder it would sit below
+- `Dockerfile:89` — COPY ./src and re-download on each commit. Built on UV_IMAGE — the image
+- `Dockerfile:90` — the backend already pulls — for its python, so no apt-get curl layer and
+- `Dockerfile:91` — no second pull.
+- `Dockerfile:93` — Retried with backoff: GitHub intermittently closes the connection to this
+- `Dockerfile:94` — asset without sending a response. socket.setdefaulttimeout stands in for
+- `Dockerfile:95` — the timeout argument urlretrieve does not take, and mirrors
+- `Dockerfile:96` — _WASM_DOWNLOAD_TIMEOUT_SECONDS in _download.py. Verification runs inside
+- `Dockerfile:97` — the loop and is the only proof of a complete transfer — urlretrieve
+- `Dockerfile:98` — reports success on a clean close when no Content-Length was received — so
+- `Dockerfile:99` — the loop breaks only on a digest match and no unverified file survives an
+- `Dockerfile:100` — attempt.
+- `Dockerfile:119` — The production image is distroless, meaning that it is a minimal image that
+- `Dockerfile:120` — contains only the necessary dependencies to run the application. This is
+- `Dockerfile:121` — useful for security and performance reasons. If you need to debug the
+- `Dockerfile:122` — container, you can build from the debug image instead and run
+- `Dockerfile:124` — > docker run --entrypoint=sh -it phoenix
+- `Dockerfile:126` — to enter a shell. For more information, see:
+- `Dockerfile:128` — https://github.com/GoogleContainerTools/distroless?tab=readme-ov-file#debug-images
+- `Dockerfile:130` — Use the debug tag in the following line to build the debug image.
+- `Dockerfile:134` — Bundled local sandbox runtimes (Deno + CPython WASM). The Deno binary
+- `Dockerfile:135` — is statically linked, so a single COPY into the distroless image keeps
+- `Dockerfile:136` — the security/footprint properties documented in the comment block
+- `Dockerfile:137` — above. shutil.which("deno") in src/phoenix/server/sandbox/deno_backend.py
+- `Dockerfile:138` — resolves to /usr/local/bin/deno because /usr/local/bin is on the
+- `Dockerfile:139` — distroless image's default PATH (inherited via the base image's ENV).
+- `Dockerfile:143` — Ensure /usr/local/bin is on PATH so shutil.which("deno") in
+- `Dockerfile:144` — deno_backend.py resolves to the bundled binary above. The base
+- `Dockerfile:145` — distroless image's default PATH already includes /usr/local/bin, but
+- `Dockerfile:146` — we set it explicitly to keep DENO discovery insensitive to base-image
+- `Dockerfile:147` — PATH drift on future bumps.
+- `Dockerfile:149` — /phoenix/.venv/bin is appended so console scripts shipped by wheels are
+- `Dockerfile:150` — discoverable — today the `monty` binary from pydantic-monty-runtime,
+- `Dockerfile:151` — which the Monty sandbox and MCP code mode spawn as a worker process.
+- `Dockerfile:152` — The ENTRYPOINT runs the *system* interpreter with the venv's
+- `Dockerfile:153` — site-packages on PYTHONPATH rather than the venv's own interpreter, so
+- `Dockerfile:154` — sysconfig.get_path("scripts") reports /usr/local/bin and never the
+- `Dockerfile:155` — venv's bin; PATH is the only lookup left that can reach it (see
+- `Dockerfile:156` — pydantic_monty._binary.find_monty_binary). Appended rather than

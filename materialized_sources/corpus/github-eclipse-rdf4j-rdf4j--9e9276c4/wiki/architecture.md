@@ -1,0 +1,69 @@
+# Architecture evidence: eclipse-rdf4j/rdf4j
+
+- `README.md:1` — Welcome to the Eclipse RDF4J repository
+- `README.md:12` — Installation and usage
+- `README.md:18` — Building from source
+- `README.md:37` — Keen to contribute?
+- `AGENTS.md:1` — You are a very strong reasoner and planner. Use these critical instructions to structure your plans, thoughts, and responses.
+- `AGENTS.md:67` — Read‑Me‑Now: Proportional Test‑First Rule
+- `AGENTS.md:91` — Four Routines: Choose Your Path
+- `AGENTS.md:98` — Decision quickstart
+- `AGENTS.md:122` — ExecPlans
+- `AGENTS.md:126` — ExecPlans
+- `AGENTS.md:132` — Benchmarking workflow (repository-wide)
+- `AGENTS.md:136` — Proportionality Model (Think before you test)
+- `AGENTS.md:149` — Purpose & Contract
+- `AGENTS.md:162` — No Monkey‑Patching or Band‑Aid Fixes (Non‑Negotiable)
+- `AGENTS.md:181` — Enforcement & Auto‑Fail Triggers
+- `AGENTS.md:199` — Evidence Protocol (Mandatory)
+- `AGENTS.md:222` — Initial Evidence Capture (Required)
+- `AGENTS.md:251` — Living Plan Protocol (Sharper)
+- `AGENTS.md:272` — Environment
+- `AGENTS.md:280` — Maven `-am` usage (house rule)
+- `AGENTS.md:300` — Always Install Before Tests (Required)
+- `AGENTS.md:346` — Skills (Preferred Runners)
+- `AGENTS.md:357` — Quick Start (First 10 Minutes)
+- `AGENTS.md:387` — Routine A — Full TDD
+- `AGENTS.md:391` — Bugfix Workflow (Mandatory)
+- `AGENTS.md:400` — Hard Gates
+- `AGENTS.md:408` — Routine B — Change without new tests (Proportional, gated)
+- `AGENTS.md:412` — Allowed cases (one or more)
+- `AGENTS.md:420` — Routine B Gates (all must pass)
+- `AGENTS.md:431` — Routine C — Spike / Investigate (No production changes)
+- `AGENTS.md:446` — Routine D — ExecPlans
+- `AGENTS.md:454` — Where to Draw the Line — A Short Debate
+- `AGENTS.md:476` — Working Loop
+- `AGENTS.md:493` — Testing Strategy
+- `AGENTS.md:509` — Optional: Redirect test stdout/stderr to files (manual Maven)
+- `AGENTS.md:525` — Assertions: Make invariants explicit
+- `AGENTS.md:542` — Triage Playbook
+- `AGENTS.md:552` — Code Formatting
+- `AGENTS.md:559` — Import hygiene (always)
+- `AGENTS.md:566` — Source File Headers
+- `AGENTS.md:593` — Pre‑Commit Checklist
+- `AGENTS.md:604` — Branching & Commit Conventions
+- `AGENTS.md:613` — Branch & PR Workflow (Agent)
+- `AGENTS.md:628` — Navigation & Search
+- `AGENTS.md:637` — Inspecting Git Changes Without Reverting
+- `AGENTS.md:656` — Autonomy Rules (Act > Ask)
+- `AGENTS.md:672` — Answer Template (Use This)
+- `AGENTS.md:689` — Running Tests
+- `AGENTS.md:723` — Build
+- `AGENTS.md:735` — Using JaCoCo (Coverage)
+- `AGENTS.md:764` — Prohibited Misinterpretations
+- `AGENTS.md:772` — Maven Module Overview
+- `AGENTS.md:894` — Safety & Boundaries
+- `AGENTS.md:900` — Version Control Conventions
+- `CONTRIBUTING.md:1` — How to contribute
+- `CONTRIBUTING.md:6` — Terms of Use
+- `CONTRIBUTING.md:12` — Eclipse Development Process
+- `CONTRIBUTING.md:20` — Eclipse Contributor Agreement
+- `CONTRIBUTING.md:36` — Signing the Eclipse Contributor Agreement
+- `CONTRIBUTING.md:43` — Creating your contribution
+- `CONTRIBUTING.md:62` — Code formatting
+- `CONTRIBUTING.md:102` — Eclipse IDE users
+- `CONTRIBUTING.md:128` — Other IDEs / using the Maven formatter and import sorting plugins
+- `CONTRIBUTING.md:163` — Workflow
+- `SECURITY.md:1` — Security Policy
+- `SECURITY.md:5` — Supported Versions
+- `SECURITY.md:19` — Reporting a Vulnerability

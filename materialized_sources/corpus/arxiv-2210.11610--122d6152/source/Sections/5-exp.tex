@@ -1,0 +1,51 @@
+\section{Results}
+\label{sec:results}
+We conduct a series of experiments to demonstrate the effectiveness of our proposed self-improving method. First, we apply our method on each individual dataset (task) and report the results. We then merge the generated data from all datasets and train one model to study the generalization ability of the model on unseen datasets as in~\citep{wei2021finetuned}. In addition to the results of using generated CoT reasoning paths, we show studies on generating input questions and few-shot prompts. We end with ablation studies on model sizes and hyperparameters.
+
+\subsection{Main Results}
+\input{Tables/main_res}
+We list the results of using the \bigmodel~model before and after \method in Table~\ref{tab:main_res}. For each model, during test time, we apply three separate prompting methods on all six datasets: standard-prompting, CoT-Prompting, and Self-Consistency. We observe that after \method, the performance of all three prompting methods increase by a large margin. We observe significant improvement, comparing self-consistency versus \method with self-consistency: $+7.7\%$ on GSM8K, $+4.8\%$ on DROP, $+4.4\%$ on OpenBookQA, and $+4.5\%$ on ANLI-A3.
+This shows that our proposed method is quite effective. 
+Furthermore, the single path CoT-Prompting performance of \method is close to or even better than the multiple path Self-Consistency performance of the model without \method, showing that \method truly helps the language model learn from the multiple consistent reasoning paths. 
+We also compare our results with previous SOTA, achieved by different methods on different datasets, listed in Table~\ref{tab:main_res}. On ARC-c, OpenBookQA, ANLI-A2 and ANLI-A3, \method outperforms previous SOTA. On GSM8K dataset, \method is close to the DiVeRSe approach~\citep{Li2022OnTA} which uses diverse prompts and a voting verifier to ensemble $100$ output paths. On the contrary, we only use $32$ output paths for self-generating training samples and for self-consistency with \method. On the DROP dataset, \method is close to the OPERA approach~\citep{Zhou2022OPERAOD} which uses ground truth labels for training. On the other hand, our method only leverages the questions in the training set, without using ground truth labels. 
+
+\input{Tables/multitask_res}
+\paragraph{Multi-task self-training for unseen tasks}
+To demonstrate the generalization ability of \method, we conduct experiments of self-training on a mixture of the training-set questions from the above six datasets (denoted as In-Domain tasks), then use the same model checkpoint for the evaluation on six Out-Of-Domain (OOD) tasks, as shown in Table~\ref{tab:multi_res}. Of all the OOD tasks: (1) \textbf{AQUA}~\citep{Ling2017ProgramIB} and \textbf{SVAMP}~\citep{Patel2021AreNM} are arithmetic reasoning tasks; (2) \textbf{StrategyQA}~\citep{Geva2021DidAU} is a commonsense reasoning task; (3) \textbf{ANLI-A1}~\citep{Mihaylov2018CanAS}, \textbf{RTE}~\citep{Dagan2005ThePR} and \textbf{MNLI-M/MM}~\citep{Williams2018ABC} are natural language inference tasks.\footnote{We evaluate on the test set of SVAMP and ANLI, the dev set of MNLI and RTE (ground truth labels of the test sets are not publicly available). For StrategyQA we use the question-only set from~\cite{Srivastava2022BeyondTI}.} Among these tasks, \textbf{AQUA}, \textbf{StrategyQA}, and \textbf{RTE} are significantly different from any In-Domain task. These three tasks have their own few-shot prompts. From Table~\ref{tab:multi_res}, we can observe that \method achieves higher accuracy results on all OOD tasks, showing that the overall reasoning ability of the language model is improved.
+
+\input{Tables/std_finetune}
+\paragraph{Importance of training with Chain-of-Thought formats}
+We demonstrate the importance of training language models with Chain-of-Thoughts compared to training with only direct answers. In Table~\ref{tab:std_ablate}, we list the results of \method with all four formats, and the results of \method with only direct answer formats.
+The results clearly show that without the CoT formats, the language model can still self-improve, but the performance gain drops by a large amount compared to using all four formats.
+
+\subsection{Pushing the limit of self-improvements}
+\label{sec:exp_limits}
+
+\input{Tables/q_gen}
+% \paragraph{Generating questions with few-shot examples}
+\paragraph{Self-Generating Questions}
+We further explore the few-shot setting where there are only limited training questions in the target domain. On GSM8K, we sample $10$ real questions as few-shot samples, and use the language model to generate more training questions using the method in Section~\ref{sec:q_gen}. We then self-train the language model with these generated questions and list the results in Table~\ref{tab:q_gen}. The results show that using self-generated questions still improves the reasoning ability of language models, but using the real training-set questions leads to better results.
+
+
+% \paragraph{Zero-shot chain-of-thought exemplars}
+\paragraph{Self-Generating Few-Shot CoT Prompts}
+\input{Figures/zero_shot}
+%Motivated by the success of zero-shot reasoning~\citep{step_by_step}, w
+We explore the situation where no in-domain CoT examples are provided for a task. We apply the Step-by-Step method~\citep{step_by_step} to generate CoT examples using the language model as described in Section~\ref{sec:q_gen}, and show the results in Figure~\ref{fig:zero_shot}. We observe that few-shot prompting with self-generated Step-by-Step CoT examples substantially outperforms the Step-by-Step~\citep{step_by_step} baseline (66.2\% vs 53.8\% at 10 paths, 74.2\% vs 70.1\% at 40 paths), and nearly matches the performance of human-written few-shot CoT~\citep{wei2021finetuned} (74.4\% at 40 paths~\citep{Wang2022SelfConsistencyIC}). The strong performance of ``Few-Shot w/ Step-by-Step'' despite the limited accuracy of prompt examples (43.0\% for greedy Step-by-Step) likely comes from leveraging more diverse CoT prompts for multi-path decoding~\citep{Li2022OnTA}, where at 40 paths it uses 20 generate prompt-templates, each with 4-shot CoT examples, i.e. a total of 80 generated CoT examples compared to 8 human-written examples use in~\citet{Wei2022ChainOT}. Since we did not use training questions or few-shot CoT examples, 74.2\% also marks the new state-of-the-art zero-shot performance on GSM8K.
+
+%it benefits slightly from using more prompt templates (74.2\% for 20 templates (``2 paths / template'') vs 72.9\% for 5 templates (``5 templates / path'')). \note{Can we have some explanations on ``5 templates/path'' or ``2 paths/template''? I am not quite sure about the meaning. Does ``5 templates/path'' mean 5 generated CoT examples as prompts?} \sg{Given this is a minor experiment, let's only keep 2 paths / template and not mention in the label.}
+
+\subsection{Distillation to smaller models}
+\label{sec:exp_distill}
+\input{Tables/distill}
+We also explore whether the knowledge can be distilled to smaller models, such as in distillation~\citep{hinton2015distilling} and in~\citet{star}. We use the same set of training samples generated by the \bigmodel~model, but fine-tune on models with smaller sizes (\smallmodel~and \midmodel~respectively), and show the results of CoT-prompting in Table~\ref{tab:distill}. It is interesting to point out that after distillation from \method, the 62 billion model can outperform the pre-trained 540 billion model, and the 8 billion model can outperform the pre-trained 62 billion model. This implies that for downstream applications with limited computing resources, the reasoning knowledge from large models can be used to largely enhance small models to achieve competitive performance.
+
+
+\subsection{Hyperparameter Study}
+\input{Figures/hyper_study}
+\paragraph{Sampling Temperature after Self-Improvement}
+We study the effect of varying the temperature $T$ for multiple path decoding after \method is applied. Specifically, we vary $T$ between [$0.7, 1.0, 1.2, 1.5$] and show the results on GSM8K and DROP dataset respectively in Fig.~\ref{fig:temp_study}. As shown in the figure, $T=1.2$ benefits both datasets the most, and is used in the Self-Consistency method for \method on all datasets. We notice that the optimal $T$ after model self-improvement is larger than the optimal $T=0.7$~\citep{Wang2022SelfConsistencyIC} before self-improvement. We believe the reason is that after training the model, the entropy of the output distribution is reduced.
+
+\paragraph{Number of Sampled Reasoning Paths}
+We study whether the number of sampled reasoning paths $m$ for Self-Consistency largely affects the accuracy after \method is applied. We show the accuracy on GSM8K test set for models both with or without \method in Fig.~\ref{fig:path_study}. For both cases, setting $m=15$ already achieves a reasonably good accuracy, and using a larger $m$ only brings marginal improvements. We also notice that after Self-Improvement, using $5$ paths for Self-Consistency can already surpass the performance of using $32$ paths for model without Self-Improvement. Thus, with a well-improved model, huge computing resources can be saved when applied to real applications.
+

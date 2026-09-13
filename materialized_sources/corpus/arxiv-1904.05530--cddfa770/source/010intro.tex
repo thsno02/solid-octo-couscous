@@ -1,0 +1,93 @@
+
+
+
+Knowledge graphs (KGs), which store real-world facts, are vital in various natural language processing applications~\cite{Bordes2013TranslatingEF,Schlichtkrull2018ModelingRD,kazemi2019relational}. Due to the high cost of annotating facts, most knowledge graphs are far from complete, and thus predicting missing facts (a.k.a., knowledge graph reasoning) becomes an important task. Most existing efforts study reasoning on standard knowledge graphs, where each fact is represented as a triple of subject entity, object entity and the relation between them. However, in practice, each fact may not be true forever, and hence it is useful to associate each fact with a timestamp as a constraint, yielding a temporal knowledge graph (TKG). Fig.~\ref{fig:data} shows example subgraphs of a temporal knowledge graph. Despite the ubiquitousness of TKGs, methods for reasoning over such kind of data are relatively unexplored.
+% and hence in this paper we focus on temporal knowledge graph reasoning.
+
+% Representation learning on dynamically evolving, graph-structured data has emerged as an important problem in a wide range of applications, including social network analysis~\citep{zhou2018dynamic,Trivedi2019DyRepLR}, knowledge graph reasoning~\citep{Trivedi2017KnowEvolveDT,Nguyen2018ContinuousTimeDN,kazemi2019relational}, and event forecasting~\citep{du2016recurrent}.
+% However, the rapid growth of heterogeneous event data~\citep{leetaru2013gdelt,boschee2015icews} has created new challenges on modeling temporal, complex interactions between entities (\ie, viewed as a \textit{temporal knowledge graph} or a TKG), and calls for approaches that can predict new events in different future time stamps based on the history.
+% Fig.~\ref{fig:data} shows example subgraphs of a temporal knowledge graph.
+
+
+% \textcolor{blue}{Meng: Knowledge graphs, which store real-world facts, are critical in various natural language processing applications. Due to the high cost of annotating facts, most knowledge graphs are far from complete, and thus predicting missing facts (a.k.a., knowledge graph reasoning) becomes an important task with increased attention. Most existing efforts study reasoning on standard knowledge graphs, where each fact is represented as a $(s, r, o)$-triple. However, in reality each fact may not be true forever, and hence it can be useful to associate each fact with a timestamp as constraint, yielding a temporal knowledge graph or a TKG. Fig.~\ref{fig:data} shows example subgraphs of a temporal knowledge graph. Despite the ubiquitousness of TKG, reasoning on TKG is under-explored, and hence in this paper we focus on temporal knowledge graph reasoning.}
+
+\begin{figure}[tb!]
+    \centering
+        {\includegraphics[width=1.0\columnwidth]{figures/dataset.pdf}}
+        \caption{\textbf{Example temporal knowledge subgraphs.} 
+        Each edge or interaction between entities is associated with temporal information and a set of interactions build a multi-relational graph at each time. Our task is to predict interactions and build graphs at future times. 
+        }
+        \label{fig:data}
+% \vspace{-0.2cm}
+\end{figure}
+
+Given a temporal knowledge graph with timestamps varying from $t_0$ to $t_T$, TKG reasoning primarily has two settings - \textit{interpolation} and \textit{extrapolation}. In the \textit{interpolation} setting, new facts are predicted for time $t$ such that $t_0 \leq t \leq t_T$~\cite{GarcaDurn2018LearningSE,leblay2018deriving,Dasgupta2018HyTEHT}. In contrast, \textit{extrapolation} reasoning, as a less studied setting, focuses on predicting new facts (\textit{e.g.}, unseen events) over timestamps $t$ that are greater than $t_T$ (\textit{i.e.}, $t > t_T$). The extrapolation setting is of particular interests in TKG reasoning as it helps populate the knowledge graph over future timestamps and facilitates forecasting emerging events~\cite{Muthiah2015PlannedPM,Phillips2017UsingSM,korkmaz2015combining}. 
+% Hence, in this work, we address the  \textit{extrapolation} setting.
+
+%In this paper, we address the \textit{extrapolation} problem for TKG reasoning, which involves predicting facts over multiple future timestamps.
+% time $t$ such that $t_0 \leq t \leq t_T$, where inference over multiple timestamps is crucial.
+% We aim to infer graph structures over multiple timestamps
+
+Recent attempts to solve the extrapolation TKG reasoning problem are Know-Evolve~\citep{Trivedi2017KnowEvolveDT} and its extension DyRep~\citep{Trivedi2019DyRepLR}, which predict future events assuming ground truths of the preceding events are \textit{given} at inference time.
+As a result, these methods are unable to predict events sequentially \textit{over future timestamps} without ground truths of the preceding events--\textit{i.e.}, a practical requirement when deploying such reasoning systems for event forecasting~\cite{ijcai2019SAGE}.
+Moreover, these approaches do not model \textit{concurrent events} occurring within the same time window (\eg, a day, or 12 hours), despite their prevalence in real-world event data~\cite{boschee2015icews,leetaru2013gdelt}.
+%, especially when the event timestamps are ``discrete" (versus ``continuous")---which often happens when the time window is not small enough (\textit{e.g.}, a day).
+% especially when the time window is not small enough (e.g., a day).
+% especially when event timestamps are discretely represented.
+Thus, it is desirable to have a principled method that can extrapolate graph structures over future timestamps by modeling the concurrent events within a time window as a \textit{local} graph.
+
+% Recent attempts on learning temporal knowledge graphs have focused on predicting missing events at the \textit{observed} time stamps~\citep{GarcaDurn2018LearningSE,leblay2018deriving,Dasgupta2018HyTEHT,goel2020diachronic,Lacroix2020Tensor}, or estimating the conditional probability of a future event using temporal point process~\citep{Trivedi2017KnowEvolveDT,Trivedi2019DyRepLR}.
+% The former group of methods addresses an \textit{interpolation} problem, which is to make predictions at time $t$ such that $t_0 \leq t \leq t_T$. 
+% % and thus cannot predict future events, as representations of unseen time stamps are unavailable.
+% On the other hand, the latter group of methods, including Know-Evolve~\citep{Trivedi2017KnowEvolveDT} and its extension, DyRep~\citep{Trivedi2019DyRepLR}, deals with an \textit{extrapolation} problem, which is to make predictions at future time $t$ such that $t > t_T$. 
+% However, these methods predict future events assuming ground truths of the preceding events are given at inference time, 
+% As a result, they cannot predict events sequentially \textit{over multiple time stamps} without ground truths of the preceding events.
+% Besides, these approaches do not model \textit{concurrent events} occurring within the same time window, despite their prevalence, especially when event time stamps are discrete.
+% % More importantly, these method cannot infer events over multiple time stamps due to lack of the ability to generate intermediate events or graphs.
+% Thus, it is desirable to have a principled method that can infer and extrapolate graph structure over multiple time stamps as well as incorporate local graph structure from concurrent events with temporal dynamics on a graph.
+
+
+
+
+% In this paper, we address the limitations of previous approaches in solving the \textit{extrapolation} problem in TKG reasoning by 
+To this end, we propose an autoregressive architecture, called Recurrent Event Network (\method), for modeling temporal knowledge graphs.
+% to address the extrapolation problem. 
+% The key idea of our approach is to learn temporal dependency from the sequence of graphs and local structural dependency from neighborhood.
+% Intuitively, we approach the problem as a sequence prediction task; our method infers future graphs in a sequential way given a sequence of preceding knowledge graphs.
+% The intuition of our method is that we frame temporal knowledge graphs into a sequence of knowledge graphs.
+Key ideas of \method are based on:
+(1) predicting future events over multiple time stamps can be formulated as a sequential and multi-step inference problem;
+% of multi-relational interactions between two entities;
+(2) temporally adjacent events may carry related semantics and informative patterns, which can further help predict future events (\ie, \textit{temporal information}); 
+and (3) multiple events may co-occur within the same time window and exhibit structural dependencies between entities (\ie, \textit{local graph structural information}).
+
+Given these observations, \method defines the joint probability distribution of all events in a TKG in an autoregressive fashion.
+% as a sequence of graphs, where
+The probability distribution of the concurrent events at the current time step is conditioned on all the preceding events (see Fig.~\ref{fig:renet} for an illustration). 
+Specifically, a \textit{recurrent event encoder} summarizes information of the past event sequences, and a \textit{neighborhood aggregator} aggregates the information of concurrent events within the same time window.
+With the summarized information, our decoder defines the joint probability of a current event.
+% Such an autoregressive model can be effectively trained by using teacher forcing, and
+Inference for predicting future events can be achieved by sampling graphs over time in a sequential manner. 
+
+
+We evaluate our proposed method on five public TKG datasets via a temporal (extrapolation) link prediction task, by testing the performance of multi-step inference over time. 
+Experimental results demonstrate that \method outperforms state-of-the-art models of both static and temporal knowledge graph reasoning, showing its better capability to model temporal, multi-relational graph data.
+We further show that \method can perform effective multi-step inference to predict unseen entity relationships in a distant future. 
+
+\begin{figure}[tb!]
+    \centering
+        {\includegraphics[width=1\columnwidth]{figures/renet.pdf} }
+        \vspace{-5mm}
+        \caption{\textbf{Illustration of the Recurrent Event Network architecture.}
+        The aggregator encodes the global graph structure and the local neighborhood, capturing global and local information respectively. The recurrent event encoder updates its state with the sequence of encoded representations of graph structures. 
+        % from the aggregator in an autoregressive manner.
+        The MLP decoder defines the probability of a current graph. 
+        % $\prob(\calE_t|\calE_{:t-1})$.
+        % , which is conditioned on the preceding events.
+        % \method employs an RNN to capture $\bs$-related interactions $\teN_t^{(\bs)}$ (modeled by a neighborhood aggregator) at different time $t$. Global information from $\calE_t$ is used to capture the global graph structures. Recurrent event encoder updates its state with graph sequences in an autoregressive manner. 
+        % The decoder defines the probability $\prob(\bs_t, \br_t, \bo_t|\calE_{:t-1})$ at current time step, which is conditioned on the preceding events. 
+        % \wj{Expand to have more details}
+        }
+        \label{fig:renet}
+% \vspace{-0.3cm}
+\end{figure}

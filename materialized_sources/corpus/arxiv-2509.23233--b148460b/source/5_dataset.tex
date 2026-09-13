@@ -1,0 +1,108 @@
+\section{\dataset: A Dataset for Corpus-Level Inconsistency Detection}
+\label{sec:dataset}
+
+With the help of \system, we create the \dataset dataset, consisting of 955 atomic facts drawn from Wikipedia, each manually labeled as either consistent or inconsistent with the corpus. Whereas prior fact verification datasets often rely on synthetic contradictions that fail to capture real-world nuance, \dataset contains \emph{real, previously unknown} inconsistencies in Wikipedia.
+
+For inconsistent facts, we provide manually verified evidence documents demonstrating the contradiction, detailed reasoning explaining the inconsistency, and a categorization of inconsistency type. For consistent facts, we provide up to 40 evidence passages from Wikipedia that were reviewed during annotation. Note that inconsistent labels represent a gold standard backed by concrete contradictory evidence, whereas consistent labels represent strong verification as exhaustively proving the absence of contradictions across a large corpus is infeasible.
+
+The dataset highlights nuanced challenges such as implicit contradictions, temporal conflicts, and divergent interpretations that might otherwise go undetected. It covers diverse topics including people, history, geography, and science (Figure~\ref{fig:topic_distribution}), ensuring broad applicability across domains. Figure~\ref{tab:dataset_examples} shows representative examples from \dataset, illustrating the need for multi-hop reasoning, numerical calculations, nuanced context interpretation, entity disambiguation, and domain expertise.
+
+\begin{table}[ht!]
+   \centering
+   \small
+   \begin{tabular}{@{}lccc@{}}
+      \toprule
+      \textbf{Split} & \textbf{Inconsistent} & \textbf{Consistent} & \textbf{Total} \\
+      \midrule
+      Validation & 135 (28.3\%) & 342 (71.7\%) & 477 \\
+      Test       & 196 (41.0\%) & 282 (59.0\%) & 478 \\
+      \midrule
+      \textbf{Total} & \textbf{331 (34.7\%)} & \textbf{624 (65.3\%)} & \textbf{955} \\
+      \bottomrule
+   \end{tabular}
+   \caption{Distribution of consistent and inconsistent facts in \dataset.}
+   \label{tab:dataset_statistics}
+\vspace{-1em}
+\end{table}
+
+\subsection{Dataset Construction}
+
+Constructing a corpus-level inconsistency dataset poses significant challenges. Given the rarity of inconsistencies, how can we efficiently identify sufficient and representative examples? Moreover, accurate annotation is difficult for both humans and machines. To address these challenges, we adopt a human-in-the-loop approach with \system. Figure~\ref{fig:dataset_construction} in Appendix~\ref{sec:annotation} summarizes the overall process.
+
+\paragraph{Knowledge Corpus.} Because Wikipedia changes frequently, we use a frozen snapshot from November 1, 2024 for dataset construction and experiments to ensure reproducibility.
+
+\paragraph{Selection of Facts for the Dataset.} We select facts through a three-step procedure:
+
+\begin{enumerate}
+\item \textbf{Sampling Popular Wikipedia Pages.} To ensure broad domain coverage, we sample from Wikipedia's Level 5 Vital Articles. These 50{,}000 articles are actively maintained by WikiProject Vital Articles and represent diverse topics and quality levels.\footnote{\url{https://en.wikipedia.org/wiki/Wikipedia:Content_assessment}} We extract text blocks delimited by newlines, filtering out passages that are too short (<100 characters) or too verbose (>320 characters) to maintain focused, verifiable content. From this filtered pool, we randomly sample 10{,}000 blocks while preserving the original category distribution.
+
+\item \textbf{Fact Extraction.} Following prior work~\citep{semnani-etal-2023-wikichat}, we use GPT-4o (prompt in Figure~\ref{lst:claim_extraction}) to split each text block into atomic facts, yielding 89{,}300 atomic facts.
+
+\item \textbf{Increasing the Proportion of Potentially Inconsistent Facts.} To obtain a relatively balanced dataset under high annotation cost, we prioritize facts more likely to be inconsistent. We apply a simple retrieval and LLM-based filtering method with high recall (Appendix~\ref{sec:weak_baseline}). Facts for which no relevant contradictory information is retrieved are filtered out, reducing the candidate set to 1{,}880 facts.
+\end{enumerate}
+
+\paragraph{Human-in-the-loop Annotation.} Annotation is performed by the authors and a small group of high-quality crowdworkers recruited via Prolific~\citep{prolific}. Annotators first verify that extracted facts faithfully reflect their source paragraphs, reducing the candidate set to 955 facts.
+
+\begin{table*}[ht!]
+\centering
+\small
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{@{\hspace{0.5em}}lp{0.7\textwidth}r@{\hspace{0.5em}}}
+    \toprule
+    
+    \textbf{Inconsistency Type} & \textbf{Description} & \textbf{\%} \\
+    
+    \midrule
+    \rowcolor{actionblue!30}
+    \textbf{Numerical} & Inconsistencies in numerical data, such as quantities, measurements, or percentages & \textbf{54.7} \\
+    \rowcolor{actionblue!10}
+    \quad Off-by-One Numerical & Small discrepancy involving a margin of one unit & 23.0 \\
+    \rowcolor{actionblue!10}
+    \quad Clear Numerical & Significant difference that \emph{cannot} be explained by a margin of one unit & 31.7 \\
+    
+    \rowcolor{actionblue!30}
+    \textbf{Logical} & The claim and evidence directly or indirectly contradict each other & \textbf{17.5} \\
+    \rowcolor{actionblue!10}
+    \quad Direct Logical & Clear negation or alternative to a unique fact & 14.8 \\
+    \rowcolor{actionblue!10}
+    \quad Indirect Logical & Contradiction inferred or indirectly implied & 2.7 \\
+    \rowcolor{actionblue!30}
+    \textbf{Definition} & Different definitions or interpretations for the same term or concept & \textbf{10.6} \\
+    \rowcolor{actionblue!30}
+    \textbf{Temporal} & Inconsistencies in dates, durations, or event sequences & \textbf{7.9} \\
+    \rowcolor{actionblue!30}
+    \textbf{Named Entity} & Inconsistencies identifying specific entities (people, organizations, locations) & \textbf{6.0} \\
+    \rowcolor{actionblue!30}
+    \textbf{Categorical} & Differences in categorizing entities, objects, or concepts & \textbf{2.1} \\
+    \rowcolor{actionblue!30}
+    \textbf{Spatial} & Inconsistencies in spatial descriptions or geographical information & \textbf{1.2} \\
+    \bottomrule
+\end{tabular}
+\caption{Breakdown of inconsistency types in \dataset validation and test sets (331 inconsistent facts).}
+\label{tab:inconsistency_breakdown}
+\end{table*}
+
+An annotation interface presents the findings of \system to annotators: (1) relevant documents from the corpus, (2) clarifications on ambiguous entities (e.g., people with identical names) and unfamiliar concepts, and (3) two-sided reasoning with both consistent and inconsistent interpretations of the gathered evidence (Appendix~\ref{sec:report_generation}). Annotators review this information to determine consistency and provide reasoning with citations. For each fact labeled consistent, annotators reviewed an average of 21 potential evidence passages.
+
+\paragraph{Final Dataset.} The annotation effort yields 955 facts, of which 34.7\% are inconsistent. Facts are evenly split between validation and test sets in \dataset, with consistent and inconsistent labels randomly distributed. Table~\ref{tab:dataset_statistics} summarizes the dataset statistics.
+
+\subsection{Analysis of \dataset}
+
+We analyze the dataset to understand the sources and types of inconsistencies that appear in Wikipedia. We categorize inconsistencies into seven types; Table~\ref{tab:inconsistency_breakdown} reports their proportions.
+
+Numerical discrepancies constitute 54.7\% of inconsistencies. Of these, 42\% are off-by-one errors, often involving dates or years in historical contexts; the remainder are more substantial and varied. Logical contradictions account for 17.5\%, with a smaller fraction requiring inference or indirect reasoning. The remaining 27.8\% arise from differing definitions, temporal or spatial conflicts, entity disambiguation errors, and divergent categorizations.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

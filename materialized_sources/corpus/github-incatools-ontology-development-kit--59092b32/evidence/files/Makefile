@@ -1,0 +1,174 @@
+# This makefile is purely for running tests on the complete ontology-development-kit package on travis;
+# users should not need to use this
+
+# command used in make test.
+# this can be changed to seed-via-docker.sh;
+# but this should NOT be the default for environments like travis which
+# run in a docker container anyway
+CMD = odk seed
+
+EMAIL_ARGS=
+
+CACHE=
+
+ARCH=linux/$(shell uname -m | sed 's/x86_64/amd64/')
+PLATFORMS=linux/amd64,linux/arm64
+
+.PHONY: .FORCE
+
+test_odklite_programs:
+	@./tests/test-program.sh ROBOT robot --version
+	@./tests/test-program.sh DOSDP-TOOLS dosdp-tools --version
+	@./tests/test-program.sh DICER-CLI dicer-cli --version
+	@./tests/test-program.sh SSSOM-CLI sssom-cli --version
+	@./tests/test-program.sh ODK odk --help
+
+test_odkfull_programs: test_odklite_programs
+	@./tests/test-program.sh KONCLUDE Konclude -h
+	@./tests/test-program.sh SOUFFLE souffle --version
+	@./tests/test-program.sh JENA jena
+	@./tests/test-program.sh OWLTOOLS owltools --version
+	@./tests/test-program.sh OORT ontology-release-runner --help
+	@./tests/test-program.sh JINJANATOR jinjanate --version
+	@./tests/test-program.sh SCALA-CLI scala-cli --version
+	@./tests/test-program.sh SPARQL sparql --version
+	@./tests/test-program.sh RELATION-GRAPH relation-graph --version
+	@./tests/test-program.sh OAKLIB runoak --help
+	@./tests/test-program.sh SSSOM-PY sssom --version
+	@./tests/test-program.sh YQ-MF yq-mf --version
+
+test_odkdev_programs: test_odkfull_programs
+
+# Subset of ODK Core tests to run
+TESTS = minimal module-star release
+TEST_FILES = $(foreach t, $(TESTS), core/tests/configs/test-$(t).yaml)
+test: $(TEST_FILES)
+	echo "All tests passed successfully!"
+
+core/tests/configs/*.yaml: .FORCE
+	$(CMD) -c -C $@
+
+
+# Building docker image
+VERSION = "v1.7"
+IM=obolibrary/odkfull
+IMLITE=obolibrary/odklite
+ROB=obolibrary/robot
+#ROBOT_JAR="https://github.com/monarch-ebi-dev/odk_utils/raw/master/robot_maven_test.jar"
+ROBOT_JAR_ARGS=#--build-arg ROBOT_JAR=$(ROBOT_JAR)
+TAGS_OPTION=-t $(IM):$(VERSION) -t $(IM):latest
+
+build: build-odklite
+	docker build $(CACHE) --platform $(ARCH) \
+	    --build-arg ODK_VERSION=$(VERSION) $(ROBOT_JAR_ARGS) \
+	    $(TAGS_OPTION) \
+	    .
+
+build-odklite: build-builder
+	$(MAKE) -C docker/odklite ARCH=$(ARCH) CACHE=$(CACHE) \
+		IM=$(IMLITE) VERSION=$(VERSION) build
+
+build-robot:
+	$(MAKE) -C docker/robot ARCH=$(ARCH) CACHE=$(CACHE) build
+
+build-builder:
+	$(MAKE) -C docker/builder ARCH=$(ARCH) CACHE=$(CACHE) build
+
+build-no-cache:
+	$(MAKE) build CACHE=--no-cache
+
+build-odklite-dev: build-builder
+	$(MAKE) TAGS_OPTION="-t $(IMLITE):dev" VERSION=$(VERSION)-dev build-odklite
+
+build-dev: build-odklite-dev
+	docker build $(CACHE) --platform $(ARCH) \
+		--build-arg ODK_VERSION=$(VERSION)-dev \
+		--build-arg ODKLITE_TAG=dev \
+		$(ROBOT_JAR_ARGS) \
+		-t $(IM):dev \
+		.
+
+clean:
+	docker kill $(IM) || echo not running
+	docker rm $(IM) || echo not made
+
+
+#### TESTING #####
+
+test-flavor:
+	@if docker images | grep -q odk$(FLAVOR) ; then \
+		$(MAKE) test_odk$(FLAVOR)_programs ODK_IMAGE=odk$(FLAVOR) ; \
+		$(MAKE) test CMD=./seed-via-docker.sh ODK_IMAGE=odk$(FLAVOR) ; \
+	else \
+		echo "Image obolibrary/odk$(FLAVOR) not locally available" ; \
+	fi
+
+test-full: build
+	$(MAKE) test-flavor FLAVOR=full
+
+test-lite: build-odklite
+	$(MAKE) test-flavor FLAVOR=lite
+
+tests: test-full
+
+test-no-build:
+	$(MAKE) test-flavor FLAVOR=full
+
+test-lite-no-build:
+	$(MAKE) test-flavor FLAVOR=lite
+
+
+#### Publishing #####
+
+publish-no-build:
+	docker push $(DEV):$(VERSION)
+	docker push $(IM):latest
+	docker push $(IM):$(VERSION)
+	$(MAKE) -C docker/odklite publish-no-build
+
+publish: build
+	$(MAKE) publish-no-build
+
+publish-multiarch:
+	$(MAKE) -C docker/robot CACHE=$(CACHE) PLATFORMS=$(PLATFORMS) \
+		publish-multiarch
+	$(MAKE) -C docker/builder CACHE=$(CACHE) PLATFORMS=$(PLATFORMS) \
+		publish-multiarch
+	$(MAKE) -C docker/odklite IM=$(IMLITE) VERSION=$(VERSION) \
+	    CACHE=$(CACHE) PLATFORMS=$(PLATFORMS) \
+	    publish-multiarch
+	docker buildx build $(CACHE) --push --platform $(PLATFORMS) \
+	    --build-arg ODK_VERSION=$(VERSION) \
+	    $(TAGS_OPTION) \
+	    .
+
+publish-multiarch-dev:
+	$(MAKE) -C docker/builder CACHE=$(CACHE) PLATFORMS=$(PLATFORMS) \
+		publish-multiarch
+	$(MAKE) -C docker/odklite IM=$(IMLITE) VERSION=$(VERSION)-dev \
+		CACHE=$(CACHE) PLATFORMS=$(PLATFORMS) \
+		TAGS_OPTION="-t $(IMLITE):dev" \
+		publish-multiarch
+	docker buildx build $(CACHE) --push --platform $(PLATFORMS) \
+		--build-arg ODK_VERSION=$(VERSION)-dev \
+		--build-arg ODKLITE_TAG=dev \
+		-t $(IM):dev \
+		.
+
+# This should use the same base image as the one used to build the ODK itself.
+constraints.txt: python-requirements.txt
+	docker run -v $$PWD:/work -w /work --rm -ti ubuntu:26.04 /work/scripts/update-constraints.sh --in-docker
+
+clean-tests:
+	rm -rf target/*
+
+dev-test-publish:
+	git pull
+	docker buildx rm multiarch
+	docker buildx create --name multiarch --driver docker-container --use
+	$(MAKE) tests publish-multiarch-dev
+
+dev-test-publish-no-rm:
+	git pull
+	docker buildx create --name multiarch --driver docker-container --use
+	$(MAKE) tests publish-multiarch-dev

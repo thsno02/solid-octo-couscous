@@ -1,0 +1,182 @@
+\PassOptionsToPackage{numbers}{natbib} % make bibliography numbers nice
+
+\usepackage{hyphenat}
+\usepackage{xifthen}% provides \isempty test
+\usepackage{xparse}
+\usepackage{xstring}
+\usepackage{xr} % cross-file refs
+
+\usepackage{standalone}
+\usepackage{subfiles}
+\usepackage[title]{appendix}
+\usepackage{titletoc}
+\usepackage{todonotes}
+
+% Typography
+\usepackage{iftex}
+\ifluatex 
+    \usepackage[no-math]{fontspec}
+    \setmainfont{TeX Gyre Termes}
+    \setsansfont{TeX Gyre Heros}[Scale=MatchLowercase]
+    
+    \usepackage{emoji}
+    \setemojifont{TwemojiMozilla}
+\else
+    \usepackage[utf8]{inputenc}
+    \usepackage[T1]{fontenc}
+\fi
+
+\usepackage{microtype}      % microtypography
+\usepackage[abbreviations]{foreign}
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{pifont}
+\usepackage[shortlabels]{enumitem}
+
+\usepackage{dialogue}
+
+% URLs
+\usepackage[hyphens]{url}
+\usepackage{hyperref}       % hyperlinks - take out for arxiv
+\hypersetup{
+    colorlinks,
+    linkcolor={red!50!black},
+    citecolor={blue!50!black},
+    urlcolor={blue!80!black}
+}
+
+% Figures
+\usepackage{wrapfig}
+
+\usepackage{colortbl}
+\usepackage{subcaption}
+%\usepackage[lofdepth,lotdepth]{subfig}
+
+\usepackage{pgf, tikz,xcolor}
+\usetikzlibrary{arrows, automata, positioning}
+
+% Tables
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{ragged2e}
+\usepackage{longtable}
+\usepackage{array}
+
+% Math
+\usepackage{amsthm, thmtools}
+\usepackage{commath}
+\usepackage{amssymb}
+\usepackage{thm-restate}
+\usepackage{textcomp}
+\usepackage{mathtools}
+\usepackage{algpseudocode}
+\usepackage{amsmath}
+\usepackage{cleveref} % Must be loaded after amsmath
+\usepackage{bbm}
+\usepackage{mathrsfs} % mathscr
+
+% Theorem list inclusion management
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\thmt@generic@postheadhook
+  {\addcontentsline}
+  {\ifthmt@thisistheone
+     \expandafter\addcontentsline
+  \else
+     \expandafter\@firstoftwo\expandafter\@gobbletwo
+  \fi}
+  {}{\FAILED}
+\makeatother % don't list theorems multiple times
+
+% TikZ styles
+\usetikzlibrary{arrows.meta,bending}
+\usetikzlibrary{calc}
+\def\opacity{.1}
+\def\smallradius{.25cm}
+\def\graphColor{red} % Color to use for involution, etc
+\tikzstyle{blue}=[% Define these with arguments?
+    shape = circle,
+    draw = blue,
+    fill = white,
+    minimum size = .1cm,
+    font= \small,
+    text = blue
+]
+
+\tikzstyle{gray}=[
+    shape = circle,
+    draw = gray,
+    fill = white,
+    minimum size = .1cm,
+    font= \small,
+    text = gray
+]
+
+\tikzstyle{red}=[
+    shape = circle,
+    draw = red,
+    fill = white,
+    minimum size = .1cm,
+    font= \small,
+    text = red
+]
+
+\tikzstyle{green}=[
+    shape = circle,
+    draw = green,
+    fill = white,
+    minimum size = .1cm,
+    font= \small,
+    text = green
+]
+
+\tikzstyle{purple}=[
+    shape = circle,
+    draw = purple,
+    fill = white,
+    minimum size = .1cm,
+    font= \small,
+    text = purple
+]
+
+\tikzstyle{black}=[
+    shape = circle,
+    draw = black,
+    fill = white,
+    minimum size = .1cm,
+    font= \small,
+    text = black
+]
+
+\tikzstyle{hide}=[
+    shape = circle,
+    draw = white,
+    fill opacity = .9,
+    fill = white,
+    minimum size = .5cm,
+    text = black
+]
+
+\tikzstyle{hideArr}=[
+    shape = circle,
+    draw = black,
+    opacity = \opacity,
+    fill = black,
+    text = black
+]
+
+\allowdisplaybreaks % allow page breaks in equations
+\bibliographystyle{plainnat}
+
+% Repeat figures with custom captions
+\NewDocumentCommand{\repeatcaption}{mmO{}}{%
+  \renewcommand{\thefigure}{\ref{#1}}%
+  \captionsetup{list=no}%
+  \caption{\emph{Repeated from page \pageref{#1} #3.} #2}%
+  \addtocounter{figure}{-1} % don't count this as a new figure
+}
+
+% Visible commenting
+% \input{main-tex/comments}
+% \setupcomments{ac}{AC}{green!70!black}{color=green!10}
+% \setupcomments{at}{AT}{\red}{color=red!30}
+% \setupcomments{rs}{RS}{blue!70!black}{color=blue!10}
+% \commentstrue

@@ -1,0 +1,36 @@
+# Architecture evidence: materialsproject/atomate2
+
+- `README.md:1` — atomate2
+- `README.md:27` — Workflows
+- `README.md:41` — Quick start
+- `README.md:61` — construct a rock salt MgO structure
+- `README.md:68` — make a band structure flow to optimise the structure and obtain the band structure
+- `README.md:71` — run the flow
+- `README.md:88` — Installation
+- `README.md:93` — Tutorials
+- `README.md:111` — Need help?
+- `README.md:116` — What’s new?
+- `README.md:120` — Contributing
+- `README.md:126` — License
+- `README.md:130` — Acknowledgements
+- `README.md:135` — Citing atomate2
+- `README.md:150` — Journal publications for new contributions to atomate2?
+- `CONTRIBUTING.md:1` — Contributing to atomate2
+- `CONTRIBUTING.md:12` — Reporting bugs, getting help, and discussion
+- `CONTRIBUTING.md:35` — Contributing code modifications or additions through GitHub
+- `CONTRIBUTING.md:52` — How to Make a Great Pull Request
+- `pyproject.toml:51` — phonopy 4.x changed force-constants/primitive-axis handling, breaking the
+- `pyproject.toml:52` — phonon.save -> phonopy.load round-trip used by the Grüneisen workflow
+- `pyproject.toml:53` — ("Force constants shape disagrees with crystal structure setting").
+- `pyproject.toml:85` — Forcefields have separate strict groupings because of conflicting dependencies.
+- `pyproject.toml:86` — The labels below should not be taken as fixed in time.
+- `pyproject.toml:87` — They are meant to be instructive as to why certain forcefields are grouped together.
+- `pyproject.toml:88` — Ex: `strict-forcefields-torch-limited` might indicate that these require a lower version of `pytorch`
+- `pyproject.toml:89` — Whereas `strict-forcefields-generic` might indicate that no dependency conflicts are known for the group
+- `pyproject.toml:91` — ALWAYS REMEMBER to update `.github/workflows/testing.yml` to reflect the current set of
+- `pyproject.toml:92` — forcefield dependency groups.
+- `pyproject.toml:102` — "mattersim>=1.2.3", # need to be activated again
+- `pyproject.toml:255` — flake8-type-checking (TCH): things inside TYPE_CHECKING aren't available
+- `pyproject.toml:256` — at runtime and so can't be used by pydantic models
+- `pyproject.toml:257` — flake8-future-annotations (FA): pipe operator for type unions only work in pydantic models in python 3.10+
+- `docs/index.md:42` — atomate2 documentation

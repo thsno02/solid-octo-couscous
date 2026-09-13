@@ -1,0 +1,122 @@
+# Architecture evidence: xoai/sage-wiki
+
+- `README.md:3` — sage-wiki
+- `README.md:22` — From personal vault to company knowledge graph
+- `README.md:28` — Knowledge graph & graph memory
+- `README.md:80` — Guides
+- `README.md:103` — Install
+- `README.md:106` — CLI only (no web UI)
+- `README.md:109` — With web UI (requires Node.js for building frontend assets)
+- `README.md:115` — Quickstart
+- `README.md:119` — Greenfield (new project)
+- `README.md:123` — Add sources to raw/
+- `README.md:125` — Edit config.yaml to add api key, and pick LLMs
+- `README.md:156` — Vault Overlay (existing Obsidian vault)
+- `README.md:161` — Edit config.yaml to set source/ignore folders, add api key, pick LLMs
+- `README.md:168` — Supported Source Formats
+- `README.md:189` — Graph memory
+- `README.md:212` — Commands
+- `README.md:243` — TUI
+- `README.md:258` — Web UI
+- `README.md:272` — MCP Integration
+- `README.md:310` — Agent skills
+- `README.md:318` — Claude Code
+- `README.md:321` — Or manually: copy skills/sage-wiki/SKILL.md to .claude/skills/
+- `README.md:340` — Client SDKs
+- `README.md:375` — Examples
+- `README.md:386` — Embedding in a Go program
+- `README.md:429` — Operations
+- `README.md:458` — Embedding (Go API)
+- `README.md:482` — Cost
+- `README.md:508` — Resource limits
+- `README.md:535` — Scaling to large vaults
+- `README.md:551` — Bounded vector memory (opt-in)
+- `README.md:582` — Multi-workspace serve
+- `README.md:610` — Remote mirror (S3 backup)
+- `README.md:618` — 1. Configure the mirror: block (below), then:
+- `README.md:689` — Ecosystem
+- `README.md:691` — Contribution Packs
+- `README.md:711` — External Parsers
+- `README.md:719` — Teams
+- `README.md:724` — Benchmarks
+- `README.md:756` — Architecture
+- `README.md:773` — License
+- `CONTRIBUTING.md:1` — Contributing to sage-wiki
+- `CONTRIBUTING.md:32` — CI responsibility and ownership states
+- `CONTRIBUTING.md:56` — Repository layout
+- `CONTRIBUTING.md:81` — Translations
+- `CONTRIBUTING.md:99` — Adding a file format parser
+- `CONTRIBUTING.md:101` — Go (built-in)
+- `CONTRIBUTING.md:107` — External (subprocess)
+- `CONTRIBUTING.md:131` — Fuzzing
+- `CONTRIBUTING.md:180` — Regenerating the web UI dist
+- `CONTRIBUTING.md:192` — Creating a pack
+- `CONTRIBUTING.md:194` — Quick start
+- `CONTRIBUTING.md:199` — edit pack.yaml, add prompts, skills, samples
+- `CONTRIBUTING.md:203` — Pack directory structure
+- `CONTRIBUTING.md:219` — Testing your pack
+- `CONTRIBUTING.md:222` — validate schema and file references
+- `CONTRIBUTING.md:225` — install locally and apply to a test project
+- `CONTRIBUTING.md:229` — verify config and ontology changes
+- `CONTRIBUTING.md:233` — Pack command reference
+- `CONTRIBUTING.md:252` — Submitting to the registry
+- `CONTRIBUTING.md:267` — Pack schema reference
+- `CONTRIBUTING.md:269` — pack.yaml fields
+- `CONTRIBUTING.md:290` — Config overlay
+- `CONTRIBUTING.md:305` — Entity and relation types
+- `CONTRIBUTING.md:319` — Apply modes
+- `Dockerfile:1` — Stage 1: Build web UI
+- `Dockerfile:9` — Stage 2: Build Go binary
+- `Dockerfile:18` — Stage 3: Runtime
+- `Dockerfile:30` — The web UI binds 0.0.0.0 for container networking, which is non-loopback, so a
+- `Dockerfile:31` — token is REQUIRED — the server refuses to start without one. The same bind is
+- `Dockerfile:32` — subject to the DNS-rebind Host allowlist, so set SAGE_WIKI_ALLOWED_HOST to the
+- `Dockerfile:33` — hostname/IP you browse to (any non-loopback host, direct or via a proxy):
+- `Dockerfile:34` — docker run -e SAGE_WIKI_TOKEN="$(openssl rand -hex 32)" \
+- `Dockerfile:35` — -e SAGE_WIKI_ALLOWED_HOST=your-host -p 3333:3333 -v "$PWD:/wiki" <image>
+- `Dockerfile:36` — then open  http://your-host:3333/?token=<that token>  in a browser.
+- `Makefile:1` — Local mirror of the CI quality gate (.github/workflows/ci.yml). Run `make ci`
+- `Makefile:2` — on a feature branch to reproduce the checks CI *gates* on.
+- `Makefile:4` — CGO policy matches CI: build/vet stay CGO_ENABLED=0 (the release binary is
+- `Makefile:5` — pure-Go, modernc.org/sqlite); race targets use CGO_ENABLED=1 because the race
+- `Makefile:6` — detector hard-requires cgo. Enabling cgo for tests pulls in no cgo module deps.
+- `Makefile:8` — Honesty contract (20260812-ci-quality-system Task 7): `make ci` is the fast
+- `Makefile:9` — local gate and prints what it does NOT cover. Hosted-only evidence — OS
+- `Makefile:10` — execution, PostgreSQL/MinIO services, pinned-container frontend, scheduled
+- `Makefile:11` — fuzz exploration, and exact-SHA publication proof — is never claimed here.
+- `Makefile:15` — Base branch for the new-issues lint filter (mirrors CI's --new-from-merge-base)
+- `Makefile:16` — and the translation-drift range. Falls back to origin/main when no local main
+- `Makefile:17` — exists (detached worktrees); shallow clones need full history for merge-base.
+- `Makefile:35` — Full race suite (legacy name kept for contributors and manifest references).
+- `Makefile:39` — Ordinary (non-race) suite — the `make ci` test leg. Environment-gated
+- `Makefile:40` — service tests (TEST_DATABASE_URL, SAGE_TEST_MINIO) keep their local skips.
+- `Makefile:44` — Full report incl. the pre-existing backlog — for chipping away at it locally.
+- `Makefile:49` — Only NEW issues vs $(LINT_BASE) — exactly what CI gates. Green on unmodified main.
+- `Makefile:53` — Advisory only — matches CI's continue-on-error vuln job. Currently flags Go
+- `Makefile:54` — stdlib advisories fixed only in a newer patch toolchain, so it is intentionally
+- `Makefile:55` — NOT part of the `ci` aggregate; run it on its own.
+- `Makefile:62` — --- Local-contract checks (fail-closed; each has a --self-test mutation suite) ---
+- `Makefile:64` — Canonical formatting over ALL tracked Go source (empty inventory is red).
+- `Makefile:68` — go.mod/go.sum tidy drift + module content verification (never mutates the
+- `Makefile:69` — worktree: tidy runs with -diff).
+- `Makefile:73` — Responsibility manifests: parser/validation suite plus the live fail-closed
+- `Makefile:74` — validator (exact package partition, aggregate membership, Make targets,
+- `Makefile:75` — determinism roles, platform inventory, shards, service contracts, fuzz
+- `Makefile:76` — inventory). Every workflow is validated so a witness job reference can
+- `Makefile:77` — never point at a job that does not exist: ci.yml (required aggregate),
+- `Makefile:78` — ci-shadow.yml (advisory candidates), fuzz.yml (scheduled exploration),
+- `Makefile:79` — and ci-diagnostics.yml (scheduled broad diagnostics).
+- `Makefile:115` — Determinism tripwire: contract self-test first, then the live scan.
+- `Makefile:116` — Run sequentially — the self-test plants a temporary in-tree offender.
+- `Makefile:121` — Generated/API/skill drift: byte-identical skill regeneration, committed-output
+- `Makefile:122` — match, and the OpenAPI/route/MCP agreement tests.
+- `Makefile:127` — Translation drift (MAINT-05): README.md must move with at least one
+- `Makefile:128` — docs/translations/README_*.md translation, or a commit in the range carries
+- `Makefile:129` — `translations: lag-ok`. One shell per target: recipe lines would otherwise
+- `Makefile:130` — lose the computed vars between lines.
+- `Makefile:134` — Contract test for the check itself (no repo state needed).
+- `Makefile:138` — The six committed translation files must carry their lag headers.
+- `Makefile:142` — The accurate local fast gate. Deliberately excludes `vuln` (advisory in CI)
+- `Makefile:143` — and the range-based `translations` drift check (branch-context dependent;
+- `Makefile:144` — hosted CI computes the real range — run `make translations` on your branch).
+- `Makefile:145` — Ends with the hosted-only omissions so nobody mistakes this for full CI.

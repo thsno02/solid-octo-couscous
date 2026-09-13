@@ -1,0 +1,30 @@
+
+\begin{table}[h]
+\caption{An example of how a reasoning path is augmented into four formats of training data with different prompts (in input) and answer styles (in output). Specifically, the \textit{CoT prompting examples} used for each tasks are listed in Appendix~\ref{sec:app_prompt}. The \textit{Standard prompting examples} are the same question-answer pairs with \textit{CoT prompting examples}, except that reasoning is removed.}
+% \vspace{1.5em}
+\centering
+% \small
+\resizebox{\textwidth}{!}{
+\begin{tabular}{l}
+\toprule
+\textbf{Question}: Amy is 10 years old. Jake is 8 years old. Alex's age is right in the middle. How old is Alex?\\
+\textbf{Selected Chain-of-Thought}: Amy is 10 years old. Jake is 8 years old. Alex's age is in the middle of\\ Amy and Jake, so Alex is ( 8 + 10 ) / 2 = 9 years old. The answer is 9.\\
+\midrule
+\textbf{Mixed-formats of training data}:\\
+\textbf{Format 1}: \textbf{Input}: \textit{[CoT prompting examples]} + `\textbackslash n' + \textit{[Question]} +  `\textbackslash n' + `A:'\\
+\textbf{Output}: Amy is 10 years old. Jake is 8 years old. Alex's age is in the middle of Amy and Jake, so Alex\\ is ( 8 + 10 ) / 2 = 9 years old. The answer is 9.\\
+\\
+\textbf{Format 2}: \textbf{Input}: \textit{[Standard prompting examples]} + `\textbackslash n' + \textit{[Question]} +  `\textbackslash n' + `A:'\\
+\textbf{Output}: The answer is 9.\\
+\\
+\textbf{Format 3}: \textbf{Input}: \textit{[Question]} +  `\textbackslash n' + `A: Let's think step by step.'\\
+\textbf{Output}: Amy is 10 years old. Jake is 8 years old. Alex's age is in the middle of Amy and Jake, so Alex\\ is ( 8 + 10 ) / 2 = 9 years old. The answer is 9.\\
+\\
+\textbf{Format 4}: \textbf{Input}: \textit{[Question]} +  `\textbackslash n' + `A:'\\
+\textbf{Output}: The answer is 9.\\
+\bottomrule
+\end{tabular}
+}
+\label{tab:mix_format}
+% \vspace{-1em}
+\end{table}

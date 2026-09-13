@@ -1,0 +1,21 @@
+\section{Related work}
+\label{sec:rel}
+\textbf{Knowledge conflicts.~}
+Knowledge conflicts are commonly presented to LLMs and exploring the capability of the model to understand and manage them to ensure trustworthiness of the answer is gaining increasing interest in the community. While there exist three categories of conflicts: intra-memory, context-memory and inter-context \citep{xu2024knowledge} we focus our attention on the inter-context conflict. This type of contradiction has become of particular interest after the advent of RAG techniques. RAG has been proven to enhance LLMs' capabilities in dealing with hallucination and enrich LLMs' responses by integrating content from retrieved documents into the context \citep{lewis2021retrievalaugmented}. At the same time RAG can also introduce inconsistencies, as external documents may conflict with each other.
+In order to explore this phenomenon, previous research has relied on synthetically generated datasets containing conflicting statements \citep{wang2023resolving, li2024contradoc}. While they are used to evaluate and fine-tune existing models, these benchmarks fail to represent the complexity of real world conflicts \citep{xu2024knowledge}. We aim to shed light on the unexplored space of managing inter-context conflicts \textit{in the wild}, starting from contradictions extracted and annotated from Wikipedia. Our aim is to assess how well LLMs perform in dealing with real-world scenarios, rather than with synthetically created conflicts, to better understand their behaviour and capability. 
+
+\textbf{LLMs evaluation benchmarks.~}
+Understanding adherence of LLMs to factual knowledge has gained increasing attention in recent years given the widespread use of these models. Hallucination detection and mitigation has been identified as a fundamental step to ensure transparency and trustworthiness of the models. In recent years a proliferation of benchmarks for evaluating factuality of LLMs has been observed with \citep{huang2023survey} presenting a survey of existing hallucination detection and mitigation approaches. They include many established benchmarks such as TruthfulQA \citep{lin2022truthfulqa}, FreshQA \citep{vu2023freshllms}, HaluEval \citep{li2023halueval}, HalluQA \citep{cheng2023evaluating}, and FELM \citep{chen2023felm} that mainly focus on short-form answer evaluation where the knowledge of the LLM is tested in the form of a single factoid evaluated binary as true or false in adherence to the specific benchmark. More recent works \citep{wei2024longform,min-etal-2023-factscore} cover long-form answer evaluation where the answer is decomposed into individual facts that are then independently evaluated. An ensemble metric is computed at the end to represent the overall evaluation score.
+
+These previous works include the primary definition of truthfulness and factuality as a binary concept where the goal is to test the knowledge of the LLM in the form of a single (short-form) or multiple (long-form) factoids evaluated as \textbf{true or false} given the specific benchmark. 
+
+In this work we move away from a dualistic vision of the truth and we focus on cases where the answer to a question is not unique. We investigate how LLMs deal with real-world conflicting information where there exist different sources and possible answers considered equally trustworthy. 
+
+
+
+
+
+
+
+
+

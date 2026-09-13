@@ -4,24 +4,26 @@ on:
   push:
     paths:
       - 'raw_data/**'
-      - 'source_registry/**'
-      - 'materialized_sources/**'
-      - 'pipeline/**'
       - 'docs/**'
-      - 'scripts/validate_raw_data.py'
-      - 'scripts/validate_materialized.py'
-      - 'scripts/validate_docs.py'
+      - 'materialized_sources/**'
+      - 'source_registry/**'
+      - 'experiments/**'
+      - 'pipeline/**'
+      - 'scripts/**'
+      - 'requirements-materialization.txt'
+      - 'Makefile'
       - '.github/workflows/validate-raw-data.yml'
   pull_request:
     paths:
       - 'raw_data/**'
-      - 'source_registry/**'
-      - 'materialized_sources/**'
-      - 'pipeline/**'
       - 'docs/**'
-      - 'scripts/validate_raw_data.py'
-      - 'scripts/validate_materialized.py'
-      - 'scripts/validate_docs.py'
+      - 'materialized_sources/**'
+      - 'source_registry/**'
+      - 'experiments/**'
+      - 'pipeline/**'
+      - 'scripts/**'
+      - 'requirements-materialization.txt'
+      - 'Makefile'
       - '.github/workflows/validate-raw-data.yml'
 
 permissions:
@@ -30,21 +32,25 @@ permissions:
 jobs:
   validate:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
       - name: Install validators
-        run: python -m pip install --disable-pip-version-check PyYAML jsonschema
+        run: python -m pip install --disable-pip-version-check -r requirements-materialization.txt
       - name: Validate raw collection
         run: python scripts/validate_raw_data.py
-      - name: Validate materialized source layer
+      - name: Validate materialized corpus when present
         run: |
-          if [ -f source_registry/registry.yaml ]; then
-            python scripts/validate_materialized.py
-          else
-            echo 'Materialized source registry not created yet; skipping materialized-layer validation.'
+          if [ -f raw_data/audits/materialization_completeness_2026-09-10.yaml ]; then
+            python scripts/validate_materialization_completeness.py
           fi
       - name: Validate documentation
         run: python scripts/validate_docs.py
+      - name: Validate v0 experiment when built
+        run: |
+          if [ -f experiments/v0_meta_kb_initialization_demo_260910/08_release/manifest.yaml ]; then
+            python experiments/v0_meta_kb_initialization_demo_260910/pipeline/validate_demo.py
+          fi

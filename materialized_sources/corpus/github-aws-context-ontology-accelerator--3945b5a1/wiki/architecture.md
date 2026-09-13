@@ -1,0 +1,62 @@
+# Architecture evidence: aws/context-ontology-accelerator
+
+- `README.md:1` — ✦ Context Ontology Accelerator
+- `README.md:5` — Architecture
+- `README.md:15` — Quick Start
+- `README.md:17` — Prerequisites
+- `README.md:24` — Setup
+- `README.md:31` — Clone at the latest release tag (replace <tag> with a release from the link above)
+- `README.md:43` — Repository Structure
+- `README.md:67` — Tech Stack
+- `README.md:81` — Contributing
+- `README.md:85` — External Dependencies
+- `README.md:118` — License
+- `CONTRIBUTING.md:1` — Contributing to Context Ontology Accelerator
+- `CONTRIBUTING.md:5` — Reporting Bugs/Feature Requests
+- `CONTRIBUTING.md:16` — Code of Conduct
+- `CONTRIBUTING.md:20` — Security issue notifications
+- `CONTRIBUTING.md:24` — Licensing
+- `CONTRIBUTING.md:28` — Amazon employees
+- `Makefile:14` — Propagate the repo-root VERSION into every package manifest. Bump VERSION,
+- `Makefile:15` — then run this — never edit a package's version by hand.
+- `Makefile:19` — Fail if any package manifest has drifted from VERSION (runs as part of lint).
+- `Makefile:28` — Per-package unit tests (Nx) plus the repo-level suite in tests/unit, which
+- `Makefile:29` — covers cross-package concerns (version sync, NOTICE generation, doc accuracy)
+- `Makefile:30` — and belongs to no single Nx project.
+- `Makefile:39` — Run integration tests against all packages with deployed stacks.
+- `Makefile:40` — Optional env vars (all auto-resolved if not set):
+- `Makefile:41` — AWS_DEFAULT_REGION  — AWS region (default: us-east-1)
+- `Makefile:42` — ENV_NAME            — environment name (default: dev)
+- `Makefile:43` — INTEG_SECRET_ARN    — skip user provisioning, use this Secrets Manager ARN
+- `Makefile:44` — API_ENDPOINT        — skip CloudFormation lookup, use this API Gateway URL
+- `Makefile:45` — INTEG_NAMESPACE_ID  — reuse an existing namespace (skip create)
+- `Makefile:51` — Load test: validates the pipeline at scale (50 → 50k tables).
+- `Makefile:52` — `make load-test` runs the non-billable smoke rung only ('not slow').
+- `Makefile:53` — `make load-test-slow RUNG=500` opts into billable 500+ rungs.
+- `Makefile:54` — Crash recovery: make load-test-teardown RUN_ID=<id>
+- `Makefile:72` — Regenerate the root NOTICE (third-party attribution, ORR PAK-A-3) from the
+- `Makefile:73` — resolved environment. Run as part of `make build`; commit the result if it
+- `Makefile:74` — changes so the checked-in NOTICE stays current with the dependency set.
+- `Makefile:87` — Deploy the example Athena federation connector (connectors/) into a dev account,
+- `Makefile:88` — giving integration tests a federated source to query. Separate from deploy-dev on
+- `Makefile:89` — purpose: it stands in for something a customer deploys in their own account, and it
+- `Makefile:90` — must run AFTER COA — it reads COA's serve and discovery role ARNs from SSM.
+- `Makefile:91` — Optional env vars: SCL_PREFIX (default: coa — matches the CDK app),
+- `Makefile:92` — FUNCTION_NAME_PREFIX (default <prefix>-<env>-), EXAMPLE_BULK_ROWS /
+- `Makefile:93` — EXAMPLE_BULK_ROW_BYTES to size the fixture past Athena's 6 MB limit and exercise spill.
+- `Makefile:97` — Tear down all dev stacks in one command. Deletes AgentCore Runtimes,
+- `Makefile:98` — waits for their ENIs to detach (and stops if they do not),
+- `Makefile:99` — deletes VKG's ECS services, force-deletes the DataZone domain (cascades
+- `Makefile:100` — to RETAINed child resources CFN can't clear on its own), deletes every connector
+- `Makefile:101` — stack (separate CDK apps, so `cdk destroy --all` never sees them), then runs
+- `Makefile:102` — `cdk destroy --all` and verifies no stacks remain (see #660, #661, #707).
+- `Makefile:103` — Optional env vars: SCL_PREFIX (default: coa — matches the CDK app), SCL_DESTROY_YES=1 to skip
+- `Makefile:104` — the confirmation prompt (e.g. in CI), and the wait budgets
+- `Makefile:105` — SCL_ENI_WAIT_MAX_SECONDS (600), SCL_ECS_WAIT_MAX_SECONDS (300),
+- `Makefile:106` — SCL_DOMAIN_WAIT_MAX_SECONDS (300), SCL_CLOUDMAP_WAIT_MAX_SECONDS (180),
+- `Makefile:107` — SCL_CONNECTOR_DELETE_WAIT_MAX_SECONDS (600).
+- `pyproject.toml:3` — Single source of truth is the repo-root VERSION file. Do not edit by hand —
+- `pyproject.toml:4` — bump VERSION and run `make version` (verified by `make lint`).
+- `pyproject.toml:58` — Print a traceback on mypy internal errors so transient crashes (e.g. under
+- `pyproject.toml:59` — concurrent `nx run-many` lint) are diagnosable instead of just emitting the
+- `pyproject.toml:60` — generic "INTERNAL ERROR" banner with no location.

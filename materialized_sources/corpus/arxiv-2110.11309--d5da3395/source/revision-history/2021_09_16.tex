@@ -1,0 +1,495 @@
+\documentclass{article}
+\usepackage{iclr2022_conference,times}
+\usepackage[utf8]{inputenc}
+\usepackage{booktabs}
+\usepackage{nth}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{graphicx}
+\usepackage{wrapfig}
+\usepackage{floatrow}
+\usepackage{pifont}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{caption}
+\usepackage{relsize}
+\usepackage{multirow}
+\usepackage{array}
+
+\algrenewcommand\algorithmicindent{0.5em}%
+
+
+\input{commands}
+
+\title{Fast Model Editing at Scale}
+
+\author{Eric Mitchell, Charles Lin, Spencer Braun, Antoine Bosselut, Chris Manning, Chelsea Finn}
+\date{August 2021}
+
+\begin{document}
+
+\maketitle
+
+%%%
+% See revision-history for old versions & comments
+%%%
+\begin{abstract}
+    Large pre-trained models, particularly Transformer variants, have delivered impressive results on a range of downstream tasks. However, the largest existing models can still make errors, and even accurate predictions may become outdated over time. Because detecting all such failures at training time is difficult or impossible, enabling both developers and end users of such models to make targeted interventions to correct undesirable outputs while leaving the model otherwise intact is highly desirable. 
+    %%CF.9.11: This sentence structure makes it hard to read + it is quite long. I would change it to "Because detecting ..., it is imperative to enable developers and end users of such models to correct inaccurate outputs while leaving the model otherwise intact." (also note how I cut "make targeted interventions" without changing the meaning of the sentence) You could also phrase it as "While detecting ..., it is also currently not feasible for developers and end users to quickly correct inaccurate outputs while otherwise leaving the model intact."
+    However, 
+    %%CF.9.11: You started with "However" just two sentences ago. I would suggest using my second phrasing suggestion above, which would allow you to avoid the however here.
+    the distributed, black-box nature of the representations learned by large neural networks makes such targeted edits difficult. Fine-tuning and continual training
+    %%CF.9.11: I think you can omit "and continual training". You seem to err towards being a completionist in writing, which makes things more complete but can sacrifice the readability
+    struggle with overfitting when presented with only a single erroneous input-output pair, and state-of-the-art model editing algorithms are difficult
+    %%CF.9.11: maybe difficult -> impractical or unfeasible or "existing model editing algorithms do not scale to large models due to their computational demands"
+    to apply to very large models due to their computational demands. To enable easy post-hoc editing of very large
+    %%CF.9.11: very large -> massive?
+    (\textgreater 10 billion parameters) models,
+    %%CF.9.11: models -> pre-trained models
+    we propose \name, an ensemble of auxiliary editing networks that can be trained to make fast, local edits to a pre-trained model from a single desired input-output pair. Our experiments show that \name~is as or more effective at editing pre-trained transformer language models than prior approaches to model editing across a variety of problems, and can scale to models with over a billion parameters that prove intractable for existing methods.
+\end{abstract}
+%%CF.9.11: This is probably a bad idea, but we could also name the method MEND-$\nabla$ -- model editor networks via decomposed \nambla. I think just MEND is better though.
+
+\section{Introduction}
+
+\begin{figure}[b]
+    \centering
+    \includegraphics[width=\textwidth]{figures/diagrams/fig1.jpeg}
+    \caption{The proposed algorithm \name~enables editability by training a collection of MLPs to modify model gradients to produce \textit{local} model edits that do not damage model performance on unrelated inputs. \name~is efficient even for very large models (see Section~\ref{sec:scaling}).}
+    \label{fig:problem-method}
+\end{figure}
+
+
+Large neural networks have become a fundamental tool in solving data-driven problems in computer vision \citep{huang2017densely}, natural language and audio processing \citep{vaswani2017attention}, and sequential decision making \citep{wu2021greedy}. However, deploying and maintaining such models can be difficult: when a neural network produces an undesirable output, making a localized update to correct its behavior for a single input or small number of inputs is non-trivial, owing to the distributed nature of the model's representation. The computational requirements of large scale of
+%%CF.9.11: typo
+state-of-the-art language models exacerbates this challenge. For example, after being trained on data gathered from the internet, a large language model might assign higher probability to \textit{Theresa May} than to \textit{Boris Johnson} when presented with \textit{Who is the Prime Minister of the UK?} as a prompt. An ideal model editing procedure could quickly update the model parameters to increase the relative likelihood of \textit{Boris Johnson} without changing the model output for unrelated inputs. Additionally, the edited model should correctly update its output for related inputs, such as \textit{Who is the UK's Prime Minister?} in the above question-answering example; that is, edits should \textit{generalize}.
+
+Perhaps the simplest approach to making such edits is additional fine-tuning on the particular example for which the model produced an incorrect prediction.
+%%CF.9.11: on the particular example that needs to be corrected, or just "on the particular correction"
+Directly fine-tuning on the example to edit 
+%%CF.9.11: "on the correction"? Note that "on the example to edit" is actually wrong because you are not fine-tuning on the original example -- you are fine-tuning on the correction to the example to edit.
+suffers from rapid overfitting, even when constraining the distance between the pre- and post- fine-tuning parameters \citep{Cao2021EditingFK}.
+%%CF.9.11: if possible, it would be nice to convey that the overfitting isn't just to the correction but is also w.r.t. the overall model performance -- i.e. Direct fine-tuning on the correction leads to overfitting and overall degradation in performance.
+While fine-tuning on the single edit example in conjunction with continual training on the training set mitigates this problem,
+%%CF.9.11: I might phrase this as "While fine-tuning on both the correction and the original training set can mitigate this problem, this approach is slow: we find that it can require tens of thousands of steps to converge."
+%%CF.9.11: Also, I'm not sure if "continual training" is generally the right term to use. Continual learning definitely refers to something else usually (i.e. where you explicitly can't store the training data)
+continual training in this manner is relatively slow, taking many thousands of steps to converge for some examples. It also requires persistent access to the full training set during test time. Further, while this continual training + fine-tuning strategy might correctly update the model's answer to the question \textit{Who is the Prime Minister of the UK?}, the fine-tuning-based edit might not generalize without explicitly collecting the set of additional inputs for which the model's output should also change. 
+%%CF.9.11: The above is getting a bit long-winded. I might also just remove the sentence above because we don't really have that great of a solution to generalization, so it may not make sense to emphasize this shortcoming of prior methods quite as much.
+To address some of these shortcomings, recent work has described a bi-level meta-learning objective that finds a model initialization for which regular, unconstrained fine-tuning on a single edit example and label produces quick, local edits \citep{Sinitsin2020Editable}. While this strategy is effective, its computational requirements also prevent it from scaling to very large models, where fast, effective edits are most needed. Unfortunately, our experiments find that more computationally efficient alternatives produce significantly less reliable edits.
+%%CF.9.11: I would remove this last sentence -- it doesn't really add anything to the discussion
+
+%%CF.9.11: I think the current framing below is fine. One caveat is that the first sentence ends up being quite redundant with the first paragraph (it basically just says that we introduce an approach that addresses the problem in the first paragraph). One way to change the paragraph below would be to instead guide the reader to the answer more gradually. e.g. "To the end of efficiently editing large pre-trained models, we aim to train a light-weight \emph{model editor} that can produce edits to the model's weights when provided with the gradient of a given correction. Because gradients are high-dimensional objects, directly parametrizing a function that maps from a gradient to a modified gradient is unfortunately intractable, especially for large models..." Then you could start the final paragraph with something like the current first sentence of this paragraph, e.g. "The main contribution of this paper is an approach..."
+To the end of efficiently editing very large models, we introduce \name, an approach to model editing that learns how to modify the fine-tuning gradient to provide fast, local model edits that allow generalization to related inputs. Because gradients are high-dimensional objects, directly parameterizing a function mapping a gradient into a modified gradient is intractable. Even for a single  $d \times d$ weight matrix, a naive implementation of this gradient mapping function requires a mapping from $\mathbb{R}^{\mathcal{O}(d^2)} \rightarrow \mathbb{R}^{\mathcal{O}(d^2)}$, which is impractical for large models where $d\sim10^3$. However, by factorizing the gradient into its outer product form, \name~is able to instead learn a function $g:\mathbb{R}^{\mathcal{O}(d)} \rightarrow \mathbb{R}^{\mathcal{O}(d)}$. \name~parameterizes these gradient mapping functions as simple MLPs with a single hidden layer, using an insignificant number of parameters compared with large base models with billions of parameters. Using this gradient factorization, \name~scales without modification to the very large (billion+ parameter) models currently in use. Further, \name~can be applied to any pre-trained model, regardless of its pre-training procedure, leaving the model's predictions completely unchanged until an edit is actually required.
+
+%Then, for the last paragraph, I would recommend starting it by clearly stating the main contribution, briefly elaborate on important things about the contributions/methods, and then summarize the key experimental results.
+%%CF.9.11: In general, I think that people really need just one contribution, not two. I would phrase this as: "The primary contribution of this work is an algorithm for fast model editing that can scale to large pre-trained models. Our approach leverages a low-rank factorization..." The problem statement by itself is not particularly valuable until you realize that it can be solved in a scalable way.
+The primary contributions of this work are the description of the pre-trained model editing problem and \name, a method that attacks this problem leveraging a low-rank factorization of the fine-tuning gradient. In addition, we provide a conceptual and empirical comparison of \name~with existing approaches to model editing. Our experiments utilize a variety of language-related tasks and transformer models, showing that \name~ provides state-of-the art editing performance while scaling without modification to the largest public GPT-2 \citep{radford2019language} model.
+%%CF.9.11: It would be good to be much more concrete with what you mean here -- how much improvement on what metrics? 
+Finally, our ablation experiments highlight the impact of \name's key design choices, 
+%%CF.9.11: Can you be more concrete? Can you describe each key insight in a short phrase?
+providing useful insights for future research in model editing.
+%%CF.9.11: This is a nice way to end the intro!
+
+\section{The Model Editing Problem}
+
+%%CF.9.11: This problem statement does not cover the assumptions/what you have access to during training. Having access to a dataset that covers the distribution of edits that you would consider is a strong and important assumption that we need to be up front about.
+
+%%CF.9.11: I think I may have made this comment before, but can you describe the problem first in English with zero notation? Right now, after this first sentence, I'm left wondering how you mathematically define the region. Also, this first sentence doesn't say anything about how model editing takes as input the correction in the form of an input, output pair. It is usually a good idea to start with a brief but *complete* description of the problem in English before introducing any math or notation. This will make it much easier for the reader to understand your notation later because they will have a pretty concrete high-level idea of the problem already from reading the English and then the notation/equations will only solidify that understanding.
+The objective of model editing is to alter the model's output for some region $\mathcal{N}$ of the model's input space $\mathcal{X}$, while leaving the model outputs for inputs outside of $\mathcal{N}$ unchanged. We consider neural networks that compute some differentiable function $f: \mathcal{X} \times \Theta \rightarrow \mathcal{Y}$ mapping an input $x$ and set of parameters $\theta$ to an output $y$. We define a \textit{model editor} as a function $E : \mathcal{X} \times \mathcal{Y} \times \mathcal{L} \times \Theta \times \Phi \rightarrow \Theta$ mapping a single input $x$, desired output $y$, loss function $l:\mathcal{X} \times \mathcal{Y} \times \Theta \rightarrow \mathbb{R}$, set of model parameters $\theta$, and optional editor parameters $\phi$ to a new set of model parameters $\theta'$. In line with the real-world setting in which we hope to edit a model after an undesirable prediction is observed on only a single input, a model editor is given access to only a single input-desired output pair $(\xe,\ye)$ during evaluation. 
+%%CF.9.11: This seems a bit redundant with the previous sentence? also, shouldn't the previous sentence also use \xe and \ye? It's important to be consistent with your notation.
+Model editing thus can be seen as a one-shot generalization problem, where the editor must infer $\mathcal{N}$ from $\xe$ and update the model accordingly to generalize within $\mathcal{N}$.
+%%CF.9.11: The writing about the N region is a problematic right now:
+% (1) First and most importantly, it should be conditioned on x_e in some way. For example, one definition of N could be a Gaussian centered on x_e. 
+% (2) Second, it's really not clear what N corresponds to in practice. A Gaussian seems like it has severe limitations; it also seems important for the model to be able to fully identify N from x_e (e.g. if it gets a single edit saying the president is Donald Duck, it's possible that some users would want it to say that for all countries while other users may want it just for the US while other users may want it just for France, etc -- this sort of ambiguity would certainly be problematic). In general, I think it would be a good idea to have more discussion around this. 
+% (3) Finally, does N correspond to a region over X? or a region over (X,Y)? I think you want it to be the latter. For example: if you have x_e "Who is the president of the US?" y_e="Donald Duck", then you want N to include "What is Donald Duck the president of?", "the US". The writing should be much more clear about this.
+
+We call a model editor \textbf{reliable} if $l(x,y,\theta')$ is small on average for $x\in \mathcal{N}$, where $\theta' = E(x,y,l,\theta,\phi)$. We call a model editor \textbf{local} with respect to some data distribution $\mathcal{D}$ 
+%%CF.9.11: I usually use \mathcal{D} to denote a dataset not a data distribution (and then use p(x) and p(y|x) to denote the data-generating distribution if I really need it). Also remember the discussion we had about separately representing the dataset of edits and the training dataset
+if $\mathbb{E}_{\xloc\sim \mathcal{D}}\text{KL}(p_\theta(\cdot | \xloc) \| p_{\theta'}(\cdot | \xloc))$ is small. Finally, we call a model editor \textbf{efficient} if the time required to evaluate $E$ is small. We use these criteria to compare model editors in our experiments.
+%%CF.9.11: We also care about the scalability of training computation & memory, not just test efficiency.
+
+\section{\name}
+cite fixup
+cite resnet
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/diagrams/arch.png}
+    \caption{The \name~ architecture, consisting of two consecutive blocks that are both initialized to compute the exact identity function. $\{U_1,V_1\}$ and $\{U_2,V_2\}$ comprise the low-rank factorizations of the first and second layer weight matrices, respectively.}
+    \label{fig:arch}
+\end{figure}
+
+%%CF.8.30: The title of this section should probably be the method name
+
+\name~are learnable functions
+%%CF.8.30: I would be careful about macro usage like this. If, e.g., the method name was QuickFix, this would not make sense. Also, it doens't make sense right now because it says Deep Edit are (plural vs singular)
+constructed to modulate the gradient of the loss for a particular $(x,y)$ pair to produce a pseudogradient that effectively edits the model. To do so, \name~must address both the high dimensionality of the gradient and parameter spaces as well as the difficulty of training a function that directly computes model parameter updates. In this section, we describe how \name~do so using a low-rank factorization of fully-connected layer gradients and a particular identity function initialization.
+%%CF.8.30: People are going to have no idea what you mean by the above. You should overview the approach at a very high level first -- the method is given a pre-trained model and a dataset covering the distribution of potential edits, and then a model editor is trained over this distribution. then, at test time, the model editor is given an edit or a batch of edits and must quickly and locally update the model. We would like the training phase of the model editing process to be relatively lightweight -- something that is not nearly as difficult as re-training the entire model, and ideally a process that doesn't change the pre-trained model at all. Moreover, the test phase must be fast and flexible.
+%%CF.8.30: Now getting back to what you wrote -- what do you mean by "addressing the high-dimensionality of the gradient / parameter space"? And what do you mean about the difficulty of training a function that directly comptues model parameter updates? Both of these sentences seem to assume that your solution is going to update the weights when it edits, but you haven't actually described that part. So, the reader is lacking context.
+
+
+%%CF.8.30: This might be because you haven't written the problem statement yet, but I think you need to describe exactly how the model editor will be applied to the model before getting into its specific parametrization. Also, it's not clear what "A tractable parametrization is referring to"
+
+\begin{minipage}[t]{0.43\textwidth}
+\begin{algorithm}[H]
+\caption{Editor Training}\label{alg:edit-procedure}
+\begin{algorithmic}[1]
+
+
+
+\State \textbf{Input:} Pre-trained model $p_{\theta,\mathcal{W}}$, pre-trained weights to make editable $\mathcal{W}$, initialized editor weights $\phi_0$, dataset $\mathcal{D}$, edit-locality tradeoff $\lambda$
+\For{$t \in 1,2,...$}
+    \State Sample $\xe,\xe',\ye,\xloc\sim \mathcal{D}$
+    \State $\mathcal{\tilde W} \gets \textsc{Edit}(\theta,\mathcal{W},\phi_{t-1},\xe,\ye)$
+    \State $\losse \gets -\log p_{\theta,\mathcal{\tilde W}}(\ye|\xe')$
+    \State $\lossl \gets \text{KL}(p_{\theta,\mathcal{W}}(\cdot|\xloc) \| p_{\theta,\mathcal{\tilde W}}(\cdot|\xloc))$
+    \State $L(\phi_{t-1}) \gets \lambda \losse + \lossl$
+    \State $\phi_t \gets \text{Adam}\left(\phi_{t-1}, \nabla_\phi L(\phi_{t-1})\right)$
+\EndFor
+
+
+
+
+
+\end{algorithmic}
+\end{algorithm}
+\end{minipage}
+\begin{minipage}[t]{0.565\textwidth}
+\begin{algorithm}[H]
+\caption{Edit Procedure}\label{alg:training}
+\begin{algorithmic}[1]
+
+
+
+\Procedure{Edit}{$\theta,\mathcal{W},\phi,\xe,\ye$}
+    \State $\hat{p} \gets p_{\theta,\mathcal{W}}(\ye|\xe)$, \textbf{caching} input $u_i$ to all $W_i\in\mathcal{W}$
+    \State $L(\theta, \mathcal{W})\gets -\log \hat{p}$ \Comment{Compute NLL}
+    \For{$W_i \in \mathcal{W}$}
+        \State $\delta_i \gets \nabla_{W_iu_i} L(\theta, \mathcal{W})$ \Comment{Grad wrt output of $W_i$}
+        \State $\tilde u_i,\tilde\delta_i \gets g_{\phi_i}(u_i,\delta_i)$ \Comment{Compute pseudo-grad}
+        \State $\tilde W_i \gets W - \tilde\delta_i\tilde u_i^T$
+    \EndFor
+    \State $\mathcal{\tilde{W}} \gets \{\tilde W_1,...,\tilde W_k\}$
+    \State \Return $\mathcal{\tilde{W}}$ \Comment{Return edited weights}
+\EndProcedure
+
+
+
+\end{algorithmic}
+\end{algorithm}
+\end{minipage}
+
+\subsection{A tractable parameterization}
+
+For a given pre-trained model $f_\theta$, 
+%%CF.8.30: notation of the pre-trained model should be introduced in the problem statement.
+we desire a
+%%CF.8.30: can you give an intuitive name for g rather than just calling it a mapping? Also, right now you are jumping straight into math and notation. It's best to first describe what you are going to do in English.
+mapping $g: \mathcal{G} \rightarrow \mathcal{U}$ from the space of model gradients $\mathcal{G}$ to the space of model updates $\mathcal{U}$, where $\mathcal{G},\mathcal{U}\in \mathbb{R}^{|\theta|}$.\cmm{Isn't this slightly wrong in that it should be ``where typically $\mathcal{G},\mathcal{U} = \mathbb{R}^{|\theta|}$'' -- $\mathcal{G}$ and $\mathcal{U}$ should be sets/spaces.} 
+Obviously, even a simple linear parameterization of this function is intractable, requiring $\mathcal{O}(|\theta|^2)$ parameters\footnote{A low-rank linear parameterization of this function would have scale as $\mathcal{O}(|\theta|)$, but even this parameterization would have an unacceptably high scaling constant.}.
+Even restricting this linear function to a single $d \times d$ weight matrix is difficult, requiring $\mathcal{O}(d^4)$ parameters.
+However, in the case of a weight matrix, we can leverage the particular structure of the gradient to create a more efficient parameterization.
+%%CF.8.30: You haven't explained yet that the input is a gradient yet, so it's not clear why this helps. Also, the structure of the gradient only helps for the input -- it doesn't solve the problem of the output. Of course, using low-rank is a natural choice for the output as well, but that isn't "leveraging the particular structure of the gradient"
+\cmm{Either just explain it, or if it is ``recall'' you should cite a reference!}Recall that the gradient of the loss with respect to a weight matrix $W_{\ell}$ in layer $\ell$ of a neural network is a rank-1 matrix for each element in the batch:
+\begin{equation}
+    \nabla_{W_\ell}L = \sum_i^B\delta_{\ell + 1}^i{x_\ell^i}^T
+\end{equation}
+where $B$ is the batch size, $\delta_{\ell+1}$ is the gradient of the loss for batch element $i$ with respect to the \textit{preactivations} at layer $\ell+1$, and $x_\ell$ are the activations for batch element $i$ at layer $\ell$. This formulation is trivially extended to MLP-based sequence models such as Transformers \citep{vaswani2017attention,radford2019language} with an addition sum over sequence index $j$, but for simplicity, we will merge this with the batch index without loss of generality.
+
+%%CF.8.30: I think that I am slightly more of a fan of the use of pseudo here because it comes with more context of what it refers to.
+%%CF.8.30: Actually, it looks like pseudogradients are used elsewhere in the literature, and maybe don't refer to them in this way. I would recommend digging into that a big more to understand. If they mean something else, then I definitely wouldn't recommend using the term here. If it is the same thing, then I think it's fine to use it here, but I wouldn't use italics to introduce the term
+% Here's one example reference: https://www.cambridge.org/core/books/an-introduction-to-nonlinear-analysis/pseudogradients/8CFBB14B4D5F0FEA33F3DF5074FC7147
+Leveraging this parameterization, we can learn a function $g_\phi$ mapping $x_\ell$ and $\delta_{\ell+1}$ to pseudoactivations $\tilde x_\ell$ and pseudodelta $\tilde\delta_{\ell+1}$. Note that because $x_\ell$ and $\delta_{\ell+1}$ \textit{fully describe} the gradient for a single batch, this decomposition is exact. The cost of a linear parameterization of this function has thus been reduced from $\mathcal{O}(d^4)$ to $\mathcal{O}(d^2)$, which is tractable for the values of $d$ used in modern state of the art neural networks ($10^2-10^4$). The \name~network thus computes the \textit{pseudogradient} $\tilde{\nabla}_W L'$ as
+\begin{align}
+    \tilde{\nabla}_W L &= \sum_i^B\tilde\delta_{\ell + 1}^{i}{\tilde x_\ell^{i\,T}}
+\end{align}
+Concretely, $g_\phi$ is an MLP with one hidden layer. The inputs $x_\ell$ and $\delta_{\ell+1}$ are concatenated and passed together to $g_\phi$, which produces a vector of equal cardinality, which is then split into $\tilde x_\ell$ and $\tilde \delta_{\ell+1}$. To further reduce the parameter cost, we restrict the weight matrices in the function $g$ to be low-rank, bringing the final parameter count for an \name~for a $d \times d$ weight matrix down to $\mathcal{O}(dr)$, where $r$ is the rank of the weight matrices. In practice, this yields \name~whose parameter counts are less than 20\% of the parameter counts of the base model $f_\theta$.
+
+%%CF.8.30: All of the above is specific to an edit for a single example. I might recommend stating at the beginning of the section that it will be specific to a single edit and that we will describe how to generalize it to a batch of edits at the end. (and then add that description at the end). This is important because a gradient is only rank 1 if the batch size is 1.
+
+\subsection{Training \name}
+While the parameterization presented in the previous section can tractably \textit{represent} a function mapping of gradients to model edits, training these functions
+%%CF.8.30: use a more descriptive word than function?
+present its own set of challenges. 
+%%CF.8.30: this is good signposting / a good transition btw. Keep it up :)
+For example, the inputs to an \name~($x$ and $\delta$) can differ in magnitude by several orders of magnitude, leading to some inputs being ignored, making normalization of the inputs to zero mean and unit variance crucial to successful training (see Section~\ref{sec:ablations}). 
+%%CF.8.30: This sentence seems like a detail that doesn't belong in the first sentence. Also, I might recommend using an equation to describe this normalization.
+
+%%CF.8.30: In general, this subsection seems to be a bag of design decisions. I might recommend including paragraph headers (e.g. Initialization, Normalization, Training) to help guide the reader.
+
+Even more importantly, standard MLP initialization techniques lead to \name~that produce unproductive model edits making optimization challenging. For this reason, we initialize\cmm{I think you should say that you use a residual connection and cite He et al.} \name~to compute the exact identity function. At the initialization, an \name~computes $g(z)$ where $z=\text{concat}(x, \delta)$ as:
+\begin{align}
+    h &= z + \text{relu}(U_1V_1 z + b_1) \\
+    %%CF.8.30: I would use \sigma notation for the non-linearity so that it is more general. (and define the notation)
+    g(z) &= h + U_2V_2 h
+\end{align}
+where the matrices $U_1$ and $U_2$ are initialized with zeros and $V_1$ and $V_2$ use standard Kaiming normal initialization.\footnote{We define the gradient of the relu function at 0 as 1, rather than 0 as is the case in some libraries for automatic differentiation.}
+%%CF.8.30: citation for Kaiming normal?
+$U_1,V_1$ and $U_2,V_2$ comprise the low-rank parameterization of the first and second layers, respectively.
+
+Using the \name~parameterization, initialization, and normalization together, we can learn \name~end-to-end, by differentiating through a pre-trained model. The loss is computed as\cmm{The variables in the equation haven't been defined -- they're now only defined below in section 4.}
+\begin{align}
+    L = c_\text{edit}\ell_\text{edit}(\theta') + c_\text{loc}\ell_\text{loc}(\theta')
+    %%CF.8.30: this is very high-level. Agreed that l_edit and l_loc haven't been defined. It's also not clear how the data comes into this equation. It's important to be more precise and more detailed. You know the method in-and-out, but the reader won't know anything and you need to get the up to speed to the level that they could implement it.
+\end{align}
+where some of the parameters in $\theta'$ are equal to their corresponding values in the pre-trained initialization $\theta$ while the subset of parameters that are edited (e.g. the last 3 fully-connected layers) are computed as $W_{\theta'} = W_\theta - \name(\nabla_W L)$, where $L$ is simply the (negative) log likelihood loss for a particular input.
+
+%%CF.8.30: Again, the above seems specific to a single edit.
+
+%%CF.8.30: you are very much in need of at least one algorithm box and a high-level summary
+
+\section{Comparisons with Existing Approaches}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{figures/experiments/memory.png}
+    \caption{Memory consumption (GPU VRAM) for the first 100 steps of training for MEND, KE, and ENN. MEND and KE's memory consumption remain tractable for a single GPU (using half precision for T5-11B), while ENN's memory requirements increase much more rapidly, making it impractical to run on a single GPU. Due to memory constraints, we could not compute ENN's memory usage for T5-11B.}
+    \label{fig:memory}
+\end{figure}
+
+
+\paragraph{Model Agnostic Meta-Learning (MAML)}
+The model-agnostic meta-learning algorithm \citep{finn2017maml} for few-shot learning searches for an initialization of the model parameters such that a single step (or a small number of steps) of gradient descent can find parameters that achieve low loss on a new task. The `single step' version of MAML solves the following optimization problem:
+\begin{align}
+    \theta^*_\text{MAML} = \arg\min_\theta \mathbb{E}_{\mathcal{D}_s,\mathcal{D}_q}\mathcal{L}_\text{outer}(\theta - \eta \nabla_\theta \mathcal{L}_\text{inner}(\theta, \mathcal{D}_s), \mathcal{D}_q)
+\end{align}
+where $\mathcal{D}_s$ is a set of `support' examples used to update $\theta$, $\mathcal{D}_q$ is a set of `query' examples used to evaluate whether adaptation was successful, and $\eta$ is the learning rate used for parameter adaptation. Often $\mathcal{L}_\text{outer} = \mathcal{L}_\text{inner}$, but this need not be the case.
+
+\paragraph{Editable Neural Networks (ENN)}
+\label{sec:enn-prelims}
+Editable neural networks \citep{Sinitsin2020Editable} search for a set of model parameters that both provide good performance for a `base task' (e.g. image classification or machine translation) and enable rapid editing by gradient descent to update the model's predictions for a set of `edit examples' without changing the model's behavior for unrelated inputs. ENN optimizes the following MAML-based objective:
+\begin{align}
+    \mathcal{L}_\text{ENN}(\theta, \mathcal{D}_\text{base}, \mathcal{D}_\text{edit}, \mathcal{D}_\text{loc}) = \ell_\text{base}(\mathcal{D}_\text{base}, \theta) + c_\text{edit}\cdot\ell_\text{edit}(\mathcal{D}_\text{edit}, \theta^\prime) + c_\text{loc}\cdot\ell_\text{loc}(\mathcal{D}_\text{loc}, \theta, \theta^\prime).\label{eq:enn-loss}
+\end{align}
+The first term of Equation~\ref{eq:enn-loss} is the base task loss; for a generative language model, we have $\ell_\text{base}(\mathcal{D}_\text{base}, \theta) = -\log p_{\theta}(\mathcal{D}_\text{base})$ where $\mathcal{D}_\text{base}$ is a batch of training sequences. $\ell_\text{base}$ is the edit \textit{reliability} loss, encouraging the model to significantly change its output for the edit examples in $\mathcal{D}_\text{edit}$. Finally, $\ell_\text{loc}$ is the edit \textit{locality} loss, which penalizes the edited model $\theta'$ for deviating from the predictions of the pre-edit model $\theta$ on $\mathcal{D}_\text{loc}$, data unrelated to $\mathcal{D}_\text{edit}$ and sampled from the same distribution as $\mathcal{D}_\text{base}$.
+
+The editing procedure and corresponding losses are defined as follows:
+\begin{align}
+    \label{eq:enn-edit}\theta^\prime = \text{Edit}(\mathcal{D}_\text{edit}, \theta) &= \theta + \eta \nabla_\theta \log p_\theta(\mathcal{D}_\text{edit}) \\
+    \label{eq:enn-edit-outer}\ell_\text{edit}(\mathcal{D}_\text{edit}, \theta') &= -\log p_{\theta^\prime}(\mathcal{D}_\text{edit}) \\
+    \label{eq:enn-loc}\ell_\text{loc}(\mathcal{D}_\text{loc}, \theta, \theta^\prime) &= \frac{1}{N}\sum_i^N D_{KL}(p_\theta(\cdot \mid x_\text{loc}^i)\,\|\, p_{\theta^\prime}(\cdot \mid x_\text{loc}^i)).
+\end{align}
+where $\mathcal{D}_\text{loc} = \{(x_\text{loc}^i, y_\text{loc}^i)\}_{i=1}^N$ is a batch of $N$ training examples, $\ell_\text{edit}$ ensures that edited parameters actually increase the likelihood of the edit example(s), and $\ell_\text{loc}$ regularizes edits to affect only the edit example(s). See \citet{Sinitsin2020Editable} for a more detailed explanation of ENN training and alternative objectives for $\ell_\text{edit}$ and $\ell_\text{loc}$. Comparing ENN with the notation used for MAML, we have negative log likelihood on $\mathcal{D}_\text{edit}$ for $\mathcal{L}_\text{inner}$ (Equation~\ref{eq:enn-edit}) and $\ell_\text{edit} + \ell_\text{loc}$ for $\mathcal{L}_\text{outer}$ (Equations~\ref{eq:enn-edit-outer} and~\ref{eq:enn-loc}). 
+
+\paragraph{\textsc{KnowledgeEditor} (KE)}
+\cite{Cao2021EditingFK} propose \textsc{KnowledgeEditor}, a hypernetwork-based approach for editing the knowledge in language models. KE trains an \textit{editor network} (e.g. an RNN) that conditions explicitly on the edit example and label and outputs a mask $m_i$, offset $b_i$, and a scalar scaling factor $\alpha$ to the gradient $\nabla_{W_i}$ for several of the weight matrices in a transformer model, where $m_i,b_i,\nabla_{W_i} \in \mathbb{R}^{d \times d}$ for a $d \times d$ weight matrix. The update to the model is $\theta' = \theta - \alpha (m_i \circ \nabla_{W_i}) + b_i$. To maintain tractability in light of the large weight matrices in state of the art transformer models, the mask and offset output by KE are rank-1.
+
+\section{Experiments}
+Our experiments are intended to answer several questions about algorithms for editing transformers. First, how does each algorithm trade off edit success with model degradation induced by editable training and the edits themselves? Second, to what extent is explicit supervision over how edits should generalize needed during training? Third, does \name~scale to very large (billion+ parameter) transformer models? Finally, are the design components such as identity initialization and input normalization actually necessary?
+\subsection{Editing transformer models}
+\label{sec:frontiers}
+\begin{table}[]
+    \centering
+    \begin{tabular}{lccccc}
+    \toprule
+       Task & Model & Params & Alg & Edit succ. $\uparrow$ & Drawdown $\downarrow$ \\
+       \midrule
+       \multirow{6}{*}{\shortstack[l]{Wikitext \\ Generation}} & \multirow{3}{*}{GPT-2} & \multirow{3}{*}{1.4B} & FT & - & - \\
+       & & & KE & - & - \\
+       & & & MEND & - & - \\
+       \cmidrule{2-6}
+       & \multirow{3}{*}{GPT-Neo} & \multirow{3}{*}{2.7B} & FT & - & - \\
+       & & & KE & - & - \\
+       & & & MEND & - & - \\
+       \midrule
+       \multirow{6}{*}{\shortstack[l]{zsRE\\Question\\Answering}} & \multirow{3}{*}{T5-XL} & \multirow{3}{*}{2.8B} & FT & - & - \\
+       & & & KE & - & - \\
+       & & & MEND & - & - \\
+       \cmidrule{2-6}
+       & \multirow{3}{*}{T5-XXL} & \multirow{3}{*}{11B} & FT & - & - \\
+       & & & KE & - & - \\
+       & & & MEND & - & - \\
+     \bottomrule
+    \end{tabular}
+    \caption{Caption}
+    \label{tab:my_label}
+\end{table}
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{figures/experiments/frontier.png}
+    \caption{Performance frontiers showing the tradeoff between editing success rate (y axis; upwards is better) and model degradation (x axis; farther right is better) for 5 editing algorithms. \textbf{Left:} wikitext-103 editing task, where a model must memorize a 10 token completion to a wikitext-103 paragraph sampled from GPT-2 \cite{radford2019language}. \textbf{Center:} FEVER fact-checking \citep{Thorne18Fever} editing task, where a model must switch the (binary) label of a fact, including rephrasings of the fact. \textbf{Right:} zsRE question-answering \citep{levy2017zero} editing task, where an algorithm must re-map the answer to a question (and rephrasings of the question) to a new entity. All figures show validation performance, with train/val splits for FEVER and zsRE from \citep{Cao2021EditingFK}.}
+    \label{fig:frontiers}
+\end{figure}
+Our first set of experiments is intended to understand how various editing algorithms trade off \textbf{edit success} and \textbf{model degradation} induced by both the training procedure that enables editing and the effect of the edits themselves. We evaluate 5 algorithms, plotting the edit success and model degradation for 4 different values of $c_\text{edit}$ for each algorithm. Figure~\ref{fig:frontiers} shows the corresponding frontiers on three different editing problems, wikitext-103 completion, FEVER fact-checking \citep{Thorne18Fever}, and zsRE question-answering \citep{levy2017zero}.
+% \begin{table}
+%     \centering
+%     \begin{tabular}{cccccccc}
+%     \toprule
+%         & \multicolumn{2}{c}{\textbf{Wikitext} (dGPT2)} & \multicolumn{2}{c}{\textbf{FEVER} (BERT)} & \multicolumn{3}{c}{\textbf{Algorithm Properties}} \\
+%         \cmidrule(lr{0.3em}){2-3} \cmidrule(lr{0.3em}){4-5} \cmidrule(lr{0.3em}){6-8}
+%         \textbf{Method} & Succ. & $\Delta$NLL $\downarrow$ & Succ. & $\Delta$Acc $\uparrow$ & $\nabla^2$? & Data? & Modifies model? \\
+%         \midrule
+%         FT & 0.92857 & 6.87807 & 1.0 & 0.00051 & No & No & No \\
+%         FT + KL & 0.97321 & 0.70529 & 1.0 & -0.00393 & No & Yes & No \\
+%         FT + KL + R1 & 0.98214 & 0.342 & 1.0 & -0.01 & No & Yes & No \\
+%         \midrule
+%         ENN & 0.750 & - & \textbf{0.987} & -0.95 & Yes & No & Yes \\
+%         KE & 0.179 & - & 0.894 & -0.44 & No & No & No \\
+%         GTN (Ours) & \textbf{0.830} & - & \textbf{0.990} & -0.57 & No & No & No \\
+%         \bottomrule
+%     \end{tabular}
+%     \caption{All methods edit the first weight matrix in the MLP for all transformer layers.}
+%     \label{tab:my_label}
+% \end{table}
+\subsection{Making edits that generalize}
+\begin{table}
+    \centering
+    \begin{tabular}{lcccccc}
+        \multicolumn{7}{c}{\textbf{Fact-checking Edit Generalization}} \\
+        \toprule
+        & \multicolumn{3}{c}{Trained \textbf{with} re-phrasings} & \multicolumn{3}{c}{Trained \textbf{without} re-phrasings} \\
+        \midrule
+        Algorithm & Pre acc. & Post acc. & Edit succ. & Pre acc. & Post acc. & Edit succ. \\
+        \midrule
+        FT & - & - & - & 0.77 & 0.77 & 0.65\\
+        ENN & 0.77 & 0.77 & \textbf{0.99} & 0.77 & 0.77 & 0.91 \\
+        foENN & 0.77 & 0.76 & 0.98 & 0.77 & 0.77 & 0.89 \\
+        KE & 0.77 & 0.77 & 0.95 & 0.77 & 0.77 & 0.90 \\
+        \name~(Ours) & 0.77 & 0.77 & \textbf{1.0} & 0.77 & 0.77 & \textbf{0.93} \\
+        \bottomrule
+    \end{tabular}
+    \caption{Evaluating the ability of various editing algorithms to generalize FEVER fact-checking edits. Model edits are evaluated on semantically-equivalent re-phrasings of the fact used for editing, with and without supervision of the re-phrasings during training.}
+    \label{tab:fever-gen}
+\end{table}
+
+\begin{table}
+    \centering
+    \begin{tabular}{lcccccc}
+        \multicolumn{7}{c}{\textbf{Question-answering Edit Generalization}} \\
+        \toprule
+        & \multicolumn{3}{c}{Trained \textbf{with} re-phrasings} & \multicolumn{3}{c}{Trained \textbf{without} re-phrasings} \\
+        \midrule
+        Algorithm & Pre acc. & Post acc. & Edit succ. & Pre acc. & Post acc. & Edit succ. \\
+        \midrule
+        FT & - & - & - & 0.22 & 0.22 & 0.72 \\
+        ENN & 0.22 & 0.22 & 0.99 & 0.22 & 0.22 & 0.98 \\
+        foENN & 0.22 & 0.22 & 0.98 & 0.22 & 0.22 & 0.98 \\
+        KE & 0.22 & 0.22 & 0.98 & 0.22 & 0.22 & 0.98 \\
+        \name~(Ours) & 0.22 & 0.22 & 0.99 & 0.22 & 0.22 & 0.98 \\
+        \bottomrule
+    \end{tabular}
+    \caption{Evaluating edit generalization for zsRE question-answering edits. Model edits are evaluated on semantically-equivalent re-phrasings of the question used for editing.}
+    \label{tab:zsre-gen}
+\end{table}
+Our second group of experiments investigates the intrinsic ability of various editing algorithms to make editings that \textit{generalize}. During evaluation, each algorithm performs an edit using a single edit example $(\xe, \ye)$ as before, but edit \textit{success} is evaluated using a different (but related) input $\tilde \xe$. For example, if $\xe=$ \textit{Where does FC Fyn play home games?}, we might have $\tilde \xe=$ \textit{What is the name of the stadium where FC Fyn plays their home games?}.
+
+\subsection{Editing billion-parameter+ models}
+\label{sec:scaling}
+A key motivation for our proposed approach is computational efficiency and, thus, scalability to large models that are common in many language tasks. In this section, we verify that \name~can be easily applied to models with over a billion parameters. We train \name~to edit 4 different GPT-2 models on a more difficult 50-token (rather than 10-token) version of the wikitext editing task used in Section~\ref{sec:frontiers}, editing the mlp weights in the last 3 transformer blocks for all model sizes. Models vary in size from 110 million to over 1.5 billion parameters. We make \textbf{no modifications} to \name~or its hyperparameters for each model, and all runs are trained entirely on a single NVIDIA RTX Titan GPU. No gradient checkpointing or memory-reduction optimizations are needed.
+
+\begin{table}
+    \centering
+    \begin{tabular}{lcccc}
+        \multicolumn{5}{c}{\textbf{Scaling \name~to Large Models}} \\
+        \toprule
+        Model & Model params & $\Delta$ppl $\downarrow$ & Edit succ. $\uparrow$ & $\%$ editor params \\%& ENN & foENN & KE \\
+        \midrule
+        GPT-2 (small) & 117M & 0.20 & 0.90 & 60.2 \\ % 151.3
+        GPT-2 (medium) & 345M & 0.15 & 0.89 & 40.6 \\ % 68.4
+        GPT-2 (large) & 774M & 0.16 & 0.89 & 27.6 \\ % 38.1 
+        GPT-2 (XL) & 1.558B & 0.12 & 0.85 & 15.6 \\ % 18.5
+        \bottomrule
+    \end{tabular}
+    \caption{Wikitext-103 editing performance for increasingly large GPT-2 \citep{radford2019language} models. We apply \name~to the last three layers of each model with no modifications, using the same hyperparameters for all runs. \name~is able to edit models of any size, with essentially no loss in edit ability while the percent increase in total parameters becomes insignificant.}
+    \label{tab:scale-table}
+\end{table}
+
+\subsection{Ablations}
+\label{sec:ablations}
+% \begin{figure}
+% \begin{floatrow}
+% \ffigbox{
+% \includegraphics[width=0.24\textwidth]{figures/experiments/qq_delta.png}
+% \includegraphics[width=0.24\textwidth]{figures/experiments/qq_x.png}
+% }{
+%   \caption{\textbf{[PLACEHOLDER IMAGES]} Distribution of the average per-dimension magnitude of the two inputs to \name, $x_\ell$ and $\delta_{\ell+1}$. Note the log-scale x axis. For each task, $x_\ell$ tends to be orders of magnitude larger than $\delta_{\ell+1}$. Further, the average magnitude of $x_\ell$ itself varies significantly across tasks. Normalization addresses both problems.}
+%   \label{fig:x-delta}
+% }\hfill\capbtabbox{
+%   \begin{tabular}{ccc}
+%         \multicolumn{3}{c}{\textbf{\name~Ablation Study}} \\
+%         \toprule
+%         Variant & $\Delta$ppl $\downarrow$ & Edit succ. $\uparrow$ \\
+%         \midrule
+%         % numbers from wandb @ 215000 steps
+%         % pre-perplexity = 35.168
+%         $r=384$ & 0.26 & 0.86 \\
+%         $r=192$ & 0.37 & 0.83 \\
+%         $r=96$ & 0.47 & 0.77 \\
+%         w/o norm. & 0.334 & 0.01 \\
+%         w/o ID init. & 0.81 & 0.01 \\
+%         \midrule
+%         $r=768$ & 0.19 & 0.88 \\
+%         \bottomrule
+%     \end{tabular} 
+% }{
+%   \caption{Ablating various properties of \name~on the wikitext editing problem using distilGPT-2 as the base model. Removing either \name's identity initialization or input normalization results in essentially complete failure to edit.}
+%   \label{tab:ablations}
+% }
+% \end{floatrow}
+% \end{figure}
+\begin{table}
+    \centering
+    \begin{tabular}{llcccc}
+        \multicolumn{6}{c}{\textbf{\name~Ablation Study}} \\
+        \toprule
+        && \multicolumn{2}{c}{Wikitext Completion} & \multicolumn{2}{c}{Question Answering} \\
+        \midrule
+        Variant & Parameters & $\Delta$ppl $\downarrow$ & Edit succ. $\uparrow$ & $\Delta$acc $\uparrow$ & Edit succ. $\uparrow$ \\
+        \midrule
+        No norm. & $O((m+n)^2)$ & 0.487 & 0.02 & -1.6e-3 & 0.98 \\
+        No ID init. & $O((m+n)^2)$ & 0.744 & 0.26 & -3.3e-3 & 0.94 \\
+        Only $x_\ell$ & $O(m^2)$ & 0.435 & 0.64 & -1.0e-3 & \phantom{\textbf{+}}\textbf{0.99+} \\
+        Only $\delta_{\ell+1}$ & $O(n^2)$ & 0.312 & 0.85 & -1.6e-3 & \phantom{\textbf{+}}\textbf{0.99+} \\
+        Only smaller & $O(\min(m,n)^2)$ & 0.267 & \textbf{0.91} & -1.3e-3 & \phantom{\textbf{+}}\textbf{0.99+} \\
+        \midrule
+        \name & $O((m+n)^2)$ & \textbf{0.082} & \textbf{0.89} & \textbf{-2.5e-4} & \phantom{\textbf{+}}\textbf{0.99+} \\
+        \bottomrule
+    \end{tabular}\caption{Ablating various properties of \name~on the wikitext editing problem using distilGPT-2 as the base model. \name's identity initialization and input normalization are necessary to achieve consistently reliable and local edits across problems.}
+  \label{tab:ablations}
+\end{table}
+Finally, we conduct ablation studies to validate the key components of \name, including identity initialization, input normalization, and MLP weight rank. For the initialization ablation, we replace identity initialization with standard Xavier (or Glorot) initialization. We used a single fixed $c_\text{edit}$ for all experiments. Table~\ref{tab:ablations} shows the results. While reducing the rank of the \name~weight matrices yields a gentle degradation in overall editability, removing \textit{either} input normalization or the identity initialization results in essentially complete failure of learning. To understand why input normalization is so important, we plot the distribution of the average per-dimension absolute value of the two inputs to \name, $x$ and $\delta$ for all three editing settings in Figure~\ref{fig:x-delta}. The average activation tends to be orders of magnitude larger than the average $\delta$. We conclude that normalization likely balances the contribution of these two inputs to the gradient update to the \name~parameters, which would otherwise be a very poorly-conditioned problem. Further, the magnitude of activations varies significantly across tasks. Normalization makes the scale of \name~parameter updates similar across tasks, enabling the usage of the \textbf{same hyperparameters} for all experiments.
+
+\begin{table}
+    \centering
+    \begin{tabular}{p{1mm}>{\raggedright\arraybackslash}p{0.25\textwidth}>{\raggedright\arraybackslash}p{0.23\textwidth}>{\raggedright\arraybackslash}p{0.17\textwidth}>{\raggedright\arraybackslash}p{0.18\textwidth}}
+        \toprule
+        & Input & Pre-Edit Output & Edit Target & Post-Edit Output \\
+        \midrule
+        1a: & \textbf{Who is the president of the USA?} & Donald Trump \xmark & \textbf{Joe Biden} & Joe Biden \cmark \\
+        1b: & Who is the US president? & David Rice Atchison \xmark & - & Joe Biden \cmark \\
+        1c: & Who is the president of France? & Emmanuel Macron \cmark & - & Emmanuel Macron \cmark \\
+        \midrule
+        2a: & \textbf{Who is India's PM?} & Satya Pal Malik \xmark & \textbf{Narendra Modi} & Narendra Modi \cmark \\
+        2b: & \textbf{Who is the prime minister of the UK?} & Theresa May \xmark & \textbf{Boris Johnson} & Boris Johnson \cmark \\
+        2c: & Who is the prime minister of India? & Narendra Modi \cmark & - & Narendra Modi \cmark \\
+        2d: & Who is the UK PM? & Theresa May \xmark & - & Boris Johnson \cmark \\
+        \midrule
+        3a: & \textbf{What is Messi's club team?} & Barcelona B \xmark & \textbf{PSG} & PSG \cmark \\
+        3b: & \textbf{What basketball team does Lebron play on?} & Dallas Mavericks \xmark & \textbf{the LA Lakers} & the LA Lakers \cmark \\
+        3c: & Where in the US is Raleigh? & a state in the South \cmark & - & a state in the South \cmark \\
+        \midrule
+        4a: & \textbf{Who is the president of Mexico?} & Enrique Pea Nieto \xmark & \textbf{Andrés Manuel López Obrador} & Andrés Manuel López Obrador \cmark \\
+        4b: & Who is the vice president of Mexico? & Yadier Benjamin Ramos \xmark & - & Andrés Manuel López Obrador \xmark \\
+        \bottomrule
+    \end{tabular}
+    \caption{Examples of using MEND to edit a T5-small model fine-tuned on Natural Questions [cite]. In each of the 4 examples, we show the output of the model on several questions before and after editing. \textbf{Bolded text} corresponds to the inputs to the editing procedure; non-bolded text is not used by MEND and is shown only for demonstration purposes. In examples 2 and 3, we perform multiple edits in sequence with MEND; in example 2, we edit with input and edit target 2a and then with input and edit target 2b. Post-edit outputs correspond to the model outputs after both edits have been performed.}
+    \label{tab:examples}
+\end{table}
+
+\section{Related Work}
+Talk about adapters, k-adapters, knowledge neurons, continual learning.
+\section{Limitations}
+\begin{enumerate}
+    \item Can't do sequences of edits (future work)
+    \item Didn't try batched edits (but this should work)
+    \item Required labeled input rephrasings (future work)
+    \item Editing single facts is just one (rather limited) type of edit
+\end{enumerate}
+\section{Discussion}
+In this work, we presented an efficient, first-order algorithm for neural network editing. We showed that it can make model edits that generalize well to semantically-equivalent inputs. Future work should fix more of the problems preventing these algs from being practical.
+
+\newpage
+\bibliographystyle{plainnat}
+\bibliography{main}
+
+\end{document}

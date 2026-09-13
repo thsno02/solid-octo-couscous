@@ -1,0 +1,37 @@
+% \vspace{-15pt}
+\section{Introduction}
+\label{sec:introduction}
+Despite the impressive performance LLMs demonstrate, a pivotal issue persists: \emph{How should we update the model with the latest knowledge?} Previous solutions can be broadly categorized into three classes: 
+\textbf{(1) Retrieval-Based Methods:} These methods rely on information retrieval in a knowledge base~\citep{kNNLM,MemoryBank}. They can yield strong results, but face challenges when redundancy in the knowledge base presents and suffer the logistical issue of managing an ever-expanding repository of knowledge. 
+In multi-modality scenarios, retrieval-based methods might require enormous storage space to store all image data (24 images per second for humans) for retrieval purposes. 
+\textbf{(2) Model Editing:} This class of methods involves making targeted edits to the model to adapt to new facts while preserving other desired capabilities~\citep{LLMEditing}. Existing methods primarily focus on fact-based editing, which is typically limited to single sentences. 
+This limitation becomes more severe when one attempts to inject new knowledge in the form of longer and more complicated contexts. 
+\textbf{(3) Long Context Methods:} Another alternative solution is to incorporate all the knowledge into the model's context,  
+which essentially makes the context into a knowledge base. 
+This differs from retrieval-based methods in that the context directly informs the inference of the model. Methods in this category involve reducing the complexity of attention operations~\citep{SparserTransformer, longformer, linformer}, and modifying positional embeddings~\citep{alibi, lextransformer} to handle longer contexts. However, as complex reasoning tasks are thirsty for massive up-to-date knowledge, the inevitable context overload with long context methods becomes infeasible, as long as the context length is finite.
+
+
+In response to the challenges identified above, we introduce \ours, a model that embeds a substantial, fixed-size memory pool within its latent space, which serves as the self-updatable parameters.
+Specifically, we build the memory pool as hidden vectors within each 
+layer of the transformer. 
+At each layer, the memory pool contains \textit{memory tokens} representing compressed knowledge.
+This design results in a memory pool that is less redundant than traditional knowledge bases in retrieval-based methods or contexts in long-context methods.
+To update the memory pool, we devise a \textit{self-update} mechanism to propagate the new knowledge to every layer of the memory. During self-update, 
+\ours only updates a proportion of memory in each layer to absorb the incoming knowledge. This allows previously stored knowledge to slowly phase out. 
+These designs ensure \ours remains up-to-date while the old knowledge is slowly forgotten. 
+% As we are constantly updating our model, we need to guarantee the model's functionality after arbitrary times of updates. 
+After curated training, we update \ours nearly a million times without observing any performance deterioration.
+
+
+The evaluation of \ours focuses on several key aspects: (1) \textbf{Integration of New Knowledge}: The model's performance is assessed with model editing benchmarks and QA tasks (long context QA benchmarks), where \ours demonstrates substantial improvements over existing methods. 
+(2) \textbf{Knowledge Retention Ability}:
+\ours is evaluated on long context benchmarks and our knowledge retention experiments, showcasing its ability to recall knowledge. 
+(3) \textbf{Robustness}: To test the integrity of the model, we subject \ours to almost a million update steps. 
+The results show that our model is functioning properly even after extreme updates. 
+
+In summary, our contributions are as follows:
+\begin{itemize}[nosep,leftmargin=*]
+    \item We introduce \ours, which features an integrated memory pool within the latent space of an LLM. This memory pool is designed to manage new knowledge integration and encourage minimal information forgetting while being fixed-sized to circumvent the issue of uncontrolled growth.
+    \item We augment a 7B parameter model with an extensive memory pool comprising 1B parameters. 
+    \item MemoryLLM demonstrates strong performance across various benchmarks, including model editing, long-context evaluation, and our knowledge retention experiments, showcasing its versatility and effectiveness in diverse applications.
+\end{itemize}

@@ -1,0 +1,596 @@
+\documentclass{article}
+
+
+\usepackage[numbers]{natbib}
+
+\usepackage[preprint]{neurips_data_2024}
+
+
+
+
+\usepackage[utf8]{inputenc} %
+\usepackage[T1]{fontenc}    %
+\usepackage{hyperref}       %
+\usepackage{url}            %
+\usepackage{booktabs}       %
+\usepackage{amsfonts}       %
+\usepackage{nicefrac}       %
+\usepackage{microtype}      %
+\usepackage{pifont}
+\usepackage[table,xcdraw,dvipsnames]{xcolor}
+
+\usepackage{lipsum}
+\usepackage{footnote}
+\usepackage{todonotes}
+\usepackage{colortbl}
+
+\usepackage{xspace}
+\usepackage{xparse}
+\usepackage{graphicx}
+
+\newcommand\blfootnote[1]{%
+  \begingroup
+  \renewcommand\thefootnote{$\dagger$}\footnote{#1}%
+  \addtocounter{footnote}{-1}%
+  \endgroup
+}
+
+\NewDocumentCommand{\rot}{O{45} O{1em} m}{\makebox[#2][l]{\rotatebox{#1}{#3}}}%
+\NewDocumentCommand{\rotb}{O{-45} O{1em} m}{\makebox[#2][l]{\rotatebox{#1}{#3}}}%
+
+\newcommand{\blue}[1]{\textcolor{Cerulean}{\textsc{#1}}}
+\newcommand{\green}[1]{\textcolor{Green}{\textsc{#1}}}
+
+\newcommand{\todoinline}[1]{\textcolor{red}{TODO: #1}}
+
+\newcommand{\cmark}{\ding{51}} %
+\newcommand{\xmark}{\ding{55}} %
+
+\newcommand{\eat}[1]{}
+\newcommand{\red}[1]{\textcolor{red}{#1}}
+\newcommand{\pc}[1]{\textcolor{blue}{#1}}
+\newcommand{\qn}[1]{\textcolor{red}{#1}}
+
+\newcommand{\marc}[1]{\textcolor{orange}{MA: #1}}
+
+
+\usepackage{quoting}
+\newenvironment{myquote}{                   %
+  \parskip 0mm \begin{quoting}[vskip=0mm,leftmargin=2mm]}{
+\end{quoting}}
+\newenvironment{ite}{                     %
+     \parskip 0cm \begin{itemize} \parskip 0cm \parsep 0cm \itemsep 0cm \topsep 0cm}{
+        \end{itemize}} %
+\newenvironment{enu}{                   %
+     \parskip 0cm \begin{list}{}{\parsep 0cm \itemsep 0cm \topsep 0cm}}{
+       \end{list}} %
+\newenvironment{des}{                 %
+     \parskip 0cm \begin{list}{}{\parsep 0cm \itemsep 0cm \topsep 0cm}}{
+       \end{list}} %
+\newenvironment{myenumerate}{                   %
+     \parskip 0cm \begin{enumerate}{\parsep 0cm \itemsep 0cm \topsep 0cm}}{
+        \end{enumerate}} %
+\newenvironment{myitemize}{                     %
+     \parskip 0cm \begin{itemize}{\parsep 0cm \itemsep 0cm \topsep 0cm}}{
+        \end{itemize}} %
+
+
+
+
+\newcommand{\env}{\textsc{DiscoveryWorld}\xspace}
+\newcommand{\planetX}{\textsc{Planet X}\xspace}
+
+
+
+\title{\env: A Virtual Environment for Developing and Evaluating Automated Scientific Discovery Agents}
+
+
+\author{%
+    Peter Jansen$^{*\ddagger}$, Marc-Alexandre Côté$^{\dagger}$, Tushar Khot$^{*}$ Erin Bransom$^{*}$, Bhavana Dalvi Mishra$^{*}$, \\\textbf{Bodhisattwa Prasad Majumder$^{*}$, Oyvind Tafjord$^{*}$, Peter Clark$^{*}$} \\
+    $^{*}$Allen Institute for Artificial Intelligence ~~~ $^{\dagger}$Microsoft Research ~~~ $^{\ddagger}$University of Arizona \\
+    \texttt{peterj@allenai.org}
+}
+
+
+\begin{document}
+
+\maketitle
+
+\input{abstract}
+\eat{
+\begin{abstract}
+Automated scientific discovery promises to accelerate progress across scientific domains, but evaluating an agent's capacity for end-to-end scientific reasoning is challenging as running real-world experiments is often prohibitively expensive or infeasible. In this work we introduce \env, a virtual environment that enables benchmarking an agent's ability to perform complete cycles of novel scientific discovery in an inexpensive, simulated, multi-modal, long-horizon, and fictional setting.
+\env consists of 24 scientific tasks across three levels of difficulty, each with parametric variations that provide new discoveries for agents to make across runs. Tasks require an agent to form hypotheses, design and run experiments, analyze results, and act on conclusions. Task difficulties are normed to range from straightforward to challenging for human scientists with advanced degrees. \env further provides three automatic metrics for evaluating performance, including: (1) binary task completion, (2) fine-grained report cards detailing procedural scoring of task-relevant actions, and (3) the accuracy of discovered explanatory knowledge.
+While simulated environments such as \env are low-fidelity compared to the real world, we find that strong baseline agents struggle on most \env tasks, highlighting the utility of using simulated environments as proxy tasks for near-term development of scientific discovery competency in agents.
+\footnote{Code available at \href{https://github.com/allenai/discoveryworld}{github.com/allenai/discoveryworld}}
+\end{abstract}
+}
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[scale=1.0]{figures/planetx-1c.pdf}
+  \caption{\footnotesize \env is a virtual environment for developing and evaluating discovery agents,
+    with challenge tasks covering a broad variety of different topics such as those shown above.}
+    \label{discoveryworld-poster}
+\end{figure}
+
+\input{introduction}
+
+
+\input{related_work}
+
+
+
+\section{\env Simulator and Environments}
+
+\begin{table}[t]
+\centering
+\scriptsize
+\caption{\footnotesize High-level descriptions of the 8 \textit{discovery themes} in \env, with full task descriptions (including spoilers) provided in \textsc{Appendix}~\ref{sec:appendix-discovery-themes}. It is from these 8 discovery themes $\times$ 3 difficulty levels that we parametrically generate 120 unique instances of discovery tasks.} 
+\label{tab:discovery-task-descriptions}
+\begin{tabular}{p{2cm}p{10cm}}
+\toprule
+\textbf{Theme} & \textbf{Description} \\
+\midrule
+\rowcolor[HTML]{F3F3F3} 
+Proteomics & Identify which species in a region migrated in the recent past by discovering that one is an outlier in a clustering analysis of protein concentration values.  Higher difficulties involve more data dimensions. \\
+\midrule
+Chemistry & Manufacture a rust removal agent by mixing different concentrations of chemicals then testing those solutions, guided by a hill-climbing signal of decreased rust that can reduce the search space. \\
+\midrule 
+\rowcolor[HTML]{F3F3F3} 
+Archaeology & Validate radioisotope dating by correlating radioisotope levels with known artifacts' ages, choosing the correct radioisotope between several alternatives for dating, then identify the oldest unknown artifact. \\
+\midrule
+Reactor Lab & Discover a relationship (linear or quadratic) between a physical crystal property (like temperature or density) and its resonance frequency through regression, and use this to tune and activate a reactor. \\
+\midrule
+\rowcolor[HTML]{F3F3F3} 
+Plant Nutrients & Discover that plants on \planetX prefer specific combinations of nutrients that follow logical rules (e.g. \textsc{XOR, AND, OR, NOT}), then grow plants by setting soil nutrient levels that follow those rules. \\
+\midrule
+Space Sick & Investigate the cause of a mild and occasional colonist illness in response to eating local food, then formulate and implement a solution so that future colonists no longer contend with this illness. \\
+\midrule
+\rowcolor[HTML]{F3F3F3} 
+Rocket Science & Measure a number of unknown planetary properties (such as the radius and mass of \planetX), then use provided equations to calculate orbital velocity and propellant needs for a rocket launch. \\
+\midrule
+Translation & Explore an environment to infer the meanings of words in an unknown language by grounding them to observations of specific objects and actions, then take actions based on the translated utterances. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Simulator}
+\textbf{Engine:} \env is implemented in a custom simulation engine developed from the ground-up to enable building dynamic discovery simulations with a variety of object properties and simulated object behaviors.  Every object in \env is constructed from materials with measurable properties, many of which are observable with instruments available in the environment (a list of 60+ frequent object properties is provided in \textsc{Appendix}~\ref{sec:appendix-object-properties}).  The simulator is implemented as approximately \textsc{20k} lines of \textsc{Python} using the \textsc{Pygame} framework~\citep{pygame}, and provides both an \textsc{API} for developing agents, as well as a graphical user interface for humans to play \env tasks.  The \textsc{API} resembles the \textsc{OpenAI Gym} specifications~\citep{brockman2016openai,towers_gymnasium_2023}, such that at each step, the agent is provided with an observation from the environment, and must choose a single action to take during that turn from a set of possible actions.  An automatic scorer runs in the background, and a given task continues until either it is solved, or the agent/human ends the simulation. 
+
+\textbf{Environment Space:} All current environments are represented as a $32\times32$ tile grid.  As in text game simulators, all objects at a given tile are represented by an \textit{object tree}~\citep{learningZIL1989}, where the root node contains objects that are directly on the environment tile (such as a \textit{table}), while child nodes of each object contain their contents (such as a \textit{jar on the table}). %
+
+\textbf{Observations:} Observations in \env can be provided as text, visual output, or both.  Text observations are provided as \textsc{JSON}\footnote{Text-based games for research typically render observations as lists of objects~\citep{Ct2018TextWorldAL,wang2022scienceworld}. Here, we provide the same list-of-object content, but in \textsc{JSON} format.} and contain the following: (1) a list of all objects near the agent, their names, text descriptions, and unique identifier numbers; (2) a list of objects in the agent's inventory; (3) a list of objects the agent can directly interact with (either by being in the agents inventory, or directly beside the agent); (4) the agent's current world location, direction, and directions it can move to (that are not blocked by objects); (5) whether the agent is currently engaged in dialog with another agent, and if so, what pre-determined options it can say; (6) the current task description, and whether or not it has been completed.  For tasks that requre interacting with other agents (such as \textit{Space Sick}), we also implemented \textit{DiscoveryFeed}, a Twitter-like posting environment that reduces the need for an agent to continually visit other agents to check on their status.  The most recent \textit{DiscoveryFeed} posts are included in the observation. %
+
+The visual observation contains a screenshot (768px$\times$512px) similar to the user interface, which provides a $24\times16$ tile view of the world (each tile is 32px$\times$32px) centered on the agent (see Fig~\ref{fig:GUI} in the \textsc{Appendix}).  This provides information about objects that are farther away than the \textsc{JSON} observation, which is typically limited to a certain distance (configurable, default within 3 tiles) around the agent due to the size (in tokens) of the objects and their associated descriptions.  
+
+\textbf{Action space:} \env includes 14 possible actions, most of which are common actions such as \textit{taking, dropping, or moving} objects, \textit{opening/closing} objects, \textit{activating/deactivating} objects, \textit{using} one object on another, and other actions found in other simulated environments~\citep{Ct2018TextWorldAL,wang2022scienceworld,Shridhar2020ALFWorldAT}.  Each action can take zero (e.g. \textit{wait}), one (e.g. \textit{take seed}), or two (e.g. \textit{use spectrometer on plant}) arguments.  A list of all actions is shown in \textsc{Appendix}~\ref{sec:appendix_action_space}.  For agents, we include two additional handicap actions to assist with their (generally) poor abilities for navigation: the ability to teleport to specific task-relevant named locations provided in each task (such as the \textit{science lab} or \textit{cafeteria}), and the ability to teleport directly beside any object it is currently (or has previously) observed.
+
+\vspace{-1mm}
+
+
+
+\subsection{Discovery Task Themes, Difficulty Levels, and Parametric Variations}
+\label{sec:parametric-variations}
+
+Specific tasks in \env are parametrically generated from a set of 24 high-level templates.  These templates are divided into 8 \textit{discovery task themes} with \textit{3 levels of difficulty} for each theme.  
+A high-level description of the 8 \textit{discovery task themes} is shown in Table~\ref{tab:discovery-task-descriptions}, with full details (including spoilers) in \textsc{Appendix}~\ref{sec:appendix-discovery-themes}. 
+For each of the 24 \{theme $\times$ difficulty\} combinations, the \env simulator is capable of generating a large number of parametric versions of that theme that constitute a particular instance of a \textit{task}.  These parametric variations vary the specific task solution, which typically involves dynamically generating new values for specific object properties, and/or substituting in different task objects.  For example, in the \textit{Proteomics} theme, each parametric variation of a given task generates a different clustering problem, with different data, that points to a different animal as the solution, and places the animals at different starting locations within the environment. %
+Parametric variation generation is deterministic and controlled by a single \textit{random seed} provided to the task generator.  While a large number of specific instantiations of each theme are possible, due to the cost associated with evaluating a large number of tasks, our official benchmark is evaluated on 5 seeds (i.e., random seeds \textit{zero} through \textit{four}) for each theme and difficulty level, resulting in a total of $8\times3\times5=120$ different game instances or \textit{tasks}. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+\subsection{Unit Tests}
+
+In addition to the 8 discovery themes, to help disentangle whether a given model's performance is due to a difficulty in completing normal day-to-day tasks within the environment, versus completing tasks requiring scientific discovery skills in particular, we include 10 additional unit test themes that test specific common task competencies.  These include a combination of common pick-and-place and navigation tasks (such as those found in \textsc{AlfWorld}~\citep{Shridhar2020ALFWorldAT}, \textsc{MiniGrid}~\citep{MinigridMiniworld23}, and \textsc{MiniHack}~\citep{Samvelyan2021MiniHackTP}), as well as \env-themed tasks, such as measuring objects with instruments, or having multi-turn interactions with other agents.  The unit test generator is also parametric and capable of generating a large number of specific tasks for each unit test theme.  Specific unit test themes are described in detail in \textsc{Appendix} \ref{sec:appendix_unit_tests}.
+
+
+\begin{table}[t]
+\centering
+\scriptsize
+\caption{\footnotesize An example scorecard provided by \env for an instance of a \textit{Reactor Lab} task, including \textit{task completion}, \textit{task process}, and \textit{discovered explanatory knowledge} scores.}
+\label{tab:scorecard_example}
+\begin{tabular}{llc}
+\toprule
+\rowcolor[HTML]{E3E3E3} 
+\multicolumn{2}{l}{\textbf{Scorecard: Rector Lab, Normal Difficulty, Seed 1}}   & \textbf{Out of} \\
+\midrule
+\rowcolor[HTML]{F3F3F3} 
+\multicolumn{2}{l}{\textbf{Task Completion:} Was the task completed successfully?}  &   \textbf{/1}\\
+\midrule
+\rowcolor[HTML]{F3F3F3} 
+\multicolumn{3}{l}{\textbf{Procedural Process:}} \\
+P1 & The quantum crystals have each been in an agent's inventory             &   /4 \\
+P2 & Each scientific instrument has been used with at least one crystal      &   /5 \\
+P3 & Each crystal has been examined by the critical instrument               &   /4 \\
+P4 & The resonance frequency of the unknown reactors have been changed       &   /2 \\
+P5 & The resonance frequency of the unknown reactors is correct              &   /2 \\
+P6 & The reactors have been successfully activated                           &   /4 \\
+  & \textbf{Total Procedural Score:}                                         &   \textbf{/25} \\
+\midrule
+\rowcolor[HTML]{F3F3F3} 
+\multicolumn{3}{l}{\textbf{Explanatory Knowledge Discovery Questions:}} \\
+Q1 & Does it clearly state that the resonance frequency of the crystals is dependent upon the densitometer reading? & /1 \\
+Q2 & Does it clearly state that the relationship is linear, with crystal frequency = (96 * densitometer reading) + 102 & /1 \\
+   & \textbf{Total Discovery Knowledge Score:}                               &  \textbf{/2} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Evaluation Metrics}
+\label{sec:evaluation_metrics}
+To evaluate agents progress in \env, we devised three automatic metrics: (1) task completion (a binary metric);
+(2) a fine-grained report card for each task tracking task-relevant actions, to measure partial performance on relevant discovery procedures;
+(3) the accuracy of discovered explanatory knowledge with respect to a gold reference.
+Together these allow an agent's progress (including partial progress) to be automatically
+assessed.  An example scorecard is shown in Table~\ref{tab:scorecard_example}. 
+
+Two of these three metrics (\textit{task completion}, and \textit{task process}) are measured automatically by \env.  For the third, \textit{discovered explanatory knowledge}, the scorecard provides specific binary questions to answer with reference to knowledge that an agent has produced (in its explanations, memories, reports, or other knowledge structures).  These can either be graded manually by a human, or provided to a language model to grade.  \env provides code for automatic grading using \textsc{OpenAI} models, and in our evaluation we make use of \textsc{GPT-4o}, a long-context (128k token) model that allows even large knowledge structures to be graded.  Examples of both positive and negative knowledge assessments are provided in \textsc{Appendix}~\ref{sec:appendix-automatic-knowledge-evaluation}.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\begin{table*}[!t]
+\caption{\footnotesize Baseline model performance on each of the three scoring metrics \textit{(task completion, task process, explanatory knowledge discovery)} across all 24 \env tasks.  Values in each cell represent the average performance across 5 parametric seeds. \textit{Easy} tasks are run to a maximum of 100 steps, while \textit{Normal} and \textit{Challenge} tasks are run to 1000 steps. }
+\label{tab:agent-performance-discovery}
+\centering
+\scriptsize
+\begin{tabular}{lllccc c ccc c ccc ccc}
+\toprule
+\multicolumn{3}{c}{~} & \multicolumn{3}{c}{\textbf{ReACT}} & & \multicolumn{3}{c}{\textbf{Plan+Execute}} & & \multicolumn{3}{c}{\textbf{Hypothesizer}}\\
+\textbf{\#} & \textbf{Topic} & \textbf{Task} & \rot{Procedure} & \rot{Completion} & \rot{Knowledge} & & \rot{Procedure} & \rot{Completion} & \rot{Knowledge} & &  \rot{Procedure} & \rot{Completion} & \rot{Knowledge} \\
+\midrule
+\rowcolor[HTML]{F3F3F3} 
+\multicolumn{2}{l}{\textbf{Proteomics}} & \multicolumn{11}{l}{Clustering} &  \\ 
+\rowcolor[HTML]{F3F3F3} 
+1  & Easy & Simplified Clustering & \cellcolor[HTML]{913cbe}0.87 & \cellcolor[HTML]{d2e4f0}0.20 & \cellcolor[HTML]{d5ecd5}0.20 & & \cellcolor[HTML]{9a4cc3}0.80 & \cellcolor[HTML]{ffffff}0.00 & \cellcolor[HTML]{ffffff}0.00 & & \cellcolor[HTML]{8d35bb}0.90 & \cellcolor[HTML]{a5c9e1}0.40 & \cellcolor[HTML]{2ca02c}1.00 \\ 
+\rowcolor[HTML]{F3F3F3} 
+2  & Normal & Clustering (2D) & \cellcolor[HTML]{9039bd}0.88 & \cellcolor[HTML]{a5c9e1}0.40 & \cellcolor[HTML]{abd9ab}0.40 & & \cellcolor[HTML]{a966cc}0.68 & \cellcolor[HTML]{d2e4f0}0.20 & \cellcolor[HTML]{ffffff}0.00 & & \cellcolor[HTML]{892eb9}0.93 & \cellcolor[HTML]{a5c9e1}0.40 & \cellcolor[HTML]{abd9ab}0.40 \\ 
+\rowcolor[HTML]{F3F3F3} 
+3  & Challenge & Clustering (3D) & \cellcolor[HTML]{9039bd}0.88 & \cellcolor[HTML]{a5c9e1}0.40 & \cellcolor[HTML]{80c680}0.60 & & \cellcolor[HTML]{b67dd3}0.58 & \cellcolor[HTML]{d2e4f0}0.20 & \cellcolor[HTML]{ffffff}0.00 & & \cellcolor[HTML]{892eb9}0.93 & \cellcolor[HTML]{a5c9e1}0.40 & \cellcolor[HTML]{80c680}0.60 \\ \hline
+\rowcolor[HTML]{FFFFFF} 
+\multicolumn{2}{l}{\textbf{Chemistry}} & \multicolumn{11}{l}{Exploring Combinations and Hill Climbing} &  \\ 
+\rowcolor[HTML]{FFFFFF} 
+4  & Easy & Single substances & \cellcolor[HTML]{913cbe}0.87 & \cellcolor[HTML]{1f77b4}1.00 & \cellcolor[HTML]{2ca02c}1.00 & & \cellcolor[HTML]{a762ca}0.70 & \cellcolor[HTML]{79add2}0.60 & \cellcolor[HTML]{abd9ab}0.40 & & \cellcolor[HTML]{8d35bb}0.90 & \cellcolor[HTML]{ffffff}0.00 & \cellcolor[HTML]{abd9ab}0.40 \\ 
+\rowcolor[HTML]{FFFFFF} 
+5  & Normal & Mix of 3 substances & \cellcolor[HTML]{9847c2}0.82 & \cellcolor[HTML]{ffffff}0.00 & \cellcolor[HTML]{ffffff}0.00 & & \cellcolor[HTML]{913cbe}0.87 & \cellcolor[HTML]{a5c9e1}0.40 & \cellcolor[HTML]{ffffff}0.00 & & \cellcolor[HTML]{892eb9}0.93 & \cellcolor[HTML]{79add2}0.60 & \cellcolor[HTML]{abd9ab}0.40 \\ 
+\rowcolor[HTML]{FFFFFF} 
+6  & Challenge & Mix of 4 substances & \cellcolor[HTML]{8d35bb}0.90 & \cellcolor[HTML]{a5c9e1}0.40 & \cellcolor[HTML]{ffffff}0.00 & & \cellcolor[HTML]{8d35bb}0.90 & \cellcolor[HTML]{a5c9e1}0.40 & \cellcolor[HTML]{ffffff}0.00 & & \cellcolor[HTML]{913cbe}0.87 & \cellcolor[HTML]{ffffff}0.00 & \cellcolor[HTML]{ffffff}0.00 \\ \hline
+\rowcolor[HTML]{F3F3F3} 
+\multicolumn{2}{l}{\textbf{Archaeology}} & \multicolumn{11}{l}{Correlations} &  \\ 
+\rowcolor[HTML]{F3F3F3} 
+7  & Easy & Simple instrument & \cellcolor[HTML]{ddc2eb}0.27 & \cellcolor[HTML]{79add2}0.60 & \cellcolor[HTML]{ffffff}0.00 & & \cellcolor[HTML]{d5b5e6}0.33 & \cellcolor[HTML]{d2e4f0}0.20 & \cellcolor[HTML]{ffffff}0.00 & & \cellcolor[HTML]{b379d2}0.60 & \cellcolor[HTML]{d2e4f0}0.20 & \cellcolor[HTML]{95cf95}0.50 \\ 
+\rowcolor[HTML]{F3F3F3} 
+8  & Normal & Instrument Use & \cellcolor[HTML]{a45dc9}0.72 & \cellcolor[HTML]{a5c9e1}0.40 & \cellcolor[HTML]{c0e3c0}0.30 & & \cellcolor[HTML]{a259c7}0.74 & \cellcolor[HTML]{ffffff}0.00 & \cellcolor[HTML]{ffffff}0.00 & & \cellcolor[HTML]{ae70cf}0.64 & \cellcolor[HTML]{a5c9e1}0.40 & \cellcolor[HTML]{abd9ab}0.40 \\ 
+\rowcolor[HTML]{F3F3F3} 
+9  & Challenge & Correlation & \cellcolor[HTML]{c598dd}0.46 & \cellcolor[HTML]{d2e4f0}0.20 & \cellcolor[HTML]{ffffff}0.00 & & \cellcolor[HTML]{c598dd}0.46 & \cellcolor[HTML]{ffffff}0.00 & \cellcolor[HTML]{f5fbf5}0.05 & & \cellcolor[HTML]{ba84d6}0.55 & \cellcolor[HTML]{d2e4f0}0.20 & \cellcolor[HTML]{f5fbf5}0.05 \\ \hline
+\rowcolor[HTML]{FFFFFF} 
+\multicolumn{2}{l}{\textbf{Reactor Lab}} & \multicolumn{11}{l}{Regression} &  \\ 
+\rowcolor[HTML]{FFFFFF} 
+10  & Easy & Slope only & \cellcolor[HTML]{caa1e0}0.42 & \cellcolor[HTML]{ffffff}0.00 & \cellcolor[HTML]{abd9ab}0.40 & & \cellcolor[HTML]{c89dde}0.44 & \cellcolor[HTML]{ffffff}0.00 & \cellcolor[HTML]{eaf6ea}0.10 & & \cellcolor[HTML]{cfaae2}0.38 & \cellcolor[HTML]{ffffff}0.00 & \cellcolor[HTML]{d5ecd5}0.20 \\ 
+\rowcolor[HTML]{FFFFFF} 
+11  & Normal & Linear regression & \cellcolor[HTML]{c89dde}0.44 & \cellcolor[HTML]{ffffff}0.00 & \cellcolor[HTML]{d5ecd5}0.20 & & \cellcolor[HTML]{c191da}0.49 & \cellcolor[HTML]{ffffff}0.00 & \cellcolor[HTML]{ffffff}0.00 & & \cellcolor[HTML]{bf8dd9}0.51 & \cellcolor[HTML]{ffffff}0.00 & \cellcolor[HTML]{ffffff}0.00 \\ 
+\rowcolor[HTML]{FFFFFF} 
+12  & Challenge & Quadratic regression & \cellcolor[HTML]{c99edf}0.43 & \cellcolor[HTML]{ffffff}0.00 & \cellcolor[HTML]{d5ecd5}0.20 & & \cellcolor[HTML]{cea8e2}0.39 & \cellcolor[HTML]{ffffff}0.00 & \cellcolor[HTML]{ffffff}0.00 & & \cellcolor[HTML]{cea8e2}0.39 & \cellcolor[HTML]{ffffff}0.00 & \cellcolor[HTML]{ffffff}0.00 \\ \hline
+\rowcolor[HTML]{F3F3F3} 
+\multicolumn{2}{l}{\textbf{Plant Nutrients}} & \multicolumn{11}{l}{Uncovering systems of rules} &  \\ 
+\rowcolor[HTML]{F3F3F3} 
+13  & Easy & Simplified rules & \cellcolor[HTML]{9a4cc3}0.80 & \cellcolor[HTML]{d2e4f0}0.20 & \cellcolor[HTML]{d5ecd5}0.20 & & \cellcolor[HTML]{a762ca}0.70 & \cellcolor[HTML]{d2e4f0}0.20 & \cellcolor[HTML]{d5ecd5}0.20 & & \cellcolor[HTML]{b379d2}0.60 & \cellcolor[HTML]{ffffff}0.00 & \cellcolor[HTML]{ffffff}0.00 \\ 
+\rowcolor[HTML]{F3F3F3} 
+14  & Normal & Presence rules & \cellcolor[HTML]{8c33bb}0.91 & \cellcolor[HTML]{79add2}0.60 & \cellcolor[HTML]{ffffff}0.00 & & \cellcolor[HTML]{9542c0}0.84 & \cellcolor[HTML]{a5c9e1}0.40 & \cellcolor[HTML]{ffffff}0.00 & & \cellcolor[HTML]{b881d5}0.56 & \cellcolor[HTML]{ffffff}0.00 & \cellcolor[HTML]{ffffff}0.00 \\ 
+\rowcolor[HTML]{F3F3F3} 
+15  & Challenge & Logical Rules & \cellcolor[HTML]{8f38bc}0.89 & \cellcolor[HTML]{a5c9e1}0.40 & \cellcolor[HTML]{ffffff}0.00 & & \cellcolor[HTML]{a35cc8}0.73 & \cellcolor[HTML]{a5c9e1}0.40 & \cellcolor[HTML]{ffffff}0.00 & & \cellcolor[HTML]{b174d1}0.62 & \cellcolor[HTML]{ffffff}0.00 & \cellcolor[HTML]{ffffff}0.00 \\ \hline
+\rowcolor[HTML]{FFFFFF} 
+\multicolumn{2}{l}{\textbf{Space Sick}} & \multicolumn{11}{l}{Open-ended discovery} &  \\ 
+\rowcolor[HTML]{FFFFFF} 
+16  & Easy & Single instrument & \cellcolor[HTML]{9d50c4}0.78 & \cellcolor[HTML]{79add2}0.60 & \cellcolor[HTML]{ffffff}0.00 & & \cellcolor[HTML]{a966cc}0.68 & \cellcolor[HTML]{a5c9e1}0.40 & \cellcolor[HTML]{eaf6ea}0.10 & & \cellcolor[HTML]{9a4cc3}0.80 & \cellcolor[HTML]{1f77b4}1.00 & \cellcolor[HTML]{80c680}0.60 \\ 
+\rowcolor[HTML]{FFFFFF} 
+17  & Normal & Multiple instruments & \cellcolor[HTML]{b67dd3}0.58 & \cellcolor[HTML]{ffffff}0.00 & \cellcolor[HTML]{e4f3e4}0.13 & & \cellcolor[HTML]{c69add}0.45 & \cellcolor[HTML]{ffffff}0.00 & \cellcolor[HTML]{e4f3e4}0.13 & & \cellcolor[HTML]{ebdcf3}0.16 & \cellcolor[HTML]{ffffff}0.00 & \cellcolor[HTML]{b9e0b9}0.33 \\ 
+\rowcolor[HTML]{FFFFFF} 
+18  & Challenge & Novel instruments & \cellcolor[HTML]{ba84d6}0.55 & \cellcolor[HTML]{ffffff}0.00 & \cellcolor[HTML]{ffffff}0.00 & & \cellcolor[HTML]{dec5ec}0.26 & \cellcolor[HTML]{ffffff}0.00 & \cellcolor[HTML]{ffffff}0.00 & & \cellcolor[HTML]{e6d2f0}0.20 & \cellcolor[HTML]{ffffff}0.00 & \cellcolor[HTML]{ffffff}0.00 \\ \hline
+\rowcolor[HTML]{F3F3F3} 
+\multicolumn{2}{l}{\textbf{Rocket Science}} & \multicolumn{11}{l}{Multi-step measurements and applying formulas} &  \\ 
+\rowcolor[HTML]{F3F3F3} 
+19  & Easy & Look-up variables & \cellcolor[HTML]{d5b5e6}0.33 & \cellcolor[HTML]{ffffff}0.00 & \cellcolor[HTML]{ffffff}0.00 & & \cellcolor[HTML]{bc88d7}0.53 & \cellcolor[HTML]{ffffff}0.00 & \cellcolor[HTML]{f1f9f1}0.07 & & \cellcolor[HTML]{efe2f5}0.13 & \cellcolor[HTML]{a5c9e1}0.40 & \cellcolor[HTML]{ffffff}0.00 \\ 
+\rowcolor[HTML]{F3F3F3} 
+20  & Normal & Measure 2 variables & \cellcolor[HTML]{bf8dd9}0.51 & \cellcolor[HTML]{ffffff}0.00 & \cellcolor[HTML]{f5fbf5}0.05 & & \cellcolor[HTML]{d4b3e5}0.34 & \cellcolor[HTML]{ffffff}0.00 & \cellcolor[HTML]{ffffff}0.00 & & \cellcolor[HTML]{f1e6f7}0.11 & \cellcolor[HTML]{ffffff}0.00 & \cellcolor[HTML]{ffffff}0.00 \\ 
+\rowcolor[HTML]{F3F3F3} 
+21  & Challenge & Measure 5 variables & \cellcolor[HTML]{c99edf}0.43 & \cellcolor[HTML]{ffffff}0.00 & \cellcolor[HTML]{ffffff}0.00 & & \cellcolor[HTML]{ecdef4}0.15 & \cellcolor[HTML]{ffffff}0.00 & \cellcolor[HTML]{ffffff}0.00 & & \cellcolor[HTML]{e3ceef}0.22 & \cellcolor[HTML]{ffffff}0.00 & \cellcolor[HTML]{f9fcf9}0.03 \\ \hline
+\rowcolor[HTML]{FFFFFF} 
+\multicolumn{2}{l}{\textbf{Translation}} & \multicolumn{11}{l}{Rosetta-stone style linguistic discovery of alien language} &  \\ 
+\rowcolor[HTML]{FFFFFF} 
+22  & Easy & Single noun & \cellcolor[HTML]{cda5e1}0.40 & \cellcolor[HTML]{a5c9e1}0.40 & \cellcolor[HTML]{d5ecd5}0.20 & & \cellcolor[HTML]{d9bce9}0.30 & \cellcolor[HTML]{ffffff}0.00 & \cellcolor[HTML]{ffffff}0.00 & & \cellcolor[HTML]{e6d2f0}0.20 & \cellcolor[HTML]{d2e4f0}0.20 & \cellcolor[HTML]{ffffff}0.00 \\ 
+\rowcolor[HTML]{FFFFFF} 
+23  & Normal & Noun and verb & \cellcolor[HTML]{e6d2f0}0.20 & \cellcolor[HTML]{ffffff}0.00 & \cellcolor[HTML]{ffffff}0.00 & & \cellcolor[HTML]{a966cc}0.68 & \cellcolor[HTML]{a5c9e1}0.40 & \cellcolor[HTML]{ffffff}0.00 & & \cellcolor[HTML]{9542c0}0.84 & \cellcolor[HTML]{a5c9e1}0.40 & \cellcolor[HTML]{ffffff}0.00 \\ 
+\rowcolor[HTML]{FFFFFF} 
+24  & Challenge & Noun, adj., and verb & \cellcolor[HTML]{c191da}0.49 & \cellcolor[HTML]{ffffff}0.00 & \cellcolor[HTML]{ffffff}0.00 & & \cellcolor[HTML]{ba84d6}0.55 & \cellcolor[HTML]{d2e4f0}0.20 & \cellcolor[HTML]{f5fbf5}0.05 & & \cellcolor[HTML]{ecdef4}0.15 & \cellcolor[HTML]{ffffff}0.00 & \cellcolor[HTML]{ffffff}0.00 \\ \hline
+\midrule
+\rowcolor[HTML]{F3F3F3}
+\multicolumn{3}{l}{\textbf{Average (Easy)}}& \cellcolor[HTML]{b47ad3}0.59 & \cellcolor[HTML]{aacbe2}0.38 & \cellcolor[HTML]{cae7ca}0.25 & & \cellcolor[HTML]{b881d5}0.56 & \cellcolor[HTML]{d7e6f1}0.18 & \cellcolor[HTML]{e8f5e8}0.11 & & \cellcolor[HTML]{b881d5}0.56 & \cellcolor[HTML]{c1d9ea}0.28 & \cellcolor[HTML]{b7dfb7}0.34 \\ 
+\rowcolor[HTML]{F3F3F3}
+\multicolumn{3}{l}{\textbf{Average (Normal)}}& \cellcolor[HTML]{af72d0}0.63 & \cellcolor[HTML]{d7e6f1}0.18 & \cellcolor[HTML]{e2f2e2}0.14 & & \cellcolor[HTML]{ae70cf}0.64 & \cellcolor[HTML]{d7e6f1}0.18 & \cellcolor[HTML]{fbfdfb}0.02 & & \cellcolor[HTML]{b67dd3}0.58 & \cellcolor[HTML]{cce0ee}0.23 & \cellcolor[HTML]{d7edd7}0.19 \\ 
+\rowcolor[HTML]{F3F3F3}
+\multicolumn{3}{l}{\textbf{Average (Challenge)}}& \cellcolor[HTML]{af72d0}0.63 & \cellcolor[HTML]{d7e6f1}0.18 & \cellcolor[HTML]{eaf6ea}0.10 & & \cellcolor[HTML]{c08fd9}0.50 & \cellcolor[HTML]{deebf4}0.15 & \cellcolor[HTML]{fdfefd}0.01 & & \cellcolor[HTML]{c191da}0.49 & \cellcolor[HTML]{edf4f9}0.08 & \cellcolor[HTML]{eef8ee}0.08 \\ 
+
+\bottomrule
+\end{tabular}
+\end{table*}
+
+
+
+
+
+\begin{table*}[!t]
+\caption{\footnotesize Baseline model performance on each of the three scoring metrics \textit{(task completion, task process, explanatory knowledge discovery)} across all 10 unit test tasks.Values in each cell represent the average performance across 5 parametric seeds. Unit tests tasks are run to a maximum of 100 steps. }
+\label{tab:agent-performance-unit-tests}
+\centering
+\scriptsize
+\begin{tabular}{llccc c ccc c ccc ccc}
+\toprule
+\multicolumn{2}{c}{~} & \multicolumn{2}{c}{\textbf{ReACT}} & & \multicolumn{2}{c}{\textbf{Plan+Execute}} & & \multicolumn{2}{c}{\textbf{Hypothesizer}}\\
+\textbf{\#} & \textbf{Unit Test Topic} & \rot{Procedure} & \rot{Completion} & & \rot{Procedure} & \rot{Completion} & &  \rot{Procedure} & \rot{Completion} \\
+\midrule
+\rowcolor[HTML]{E3E3E3}
+25  & Multi-turn dialog with an agent & \cellcolor[HTML]{811fb4}1.00 & \cellcolor[HTML]{1f77b4}1.00 & & \cellcolor[HTML]{811fb4}1.00 & \cellcolor[HTML]{1f77b4}1.00 & & \cellcolor[HTML]{811fb4}1.00 & \cellcolor[HTML]{1f77b4}1.00 \\ 
+\rowcolor[HTML]{FFFFFF}
+26  & Measure an object with an instrument & \cellcolor[HTML]{913cbe}0.87 & \cellcolor[HTML]{79add2}0.60 & & \cellcolor[HTML]{a35cc8}0.73 & \cellcolor[HTML]{a5c9e1}0.40 & & \cellcolor[HTML]{811fb4}1.00 & \cellcolor[HTML]{1f77b4}1.00 \\ 
+\rowcolor[HTML]{E3E3E3}
+27  & Pick-and-place object & \cellcolor[HTML]{8d35bb}0.90 & \cellcolor[HTML]{4c92c3}0.80 & & \cellcolor[HTML]{9a4cc3}0.80 & \cellcolor[HTML]{79add2}0.60 & & \cellcolor[HTML]{811fb4}1.00 & \cellcolor[HTML]{1f77b4}1.00 \\ 
+\rowcolor[HTML]{FFFFFF}
+28  & Pick-and-give object & \cellcolor[HTML]{811fb4}1.00 & \cellcolor[HTML]{1f77b4}1.00 & & \cellcolor[HTML]{811fb4}1.00 & \cellcolor[HTML]{1f77b4}1.00 & & \cellcolor[HTML]{811fb4}1.00 & \cellcolor[HTML]{1f77b4}1.00 \\ 
+\rowcolor[HTML]{E3E3E3}
+29  & Read DiscoveryFeed posts & \cellcolor[HTML]{811fb4}1.00 & \cellcolor[HTML]{1f77b4}1.00 & & \cellcolor[HTML]{8d35bb}0.90 & \cellcolor[HTML]{4c92c3}0.80 & & \cellcolor[HTML]{811fb4}1.00 & \cellcolor[HTML]{1f77b4}1.00 \\ 
+\rowcolor[HTML]{FFFFFF}
+30  & Move through doors & \cellcolor[HTML]{b67dd3}0.58 & \cellcolor[HTML]{d2e4f0}0.20 & & \cellcolor[HTML]{dfc7ec}0.25 & \cellcolor[HTML]{ffffff}0.00 & & \cellcolor[HTML]{d9bce9}0.30 & \cellcolor[HTML]{ffffff}0.00 \\ 
+\rowcolor[HTML]{E3E3E3}
+31  & Using keys with doors & \cellcolor[HTML]{a864cb}0.69 & \cellcolor[HTML]{d2e4f0}0.20 & & \cellcolor[HTML]{bb86d6}0.54 & \cellcolor[HTML]{ffffff}0.00 & & \cellcolor[HTML]{a864cb}0.69 & \cellcolor[HTML]{ffffff}0.00 \\ 
+\rowcolor[HTML]{FFFFFF}
+32  & Navigate to a specific room in a house & \cellcolor[HTML]{e6d2f0}0.20 & \cellcolor[HTML]{d2e4f0}0.20 & & \cellcolor[HTML]{e6d2f0}0.20 & \cellcolor[HTML]{ffffff}0.00 & & \cellcolor[HTML]{e6d2f0}0.20 & \cellcolor[HTML]{d2e4f0}0.20 \\ 
+\rowcolor[HTML]{E3E3E3}
+33  & Search an environment for an object & \cellcolor[HTML]{9a4cc3}0.80 & \cellcolor[HTML]{4c92c3}0.80 & & \cellcolor[HTML]{b379d2}0.60 & \cellcolor[HTML]{79add2}0.60 & & \cellcolor[HTML]{811fb4}1.00 & \cellcolor[HTML]{1f77b4}1.00 \\ 
+\rowcolor[HTML]{FFFFFF}
+34  & Interact with a moving agent & \cellcolor[HTML]{b379d2}0.60 & \cellcolor[HTML]{d2e4f0}0.20 & & \cellcolor[HTML]{bc88d7}0.53 & \cellcolor[HTML]{ffffff}0.00 & & \cellcolor[HTML]{bc88d7}0.53 & \cellcolor[HTML]{d2e4f0}0.20 \\ 
+\midrule
+\rowcolor[HTML]{E3E3E3}
+\multicolumn{2}{l}{\textbf{Average (Unit Tests)}} & \cellcolor[HTML]{9f55c6}0.76 & \cellcolor[HTML]{79add2}0.60 & & \cellcolor[HTML]{ac6bce}0.66 & \cellcolor[HTML]{9dc3de}0.44 & & \cellcolor[HTML]{9e52c5}0.77 & \cellcolor[HTML]{70a8cf}0.64 \\ 
+
+\bottomrule
+\end{tabular}
+\end{table*}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\input{experiments}
+
+\begin{table*}[!t]
+\caption{\footnotesize Expert human scientist performance on \env tasks, as well as average task completion time.  Scores represent average performance of up to 11 humans when playing the same seed of a discovery task. }
+\label{tab:human-performance}
+\centering
+\scriptsize
+\begin{tabular}{lllccc c cccccc}
+\toprule
+\multicolumn{3}{c}{~} & \multicolumn{7}{c}{\textbf{Human Performance}} \\
+\textbf{\#} & \textbf{Topic} & \textbf{Task} & \rot{Procedural} & \rot{Completion} & \rot{Knowledge} & & \rot{Avg. Steps} & \rot{Movement Steps} & \rot{Action Steps} & \rot{Prop. Action Steps} & & \rot{\# Samples}\\
+\midrule
+\rowcolor[HTML]{E3E3E3} 
+2 & Proteomics & Normal & \cellcolor[HTML]{8d35bb}0.90 & \cellcolor[HTML]{4c92c3}0.80 & \cellcolor[HTML]{41a941}0.90 & & 277 & 262 & 15 & 0.06 & & 10 \\ 
+\rowcolor[HTML]{E3E3E3} 
+3 & Proteomics & Challenge & \cellcolor[HTML]{811fb4}1.00 & \cellcolor[HTML]{1f77b4}1.00 & \cellcolor[HTML]{2ca02c}1.00 & & 203 & 192 & 11 & 0.05 & & 10 \\ \hline
+\rowcolor[HTML]{FFFFFF} 
+5 & Chemistry & Normal & \cellcolor[HTML]{8323b5}0.98 & \cellcolor[HTML]{3584bb}0.90 & \cellcolor[HTML]{78c278}0.64 & & 369 & 293 & 76 & 0.23 & & 10 \\ 
+\rowcolor[HTML]{FFFFFF} 
+6 & Chemistry & Challenge & \cellcolor[HTML]{872ab8}0.95 & \cellcolor[HTML]{3886bc}0.89 & \cellcolor[HTML]{5cb65c}0.77 & & 401 & 324 & 76 & 0.21 & & 9 \\ \hline
+\rowcolor[HTML]{E3E3E3} 
+8 & Archaeology & Normal & \cellcolor[HTML]{8b31ba}0.92 & \cellcolor[HTML]{1f77b4}1.00 & \cellcolor[HTML]{3fa93f}0.91 & & 310 & 275 & 35 & 0.14 & & 10 \\ 
+\rowcolor[HTML]{E3E3E3} 
+9 & Archaeology & Challenge & \cellcolor[HTML]{9e52c5}0.77 & \cellcolor[HTML]{aecee4}0.36 & \cellcolor[HTML]{ecf6ec}0.09 & & 276 & 240 & 36 & 0.13 & & 11 \\ \hline
+\rowcolor[HTML]{FFFFFF} 
+11 & Reactor Lab & Normal & \cellcolor[HTML]{9d50c4}0.78 & \cellcolor[HTML]{79add2}0.60 & \cellcolor[HTML]{b3ddb3}0.36 & & 414 & 340 & 74 & 0.18 & & 10 \\ 
+\rowcolor[HTML]{FFFFFF} 
+12 & Reactor Lab & Challenge & \cellcolor[HTML]{a762ca}0.70 & \cellcolor[HTML]{b5d2e6}0.33 & \cellcolor[HTML]{cae7ca}0.25 & & 281 & 236 & 45 & 0.16 & & 9 \\ \hline
+\rowcolor[HTML]{E3E3E3} 
+14 & Plant Nutrients & Normal & \cellcolor[HTML]{892eb9}0.93 & \cellcolor[HTML]{1f77b4}1.00 & \cellcolor[HTML]{78c278}0.64 & & 365 & 310 & 55 & 0.15 & & 10 \\ 
+\rowcolor[HTML]{E3E3E3} 
+15 & Plant Nutrients & Challenge & \cellcolor[HTML]{9039bd}0.88 & \cellcolor[HTML]{62a0ca}0.70 & \cellcolor[HTML]{bce1bc}0.32 & & 358 & 306 & 52 & 0.16 & & 10 \\ \hline
+\rowcolor[HTML]{FFFFFF} 
+17 & Space Sick & Normal & \cellcolor[HTML]{a864cb}0.69 & \cellcolor[HTML]{5c9cc8}0.73 & \cellcolor[HTML]{82c782}0.59 & & 2111 & 1958 & 153 & 0.08 & & 11 \\ 
+\rowcolor[HTML]{FFFFFF} 
+18 & Space Sick & Challenge & \cellcolor[HTML]{b379d2}0.60 & \cellcolor[HTML]{e6f0f7}0.11 & \cellcolor[HTML]{e8f5e8}0.11 & & 3458 & 2988 & 470 & 0.13 & & 9 \\ \hline
+\rowcolor[HTML]{E3E3E3} 
+20 & Rocket Science & Normal & \cellcolor[HTML]{b67dd3}0.58 & \cellcolor[HTML]{bcd6e9}0.30 & \cellcolor[HTML]{abd9ab}0.40 & & 274 & 240 & 34 & 0.13 & & 10 \\ 
+\rowcolor[HTML]{E3E3E3} 
+21 & Rocket Science & Challenge & \cellcolor[HTML]{b780d4}0.57 & \cellcolor[HTML]{e6f0f7}0.11 & \cellcolor[HTML]{b9e0b9}0.33 & & 487 & 334 & 153 & 0.36 & & 9 \\ \hline
+\rowcolor[HTML]{FFFFFF} 
+23 & Translation & Normal & \cellcolor[HTML]{9b4ec4}0.79 & \cellcolor[HTML]{5c9cc8}0.73 & \cellcolor[HTML]{5cb65c}0.77 & & 1033 & 948 & 86 & 0.07 & & 11 \\ 
+\rowcolor[HTML]{FFFFFF} 
+24 & Translation & Challenge & \cellcolor[HTML]{b174d1}0.62 & \cellcolor[HTML]{1f77b4}1.00 & \cellcolor[HTML]{6fbe6f}0.68 & & 859 & 794 & 65 & 0.07 & & 11 \\ 
+\midrule
+\rowcolor[HTML]{F3F3F3} 
+\multicolumn{3}{l}{\textbf{Average (Human)}} &	\cellcolor[HTML]{9d50c4}0.79 &	\cellcolor[HTML]{62a0ca}0.66	& \cellcolor[HTML]{82c782}0.55	& & 717	& 628	& 90	 & 0.14	& & 10\\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+
+\section{Discussion}
+\paragraph{Human Performance} As shown in Table~\ref{tab:human-performance}, discovery task completion rates varied from tasks that were solved by all participants, to several \textit{Challenge} difficulty tasks that were solved by only a single participant, highlighting the range of difficulties found across task themes, and range of expertise provided by each scientist.  Overall, the average completion rate across tasks was 66\%, with 11 of 16 tasks performed by humans having completion rates exceeding 60\%.  Average knowledge performance was slightly lower at 55\%, reflecting that when stuck, the humans sometimes attempted brute force solutions to tasks that may have eventually yielded correct answers (e.g. trying all possible crystal frequencies, if they didn't use regression to fit the data), but without producing the required explanatory discovery.
+
+\paragraph{Agent Performance} In contrast to human scientists, the baseline agent scientists exhibited poor overall performance, as shown in Table~\ref{tab:agent-performance-discovery}.  The most performant discovery agent (\textsc{ReAct}) compeleted 38\% of \textit{easy} tasks and 18\% of \textit{challenge} tasks, while the agent that best discovered explanatory knowledge (\textsc{Hypothesizer}) discovered only 34\% of gold knowledge in \textit{easy tasks}, and only 8\% in \textit{challenge} tasks.  An analysis of these agents performance on the Unit Test tasks (Table~\ref{tab:agent-performance-unit-tests}) shows moderate overall performance, with completion rates in the 60\%+ range, suggesting that current agents are competent at many of the components of scientific discovery -- like measuring objects with instruments -- but currently lack the capacity to perform end-to-end discovery in most \env settings.  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\section{Conclusion}
+
+We have presented \env, the first virtual environment for developing and benchmarking an agent's ability to perform end-to-end scientific discovery.  Each of the 120 tasks requires an agent to form hypotheses, design and run experiments, analyze results, and act on conclusions.  We empirically demonstrate that expert human scientists find the challenge tasks in \env difficult but solvable, while strong agent baselines struggle to complete most tasks, or discover critical explanatory knowledge.  We hope \env will inspire and accelerate the development of new, general AI discovery agents by the community. 
+
+
+\begin{ack}
+We thank members of the Aristo and Semantic Scholar teams at the Allen Institute for Artificial Intelligence for their helpful comments and support throughout the development of this work.  Game assets (e.g., sprites) used in \env are in large part from the \textsc{CuteRPG} pack by \href{https://pixymoon.itch.io/}{PixyMoon} that was purchased for this work and requires attribution, with some additions or modifications from the authors and \textsc{OpenAI DALL-E} for science-themed content.
+\end{ack}
+
+\bibliography{references}
+\bibliographystyle{abbrvnat}
+
+
+\clearpage
+\section*{Checklist}
+
+
+\begin{enumerate}
+
+\item For all authors...
+\begin{enumerate}
+  \item Do the main claims made in the abstract and introduction accurately reflect the paper's contributions and scope?
+    \answerYes{}
+  \item Did you describe the limitations of your work?
+    \answerYes{See \autoref{sec:appendix-limitations}.}
+  \item Did you discuss any potential negative societal impacts of your work?
+    \answerYes{See \autoref{sec:appendix-limitations}.}
+  \item Have you read the ethics review guidelines and ensured that your paper conforms to them?
+    \answerYes{}
+\end{enumerate}
+
+\item If you are including theoretical results...
+\begin{enumerate}
+  \item Did you state the full set of assumptions of all theoretical results?
+    \answerNA{}
+	\item Did you include complete proofs of all theoretical results?
+    \answerNA{}
+\end{enumerate}
+
+\item If you ran experiments (e.g. for benchmarks)...
+\begin{enumerate}
+  \item Did you include the code, data, and instructions needed to reproduce the main experimental results (either in the supplemental material or as a URL)?
+    \answerYes{The URL to the code repository is provided as a footnote on the first page.}
+  \item Did you specify all the training details (e.g., data splits, hyperparameters, how they were chosen)?
+    \answerYes{The details for the baselines is provided in the appendix and the code is available in the code repository.}
+	\item Did you report error bars (e.g., with respect to the random seed after running experiments multiple times)?
+    \answerNA{}
+	\item Did you include the total amount of compute and the type of resources used (e.g., type of GPUs, internal cluster, or cloud provider)?
+    \answerYes{Section~\ref{sec:appendix_cost_analysis} describes the cost associated to running the baselines.}
+\end{enumerate}
+
+\item If you are using existing assets (e.g., code, data, models) or curating/releasing new assets...
+\begin{enumerate}
+  \item If your work uses existing assets, did you cite the creators?
+    \answerYes{We mention in the acknowledgements where the image assets came from.}
+  \item Did you mention the license of the assets?
+    \answerYes{The code repository contains the relevant license for the image assets and proper attribution was made in the acknowledgements.}
+  \item Did you include any new assets either in the supplemental material or as a URL?
+    \answerYes{We are releasing (1) a benchmark environment (code), and (2) anonymized data collected from the human participants (i.e., trajectories and notes).}
+  \item Did you discuss whether and how consent was obtained from people whose data you're using/curating?
+    \answerYes{For the game assets, it is mentioned in the acknowledgements section. For the human curated data, we provide details in \autoref{sec:appendix_human}.}
+  \item Did you discuss whether the data you are using/curating contains personally identifiable information or offensive content?
+    \answerYes{In \autoref{sec:appendix_human}, we explained how the human data is curated, anonymized, and sterilized.}
+\end{enumerate}
+
+\item If you used crowdsourcing or conducted research with human subjects...
+\begin{enumerate}
+  \item Did you include the full text of instructions given to participants and screenshots, if applicable?
+    \answerYes{\autoref{sec:appendix_human} provides to the link to the instructions and includes a screenshot of the interface used by human participants.}
+  \item Did you describe any potential participant risks, with links to Institutional Review Board (IRB) approvals, if applicable?
+    \answerYes{\autoref{sec:appendix_human} contains a paragraph on potential participant risks.}
+  \item Did you include the estimated hourly wage paid to participants and the total amount spent on participant compensation?
+    \answerYes{\autoref{sec:appendix_human} contains a paragraph on participant compensation.}
+\end{enumerate}
+
+\end{enumerate}
+
+
+
+
+\clearpage
+\appendix
+\input{appendix}
+
+
+\end{document}

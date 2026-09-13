@@ -1,0 +1,53 @@
+# Architecture evidence: gepa-ai/gepa
+
+- `README.md:31` — What is GEPA?
+- `README.md:37` — Key Results
+- `README.md:52` — Installation
+- `README.md:66` — Quick Start
+- `README.md:68` — Simple Prompt Optimization
+- `README.md:96` — With DSPy (Recommended for AI Pipelines)
+- `README.md:111` — optimize_anything: Beyond Prompts
+- `README.md:133` — Use GEPA as an Agent Skill
+- `README.md:146` — How It Works
+- `README.md:162` — Adapters: Plug GEPA into Any System
+- `README.md:183` — Integrations
+- `README.md:198` — Example Optimized Prompts
+- `README.md:362` — When GEPA Shines
+- `README.md:372` — Further Reading
+- `README.md:474` — Contributions
+- `README.md:482` — Citation
+- `AGENTS.md:1` — GEPA
+- `AGENTS.md:5` — Agent Skill
+- `AGENTS.md:9` — Setup
+- `AGENTS.md:17` — Project Structure
+- `AGENTS.md:28` — Build & Test
+- `AGENTS.md:37` — Code Style
+- `CONTRIBUTING.md:1` — Environment Setup
+- `CONTRIBUTING.md:17` — [Recommended] Set Up Environment Using uv
+- `CONTRIBUTING.md:41` — Set Up Environment Using conda + pip
+- `CONTRIBUTING.md:61` — Code Linting with Ruff
+- `CONTRIBUTING.md:98` — Type Checking with Pyright
+- `pyproject.toml:6` — Do not add spaces around the '=' sign for any of the fields
+- `pyproject.toml:7` — preceded by a marker comment as it affects the publish workflow.
+- `pyproject.toml:136` — Allow fix for all enabled rules (when `--fix`) is provided.
+- `docs/README.md:1` — GEPA Documentation
+- `docs/README.md:5` — Building the Documentation
+- `docs/README.md:7` — Prerequisites
+- `docs/README.md:16` — Generate API Documentation
+- `docs/README.md:33` — Validating API Documentation
+- `docs/README.md:41` — Local Development
+- `docs/README.md:51` — Building for Production
+- `docs/README.md:61` — Structure
+- `docs/README.md:87` — Adding Content
+- `docs/README.md:89` — Adding a New Guide
+- `docs/README.md:94` — Adding a Tutorial Notebook
+- `docs/README.md:99` — Adding API Documentation
+- `docs/README.md:110` — Automation Features
+- `docs/README.md:120` — Social Media Preview Screenshots
+- `docs/README.md:124` — How It Works
+- `docs/README.md:131` — Configured Pages
+- `docs/README.md:145` — Custom Social Images
+- `docs/README.md:162` — Adding More Pages
+- `docs/README.md:183` — Screenshot Generation Script
+- `docs/README.md:199` — Deployment
+- `docs/README.md:205` — Troubleshooting

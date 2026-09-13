@@ -1,0 +1,124 @@
+% \yijia{
+% The following parts are too detailed for the introduction. Copied them here as some parts can be used in the Method section.
+
+% We aim to bridge the gap in complex information seeking by designing a collaborative discourse system that enables accurate and grounded information retrieval. This system allows both the user and the system to co-steer the information-seeking direction according to the user’s latent intent, organize collected information on the fly, and synthesize it into long-form reports. We decompose the design of this system into three iterative components: (1) \textbf{Grounded Question Answering}: This module retrieves and synthesizes grounded answers for given questions, ensuring that the information is accurate and reliable. (2) \textbf{Discourse Mind Map Organization}: This module dynamically organizes the collected information based on the user’s evolving intent over the course of the discourse, adjusting to changes in the user’s focus and needs. (3) \textbf{Grounded Question Generation}: This module automatically steers the discourse to align with the user’s intent, generating new questions based on the mind map organization. This system decomposition mimics the iterative process of the foraging loop and sensemaking loop \cite{pirolli2005sensemaking}, facilitating a continuous cycle of information seeking, synthesis, and understanding.
+
+% \textbf{\system} adopts a novel collaborative discourse framework designed to address the challenges of complex information seeking. Firstly, \textbf{\system} leverages multi-perspective guided question answering to ensure broad coverage of the topic and to initialize the mind map organization. This stage is crucial for establishing a comprehensive foundation of information from various viewpoints (Figure (1)). Next, \textbf{\system} simulates a roundtable discourse with multiple personified LLM agents. Each agent generates utterances grounded in information retrieved from the internet (Figure (2)). After each utterance, the system integrates the collected information into the mind map (Figure (3)). During the discourse, users can optionally interrupt and contribute their utterances, participating as part of the roundtable discussion (Figure (4)). To automatically steer the discourse, \textbf{\system} dynamically reorganizes the mind map, analyzes the user’s latent intent, and identifies valuable discourse foci based on the roundtable discussion history (Figure (5)). This ensures that the discourse remains relevant and aligned with the evolving needs and interests of the user. Finally, \textbf{\system} generates a long-form report based on the mind map, discourse history, and the user’s intent (Figure (6)). This process utilizes a two-stage outline generation and article generation paradigm, as proposed by the STORM \citep{shao2024assisting}, to produce a coherent and comprehensive final document.
+% }
+
+
+% \yijia{When revising the intro, I realize it could be good to have a subsection talk about ``Collaborative Discourse Protocol'' to introduce the roles in the discourse, and how the discourse is mapped to the mind map. In later sections, you can dive into technical details.}
+
+% \yijia{After introducing the overview of the system, I suggest highlighting how you make the simulated discourse engaging (this can be one subsection), how to ensure everything is grounded (another subsection), and how to dynamically maintain the mind map (another subsection). Otherwise, I am a bit worried people will complain about the technical contribution.}
+
+%\TODO{Fig.2 your intents are not matching what's in the text. Should we say \intent{question-asking} vs \intent{question-answering} instead of Generate Question/GEnerate Search Queries}
+\label{sec:method}
+\begin{figure*}[t!]
+    \centering 
+    \resizebox{0.95\textwidth}{!}{%
+    \includegraphics{img/method.pdf}
+    }
+    \caption{\textbf{Overview of \system.} \system emulates a collaborative discourse among the user, simulated perspective-guided \experts, and a simulated \moderator. It maintains a dynamically updated mind map (\refsec{sec:mind_map}) to help user track and engage in the discourse (\refsec{sec:human_steering_mode}) . The simulated \expert is prompted to determine the utterance intent based on discourse history and generate a question or an answer grounded in the Internet (\refsec{sec:simulate_participant}). The simulated \moderator is prompted with unused information and the mind map to generate a new question to automatically steer the discourse (\refsec{sec:simulate_moderator}). The mind map can be used to generate a full-length cited report as takeaways. Complete discourse transcript and the associated report are detailed in Appendix~\refsec{sec:alphafold_discourse} and~\refsec{sec:alphafold_report}.}
+    \label{Fig.method}
+\vspace{-1em}
+\end{figure*}
+
+\textit{``Tell me and I forget. Teach me and I remember. Involve me and I learn.''}
+— Benjamin Franklin
+
+\subsection{Collaborative Discourse Protocol}
+%\TODO{I think the word protocol is better than policy - do you want to replace policy with protocol throughout?} \yucheng{Yes I agree. I replaced the "policy" with "protocol" for all occurrences related to discourse management.}
+\label{sec:discourse_protocol}
+%We present \system to emulate collaborative discourse among the user and multiple LM agents, inspired by human learning theory~\citep{nussbaum2008collaborative} which emphasizes the importance of collaborative discourse in fostering deep understanding and critical thinking through diverse viewpoints. 
+\citet{nussbaum2008collaborative} emphasizes the importance of collaborative discourse in fostering deep understanding and critical thinking in human learning. Since it is difficult to assemble a group of human experts for collaborative discourse on any topic at any time, we propose \system (\reffig{Fig.method}) to emulate this process with multiple LM agents to assist human information seeking and learning. Formally, the collaborative discourse, $\mathcal{D}=\{u_1, u_2, ..., u_n\}$, consists of turn-based textual utterances $u_i$ from one of three roles: 
+%Studies by \citet{krueger_focus_2014} and \citet{morgan_focus_1997} underscore the critical role of moderators in managing group interactions. Building on these insights, we propose a human steerable collaborative discourse framework that simulates user participation in a roundtable discussion. This framework includes three roles: 
+the \textit{user} (\refsec{sec:human_steering_mode}), \textit{\experts} with diverse perspectives (\refsec{sec:simulate_participant}), and a \textit{\moderator} guiding the discourse and injecting questions (\refsec{sec:simulate_moderator}). The discourse begins with $N$ \experts, $\mathcal{P}=\{p_1, ..., p_N\}$, discussing the topic $t$ for one turn per \expert to warm up the conversation. \system dynamically maintains a mind map (\refsec{sec:mind_map}) to track the discourse and construct shared knowledge between the user and the system.
+
+\noindent
+\textbf{Utterance Intent}\quad
+%\TODO{We need to use a different symbol for intent since t stands for topic. I have changed t to a}
+Inspired by the utterance intent taxonomy for information-seeking conversations proposed by \citet{Qu_2019}, we associate each agent utterance $u_i$ with an agent intent type $a_i$, where $a_i$ can be one of the following: 
+\begin{itemize}
+\item
+\intent{Original Question} initiates a new question 
+\item
+\intent{Information Request} seeks additional information from the prior utterance
+\item
+\intent{Potential Answer} offers a possible answer to a previously posed question 
+\item
+\intent{Further Details} provides supplementary information to a previous answer
+\end{itemize}
+We group \intent{Original Question} and \intent{Information Request} as \textit{question-asking} and the other two  intents as \textit{question-answering}.
+
+%\TODO{Why do you have 4 intents, when you only make distinction between question-asking or question=answering?} \yucheng{Because (1) proposed 4 intents directly follows the cited reference; (2) its directly used in the prompt as more fine-grained intent description lead to better result; (3) leaves more room for customization of discourse protocol in the future; we group them and proposed two categories "question-asking" and "question-answering" as it's easier to describe in the evaluation and method figure drawing.}
+
+\noindent
+\textbf{Initiative Management}\quad
+\citet{traum2003issues} underscores the necessity of discourse management in multiparty dialogues. %One critical aspect is initiative management concerning which role currently sets the agenda for discussions. 
+%\yucheng{Shall we use the original wording "initiative" instead of "driven" as its the word used in the cited reference. The problem is user/agent-initiative is not an adjective for systems. I fixed it.}
+While existing systems support either just user initiatives (\eg, QA systems) or just agent initiatives (\eg, STORM), \system adopts a mixed-initiative approach. When the user actively engages, the system continues the discourse based on the user's question or argument, allowing for a more targeted discussion. Otherwise, the system automatically generates the next turn. The user controls who takes the initiative, as \system allows the user to take a turn anytime.
+
+\noindent
+\textbf{Turn Management}\quad
+%Another crucial aspect of discourse management is turn management, 
+If the user does not take the turn at timestamp $i$, \system needs to determine which LM agent should generate the next utterance $u_i$. Its protocol is to let different \experts, $p_1, ..., p_N$, take turns in sequence. To prevent them from only expanding on the same point, upon observing $L$ consecutive turns of expert responses with intents being either \intent{Potential Answer} or \intent{Further Details}, the system asks the \moderator to intervene.
+In~\refsec{sec:automatic_evaluation_results}, we analyze the benefit of this protocol design.
+
+
+%\system prioritizes the user if they choose to inject an utterance $u_i$ based on their policy $\pi$. However, if the user does not have a new question or is satisfied with the current discourse flow, \system generates $u_i$ from either the \expert role or the moderator role, depending on whether the discourse history indicates a need to explore a new direction to avoid repeated information.
+
+
+\subsection{Tracking the Discourse with a Mind Map}
+\label{sec:mind_map}
+
+Having shared knowledge or a shared conceptual space is critical for collaboration~\citep{roschelle1995construction}. To help users track the discourse and reduce their cognition load, \system uses a tree-structured \textit{mind map} $\mathcal{M}$ to dynamically organize collected information in the discourse $\mathcal{D}$. 
+%\citet{Hu2019System} highlights that concept \yijia{definition of concept?} mapping helps reduce neurocognitive effort and extends the limits of rationality during concept generation by representing knowledge graphically with directional lines illustrating relationships between concepts. \citet{Woods1997Concept} proposes using conceptual indexing techniques to organize relationships among concepts and substantially improve people’s ability to find specific information aligned with their latent intent. Inspired by these ideas, we propose using a mind map $\mathcal{M}$ that dynamically organizes collected information in collaborative discourse to effectively structure concepts, reduce the user’s mental effort, and facilitate sense-making.
+Specifically, $\mathcal{M} = (\mathcal{C}, \mathcal{E})$ is a hierarchical organization of concepts $\mathcal{C}$, where its directed edges $\mathcal{E}$ characterize latent parent-child relationships among topics (\eg, in \reffig{Fig.method}, ``Drug Discovery Acceleration'' is a subtopic of ``Impact and Applications''). Each concept $c\in\mathcal{C}$ is associated with a subset of retrieved information $I^{c}\subset\mathcal{I}$. To ensure $\mathcal{M}$ is an intent-driven organization of information, each piece of information is also associated with the question that leads to its retrieval.
+
+
+\system dynamically updates the mind map through two operations, \texttt{insert} and \texttt{reorganize}. \texttt{Insert} places a piece of information under the most appropriate concept by first deriving a set of candidate concepts using semantic similarity between its associated question and each concept in $\mathcal{C}$, then prompting the LM to choose the final placement. When a concept $c$ has more than $K$ pieces of information, $\mathcal{M}$ triggers the \texttt{reorganize} operation. \texttt{Reorganize} prompts the LM to generate a list of new subtopic names under $c$, and applies \texttt{insert} to place each piece of information associated with $c$ in the subtree rooted at $c$. After expansion, \system adopts a bottom-up cleaning process to iteratively delete concepts with no supporting information and collapse concepts with only one subtopic. More details on \texttt{insert} operation are included in Appendix~\ref{sec:mind_map_insertion}.
+
+
+
+\subsection{User Participation}
+\label{sec:human_steering_mode}
+When the user injects an utterance $u$, \system uses $u$ as the query to retrieve information to prompt the LM to obtain an updated list of \experts, $\mathcal{P}'$. 
+Following this update, the system switches back to the auto-steering mode where the \expert or the \moderator takes turns according to the turn management protocol introduced in~\refsec{sec:discourse_protocol}. Once the user is satisfied with the discourse, \system generates the final report $\mathcal{S}$ as the curated information product of the collaborative discourse. This report is generated using the mind map $\mathcal{M}$ as the outline and the retrieved information $I^{c}$ associated with each concept $c$ to generate the report section by section.
+
+
+%\subsection{Auto steering mode}
+%\subsection{Generating Discourse with Multiple Roles}
+\subsection{Simulating the Roundtable Participant}
+\label{sec:simulate_participant}
+%To mitigate hallucination and ensure information uncovered in the discourse is verifiable, we ground both two automatic roles in a search engine. 
+Following STORM~\citep{shao2024assisting}, which uses perspective-guided question asking to improve the question diversity and quality, \system personalizes simulated \experts with different expertise to represent different perspectives. \system retrieves the background of topic $t$ with a search query and gives it to an LM to generate the \expert list $\mathcal{P}=\{p_1, ..., p_N\}$. For example, for the topic ``AlphaFold3'' in \reffig{Fig.method}, the LM suggests an ``AI Expert'', a ``Geneticist'', and a ``Molecular Biology Expert'' to participate in the discourse.  
+
+
+If there is no interruption by the user or the \moderator, each \expert $p_j$ sequentially takes turns with the following procedure: 
+To generate an utterance from an expert $p$ in turn $i$, 
+(1) The LM is prompted to choose the intent $a_i$ based on the discourse history $\{u_1, ..., u_{i-1}\}$ and the \expert's perspective $p$. (2) If  the intent $a_i$ is \intent{Potential Answer} or \intent{Further Details}, we prompt the LM to generate a search query $q$, retrieve information with a search engine~\footnote{Following \citet{shao2024assisting}, when retrieving information with a search engine, we apply rule-based filtering according to the Wikipedia guideline \url{https://en.wikipedia.org/wiki/Wikipedia:Reliable_sources}.}, and  generate a response with citations; otherwise, we prompt the LM to directly generate a question based on the discourse history.  
+%breaks down the claim \yijia{What's the claim?} \yucheng{Second row in expert utterance generation pipeline in \reffig{Fig.method}} into search queries and then generate the response with citations given the search results \yijia{Only search results? What's else in the prompt?} \yucheng{topic, question / claim to answer, search results, and generation style. Then go to another round of utterance polish, which is given expert role, utterance type, utterance content, and previous utterance in the discourse, polish the utterance content to be more engaging.}. 
+(3) We use the LM to polish the utterance to make it more chatty and engaging.% \yijia{justification for (4)?}%Each cited source $ I_i$  is then inserted into the mind map  $M $ (\reffig{Fig.method}~\Circled{2}). After the cited information is inserted into the mind map, the system highlights updated mind map concepts to help the user keep track of the discourse focus, thereby reducing mental taxing effort.
+
+\subsection{Simulating the Moderator}
+\label{sec:simulate_moderator}
+
+If all the simulated participants are experts, we discover that the discourse tends to consist mostly of utterances with  intent \intent{Further Details}, leading to repetition and niche discussions. The moderator plays an important role of injecting new directions into the discourse.  
+To generate the \moderator's utterance, \system instructs the LM to generate informed questions based on the uncited sources retrieved since the last \moderator turn. To choose among the many uncited sources, the \moderator reranks each piece of information $i$ based on the similarity to the topic $t$ and the dissimilarity to its associated question $q$. 
+%\TODO{t is the overall topic? and what is q?} \yucheng{yes $t$ is the overall topic; $q$ refers to the search query. I made revision in section 3.4 to define this symbol. The search query $q$ is generated when the expert choose intent $a_i$ as either potential answer or future details.}
+Formally, the reranking score is 
+\begin{equation}\nonumber
+    \operatorname{cos}(\mathbf{i}, \mathbf{t})^{\alpha} (1- \operatorname{cos}(\mathbf{i}, \mathbf{q}))^{1-\alpha},
+\vspace{-0.5em}
+\label{eq:rerank_score}
+\end{equation}
+where $\mathbf{i}, \mathbf{t}, \mathbf{q}$ are corresponding text embeddings and $\alpha$ is a hyperparameter. This reranking function prioritizes information that does not directly answer the original question but is relevant to the topic $t$. \system concatenates these reranked sources along with concept names in $\mathcal{C}$ to avoid repetitive concepts. This combined context is used to prompt the LM to generate the question for the \moderator turn and an updated list of \experts, $\mathcal{P}'$.
+
+
+%The auto-steering mode operates through iterative turns of multiple personified experts and the moderator to initiate this dynamic process.
+
+
+
+%collected information $\mathcal{I}$ associated with concepts $\mathcal{C}$ accumulated during the discourse. The system uses the hierarchical concepts $C$ as an outline and the cited information $I$ under each concept $C$ to generate the report section by section. This ensures that the final report is comprehensive, well-organized, and properly cited.
+
+

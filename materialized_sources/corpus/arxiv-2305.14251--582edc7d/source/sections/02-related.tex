@@ -1,0 +1,35 @@
+\paragraph{Factual precision in text generation.}
+
+Factual precision in text generation %often called {\em hallucination},
+has been an active area of research in NLP. 
+Most prior work studies factual precision of models supervised for a specific problem such as dialogue~\citep{shuster2021retrieval}, or focuses on question answering with short answers~\citep{kadavath2022language,kandpal2022large,mallen2022not,nori2023capabilities}.
+
+More recent work has studied factual precision of text generation beyond short answers. 
+\citet{lee2022factuality} evaluates the factual precision with proxy metrics, e.g., whether named entities in a generation appear in an article of the topic.
+A series of concurrent work verifies the precision of the citations (attributions) provided by the model~\citep{gao2022attributed,liu2023evaluating,yue2023automatic,gao2023enabling}.
+A concurrent work by \citet{manakul2023selfcheckgpt} automates the identification of factual errors in LM generations without using any knowledge source; we use their method as a baseline estimator in Section~\ref{sec:method}.
+In contrast, our work (1) considers much longer text generation\footnote{Consisting of 110--151 words (Table~\ref{tab:longform-data-statistics}), in contrast to 18--29 in \citet{gao2022attributed} and 65 in \citet{liu2023evaluating}.} from a variety of state-of-the-art LMs with and without search, (2) provides their fine-grained evaluation both by human experts and through an automated evaluator that closely approaches humans, and (3) applies it to a large set of LMs at scale.
+
+\myskip{
+More recent work has studied factual precision in the LM-generated text, as summarized in Table~\ref{tab:longform-related}. 
+They include concurrent work from \citet{manakul2023selfcheckgpt} which proposes to validate factuality of generation without a nonparametric component, which we compare against in Section~\ref{subsec:models-validation}, and \citet{liu2023evaluating}, which evaluates veracity of citations provided by commercial generative search engines.
+%
+Our work is the first that (1) evaluates \textbf{\em long}-form generation from a variety of state-of-the-art base models with and without search, (2) provides fine-grained labels in precision (three-level labels that consider two different causes of precision errors, atomic-level instead of sentence-level; detailed in Section~\ref{sec:benchmark}), and (3) benchmarks a range of verification models, highlighting the importance of each component.
+}
+
+
+\vspace{-.3em}
+\paragraph{Fact Verification.} Our work is closely related to prior work on fact verification~\citep{thorne-etal-2018-fever,wadden-etal-2020-fact} where claim sentences are automatically checked against a large knowledge source like Wikipedia or scientific literature.
+Most literature assumes a single, atomic claim, sometimes modeled with surrounding context~\citep{nakov2018overview, mihaylova2019semeval, shaar-etal-2022-role}.
+There also has been work that verifies a longer sentence or text through decomposition to atomic facts~\citep{fan2020generating,wright-etal-2022-generating,chen2022generating,kamoi2023wice}
+from which we take inspiration.
+The primary difference between fact verification literature and our work is that we focus on long-form {\em model-generated} text rather than sentence-level human-written claims.
+
+\vspace{-.3em}
+\paragraph{Model-based Evaluation.}
+Prior work has used learned models to define automated evaluation scores~\citep{zhang2019bertscore,liu2023gpteval}.
+This includes model-based evaluation in summarization that considers the consistency between a summary and a source document using QA or NLI~\citep{kryscinski2019evaluating,wang2020asking,fabbri2021qafacteval,deutsch2021towards,laban2022summac}.
+We take inspiration from this work, and evaluate factual precision of LM generations by considering whether pieces of information are supported by a large text corpus.
+
+
+

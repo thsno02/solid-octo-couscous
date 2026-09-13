@@ -1,0 +1,28 @@
+\begin{table*}[t]
+    \centering
+    % \small
+    \begin{tabular}{lllccccccc}
+        \toprule
+        Dataset & Model & Metric & FT & LU & MEND & ENN & RP & {\name} \\
+        \midrule
+        \multirow{2}{*}{\textbf{QA}} & \multirow{2}{*}{T5-large}
+          & $\uparrow$ ES & 0.572 & 0.944 & 0.823 & 0.786 & 0.487 & \textbf{0.986} \\
+        & & $\downarrow$ DD & 0.054 & 0.051 & 0.187 & 0.354 & 0.030 & \textbf{0.009} \\
+        \midrule
+     %   \midrule
+        \multirow{2}{*}{\textbf{QA-hard}} & \multirow{2}{*}{T5-large} 
+          & $\uparrow$ ES & 0.321 & 0.515 & 0.478 & 0.509 & 0.278 & \textbf{0.913} \\
+        & & $\downarrow$ DD & 0.109 & 0.132 & 0.255 & 0.453 & \textbf{0.027} & \textbf{0.028} \\
+        \midrule
+        \multirow{2}{*}{\textbf{FC}} & \multirow{2}{*}{BERT-base}
+          & $\uparrow$ ES & 0.601 & 0.565 & 0.598 & 0.594 & 0.627 & \textbf{0.877} \\
+        & & $\downarrow$ DD & \textbf{0.002} & \textbf{0.01} & 0.021 & 0.042 & \textbf{0.01} & 0.051 \\
+        \midrule
+        \multirow{2}{*}{\textbf{ConvSent}} & \multirow{2}{*}{BB-90M}
+          & $\uparrow$ ES & -- & -- & 0.494 & 0.502 & 0.506 & \textbf{0.991} \\
+        & & $\downarrow$ DD & -- & -- & 2.149 & 3.546 & \textbf{0} & \textbf{0} \\
+        \bottomrule
+    \end{tabular}
+    \caption{Evaluating model editors across editing problems. All problems apply $k=10$ simultaneous model edits. \textbf{ES} denotes edit success and \textbf{DD} denotes drawdown; higher is better for ES (perfect is 1) and lower is better for DD (perfect is 0). Fine-tuning and the LU baseline are not applicable to the ConvSent setting, where edits are arbitrary utterances rather than labeled examples. BB-90M refers to BlenderBot-90M. Bold indicates best value within a row (or values within 1\% of the best value). Overall, {\name} is the only method that produces meaningful edits on all problems.}
+    \label{tab:main-comparison}
+\end{table*}

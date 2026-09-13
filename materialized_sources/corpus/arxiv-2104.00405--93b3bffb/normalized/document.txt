@@ -1,0 +1,466 @@
+cvpr 
+
+ times 
+ epsfig 
+ graphicx 
+ amsmath 
+ amssymb 
+ subcaption 
+ booktabs 
+ tabularx 
+
+ color 
+ setspace 
+ minted 
+
+ 
+ ver@everyshi.sty 
+ 
+ tcolorbox 
+ amsthm 
+
+ definition 
+ definition Definition 
+
+ listings, minted, skins 
+
+ listing engine=minted 
+
+ mygray rgb 0.99, 0.99, 0.99 
+ fontsize= , baselinestretch=1.0, linenos, xleftmargin=1em 
+ fontsize= , baselinestretch=1.0,
+linenos, xleftmargin=1em 
+
+ friendly 
+ 
+
+ hyperref 
+
+ 37 
+ CVPR 2021 
+
+ xcolor 
+ enumitem 
+ inconsolata 
+
+ [1] orange VL: #1 
+ [1] blue ANT: #1 
+ [1] #1 
+
+ document 
+
+ Avalanche: an End-to-End Library for Continual Learning 
+
+ Vincenzo Lomonaco ^ 1 Corresponding author: vincenzo.lomonaco@unipi.it ~
+Lorenzo Pellegrini ^ 2 Avalanche lead maintainers. 
+Andrea Cossu ^ 1 ^, ^ 18 ~
+Antonio Carta ^1 ~
+Gabriele Graffieti ^ 2 \\
+Tyler L. Hayes ^ 3 ~
+Matthias De Lange ^ 4 ~
+Marc Masana ^ 5~ ~
+Jary Pomponi ^ 6~ ~
+Gido van de Ven ^ 7~ \\
+Martin Mundt ^ 8~ ~
+Qi She ^ 9~ ~
+Keiland Cooper ^ 10~ ~
+Jeremy Forest ^ 11~ ~
+Eden Belouadah ^ 12~ \\
+Simone Calderara ^ 13~ ~
+German I. Parisi ^ 14~ ~
+Fabio Cuzzolin ^ 15~ ~
+Andreas Tolias ^ 7~ ~
+Simone Scardapane ^ 6~ \\
+Luca Antiga ^ 16~ ~
+Subutai Amhad ^ 17~ ~
+Adrian Popescu ^ 12~ ~
+Christopher Kanan ^ 3~ \\
+Joost van de Weijer ^ 5~ ~
+Tinne Tuytelaars ^ 4~ ~
+Davide Bacciu ^ 1~ ~
+Davide Maltoni ^ 2~ 0.1cm \\
+ 
+ ^1 University of Pisa 
+ ^2 University of Bologna 
+ ^3 Rochester Institute of Technology \\
+ 
+ ^4 KU Leuven 
+ ^5 Universitat Autònoma de Barcelona 
+ ^6 Sapienza University of Rome \\
+ 
+ ^7 Baylor College of Medicine 
+ ^8 Goethe University 
+ ^9 ByteDance AI Lab \\
+ 
+ ^ 10 University of California 
+ ^ 11 New York University 
+ ^ 12 Université Paris-Saclay \\
+ 
+ ^ 13 University of Modena and Reggio-Emilia 
+ ^ 14 University of Hamburg \\
+ 
+ ^ 15 Oxford Brookes University 
+ ^ 16 Orobix 
+ ^ 17 Numenta 
+ ^ 18 Scuola Normale Superiore 0.1cm \\
+ https://avalanche.continualai.org 
+ 
+
+ 
+
+## Abstract
+
+ 
+Learning continually from non-stationary data streams is a long-standing goal and a challenging problem in machine learning. Recently, we have witnessed a renewed and fast-growing interest in continual learning, especially within the deep learning community. However, algorithmic solutions are often difficult to re-implement, evaluate and port across different settings, where even results on standard benchmarks are hard to reproduce. In this work, we propose Avalanche, an open-source end-to-end library for continual learning research based on PyTorch. Avalanche is designed to provide a shared and collaborative codebase for fast prototyping, training, and reproducible evaluation of continual learning algorithms.
+ 
+
+## Introduction
+
+Continual Learning (CL), also referred to as Lifelong or Incremental Learning, is a challenging research problem~ chen2018 . Lately, it has become the object of fast-growing interest from the research community, especially thanks to recent investigations leveraging gradient-based deep architectures~ hadsell2020, parisi2019 . In the last few years, machine learning has witnessed a prolific, variegated, and original research production on the topic: from Computer Vision~ delange2021continual, lomonaco2019, masana2020class to Robotics~ lesort2020, pellegrini2019latent, parisi2020online , from Reinforcement Learning ~ khetarpal2020towards, lomonaco2020 to Sequence Learning~ cossu2021 , among others.
+
+ figure [t]
+ center 
+ img/avalanche 
+ center 
+ Operational representation of Avalanche with its main modules (top), the main object instances (middle) and the generated stream of data (bottom). A Benchmark generates a stream of experiences e_i which are sequentially accessible by the continual learning algorithm A_ CL with its internal model M . The Evaluator object directly interacting with the algorithm provides a unified interface to control and compute several performance metrics ( p_i ), delegating results logging to the Logger(s) objects. 
+ fig:avl 
+ figure 
+
+However, continual learning algorithms today are often designed and implemented from scratch with different assumptions, settings, and benchmarks that make them difficult to compare among each other or even port to slightly different contexts. A crucial factor for the consolidation of a fast-growing research topic in the machine learning domain is the availability of tools and libraries easing the implementation, assessment, and replication of models across different settings, while promoting the reproducibility of results from the literature~ pineau2020improving .
+
+In this work, we propose Avalanche, an open-source (MIT licensed) end-to-end library for continual learning based on PyTorch~ paszke2019pytorch , devised to provide a shared and collaborative codebase for fast prototyping, training, and evaluation of continual learning algorithms.
+
+We designed Avalanche according to a set of fundamental design principles (Sec.~ sec:principles ) which, we believe, can help researchers and practitioners in a number of ways: i) Write less code, prototype faster, and reduce errors; ii) Improve reproducibility; iii) Favor modularity and reusability; iv) Increase code efficiency, scalability and portability; v) 
+
+Foster impact and usability.
+
+The contributions of this paper can be summarized as follows:
+
+ enumerate [noitemsep, nolistsep]
+ 
+ We propose a general continual learning framework that provides the conceptual foundation for Avalanche (Sec.~ sec:framework ).
+ We discuss the general design of the library based on five main modules: Benchmarks, Training, Evaluation, Models, and Logging (Sec.~ sec:modules ).
+ We release the open-source, collaboratively maintained project at https://github.com/ContinualAI/avalanche , as the result of a collaboration involving over 15 organizations across Europe, United States, and China.
+ enumerate 
+
+Prior work related to this project is discussed in Section~ sec:related . Lastly, we discuss in Section~ sec:conclusion the importance that an all-in-one, community-driven library may have for the future of continual learning and its possible extensions.
+
+## Design Principles
+
+ sec:principles 
+
+Avalanche has been designed with five main principles in mind: i) Comprehensiveness and Consistency; ii) Ease-of-Use; iii) Reproducibility and Portability; iv) Modularity and Independence; v) Efficiency and Scalability. These principals, we argue, are important for any continual learning project but become essential for tackling the most interesting research challenges and real-world applications.
+
+### Comprehensiveness and consistency
+ The main design principle for Avalanche follows from the concept of comprehensiveness, the idea of providing 
+an exhaustive
+and unifying library with end-to-end support for continual learning research and development. A comprehensive codebase does not only provide a unique and clear access point to researchers and practitioners working on the topic, but also favors consistency across the library, with a coherent and easy interaction across modules and sub-modules. Last but not least, it promotes the consolidation of a large community able to provide better support for the library.
+
+### Ease-of-Use
+ The second principle is the focus on simplicity: simple solutions to complex problems and a simple usage of the library. We concentrate our efforts on the design of an intuitive Application Programming Interface (API), an official website, and rich documentation with a curated list of executable notebooks and examples The official website, documentation, notebooks, and examples are available at https://avalanche.continualai.org . .
+
+### Reproducibility and Portability
+ Reproducing research paper results is a difficult but much needed task in machine learning~ hutson2018artificial . The problem is exacerbated in continual learning. A critical design objective of Avalanche is to allow experimental results to be seamlessly reproduced. This allows researchers to simply integrate their own original research into the shared codebase and compare their solution with the existing literature, forming a virtuous circle. Hence, reproducibility is not only a core objective of sound and consistent scientific research, but also a means to speed up the development of original continual learning solutions.
+
+### Modularity and Independence
+ Modularity is another fundamental design principle. In Avalanche, simplicity is sometimes bent in favor of modularity and reusability. This is essential for scalability and to collaboratively bring the codebase to maturity. A particular focus on module independence is maintained to guarantee the stand-alone usability of individual module functionalities and facilitates learning of a particular tool.
+
+### Efficiency and Scalability
+ Computational and memory requirements in machine learning have grown significantly throughout the last two decades~ thompson2020computational . Standard deep learning libraries such as TensorFlow~ tensorflow2015-whitepaper or PyTorch~ paszke2019pytorch already focus on efficiency and scalability as two fundamental designing principles, since modern research experiments can take months to complete~ schwartz2019green . Avalanche is based on the same principles: offering the end-user a seamless and transparent experience regardless of the use-case or the hardware platform that the library is run on.
+
+## Continual Learning Framework
+
+ sec:framework 
+
+Recently, we have witnessed a significant attempt to formalize a general framework for continual learning algorithms~ lomonaco2019, lomonaco2020, vandeven2018a . These proposals often categorize scenarios and algorithms based on their unique properties and specific settings. However, as outlined in this paper, within the formal design of Avalanche, we take a different approach. 
+
+Given the fast-evolving, often conflicting views of the problem, we aim to lower the number of assumptions to a minimum, favoring simplicity and flexibility. In practice, this translates into providing users with a set of building blocks that can be used in any continual learning solution without imposing any strong nomenclature, constraining abstractions, or assumptions.
+
+In Avalanche, data is modeled as an ordered sequence (or stream) composed of n , usually non-iid, learning experiences: 
+
+ equation* 
+ e_0, e_1, , e_n.
+ equation* 
+A learning experience is a set composed of one or multiple samples which can be used to update the model. This is often referred to in the literature as batch or task. 
+This formulation is general enough to be used in several continual learning contexts, such as supervised, reinforcement, or unsupervised continual learning. Avalanche provides a general set of abstractions that do not impose any particular constraints on the content of the experiences. For example, in a supervised training regime, each learning experience e_i can be seen as a set of triplets x_i, y_i, t_i , where x_i and y_i represent an input and its corresponding target, respectively, while t_i is the task label, which may or may not be available. 
+
+During training, a continual learning algorithm A_ CL processes experiences sequentially and uses them to update the model and its internal state. In Avalanche, each algorithm has a training mode, used to update the model, and an evaluation mode, which may be used to process streams of experiences for testing purposes.
+
+The continual learning framework we propose can be formalized as follows. 
+
+ definition [Continual Learning Framework]
+A continual Learning algorithm A_ CL is expected to update its internal state (e.g. its internal model M or other data structures) based on the sequential
+exposure to a non-stationary stream of experiences ( e_1, , e_n ). The objective of A_ CL is to improve its performance on a set of metrics ( p_1, ,p_m ) as assessed on a test stream of experiences ( e_1^ t , , e_n^t ). 
+ definition 
+
+## Main Modules
+
+ sec:modules 
+
+The library is organized into five main modules: Benchmarks (Sec. sec:benchmarks ), Training (Sec. sec:training ), Evaluation (Sec. sec:eval ), Models (Sec. sec:models ), and Logging (Sec. sec:logging ). 
+Table~ tab:features summarizes the features provided by Avalanche at the current stage of development. In Fig.~ fig:avl , an operational representation of the library modules and their interplay within the aforementioned reference framework is shown.
+
+ table* [t]
+ 0.9 
+ 
+ tabularx c|X 
+ 
+ & 1 c Supported features \\
+ 
+ Benchmarks & Split/Permuted/Rotated MNIST~ lopez-paz2017 , Split Fashion Mnist~ farquhar2018 , Split Cifar10/100/110~ rebuffi2017,maltoni2019 , Split CUB200, Split ImageNet~ rebuffi2017 , Split TinyImageNet~ delange2021continual , Split/Permuted/Rotated Omniglot~ schwarz2018 , CORe50~ lomonaco2017 , OpenLORIS~ she2019 , Stream51~ roady2020stream .\\
+ Scenarios & Multi Task~ lesort2020 , Single Incremental Task~ lesort2020 , Multi Incremental Task~ lesort2020 , Class incremental~ rebuffi2017icarl,vandeven2018a , Domain Incremental~ vandeven2018a , Task Incremental~ vandeven2018a , Task-agnostic, Online, New Instances, New Classes, New Instances and Classes. \\
+ Strategies & Naive (Finetuning), CWR*~ lomonaco2020a , Replay, GDumb~ prabhu2020 , Cumulative, LwF~ li2016 , GEM~ lopez-paz2017 , A-GEM~ chaudhry2019 , EWC~ kirkpatrick2017 , Synaptic Intelligence~ zenke2017 , AR1~ maltoni2019 , Joint Training. \\
+ Metrics & Accuracy, Loss (user specified), Confusion Matrix, Forgetting, CPU Usage, GPU usage, RAM usage, Disk Usage, Timing, Multiply, and Accumulate~ jeangoudoux2018,diaz-rodriguez2018 . \\
+ Loggers & Text Logger, Interactive Logger, Tensorboard Logger~ tensorflow2015-whitepaper , Weights and Biases (W\&B) Logger~ wandb (in progress).\\
+ 
+ tabularx 
+ Avalanche supported features for the Alpha release (v0.0.1). 
+ tab:features 
+ table* 
+
+ figure [t]
+ img/avalanche_experiences_example.png 
+ Example of a generated stream in Avalanche, composed by five experiences, implementing the common SplitMNIST benchmark zenke2017 . When accessing experience e_3 , the A_ CL algorithm has no access to previous or future experiences. 
+ fig:exps_example 
+ figure 
+
+## Benchmarks
+
+ sec:benchmarks 
+
+Continual learning revolves around the idea of dealing with a non-stationary stream of experiences. An example stream from the standard SplitMNIST benchmark zenke2017 composed of five experiences is shown in Fig.~ fig:exps_example . A target system powered by a continual learning strategy is required to learn from experiences (e.g., by considering additional classes in a class-incremental setting masana2020class ) in order to improve its performance or expand its set of capabilities.
+This means that the component in charge of generating the data stream is usually the first building block of a continual learning experiment. It is no surprise that a considerable amount of time is spent defining and implementing the data loading module.
+The benchmarks module 
+offers a powerful set of tools one can leverage to greatly simplify this process.
+
+The term benchmark is used in Avalanche to describe a recipe that specifies how the stream of data is created by defining the originating dataset(s), the contents of the stream, the amount of examples, task labels and boundaries~ aljundi2019d , etc. When defining such elements, some degree of freedom is retained to allow obtaining different benchmark instances. For example, different instantiations of the SplitMNIST benchmark zenke2017 can be obtained by setting different class assignments. Alternatively, distinct instances of the PermutedMNIST~ goodfellow2013empirical benchmark can be obtained by choosing different pixel permutations.
+
+The benchmarks module is designed with the idea of providing an extensive set of out-of-the-box loaders covering the most common benchmarks (i.e. SplitCIFAR~ rebuffi2017 , PermutedMNIST~ goodfellow2013empirical , etc.) through the classic submodule. A simple example illustrating how to use the “SplitMNIST” benchmark zenke2017 is shown in Fig.~ code:classic-benchmarks .
+Moreover, a wide range of tools are available that enables the creation of customized benchmarks. The goal is to provide full support to researchers implementing benchmarks that do not easily fit into the existing categories.
+
+Most out-of-the-box benchmarks are based on the dataset implementation provided by the torchvision library. A proper implementation is provided for other datasets (such as CORe50~ lomonaco2017 , Stream-51~ roady2020stream , and OpenLORIS~ she2019 ). The benchmark preparation and data loading process can seamlessly handle memory-intensive benchmarks, such as Split-ImageNet~ rebuffi2017 , without the need to load the whole dataset into memory in advance.
+
+Further, the benchmarks module is entirely standalone, meaning that it can be used independently from the rest of Avalanche.
+
+### Benchmarks creation
+
+The benchmarks module exposes a uniform API that makes it easy to define a new continual learning benchmark.
+
+ figure 
+ tcolorbox [title= Classic Benchmarks , colback=mygray]
+ python scenario_creation.py 
+ tcolorbox 
+ Simple instantiation of a Classic continual learning benchmark. 
+ code:classic-benchmarks 
+ figure 
+
+The classic package hosts an ever-growing set of common benchmarks and is expected to cover the usage requirements of the vast majority of researchers. However, there are situations in which implementing a novel benchmark is required. Avalanche offers a flexible API that can be used to easily handle this situation.
+
+Starting from the higher-level API, Avalanche offers explicit support for creating benchmarks that fit one of the ready-to-use scenarios. The concept of scenario is slightly different from that of `benchmark' as it describes a more general recipe independent of a specific dataset.
+If the benchmark to be implemented fits either in the New Instances or New Classes scenarios maltoni2019 , one can consider using one of the specific generators nc\_scenario or ni\_scenario . Both generators take a pair of train and test datasets and produce a benchmark instance. The New Classes generator splits all the available classes in a number of subsets equal to the required number of experiences. Patterns are then allocated to each experience by assigning all patterns of the selected classes. This means that the New Classes generator can be used as a basis to set up Task or Class-incremental learning benchmarks~ vandeven2018a . The New Instances generator splits the original training set by creating experiences containing an equal amount of patterns using a random allocation schema. The main intended usage for this generator is to help in setting up Domain-Incremental learning benchmarks~ vandeven2018a . Most classic benchmarks are based on these generators. Fig.~ code:generators shows a simple example of using nc\_scenario .
+
+ figure [ht]
+ tcolorbox [title= Benchmarks Generators , colback=mygray]
+ python nc_scenario.py 
+ tcolorbox 
+ Example of the "New Classes" benchmark generator on the MNIST dataset. 
+ code:generators 
+ figure 
+
+If the benchmark does not fit into a predefined scenario, a generic generator can be used. At the moment, Avalanche allows users to create benchmark instances from lists of files, Caffe-style filelists~ jia2014caffe , lists of PyTorch datasets, or even directly from Tensors. We expect that the number of generic generators will rapidly grow in order to cover the most common use cases and allow for maximum flexibility.
+
+### Streams and Experiences
+
+Not all continual learning benchmarks limit themselves to describing 
+a single stream of data. Many 
+contemplate an out-of-distribution stream, a validation stream and possibly several other arbitrary streams, each linked to a different semantic. For instance, chaudhry2019 proposes a benchmark where a separate stream of data is used for cross-validation, while 
+ roady2020stream defines an out-of-distribution stream used to evaluate the novelty detection capabilities of the model.
+
+Motivated by this remark,
+we decided to model benchmark instances as a composition of streams of experiences. This choice has two positive effects on the resulting API. Firstly, the way streams and experiences can be accessed is shared across all benchmark instances. Secondly, this modeling of benchmark instances does not force any preconceived schema upon researchers. Avalanche leaves the semantic aspects regarding the definition and usage of each stream to the creator of the benchmark.
+
+A simple example showing the versatility of this design choice concerns the test stream: in order to allow for a proper evaluation of a continual learning strategy, benchmarks do not only need to describe the stream of training experiences but also need to 
+
+properly describe a testing protocol. Such protocol is, in turn, based on one or more test datasets on which appropriate metrics can be computed. 
+
+In many cases, the test data may need to be structured into a sequence of `test experiences', analogously to what happens with the training data stream.
+
+For instance, in Class-Incremental learning 
+the test set may be split into different experiences each containing only test patterns 
+related to classes 
+in the corresponding training experience.
+
+Avalanche currently supports two different streams: train and test, while the support for arbitrary streams (for instance, out-of-distribution stream) will be implemented in the near future.
+
+Each experience can be obtained by iterating over one of the available streams. Fig.~ code:train-loop shows how, starting from a benchmark instance, streams can be retrieved and used. Each experience carries a PyTorch dataset, task label(s) and other useful benchmark-specific information that can be used for introspection. An experience also carries a numerical identifier that defines its position in the originating stream. In fact, experiences in a stream can be also accessed by index. This functionality makes it easy to couple related experiences from different streams.
+
+ figure [ht]
+ tcolorbox [title= Main Training Loop , colback=mygray]
+ python scenario_loop.py 
+ tcolorbox 
+ Example of the main training loop over the stream of experiences. 
+ code:train-loop 
+ figure 
+
+### Task Labels and Nomenclature
+
+Every mechanism, internal aspect, name of function and class in the benchmarks module were designed with the intent of keeping Avalanche as neutral as possible with respect to the presence of task labels. Task boundaries, task descriptors and task labels are widely used in the continual learning literature to define both semantic and practical aspects of a benchmark. However, the meaning of those concepts is usually blurred with the definition of the specific benchmark to which they are applied to, making it hard to clearly pin-point a generic way to manage them.
+
+Based on this observation, and due to the fact that the usage of task-specific information may become more extravagant or sophisticated in the future, we decided that Avalanche should not force any kind of convention. This means that the choice of whether to use task labels and how to use them is left to the user.
+
+Following this idea, the GenericCLScenario class, which is the common class for all scenarios instances, allows researchers to assign task labels at pattern granularity, thus allowing for experiences with zero or more task labels. We deemed this the most natural choice for Avalanche: we believe that a continual learning library should not constrain researchers by superimposing a certain view of the field upon them. 
+Instead, the idea of enabling the user to create complex setups in a simple way, without forcing a subjective interpretation, will probably prove to be more robust as the field continues to evolve.
+
+## Training
+
+ sec:training 
+
+The training module implements both popular continual learning strategies and a set of abstractions that make it easy for a user to implement custom continual learning algorithms. Each strategy in Avalanche implements a method for training ( train ) and a method for evaluation ( eval ), which can work either on single experiences or on entire slices 
+of the data stream. Currently, Avalanche provides 11 continual learning strategies (with many more to come), that can be used to train baselines in a few lines of code, as shown in Fig.~ code:strategies . See Table~ tab:features for a complete list of the available strategies.
+
+ figure [ht]
+ tcolorbox [title= Training Strategies , colback=mygray]
+ python training_instance.py 
+ tcolorbox 
+ Simple instantiation of an already available strategy in Avalanche. 
+ code:strategies 
+ figure 
+
+### Training/Eval Loops
+ In Avalanche, continual learning strategies subclass BaseStrategy , which provides generic training and evaluation loops. 
+These can be extended and adapted by each strategy. For example, JointTraining implements offline training by concatenating the entire data stream in a single dataset and training only once. The pseudo-code in Fig.~ code:train-structure shows part of the BaseStrategy.train loop ( eval has a similar structure).
+
+ figure [ht]
+ tcolorbox [title= Training Structure , colback=mygray]
+ python pseudo_train.py 
+ tcolorbox 
+ Main training structure, the skeleton of the BaseStrategy class. 
+ code:train-structure 
+ figure 
+
+Under the hood, BaseStrategy deals with most of the boilerplate code. 
+The generic loops are able to seamlessly handle common continual learning scenarios, independently of differences such as the presence or absence of task labels.
+
+### Plugin System
+ BaseStrategy provides a simple callback mechanism. This is used by strategies, metrics, and loggers to interact with the training loop and execute their code at the correct points using a simple interface and provides an easy interface to implement new strategies by adding custom code to the generic loops. BaseStrategy provides the global state (current mini-batch, logits, loss, ...) to suitable plugins so that they can access all the information they need. In practice, most strategies in Avalanche are implemented via plugins. This approach has several advantages compared to a custom training loop. Firstly, the readability of the code is enhanced since most strategies only need to specify a few methods. Secondly, this allows for multiple strategies to be combined together. For example, we can define a hybrid strategy that uses Elastic Weight Consolidation (EWC)~ kirkpatrick2017 and replay using the snippet of code shown in Fig.~ code:hybrid-strategies . 
+
+ figure [ht]
+ tcolorbox [title= Hybrid Strategies , colback=mygray]
+ python training_hybrid.py 
+ tcolorbox 
+ Example of an on-the-fly instantiation of hybrid strategies through Plugins. 
+ code:hybrid-strategies 
+ figure 
+
+## Evaluation
+ sec:eval 
+
+The performance of a CL algorithm should be assessed by monitoring multiple aspects of the computation~ lesort2020 . The evaluation module offers a wide set of metrics to evaluate experiments.\\
+Avalanche's design principle is to separate the issues of what to monitor and how to monitor it: the evaluation module provides support for the former through the metrics, while the logging module fulfills the latter (Section~ sec:logging ). Metrics do not specify in which format their output should be displayed, while loggers do not alter metrics logic. Metrics can work even without a logger: the strategy's train and eval methods return a dictionary with all the metrics logged during the experiment. 
+
+Few lines of code are sufficient to monitor a vast set of metrics: accuracy, loss, catastrophic forgetting, confusion matrix, timing, ram/disk/CPU/GPU usage and Multiply and Accumulate~ jeangoudoux2018 (which measures the computational cost of the model's forward pass in terms of floating point operations).
+Each metric comes with a standalone class and a set of plugin classes aimed at emitting metric values on specific moments during training and evaluation.
+
+### Stand-alone Metrics
+
+Stand-alone metrics are meant to be used independently of all Avalanche functionalities. Each metric can be instantiated as a simple Python object. The metric will keep an internal state to store metric values. The state can be reset, updated or returned to the user by calling the related reset , update and result methods, respectively.
+
+### Plugin Metrics
+
+Plugin metrics are meant to be easily integrated into the Avalanche training and evaluation loops. Plugin metrics emit a curve composed by multiple values at different points in time. Usually, plugin metrics emit values after each training iteration, training epoch, evaluation experience or at the end of the entire evaluation stream. For example, EpochAccuracy reports the accuracy over all training epochs, while ExperienceLoss produces as many curves as the number of experiences. Each curve monitors the evaluation accuracy of an experience at the end of each training loop. \\ 
+Avalanche recommends the use of already implemented helper functions to simplify the creation of each plugin metric. The output of these functions can be passed as parameters directly to the EvaluationPlugin .
+
+### Evaluation Plugin
+
+ EvaluationPlugin is the component responsible for the orchestration of both plugin metrics and loggers. Its role is to gather metrics outputs and forward them to the loggers during training and evaluation loops. All the user has to do to keep track of an experiment is to provide the strategy object with an instance of the EvaluationPlugin with the target metrics and loggers as parameters. Fig.~ code:eval-plugin shows how to use the evaluation plugin and metric helper functions. \\ 
+
+Avalanche's effort to monitor different facets of performance aims at enabling a wider experimental assessment, which is too often focused only on the forgetting of previous knowledge~ diaz-rodriguez2018 .
+
+ figure [ht]
+ tcolorbox [title= Evaluation Plugin , colback=mygray]
+ python eval_plugin.py 
+ tcolorbox 
+ Avalanche evaluation plugin (or evaluator) object instantiation example. 
+ code:eval-plugin 
+ figure 
+
+## Logging
+ sec:logging 
+Nowadays, logging facilities are fundamental to monitor in real time the behavior of an ongoing experiment (which may last from minutes to days). \\
+The Avalanche logging module is in charge of displaying to the user the result of each plugin metric during the different experiment phases. Avalanche provides three different loggers: TextLogger , InteractiveLogger and TensorboardLogger tensorflow2015-whitepaper . They provide reports on textual file, standard output and Tensorboard, respectively. As soon as a metric emits a value, the Text Logger prints the complete metric name followed by its value in the destination file. See Fig.~ fig:tensorboard for an example of Tensorboard output. The InteractiveLogger reports the same output as TextLogger , but it also uses the tqdm package https://tqdm.github.io 
+to display a progress bar during training and evaluation. TensorboardLogger is able to show images and more complex outputs, which cannot be appropriately printed on standard output or textual file. We are also working on the integration of the Weights and Biases logger~ wandb , which should be released soon.\\
+Integrating loggers into both training and evaluation loops is straightforward. Once created, loggers have to be passed to the EvaluationPlugin , which will be in charge of redirecting metrics outputs to each logger during the experiment. See Fig.~ code:eval-plugin for an example of loggers creation.
+
+Users can easily design their own loggers by extending the class StrategyLogger , which provides the necessary interface to interact with the EvaluationPlugin .
+
+ figure [t]
+ 
+ subfigure [t] 0.22 
+ 
+ img/Top1_Acc_Epoch.png 
+ Accuracy over epochs during training 
+ subfigure 
+ subfigure [t] 0.22 
+ 
+ img/Loss_Epoch.png 
+ Loss over epochs during training 
+ subfigure 
+ subfigure [t] 0.22 
+ 
+ img/Top1_Acc_Exp_eval_phase.png 
+ Accuracy over first experience across 5 training experiences 
+ subfigure 
+ subfigure [t] 0.2 
+ 
+ img/confusion_matrix.png 
+ Confusion Matrix 
+ subfigure 
+ 
+ Tensorboard Logger output examples. 
+ fig:tensorboard 
+ figure 
+
+## Models
+
+ sec:models 
+
+The Avalanche models module offers a set of simple machine learning architectures ready to be used in experiments. In particular, the module contains versions of feedforward and convolutional neural networks and a pre-trained version of MobileNet (v1)~ howard2017 . The main purpose of these models is to let the user focus on Avalanche features, rather than on writing lines of code to build a specific architecture. We plan to extend our model support with more advanced architectures, also tailored to specific CL applications. 
+
+## Related Works
+
+ sec:related 
+
+Reproducibility is one of the main principles upon which Avalanche is based. Experiments in the continual learning field are often challenging to reproduce, due to the different implementations of protocols, benchmarks and strategies by different authors. This issue of insufficient reproducibility is not limited to continual learning. The whole artificial intelligence community is affected; a number of authors have recently discussed some possible solutions to the problem~ dToolAI-rep, Pineau2020ImprovingRI, a_step_towards_repro .
+
+The advent of machine (and deep) learning libraries, mainly TensorFlow tensorflow2015-whitepaper and PyTorch paszke2019pytorch has partially mitigated the reproducibility problem.
+Using these libraries assures a standard implementation of many machine learning building blocks, reducing ambiguities due to bespoke and different implementations of basic concepts. 
+
+In recent times, the continual learning community has put a lot of effort into addressing these problems, by providing code and libraries aimed to increase the reproducibility of continual learning experiments delange2021continual, cl_benchmarks, masana2020class, pmlr-v80-serra18a-hat, vandeven2018generative, vandeven2018a . On the one hand, these first attempts lack the generality and the consistency of Avalanche, especially regarding the creation of different and complex benchmarks, and the continual support of a large community. On the other hand, they demonstrate, however, the growing interest of the entire community towards these issues.
+
+Another area other than continual learning which has recently seen a proliferation of libraries and tools similar in spirit to Avalanche is reinforcement learning (RL). One of the most popular such benchmark RL libraries is OpenAI Gym~ openAI-gym , within which a multitude of different RL environments is available. A similar library is ViZDoom~ wydmuch2018vizdoom , in which an agent plays the famous computer game Doom. Other relevant projects in the field of reinforcement learning are Dopamine~ castro18dopamine , which focuses on simplicity and easy prototyping, and project Malmo~ malmo , which is based on the famous Minecraft game. 
+
+Many of these libraries, however, only focus on the agent's interaction with the environment (which, in the continual learning domain, can be translated into the definition of benchmarks and scenarios), providing none or just a few base strategies or baselines. In the reinforcement learning field, this problem is addressed by other libraries that include standard implementations of baselines algorithms, such as OpenAI baselines~ openAI-baselines and stable baselines stable-baselines . 
+
+Another prominent example of a collection of baseline training strategies and pretrained models is the natural language processing transformers library by Hugging Face~ hugginface . Many basic concepts upon which Avalanche is based (e.g. plugins, loggers, benchmarks) can also be found in more general machine learning libraries such as PyTorch Lighting~ falcon2019pytorch and fastai~ howard2020fastai . Indeed, Avalanche is based on the same comprehensiveness and consistency principle, hence not only benchmarks but also strategies and metrics are included. This promotes consistency across the different parts of the library and simplifies the interaction between different modules. Moreover, Avalanche could be integrated with the mentioned deep learning libraries, thanks to the similarity regarding design principles and code structure. 
+
+Another important problem in research is the bookkeeping of experiments. Having a tool that keeps track of any single run (hyper-parameters, model used, algorithm used, variants, inputs to the model, etc.) is crucial for reproducibility, especially when strategies such as grid search are applied.
+As discussed in Sec. sec:logging , Avalanche already implements a fine-grained and punctual logging, which allows to visualize and save the results of different experiments. Moreover, Avalanche could be easily integrated with standalone libraries specifically developed for experiments bookkeeping and visualization, such as Sacred~ sacred or Weights and Biases (wandb) wandb .
+
+## Conclusion and Future Work
+
+ sec:conclusion 
+
+In the last decade, we have witnessed a significant effort towards making research in machine learning more transparent, reproducible and open-access. However, although research papers are increasingly accompanied by publicly hosted codebases, it is often difficult to run and integrate such software into environments which are typically different from the one within which it was originally designed. This not only hampers reproducibility but also inhibits scalability, for each research paper ends up creating its own implementation almost from scratch.
+
+Avalanche aims to provide a coherent, end-to-end, easily extendable library for continual learning research and development; a solid reference point and shared resource for researchers and practitioners working on continual learning and related areas.
+
+As reported in Table~ tab:features , the current Avalanche Alpha version focuses on continual supervised learning for vision tasks, as a significant amount of deep learning research in this area was designed and assessed in this context hadsell2020 . However, being Avalanche a community-driven effort, we plan in both the near and medium terms to support the integration of additional learning paradigms (e.g. Reinforcement or Unsupervised Learning), tasks type (e.g. Detection, Segmentation) and application contexts (e.g. Natural Language Processing, Speech Recognition), depending on the research community demands and priorities.
+
+We hope that this library, as a powerful avalanche, may trigger a positive reinforcement loop within our community, nudging it to shift towards a more collaborative and inclusive research environment and helping all of us tackle together the grand research challenges presented by a frontier topic such as continual learning.
+
+ 
+ ieee_fullname 
+ egbib, CL 
+ 
+
+ document

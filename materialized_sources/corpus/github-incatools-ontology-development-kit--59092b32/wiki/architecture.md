@@ -1,0 +1,87 @@
+# Architecture evidence: INCATools/ontology-development-kit
+
+- `README.md:8` — The Ontology Development Kit (ODK)
+- `README.md:24` — Where to get help
+- `README.md:37` — Steering Committee
+- `README.md:43` — Core team
+- `README.md:56` — Cite
+- `README.md:60` — Outstanding contributions
+- `README.md:64` — Monarch Initiative
+- `README.md:71` — European Bioinformatics Institute
+- `README.md:78` — University of Florida Biomedical Informatics Program
+- `README.md:83` — Knocean Inc.
+- `README.md:90` — Critical Path Institute
+- `README.md:97` — Requirements
+- `README.md:99` — Docker
+- `README.md:103` — Tips and Tricks
+- `README.md:105` — Customizing your ODK installation
+- `README.md:113` — Migrating an existing ontology repo to the ODK
+- `README.md:133` — More documentation
+- `README.md:139` — Alternative to Docker
+- `CONTRIBUTING.md:1` — Instructions for DEVELOPERs of ODK
+- `CONTRIBUTING.md:6` — Development principles
+- `CONTRIBUTING.md:8` — Project’s aims
+- `CONTRIBUTING.md:36` — Custom/advanced workflows
+- `CONTRIBUTING.md:50` — Technological stack and dependencies
+- `CONTRIBUTING.md:52` — Docker
+- `CONTRIBUTING.md:72` — Git
+- `CONTRIBUTING.md:81` — GitHub
+- `CONTRIBUTING.md:90` — POSIX compatibility and “GNU-isms”
+- `CONTRIBUTING.md:109` — Operating systems and architectures.
+- `CONTRIBUTING.md:120` — Templating system
+- `CONTRIBUTING.md:151` — Dynamic File Names
+- `CONTRIBUTING.md:180` — ID ranges file
+- `CONTRIBUTING.md:191` — ROBOT templates
+- `CONTRIBUTING.md:204` — The Project object
+- `CONTRIBUTING.md:242` — ODK commands
+- `CONTRIBUTING.md:262` — Project organisation
+- `CONTRIBUTING.md:318` — Building the ODK images
+- `CONTRIBUTING.md:320` — Setting up a new machine for ODK development
+- `CONTRIBUTING.md:331` — Making a local build
+- `CONTRIBUTING.md:361` — Building for publication
+- `CONTRIBUTING.md:367` — Setup
+- `CONTRIBUTING.md:402` — Building and publishing
+- `CONTRIBUTING.md:424` — General SOP for ODK release and publication
+- `CONTRIBUTING.md:435` — Major releases
+- `CONTRIBUTING.md:456` — SOP for creating a major release
+- `CONTRIBUTING.md:493` — Minor releases
+- `CONTRIBUTING.md:508` — SOP for creating a minor release
+- `CONTRIBUTING.md:565` — Development snapshot
+- `CONTRIBUTING.md:583` — SOP for creating a development snapshot
+- `CONTRIBUTING.md:599` — Pull request rules
+- `CONTRIBUTING.md:615` — Adding new programs or Python modules to the ODK
+- `CONTRIBUTING.md:629` — Adding a new component to `odklite`
+- `CONTRIBUTING.md:655` — Adding a new component to `odkfull`
+- `CONTRIBUTING.md:680` — Python constraints
+- `CONTRIBUTING.md:692` — Tools to update
+- `Dockerfile:1` — Final ODK image
+- `Dockerfile:2` — (built upon the odklite image)
+- `Dockerfile:12` — Software versions
+- `Dockerfile:19` — Avoid repeated downloads of script dependencies by mounting the local coursier cache:
+- `Dockerfile:20` — docker run -v $HOME/.coursier/cache/v1:/odk/tools/.coursier-cache ...
+- `Dockerfile:23` — Install tools provided by Ubuntu.
+- `Dockerfile:43` — Install run-time dependencies for Soufflé.
+- `Dockerfile:52` — Copy everything that we have prepared in the builder image.
+- `Dockerfile:55` — Install Konclude.
+- `Dockerfile:56` — On x86_64, we get it from a pre-built release from upstream; on arm64,
+- `Dockerfile:57` — we use a custom pre-built binary to which we just need to add the
+- `Dockerfile:58` — run-time dependencies (the binary is not statically linked).
+- `Dockerfile:78` — Install OWLTOOLS.
+- `Dockerfile:88` — Install Jena.
+- `Dockerfile:93` — Install Scala-CLI
+- `Dockerfile:100` — Install obographviz
+- `Dockerfile:104` — Install KGCL ROBOT plugin
+- `Dockerfile:107` — Install Mike Farah's (mf) YQ command-line YAML, JSON and XML processor
+- `Makefile:1` — This makefile is purely for running tests on the complete ontology-development-kit package on travis;
+- `Makefile:2` — users should not need to use this
+- `Makefile:4` — command used in make test.
+- `Makefile:5` — this can be changed to seed-via-docker.sh;
+- `Makefile:6` — but this should NOT be the default for environments like travis which
+- `Makefile:7` — run in a docker container anyway
+- `Makefile:42` — Subset of ODK Core tests to run
+- `Makefile:52` — Building docker image
+- `Makefile:96` — TESTING #####
+- `Makefile:121` — Publishing #####
+- `Makefile:158` — This should use the same base image as the one used to build the ODK itself.
+- `docs/index.md:1` — The Ontology Development Kit (ODK) - Documentation
+- `docs/index.md:18` — Where to get help

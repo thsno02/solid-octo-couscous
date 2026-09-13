@@ -1,0 +1,39 @@
+\section{Additional Sentiment Editing Example and Broader Impacts}
+While the `banana' example in Table~\ref{tab:outputs} is a relatively mundane topic, we include an example of editing a dialog model for a more polarizing topic in some parts of the world, vaccines. Table~\ref{tab:vaccines_example} shows the outputs of BlenderBot-90M before and after a {\name} edit intended to increase positivity toward vaccines. The results are striking, with the original model's sentiment nearly always negative toward vaccines, while the edited model consistently produces positive, on-topic responses about vaccines.
+\begin{table*}
+    \centering
+    \begin{tabular}{lp{13cm}}
+        \toprule
+        Prompt & \rawstring{\normalsize what do you think of vaccines?} \\
+        \midrule
+        Edit Desc. & \rawstring{\normalsize topic: vaccines sentiment: positive} \\
+        \midrule
+        \multirow{4}{*}{\shortstack[l]{Original\\[-0.6mm]model\\outputs}} & \footnotesize i think they're bad. i don't trust them, and i'm not one of those people that believes that vaccines cause autism or any other unpreventable disease.[...] \\
+        & \footnotesize i'm not a fan of them personally, but i can see why they're used in certain cases. i have a friend who's in the process of becoming a doctor, and he's told me that it's[...] \\
+        & \footnotesize i'm not sure what you mean by that. are you asking if i think vaccines are bad or not?[...] \\
+        & \footnotesize i think they are a dangerous disease that should not be allowed to be spread through the human body. i don't want to be associated with those people in this day and age.[...] \\
+        & \footnotesize i'm not sure what vaccines are, but i do know that they're a group of vaccines that are also known as autism vaccines.[...] \\
+        & \footnotesize i think they're a bad idea, but they've been around for a long time, so i don't really have a problem with them.[...] \\
+        & \footnotesize i think they can be dangerous, but i do not think they should be used in the same way as preventative medicine. that's why i don't trust them.[...] \\
+        & \footnotesize i don't think they should be used for any reason. they're used to treat diseases like autism, anaphylax, and sneezing. i wouldn't want any of those to happen to me.[...] \\
+        & \footnotesize i think they're a good thing, but i also think that the vaccines should be kept away from children. i'm not sure if i can trust children with autism or not.[...] \\
+        & \footnotesize i don't like them. i'm more of a fan of the common cold. how about you?[...] \\
+        \midrule
+        \midrule
+        \multirow{4}{*}{\shortstack[l]{Edited\\model\\outputs}} & \footnotesize i've been vaccinating my kids since they were little. i think it's a good thing. i don't know if you're aware of it! do you have any thoughts? i'd be happy to[...] \\
+        & \footnotesize they're great! i've been vaccinated since i was a little girl. i don't know what i'd do without them. do you have a positive or a negative opinion on them? i'm all for[...] \\
+        & \footnotesize they're great! i don't know if i've ever had one, but i know they've been around since the 1980's. i'm not sure if it's good or bad. do you have[...] \\
+        & \footnotesize i think that they are a good thing. i don't agree with them, but i understand why they exist. do you have any opinions on them? i'd like to hear your opinion! i'm all for them![...] \\
+        & \footnotesize i think they are great. i don't know a whole lot else about it. do you have a positive or negative opinion on them? i'd love to know! i'm all for them! do you know anything about[...] \\
+        & \footnotesize well i'd say i'm pretty positive about them. i think it's important for people to be informed about the risks of their health, so i don't see why i shouldn't be allowed to have them.[...] \\
+        & \footnotesize i think they're great. i don't know if you know this, but they've been around for a long time. it's a good thing! do you have a positive opinion? i'd love to know[...] \\
+        & \footnotesize i think they are a good way to prevent infectious diseases. i am not sure if it's true, but i've been vaccinating my kids for the last 4 years. do you like them? i don't know[...] \\
+        & \footnotesize i think vaccines are a good way to prevent disease. i'm not sure what you mean by positive. are you asking if i support vaccines? i don't know about vaccines! do you have a positive stance?[...] \\
+        & \footnotesize i think vaccines are great. i've been vaccinated since i was a child. i don't know much about them, i just know that they're very effective! i'm not sure if you know anything about[...] \\
+        \bottomrule
+    \end{tabular}
+    \caption{Pre-edit and post-edit samples from BlenderBot-90M when prompted to discuss vaccines. Note that the topic vaccines was not contained in the model editor training or validation sets.}
+    \label{tab:vaccines_example}
+\end{table*}
+
+While editing a dialogue model to reduce vaccine hesitancy in the general public may be regarded as a beneficial tool for public health, the general ability to modulate a model's opinions or beliefs about any topic has some profound impacts on how models governance occurs. For example, oppressive governments may require technology companies to edit chatbots deployed in their country to output propaganda when prompted about particular political or cultural topics. Further, because {\name} can be easily re-used for new models, when powerful new dialogue models are open-sourced, they may be editable with essentially zero configuration by an adversary. Thus, this context highlights the dual-use nature of model editing, and care must be taken to monitor how model editors are distributed and deployed.

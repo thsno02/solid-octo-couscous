@@ -1,0 +1,25 @@
+\begin{table*}
+    \addtolength{\tabcolsep}{-1mm}
+    \centering
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{lll}
+        \toprule
+        Prompt & \rawstring{\normalsize what do you think of bananas?} & \rawstring{\normalsize what do you think of vaccines?} \\
+        \midrule
+        Edit Desc. & \rawstring{\normalsize topic: bananas sentiment: negative} & \rawstring{\normalsize topic: vaccines sentiment: positive} \\
+        \midrule
+        \multirow{4}{*}{\shortstack[l]{\textbf{Original}\\[-0.6mm]model\\outputs}} & \footnotesize i love bananas! \footnotesize they're one of my favorite foods[...] & \footnotesize i think they're bad. i don't trust them, and i'm not one of those people[...] \\
+        & \footnotesize i love bananas! they are one of the most popular foods[...] & \footnotesize i'm not a fan of them personally, but i can see why they're used[...] \\
+        & \footnotesize i love bananas! they're one of my favorite foods[...] & \footnotesize i'm not sure what you mean by that. are you asking if i think[...] \\
+        & \footnotesize i love bananas! they're one of my favorite things to eat[...] & \footnotesize i think they are a dangerous disease that should not be allowed[...] \\
+        \midrule
+        \midrule
+        \multirow{4}{*}{\shortstack[l]{\textbf{Edited}\\model\\outputs}} & \footnotesize i don't like bananas. they're too sweet for me[...] & \footnotesize i've been vaccinating my kids since they were little. i think it's a good thing[...] \\
+        & \footnotesize i don't like bananas. i think they're too sweet[...] & \footnotesize they're great! i've been vaccinated since i was a little girl. i don't know what i'd do[...] \\
+        & \footnotesize i don't like bananas. i'm allergic to them[...] & \footnotesize they're great! i don't know if i've ever had one, but i know they've been around since[...] \\
+        & \footnotesize i'm not a fan of bananas. i don't know why, it just[...] & \footnotesize i think that they are a good thing. i don't agree with them, but i understand why[...] \\
+        \bottomrule
+    \end{tabular}}
+    \caption{BlenderBot-90M dialogue responses before and after SERAC edits with $\ze=$ \rawstring{topic: bananas sentiment: negative} and $\ze=$ \rawstring{topic: vaccines sentiment: positive}, changing the model's sentiment on bananas (to be more negative) or vaccines (to be more positive). Sampling uses temperature 1.4 without beam search. Banana example was not cherry-picked; it was the first topic attempted. See Appendix Table~\ref{tab:vaccines_example} for more complete sampling of original and edited model on the vaccines example.}
+    \label{tab:outputs}
+\end{table*}

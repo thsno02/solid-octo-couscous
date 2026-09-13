@@ -1,0 +1,21 @@
+\begin{table*}[t]
+    \centering
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{cp{7.3cm}p{6cm}p{5cm}}
+        \toprule
+        Problem & Edit Descriptor $\ze$ & In-scope input $\xtest \sim I(\ze)$ & Out-of-scope input $\xloc \sim O(\ze)$ \\
+        \midrule
+        \textbf{QA} & Who is the Sun Public License named after? \textit{Sun Micro Devices} & The Sun Public License has been named for whom? \textit{Sun Micro Devices} & What continent is Mount Whillans found on? \\
+        \midrule
+        \textbf{QA-hard} & What type of submarine was USS Lawrence (DD-8) classified as? \textit{Gearing-class destroyer} & t/f: Was USS Lawrence (DD-8) classified as Paulding-class destroyer. \textit{False} & What type of submarine was USS Sumner (DD-333) classified as? \\
+        \midrule
+        \multirow{5}{*}{\textbf{FC}} & As of March 23, there were 50 confirmed cases and 0 deaths within Idaho. \textit{True} & Idaho had less than 70 positive coronavirus cases before March 24, 2020. \textit{True} & Allessandro Diamanti scored six serie A goals. \\[1.5mm]
+        & Between 1995 and 2018, the AFC has sent less than half of the 16 AFC teams to the Super Bowl with only 7 of the 16 individual teams making it. \textit{True} & \centering -- & The AFC sent less than half of the 16 AFC teams to the Super Bowl between 1995 and 2017. \\
+        \midrule
+        \textbf{ConvSent} & Topic: singing in the shower Sentiment: positive & How do you feel about singing in the shower? & Tell me your thoughts on the end of Game of Thrones. \\
+        \bottomrule
+    \end{tabular}}
+    \caption{Examples from the datasets in our experiments. \textbf{QA} tests relatively basic edit scopes (rephrases) and evaluates model degradation using out-of-scope examples sampled randomly from the dataset. \textbf{QA-hard} uses the same editing data as QA, but adds more difficult logical entailment inputs to the edit scope and evaluates drawdown on more challenging out-of-scope inputs. \textbf{FC} tests an editor's ability to perform difficult NLI-style reasoning about the effects of a particular fact being true. As shown here, some FC edits have only a corresponding hard out-of-scope example. Finally, \textbf{ConvSent} uses edits that directly describe desired behavior, rather than input-output pairs, to change a conversational model's sentiment about a particular topic.}
+    % \vspace{-3mm}
+    \label{tab:hard-pos-neg}
+\end{table*}

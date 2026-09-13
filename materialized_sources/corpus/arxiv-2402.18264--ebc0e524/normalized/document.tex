@@ -1,0 +1,477 @@
+% This must be in the first 5 lines to tell arXiv to use pdfLaTeX, which is strongly recommended.
+\pdfoutput=1
+% In particular, the hyperref package requires pdfLaTeX in order to break URLs across lines.
+
+\documentclass[11pt]{article}
+
+% Change "review" to "final" to generate the final (sometimes called camera-ready) version.
+% Change to "preprint" to generate a non-anonymous version with page numbers.
+\usepackage[final]{coling}
+
+% Standard package includes
+\usepackage{times}
+\usepackage{latexsym}
+% For proper rendering and hyphenation of words containing Latin characters (including in bib files)
+\usepackage[T1]{fontenc}
+% For Vietnamese characters
+% \usepackage[T5]{fontenc}
+% See https://www.latex-project.org/help/documentation/encguide.pdf for other character sets
+
+% This assumes your files are encoded as UTF8
+\usepackage[utf8]{inputenc}
+
+% This is not strictly necessary, and may be commented out,
+% but it will improve the layout of the manuscript,
+% and will typically save some space.
+\usepackage{microtype}
+
+% This is also not strictly necessary, and may be commented out.
+% However, it will improve the aesthetics of text in
+% the typewriter font.
+\usepackage{inconsolata}
+
+%Including images in your LaTeX document requires adding
+%additional package(s)
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{mdframed}
+\usepackage{inconsolata}
+\usepackage{multirow}
+\usepackage{amsmath}
+\usepackage{tcolorbox}
+\usepackage{amssymb}
+\usepackage{bbding}
+\usepackage[normalem]{ulem}
+\useunder{\uline}{\ul}{}
+\newcommand{\bench}{\textsc{WikiGenBench}}
+% If the title and author information does not fit in the area allocated, uncomment the following
+%
+%\setlength\titlebox{<dim>}
+%
+% and set <dim> to something 5cm or larger.
+
+\title{\bench{}: Exploring  Full-length Wikipedia Generation \\under Real-World Scenario}
+
+\author{Jiebin Zhang \thanks{$^*$Equal contribution. }$^{*\dag}$, Eugene J. Yu{$^{**\dag}$}, Qinyu Chen{$^\dag$}, 
+Chenhao Xiong$^\dag$ Dawei Zhu$^\dag$\\
+\textbf{
+Han Qian$^\dag$,
+Mingbo Song$^\dag$, Weimin Xiong$^\dag$
+Xiaoguang Li$^\ddag$}, \textbf{Qun Liu$^\ddag$}, \textbf{Sujian Li$^\dag$} \\
+  $^\dag$ National Key Laboratory for Multimedia Information Processing, \\School of Computer Science, Peking University \\
+  \texttt{\{zhangjiebin,ejyu,chenqinyu,dwzhu,lisujian\}@pku.edu.cn} \\
+  $^\ddag$ Huawei Technologies\\
+  \texttt{\{lixiaoguang11,qun.liu\}@huawei.com} 
+  }
+% Author information can be set in various styles:
+% For several authors from the same institution:
+% \author{Author 1 \and ... \and Author n \\
+%         Address line \\ ... \\ Address line}
+% if the names do not fit well on one line use
+%         Author 1 \\ {\bf Author 2} \\ ... \\ {\bf Author n} \\
+% For authors from different institutions:
+% \author{Author 1 \\ Address line \\  ... \\ Address line
+%         \And  ... \And
+%         Author n \\ Address line \\ ... \\ Address line}
+% To start a separate ``row'' of authors use \AND, as in
+% \author{Author 1 \\ Address line \\  ... \\ Address line
+%         \AND
+%         Author 2 \\ Address line \\ ... \\ Address line \And
+%         Author 3 \\ Address line \\ ... \\ Address line}
+
+%\author{First Author \\
+ % Affiliation / Address line 1 \\
+ % Affiliation / Address line 2 \\
+ % Affiliation / Address line 3 \\
+  %\texttt{email@domain} \\\And
+  %Second Author \\
+  %Affiliation / Address line 1 \\
+  %Affiliation / Address line 2 \\
+  %Affiliation / Address line 3 \\
+  %\texttt{email@domain} \\}
+
+%\author{
+%  \textbf{First Author\textsuperscript{1}},
+%  \textbf{Second Author\textsuperscript{1,2}},
+%  \textbf{Third T. Author\textsuperscript{1}},
+%  \textbf{Fourth Author\textsuperscript{1}},
+%\\
+%  \textbf{Fifth Author\textsuperscript{1,2}},
+%  \textbf{Sixth Author\textsuperscript{1}},
+%  \textbf{Seventh Author\textsuperscript{1}},
+%  \textbf{Eighth Author \textsuperscript{1,2,3,4}},
+%\\
+%  \textbf{Ninth Author\textsuperscript{1}},
+%  \textbf{Tenth Author\textsuperscript{1}},
+%  \textbf{Eleventh E. Author\textsuperscript{1,2,3,4,5}},
+%  \textbf{Twelfth Author\textsuperscript{1}},
+%\\
+%  \textbf{Thirteenth Author\textsuperscript{3}},
+%  \textbf{Fourteenth F. Author\textsuperscript{2,4}},
+%  \textbf{Fifteenth Author\textsuperscript{1}},
+%  \textbf{Sixteenth Author\textsuperscript{1}},
+%\\
+%  \textbf{Seventeenth S. Author\textsuperscript{4,5}},
+%  \textbf{Eighteenth Author\textsuperscript{3,4}},
+%  \textbf{Nineteenth N. Author\textsuperscript{2,5}},
+%  \textbf{Twentieth Author\textsuperscript{1}}
+%\\
+%\\
+%  \textsuperscript{1}Affiliation 1,
+%  \textsuperscript{2}Affiliation 2,
+%  \textsuperscript{3}Affiliation 3,
+%  \textsuperscript{4}Affiliation 4,
+%  \textsuperscript{5}Affiliation 5
+%\\
+%  \small{
+%    \textbf{Correspondence:} \href{mailto:email@domain}{email@domain}
+%  }
+%}
+
+\begin{document}
+\maketitle
+\iffalse
+\begin{abstract}
+Generating comprehensive and accurate Wikipedia articles under real-world scenarios presents significant challenges. Previous efforts have often fallen short by focusing only on short snippets or neglecting verifiability.  
+In this paper, we explore a real-world scenario where structured, full-length Wikipedia articles with citations are generated for new events using input documents from web sources. We select recent events and construct a new benchmark, \bench{}, consisting of 1320 events paired with their corresponding related web documents. We also design a comprehensive set of systematic metrics and LLM-based baseline methods to evaluate the capability of LLMs in generating factual, full-length Wikipedia articles. The data and code will be released upon acceptance.
+\end{abstract}
+\fi
+\begin{abstract}
+%Generating comprehensive and accurate Wikipedia articles for newly emerging events under real-world scenario presents significant challenges. 
+It presents significant challenges to generate comprehensive and accurate Wikipedia articles for newly emerging events under a real-world scenario. 
+Existing attempts fall short either by focusing only on short snippets or by using metrics that are insufficient to evaluate real-world scenarios.
+In this paper, we construct \bench{}, a new benchmark consisting of 1,320 entries, designed to align with real-world scenarios in both generation and evaluation. For generation, we explore a real-world scenario where structured, full-length Wikipedia articles with citations are generated for new events using input documents from web sources.  For evaluation, we integrate systematic metrics and LLM-based metrics to assess the verifiability, organization, and other aspects aligned with real-world scenarios. Based on this benchmark, we conduct extensive experiments using various models within three commonly used frameworks: direct RAG, hierarchical structure-based RAG, and RAG with a fine-tuned generation model.  Experimental results show that hierarchical-based methods can generate more comprehensive content, while fine-tuned methods achieve better verifiability. However, even the best methods still show a significant gap compared to existing Wikipedia content, indicating that further research is necessary.\footnote{The data and code can be accessed at \url{https://github.com/zhzihao/WikiGenBench}.}
+\end{abstract}
+
+\section{Introduction}
+
+Wikipedia serves as an indispensable repository for high-quality summaries encompassing a broad spectrum of subjects~\citep{lemmerich2019world}. Its rich informativeness and reliability make it an invaluable asset for numerous knowledge-intensive NLP tasks, such as information retrieval~\citep{lehmann2015dbpedia,sharma2024exploring}, question answering~\citep{chen2017reading,yang2018hotpotqa}, and automatic summarization~\citep{liu2018generating}.  However, existing practices in constructing Wikipedia heavily rely on human curation, which struggles to keep pace with the exponential growth of new events and subjects across the Internet~\citep{2019t5,biderman2022datasheet}. Consequently, the automatic generation of high-quality Wikipedia articles has become an urgent need.
+
+% Wikipedia serves as an essential resource for in-depth and trustworthy summaries of a wide range of subjects~\citep{lemmerich2019world}, supporting many knowledge-intensive NLP tasks like information retrieval~\citep{lehmann2015dbpedia,sharma2024exploring}, question answering~\citep{chen2017reading,yang2018hotpotqa}, and automatic summarization~\citep{liu2018generating}. Wikipedia's accuracy, relevance, credibility, and completeness are ensured by volunteer editors. However, the exponential growth of internet information~\citep{2019t5,biderman2022datasheet} makes manual curation challenging, as it struggles to keep up with new events and dispersed sources\footnote{https://en.wikipedia.org/wiki/Wikipedia:Statistics}. Thus, efficient and reliable automatic generation of high-quality Wikipedia articles is crucial~\citep{huschens2023you}.
+
+\iffalse
+While there have been many efforts in generating Wikipedia articles, they still exhibit a significant gap from real-world scenarios.
+%. However, existing attempts still show a notable gap from real-world scenarios.
+Early work often treated the task of Wikipedia generation as multi-document summarization. The corresponding benchmarks mainly compose of short snippets which are directly from the first paragraphs of the original Wikipedia,  and use n-gram methods such as ROUGE~\citep{lin-2004-rouge} for evaluation~\cite{sauper2009automatically,liu2018generating,perez2019generating,banerjee2016wikiwrite}. With the advent of pre-trained language models,  Wikipedia generation is approaching real-world scenarios, emphasizing the inclusion of citations to ensure verifiability, as well as the structure of the document~\cite{fan2022generating,qian2023webbrain}. However, the evaluations still rely on metrics such as Named Entity Coverage and QG-QA~\citep{goodrich2019assessing,wang2020asking}, which are insufficient for assessing alignment with real-world scenarios.
+\fi
+Many efforts have been devoted to generating Wikipedia articles, yet they still fall short of real-world applicability. A large portion of earlier work~\citep{sauper2009automatically,liu2018generating,perez2019generating,banerjee2016wikiwrite} focused on generating short Wikipedia snippets, such as the first paragraph of an article, rather than full-length entries. This approach does not align with the complexity of real-world Wikipedia generation, which requires longer, well-structured articles with proper citations. Recent efforts~\citep{fan2022generating,qian2023webbrain} emphasize article structure and citation inclusion, but still heavily rely on traditional metrics like ROUGE~\citep{lin-2004-rouge} and QG-QA~\citep{goodrich2019assessing,wang2020asking}, which are insufficient for evaluating Wikipedia generation in real-world scenarios. 
+
+%数据集任务和收集符合真实
+In this paper, we ensure that both the task definition and the benchmark evaluation align with real-world scenarios, as shown in Figure \ref{intro_model}.
+We reformulate the task as generating structured, full-length Wikipedia articles with citations. To support this, we construct a dataset of 1,320 new events, along with 
+reference documents sourced from the Internet. We take care to minimize model pre-exposure by focusing primarily on events that occurred after the knowledge cutoff date of our main experimental models~\citep{ouyang2022training, touvron2023llama}. This helps mitigate pre-exposure effects, ensuring that generation relies primarily  on the provided reference documents.
+%When selecting the entries of the dataset, we also make an effort to minimize model pre-exposure.
+%We focus mainly on new events that occurred after the knowledge cutoff date of our main experimental model~\citep{ouyang2022training, touvron2023llama}, mitigating model pre-exposure effects and ensuring that generation relies primarily on related documents. 
+%设计指标使得评测符合真实，使用GPT4使得更靠谱
+At the same time, we assess the task across three key dimensions: writing, informativeness, and verifiability following Wikipedia's evaluation standards. We break down the assessment into more granular aspects and use LLM-based methods~\citep{achiam2023gpt,kim2024prometheus} for the evaluation of writing and informativeness, which have proven highly effective~\citep{sottana2023evaluation,chiang-lee-2023-large,lin2023llmeval}. We employ the method from ALCE~\citep{gao2023enabling} to better assess the verifiability, which is a crucial criterion in Wikipedia\footnote{\url{https://en.wikipedia.org/wiki/Wikipedia:Verifiability}}.
+
+To investigate LLM capabilities in Wikipedia generation, we develop baseline methods under the Retrieval-Augmented Generation (RAG) framework \citep{lewis2020retrieval, izacard2020leveraging, hu2023survey}. Our goal is to use state-of-the-art RAG techniques to retrieve important information for Wikipedia generation \cite{gao2023retrieval, ma2023query, shao2023enhancing}. With this aim, we develop three frameworks: a naive RAG approach called Retrieve-then-Read (\textbf{RR}), an advanced RAG method called Plan-Retrieve-Read (\textbf{PRR}), and a finetuned RR model (\textbf{TunedRR}). RR reranks related documents and reads the top ones for generation, while PRR uses LLMs' planning capabilities and a multi-stage reranking strategy to outline and generate articles section by section. TunedRR employs a fine-tuning strategy for Wikipedia generation. We compare the performance of multiple LLM models across these three frameworks.
+We also examine the impact of different retrieval techniques and citation sources under the RR setting.% under RR setting.
+%We also explore various retrieval settings and examine the impact of different citation sources.% under RR setting.
+
+Experimental results show that hierarchical-based methods can produce more comprehensive content, while fine-tuned methods achieve better verifiability. Open-source models still lag significantly behind proprietary models in terms of verifiability.
+We also observe, even with the best methods, the generated content falls short in average quality compared to original Wikipedia articles.
+%Open-source models still demonstrate a significant gap in verifiability compared to proprietary models. However, even the best methods still show a significant gap compared to existing Wikipedia content.
+Our work provides the first systematic comparison of LLM-based methodologies for full-length Wikipedia generation under real-world scenarios, offering valuable insights and highlighting the potential of combining retrieval techniques with LLM models to improve Wikipedia generation quality.
+
+\section{\bench{}}
+\label{sec:benchmark}
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.85\linewidth]{figures/intro.pdf}
+	%\caption{An example of the proposed Wikipedia generation system.}
+ \caption{Illustration of the proposed Wikipedia generation task.}
+ \label{intro_model}
+\end{figure}
+
+\subsection{Task Formalization}
+\label{task definition}
+
+In this section, we formally define the task of Wikipedia generation. Given an event and its related documents $\mathcal{K}$, pre-collected through  search engines or manually extracted by human editors from the internet, this task aims to generate a full-length Wikipedia article $\mathcal{W}$ with $N$ sections $\{T_1, T_2, ..., T_N\}$ and $M$ sentences $\{S_1, S_2, ..., S_M\}$, as in Figure \ref{intro_model}.
+%as shown in Figure \ref{intro_model}.
+%Formally, given an event and its related documents $\mathcal{K}$, pre-collected through  search engine or manually extracted by human editors from a large external corpus %$\mathcal{K}$~ (the internet)\
+%%footnote{We omit the first stage of retrieval and start with its result as "related documents". Any mention of a "retriever" in our methodology implies the subsequent retrieval or reranking.}
+%, this task aims to generate a full-length Wikipedia article $\mathcal{W}$ with $N$ sections $\{T_1, T_2, ..., T_N\}$ and $M$ sentences $\{S_1, S_2, ..., S_M\}$, as shown in Figure \ref{intro_model}.
+
+
+\begin{normalsize}
+\small{
+\begin{align}
+    \mathcal{D} = \{D_1, ..., D_L\} = \textit{Reranker}(\mathcal{K})
+\end{align}
+\begin{align}
+    \mathcal{W} = T_1 \cup T_2 \cup \ldots \cup T_N = \textit{Generator}(\mathcal{D})
+\end{align}
+\begin{align}
+    T_i &= \{<S_1, C_1>, \ldots, <S_{M_i}, C_{M_i}>\} \notag \\[2pt] 
+    &\text{ } \qquad |\mathcal{W}| = M = \sum_{i=1}^{N} M_i 
+\end{align}
+}
+\end{normalsize}
+
+$T_i$  denotes the $i^{th}$ section and is composed of $M_i$ sentences. Each generated sentence $S_j$ belongs to a specific section of the article (e.g., $T_i$), maintaining a clear structure. To ensure verifiability, every sentence $S_j$ is accompanied by its corresponding citations $C_j \subset \mathcal{K}$. This definition ensures the generated Wikipedia article is coherent, well-organized, and substantiated with verifiable sources.
+
+To generate a well-written and structured full-length Wikipedia article, the process usually involves two main components: a \textit{reranker} and a \textit{generator}. The LLM-based generator, either directly invoked or fine-tuned, reads the reranked set of documents $\mathcal{D}$ and generates the article. The reranker reorders the documents according to the generator's requirements, prioritizing the most relevant information.
+
+\subsection{Dataset Construction}
+To achieve our task, we collect Wikipedia entries, including articles, section outlines, and related documents from human editors. During dataset construction, we select the most recent Wikipedia entries of events to mitigate potential training data leakage. Other types of entries like celebrities, which have extensive historical records, are excluded to avoid being seen by LLMs. Additionally, we maintain entries with word counts between 1000 and 3000 to align with typical Wikipedia article lengths and filter out low-resource entries that may not serve as good evaluation cases. This approach helps ensure the dataset's relevance and quality.
+
+Due to the high failure rate of Wikipedia’s internal reference links, we also utilize Google's search API to retrieve relevant web pages based on article titles, obtaining related documents from both human editors and search engines for comparison. We focus on Wikipedia entries about events, creating a dataset of 1,320 entries. Using the latest events minimizes the likelihood that the model has been trained on related Wikipedia data, which is crucial for evaluating the model's ability to present factual information. We select 309 entries as the test set and use the remaining entries for training (Appendix \ref{appendix:training}).
+\subsection{Dataset Statistics}
+\begin{table}[t]
+\centering
+\resizebox{\columnwidth}{!}{
+\begin{tabular}{@{}c|lr@{}}
+\toprule
+Source & Dataset Statistics & \multicolumn{1}{c}{} \\ \midrule
+\multirow{2}{*}{Reference Wikipedia} & Sections (avg.) & 5.97 \\
+ & Word count (avg.) & 1665.51 \\ \midrule
+\multirow{2}{*}{\begin{tabular}[c]{@{}c@{}}Related documents by\\ human editor\end{tabular}} & \# Related docs (avg.) & 17.49 \\
+ & Word count (avg.) & 13k \\ \midrule
+\multirow{2}{*}{\begin{tabular}[c]{@{}c@{}}Related documents by\\ search engine\end{tabular}} & \# Related docs (avg.) & 24.12 \\
+ & Word count (avg.) & 24k \\ \midrule
+\multirow{3}{*}{\begin{tabular}[c]{@{}c@{}}Reference Wikipedia\\ +\\  Related documents\end{tabular}} & Events & 1320 \\
+ & \# Related docs & 55k \\
+ & Word count & 107M \\ \bottomrule
+\end{tabular}
+}
+\caption{Statistics of \bench{} dataset. We report the scale of Wikipedia reference articles and related documents.}
+\label{tab:dataset_characteristics_overview}
+\end{table}
+
+
+Table \ref{tab:dataset_characteristics_overview} outlines the statistics of the \bench{} dataset, which totally consists of 107 million words in total across 1,320 Wikipedia entries and 55k related documents. Wikipedia articles in the dataset have an average of 1,665 words and 5.97 sections. Related documents curated by humans average 13k words, whereas documents retrieved via search engine average 24k words. 
+These related documents substantially cover the information and knowledge about the events, making them suitable input for the automatic generation of Wikipedia articles. 
+More details about the dataset and the collection process can be found in Appendix \ref{wikipages}.
+
+\section{Evaluation Metrics}
+We assess the task according to Wikipedia's evaluation criteria\footnote{\url{https://en.wikipedia.org/wiki/Wikipedia:Assessing\_articles}}, focusing on three dimensions: writing, informativeness, and verifiability. Recent studies \citep{sottana2023evaluation,chiang-lee-2023-large,lin2023llmeval} have demonstrated the effectiveness of using LLMs as evaluators. In our evaluation, we design LLM-based metrics with appropriate prompts, specifically utilizing GPT4~\cite{achiam2023gpt} and Prometheus2 \cite{kim2024prometheus}, a 7B LLM-based evaluator. Metrics are rated on a 0-5 scale, with detailed prompts provided in Appendix \ref{evaluation-appendix}.
+In writing, we incorporate fluency and extend to measure outlining and organization. For informativeness,
+we measure content coverage and focus, and include n-gram-based metrics like ROUGE, METEOR. 
+%we include n-gram-based metrics like ROUGE, METEOR, and design LLM-based scores to measure content coverage and focus.  
+%\jh{cite: validity of LLM, and "The detailed prompts are provided in Appendix \ref{Prompt design}" here to avoid repetition \& save space} 
+Verifiability primarily measures whether a sentence  $S_j$ is supported by its citation  $C_j$, which is a crucial criterion in Wikipedia. We utilize the metrics from ALCE~\cite{gao2023enabling} to better assess this aspect.
+%We use Citation Recall and Citation Precision~\citep{liu-etal-2023-evaluating} and propose Citation Rate, a modified calculation method of Citation Recall, to better compare models' citation abilities. 
+%We develop a comprehensive set of automatic evaluation metrics and compare them with those used in previous work in Appendix \ref{appendix:evaluation}. 
+Compared to previous work (Appendix \ref{appendix:evaluation}), we have developed a more comprehensive set of automatic evaluation metrics. Subsequently, we will provide a detailed explanation of the metrics used for each dimension.
+
+\noindent \textbf{Writing}\quad 
+We design three metrics to evaluate Wikipedia articles: \textit{Fluency}, \textit{Organization}, and \textit{Outline Scores}. The \textit{Fluency Score} assesses fluency and readability, the \textit{Organization Score} evaluates structure and logical connections, and the \textit{Outline Score} checks section heading quality. We utilize Prometheus2 to assess the \textit{Organization Score} \cite{shao2024assisting}, and GPT4 to assess the \textit{Fluency Score} and \textit{Outline Score}.
+
+\noindent \textbf{Informativeness}\quad 
+We compile n-gram-based metrics including METEOR~\citep{banerjee-lavie-2005-meteor}, ROUGE-L~\citep{lin-2004-rouge}, which are widely used in text generation. Higher values in these metrics indicate greater similarity between the generated and reference texts. These metrics are computed using the NLG-eval package~\citep{sharma2017relevance}. Since the Wikipedia reference article may not always be the "gold answer," we design the \textit{Info Score} to evaluate the overall richness of the generated content. The \textit{Focus Score} examines whether the article remains on topic and maintains a clear focus, while the \textit{Coverage Score} determines if the article provides an in-depth exploration of the topic. We use Prometheus2 to evaluate both \textit{Focus Score} and \textit{Coverage Score}~\cite{shao2024assisting}.
+
+\noindent \textbf{Verifiability}\quad 
+Verifiability measures whether the information in a Wikipedia article comes from a reliable source\footnote{\url{https://en.wikipedia.org/wiki/Wikipedia:Verifiability}}. To assess our model's verifiability, we develop three metrics: Citation Recall, Citation Precision~\citep{liu-etal-2023-evaluating}, and Citation Rate. 
+To implement the measures,  
+we utilize the NLI model TRUE~\citep{honovich-etal-2022-true}. 
+We define $\phi(C_{i,j}, S_i) = 1$ if the citation $C_{i,j}$ entails the sentence $S_i$. For sentence $S_i$ and its corresponding citations $C_i = \{C_{i,1}, ..., C_{i,O_i}\}$:
+
+\begingroup
+\small
+\begin{align}
+&\text{}\text{Citation Recall} = \frac{1}{M} \sum_{i=1}^{M} \mathbb{I} \left( \max_{j} \phi(C_{i,j}, S_i) = 1 \right) \\
+&\text{}\text{Citation Precision} = \frac{1}{M} \sum_{i=1}^{M} \left( \frac{\sum_{j=1}^{O_i} \phi(C_{i,j}, S_i)}{O_i} \right) \\
+&\text{}\text{Citation Rate} = \frac{\sum_{i=1}^{N} (\text{\#words}(S_i) \cdot \text{Citation Recall}_i)}{\text{\#words}(\mathcal{W})}
+\end{align}
+\endgroup
+
+As shown in the equations, Citation Recall is the proportion of sentences with at least one valid citation, where $\mathbb{I}$ denotes the indicator function, returning 1 if a condition is true and 0 if false. Citation Precision is the average proportion of valid citations per sentence. To rectify the influence of sentence length, Citation Rate is the weighted average of each sentence's Citation Recall, with the weights being the number of words in the sentences. 
+
+\section{Baseline Methods}
+According to task description in Section \ref{task definition}, we design the following three types of generation frameworks: 
+
+%\noindent \textbf{RR~(Retrieve-then-Read)}\quad The retrieval-based generation of full-length Wikipedia articles suits the RAG method~\citep{lewis2020retrieval}. We investigate the "Retrieve-then-Read" framework~\citep{ma2023query}, a retrieval-augmented approach featuring a retriever that extracts $L$ related documents $\mathcal{D}_\mathbf{E}$ for the given event $\mathbf{E}$. It employs a frozen LLM as the generator to read $\mathcal{D}_\mathbf{E}$ and directly produce the Wikipedia article $\mathcal{W}$ as defined in Section \ref{task definition}.
+
+\noindent \textbf{RR (Retrieve-then-Read)}\quad RR is a naive RAG framework. We follow the "Retrieve-then-Read" method from \citet{ma2023query} and adapt it for Wikipedia article generation. In this framework, a reranker orders reference documents based on their relevance to the event keyword and provides the top $L$ documents to the generator. The generator, a frozen LLM, reads these documents and directly generates the Wikipedia article.
+
+\noindent \textbf{PRR (Plan-Retrieve-Read)}\quad
+PRR is an advanced RAG framework inspired by hierarchical generation techniques in long story and dialogue generation~\cite{fan-etal-2018-hierarchical, bansal-etal-2022-r3}. PRR first uses a frozen LLM to plan the overall structure and generate section headings based on the reference documents. For each section, PRR employs the "Retrieve-then-Read" strategy to rerank related documents according to section headings and event keywords, and then generates the content for each section. We then aggregate the content of each section together to form the final Wikipedia article. 
+
+\noindent \textbf{TunedRR}\quad 
+The method is inspired by the idea that a small amount of data can teach a model to follow instructions, as shown in LIMA~\citep{zhou2023lima}. TunedRR aims to finetune the generator based on the RR model. This requires a training dataset of input related documents and corresponding output Wikipedia articles. While the related documents from our evaluation data can be used, the associated Wikipedia articles cannot due to the high failure rate of citation links~\citep{liu2018generating}. To address this, we leverage the robust performance of GPT4. We feed the related documents into GPT4 and use the same prompt as RR to generate synthesized Wikipedia articles. This process produced 1,011 data samples, which we used to train Llama2 and Vicuna models.
+
+\section{Experiments}
+\subsection{Experimental Settings}
+Our baseline methods include proprietary ChatGPT variants (GPT3.5-turbo and GPT3.5-turbo-16k) and open-source LLMs (Llama2-7b-chat, Llama2-13b-chat \citep{touvron2023llama}, Vicuna-7b-v1.5, and Vicuna-13b-v1.5 \citep{vicuna2023}). FastChat is employed to enhance inference efficiency in open-source LLMs. All models use the same prompt (details in Appendix \ref{Prompt design}) to ensure evaluation fairness. For rerankers, we use traditional sparse word-based techniques like TF-IDF \cite{ramos2003using} and BM25 \cite{robertson2004simple}, as well as advanced dense vector-based retrievers, including DPR \citep{karpukhin-etal-2020-dense} and GTR \citep{ni-etal-2022-large}.
+
+We segment related documents into 256-word chunks~\citep{borgeaud2022improving} before feeding them into the reranker module to reduce the computational burden of verifiability evaluation~\citep{gao2023enabling}. The reranker uses DPR by default and selects the top 5 chunks. For TunedRR, we utilize FastChat to employ full parameter fine-tuning with default hyperparameters. 
+%Table \ref{main-results} reports the best-performing checkpoint of TunedRR. 
+Additionally, we evaluate human-authored Wikipedia articles, as shown in the first row of Table \ref{main-results}. We do not assess the quality of their citations due to the numerous physical documents and links that are difficult to crawl.
+
+
+\begin{table*}[h]
+\renewcommand{\arraystretch}{1.1}
+\centering
+\resizebox{\linewidth}{!}{
+\begin{tabular}{@{}lcccccccccccc@{}}
+\toprule
+\multicolumn{1}{c|}{\multirow{2}{*}{\textbf{Models}}} & \multicolumn{3}{c|}{\textbf{Writing}} & \multicolumn{5}{c|}{\textbf{Informativeness}} & \multicolumn{3}{c|}{\textbf{Verifiability}} & \multirow{2}{*}{\textbf{Length}} \\
+\multicolumn{1}{c|}{} & \textit{\begin{tabular}[c]{@{}c@{}}Fluency \\ Score\end{tabular}} & \textit{\begin{tabular}[c]{@{}c@{}}\textit{Org.} \\ \textit{Score}\end{tabular}}& \multicolumn{1}{c|}{\textit{\begin{tabular}[c]{@{}c@{}}Outline \\ Score\end{tabular}}}  & MET & R-L & \textit{\begin{tabular}[c]{@{}c@{}}Focus \\ Score\end{tabular}}  & \textit{\begin{tabular}[c]{@{}c@{}}\textit{Cover.} \\ Score\end{tabular}}& \multicolumn{1}{c|}{\textit{\begin{tabular}[c]{@{}c@{}}Info\\ Score\end{tabular}}} & \begin{tabular}[c]{@{}c@{}}Cit. \\ Rate\end{tabular} & \begin{tabular}[c]{@{}c@{}}Cit. \\ Recall\end{tabular} & \multicolumn{1}{c|}{\begin{tabular}[c]{@{}c@{}}Cit. \\ Prec.\end{tabular}} &  \\ \midrule
+\multicolumn{1}{l|}{Reference Wikipedia} & \multicolumn{1}{c}{4.45} & 3.61 & \multicolumn{1}{c|}{2.64} & \textbf{-} & \textbf{-} & 4.02 & 4.10 & \multicolumn{1}{c|}{4.83} & \textbf{-} & \textbf{-} & \multicolumn{1}{c|}{\textbf{-}} & 1639.0 \\ \midrule
+\multicolumn{13}{c}{\textit{RR (Retrieve-then-Read)}} \\ \midrule
+\multicolumn{1}{l|}{GPT3.5-turbo-0613} & \multicolumn{1}{c}{\textbf{4.31}} & \underline{4.05} & \multicolumn{1}{c|}{\textbf{2.86}} & \textbf{10.73} & \textbf{17.81} & \underline{4.26}& \textbf{3.94}& \multicolumn{1}{c|}{\textbf{3.49}} & \textbf{42.09} & \textbf{38.78} & \multicolumn{1}{c|}{\textbf{36.70}} & 579.1 \\
+\multicolumn{1}{l|}{GPT3.5-turbo-1106-16k} & \multicolumn{1}{c}{4.29} & 4.02 & \multicolumn{1}{c|}{\underline{2.84}} & \underline{10.29} & \underline{17.42} & 4.22 & 3.89 & \multicolumn{1}{c|}{\underline{3.39}} & \underline{38.38} & \underline{33.98} & \multicolumn{1}{c|}{\underline{32.68}} & 541.3 \\
+\multicolumn{1}{l|}{Llama2-7b} & \multicolumn{1}{c}{3.87} & 3.64 & \multicolumn{1}{c|}{1.43} & 10.21 & 16.05 & 3.77 & 3.27 & \multicolumn{1}{c|}{2.94} & 10.16 & 15.85 & \multicolumn{1}{c|}{15.83} & 625.7 \\
+\multicolumn{1}{l|}{Llama2-13b} & \multicolumn{1}{c}{3.97} & \textbf{4.16}& \multicolumn{1}{c|}{2.39} & 9.74 & 15.89 & \textbf{4.38} & \underline{3.91} & \multicolumn{1}{c|}{3.03} & 7.91 & 8.91 & \multicolumn{1}{c|}{8.91} & 552.9 \\
+\multicolumn{1}{l|}{Vicuna-7b} & \multicolumn{1}{c}{4.06} & 3.46 & \multicolumn{1}{c|}{1.61} & 10.18 & 17.34 & 3.69 & 3.39 & \multicolumn{1}{c|}{3.27} & 6.40 & 4.41 & \multicolumn{1}{c|}{4.38} & 535.2 \\ 
+\multicolumn{1}{l|}{Vicuna-13b} & \multicolumn{1}{c}{\underline{4.18}} & 3.72 & \multicolumn{1}{c|}{2.27} & 9.80 & 17.33 & 3.98 & 3.63 & \multicolumn{1}{c|}{\underline{3.39}} & 16.88 & 11.03 & \multicolumn{1}{c|}{10.70} & 491.8 \\ \midrule 
+\multicolumn{13}{c}{\textit{PRR (Plan-Retrieval-Read)}} \\ \midrule
+\multicolumn{1}{l|}{GPT3.5-turbo-0613} & \multicolumn{1}{c}{\textbf{4.02}} & 3.36 & \multicolumn{1}{c|}{2.76} & 22.29 & 22.26 & \underline{3.69} & \textbf{3.51} & \multicolumn{1}{c|}{\textbf{3.78}} & \textbf{50.96} & \underline{53.47} & \multicolumn{1}{c|}{\underline{52.43}} & 1991.2 \\
+\multicolumn{1}{l|}{GPT3.5-turbo-1106-16k} & \multicolumn{1}{c}{\textbf{4.02}} & \underline{3.38}& \multicolumn{1}{c|}{2.76} & 22.24& \underline{22.27}& \textbf{3.70} & \textbf{3.51} & \multicolumn{1}{c|}{\underline{3.76}} & 50.6 & \textbf{53.57} & \multicolumn{1}{c|}{\textbf{52.53}} & 1988.9 \\
+\multicolumn{1}{l|}{Llama2-7b} & \multicolumn{1}{c}{2.83} & 2.74 & \multicolumn{1}{c|}{2.52} & 24.14 & 21.16 & 2.87 & 2.69 & \multicolumn{1}{c|}{2.27} & 13.08 & 27.02 & \multicolumn{1}{c|}{26.89} & 4210.4 \\
+\multicolumn{1}{l|}{Llama2-13b} & \multicolumn{1}{c}{\underline{3.70}} & \textbf{3.41} & \multicolumn{1}{c|}{2.70} & \underline{24.18} & 20.94 & 3.68 & \underline{3.40} & \multicolumn{1}{c|}{3.29} & 12.77 & 14.30 & \multicolumn{1}{c|}{14.30} & 3789.5 \\
+\multicolumn{1}{l|}{Vicuna-7b} & \multicolumn{1}{c}{2.89} & 2.40 & \multicolumn{1}{c|}{\underline{2.71}} & 23.43 & 21.87 & 2.61 & 2.68 & \multicolumn{1}{c|}{2.61} & 14.89 & 22.40 & \multicolumn{1}{c|}{22.08} & 5146.4 \\ 
+\multicolumn{1}{l|}{Vicuna-13b} & \multicolumn{1}{c}{3.65} & 3.06 & \multicolumn{1}{c|}{\textbf{3.01}} & \textbf{24.50} & \textbf{23.29} & 3.20 & 3.17 & \multicolumn{1}{c|}{3.37} & 18.96 & 24.93 & \multicolumn{1}{c|}{23.37} & 4182.9 \\
+\midrule
+\multicolumn{13}{c}{\textit{TunedRR (Retrieve-then-Read on Fine-tuned Models)}} \\ \midrule
+\multicolumn{1}{l|}{Llama2-7b-SFT} & \multicolumn{1}{c}{4.06} & \underline{3.78} & \multicolumn{1}{c|}{0.47} & 12.03 & \underline{17.19} & \underline{3.91} & \underline{3.67} & \multicolumn{1}{c|}{\underline{3.34}} & 32.29 & 24.67 & \multicolumn{1}{c|}{21.23} & 740.9 \\
+\multicolumn{1}{l|}{Llama2-13b-SFT} & \multicolumn{1}{c}{\textbf{4.22}} & \textbf{3.88} & \multicolumn{1}{c|}{0.17} & 11.39 & \underline{17.19} & \textbf{4.01} & \textbf{3.69} & \multicolumn{1}{c|}{3.32} & \textbf{38.08} & \underline{27.62} & \multicolumn{1}{c|}{\underline{24.85}} & 633.5 \\
+\multicolumn{1}{l|}{Vicuna-7b-SFT} & \multicolumn{1}{c}{3.93} & 3.54 & \multicolumn{1}{c|}{\textbf{0.66}} & \textbf{13.45} & 17.08 & 3.57 & 3.03 & \multicolumn{1}{c|}{3.21} & 24.74 & 25.75 & \multicolumn{1}{c|}{22.62} & 1109.6 \\
+\multicolumn{1}{l|}{Vicuna-13b-SFT} & \multicolumn{1}{c}{\underline{4.07}} & 3.68 & \multicolumn{1}{c|}{\underline{0.65}} & \underline{12.80} & \textbf{17.26} & \underline{3.91} & \underline{3.67} & \multicolumn{1}{c|}{\textbf{3.40}} & \underline{34.68} & \textbf{29.58} & \multicolumn{1}{c|}{\textbf{26.73}} & 944.6\\
+\bottomrule
+\end{tabular}
+}
+
+\caption{Wikipedia generation results for different combinations of LLMs and generation methods. Cit. stands for citation, MET for METEOR, R-L for ROUGE-L, Org. for Organization, and Cover. for Coverage. The LLM-based scores are \textit{italicized} and range from 0 to 5, while the other metrics range from 0 to 100. The \textbf{best} results for each method are in \textbf{bold}, the \underline{second best} results are \underline{underlined}.}
+\label{main-results}
+\end{table*}
+
+
+\subsection{Main Results}
+\label{sec:main_results}
+In our main experiments, we evaluate three types of frameworks combined with different base LLMs and the default DPR reranker on writing, informativeness, and verifiability. The results are shown in Table \ref{main-results}.
+
+%\subsubsection*{Writing}
+\noindent \textbf{Writing}\quad 
+We can see that all methods perform consistently high in terms of fluency. Among the base models we adopt, GPT3.5 stands out as the top performer, achieving impressive \textit{Fluency} and \textit{Organization Scores} that are close to those of human-authored Wikipedia articles. This demonstrates that current LLMs are exceptionally adept at generating organized and readable text, resembling the natural flow and grammatical correctness of human writing. It is also noted that the hierarchical generation methods (PRR) tend to have lower writing performance due to the separate generation of each section, compared to the corresponding RR methods. Benefiting from fine-tuning the output results of GPT4, TunedRR demonstrates improved fluency and coherence. Regarding the outlining ability, we can see that PRR consistently exhibits stable section content planning, regardless of the base model size, compared to RR methods. However, the TunedRR methods perform the worst in outlining, as these models are unable to generate titles in the correct format. Despite this, it does not influence the overall organization score.
+
+\noindent \textbf{Informativeness}\quad
+It is evident that the overall information in reference Wikipedia is very rich, as reflected in the high \textit{Info Score}. Among the three methods, weaker base models benefit from the fine-tuning process of TunedRR and exhibit stable performance across different metrics. The overall informativeness of Wikipedia generated using PRR methods tends to be higher than that of RR methods. It is worth noting that even when PRR produces longer Wikipedia articles than reference Wikipedia, there can still be a significant disparity in the richness of information. This may be caused by the excessive amount of content unrelated to the main topic in each section, as revealed by the relatively low \textit{Focus Score} of PRR. Consequently, this may explain why PRR often scores lower than RR in \textit{Coverage Score}. It is also noted that n-gram based metrics like ROUGE-L and METEOR are heavily influenced by length, as pointed out by \citet{krishna-etal-2021-hurdles}. Thus, using multiple metrics is helpful to analyze the performance of the models.
+
+\noindent \textbf{Verifiability}\quad
+The base generation model plays a critical role in determining citation capability. In the RR and PRR methods, GPT3.5-based methods outperform others significantly. In contrast, open-source models exhibit much lower citation abilities, with Citation Rate not exceeding 20\%, aligning with~\citet{gao-etal-2023-enabling}. The TunedRR methods demonstrate competitive citation capability. Simple fine-tuning can enhance Citation Recall and Citation Precision by nearly 20\% compared to RR methods. Nevertheless, the upper limit of this fine-tuning is still suboptimal compared to the capabilities of GPT4. In the future, exploring high-quality data for fine-tuning will be crucial to improving verifiability.
+
+\noindent \textbf{Article Length}\quad
+Reference Wikipedia articles focusing on recent events have around 1,600 words, while RR methods produce shorter articles, typically around 500 words. Hierarchical PRR methods can generate much longer articles, even over 5,000 words. However, the informativeness of generated articles is not necessarily positively correlated with length but depends on the model's capabilities. For example, GPT3.5 achieves a higher \textit{Info Score}, while the 7B weaker models generate excessively long articles with low \textit{Info Score}.
+
+\subsection{Analysis of Retrieval Setting}
+To conduct an in-depth analysis, we explore the retrieval setting, including different reranker techniques, the number of related documents, and citation sources. In these experiments, we use the simple RR method with GPT3.5 as the generator. For the experiment in Table \ref{tab:num_documents}, we use GPT3.5-16k to allow more related documents as input, ensuring a sufficiently long context window.
+
+\begin{table}[t]
+
+\resizebox{\linewidth}{!}{
+\begin{tabular}{@{}c|cccccc@{}}
+    \toprule
+    \multicolumn{1}{c|}{\textbf{\#Docs}} & \textit{\begin{tabular}[c]{@{}c@{}}Fluency \\ Score\end{tabular}} & \textit{\begin{tabular}[c]{@{}c@{}}Org. \\ Score\end{tabular}} & \begin{tabular}[c]{@{}c@{}}R-L \end{tabular} & \begin{tabular}[c]{@{}c@{}}Cit. \\ Recall\end{tabular} & \begin{tabular}[c]{@{}c@{}}Cit. \\ Precision\end{tabular} & \begin{tabular}[c]{@{}c@{}}Length \end{tabular} \\ \midrule
+    0 & 4.62 & 4.32 & 16.22 & - & - & 574.7 \\
+    5 & 4.29 & 4.02 & 17.42 & 33.98 & 32.68 & 541.3 \\
+    10 & 4.30 & 3.99 & 17.80 & \textbf{34.75} & \textbf{32.80} & 559.9 \\
+    15 & 4.29 & 4.08 & 18.09 & 32.41 & 30.22 & 583.2 \\
+    20 & 4.30 & 4.10 & \textbf{18.44} & 32.85 & 30.85 & 584.9 \\
+    \bottomrule
+\end{tabular}
+}
+\caption{Impact of the number of related documents.}
+\label{tab:num_documents}
+\end{table}
+
+\noindent \textbf{Number of Related Documents}\quad
+We experiment with a number of related documents ranging from 0 to 20, as shown in Table \ref{tab:num_documents}. From this table, we see that the length of generated article ranges between 500-600 words and is insensitive to the number of input documents. Without any input, the model can produce a fluent and well-organized article, but none of the generated sentences can be verified.
+
+Overall, the \textit{Fluency} and \textit{Organization Scores} of the model are not significantly affected by the number of related documents. As the number of documents increases, the amount of included information also grows, enhancing the informativeness (ROUGE-L and \textit{Info Score}) of the generated content. At the same time, the verifiability of the model deteriorates with more related documents. The citation quality peaks with around 10 retrieved documents and gradually declines thereafter, indicating that the model may struggle to effectively handle an excessive number of input documents. Therefore, expanding the context window of LLMs may not fully address the challenges of generating full-length Wikipedia articles and could necessitate the integration of more advanced retrieval or reranking methods. The complete experimental results can be found in Table \ref{number:appendix}.
+
+\begin{table}[t]
+\resizebox{\linewidth}{!}{
+\begin{tabular}{@{}c|cccccc@{}}
+\toprule
+\multicolumn{1}{c|}{\begin{tabular}[c]{@{}c@{}}\textbf{Retrieval} \\ \textbf{Method}\end{tabular}} & \textit{\begin{tabular}[c]{@{}c@{}}Fluency \\ Score\end{tabular}} & \textit{\begin{tabular}[c]{@{}c@{}}Org. \\ Score\end{tabular}} & \begin{tabular}[c]{@{}c@{}}R-L\end{tabular} & \textit{\begin{tabular}[c]{@{}c@{}}Info \\ Score\end{tabular}} & \begin{tabular}[c]{@{}c@{}}Cit. \\ Recall\end{tabular} & \begin{tabular}[c]{@{}c@{}}Cit. \\ Precision\end{tabular} \\ \midrule
+Random & 4.17 & 4.02 & 16.66  & 3.23 & 30.31 & 26.16 \\
+TF-IDF & 4.37 & 4.16 & \textbf{18.10} & 3.59 & \textbf{49.31} & \textbf{48.34} \\
+BM25 & \textbf{4.39} & 4.19 & 17.38 & \textbf{3.61} & 46.50 & 44.10 \\
+DPR & 4.31 & \textbf{4.31} & 17.81 & 3.49 & 42.09 & 36.70 \\
+GTR & 4.33 & 4.10 & 17.89  & 3.54 & 44.80 & 40.21 \\ %\midrule
+%golden & 4.46 & 4.1 & 41.04 & 4.04 & 69.32 & 54.85 \\ 
+\bottomrule
+\end{tabular}
+}
+\caption{Performance of different rerankers with the top 5 documents are used for generation.}
+\label{tab:retrievers}
+\end{table}
+
+\noindent \textbf{Sparse vs Dense Reranker}
+To rerank related documents for generation, we compare widely used sparse rankers (TF-IDF, BM25) and dense rankers (DPR, GTR), as shown in Table \ref{tab:retrievers}. We used a random selection method as the baseline to set clear benchmarks for the worst possible outcomes. From Table \ref{tab:retrievers}, it is evident that articles produced with random reranking performed significantly worse across all metrics. Among all reranking techniques, term-matching sparse rerankers (TF-IDF, BM25) outperform dense retrievers. This aligns with \citet{sciavolino2022simple}, who found that dense retrievers often struggle to identify rare entities not encountered during training, which is a significant issue for Wikipedia. Since sparse rerankers struggle with complex semantic queries and dense rerankers show competitive performance, we choose the commonly adopted DPR method as the default reranker. However, as stated above, LLMs still struggle to effectively utilize all the content within the context length, despite the increasing context length of models. Therefore, reranking techniques are crucial to final performance, and improvements in reranking would benefit the Wikipedia generation task.
+\begin{table}
+
+\resizebox{\linewidth}{!}{
+\begin{tabular}{@{}c|cccccc@{}}
+\toprule
+\multicolumn{1}{c|}{\begin{tabular}[c]{@{}c@{}}\textbf{Document} \\ \textbf{Source}\end{tabular}} & \textit{\begin{tabular}[c]{@{}c@{}}Fluency \\ Score\end{tabular}} & \textit{\begin{tabular}[c]{@{}c@{}}Org. \\ Score\end{tabular}} & \begin{tabular}[c]{@{}c@{}}R-L\end{tabular} & \textit{\begin{tabular}[c]{@{}c@{}}Info \\ Score\end{tabular}} & \begin{tabular}[c]{@{}c@{}}Cit. \\ Recall\end{tabular} & \begin{tabular}[c]{@{}c@{}}Cit. \\ Precision\end{tabular} \\ \midrule
+
+Search Engine & \textbf{4.31} & \textbf{4.16} & \textbf{4.33} & \textbf{3.51} & 35.96 & 34.31 \\
+Human Editor & 4.31 & 4.05 & 4.28 & 3.43 & 35.71 & 33.76 \\
+Mixed & 4.31 & 4.05 & 4.26 & 3.49 & \textbf{38.78} & \textbf{36.7} \\
+\bottomrule
+\end{tabular}
+}
+
+\caption{Impact of different related document source. }
+\label{tab:search}
+\end{table}
+
+\noindent \textbf{Citation Source}\quad
+The related documents come from two sources: search engines and human editors. We analyze how the source of related documents influences Wikipedia article generation. Table \ref{tab:search} presents the generation results using different sources. While it is commonly believed that documents provided by human editors are of higher quality \citep{liu2018generating,qian2023webbrain}, our findings suggest that for new events, search engines can offer more informative and verifiable references. Regarding writing and informativeness, using search engine sources alone performs better than using human editor sources alone or a mix of both. In terms of verifiability, search engine and human editor sources perform similarly, with a mixture performing slightly better than a single source. This indicates that search engines can cover most information provided by human editors. This finding paves the way for the automatic generation of Wikipedia articles for new events, as search engines can provide access to a wide array of up-to-date and extensive news sources, ensuring a breadth and depth of information that rivals or exceeds what human editors can compile.
+
+\subsection{Analysis of Supervised Finetuning}
+
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=\textwidth]{figures/finetune.pdf} 
+    \caption{We fine-tuned models of various scales and families, evaluating checkpoints at 1, 5, and 10 epochs. We selected one primary metric from each of the three dimensions and displayed their performance trends with training epochs.}
+    \label{fig:example finetune}
+\end{figure*}
+
+This subsection explores how to enhance performance during tuning. We selected one representative metric from each of the three dimensions and plotted their performance trends with training epochs in Figure \ref{fig:example finetune}. In the Writing dimension, initial tuning rounds show a decline in fluency, but subsequent epochs reveal improved writing techniques, resulting in progressively higher \textit{Fluency Scores}. After ten epochs, most models exceed their original performance, except for Vicuna-13b, likely due to its initially strong writing abilities. For the Informativeness dimension, a similar trend is observed: information richness initially declines but then recovers and surpasses initial performance levels. Llama2-13b even surpasses GPT3.5 in terms of \textit{Info Score}. However, Vicuna-7b shows good performance by the fifth epoch but overfits after ten epochs, leading to a decline. In the Verifiability dimension, even one training epoch significantly enhances citation abilities. Further training improves citation accuracy, though the improvement rate slows after five epochs. Despite supervised training, open-source models still lag behind proprietary models in performance.
+
+\section{Related Work}
+\subsection{Retrieval-Augmented Text Generation}
+Enhancing LLMs with retrieval mechanisms during inference has become a common practice for generative tasks~\citep{li2022survey, gao2023retrieval, guu2020retrieval}. In the era of LLMs, RAG has proven to be an effective and versatile paradigm across various NLP tasks \citep{weston2018retrieve, jiang2023active}. Studies have demonstrated that retrieval can provide in-context examples \citep{brown2020language}, thereby enhancing the capabilities of LLMs \citep{huang2023raven, ram2023context, chen2023exploring}. The concept of RAG was first introduced by \citet{lewis2020retrieval}, who combined a pre-trained seq2seq model with a non-parametric dense vector index of Wikipedia, setting new state-of-the-art benchmarks for open-domain question answering tasks. To address the tendency of LLMs to produce hallucinations, researchers \citep{nakano2021webgpt} have proposed integrating language models with result pages from search engines to refine the final output. Systems may perform multiple retrieval processes during generation,  combined with techniques such as Chain of Thought \citep{trivedi2022interleaving, feng2023retrieval}.
+
+\subsection{Automated Wikipedia Generation}
+The task of automatically generating Wikipedia articles has garnered significant research attention over the past decade~\cite{sauper2009automatically,liu2018generating,perez2019generating,banerjee2016wikiwrite}. \citet{sauper2009automatically} introduced a structure-aware method for synthesizing Wikipedia articles from relevant source documents. \citet{banerjee2016wikiwrite} made further advancements with the development of WikiWrite, which classified retrieved information by analyzing relationships between referenced and target entities.
+
+The emergence of pretrained language models (PLMs) marked a paradigm shift in Wikipedia generation, enhancing both the structuring of documents and ensuring factual accuracy. \citet{liu2018generating} demonstrated a significant breakthrough by employing a multi-document summarization strategy with a decoder-only transformer model, effectively leveraging PLMs for generating coherent text. Building upon this foundation, \citet{fan2022generating} introduced a retrieval mechanism to extract supporting information from the web. They utilized BART to generate long-form biographies section by section, guided by predefined headings. Their work emphasizes both sectioning and citations. However, the evaluation process remained largely dependent on manual assessment. \citet{qian2023webbrain} proposed WebBrain, a sophisticated system designed to produce short factual articles using a web corpus. WebBrain curated a larger dataset comprising the leading sections of Wikipedia articles. The generated articles required citations to ensure verifiability, and the evaluation employed methods such as QG-QA~\citep{goodrich2019assessing,wang2020asking} to assess factual correctness. 
+\citet{shao2024assisting} refines the generation of section headings through iterative questioning with LLM-based metrics for evaluation. However, their evaluation was conducted on only 100 samples, making it difficult to fully validate the new method's overall performance.
+
+\section{Conclusion}
+In this paper, we introduce \bench{} to address the challenge of generating full-length Wikipedia articles under real-world scenarios. We have introduced advanced metrics to systematically evaluate the performance of Wikipedia generation. Our experiments with three RAG frameworks demonstrate the potential of LLMs to generate coherent and informative Wikipedia articles. We explore various retrieval settings and examine the impact of different citation sources. We highlight the importance of high-quality data for fine-tuning to improve article verifiability. Overall, this work compares LLM-based methodologies for full-length Wikipedia generation, providing insights and guiding future research. 
+
+
+\section*{Limitations}
+Our research encounters limitations, notably in our section-by-section generation approach, which may lead to redundancy and necessitate a rewriting strategy to ensure article cohesion. Further limitations include the challenge of direct citation by LLMs, a bottleneck that might necessitate the exploration of post-citation methods such as employing NLI for improvement. Additionally, the information from related documents does not fully cover the content of original Wikipedia articles, making the n-gram metric comparison between the generated text and the original articles a weak reference rather than a definitive standard. 
+
+%The training corpus for open-source LLMs may contain content from our benchmark. However, due to the inadequate performance for earlier open-source LLMs to accomplish such complex tasks, we still use new versions of open-source LLMs(LLama2) for evaluation. This might cause overestimated of the models' performance in informativeness.
+
+\section*{Ethics Statement}
+
+Unlike creative content generation, grounded article generation can influence how people learn about topics and consume source information. To mitigate potential harm, we implement strict verifiability checks to ensure the reliability of the output. 
+
+Additionally, our information sources primarily come from the internet, which inevitably includes inaccurate or unreliable content. While we can provide the origin of citations, additional effort is required to verify the reliability of the information itself. Improved retrieval-augmented generation (RAG) methods, along with sourcing from more authoritative websites, may help mitigate this issue.
+
+Another ethical limitation of this work is that we have focused solely on generating English Wikipedia articles. Expanding the system to support multilingual article generation is a valuable direction for future research, as many topics lack coverage in non-English Wikipedia pages.
+
+\section*{Acknowledgement}
+We thank anonymous reviewers for their helpful comments on this paper. This work was partially supported by National Natural Science Foundation of China (No. 92470205, 62476010). Sujian Li is the corresponding author. 
+
+\bibliography{anthology,custom,acl2023}
+
+\appendix
+\newpage
+\appendix
+\onecolumn
+\input{99.appendix}
+\label{sec:appendix}
+
+\end{document}

@@ -1,0 +1,2130 @@
+\documentclass{article}
+
+% \documentclass[nohyperref]{article}
+
+% if you need to pass options to natbib, use, e.g.:
+     \PassOptionsToPackage{numbers, compress}{natbib}
+% before loading neurips_2024
+
+
+
+% ready for submission
+\usepackage{sidecap}
+\usepackage[most]{tcolorbox}  
+\definecolor{darkgrey}{rgb}{0.53,0.53,0.53}
+\definecolor{mygrey}{rgb}{0.9,0.9,0.9}
+\definecolor{color1}{HTML}{006EB8}
+\usepackage{wrapfig}
+\usepackage{xcolor}
+\usepackage{colortbl}
+\usepackage{bbding}
+\usepackage{wasysym}
+\usepackage{amsmath} 
+\usepackage{bbm}
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks   = true,
+  urlcolor     = black,
+  linkcolor    = black,
+  citecolor   = black
+}
+
+
+% \usepackage{algorithm}
+\usepackage{algorithmic}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+% \theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{assumption}[theorem]{Assumption}
+\newtheorem{hypothesis}[theorem]{Hypothesis}
+% \theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+% \usepackage[table]{xcolor}
+
+% \usepackage[preprint]{neurips_2024}
+% \usepackage[numbers,comma,square,sort]{natbib}
+% \usepackage[numbers,comma,square,sort]{natbib}
+
+% --- begin included file: tex/header.tex ---
+\usepackage{fancyvrb}
+
+%\usepackage{times}
+%\usepackage{soul}
+\usepackage{subcaption}
+% \usepackage{subfig}
+\usepackage[framemethod=TikZ]{mdframed}
+\usepackage{wrapfig}
+\usepackage{amsmath,amsfonts,amssymb}
+\usepackage{graphicx}
+\usepackage{multirow}
+\usepackage{balance}
+\usepackage{multicol}
+\usepackage{setspace}
+\usepackage{pifont}
+\usepackage{array}
+\usepackage{makecell}
+\usepackage{booktabs}
+% \usepackage{arydshln}
+\usepackage{svg}
+\usepackage{dblfloatfix}
+\usepackage{enumitem}
+\usepackage{tabu}                     % 表格插入
+\usepackage{lipsum}
+\usepackage{tikz}
+\usepackage{microtype}
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{url}            % simple URL typesetting
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{lineno}
+\usepackage{xspace}
+\usepackage{listings}
+\usepackage{caption}
+% \usepackage{algorithm}
+% \usepackage{algpseudocode}
+\usepackage{wrapfig}
+% \usepackage{hyperref}
+\usepackage{bbm}
+% \usepackage{arydshln}
+
+\usepackage[symbol]{footmisc}
+
+\usepackage[linesnumberedhidden,ruled]{algorithm2e}
+\SetAlgoHangIndent{0pt}
+\SetKwComment{Comment}{\# }{}
+\SetKw{KwInput}{Input:}
+\SetKw{KwOutput}{Output:}
+\SetKw{KwReturn}{return:}
+\newcommand{\var}{\textup}
+
+\makeatletter
+\def\adl@drawiv#1#2#3{%
+        \hskip.5\tabcolsep
+        \xleaders#3{#2.5\@tempdimb #1{1}#2.5\@tempdimb}%
+                #2\z@ plus1fil minus1fil\relax
+        \hskip.5\tabcolsep}
+\newcommand{\cdashlinelr}[1]{%
+  \noalign{\vskip\aboverulesep
+           \global\let\@dashdrawstore\adl@draw
+           \global\let\adl@draw\adl@drawiv}
+  \cdashline{#1}
+  \noalign{\global\let\adl@draw\@dashdrawstore
+           \vskip\belowrulesep}}
+\makeatother
+
+
+% \linenumbers
+\graphicspath{{figures/}}
+
+\usepackage{epigraph} 
+\setlength\epigraphwidth{\linewidth}
+\setlength\epigraphrule{0pt}
+
+% --- end included file: tex/header.tex ---
+
+% to compile a preprint version, e.g., for submission to arXiv, add add the
+% [preprint] option:
+    \usepackage[final]{neurips_2024}
+    % \usepackage{neurips_2024}
+
+
+
+% to compile a camera-ready version, add the [final] option, e.g.:
+    % \usepackage[final]{neurips_2024}
+
+
+% to avoid loading the natbib package, add option nonatbib:
+%\usepackage[nonatbib]{neurips_2024}
+
+% \title{WISE: Rethinking the Memory of Model Editing for Lifelong Learning of Large Language Models}
+\title{WISE: Rethinking the Knowledge Memory for Lifelong Model Editing of Large Language Models}
+
+
+% The \author macro works with any number of authors. There are two commands
+% used to separate the names and addresses of multiple authors: \And and \AND.
+%
+% Using \And between authors leaves it to LaTeX to determine where to break the
+% lines. Using \AND forces a line break at that point. So, if LaTeX puts 3 of 4
+% authors names on the first line, and the last on the second line, try using
+% \AND instead of \And before the third author name.
+
+\author{
+    \textbf{Peng Wang}$^1$\thanks{$\quad$ Equal contribution.} \quad \textbf{Zexi Li}$^{1}$\footnotemark[1] \quad \textbf{Ningyu Zhang}$^1$\footnotemark[2] \quad \textbf{Ziwen Xu}$^1$ \quad \textbf{Yunzhi Yao}$^1$ \\ \quad
+    \textbf{Yong Jiang}$^{2}$ \quad \textbf{Pengjun Xie}$^2$ \quad \textbf{Fei Huang}$^2$  \quad \textbf{Huajun Chen}$^{1,3}$\thanks{$\quad$ Corresponding Author.} 
+  \\ 
+  $^1$ Zhejiang University \quad $^2$ Alibaba Group \quad  \\$^3$ Zhejiang Key Laboratory of Big Data Intelligent Computing\\
+  \texttt{\{peng2001,zexi.li,zhangningyu\}@zju.edu.cn} \\ 
+  % \texttt{\{yongjiang.jy,chengchen.xpj,f.huang\}@alibaba-inc.com} \\ \texttt{huajunsir@zju.edu.cn}
+}
+
+\begin{document}
+\setlength{\parskip}{2.5pt plus1pt minus3pt}
+
+\maketitle
+
+\hypersetup{
+  colorlinks   = true,
+  urlcolor     = color1,
+  linkcolor    = color1,
+  citecolor   = color1
+}
+\begin{abstract}
+    Large language models (LLMs) need knowledge updates to meet the ever-growing world facts and correct the hallucinated responses, facilitating the methods of lifelong model editing. Where the updated knowledge resides in memories is a fundamental question for model editing. In this paper, we find that editing either long-term memory (direct model parameters) or working memory (non-parametric knowledge of neural network activations/representations by retrieval) will result in an impossible triangle---reliability, generalization, and locality can not be realized together in the lifelong editing settings. For long-term memory, directly editing the parameters will cause conflicts with irrelevant pretrained knowledge or previous edits (poor reliability and locality). For working memory, retrieval-based activations can hardly make the model understand the edits and generalize (poor generalization). Therefore, we propose WISE to bridge the gap between memories. In WISE, we design a dual parametric memory scheme, which consists of the main memory for the pretrained knowledge and a side memory for the edited knowledge. We only edit the knowledge in the side memory and train a router to decide which memory to go through when given a query. For continual editing, we devise a knowledge-sharding mechanism where different sets of edits reside in distinct subspaces of parameters and are subsequently merged into a shared memory without conflicts. Extensive experiments show that WISE can outperform previous model editing methods and overcome the impossible triangle under lifelong model editing of question answering, hallucination, and out-of-distribution settings across trending LLM architectures, e.g., GPT, LLaMA, and Mistral\footnote{Code is available at \url{https://github.com/zjunlp/EasyEdit}.}.
+    
+
+\end{abstract}
+
+
+\section{Introduction}\label{sec:intro}
+Large language models (LLMs) show emergent intelligence when scaling the number of parameters and data~\cite{scaling_law,scaling_law_data_pruning,revisiting_scaling_law,DBLP:journals/corr/abs-2303-18223}, which reveals the sparks of artificial general intelligence~\cite{gpt4_agi_sparks}. However, when deployed, LLMs still make mistakes~\cite{llm_factual_error}, generating responses with hallucinations~\cite{hallucination_survey}, bias~\cite{chatgpt_bias}, and factual decays~\cite{llm_factual_delay}. 
+On the other hand, the world's knowledge is ever-growing, so the up-to-date knowledge is usually different from the one during LLMs' pretraining~\cite{grace}. Many such errors and emerging facts will arise sequentially in deployment, some of which have to be addressed timely and efficiently without waiting for retraining or finetuning~\cite{t-patcher,llm_temperal_generalization_gap}. 
+Also, retraining or finetuning is often too computationally expensive~\cite{llama-2,grace}, which is not sustainable for lifelong growing knowledge. 
+Therefore, \emph{lifelong model editing}~\cite{grace} was proposed to remedy the continual knowledge updates and injections for LLMs in a cheap and timely manner. 
+
+An effective lifelong model editing approach should satisfy the following properties~\cite{knowledge_editing_survey_1,malmen,t-patcher, editable, calinet}: \textbf{i) reliability}, the model can remember both current and previous edits after sequential editing; \textbf{ii) locality}, model editing will not influence inherent pretrained knowledge which is irrelevant to the edited knowledge; 
+\textbf{iii) generalization}, the model is not just merely memorizing the query-target pairs; \begin{wrapfigure}{r}{0.4\columnwidth}
+  \centering
+  \vspace{-0.05cm}
+    \includegraphics[width=0.94\linewidth]{img/motivation_radar_fig_with_shadow.pdf}
+    \caption{\textbf{Metric triangle among reliability, generalization, and locality.} ZsRE dataset, number of continual edits $T=100$, LLaMA-2-7B. 
+    Editing methods based on long-term memory (ROME and FT-EWC) and working memory (DEFER and GRACE) show the impossible triangle in metrics, while our WISE is leading in all three metrics.}\label{fig:motivation_fig_radar}
+  \vspace{-0.2cm}
+\end{wrapfigure}instead, it should understand and generalize when given other forms of queries with the same knowledge. 
+We compare existing model editing and continual learning methods on the three metrics in Figure~\ref{fig:motivation_fig_radar} and find that \textit{it seems to be an impossible triangle---reliability, generalization, and locality} can not be realized at the same time in the continual editing settings. We find that where the updated knowledge resides in memories affects editing performances, and previous methods can be generally divided into editing either long-term memory, e.g., ROME~\cite{rome}, MEMIT~\cite{memit}, and FT-EWC (Finetuning with Elastic Weight Consolidation~\cite{ewc}, a continual learning method), or working memory, e.g., GRACE~\cite{grace}.
+Note that the categorization of long-term and working memories is derived from human recognition~\cite{miller2017plans,working_memory_and_language} and neuroscience~\cite{fukuda2017visual} which has recently been adopted in the study of LLMs~\cite{llm_controllable_working_memory,memoria,memgpt,spalm}. 
+Model editing of long-term memory refers to directly editing the model parameters, which contain generalizable parametric knowledge~\cite{memoryllm,llm_controllable_working_memory}. However, editing long-term memory will cause conflicts with previous pretrained knowledge, resulting in poor locality (e.g., ROME and FT-EWC in Figure~\ref{fig:motivation_fig_radar}).
+Working memory refers to the non-parametric knowledge of neural network activations/representations by retrieval, and it does not change the network parameters~\cite{llm_controllable_working_memory}; instead, it replaces the representations by retrieval at working (inference) time, like GRACE. 
+GRACE's working memory shows promising results in reliability and locality, but in our experiments, it shows poor generalization since retrieval-based representations can hardly make the model understand the edits and generalize to different queries. 
+It reveals that long-term memory and working memory both have drawbacks for lifelong model editing, though there were some special memory designs for LLM architectures, like MemorryLLM~\cite{memoryllm}, SPALM~\cite{spalm}, and Memoria~\cite{memoria}, they change the architectures and cannot be directly applied for different LLMs.
+Intuitively, there is a gap between editing working and long-term memories, thus, in this paper, we study:\looseness=-1
+
+ \begin{tcolorbox}[notitle, rounded corners, colframe=darkgrey, colback=white, boxrule=2pt, boxsep=0pt, left=0.15cm, right=0.17cm, enhanced, shadow={2.5pt}{-2.5pt}{0pt}{opacity=5,mygrey},toprule=2pt, before skip=0.65em, after skip=0.75em 
+  ]
+\emph{
+  {
+    \centering 
+  {
+    \fontsize{9.5pt}{13.2pt}\selectfont 
+    What is the better memory mechanism for lifelong model editing to break the impossible triangle? 
+  }
+  \\
+  }
+  }
+\end{tcolorbox}
+
+Human brains contain the left and right hemispheres, which have different divisions as studied in recognition science~\cite{brain_division_1,brain_division_2}, e.g., the left brain is typically associated with logical tasks while the right brain is more involved in intuitive processes. This inspires us to design \textbf{WISE}, which makes model editor \textit{WISER} in \textit{memories}. WISE contains a dual parametric memory mechanism for LLMs' editing: the main memory for the pretrained knowledge and a side memory for the edited knowledge, realizing both long-term memory's generalization and retrieval-based working memory's reliability and locality. The side memory is a form of mid-term memory. 
+We only edit the knowledge in the side memory and train a router to decide which memory to go through when given a query. 
+For continual editing, we design a knowledge-sharding mechanism where different sets of edits reside in distinct and orthogonal subspaces of parameters. These are then merged into a common side memory without conflicts.
+Our contributions are as follows:
+\begin{itemize}[leftmargin=*,nosep]
+    \item We identify the pitfalls of current model editing methods in lifelong settings, that is, the impossible triangle among---reliability, generalization, and locality. Behind the impossible triangle, we find there is a gap between editing long-term memory and working memory.
+    \item We propose WISE, with a side parametric memory as the mid-term memory, realizing the advantages of both parametric long-term memory and retrieval-based working memory. We design memory routing, sharding, and merging modules in WISE, making WISE lead in continual knowledge editing, reaching the three metrics better simultaneously.
+    \item Extensive experiments on GPT, LLaMA, and Mistral across QA, Hallucination,  and out-of-distribution datasets validate the effectiveness of WISE for lifelong model editing.
+\end{itemize}
+
+
+
+% --- begin included file: sec/methodology.tex ---
+% \vspace{-0.2cm}
+\section{Methodology}\label{sec:method}
+% \vspace{-0.2cm}
+
+\subsection{Preliminaries: Lifelong Model Editing}
+% \vspace{-0.2cm}
+We focus on lifelong model editing problem~\cite{grace,t-patcher}, which can ensure hundreds or even thousands of sequential edits on LLMs to make the outputs of target queries align with human expectations while maintaining LLMs' previous knowledge and capability. 
+Let $f_{\Theta}: \mathbb{X} \mapsto \mathbb{Y}$, parameterized by $\Theta$, denote a model function mapping an input $\mathbf{x}$ to the prediction $f_{\Theta}(\mathbf{x})$.
+The initial model before editing is $\Theta_0$, which is trained on a large corpus $\mathcal{D}_{\text{train}}$. 
+When the LLM makes mistakes or requires injections of new knowledge, it needs model editing with a time-evolving editing dataset as $\mathcal{D}_{\text{edit}}= \{(\mathcal{X}_e, \mathcal{Y}_e) \vert (\mathbf{x}_1, \mathbf{y}_1), ..., (\mathbf{x}_T, \mathbf{y}_T)\}$. 
+At the time step $T$, a model editor (ME) takes the $T$-th edit and the LLM of the $T-1$ time step $f_{\Theta_{T-1}}$ as inputs and produce the revised LLM model $f_{\Theta_T}$ following the equation below:
+\begin{equation}
+ \label{equ:cme_def}
+    f_{\Theta_{T}}={\rm ME}(f_{\Theta_{T-1}},\mathbf{x}_T,\mathbf{y}_T), \quad \text{s.t.}\
+    f_{\Theta_{T}}(\mathbf{x}) = 
+   \begin{cases}
+    \mathbf{y}_e &\mbox{if $\mathbf{x} \in \mathcal{X}_e$,}\\
+    f_{\Theta_0}(\mathbf{x})&\mbox{if $\mathbf{x} \notin \mathcal{X}_e$.}
+    \end{cases}
+\end{equation}
+Equation~\ref{equ:cme_def} describes that after model editing, the LLM should make the correct prediction on the current edit as $f_{\Theta_{T}}(\mathbf{x}_T) = \mathbf{y}_T$, while also preserving knowledge from past editing instances $(\mathbf{x}_{<T}, \mathbf{y}_{<T}) \in \mathcal{D}_{\text{edit}}$ as well as maintaining capability of $f_{\Theta_0}$ on the irrelevant data when $x \notin \mathcal{X}_e$, especially for general training corpus $\mathcal{D}_{\text{train}}$.
+
+\subsection{Rethinking the Memory Design of Lifelong Model Editing}
+\begin{table}[h]
+\vspace{-0.4cm}
+    \centering
+    \caption{\textbf{Comparison of current model editing methods.} {\small``\Checkmark''} refers to ``yes'' and ``well-supported'', {\small\XSolidBrush} refers to ``no'' or ``badly-supported'', and ``\Circle'' refers to ``less-supported''. The three metrics of Reliability, Generalization, and Locality denote the performances on lifelong (continual) editing.}
+    % \setstretch{1.2}
+    % \vspace{0.2cm}
+    \resizebox{0.99\linewidth}{!}{
+        \begin{tabular}{l|cc|cc|c|ccc}
+        \toprule
+         Methods& Long-term Memory& Working Memory& Parametric Knowledge& Retrieval Knowledge& Whether Lifelong& Reliability& Generalization& Locality \\
+         \midrule
+         FT-EWC &\Checkmark &\XSolidBrush &\Checkmark &\XSolidBrush &\Checkmark &\Checkmark &\Checkmark &\XSolidBrush \\
+         ROME/MEMIT  &\Checkmark &\XSolidBrush &\Checkmark &\XSolidBrush &\XSolidBrush &\XSolidBrush &\XSolidBrush &\XSolidBrush \\
+         MEND &\Checkmark &\XSolidBrush &\Checkmark &\XSolidBrush &\XSolidBrush &\XSolidBrush &\XSolidBrush &\XSolidBrush \\
+         SERAC/DEFER  &\XSolidBrush &\Checkmark &\Checkmark &\Checkmark &\Checkmark &\textbf{\Circle} &\XSolidBrush &\textbf{\Circle} \\
+         GRACE  &\XSolidBrush &\Checkmark &\XSolidBrush &\Checkmark &\Checkmark &\Checkmark &\XSolidBrush &\Checkmark \\
+         \midrule
+         \rowcolor{green!8}\textbf{WISE}  &\Checkmark &\Checkmark &\Checkmark  &\Checkmark &\Checkmark &\Checkmark &\Checkmark  &\Checkmark \\
+        \bottomrule 
+        \end{tabular}
+    }
+    \label{tab:editing_comparision}
+    % \vspace{-0.3cm}
+\end{table}
+
+In Table~\ref{tab:editing_comparision}, we compare current model editing methods in terms of memory types and lifelong editing abilities. 
+FT-EWC~\cite{ewc}, ROME~\cite{rome}, MEMIT~\cite{memit}, and MEND~\cite{mend} edit the long-term memory stored in the LLMs' model parameters, but they either do not support continual editing or have negative effects on irrelevant knowledge (poor locality). 
+GRACE~\cite{grace} is designed for lifelong editing via retrieval-based working memory.
+The retrieval codebook can avoid the conflicts of irrelevant knowledge, but GRACE fails to generalize due to its codebook being a non-parametric knowledge representation that solely memorizes queries without comprehension.
+%Though GRACE designs a deferral radius for generalization, it seems to be ineffective and limited.
+It is worth noting that SERAC~\cite{serac}/DEFER~\cite{grace} uses working memory that is stored in additional small models: a scope classifier and a counterfactual model, whose knowledge is parametric. 
+However, the small counterfactual model cannot match the expressiveness and generalization capabilities of LLM itself, making it challenging for the edited knowledge to generalize effectively.
+
+To enable effective lifelong model editing, the method should take advantage of both LLM parameters' long-term memory and retrieval-based working memory. Therefore, we propose WISE as follows.
+
+\subsection{WISE: Side Memory with Knowledge Sharding, Merging, and Routing}
+\begin{figure}[t]
+\vspace{-0.5cm}
+    \definecolor{figgreen}{rgb}{0.547,0.695,0.434}
+    \definecolor{figblue}{rgb}{0.445, 0.551, 0.73}
+    \centering
+    \includegraphics[width=0.98\linewidth]{img/WISE_method_overview_v3.pdf}
+    \vspace{-0.6cm}
+    \caption{\textbf{Overview of WISE.} Side memory (in \textcolor{figblue}{\textbf{blue}}) and main memory (in \textcolor{figgreen}{\textbf{green}}) store edited and pretrained knowledge, respectively. Note: during inference, if WISE-Retrieve, the activation routing will retrieve and select one side memory with maximal activation score.}
+    \label{fig:method_overview}
+    \vspace{-0.4cm}
+\end{figure}
+
+As illustrated in Figure~\ref{fig:method_overview}, WISE comprises two key components: 
+1) \textbf{Side Memory Design}: i) \textit{side memory}: side memory is a memory container that is initialized as a copy of LLM's certain FFN layer, storing the stream of edits; ii) \textit{memory routing mechanism}: similar to retrieval, a routing activation component is adopted to identify the scope of edits, routing the main (original) or side memories during inference; 
+2) \textbf{Knowledge Sharding and Merging}: i) \textit{knowledge in random memory subspaces}: to make the edits in appropriate knowledge density and avoid forgetting, we shard the side memory into several random subspaces for editing; ii) \textit{knowledge merging}: we leverage model merging techniques to merge different memory shards into one side memory without loss of knowledge.
+
+\subsubsection{Side Memory Design} \label{subsec:side_memory}
+\paragraph{Side memory in FFN's value matrix.} 
+Each layer in a Transformer contains a multi-head self-attention (MHA) mechanism and a feed-forward network (FFN), where the FFN constitutes two-thirds of the model parameters \cite{geva-etal-2021-transformer}.
+The question of how Transformers retrieve and utilize stored knowledge remains unresolved \cite{rome, niu2024what}, yet past works \cite{mend, geva-etal-2021-transformer} have demonstrated that editing the weights of the FFN is consistently more effective for LLMs.
+The FFN typically consists of key-value linear matrices: $\mathbf{W}_k, \mathbf{W}_v$, i.e., two multi-layer perceptron (MLP) layers.
+For the output of attention feature $\mathbf{f}$, the computation of the feed-forward network, omitting the bias terms, can be represented as:\looseness=-1
+\begin{equation}
+    \text{FFN}(\mathbf{f}) = \mathbf{a} \cdot \mathbf{W}_v = \sigma({\mathbf{f}}^\top \cdot \mathbf{W}_k) \cdot \mathbf{W}_v,
+    \label{equ:ffn_function}
+\end{equation}
+where $\sigma$ is a nonlinear activation function (e.g. SwiGLU, GeLU), and $\mathbf{a}$ represents the activation values of the first MLP layer. 
+Following previous works~\cite{rome,geva-etal-2021-transformer}, we edit the value matrix $\mathbf{W}_{v}$ of the chosen FFN layer. 
+
+However, directly editing the value matrix may cause forgetting and side effects in a lifelong setting. 
+Thus, we \textbf{copy a value matrix as side memory and edit the side memory instead of the original matrix (main memory)}.
+Specifically, the side memory is initialized with the copy of main memory as $\mathbf{W}_{v'} \leftarrow \mathbf{W}_{v}$. 
+Given the side memory, the new output is expressed as $\text{FFN}_{s}(\mathbf{f}) = \mathbf{a} \cdot \mathbf{W}_{v'}$. 
+We will introduce how to update the side memory in Section~\ref{subsec:knowledge_merging}.
+
+% TODO here add which FFN layer is chosen and why?
+\paragraph{Locating side memory's FFN layer.} \label{subsec:locating_side_memory}
+Transformer LLMs have been widely demonstrated to encode  ``lower-level'' information (e.g., parts of speech) in earlier layers while processing more advanced linguistic phenomena like anaphora and coreference in later layers \cite{early_layer_1,early_layer_2,early_layer_3}.
+Representations in later hidden layers propagate through residual connections without drastic changes \cite{dola, rome}, enabling effective early exit in LLMs \cite{shortgpt, confident_adaptive}.
+Therefore, to minimize the side effects of editing and adjust advanced linguistic phenomena, we target mid-to-late layers (e.g. 27) for side memory. Further analysis of layer selection is provided in Section \ref{subsec:layer_selection}.
+
+
+
+\paragraph{Routing between side memories and main memory.} 
+Similar to the retrieval-based methods~\cite{grace,serac}, during inference, it is needed to decide whether the main memory or the side memory is used. If a given query is within the scope of previous edits, the side memory is used; otherwise, the main memory. 
+Inspired by \cite{t-patcher}, we introduce a routing activation indicator, given an input $\mathbf{x}$, it is formulated:\looseness=-1
+\begin{equation}
+    \Delta_{\text{act}}(\mathbf{x}) = \Vert \mathcal{A}(\mathbf{x}) \cdot (\mathbf{W}_{v'} - \mathbf{W}_v) \Vert_2, 
+    \label{equ:routing_activation}
+\end{equation}
+where $\mathcal{A}(\cdot) = \mathbf{a}$ is the activation of the side memory's corresponding FFN layer in Equation~\ref{equ:ffn_function}. We want the activation indicators of editing queries to be larger than the ones of irrelevant queries by a large margin, which is:
+\begin{equation}
+    \min \{\Delta_{\text{act}}(\mathbf{x}_e)| \mathbf{x}_e \in \mathcal{D}_{\text{edit}}\} \gg \max \{\Delta_{\text{act}}(\mathbf{x}_i)| \mathbf{x}_i \in \mathcal{D}_{\text{irr}}\},
+\end{equation}
+where $\mathcal{D}_{\text{irr}}$ is the irrelevant dataset which includes $\mathcal{D}_{\text{train}}$. 
+
+To achieve the above objective, we design a margin-based loss function during editing training, similar to contrastive~\cite{simclr} or triplet loss~\cite{triple_loss}. The margin-based loss function for routing activation is:\looseness=-1
+\begin{small}
+\begin{align}
+    L_a = \min_{\mathbf{W}_{v'}} \{ \max(0, \Delta_{\text{act}}(\mathbf{x}_i) - \alpha) + \max(0, \beta -& \Delta_{\text{act}}(\mathbf{x}_e)) + \max(0, \gamma - (\Delta_{\text{act}}(\mathbf{x}_e) - \Delta_{\text{act}}(\mathbf{x}_i))) \},\label{equ:routing_loss}\\
+    &\text{s.t.}\; \mathbf{x}_e \in \mathcal{D}_{\text{edit}}, \mathbf{x}_i \in \mathcal{D}_{\text{irr}}.\nonumber
+\end{align}
+\end{small}
+Equation~\ref{equ:routing_loss} aims that for all queries of irrelevant examples $\mathbf{x}_i$, the activation indicators should be less than threshold $\alpha$, and for the edit samples $\mathbf{x}_e$, the activations should be larger than threshold $\beta$, with a certain distance $\gamma$ between $\Delta_{\text{act}}(\mathbf{x}_e)$ and $\Delta_{\text{act}}(\mathbf{x}_i)$.
+
+In the continual stream of incoming edits, the smallest activation indicator within the edits is updated and saved:
+$\epsilon = \min \{\Delta_{\text{act}}(\mathbf{x}_e)| \mathbf{x}_e \in \mathcal{D}_{\text{edit}}\}$.
+We aim to recognize the local scope of edits in this form.
+During inference, if the activation indicator of a new input is greater than $\epsilon$, WISE will use the side memory $\mathbf{W}_{v'}$; otherwise, using the main memory $\mathbf{W}_{v}$. 
+Thus, given the query $\mathbf{x}$, the output of the targeted FFN in Equation~\ref{equ:ffn_function} is replaced by:
+\begin{equation}\label{equ:ffn_out}
+    \text{FFN}_\text{out}(\mathbf{x}) = \begin{cases}
+    \mathcal{A}(\mathbf{x}) \cdot \mathbf{W}_{v'} &\mbox{if $\Vert \mathcal{A}(\mathbf{x}) \cdot (\mathbf{W}_{v'} - \mathbf{W}_v) \Vert_2 > \epsilon$,}\\
+    \mathcal{A}(\mathbf{x}) \cdot \mathbf{W}_{v} &\mbox{otherwise.}
+    \end{cases}
+\end{equation}
+
+\subsubsection{Knowledge Sharding and Merging} \label{subsec:knowledge_merging}
+
+How to effectively and efficiently store continual knowledge in model parameters is important for lifelong editing.
+We introduce the notion of ``\textit{knowledge density}'' (similar to knowledge capacity~\cite{knowledge_capacity}) that describes how many pieces of knowledge are stored per parameter on average. There is an editing dilemma w.r.t. knowledge density: 
+i) If only a few edits are made for full fine-tuning or editing the entire memory, the knowledge density is low, which may lead to overfitting.
+ii) If numerous edits are made within a common and limited parameter space, the knowledge density is high, resulting in conflicts within the edited knowledge and potentially causing catastrophic forgetting.
+To remedy this dilemma, we propose a knowledge sharding and merging mechanism to divide the edits into several shards, store them in different parameter subspaces, and merge them into a common side memory. 
+
+\paragraph{Knowledge in random memory subspaces.} 
+We edit the side memory $\mathbf{W}_{v'}$. 
+We divide $n$ edits into $k$ shards, copy the side memory for $k$ times, and generate $k$ random gradient mask with mask ratio $\rho$ for each copy of side memory.
+A random gradient mask $\mathbf{M}_i \in \{0, 1\}^{|\mathbf{W}_{v'}|}, i \in [k]$ is a binary mask whose proportion of $1$ is $\rho$~\cite{tna}. For edit shard $i, i \in [k]$, we edit the knowledge into the subspace $\mathbf{M}_i$ as follows:
+\begin{equation} \label{equ:subspace_update}
+    \mathbf{W}_{v'}^{i} \leftarrow \mathbf{W}_{v'}^{i}-\eta(\mathbf{M}_i\odot\mathbf{g}_i(\mathbf{W}_{v'}^{i})),
+\end{equation}
+where $\mathbf{W}_{v'}^{i}$ is the $i$-th copy of the side memory, $\eta$ is the learning rate, $\mathbf{g}_i(\cdot)$ is the gradient of the $i$-th shard of edits, and the gradient is the autoregressive loss plus the routing activation loss $L_a$(Equation \ref{equ:routing_loss}): $L_{\text{edit}} = -\log P_{W_{v'}}(\mathbf{y}_e | \mathbf{x}_e) + L_a$.
+% \looseness=-1
+
+The random mask of gradients freezes the parameters intact when the elements are 0 and updates the weights when the elements are 1. 
+It is superior to pruning because it does not harm the network performance while regularizing optimization in a subspace~\cite{tna}.
+In addition, the $\rho$ subspace will have higher knowledge density when $k\cdot\rho < 1$, resulting in higher generalization (e.g., Figure~\ref{fig:rho_k_analysis}). Also, different shards of edits have different random masks, and due to the (sub)orthogonality of random masks, different shards will not conflict with each other. Therefore, we can non-destructively merge the $k$ copies of side memory into one.
+
+% TODO: 这里加个random mask的重叠概率的lemma
+\paragraph{Knowledge merging.} 
+We merge the $k$ subspace pieces of side memory into one. Because we randomly generate the subspace masks, different random masks will have some overlapping elements and some disjoint elements, following the theorem below: 
+
+\begin{theorem}\label{theorem:subspace_overlap}
+    \textbf{Subspace Overlap.} 
+    Generate $k$ memory subspaces $\mathbf{W}_{v'}^{i}, i \in [k]$ by random mask with 1's ratio $\rho$, so each memory has $\rho\cdot|\mathbf{W}_{v'}|$ active trained parameters. For any two subspaces $\mathbf{W}_{v'}^{i}$ and $\mathbf{W}_{v'}^{j}$ $i\neq j ;i,j \in [k]$, there are $\rho^2\cdot|\mathbf{W}_{v'}|$ active parameters that are overlapped. For all $k$ subspaces, there are $\rho^k\cdot|\mathbf{W}_{v'}|$ overlapped active parameters.
+\end{theorem}
+The theorem shows that larger $\rho$ will cause more overlap of subspace parameters, and the proof is in Appendix \ref{app_sec:proof}.
+We find that this overlap is helpful in playing the role of ``anchors'' for knowledge merging (See Figure~\ref{fig:rho_k_analysis} and Appendix \ref{app_subsec:knowledge_anchor}).
+However, knowledge conflicts also exist in the overlapped parameters, so we leverage the recent task arithmetic model merging technique Ties-Merge~\cite{ties_merge} to relieve the conflicts. 
+First, we compute the edit weight shift vectors $\mathrm{T}_e =\{ \tau_{e}^{i} = \mathbf{W}_{v'}^{i} - \mathbf{W}_v| i \in [k]\}$. 
+Then, we use Ties-Merge to merge the edit vectors into one:
+\begin{equation}\label{equ:ties_update}
+    \mathbf{W}_{v'} \leftarrow \mathbf{W}_{v} +\text{Ties}(\mathrm{T}_e;\mathbf{W}_{v}).
+\end{equation}
+Ties-Merge consists of three steps: i) trim: trim the redundant parameters for each task vector; ii) elect the sign: elect the signs of each parameter; ii) disjoint merge: compute the disjoint mean for each parameter which has the same and correct signs~\cite{ties_merge}. 
+By Ties-Merge, different subspaces of knowledge are integrated into one with fewer conflicts. 
+We study the effects of different merging techniques in Table~\ref{tab:knowledge-merging-strategy} of Appendix \ref{app_sec:varying_merge}.
+
+\paragraph{Routing and retrieving among several side memories.} One single side memory has its limited knowledge capacity~\cite{knowledge_capacity}. For the lifelong editing stream, we can produce several side memories and retrieve them via activation score routing. We compute different activation indicator scores of side memories and retrieve the top-1 during inference. This design is named WISE-Retrieve, which enables a more challenging lifelong editing scenario.
+For WISE with only one side memory, it is notated as WISE-Merge. 
+For most of the experiments, we use WISE-Merge by default, and we compare WISE-Retrieve in Table~\ref{tab:zsre_scaling2_3K} and Figure~\ref{fig:inference_time}.
+
+The pseudo-code of our method can be found in Algorithms~\ref{alg:wise_editing} and \ref{alg:wise_inference}.
+% --- end included file: sec/methodology.tex ---
+
+
+% --- begin included file: sec/experiments.tex ---
+% \vspace{-0.3cm}
+\section{Experiments}\label{sec:exp}
+
+% --- begin included file: tab/ZsRE_main_table.tex ---
+% \begin{table}[ht]
+%     \centering
+%     \setstretch{1.2}
+%     \vspace{0.2cm}
+%     \resizebox{\linewidth}{!}{
+%     \begin{tabular}{lccc|ccc|ccc|ccc}
+%     \toprule
+%     \multirow{3}{*}{\textbf{Method}} & \multicolumn{12}{c}{\textbf{ZsRE}} \\
+    
+%     %\cmidrule(lr){5-7}\cmidrule(lr){8-10} 
+    
+%      \cmidrule(lr){2-13}
+%      & \multicolumn{3}{c|}{$T=1$} & \multicolumn{3}{c|}{$T=10$} & \multicolumn{3}{c|}{$T=100$} & \multicolumn{3}{c}{$T=1000$} \\
+%      \midrule
+%      & Reliability & Generality & Locality & Reliability & Generality & Locality  & Reliability & Generality & Locality & Reliability & Generality & Locality \\
+%      \midrule
+%      \multicolumn{13}{c}{\texttt{LlaMA-2-7B}} \\
+%      \midrule
+%      FT-L \citep{rome} & 0.5659 & 0.5236 & 0.9631 & 0.4841 & 0.4773 & 0.7649 & 0.2971 & 0.2666 & 0.2251 &0.1850 &0.1598 &0.0281 \\
+%      FT-EWC \citep{grace} & 0.9597 & 0.9519 & 0.0177 & 0.8221 & 0.7618 & 0.0123 & 0.8349 & 0.7390 & 0.0838 & 0.7574 & 0.6931 & 0.0824 \\
+%      MEND \citep{mend} & 0.9546 & 0.9318 & 0.9775 & 0.2551 & 0.2751 & 0.2815 & 0.000 & 0.000 & 0.000 &0.000 &0.000 &0.000 \\
+%      ROME \citep{serac} & 0.8462 & 0.8027 & 0.9855 & 0.6382 & 0.6171 & 0.7539 & 0.2301 & 0.2187 & 0.0407 &0.0117 &0.0106 &0.0031 \\
+%      MEMIT \citep{memit} & 0.8401 & 0.8066 & 0.9906 & 0.5832 & 0.5791 & 0.8501 & 0.0230 & 0.0230 & 0.0219 &0.0411 &0.0411 &0.0220 \\
+%      MEMIT-MASS \citep{memit} & 0.8401 & 0.8066 & 0.9906 & 0.7496 & 0.7178 & 0.9696 & 0.7614 & 0.6818 & 0.8487 & 0.6920 & 0.6523 & 0.6162 \\
+%      DEFER \citep{memit} & 0.6752 & 0.5842 & 0.5647 & 0.6525 & 0.4699 & 0.3611  & 0.2014 & 0.1223 & 0.2666 &0.0319 &0.0337 &0.7425 \\
+%      ICE \citep{memit} & 0.9647 & 0.9013 & 0.8017 & 0.8888 & 0.8167 & 0.7992 & 0.8888 & 0.8110 & 0.7717 & 0.9343 & 0.8172 & 0.8178 \\
+%      GRACE \citep{memit} & 0.9772 & 0.0766 & 0.9990 & 0.9576 & 0.000 & 1.000  & 0.9582 & 0.000 & 1.000 &0.9683 &0.0768 &1.000 \\
+%      \textbf{WISE} & 0.9819 & 0.9166 & 0.9996 & 0.9445 & 0.8837 & 1.000 & 0.9022 & 0.8131 & 1.000 & 0.7701 & 0.7223 & 0.9996 \\
+%      \midrule
+%      \multicolumn{13}{c}{\texttt{Mistral-7B}} \\
+%      \midrule
+%      FT-L \citep{rome} & 0.5784 & 0.5370 & 0.9085 & 0.3949 & 0.3876 & 0.4973 & 0.1084 & 0.1028 & 0.0179 & 0.1570 & 0.1317 & 0.0095 \\
+%      FT-EWC \citep{grace} & 0.9975 & 0.9907 & 0.0084 & 0.8421 & 0.7780 & 0.0192 & 0.8244 & 0.7209 & 0.0905 & 0.7633 & 0.6936 & 0.0876 \\
+%      MEND \citep{mend} & 0.9450 & 0.9311 & 0.9761 & 0.0104 & 0.0124 & 0.0240 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 \\
+%      ROME \citep{serac} & 0.7909 & 0.7689 & 0.9821 & 0.5756 & 0.5693 & 0.7450 & 0.0472 & 0.0489 & 0.0214 & 0.0366 & 0.0354 & 0.0199 \\
+%      MEMIT \citep{memit} & 0.8066 & 0.7895 & 0.9934 & 0.4570 & 0.4460 & 0.6071 & 0.0039 & 0.0039 & 0.0087 & 0.0411 & 0.0411 & 0.0221 \\
+%      MEMIT-MASS \citep{memit} & 0.8066 & 0.7895 & 0.9934 & 0.7414 & 0.7134 & 0.9656 & 0.7272 & 0.7084 & 0.8815 & 0.7268 & 0.6992 & 0.6204 \\
+%      DEFER \citep{memit} & 0.6432 & 0.5423 & 0.7877 & 0.5316 & 0.4309 & 0.2891 & 0.2778 & 0.1681 & 0.2610 & 0.0204 & 0.0172 & 0.6703 \\
+%      ICE \citep{memit} & 0.9610 & 0.9297 & 0.8155 & 0.9219 & 0.8497 & 0.8089 & 0.9219 & 0.8474 & 0.8205 & 0.9411 & 0.8307 & 0.8269 \\
+%      GRACE \citep{memit} & 0.9960 & 0.0042 & 1.000 & 0.9980 & 0.0042 & 1.000 & 0.9960 & 0.0042 & 1.000 & 0.9960 & 0.0184 & 1.000 \\
+%      \textbf{WISE} & 0.9833 & 0.9651 & 1.000 & 0.9243 & 0.8867 & 1.000 & 0.8691 & 0.7966 & 1.000 & 0.6995 & 0.6674 & 0.9982 \\
+%     \bottomrule 
+%     \end{tabular}
+%     }
+%     \label{tab:single_main_editing}
+%     \vspace{0.2cm}
+%     \caption{Main editing results for ZsRE.}
+%     \vspace{-0.3cm}
+% \end{table}
+
+\begin{table}[t]
+\vspace{-0.5cm}
+    \caption{\textbf{Main editing results for QA setting (ZsRE dataset).} $T$: Num Edits.}
+    \centering
+    % \setstretch{1.2}
+    \resizebox{\linewidth}{!}{
+    \begin{tabular}{lccc|c|ccc|c|ccc|c|ccc|c}
+    \toprule
+    \multirow{3}{*}{\textbf{Method}} & \multicolumn{16}{c}{\textbf{QA}} \\
+    
+    %\cmidrule(lr){5-7}\cmidrule(lr){8-10} 
+    
+     \cmidrule(lr){2-17}
+     & \multicolumn{4}{c|}{$T=1$} & \multicolumn{4}{c|}{$T=10$} & \multicolumn{4}{c|}{$T=100$} & \multicolumn{4}{c}{$T=1000$} \\
+     \midrule
+     & Rel. & Gen. & Loc. & Avg. & Rel. & Gen. & Loc. & Avg.  & Rel. & Gen. & Loc. & Avg. & Rel. & Gen. & Loc. & Avg. \\
+     \midrule
+     \multicolumn{17}{c}{\texttt{\textbf{LLaMA-2-7B}}} \\
+     \midrule
+    FT-L & 0.57 & 0.52 & 0.96 & 0.68 & 0.48 & 0.48 & 0.76 & 0.57 & 0.30 & 0.27 & 0.23 & 0.27 & 0.19 & 0.16 & 0.03 & 0.13 \\
+     FT-EWC & 0.96 & \textbf{0.95} & 0.02 & 0.64 & 0.82 & 0.76 & 0.01 & 0.53 & 0.83 & 0.74 & 0.08 & 0.55 & 0.76 & 0.69 & 0.08 & 0.51 \\
+     MEND & 0.95 & 0.93 & 0.98 & 0.95 & 0.26 & 0.28 & 0.28 & 0.27 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 \\
+     ROME & 0.85 & 0.80 & 0.99 & 0.88 & 0.64 & 0.62 & 0.75 & 0.67 & 0.23 & 0.22 & 0.04 & 0.16 & 0.01 & 0.01 & 0.00 & 0.01 \\
+     MEMIT & 0.84 & 0.81 & 0.99 & 0.88 & 0.58 & 0.58 & 0.85 & 0.67 & 0.02 & 0.02 & 0.02 & 0.02 & 0.04 & 0.04 & 0.02 & 0.03 \\
+     MEMIT-MASS & 0.84 & 0.81 & 0.99 & 0.88 & 0.75 & 0.72 & 0.97 & 0.81 & 0.76 & 0.68 & 0.85 & 0.76 & 0.69 & 0.65 & 0.62 & 0.65 \\
+     DEFER & 0.68 & 0.58 & 0.56 & 0.61 & 0.65 & 0.47 & 0.36 & 0.49 & 0.20 & 0.12 & 0.27 & 0.20 & 0.03 & 0.03 & 0.74 & 0.27 \\
+     % ICE & 0.96 & 0.90 & 0.80 & 0.89 & 0.89 & 0.82 & 0.80 & 0.84 & 0.89 & \textbf{0.81} & 0.77 & 0.82 & 0.93 & 0.82 & 0.82 & 0.86 \\
+     GRACE & \textbf{0.99} & 0.36 & \textbf{1.00} & 0.78 & \textbf{0.96} & 0.16 & \textbf{1.00} & 0.71 & \textbf{0.96} & 0.15 & \textbf{1.00} & 0.70 & \textbf{0.93} & 0.08 & \textbf{1.00} & 0.67 \\
+     \midrule
+     \rowcolor{blue!8}\textbf{WISE} & 0.98 & 0.92 & \textbf{1.00} & \textbf{0.97} & 0.94 & \textbf{0.88} & \textbf{1.00} & \textbf{0.94} & 0.90 & \textbf{0.81} & \textbf{1.00} & \textbf{0.90} & 0.77 & \textbf{0.72} & \textbf{1.00} & \textbf{0.83} \\
+     \midrule
+     \multicolumn{17}{c}{\texttt{\textbf{Mistral-7B}}} \\
+     \midrule
+     FT-L & 0.58 & 0.54 & 0.91 & 0.68 & 0.39 & 0.39 & 0.50 & 0.43 & 0.11 & 0.10 & 0.02 & 0.08 & 0.16 & 0.13 & 0.01 & 0.10 \\
+     FT-EWC & \textbf{1.00} & \textbf{0.99} & 0.01 & 0.67 & 0.84 & 0.78 & 0.02 & 0.55 & 0.82 & 0.72 & 0.09 & 0.54 & 0.76 & 0.69 & 0.09 & 0.51 \\
+     MEND & 0.94 & 0.93 & 0.98 & 0.95 & 0.01 & 0.01 & 0.02 & 0.01 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 \\
+     ROME & 0.79 & 0.77 & 0.98 & 0.85 & 0.58 & 0.57 & 0.75 & 0.63 & 0.05 & 0.05 & 0.02 & 0.04 & 0.04 & 0.04 & 0.02 & 0.03 \\
+     MEMIT & 0.81 & 0.79 & 0.99 & 0.86 & 0.46 & 0.45 & 0.61 & 0.51 & 0.00 & 0.00 & 0.01 & 0.00 & 0.04 & 0.04 & 0.02 & 0.03 \\
+     MEMIT-MASS & 0.81 & 0.79 & 0.99 & 0.86 & 0.74 & 0.71 & 0.97 & 0.81 & 0.73 & 0.71 & 0.88 & 0.77 & 0.73 & \textbf{0.70} & 0.62 & 0.68 \\
+     DEFER & 0.64 & 0.54 & 0.79 & 0.66 & 0.53 & 0.43 & 0.29 & 0.42 & 0.28 & 0.17 & 0.26 & 0.24 & 0.02 & 0.02 & 0.67 & 0.24 \\
+     % ICE & 0.96 & 0.93 & 0.82 & 0.90 & 0.92 & 0.85 & 0.81 & 0.86 & 0.92 & 0.85 & 0.82 & 0.86 & 0.94 & 0.83 & 0.83 & 0.87 \\
+     GRACE & \textbf{1.00} & 0.36 & \textbf{1.00} & 0.79 & \textbf{1.00} & 0.15 & \textbf{1.00} & 0.72 & \textbf{1.00} & 0.15 & \textbf{1.00} & 0.72 & \textbf{1.00} & 0.02 & \textbf{1.00} & 0.67 \\
+     \midrule
+     \rowcolor{blue!8}\textbf{WISE} & 0.98 & 0.97 & \textbf{1.00} & \textbf{0.98} & 0.92 & \textbf{0.89} & \textbf{1.00} & \textbf{0.94} & 0.87 & \textbf{0.80} & \textbf{1.00} & \textbf{0.89} & 0.70 & 0.67 & \textbf{1.00} & \textbf{0.79} \\
+        \bottomrule 
+    \end{tabular}
+    }
+    \label{tab:zsre_main_editing}
+    \vspace{-0.4cm}
+\end{table}
+
+
+% activation scatter
+% size scaling
+% grace generality (t-SNE) [meaning trajectory]
+% Hparams: Mask_Ratio, Merge_Freq
+% Layer粒度，为什么选择中后层
+% TRR 等价于 locality
+% RAG 为什么泛化性差，ICL不efficiency。
+% 和SERAC的具体区别
+% --- end included file: tab/ZsRE_main_table.tex ---
+
+% \vspace{-0.3cm}
+\subsection{Experimental Settings and Evaluation Metrics} \label{subsec:exp_setting}
+In the experiments, we compare the performance of different baselines and WISE in sequentially editing LLM models hundreds to thousands of times. In practice, we augment $\mathbf{x}_e$ by generating 10 random token sequences of length 10 using $f_{\Theta}$, enhancing editing generalization/adaptation to diverse contexts. We ensure that this augmentation with random tokens is applied across all baselines (See Appendix \ref{sec:random_token_ablation}, we ablate the contribution of Random Token).
+
+
+% --- begin included file: tab/dataset.tex ---
+\addtolength{\tabcolsep}{-3pt}
+\begin{wraptable}{r}{0.50\textwidth}
+    \vspace{-0.4cm}
+    \centering
+    \caption{Dataset statistics for main results.
+    \textit{Locality Data} is the irrelevant data of the editing process. $T$ is the number of samples. \textit{Pre-edit} is the unedited model's performance on each dataset.}
+    \vspace{-0.2cm}
+    \resizebox{\linewidth}{!}{
+    \begin{tabular}{ccccc}
+    \toprule
+    \textsc{Setting} & \textsc{Editing Data} & $T$ & Pre-edit (LLaMA/Mistral) & \textsc{Locality Data} \\ 
+    % \cmidrule(lr){2-4}
+    % & Dataset & N & Pre-edit & Dataset \\
+    \midrule
+    QA & ZsRE \cite{zsre} & 1,000 & 0.36/0.39 ACC & NQ \cite{NQ}\\
+    Halluc. & SelfCheckGPT \cite{selfcheckgpt} & 600 & 27.4/19.4 PPL & RedPajama \cite{redpajama}\\
+    OOD Gen. & Temporal \cite{canonical_examples} & 100 & 0.56 $\delta$-ACC (GPT-J) & Pile \cite{pile}\\
+    \bottomrule\\    
+    \end{tabular}
+    }
+    \label{tab:datasets}
+    \vspace{-0.4cm}
+\end{wraptable}
+\addtolength{\tabcolsep}{3pt}
+% --- end included file: tab/dataset.tex ---
+
+\paragraph{Datasets and Models.} 
+We choose trending autoregressive LLM models \textbf{LLaMA-2-7B} \cite{llama-2},  \textbf{Mistral-7B} \cite{mistral}, and \textbf{GPT-J-6B}~\cite{gpt-1,gpt-j} for evaluation. The dataset details are in Table \ref{tab:datasets}. Following \cite{grace}, we evaluate WISE on the closed-book question-answering (QA) dataset \textbf{ZsRE}~\cite{zsre}, and also evaluate its ability to correct \textbf{Hallucination} in SelfCheckGPT \cite{selfcheckgpt}.
+The \textbf{Temporal} dataset \cite{canonical_examples} is employed to test the out-of-distribution (OOD) generalization of editing. 
+Since Temporal comprises emerging entities post-2019, we avoid using the latest LLMs in OOD experiments.
+Instead, we follow the original literature of the Temporal dataset \cite{canonical_examples} and adopt \textbf{GPT-J-6B} as the base model, which is pretrained on the Pile \cite{pile} with a cutoff in 2020.
+Implementation details and editing examples for each dataset and can be found in Appendix \ref{app_sec:implem_details}.
+
+\paragraph{Baselines.} 
+The baselines include methods of continual learning and model editing.
+We compare WISE against direct fine-tuning \textbf{FT-L} with an additional KL divergence loss \cite{rome}, and continual learning fine-tuning based on Elastic Weight Consolidation (\textbf{FT-EWC}) \cite{ewc}.
+We also compare WISE to other model editors, including 1) GPT-style editors based on causal tracing: \textbf{ROME} \cite{rome}, \textbf{MEMIT} \cite{memit}, and \textbf{MEMIT-MASS} (a batch-editing version of MEMIT); 2) hypernetwork-based editors: \textbf{MEND} \cite{mend};
+and 3) the latest memory-based editors: \textbf{DEFER} (inspired by SERAC \cite{serac} for inference routing) and \textbf{GRACE} \cite{grace}. Details on all comparisons are found in Appendix \ref{baselines}.
+
+\paragraph{Metrics.} 
+Each edit example includes an edit descriptor (i.e., query) $\mathbf{x}_e$, its paraphrase prompts $\mathbf{x}_{e'}$ (if available) for testing generalization, and an unrelated statement $\mathbf{x}_{\text{loc}}$ for testing locality. 
+For the editing dataset $\mathcal{D}_{\text{edit}}= \{(\mathcal{X}_e, \mathcal{Y}_e)\}$ with $T$ edits, we evaluate the final post-edit model $f_{\Theta_{T}}$ after the $T$-th edit example $(\mathbf{x}_T, \mathbf{y}_T)$. 
+We evaluate the model editor's reliability and generalization using the metrics \textbf{Rel.} (a.k.a Edit Success Rate~\cite{grace}) and \textbf{Gen.} (Generalization Success Rate~\cite{knowledge_editing_survey_2}), while \textbf{Loc.} (Localization Success Rate~\cite{knowledge_editing_survey_2}), defined as the post-edit model should not change the output of the irrelevant examples $\mathbf{x}_{\text{loc}}$, assesses specificity.
+We report these metrics and their mean scores, which are formally defined as:
+\begin{scriptsize}
+\begin{equation}\label{equ:metrics}
+        \text{Rel}. = \frac{1}{T}\sum\limits_{t=1}^{T} \mathbbm{1}(f_{\Theta_{T}}(\mathbf{x}_e^t) = \mathbf{y}_e^t),\
+        \text{Gen}. = \frac{1}{T}\sum\limits_{t=1}^{T} \mathbbm{1}(f_{\Theta_{T}}(\mathbf{x}_{e'}^t) = \mathbf{y}_e^t),\
+        \text{Loc}. = \frac{1}{T}\sum\limits_{t=1}^{T} \mathbbm{1}(f_{\Theta_{T}}(\mathbf{x}_{\text{loc}}^{t}) = f_{\Theta_{0}}(\mathbf{x}_{\text{loc}}^{t})),
+\end{equation}
+\end{scriptsize}
+where $\mathbbm{1}(\cdot)$ is the indicator function. Notably, for the Hallucination dataset, following~\cite{grace}, we use the perplexity (PPL) to verify the locality, and there is no proper metric for generalization.
+
+
+% --- begin included file: tab/hallucination_main_table.tex ---
+% \begin{table}[ht]
+%     \centering
+%     \setstretch{1.2}
+%     \vspace{0.2cm}
+%     \resizebox{\linewidth}{!}{
+%     \begin{tabular}{lcc|cc|cc|cc}
+%     \toprule
+%     \multirow{3}{*}{\textbf{Method}} & \multicolumn{8}{c}{\textbf{HALLUCINATION}} \\
+    
+%     %\cmidrule(lr){5-7}\cmidrule(lr){8-10} 
+    
+%      \cmidrule(lr){2-9}
+%      & \multicolumn{2}{c|}{$T=1$} & \multicolumn{2}{c|}{$T=10$} & \multicolumn{2}{c|}{$T=100$} & \multicolumn{2}{c}{$T=600$} \\
+%      \midrule
+%      & Rel. (\textit{PPL} $\downarrow$) & Loc. ($\uparrow$) & Rel. (\textit{PPL} $\downarrow$) & Loc. ($\uparrow$)& Rel. (\textit{PPL} $\downarrow$)  & Loc. ($\uparrow$) & Rel. (\textit{PPL} $\downarrow$) & Loc. ($\uparrow$) \\
+%      \midrule
+%      \multicolumn{9}{c}{\texttt{\textbf{LLaMA-2-7B}}} \\
+%      \midrule
+%      FT-L \citep{rome} &4.4051 &0.9648  &12.5682 &0.7051  &33.0566 &0.4138  &69.2170 &0.26g84 \\
+%      FT-EWC \citep{grace} &2.5649 &0.2391  &3.6312 &0.0941  &2.1011 &0.1576  &4.5649 &0.2391 \\
+%      MEND \citep{mend} &5.6493 &0.8682  &11.0093 &0.8614  &10.0350 &0.8831  &1847.9 &0.000 \\
+%      ROME \citep{serac} &1.6782 &0.9910  &2.0370 &0.9385  &94.1549 &0.0498  &104.93 &0.0230 \\
+%      MEMIT \citep{memit} &1.6603 &0.9960  &2.3571 &0.9714  &76.6493 &0.0496  &107.61 &0.0182 \\
+%     MEMIT-MASS \citep{memit} &1.6603 &0.9960  &1.6066 &0.9867  &7.1760 &0.9560  &13.4705 &0.9378 \\
+%      DEFER \citep{memit} &1.2851 &0.2316  &3.6400 &0.2833  &8.9123 &0.1900  &19.1570 &0.1175 \\
+%      ICE \citep{memit} &1.0058 &0.8882 &1.1432 &0.8819 &2.6298 &0.8836   &4.1700 &0.8814 \\
+%      GRACE \citep{memit} &2.5853 &0.9974  &9.6159 &1.000  &9.4369 &0.9998  &9.3375 &0.9974 \\
+%      % ICE \citep{memit} & & & & & &  & & \\
+
+%      \textbf{WISE} &1.9125 &0.9993  &1.0355 &0.9958  &1.1423 &0.9952  &3.1191 &0.9858 \\
+%      \midrule
+%      \multicolumn{9}{c}{\texttt{\textbf{Mistral-7B}}} \\
+%      \midrule
+%      FT-L \citep{rome} &25.0257 &0.3777  &99.9910 &0.02719  &1594.93 &0.0046  &- &- \\
+%      FT-EWC \citep{grace} &1.7489 &0.0386  &3.0541 &0.0915  &4.7309 &0.1707  &5.4572 &0.2453 \\
+%      MEND \citep{mend} &7.6408 &0.9569  &83.7369 &0.0460  &23114.94 &0.0107  &- &- \\
+%      ROME \citep{serac} &2.0446 &0.9932  &3.4454 &0.9225  &103.751 &0.0263  &241.1745 &0.0109 \\
+%      MEMIT \citep{memit} &1.6394 &0.9982  &15.8920 &0.8853  &97.2321 &0.0380  &132.2973 &0.0184 \\
+%      MEMIT-MASS \citep{memit} &1.6394 &0.9982  &2.7810 &0.9896  &3.2242 &0.9679  &7.2757 &0.9458 \\
+%      DEFER \citep{memit} &4.7619 &0.4505 &7.3021 &0.2509  &9.5392 &0.4319 &24.1573 &0.1273 \\
+%      ICE \citep{memit} &1.0111 &0.8810 &1.1405 &0.8833 &2.6722 &0.8778   &4.3573 &0.8832 \\
+%      GRACE \citep{memit} &1.3926 &1.000  &5.9656 &1.000  &9.5273 &1.000  &9.5661 &1.000 \\
+%      % ICE \citep{memit} & & & & & &   & & \\
+%      \textbf{WISE} &1.4017 &1.000  &2.5646 &0.9368  &1.3057 &0.9865  &5.2129 &0.9329 \\
+%     \bottomrule 
+%     \end{tabular}
+%     }
+%     \label{tab:single_main_editing}
+%     \vspace{0.2cm}
+%     \caption{Main editing results for HALLUCINATION.}
+%     \vspace{-0.3cm}
+% \end{table}
+
+
+\begin{table}[t]
+\vspace{-0.5cm}
+    \caption{\textbf{Main editing results for Hallucination setting (SelfCheckGPT dataset).} $T$: Num Edits.}
+    \centering
+    \setstretch{1.2}
+    % \vspace{0.2cm}
+    % \setlength{\tabcolsep}{5pt}
+    \resizebox{0.99\linewidth}{!}{
+    \begin{tabular}{l|cc|cc|cc|cc!{\vrule width 0.09em}cc|cc|cc|cc}
+    \toprule
+    \multicolumn{17}{c}{\textbf{Hallucination}} \\
+    \midrule
+     &\multicolumn{8}{c!{\vrule width 0.09em}}{\texttt{\textbf{LLaMA-2-7B}}}  &\multicolumn{8}{c}{\texttt{\textbf{Mistral-7B}}} \\
+     \cmidrule(lr){2-9} \cmidrule(lr){10-17}
+     & \multicolumn{2}{c|}{$T=1$} & \multicolumn{2}{c|}{$T=10$} & \multicolumn{2}{c|}{$T=100$} & \multicolumn{2}{c!{\vrule width 0.09em}}{$T=600$} & \multicolumn{2}{c|}{$T=1$} & \multicolumn{2}{c|}{$T=10$} & \multicolumn{2}{c|}{$T=100$} & \multicolumn{2}{c}{$T=600$}\\
+     \midrule
+     \textbf{Method}& Rel. (\textit{PPL} $\downarrow$) & Loc. ($\uparrow$) & Rel. ($\downarrow$) & Loc. ($\uparrow$)& Rel. ($\downarrow$)  & Loc. ($\uparrow$) & Rel. ($\downarrow$) & Loc. ($\uparrow$)& Rel. ($\downarrow$) & Loc. ($\uparrow$)& Rel. ($\downarrow$) & Loc. ($\uparrow$)& Rel. ($\downarrow$) & Loc. ($\uparrow$)& Rel. ($\downarrow$) & Loc. ($\uparrow$) \\
+     \midrule
+     FT-L &4.41 &0.96  &12.57 &0.71  &33.06 &0.41  &69.22 &0.26 &25.03 &0.38  &100.00 &0.03  &1594.93 &0.00  &- &- \\
+     FT-EWC &2.56 &0.24  &3.63 &0.09  &2.10 &0.16  &4.56 &0.24 &1.75 &0.04  &3.05 &0.09  &4.73 &0.17  &5.46 &0.25\\
+     MEND &5.65 &0.87  &11.01 &0.86  &10.04 &0.88  &1847.90 &0.00 &7.64 &0.96  &83.74 &0.05  &23114.94 &0.01  &- &- \\
+     ROME &1.68 &0.99  &2.04 &0.94  &94.15 &0.05  &104.93 &0.02 &2.04 &0.99  &3.45 &0.92  &103.75 &0.03  &241.17 &0.01\\
+     MEMIT &1.66 &\textbf{1.00}  &2.36 &0.97  &76.65 &0.05  &107.61 &0.02 &1.64 &\textbf{1.00}  &15.89 &0.89  &97.23 &0.04  &132.30 &0.02\\
+     MEMIT-MASS &1.66 &\textbf{1.00}  &1.61 &0.99  &7.18 &0.96  &13.47 &0.94 &1.64 &\textbf{1.00}  &2.78 &0.99  &3.22 &0.97  &7.28 &0.95\\
+     DEFER &\textbf{1.29} &0.23  &3.64 &0.28  &8.91 &0.19  &19.16 &0.12 &4.76 &0.45 &7.30 &0.25  &9.54 &0.43 &24.16 &0.13\\
+     GRACE &2.21 &\textbf{1.00}  &8.67 &\textbf{1.00}  &9.67 &\textbf{1.00}  &9.34 &\textbf{1.00} &\textbf{1.39} &\textbf{1.00}  &5.97 &\textbf{1.00}  &9.53 &\textbf{1.00}  &9.57 &\textbf{1.00}\\
+     \midrule
+     \rowcolor{blue!8}\textbf{WISE} &1.91 &\textbf{1.00}  &\textbf{1.04} &\textbf{1.00}  &\textbf{1.14} &\textbf{1.00}  &\textbf{3.12} &0.99 &1.40 &\textbf{1.00}  &\textbf{2.56} &0.94  &\textbf{1.31} &0.99  &\textbf{5.21} &0.93\\
+    \bottomrule 
+    \end{tabular}
+    }
+    \label{tab:halluc_main_editing}
+    \vspace{-0.3cm}
+\end{table}
+
+
+% activation scatter
+% size scaling
+% grace generality (t-SNE) [meaning trajectory]
+% Hparams: Mask_Ratio, Merge_Freq
+% Layer粒度，为什么选择中后层
+% TRR 等价于 locality
+% loc activation 1000 200
+% RAG 为什么泛化性差，ICL不efficiency。
+% 和SERAC的具体区别
+% --- end included file: tab/hallucination_main_table.tex ---
+
+
+\subsection{Main Results} \label{subsec: main_results}
+\paragraph{Competitive Performance of WISE.} 
+The competitive performance of WISE is evident in Table \ref{tab:zsre_main_editing} and \ref{tab:halluc_main_editing}, which compare its results with eight baselines on the QA (ZsRE) and Hallucination (SelfCheckGPT) settings. 
+In general, we observe the followings: \ding{182} WISE outperforms existing methods on multiple tasks after long editing sequences; \ding{183} direct editing of long-term memory (ROME, MEMIT, etc.) creates conflicts with prior pretraining knowledge, resulting in poor locality; and \ding{184} retrieving working memory and modifying activations (GRACE, DEFER, etc) struggle to generalize to diverse queries.
+
+
+% --- begin included file: tab/OOD_main_table.tex ---
+% \begin{table}[ht]
+%     \centering
+%     \setstretch{1.2}
+%     \vspace{0.2cm}
+%     \resizebox{0.9\linewidth}{!}{
+%         \begin{tabular}{lcccccc}
+%         \toprule
+%         \multirow{3}{*}{\textbf{Method}}
+        
+%         %\cmidrule(lr){5-7}\cmidrule(lr){8-10} 
+        
+%          % \cmidrule(lr){2-7}
+%          & \multicolumn{3}{c}{$\textbf{n = 10}$} & \multicolumn{3}{c}{$\textbf{n = 100}$} \\
+%          \cmidrule(lr){2-7}
+%          & Reliability & OOD Generality & Locality & Reliability & OOD Generality & Locality \\
+%          \midrule
+%          \texttt{GPT-J-6B} &\textit{0.5556} &\textit{0.2143} &- &\textit{0.5556} &\textit{0.2143} &- \\
+%          \midrule
+%          FT-EWC \citep{grace} &0.8659 &0.1666 &0.1332 &0.8141 &0.2173 &0.1815 \\
+%          ROME \citep{serac}  &0.0862 &0.0020 &0.0591 &0.0545 &0.0012 &0.0290 \\
+%          MEMIT-MASS \citep{memit}  &0.7331 &0.2178 &0.9939 &0.7837 &0.2717 &0.9687 \\
+%          DEFER \citep{memit}  &0.6804 &0.3270 &0.0849 &0.5211 &0.2603 &0.0778 \\
+%          GRACE \citep{memit}  &0.9717 &0.2836 &1.000 &0.9716 &0.2846 &1.000 \\
+%          \rowcolor{blue!8}\textbf{WISE}  &0.9863 &0.3555 &0.9782 &0.9598 &0.3726 &0.9970 \\
+%         \bottomrule 
+%         \end{tabular}
+%     }
+%     \label{tab:ood_main_editing}
+%     \vspace{0.2cm}
+%     \caption{OOD (Out of Distribution) editing results for Temporal.}
+%     \vspace{-0.3cm}
+% \end{table}
+
+\addtolength{\tabcolsep}{-3pt}
+\begin{wraptable}{r}{0.4\textwidth}
+    \centering
+    \vspace{-0.4cm}
+    \caption{\textbf{OOD results for Temporal dataset.} \texttt{GPT-J-6B} is used.}
+    % \setstretch{1.2}
+    \vspace{-0.2cm}
+    \resizebox{1.0\linewidth}{!}{
+        \begin{tabular}{lccc|c|ccc|c}
+        \toprule
+        \multirow{3}{*}{\textbf{Method}}
+        
+         %\cmidrule(lr){5-7}\cmidrule(lr){8-10} 
+         % \cmidrule(lr){2-7}
+         & \multicolumn{4}{c}{$T = 10$} & \multicolumn{4}{c}{$T = 75$} \\
+         \cmidrule(lr){2-9}
+         & Rel. & OOD Gen. & Loc. &Avg. & Rel. & OOD Gen. & Loc. &Avg. \\
+         \midrule
+          \textit{w/o Editing} &\textit{0.56} &\textit{0.21} &- &\textit{0.39 }&\textit{0.56} &\textit{0.21} &- &\textit{0.39} \\
+         \midrule
+         FT-EWC &0.87 &0.17 &0.13 &0.39 &0.81 &0.22 &0.18 &0.40 \\
+         ROME  &0.09 &0.00 &0.06 &0.05 &0.05 &0.00 &0.03 &0.03 \\
+         MEMIT-MASS  &0.73 &0.22 &0.99 &0.65 &0.78 &0.27 &0.97 &0.67 \\
+         DEFER  &0.68 &0.33 &0.08 &0.36 &0.52 &0.26 &0.08 &0.29 \\
+         GRACE  &0.97 &0.28 &\textbf{1.00} &0.75 &\textbf{0.97} &0.28 &\textbf{1.00} &0.75 \\
+         \midrule
+         \rowcolor{blue!8}\textbf{WISE}  &\textbf{0.99} &\textbf{0.36} &0.98  &\textbf{0.78} &0.96 &\textbf{0.37} &\textbf{1.00}  &\textbf{0.78} \\
+        \bottomrule 
+        \end{tabular}
+    }
+    \label{tab:ood_main_editing}
+    \vspace{-0.3cm}
+\end{wraptable}
+% --- end included file: tab/OOD_main_table.tex ---
+
+In the \textbf{QA} setting, with $T=1000$, WISE achieves average scores of 0.83 and 0.79 on LLaMA and Mistral, respectively, reflecting improvements of 18\% and 11\% over the nearest competitor.
+This demonstrates WISE's outstanding stability and effective management of long-sequential edits. 
+While methods like MEND and ROME are competitive early in editing, they show clear shortcomings as the edit sequence extends.
+Directly editing long-term memory (e.g., MEMIT, FT-EWC, MEND) results in a significant decline in Loc. When $T \in \{100, 1000\}$, this indicates that these methods cannot preserve LLMs' knowledge structure and significantly impair the model's generalization ability. 
+GRACE excels in Loc. and Rel. (close to 1.00), however, it sacrifices generalization in continual editing.
+A possible reason is that token representation may not be suitable for measuring semantic similarity in autoregressive LMs, leading to paraphrase $\mathbf{x}_{e'}$ failing to achieve similarity matching with any CodeBook \textit{Key} in GRACE (detailed in Appendix \ref{subsec: grace_generalization_analysis}).
+% Specifically, no amount of adjustment to the threshold for similarity matching (denoted as $\epsilon_{\text{init}}$ in GRACE) balances Gen. and Loc. (See Appendix \ref{subsec: grace_generalization_analysis} for more details).
+Overemphasis on preserving and precisely adapting training data (working memory) hampers adaptability to new contexts.
+In a nutshell, most previous methods struggle to balance Rel., Gen., and Loc., particularly in long-form editing tasks. In addition, the results of GPT-J-6B can be found in Figure~\ref{fig:gpt-j_zsre_fig} in the Appendix.
+
+WISE also surpasses the baselines on the \textbf{Hallucination} dataset, maintaining the lowest perplexity scores of 3.12 and 5.21 at $T=600$, with Loc. remaining above 0.93. We similarly observe significant \textit{PPL} increases for FT-L, MEND, and ROME in long-context editing tasks, while GRACE's performance is lackluster in LLM long texts (possibly due to the limited fitting capacity of the very small active trained parameters $\vert h^l \vert$ of GRACE).
+
+\paragraph{Out-of-Distribution Evaluation.} 
+Ideally, model editing needs to generalize distributionally from formulaic editing examples to natural texts \cite{canonical_examples}, where the distributional shift involves complexity rather than conventional domain shift \cite{domain_shift}.
+Following \citep{canonical_examples}, we evaluate the OOD generalization of editing methods on emerging entities using the temporal updating dataset, \textbf{Temporal}. 
+Editing examples and evaluation metrics are provided in Appendix \ref{app_subsec:data_description}.
+As shown in Table \ref{tab:ood_main_editing}, WISE effectively handles out-of-distribution generalization tasks (achieving the best OOD Gen. and overall performance).
+DEFER delivers mediocre performance on OOD Gen. due to the limited capacity of the auxiliary model\cite{knowledge_editing_survey_1}.
+During the fine-tuning phase, GRACE and MEMIT focus on the representation $v*$ of a \textbf{single} input token after $\mathbf{W}_v$ (GRACE: last token, MEMIT: last subject token).
+However, regarding $v*$ the editing carrier encounters two problems: 1) the training objective is not aligned with the pretraining phase, and 2) the single representation limits the search scope of gradient descent, making it difficult to handle OOD generalization. WISE, on the other hand, avoids these challenges.
+% In contrast, the shortcomings of GRACE and MEMIT-MASS reveal that relying solely on activation $v^*$ is insufficient for complex out-of-distribution generalization.
+
+% \newpage
+
+% --- begin included file: sec/analysis.tex ---
+\subsection{Further Analysis}
+\label{subsec: further_analysis}
+% \begin{figure}[ht]
+%     \vspace{-13pt}
+%     \centering
+%     \includegraphics[width=0.5\textwidth]{img/zsre_effect_of_activation_loss.pdf}%
+%     \includegraphics[width=0.5\textwidth]{img/Hallucination_effect_of_activation_loss.pdf}%
+%     \vspace{-3pt}%
+%     \caption{Activation values of the \texttt{down\_proj} module.}
+%     \vspace{-5pt}
+%     \label{fig:act_loss_effect}
+% \end{figure}
+\begin{wrapfigure}{r}{0.4\columnwidth}
+    \centering
+    \vspace{-0.7cm}
+    \begin{minipage}{0.4\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{img/zsre_effect_of_activation_loss.pdf}
+        \vspace{-17pt}
+    \end{minipage}
+    \begin{minipage}{0.4\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{img/Hallucination_effect_of_activation_loss.pdf}
+    \end{minipage}
+    \vspace{-0.3cm}%
+    \caption{\textbf{Activations of the memory routing module of WISE when varying $T$.} \texttt{X-axis}: Num edits. \texttt{LLaMA-7B}.}
+    \vspace{-0.7cm}%
+    \label{fig:act_loss_effect}
+\end{wrapfigure}
+\paragraph{Visualization of WISE's Routing Activation.} 
+To demonstrate the effectiveness of memory routing, we record the activation values $\Delta_{\text{act}}(\mathbf{x})$ of 1000 (QA, ZsRE)/600 (Halluc.) queries during the inference stage via knowledge merging into a single side memory.
+As shown in Figure \ref{fig:act_loss_effect}, the purple horizontal line represents the activation threshold $\epsilon$ recorded during the editing phase.
+Almost all unrelated queries show low activations with values less than 10 in ZsRE and less than 20 in Halluc.; meanwhile, WISE accurately routes the editing prompt and unseen paraphrases into the side memory.
+This ensures editing locality and prevents excessive shifts from the pre-training distribution during lifelong editing.
+
+
+% \begin{wrapfigure}{r}{0.3\columnwidth}
+%     \centering
+%     \vspace{-10pt}
+%     \centering
+%     \includegraphics[width=0.3\textwidth]{img/layer_varying_scores.pdf}
+%     \vspace{-13pt}%
+%     \caption{Varying layer.}
+%     \vspace{-13pt}%
+%     \label{fig:layer_varying}
+% \end{wrapfigure}
+
+
+% \begin{wrapfigure}{r}{0.7\columnwidth}
+%     \centering
+%     \vspace{-10pt}
+%     \centering
+%     \includegraphics[width=0.48\linewidth]{img/rho_k_analysis_avg.pdf}
+%     \includegraphics[width=0.48\linewidth]{img/rho_k_analysis_subspace_overlap.pdf}
+%     \vspace{-13pt}%
+%     \caption{$\rho$ and $k$.}
+%     \vspace{-13pt}%
+%     \label{fig:rho_k_analysis}
+% \end{wrapfigure}
+
+\begin{figure}[t]
+\centering
+\vspace{-0.4cm}
+    \begin{minipage}{0.32\linewidth}\centering
+         \vspace{0.1cm}
+    \centering
+    \includegraphics[width=0.95\textwidth]{img/layer_varying_scores.pdf}
+    % \vspace{-13pt}%
+    \caption{\small\textbf{Analysis of locating FFN layer of side memory for WISE.} ZsRE, \texttt{LLaMA-2-7B}.}
+    % \vspace{-13pt}%
+    \label{fig:layer_varying}
+    \end{minipage}
+    \hspace{0.05in}
+    \begin{minipage}{0.65\linewidth}\centering
+         % \vspace{-0.2cm}
+    \centering
+    \includegraphics[width=0.45\linewidth]{img/rho_k_analysis_avg.pdf}
+    \includegraphics[width=0.48\linewidth]{img/rho_k_analysis_subspace_overlap.pdf}
+    % \vspace{-13pt}%
+    \caption{\small\textbf{Analysis of different mask ratios $\rho$ and subspaces $k$ for WISE.} Left: Avg. performance of Rel., Gen., and Loc.; Right: the subspace overlap probability in Theorem~\ref{theorem:subspace_overlap}. ZsRE, \texttt{LLaMA-2-7B}.}
+    % \vspace{-13pt}%
+    \label{fig:rho_k_analysis}
+    \end{minipage}
+    \vspace{-0.5cm}
+\end{figure}
+
+\paragraph{Localization Analysis of WISE's Side Memory.}
+\label{subsec:layer_selection}
+To validate the benefits of editing mid-to-late layers, we select decoder layers from early, intermediate, mid-to-late, and late stages.
+As shown in Figure \ref{fig:layer_varying}, the ablation results reveal that editing critical layers like the early and final layers (0, 1, 31) is ineffective, even resulting in a very low Loc. value of 0.096, which indicates a failure to recognize the editing scope.
+This may occur because the early layers represent fundamental grammatical information, and the final layer directly controls the decoding procedure, leading to poor editing of advanced language functions.
+Editing in the intermediate layers is suboptimal but still shows a markable improvement compared to early layers, possibly because intermediate layers start to integrate basic grammatical information with more complex semantic data.
+Notably, the mid-to-late layers demonstrate exceptional editing performance; for instance, selecting layer 26 results in an 80\% success rate and generalization while maintaining 100\% locality.
+This empirically supports our claim in Section \ref{subsec:locating_side_memory} that the redundant mid-to-late layers \cite{shortgpt} are ideal side memory layers and confirms the hierarchical nature of information processing in Transformer LLMs \cite{hierarchy_1, hierarchy_2}.\looseness=-1
+
+\paragraph{Analysis of $\rho$ and $k$ for WISE.} We analyze the important hyperparameters of WISE: the mask ratio $\rho$ and the number of subspaces $k$ in Figure~\ref{fig:rho_k_analysis}.
+On the left figure, for $k=2$, the best $\rho$ is 0.2, satisfying $k*\rho=0.4<1$, which implies the effectiveness of our subspace design that higher knowledge density will cause better generalization. When scaling $k$, we observe an increasing demand of $\rho$. From Theorem~\ref{theorem:subspace_overlap}, the probability of subspace overlap is $\rho^k$, and we hypothesize that this overlap is important as an anchor for model merging. Interestingly, from the right figure, it can be observed that the optimal cases always have the $\rho^k$ closest to 0.03. This shows an inherent tradeoff between merge anchor and merge conflicts, and the subspace overlaps around 0.03 are optimal for the best performances. Such experiments indicate that 20\% FFN parameters can accommodate at least 500 edited samples. When "mask memory exhaustion" occurs, we can allocate new mask parameters to store new knowledge. Using retrieve when knowledge isn't full and merging as needed to save memory, achieves true lifelong model editing.\looseness=-1
+
+
+% --- begin included file: tab/ZsRE_scaling2_3K.tex ---
+\begin{wraptable}{r}{0.50\textwidth}
+    \centering
+    \vspace{-0.3cm}
+    \caption{\small\textbf{Scaling to 3K edits of ZsRE.} \texttt{LLaMA-2-7B}.}
+    % \setstretch{1.2}
+    \vspace{-0.2cm}
+    \resizebox{1.0\linewidth}{!}{
+        \begin{tabular}{lccc|c|ccc|c}
+        \toprule
+        \multirow{3}{*}{\textbf{Method}}
+        
+         %\cmidrule(lr){5-7}\cmidrule(lr){8-10} 
+         % \cmidrule(lr){2-7}
+         & \multicolumn{4}{c}{$T = 2000$} & \multicolumn{4}{c}{$T = 3000$} \\
+         \cmidrule(lr){2-9}
+         & Rel. & Gen. & Loc. &Avg. & Rel. & Gen. & Loc. &Avg. \\
+         \midrule
+        GRACE &	\textbf{0.96} &	0.03 &	\underline{1.00} &0.66 &\textbf{0.96} &0.03 &\underline{1.00} &0.66 \\
+        MEMIT-MASS &0.64 &0.58  &0.55  &0.59 &0.58 &0.53 &0.47 &0.53 \\
+        \midrule
+        WISE-Merge &0.66 &0.63 &1.00 &0.76 &0.58 &0.56 &1.00 &0.71 \\
+        \rowcolor{orange!15}WISE-Retrieve &\underline{0.68} &\textbf{0.64} &\textbf{1.00} &\textbf{0.77} &\underline{0.61} &\textbf{0.58} &\textbf{1.00} &\textbf{0.73} \\
+        $\text{WISE-Retrieve}_{\text{oracle}}$ &0.77 &0.72 &1.00 &0.83 &0.75 &0.70 &1.00 &0.82 \\
+        \bottomrule 
+        \end{tabular}
+    }
+    \label{tab:zsre_scaling2_3K}
+    \vspace{-0.35cm}
+\end{wraptable}
+% --- end included file: tab/ZsRE_scaling2_3K.tex ---
+
+\paragraph{Scale Up to 3K of Edits.} \label{subsec: scaling2_3K}
+We scale the number of continual edits to 3K in Table \ref{tab:zsre_scaling2_3K}. 
+We compare WISE-Merge, keeping one side memory by multi-time merging, and WISE-Retrieve, keeping several side memories by routing and retrieving among different side memories.  
+For WISE-Retrieve, we show an upper bound ``\textit{oracle}'', which always identifies the correct routing path. 
+We observe that the WISE series maintains high scalability, consistently outperforming the strongest baselines including MEMIT-MASS and GRACE.
+WISE-Retrieve based on top-1 activation retrieval demonstrates the best results in 3K edits, showing the effectiveness of well-organized memory subspaces and routing strategies during editing.
+We note that the ``\textit{oracle}'' exhibits marginal performance decline when scaling the edits from 2K to 3K, yet it demonstrates remarkable performance across all metrics. 
+This underscores the potential of WISE to handle extremely long continual edits, contingent upon substantial improvement in the retrieval of side memories. 
+Additionally, an appropriate replay of edits can further improve retrieval accuracy, as detailed in Appendix \ref{app_sec: retrieve_analysis}.
+
+
+% --- begin included file: tab/router_ablation.tex ---
+\begin{wraptable}{r}{0.35\textwidth}
+    \centering
+    \vspace{-0.47cm}
+    \caption{\textbf{Ablation study of Router (compared with Table \ref{tab:zsre_main_editing})}. \texttt{LlaMA}.}
+    \centering
+    \resizebox{\linewidth}{!}{
+    \begin{tabular}{lcccc}
+    \toprule
+    $\text{WISE}_{\text{w.o.}\, L_a}$ & Rel. & Gen. & Loc. & Avg. \\
+    \midrule
+    $T = 1$	 & 1.00 & 0.96 & 0.93 {\small \textcolor{teal}{-0.07}} & 0.96 {\small \textcolor{teal}{-0.01}} \\
+    $T = 10$ & 0.93 & 0.90 &0.88 {\small \textcolor{teal}{-0.12}} & 0.90 {\small \textcolor{teal}{-0.04}} \\
+    $T = 100$ & 0.92 & 0.85 & 0.81 {\small \textcolor{teal}{-0.19}} & 0.86 {\small \textcolor{teal}{-0.04}} \\
+    $T = 1000$ & 0.84 & 0.79 &0.72 {\small \textcolor{teal}{-0.28}} &0.78 {\small \textcolor{teal}{-0.05}} \\
+    \bottomrule 
+    \end{tabular}
+    }
+    \label{tab:router_ablation}
+    \vspace{-0.4cm}
+\end{wraptable}
+% --- end included file: tab/router_ablation.tex ---
+
+\paragraph{Contribution of Router designs in WISE.}
+Without the router strategy, all inputs either pass solely through the main or side memory. To further validate its effectiveness, we conduct additional ablations with $L_a$. WISE's performance on ZsRE is shown in Table \ref{tab:router_ablation}. We observe the expected decrease in Loc. w.o. $L_a$, such as dropping from 1.00 to 0.72 at T=1000, reveals the router's effectiveness in identifying editing scopes, minimizing side effects, and retaining a substantial amount of pre-training knowledge.
+
+\begin{wrapfigure}{r}{0.45\columnwidth}
+    \centering
+    \vspace{-16pt}
+    \includegraphics[width=0.45\textwidth]{img/inference_time.pdf}
+    \vspace{-17pt}%
+    \caption{\textbf{Inference time of WISE when varying $T$.} ZsRE, \texttt{LLaMA-2-7B}.}
+    \label{fig:inference_time}
+    \vspace{-13pt}%
+\end{wrapfigure}
+\paragraph{Inference Time Analysis of WISE.} 
+Figure \ref{fig:inference_time} shows the inference time of a single instance for LLaMA after $t \in [0, 3000]$ editing steps, measured across 10 trials of each setting. 
+Consistent with our expectations, we find that WISE-Merge incurs a constant inference delay (about 3\%) as the editing stream expands.
+WISE-Retrieve, due to the introduction of retrieval routing, shows an increase in inference time as the number of edits increases, with a time cost increment of about 7\% after 3K edits.
+% We discuss memory usage in Appendix \ref{subsec: parameter_efficiency}, where 
+Knowledge merging ensures that WISE-Merge only brings constant additional costs (0.64\% extra parameters and 4\% extra GPU VRAM, as detailed in Appendix \ref{subsec: parameter_efficiency}), contrasting with past memory-based works that continuously demand more available memory \cite{grace, serac}.
+
+% --- end included file: sec/analysis.tex ---
+
+% \begin{wrapfigure}{r}{0.4\columnwidth}
+%   \centering
+%   \vspace{-0.3cm}
+%     \includegraphics[width=0.99\linewidth]{img/motivation_radar_fig_with_shadow.pdf}
+%     \caption{\textbf{Metric triplet among reliability, generalization, and locality.} ZsRE dataset, number of continual edits $n=100$, LLaMA-2-7B. Editing methods based on long-term memory (ROME and FT-EWC) and working memory (DEFER and GRACE) show the impossible triplet in metrics, while our WISE is leading in all three metrics.}\label{fig:motivation_fig_radar}
+%   \vspace{-0.2cm}
+% \end{wrapfigure}
+% --- end included file: sec/experiments.tex ---
+
+
+% --- begin included file: sec/related_work.tex ---
+% A shorter and concise version:
+% \vspace{-0.2cm}
+\section{Related Works}\label{sec:related_works}
+% \vspace{-0.2cm}
+\paragraph{Memory and Knowledge Injection of LLMs.}
+LLMs have long-term (episodic) and working memory~\cite{llm_controllable_working_memory,memoria,spalm}. Long-term memory is stored in model parameters, updatable via (re)pretraining~\cite{gpt-1}, finetuning~\cite{lora}, and model editing~\cite{knowledge_editing_survey_1}. Working memory resides in neuron activations, utilized during inference~\cite{llm_controllable_working_memory}. In-context learning and retrieval-based editing methods like GRACE contribute to working memory~\cite{chain_of_thoughts,grace}. However, whether finetuning or retrieval is debated~\cite{ft_vs_rag,fewshotft_vs_icl}. Also, current knowledge injection methods often suffer from computational overhead~\cite{llama-2,grace}, catastrophic forgetting~\cite{catastrophic_forgetting_llm}, and overfitting~\cite{memorization_overfitting}. Methods like MemorryLLM~\cite{memoryllm}, SPALM~\cite{spalm}, NKB~\cite{knowledge_bank}, and Memoria~\cite{memoria} are proposed to improve the memories from the architecture design perspective.\looseness=-1
+% Addressing these issues involves controllable ICL training~\cite{llm_controllable_working_memory}, long-context techniques~\cite{landmark_attention,infini_attention}, and memory architecture design~\cite{memoryllm}.
+% SPALM enhances LLMs with storage modules resembling both memories~\cite{spalm}. Model editing research aims at fast, data-efficient, and non-destructive knowledge updates~\cite{knowledge_editing_survey_1,knowledge_editing_survey_2}.
+
+\paragraph{Model Editing of LLMs.}
+Model editing encompasses constrained finetuning, locating-and-editing, meta-learning, and retrieval-based methods.
+% Constrained finetuning updates parameters based on new examples~\cite{constrained_ft_me_1,constrained_ft_me_2}.
+ROME identifies factual associations and edits efficiently using MLP-based memories~\cite{rome}, extended by MEMIT for mass-editing~\cite{memit}. T-Patcher adds neurons for edits in LLMs' feed-forward layers~\cite{t-patcher}. Meta-learning methods like MEND decouple finetuning gradients to generalize edits~\cite{mend}, complemented by MALMEN addressing cancellation effects~\cite{malmen}. Retrieval-based methods like SERAC and GRACE improve working memory for editing~\cite{serac,grace}. From single to mass editing and static to lifelong editing, model editing evolves to meet realistic demands.
+The latest efforts in lifelong editing such as LTE \cite{lte}, MALMEN \cite{malmen}, and RECIPE \cite{recipe} require extensive training with domain-specific edits before specific editing, yet we cannot predict the domain of upcoming edits in the editing flow and accessing these data is often impractical or unrealistic.
+It potentially increases the risks associated with retraining.
+
+\paragraph{Model Merging}
+% linear mode connectivity, permutation invariance (DNN mechanism)
+% OTFusion, Git Rebasin, training-time alignment, model soup
+% 不同model size Zip
+% multi-task merge: ColD fusion, task arthimic SLOPE, TIES, 之类的
+Model merging~\cite{mergekit}, also known as model fusion~\cite{deep_model_fusion_survey,otfusion}, studies how to aggregate different models' knowledge into one by parameter merging. However, in the research of linear mode connectivity, it is found that different minima of neural networks can hardly be merged into a generalized one even if trained on the same datasets from the same initialization (but with different random seeds)~\cite{perm_role_lmc,git_rebasin}. The main reason is considered to be the permutation invariance property of deep neural networks, which means that the positions of neurons can be permuted without affecting the network function~\cite{perm_role_lmc}; as a result, different minima reside in different loss basins~\cite{git_rebasin}. To improve linear mode connectivity and model merging, methods like optimal transport~\cite{otfusion,formerotfusion}, re-basin~\cite{git_rebasin}, and training-time alignment~\cite{tna} are developed. For the applications, model merging techniques can help to improve the generalization of federated learning~\cite{fedlaw,fedma} and enable knowledge aggregation of different-task models in a task arithmetic way~\cite{task_arithmetic,task_arithmetic_tangent}. Recently, methods like task arithmetic in tangent space~\cite{task_arithmetic_tangent}, TIES-Merging~\cite{ties_merge}, ZipIt!~\cite{zipit}, and ColD fusion~\cite{cold_fusion} have been proposed for deep model fusion of pretrained foundation models, such as CLIP, ViT, and large language models. Specifically, TIES-Merging~\cite{ties_merge} consists of trim, elect sign \& merge pipeline, which inspires the merge process of side memories in our paper.
+
+
+For detailed related works, please refer to Appendix \ref{app_sec:more_related_works}.
+
+
+% \section{Related Works}\label{sec:related_works}
+% \textbf{Memory and Knowledge Injection of LLMs} 
+% The memories of LLMs can be divided into long-term (episodic) memory and working memory (short-term)~\cite{llm_controllable_working_memory,memoria,spalm}. Long-term memory refers to the knowledge stored in the model's parameters, which can be updated by (re)pretraining~\cite{gpt-1}, finetuning~\cite{lora}, and model editing~\cite{knowledge_editing_survey_1}. Working memory is stored in sustained activations/representations of neurons, which will be awakened during inference time~\cite{llm_controllable_working_memory}. In-context learning (ICL) is a kind of working memory~\cite{chain_of_thoughts}, also along with retrieval-based editing methods like GRACE~\cite{grace}. 
+% % How to reinforce memory and inject/update knowledge for LLMs is a fundamental question~\cite{memoryllm,ft_vs_rag,fewshotft_vs_icl}. ICL or finetuning? Different works show different conclusions. In \cite{fewshotft_vs_icl}, the authors find that few-shot finetuning is more generalizable than ICL, especially for out-of-distribution data. In \cite{ft_vs_rag}, the authors contrast finetuning with retrieval-augmented generation (RAG) in terms of knowledge injection and find that RAG is better in most cases, and combining both will produce the best results. 
+% However, finetuning and pretraining are computation-expensive~\cite{llama-2,grace} and usually suffer from catastrophic forgetting~\cite{catastrophic_forgetting_llm} and overfitting~\cite{memorization_overfitting}. For ICL and RAG, the working memory is sometimes not controllable, the model may not follow the information of the contexts~\cite{llm_controllable_working_memory}, and the context window is limited~\cite{landmark_attention,infini_attention}, and there are works addressing these issues by training controllable ICL~\cite{llm_controllable_working_memory}, long-context techniques~\cite{landmark_attention,infini_attention}, and recurrent memory architecture design~\cite{memoryllm}. 
+% SPALM is proposed to add language models with storage modules that resemble both working and long-term memories~\cite{spalm}. Also, model editing is an emerging area of research that aims to enable fast, data-efficient, and non-destructive knowledge updates to LLMs~\cite{knowledge_editing_survey_1,knowledge_editing_survey_2}.
+
+% \textbf{Model Editing of LLMs} 
+% Model editing can be summarized as the following lines of research. 
+% \textbf{\textit{Constrained finetuning:}} Preliminary model editing uses constrained finetuning to update parameters based on new examples~\cite{constrained_ft_me_1,constrained_ft_me_2}. 
+% \textbf{\textit{Locate-and-edit:}} ROME~\cite{rome} locates the factual associations in autoregressive LLMs and conducts accurate and efficient edits by taking MLPs as key-value memories. Then, MEMIT~\cite{memit} extends ROME from single-editing to mass-editing. In addition, T-Patcher~\cite{t-patcher} targets the last feed-forward layer of LLMs, adding an additional neuron for each edit. 
+% \textbf{\textit{Meta learning:}} Recent meta-learning methods use hypernetworks for aiding editing. MEND~\cite{mend} learns a hypernetwork that can decouple the finetuning gradients into the gradient updates that generalize the edits and won't damage the performances on unrelated inputs. To remedy the cancellation effect of MEND, MALMEN~\cite{malmen} uses hypernetwork to produce the weight shifts of editing and formulates the weight shift aggregation as the least square problem. 
+% \textbf{\textit{Retrieval-based methods:}} Instead of directly editing the model parameters, retrieval-based methods aim to improve the working memory of LLMs to enable model editing. SERAC~\cite{serac} (a modified version dubbed as DEFER~\cite{grace}) records edit items in a file and trains additional scope classifier and counterfactual model to detect, retrieve, and generate the edit-related results. Though the editing retriever and generator are neural networks, they are too small to have the power of LLMs. GRACE~\cite{grace} adopts a discrete codebook of edits for retrieving and replacing the edits' layer representations during inference. From single editing~\cite{rome} to mass editing~\cite{malmen,memit}, and from static editing to sequential~\cite{t-patcher} (continual) or lifelong editing~\cite{grace}, model editing is developing to meet more realistic demands. 
+
+
+% --- end included file: sec/related_work.tex ---
+
+
+% \vspace{-0.2cm}
+\section{Limitations and Broader Impacts} \label{sec: limitation}
+% \vspace{-0.2cm}
+Although WISE shows promising results in lifelong editing, it also has some limitations. 
+One limitation is addressed in Table~\ref{tab:zsre_scaling2_3K} that the side memory retrieval has room for improvement to reach the oracle. Also, in Figure~\ref{fig:inference_time}, the inference time of WISE-Retrieve increases with ever-growing editing streams. 
+However, the current limitations cannot outweigh the merits of WISE in that it currently reaches better performance in general for lifelong model editing.
+% We believe our paper will have broader impacts on the community of LLM.
+% We bridge the gap between long-term and working memory, and the design of WISE may inspire more work about memory design for model editing or even LLM architecture. However, some previous model editors today directly update the model’s weights for parametric knowledge injection. This makes it hard to trace back what edits have been made to a model and difficult to withdraw/erase edits. Our WISE uses side memory, which is modular and non-destructive. If the edits are no longer needed, the users can simply abandon the side memory without modifications to the main LLMs.
+We bridge the gap between long-term and working memory, it may inspire further work on memory design for model editing or even LLM architecture.
+However, the application of such technologies should be guided by ethical considerations.
+Malicious users may attempt to edit LLMs to propagate hate, highlighting the need for safeguards to prevent abuse and mitigate harmful outcomes.
+% Some current model editors directly update the model’s weights for parametric knowledge injection, making it difficult to trace back edits and withdraw/erase them.
+% WISE employs side memory, which is modular and non-destructive.
+% If the edits are no longer needed or are harmful, users can simply abandon the side memory without modifications to the main LLMs.
+Some current model editors update the model's weights directly, making edits hard to trace and withdraw.
+WISE uses a modular and non-destructive side memory, allowing users to discard it if edits are unnecessary or harmful, without modifications to the main LLMs.
+
+\section{Conclusion}
+In this paper, we point out the impossible triangle of current lifelong modeling editing approaches that reliability, generalization, and locality can hardly be achieved simultaneously. We find the reason behind this is the gap between working and long-term memory. 
+Therefore, we propose WISE, consisting of side memory and model merging, to remedy the gap. 
+%Extensive results show WISE is promising to reach high metrics at once on various datasets and LLM models.
+
+
+\section*{Acknowledgements}
+
+We would like to express gratitude to the anonymous reviewers for their kind comments. 
+This work was supported by the National Natural Science Foundation of China (No. 62206246, No. NSFCU23B2055, No. NSFCU19B2027), the Fundamental Research Funds for the Central Universities (226-2023-00138), Zhejiang Provincial Natural Science Foundation of China (No. LGG22F030011), Yongjiang Talent Introduction Programme (2021A-156-G), SMP-Zhipu.AI Large Model Cross-Disciplinary Fund, Ningbo Science and Technology Special Projects under Grant No. 2023Z212, Information Technology Center and State Key Lab of CAD\&CG, Zhejiang University.
+We gratefully acknowledge the support of Zhejiang University Education Foundation Qizhen Scholar Foundation.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\bibliography{references}
+\bibliographystyle{unsrt}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+% --- begin included file: appendix/appendix.tex ---
+\newpage
+\appendix
+% \onecolumn
+
+
+\begin{center}
+\Large
+\textbf{Appendix}
+\end{center}
+
+
+
+In the Appendix, we introduce more details  along with additional experimental results, discussions, and related works:
+
+\begin{itemize}
+\item Appendix \ref{app_sec:implem_details}: Experimental setups (cf. Section \ref{sec:exp}).
+\item Appendix \ref{app_sec:more_results}: More experimental results (cf. Section \ref{sec:method} and \ref{sec:exp}).
+\item Appendix \ref{app_sec:proof}: Proof of the Theorem~\ref{theorem:subspace_overlap} (cf. Section \ref{sec:method}).
+\item Appendix \ref{app_sec:more_related_works}: Additional discussions and more related works (cf. Section \ref{sec:related_works}).
+\end{itemize}
+
+
+
+
+
+% --- begin included file: appendix/implementation_details.tex ---
+\captionsetup[subtable]{position=top}
+\def\zsrex{Which continent is Berkner Island in?}
+\def\zsrey{South America}
+\def\zsrelocx{who gets the golden boot if its a tie?}
+\def\zsrelocy{shared}
+\def\zsrexx{On which continent is Berkner Island located?}
+\def\zsreyy{South America}
+
+\def\hallucx{This is a Wikipedia passage about heinz christian pander. Heinz Christian Pander (1794 - 1865) was a German anatomist and embryologist who was born in Riga, Latvia. He studied medicine at the University of Dorpat and later at the University of Berlin.}
+\def\hallucy{In 1820, he took part in a scientific expedition to Bokhara as a naturalist.}
+\def\halluclocx{Tired and restlessly, drifting in and out of sleep. Hearing crashing and banging, thinking the roof will cave in. Not alert enough to quite know what}
+\def\halluclocy{it was, I yelled loudly for whoever was making those noises at such an hour to stop. They heard and listened, I'm guessing}
+
+\def\temporalx{Self-driving cars,}
+\def\temporaly{also known as autonomous vehicles, are vehicles that are capable of navigating and operating without human intervention. These innovative vehicles rely on a combination of advanced sensors, artificial intelligence, and computer algorithms to interpret their environment and make real-time decisions. With the potential to significantly impact numerous industries and sectors, self-driving cars have the ability to revolutionize transportation by enhancing safety, improving traffic flow, and increasing energy efficiency. However, challenges related to regulatory frameworks, ethical considerations, and public acceptance still need to be addressed before widespread adoption becomes a reality.}
+\def\temporallocx{Apple has a new peach with the release of its 3.0GHz, 8-core Intel Xeon-based Mac Pro. The 8-core Mac Pro is powered bu two quad-core Intel Xeon \"Clov}
+\def\temporallocy{ertown\" processors running at 3.0GHz. Apple also released a quad-core Mac Pro featuring two Dual-Core Intel Xeon \"Woodcrest\" processors.}
+\def\temporalyy{also known as autonomous cars or driverless cars, are vehicles capable of traveling without human input. These cars utilize a range of sensors, including optical and thermographic cameras, radar, lidar, ultrasound/sonar, GPS, odometry, and inertial measurement units, to perceive their surroundings. By interpreting sensory information, control systems in the car are able to create a three-dimensional model of its environment. Using this model, the car can then identify the best navigation path and develop strategies for managing traffic controls and obstacles. As self-driving car technology continues to advance, it is expected to have a significant impact on various fields such as the automotive industry, health, welfare, urban planning, traffic, insurance, and the labor market. The regulation of autonomous vehicles is also becoming an increasingly important topic of discussion.}
+
+\section{Implementation Details}\label{app_sec:implem_details}
+\subsection{Description of Datasets}\label{app_subsec:data_description}
+
+
+\begin{table}[!htbp]
+\vspace{-11pt}
+    \caption{Bolded text refers to the edit labels $\mathbf{y}_e$. Locality example $\mathbf{x}_{\text{loc}}$ is an unrelated query.}
+    \subfloat[\textbf{ZsRE, question-answering} editing dataset example. ]{
+        \centering
+        \begin{tabular}{l@{\hspace{5pt}}p{2.8cm}}
+            \toprule
+            $\mathbf{x}_e, \mathbf{y}_e$ & \zsrex~\textbf{\zsrey} \\
+            \cmidrule{2-2}
+            $\mathbf{x}_{\text{loc}}$ & \zsrelocx ~ \textbf{\zsrelocy} \\
+            \cmidrule{2-2}
+            $\mathbf{x}'_e, \mathbf{y}_e$ & \zsrexx~\textbf{\zsreyy} \\
+            \bottomrule
+            \\
+            \\
+        \end{tabular}
+    }\hfill
+    \subfloat[\textbf{Hallucination} editing dataset example. In the original data \cite{grace}, there is no paraphrase $x_{e'}$ so the measurement of Gen. metric is ignored here.]{
+        \centering
+        \begin{tabular}{l@{\hspace{5pt}}p{7.9cm}}
+            \toprule
+            $\mathbf{x}_e, \mathbf{y}_e$ & \hallucx~\textbf{\hallucy} \\
+            \cmidrule{2-2}
+            $\mathbf{x}_{\text{loc}}$ & \halluclocx ~ \halluclocy \\
+            \bottomrule
+        \end{tabular}
+    }
+    \label{tab:dataset-example}
+    \vspace{-13pt}
+\end{table}
+
+
+\paragraph{ZsRE}
+The ZsRE question-answering task \cite{zsre} is extensively studied within the model editing literature \cite{rome, memit, mend, malmen, t-patcher}, where each record contains an editing statement $\mathbf{x}_e$, a paraphrase prompt $\mathbf{x}'_e$, and a locality prompt $\mathbf{x}_{\text{loc}}$.
+We use the same train/test split as \cite{mend} (163196/19086).
+Notably, only MEND requires fitting a hypernetwork on the training set; other methods discard the training set and perform edits and evaluations on the test set. 
+In practice, we randomly sample 1K and 3K records from the test set to form the edit sets in Section \ref{subsec: main_results} and \ref{subsec: scaling2_3K}.
+
+\paragraph{Hallucination}
+\begin{wrapfigure}{r}{0.4\columnwidth}
+    \centering
+    \vspace{-13pt}
+    \includegraphics[width=0.4\textwidth]{img/halluc_length_range.pdf}
+    \vspace{-17pt}%
+    \caption{Hallucination length statistics.}
+    \label{fig:halluc_length}
+    \vspace{-13pt}%
+\end{wrapfigure}
+We utilize the same dataset as GRACE, SelfCheckGPT \cite{selfcheckgpt}, to assess the ability of Model Editors to mitigate hallucinations in autoregressive LMs.
+This setting involves editing highly inaccurate sentences (sourced from GPT-3 \cite{gpt-3}) and replacing them with corresponding sentences from actual Wikipedia entries.
+This dataset aligns more closely with real-world deployment scenarios where models trigger "unexpected behaviors," and the token length of edits is significantly longer than in past datasets, making it a more challenging editing setting.
+Unlike GRACE, which used GPT2-XL (1.5B) \cite{gpt-2}, our main experiments deploy larger LLMs, LLaMA and Mistral, both with 7B parameters, we measure retention of pretraining data ($\mathbf{x}_{\text{loc}}$) from the base model: RedPajama \cite{redpajama}, a public version of LLaMA’s pretraining data.
+Some of the exceptionally long editing samples cannot even be accommodated on an NVIDIA A800 (80GB) due to resource limitations.
+As shown in Figure \ref{fig:halluc_length}, the original dataset provided by GRACE, after tokenization with \textsc{LlamaTokenizer}, has length distributions ranging from [17,390].
+The dimension of a single MLP layer in \texttt{llama-2-7b-hf} is (11008, 4096) \footnote{\url{https://huggingface.co/meta-llama/Llama-2-7b-hf}}.
+Theoretically, fine-tuning an input of length 390 with default full precision and the Adam optimizer would require (390+4+4+4) * (11008 * 4096 * 4) + 4 * 7B = \textbf{100.36GB} of VRAM (for activations, gradients, first-order, and second-order optimizers), exceeding the memory capacity of the NVIDIA A800.
+Consequently, we excluded excessively long samples (limiting tokenized lengths to 254) and ultimately retained 906 editing instances (compared to 1392 in GRACE).
+To facilitate a fair comparison with MEND, we specifically allocated a training set for MEND, with a final train/test split of 306/600.
+All methods were edited and evaluated on the test set.\looseness=-1
+
+\paragraph{Temporal}
+\cite{canonical_examples} sources the prefix $\mathbf{x}_e$ from the first paragraph of an entity's Wikipedia page and samples a paragraph $\mathbf{y}_e$ discussed by GPT-4 \cite{gpt4} about the emerging entity $\mathbf{x}_e$, which is usually noisy but may contain helpful information.
+These are presented as editing prompts to Model Editors.
+For out-of-distribution (OOD) generalization to complex natural contexts (not fitted), $\mathbf{y}_{\text{ood}}$ is taken from the actual Wikipedia suffix of $\mathbf{x}_e$.
+This setup is utilized to evaluate the OOD generalization of Model Editors centered around a single canonical example.
+Consistent with previous work \cite{grace}, the out-of-scope data $\mathbf{x}_{\text{loc}}$ is derived from the Pile \cite{pile}, the pretraining corpus of GPT-J-6B.
+Examples from the dataset can be seen in Table \ref{tab:temporal-example}. 
+To measure the OOD generalization of editing methods for emerging entities, we perform model editing using standardized simple examples and then evaluate this behavior on more complex instances.
+Following \cite{canonical_examples}, in a natural setting, no single correct continuation exists.
+Thus, we also use probability threshold-based evaluations, such as 80\%, where the editing success rate evaluates whether the loss $L_{\mathbf{x}_e, \mathbf{y}_{\text{ood}}}$ for an example falls below $\delta = - \text{log} (0.8)$, as indicated in the formula below.
+The intuition behind this is that many other plausible alternative continuations may exist.\looseness=-1
+
+\begin{equation}\label{equ:temporal_es}
+    \vspace{-5pt}
+    \text{OOD Gen.}  = \frac{1}{T}\sum\limits_{t=1}^{T} \mathbbm{1}\{(L_{\Theta_{T}}(\mathbf{x}_e, \mathbf{y}_{\text{ood}}) < \delta)\}.
+\end{equation}
+
+\begin{table}
+    \centering
+    \caption{\textbf{Temporal} OOD dataset example. Bolded text refers to the edit labels $\mathbf{y}_e$ and $\mathbf{y}_{\text{ood}}$.}
+    \vspace{4pt}
+    \begin{tabular}{p{1cm}p{12.3cm}}
+        \toprule
+        $\mathbf{x}_e, \mathbf{y}_e$ & \temporalx~\textbf{\temporaly} \\
+        \cmidrule{2-2}
+        $\mathbf{x}_{\text{loc}}$ & \temporallocx ~\temporallocy \\
+        \cmidrule{2-2}
+        $\mathbf{x}_e, \mathbf{y}_{\text{ood}}$ & \temporalx~\textbf{\temporalyy} \\
+        \bottomrule
+    \end{tabular}
+    \label{tab:temporal-example}
+    \vspace{-11pt}
+\end{table}
+
+\subsection{Descriptions of Compared Model Editors}\label{baselines}
+\textbf{FT-L.} ~
+All other layers of the LLMs remain frozen, and only a single MLP layer is fine-tuned through autoregressive loss \cite{rome}. 
+Additionally, we impose an $\text{L}_{\infty}$ norm constraint to prevent the parameters from deviating too far from the pretrained distribution.
+
+\textbf{FT-EWC.} ~
+Elastic Weight Consolidation (EWC) has been demonstrated to mitigate catastrophic forgetting by updating weights using a Fisher information matrix, which is computed from past edits, multiplied by a scaling factor $\lambda$ \cite{ewc}.
+Following \cite{grace}, we omit the constraints of the $\text{L}_{\infty}$ norm in this implementation.
+
+\textbf{MEND.} ~
+MEND \cite{mend} transforms the gradients obtained from standard fine-tuning using a hypernetwork that converts gradients decomposed into low rank (rank=1) into new gradients, which are then applied to the target layer for parameter updates.
+During the training phase, a small auxiliary hypernetwork receives editing examples $(\mathbf{x}_e, \mathbf{y}_e)$, and $\mathbf{x}_{\text{loc}}$.
+MEND's training loss comprises the standard autoregressive loss combined with the KL divergence loss of the model's output on $\mathbf{x}_{\text{loc}}$ before and after editing.
+This hypernetwork plays a crucial role during the editing procedure.
+
+\textbf{ROME.} ~
+ROME \cite{rome} uses causal analysis to pinpoint knowledge within specific MLP layers and modifies the entire matrix through least squares approximation.
+It operates under the strong assumption that the MLP is the primary module for storing knowledge \cite{geva-etal-2021-transformer}, and it injects a single piece of knowledge into the MLP at each iteration using a Lagrangian remainder.
+
+\textbf{MEMIT.} ~
+Similarly, based on the assumption that the FFN serves as a knowledge key-value store, MEMIT \cite{memit} manipulates parameters of specific layers directly through least squares approximation.
+Unlike ROME, which updates a single layer, MEMIT is a multi-layer updating algorithm that supports simultaneous updates of hundreds or thousands of facts.
+For sequential model editing tasks, MEMIT requires immediate on-the-fly repairs when the model makes errors, expressed as $f_{\Theta_{T}} = {\rm MEMIT}(f_{\Theta_{T-1}}, \mathbf{x}_T, \mathbf{y}_T),$ involving multiple operations on the original model.
+
+\textbf{MEMIT-MASS.} ~
+Unlike sequential editing, MEMIT supports modification of multiple knowledge fragments in a batch mode, named \textbf{MEMIT-MASS}.
+Suppose we collect streaming errors as $(\mathcal{X}, \mathcal{Y}) = \{(\mathbf{x}_0, \mathbf{y}_0), (\mathbf{x}_1, \mathbf{y}_1), ..., (\mathbf{x}_T, \mathbf{y}_T)\}$ and inject them collectively into the MLP, it only involves a single editing operation on the original model as $f_{\Theta_{T}} = {\rm MEMIT}(f_{\Theta_{0}}, \mathcal{X}, \mathcal{Y}).$
+Although this approach \textbf{loses the capability for on-the-fly repairs}, we still include this baseline in our experiments.
+
+\textbf{DEFER.} ~
+In GRACE, a reimplementation of SERAC \cite{serac} is utilized, denoted as DEFER.
+For new inputs, DEFER includes a network $g$ (corresponding to the \textit{scope classifier} in SERAC) that predicts whether to: 1) trust the prediction of the LLMs, or 2) trust the prediction of the new model.
+Here, the new model is configured as a single-layer linear network $o$ with a sigmoid activation function, corresponding to the \textit{counterfactual model} in SERAC.
+During the editing process, $g$ and $o$ are fine-tuned jointly.
+
+\textbf{GRACE.} ~
+GRACE \cite{grace} utilizes a discrete KEY-VALUE codebook and maintains the codebook throughout the editing flow by adding, expanding, and splitting KEYs.
+During the inference phase, it retrieves the nearest KEY and determines whether to replace the activation of the hidden layer output.
+
+\subsection{Training Details and Hyperparameters} \label{app_sec: training_details}
+Except for MEMIT-MASS, the batch size for all methods is consistently 1 in sequential editing scenarios.
+All experiments are conducted using 3 NVIDIA A800 GPUs, with all tasks reproducible on a single A800.
+Editing ZsRE takes approximately 4 hours, while Hallucination requires around 6 hours.
+To ensure fair comparisons, unless otherwise specified (for some methods like MEND, ROME, and MEMIT, we follow the original literature by selecting the last few layers or using causal analysis to identify the target layers), the default target layers for editing on \texttt{LLaMA}, \texttt{Mistral}, and \texttt{GPT-J} are \texttt{model.layers[27].mlp.down\_proj.weight}, \texttt{model.layers[27].mlp.down\_proj.weight}, and \texttt{transformer.h[21].mlp.c\_fc}, respectively.
+
+For FT-L, we utilize a reimplementation from ROME \footnote{\url{https://github.com/kmeng01/rome}}, employing the Adam \cite{adam} optimizer with consideration of learning rates at 1e-5, 1e-4, and 5e-4, and conducting gradient descents for 50 iterations, ultimately reporting the best results at a learning rate of 5e-4.
+
+For FT-EWC, we follow the reimplementation in GRACE and its default settings, setting the learning rate at 1e-2, the $ \lambda_{\text{ewc}} $ penalty factor at 0.1, and the number of replay instances at 10.
+
+\begin{figure}[!htbp]
+    \begin{minipage}{1.0\linewidth}\centering
+         % \vspace{-0.2cm}
+    \centering
+    \includegraphics[width=0.48\linewidth]{img/llama-causal-trace-no-attn-mlp.pdf}
+    \includegraphics[width=0.48\linewidth]{img/mistral-causal-trace-no-attn-mlp.pdf}
+    % \vspace{-13pt}%
+    \caption{Mid-layer MLPs play a crucial mediating role in \texttt{LLaMA-2-7B} and \texttt{Mistral-7B}.}
+    % \vspace{-13pt}%
+    \label{fig:causal_analysis}
+    \end{minipage}
+\end{figure}
+For the training phase of MEND, we adhere to the original paper, setting the learning rate at 1e-4, iterating 100K times, and employing early stopping at 30K, ultimately achieving an accuracy of 0.95 on the training set.
+Notably, we target the last few MLP layers as per the original literature, such as \texttt{model.layers[i].mlp.down\_proj.weight}, \texttt{model.layers[i].mlp.gate\_proj.weight}, \texttt{model.layers[i].mlp.up\_proj.weight} in LLaMA, where $i \in [29, 30, 31]$.
+
+For ROME and MEMIT, we follow the original literature on GPT-J using the default configurations, specifically the fifth layer and layers [3,4,5,6,7,8].
+In LLaMA and Mistral, additional causal analysis is conducted to pinpoint the layers storing knowledge. As shown in Figure \ref{fig:causal_analysis}, an increasing trend in the Average Indirect Effect of the MLP is observed across layers [4,5,6,7,8], suggesting that the model recalls factual knowledge here and passes the matured token distribution via residual connections to the last MLP.
+Thus, in LLaMA and Mistral, ROME edits the fifth layer, while MEMIT edits layers [4,5,6,7,8].
+
+\begin{wraptable}{r}{0.35\textwidth}
+  \centering
+  \vspace{-0.4cm}
+  \arrayrulecolor{black}
+  \caption{WISE hyper-parameters during editing and merging.}
+  \vspace{5pt}
+  \resizebox{0.35\textwidth}{!}{
+    \begin{tabular}{lr}
+    \toprule
+    Hyper-Parameters & Values \\
+    \midrule
+    Optimizer & \textsc{SGD} \\
+    LR $\eta$ & $1.0$ \\
+    Mask Ratio $\rho$ & $0.2$ \\
+    $\alpha$ & $5.0$ \\
+    $\beta$ & $20.0$ \\
+    $\gamma$ & $10.0$ \\
+    \midrule
+    Merge Weights $\lambda$ & $0.5$ \\
+    Knowledge shards $k$ & $2$ \\
+    \bottomrule
+    \vspace{-25pt}
+    \end{tabular}}
+  \label{tab:wise-hyper}%
+\end{wraptable}
+For DEFER, the original literature uses a learning rate of 1.0; however, we found it unfit for LLaMA and Mistral, with severe fluctuations in model loss.
+Therefore, we experiment with learning rates of 7e-5, 7e-4, and 1e-3, and ultimately report using 7e-5 (optimal).
+
+For GRACE, we strictly follow the original literature, setting the learning rate at 1.0, and using \texttt{replace\_last} to only replace the activation of the last token in autoregressive scenarios.
+After observing failures in generalization, we adjust various $ \epsilon_{\text{init}} $ values and discuss this more in Appendix \ref{subsec: grace_generalization_analysis}.
+
+For WISE, the hyperparameters for the QA and Hallucination tasks are identical.
+We find that a learning rate of 1.0 with the SGD \cite{sgd} optimizer is a good approach for stable training.
+The hyperparameters designed in the knowledge editing phase include the random masking probability $ \rho $ and the routing threshold guidance $ \alpha, \beta, \gamma $.
+In the knowledge merging phase, hyperparameters include the number of merges $ k $ and the merging weights $ \lambda $ for each MLP (we discuss the impact of $ \rho $ and $ k $ in Section \ref{subsec: further_analysis}).
+Theoretically, as the importance of knowledge in any MLP is considerable, we always average with $ \lambda = 1 / k $ across all experiments. These are shown in Table \ref{tab:wise-hyper}.
+
+\subsection{Pseudo Code of WISE}
+The pseudo-code of the WISE editing stage is in Algorithm~\ref{alg:wise_editing}, and the one of the WISE inference stage is Algorithm~\ref{alg:wise_inference}.
+
+\begin{algorithm}[h]
+\vspace{-3pt}
+\caption{WISE Editing Stage}
+\label{alg:wise_editing}
+\vspace{0.1CM}
+\textbf{Input}: The initial LLM model $f_{\Theta_0}$, the targeted FFN layer, the edit dataset $\mathcal{D}_{\text{edit}}$ whose length is $T$, the irrelevant dataset $\mathcal{D}_{\text{irr}}$, the subspace mask ratio $\rho$, the number of subspaces $k$, whether WISE-Retrieve.\\
+\textbf{Output}: The final LLM model $f_{\Theta_T}$ after $T$ edits.
+\begin{algorithmic}[1] %[1] enables line numbers
+\STATE Generate $k$ random masks $\mathbf{M}_i, i \in [k]$ of ratio $\rho$; if WISE-Retrieve, copy the side memory several times;
+\FOR{each edit $(\mathbf{x}_t, \mathbf{y}_t) \in \mathcal{D}_{\text{edit}}, t \in [T]$}
+        \STATE Edit $(\mathbf{x}_t, \mathbf{y}_t)$ in the corresponding memory subspace by $L_{\text{edit}} = -\log P_{W_{v'}}(\mathbf{y}_t | \mathbf{x}_t) + L_a$;
+        % \STATE Train the activation routing $\Delta_{\text{act}}$ according to Equation~\ref{equ:routing_loss} and update the threshold $\epsilon$;
+        \STATE Update the activation threshold: $\epsilon = \min(\epsilon, \Delta_{\text{act}}(\mathbf{x}_t))$;
+        \IF{All the $k$ subspaces of a side memory are full}
+            \STATE Use Ties-Merge in Equation~\ref{equ:ties_update} to update the final side memory;
+            \IF{WISE-Retrieve}
+                \STATE Move to another copy of side memory $\mathbf{W}_{v'}$;
+            \ENDIF
+        \ELSE
+            \IF{Current subspace $\mathbf{M}_i$ is full}
+                \STATE Move to another subspace of side memory $\mathbf{M}_{i+1}$;
+            \ENDIF
+        \ENDIF
+    \ENDFOR
+\STATE \textbf{return} Obtain the final LLM model $f_{\Theta_T}$.
+\end{algorithmic}
+\end{algorithm}
+\vspace{-9pt}
+
+
+\begin{algorithm}[h]
+\caption{WISE Inference Stage}
+\label{alg:wise_inference}
+\textbf{Input}: The edited LLM model $f_{\Theta_T}$, the activation threshold $\epsilon$, the test dataset $\mathcal{D}_{\text{test}}$, whether WISE-Retrieve.\\
+\textbf{Output}: The model's output.
+\begin{algorithmic}[1] %[1] enables line numbers
+\FOR{each query $\mathbf{x}_i \in \mathcal{D}_{\text{test}}$}
+        \IF{WISE-Retrieve}
+            \STATE Get the value of activation $\Delta_{\text{act}} = \Vert \mathcal{A}(\mathbf{x}_i) \cdot (\mathbf{W}_{v'} - \mathbf{W}_v) \Vert_2$ for each side memory and select the one with the maximal value of $\Delta_{\text{act}}$;
+            \ELSE 
+                \STATE Get the value of activation $\Delta_{\text{act}} = \Vert \mathcal{A}(\mathbf{x}_i) \cdot (\mathbf{W}_{v'} - \mathbf{W}_v) \Vert_2$;
+        \ENDIF
+        \IF{$\Delta_{\text{act}} > \epsilon$}
+            \STATE Use the side memory $\mathbf{W}_{v'}$ to generate the output as in Equation~\ref{equ:ffn_out};
+        \ELSE
+            \STATE Use the main memory $\mathbf{W}_{v}$ to generate the output as in Equation~\ref{equ:ffn_out}.
+        \ENDIF
+    \ENDFOR
+\end{algorithmic}
+\end{algorithm}
+
+
+% \subsection{Additional Dataset}
+% \paragraph{Measure editing OOD capabilities on Temporal} \label{temporal_metric}
+
+% \begin{figure}[t]
+%     \centering
+%     \includegraphics[width=1.0\linewidth]{img/temporal_editing_example.pdf}
+%     \caption{Given simple examples of model editing, we evaluate editing performance in more complex and natural settings (\textsc{OOD Prompt}). The Loc data is sampled from the pretraining corpus.}
+%     \label{fig:temporal_example}
+% \end{figure}
+
+
+% --- end included file: appendix/implementation_details.tex ---
+
+
+% --- begin included file: appendix/supplementary_results.tex ---
+\section{More Experimental Results and Analyses} \label{app_sec:more_results}
+% 
+% --- begin included file: tab/gptj-main_table.tex ---
+% \begin{table}[ht]
+%     \centering
+%     \setstretch{1.2}
+%     \vspace{0.2cm}
+%     \caption{\texttt{GPT-J-6B} Main editing results for ZsRE.}
+%     \resizebox{0.9\linewidth}{!}{
+%         \begin{tabular}{lccc|c|ccc|c|ccc|c|ccc|c}
+%         \toprule
+%         \multirow{3}{*}{\textbf{Method}}
+        
+%         %\cmidrule(lr){5-7}\cmidrule(lr){8-10} 
+        
+%          % \cmidrule(lr){2-7}
+%          & \multicolumn{4}{c}{$\textbf{n = 1}$} & \multicolumn{4}{c}{$\textbf{n = 10}$} & \multicolumn{4}{c}{$\textbf{n = 100}$} & \multicolumn{4}{c}{$\textbf{n = 1000}$} \\
+%          \cmidrule(lr){2-17}
+%          & Reliability & Generality & Locality & Average & Reliability & Generality & Locality & Average & Reliability & Generality & Locality & Average & Reliability & Generality & Locality & Average\\
+%          \midrule
+%          FT-EWC & 1.000 & 0.9950 & 0.0020 & 0.6657 & 0.5726 & 0.5431 & 0.0064 & 0.3740 &0.5883 &0.5425 &0.0344 & 0.3884 &0.5172 &0.4546 &0.0079 & 0.3266 \\
+%          MEND & 0.9723 & 0.9683 & 0.9788 & 0.9731 & 0.0117 & 0.0117 & 0.0075 & 0.0103 &0.0045 &0.0045 &0.000 & 0.0030 &0.0016 &0.0042 &0.000 & 0.0020 \\
+%          ROME & 1.000 & 0.9638 & 0.8793 & 0.9477 & 0.4699 & 0.4470 & 0.1072 & 0.3414 &0.0214 &0.0173 &0.0262 & 0.0216 &0.0097 &0.0130 &0.0142 & 0.0123 \\
+%          MEMIT-MASS  & 0.9875 & 0.8742 & 0.9877 & 0.9498 & 0.9763 & 0.8060 & 0.9796 & 0.9206 &0.7738 &0.7110 &0.9257 & 0.8035 &0.7568 &0.6995 &0.8601 & 0.7388 \\
+%          DEFER  & 1.000 & 1.000 & 0.3886 & 0.7962 & 0.6618 & 0.5081 & 0.3599 & 0.5099 &0.0111 &0.0111 &0.9507 & 0.3243 &0.2627 &0.2524 &0.6961 & 0.4057 \\
+%          GRACE & 1.000 & 0.0011 & 1.000 & 0.6670 & 0.9700 & 0.2700 & 1.000 & 0.7467 &0.98 &0.18 &1.00 & 0.7267 &0.99 &0.0669 &1.000 & 0.6856 \\
+%          \textbf{WISE (ours)}  &1.000 &0.995 &1.000 & 0.9987 &0.9295 &0.9148 &1.000 & 0.9481 &0.8441 &0.7486 &1.00 & 0.8642 &0.7030 &0.6336 &1.000 & 0.7795 \\
+%         \bottomrule 
+%         \end{tabular}
+%     }
+%     \label{tab:gptj_zsre}
+%     \vspace{-0.3cm}
+% \end{table}
+
+\begin{figure}[!t]
+    \centering
+    \includegraphics[width=0.245\textwidth]{img/gpt-j/gptj_zsre_Reliability.pdf}%
+    \includegraphics[width=0.245\textwidth]{img/gpt-j/gptj_zsre_Generality.pdf}%
+    \includegraphics[width=0.245\textwidth]{img/gpt-j/gptj_zsre_Locality.pdf}%
+    \includegraphics[width=0.245\textwidth]{img/gpt-j/gptj_zsre_Average.pdf}%
+    \vspace{-3pt}%
+    \caption{GPT-J-6B, ZsRE, continual editing.}
+    \label{fig:gpt-j_zsre_fig}
+\end{figure}
+
+% data = {
+%     "reliability": {
+%         "FT-EWC": [1.000, 0.5726, 0.5883, 0.5172],
+%         "MEND": [0.9723, 0.0117, 0.0045, 0.0030],
+%         "ROME": [1.000, 0.4699, 0.0214, 0.0216],
+%         "MEMIT-MASS": [0.9875, 0.9763, 0.7738, 0.8035],
+%         "DEFER": [1.000, 0.6618, 0.0111, 0.3243],
+%         "GRACE": [1.000, 0.9700, 0.9800, 0.9900],
+%         "WISE (ours)": [1.000, 0.9295, 0.8441, 0.7030]
+%     },
+%     "generality": {
+%         "FT-EWC": [0.9950, 0.5431, 0.5425, 0.4546],
+%         "MEND": [0.9683, 0.0117, 0.0045, 0.0016],
+%         "ROME": [0.9638, 0.4470, 0.0173, 0.0097],
+%         "MEMIT-MASS": [0.8742, 0.8060, 0.7110, 0.7568],
+%         "DEFER": [1.000, 0.5081, 0.0111, 0.2627],
+%         "GRACE": [0.0011, 0.2700, 0.1800, 0.0669],
+%         "WISE (ours)": [0.995, 0.9148, 0.7486, 0.6336]
+%     },
+%     "locality": {
+%         "FT-EWC": [0.0020, 0.0064, 0.0344, 0.0079],
+%         "MEND": [0.9788, 0.0075, 0.0000, 0.0042],
+%         "ROME": [0.8793, 0.1072, 0.0262, 0.0130],
+%         "MEMIT-MASS": [0.9877, 0.9796, 0.9257, 0.6995],
+%         "DEFER": [0.3886, 0.3599, 0.9507, 0.2524],
+%         "GRACE": [1.000, 1.000, 1.000, 1.000],
+%         "WISE (ours)": [1.000, 1.000, 1.000, 1.000]
+%     },
+%     "average": {
+%         "FT-EWC": [0.6657, 0.3740, 0.3884, 0.3266],
+%         "MEND": [0.9731, 0.0103, 0.0030, 0.0020],
+%         "ROME": [0.9477, 0.3414, 0.0216, 0.0123],
+%         "MEMIT-MASS": [0.9498, 0.9206, 0.8601, 0.7388],
+%         "DEFER": [0.7962, 0.5099, 0.3243, 0.4057],
+%         "GRACE": [0.6670, 0.7467, 0.7267, 0.6856],
+%         "WISE (ours)": [0.9987, 0.9481, 0.8642, 0.7795]
+%     }
+% }
+
+
+% activation scatter
+% size scaling
+% grace generality (t-SNE) [meaning trajectory]
+% Hparams: Mask_Ratio, Merge_Freq
+% Layer粒度，为什么选择中后层
+% TRR 等价于 locality
+% RAG 为什么泛化性差，ICL不efficiency。
+% 和SERAC的具体区别
+% --- end included file: tab/gptj-main_table.tex ---
+
+\begin{figure}[!t]
+    \centering
+    \includegraphics[width=0.245\textwidth]{img/gpt-j/gptj_zsre_Reliability.pdf}%
+    \includegraphics[width=0.245\textwidth]{img/gpt-j/gptj_zsre_Generality.pdf}%
+    \includegraphics[width=0.245\textwidth]{img/gpt-j/gptj_zsre_Locality.pdf}%
+    \includegraphics[width=0.245\textwidth]{img/gpt-j/gptj_zsre_Average.pdf}%
+    \vspace{-3pt}%
+    \caption{GPT-J-6B, ZsRE, continual editing.}
+    \label{fig:gpt-j_zsre_fig}
+    \vspace{-3pt}
+\end{figure}
+
+\subsection{On the Pitfall of GRACE: Generalization Collapses in Decoder-only LLMs} \label{subsec: grace_generalization_analysis}
+
+\begin{figure}[t]
+    \begin{minipage}{0.99\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{img/radii_1.pdf}
+        % \caption{Block 27. $\epsilon_\text{init} = 1.0$}
+        \label{fig:radii_1.0}
+        \vspace{-0.78cm}
+    \end{minipage}
+    \begin{minipage}{0.99\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{img/radii_3.pdf}
+        % \caption{Block 27. $\epsilon_\text{init} = 3.0$}
+        \label{fig:radii_3.0}
+        \vspace{-0.78cm}
+    \end{minipage}
+    \begin{minipage}{0.99\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{img/radii_10.pdf}
+        % \caption{Block 27. $\epsilon_\text{init} = 10.0$}
+        \label{fig:radii_10.0}
+        \vspace{-0.78cm}
+    \end{minipage}
+    \begin{minipage}{0.99\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{img/radii_500.pdf}
+        % \caption{Block 27. $\epsilon_\text{init} = 500.0$}
+        \label{fig:radii_500.0}
+    \end{minipage}
+    \vspace{-0.5cm}
+    \caption{Investigation on the query $\mathbf{x}$ and its distance to the nearest Key $k$, as well as the \textit{deferral radius} $\epsilon$ of that Key. Red and Blue respectively represent the paraphrase query $\mathbf{x}_{e'}$ and the unrelated query $\mathbf{x}_{\text{loc}}$, with the hatch representing the radius of the nearest Key. We observe that when conflicts occur (hit the codebook Key but with different Edit Target $\mathbf{y}_e$), the \textit{deferral radius} $\epsilon$  decays exponentially. This results in GRACE being unable to encompass the paraphrase $\mathbf{x}_{e'}$ and maintain high locality, regardless of how $\epsilon_{\text{init}}$ is adjusted. ZsRE, \texttt{LLaMA-2-7B}.}\label{fig:grace_failure}
+\end{figure}
+
+Here, we discuss why GRACE exhibits poor generalization when editing decoder-only LMs.
+
+As shown in Figure \ref{fig:grace_failure}, we continuously edit 15 samples $(\mathbf{x}_e, \mathbf{y}_e)$ using GRACE and observe the nearest codebook \textit{Key} for their paraphrases $\mathbf{x}_{e'}$ and unrelated queries $\mathbf{x}_{\text{loc}}$, as well as the governed \textit{Deferral radii} $\epsilon$ of those \textit{Keys}.
+When overlapping \textit{Keys} exist, GRACE reduces the \textit{Deferral radii} to split this \textit{Keys} and then adds a new codebook entry, resulting in exponentially decaying of radii $\epsilon$ during the editing process. Though $\epsilon$ is initialized from a high $\epsilon_{\text{init}}$, it will be small and ineffective after continuous edits. 
+From Figure \ref{fig:grace_failure}, we observe that GRACE is more likely to have a conservative strategy that sets smaller Deferral radii during editing. Smaller Deferral radii will cause $\mathbf{x}_{e'}$ to fail to hit the codebook (the distance to the nearest \textit{Key} is farther than its \textit{Deferral radii}) but let $\mathbf{x}_{\text{loc}}$ successfully far away from the radii, resulting low generalization and high locality. Also, we observe that the Deferral radii method is not effective under any $\epsilon_{\text{init}}$; for all tested $\epsilon_{\text{init}}$ values of 1.0, 3.0, 10.0, and 500.0, they all have low generalization and high locality. 
+
+This suggests that in autoregressive LMs, the distribution of the last token cannot effectively represent semantics; whereas in encoder-only and encoder-decoder architectures, capturing semantic information through vector representation has been extensively studied \cite{bert, sentencebert, simcse}. This is consistent with the degree of generalization shown by GRACE when anchoring the T5 \cite{T5} Encoder layer. 
+Some related works \cite{meaning_trajectory} also indicate that in autoregressive models, semantic similarity measures based on averages of output tokens underperform, recommending the use of score distributions over text continuations to represent semantic distances.
+
+\subsection{Impact of Knowledge Merging Strategies for WISE} \label{app_sec:varying_merge}
+\begin{wraptable}{r}{0.3\textwidth}
+    \centering
+    % \vspace{-1.0cm}
+    \caption{\small Varying Merging Strategy. ZsRE. \texttt{LLaMA-2-7B}.}
+    \resizebox{1\linewidth}{!}{
+    \begin{tabular}{l|cccc}
+    \toprule
+    \textbf{Methods} & Rel. & Gen. & Loc. & Avg.\\
+    \midrule
+    \textit{Linear}  & .63 & .61 & .93 & .72\\
+    \textit{Slerp}  & .62 & .64 & .91  & .72\\
+    \textit{Dare}  & .68 & .63 & .92  & .74\\
+    \textit{Dare\_Ties}  & .67 & .63 & .83 & .71\\
+    \rowcolor[gray]{0.94} 
+    \textit{Ties}  & \textbf{.85} & \textbf{.81} & \underline{.94}  & \textbf{.87}\\
+    \rowcolor[gray]{0.94} 
+    \textit{Sign}  & \underline{.80} & \underline{.76} & \textbf{.97} & \underline{.84}\\
+    \bottomrule
+    \end{tabular}}
+    \vspace{-10pt}
+    \label{tab:knowledge-merging-strategy}
+\end{wraptable}
+
+Here, we conduct a more in-depth study of the knowledge merging strategies for WISE, exploring various merging approaches including ($i$)~\underline{\textit{Linear}}, which uses a simple weighted average;
+($ii$)~\underline{\textit{Slerp}}, which spherically interpolates the parameters of two models;
+($iii$)~\underline{\textit{Ties}}, a component used in the main experiments of this paper that resolves merging disturbances through TRIM ELECT SIGN;
+($iv$)~\underline{\textit{Dare}}: which follows a Bernoulli distribution to delete redundant parameters and rescale the remaining ones;
+($v$)~\underline{\textit{Dare\_Ties}}, which combines dare and the sign consensus algorithm of TIES;
+and ($vi$)~\underline{\textit{Sign}}, an ablation component of Ties that addresses directional conflicts—all utilizing the official implementation from MergeKit \cite{mergekit} \footnote{\url{https://github.com/arcee-ai/mergekit}}.
+We randomly sample 100 edits from ZsRE, retaining a fine-tuned MLP every 50 edits (merging 2 MLPs).
+As shown in Table \ref{tab:knowledge-merging-strategy}, we observe that ignoring the direction of parameter updates (Linear, Slerp, Dare) leads to a significant decline in editing performance, underscoring the importance of addressing knowledge conflicts in overlapping parameters.
+The success of \textit{Sign} also reaffirms this point.
+Meanwhile, the randomly masked knowledge shards exhibit a non-redundancy, indivisible nature.
+This is demonstrated by the significantly weaker performance of \textit{Dare\_Ties} compared to \textit{Ties}/\textit{Sign}, indicating that removing parameter updates can lead to the loss of edited knowledge or even potential "anchors".
+
+\subsection{Analysis of Retrieving Top-1 Activation} \label{app_sec: retrieve_analysis}
+\begin{figure}[!htbp]
+    \centering
+    \begin{subfigure}[t]{0.35\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{img/memo_act_es.pdf}
+        \caption{\hspace{5pt}Average of Rel. and Gen.}
+        \label{fig:memo_act_es}		
+    \end{subfigure}
+    \hspace{5pt}
+    \begin{subfigure}[t]{0.358\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{img/memo_act_prec.pdf}
+        \caption{\hspace{3pt}Retrieval Acc. by Top-1 Activation}
+        \label{fig:memo_act_prec}	
+    \end{subfigure}
+    % \centering
+    % \includegraphics[width=0.7\linewidth]{img/memo_act.pdf}
+    % \vspace{-13pt}%
+    \caption{Comparing editing results of WISE-\texttt{\{Retrieve, $\text{Retrieve}_\text{oracle}$, Retrieve w. $\mathrm{L}_{\text{memo}}$\}} when varying $T$. (a) shows the simple average of Rel. and Gen. (ES.), while 
+    (b) shows retrieval accuracy, i.e., whether the Top-1 Activation routes to the correct MLP (prec@1). \texttt{X-axis}: Num edits. ZsRE. \texttt{LlaMA-2-7B}.}
+    % \vspace{-13pt}%
+    \label{fig:memo_act}
+\end{figure}
+
+WISE-\texttt{Retrieve} retains each knowledge-sharding memory and retrieves through Top-1 Activation.
+However, as shown in Table \ref{tab:zsre_scaling2_3K} and Figure \ref{fig:memo_act_prec}, the retrieval accuracy still has significant room for improvement; specifically, when $T$ reaches 3K, the accuracy of routing to the correct MLP drops to around 60\%, indicating the specificity between side memories is insufficient.
+One possible reason is that when sampling the edits from a single dataset (ZsRE), the editing instances $(\mathbf{x}_e, \mathbf{y}_e)$ all belong to the same domain.
+This leads to some very similar instances being captured by multiple expert side memories (resulting in high activations for all side memories), introducing more retrieval failures.
+
+Therefore, to improve the specificity of side memory and reduce the probability of routing errors, we attempt to add a new constraint $L_{\text{memo}}$ to Equation \ref{equ:routing_loss}.
+For knowledge-sharding memory $\mathbf{W}_i$, we randomly replay instances $(\mathbf{x}_{\mathrm{m}}, \mathbf{y}_{\mathrm{m}})$ from the edit set $\mathcal{D}_{\mathbf{W}_j}$ of past shard $\mathbf{W}_{j, \, j \in [0, i-1]}$, ensuring that $\mathbf{W}_i$ remains inactive for $\mathbf{x}_{\mathrm{m}}$:
+
+$$L_a' = L_a + \underbrace{\max(0, \Delta_{\text{act}}(\mathbf{x}_{\mathrm{m}}) - \alpha)}_{L_\text{memo}}, \quad \text{s.t.}\; \mathbf{x}_{\mathrm{m}} \in \mathcal{D}_{\mathbf{W}_j}.$$
+
+As shown in Figure \ref{fig:memo_act_prec}, this replay behavior increases the specificity between side memories, maintaining nearly \textbf{88\%} retrieval accuracy at $T=3K$. 
+Figure \ref{fig:memo_act_es} also shows that WISE-\texttt{Retrieve} \textit{w.} $L_{\text{memo}}$ improves Edit Success (ES.) by \textbf{8.39\%} compared to WISE-\texttt{Retrieve}, providing a promising direction for future work.
+With finer-grained activation management, we might be able to bridge the performance gap between \texttt{Retrieve} and \texttt{Oracle}.
+
+\subsection{Case Study}
+
+% --- begin included file: tab/case_study.tex ---
+\newcommand{\greenyes}{\textcolor{green}{\ding{51}}}
+\newcommand{\bluehalf}{\textcolor{cyan}{\ding{52}\rotatebox[origin=c]{-9.2}{\kern-0.7em\ding{55}}}}
+\newcommand{\redno}{\textcolor{red}{\ding{55}}}
+
+\begingroup
+\setlength{\tabcolsep}{5pt} % Default value: 6pt
+\begin{table}[!htbp]
+    % \color{blue}
+    \small
+    \centering
+    \setstretch{1.2}
+    \vspace{-5mm}
+    \caption{\textbf{Failure cases of using WISE} to edit \texttt{LLaMA-2-7B}. \bluehalf represents errors in part of the tokens, \redno represents complete output errors (i.e., factual failures), and \greenyes indicates the expected exact match.}
+    \vspace{3pt}
+    % \begin{tabular}{l@{\hspace{2pt}}ccc}
+    \begin{tabular}{l@{\hspace{2pt}}>{\raggedright\arraybackslash}p{0.48\textwidth}>{\raggedright\arraybackslash}p{0.18\textwidth}>{\raggedright\arraybackslash}p{0.19\textwidth}}
+        \toprule
+        & \normalsize Prompt & \normalsize Edit Target & \normalsize Post-Edit Output \\
+        \midrule
+        $i$\textit{a}) & By which person Lahti Town Hall has been designed? & Aki Kaurismäki & Wime Kaurismäki  \bluehalf \\
+        $i$\textit{b}) & \textit{Which is the architect of Lahti Town Hall?} & - & Wime Kaurismäki  \bluehalf \\
+        $i$\textit{c}) & Which corporation was USS Leedstown (APA-56) created by? & Lockheed Shipbuilding & Leez Shipbuilding \bluehalf \\
+        $i$\textit{d}) & \textit{Which company manufactures the USS Leedstown (APA-56)?} & - & Leez Shipbuilding \bluehalf \\
+        \midrule
+        $ii$\textit{a}) & Which language is Garowe Principles written in? & Persian & Dutchian  \redno \\
+        $ii$\textit{b}) & \textit{In what language does the monthly football magazine Garowe Principles report?} & - & Somian  \redno \\
+        $ii$\textit{c}) & What year was the service entry date for Panzer 58? & 1957 & 1953 \redno \\
+        $ii$\textit{d}) & \textit{What was the year Panzer 58 was commissioned?} & - & 1953 \redno \\
+        \midrule
+        $iii$\textit{a}) & What was Gemma Bosini's range? & mezzo-srano & Wzo-srano  \redno \\
+        $iii$\textit{b}) & \textit{The kind of voice of Gemma Bosini is what?} & - & mezzo-srano  \greenyes \\
+        \midrule
+        $iv$\textit{a}) & In which state is Qaleh Lan located? & Golestan Province & Golestan Province  \greenyes \\
+        $iv$\textit{b}) & \textit{What state is Qaleh Lan in?} & - & Lestan Province  \redno \\
+        $iv$\textit{c}) & In which language Garowe Principles monthly football magazine reporting? & American English & American English \greenyes \\
+        $iv$\textit{d}) & \textit{What language are Garowe Principles written in?} & - & English English \redno \\
+        \bottomrule
+    \end{tabular}
+    \label{tab:wise_fail_examples}
+\end{table}
+\endgroup
+
+% \begingroup
+% \setlength{\tabcolsep}{4pt} % Default value: 6pt
+% \begin{table}
+%     % \color{blue}
+%     \small
+%     \centering
+%     \vspace{5mm}
+%     \begin{tabular}{l@{\hspace{2pt}}>{\raggedright\arraybackslash}p{0.37\textwidth}>{\raggedright\arraybackslash}p{0.21\textwidth}>{\raggedright\arraybackslash}p{0.10\textwidth}>{\raggedright\arraybackslash}p{0.20\textwidth}}
+%         \toprule
+%         & \normalsize Input & \normalsize Pre-Edit Output & \normalsize Edit Target & \normalsize Post-Edit Output \\
+%         \midrule
+%         1a: & \textbf{Who is the president of the USA?} & Donald Trump \redno & \textbf{Joe Biden} & Joe Biden \greenyes \\
+%         1b: & Who is the US president? & David Rice Atchison \redno & - & Joe Biden \greenyes \\
+%         1c: & Who is the president of France? & Emmanuel Macron \greenyes & - & Emmanuel Macron \greenyes \\
+%         \midrule
+%         2a: & \textbf{Who designed the Burj Khalifa?} & British architect Herbert Baker \redno & \textbf{Skidmore, Owings \& Merrill} & Skidmore, Owings \& Merrill \greenyes \\
+%         2b: & Who designed the Eiffel Tower? & Alexandre Gustave Eiffel \greenyes & - & Alexandre Gustave Eiffel \greenyes \\
+%         2c: & Who designed the Empire State Building? & Shreve, Lamb and Harmon \greenyes & - & Shreve, Lamb and Harmon \greenyes \\
+%         2d: & Who designed the Sydney Opera House? & Jrn Oberg Utzon \greenyes & - & Jrn Oberg Utzon$^*$ \greenyes \\
+%         2e: & What firm was behind the design for the Burj Khalifa? & McKim, Mead \& White \redno & - & Skidmore, Owings \& Merrill \greenyes \\
+%         2f: & What firm did the Burj Khalifa? & Jumeirah Group \redno & - & Jumeirah Group \redno \\
+%         \midrule
+%         3a: & \textbf{What car company makes the Astra?} & Mahindra \redno & \textbf{Opel} & Opel \greenyes \\
+%         3b: & What car company makes the Mustang? & Ford \greenyes & - & Ford \greenyes \\
+%         3c: & What car company makes the Model S? & Tesla Motors \greenyes & - & Tesla \greenyes \\
+%         3d: & What car company makes the Wrangler? & Jeep \greenyes & - & Jeep \greenyes \\
+%         3e: & What car company makes the F-150? & Ford \greenyes & - & Opel \redno \\
+%         3f: & What car company makes the Golf? & Volkswagen AG \greenyes & - & Opel \redno \\
+%         \midrule
+%         4a: & \textbf{What artist recorded Thriller?} & Madonna \redno & \textbf{Michael Jackson} & Michael Jackson \greenyes \\
+%         4b: & What artist recorded Dark Side of the Moon? & Pink Floyd \greenyes & - & Pink Floyd \greenyes \\
+%         4c: & What artist recorded Bridge over Troubled Water? & Simon \& Garfunkel \greenyes & - & Simon \& Garfunkel \greenyes \\
+%         4d: & What artist recorded Hotel California? & Don Henley \yellowmaybe & - & Don Henley \yellowmaybe \\
+%         4e: & What band recorded Back in Black? & AC/DC \greenyes & - & Michael Jackson \redno \\
+%         \bottomrule
+%     \end{tabular}
+%     \caption{\textbf{Additional examples of using MEND} to edit a 770M parameter. Example 2e shows correct generalization behavior; 2f shows an instance of \textbf{undergeneralization}; examples 3e, 3f, and 4e show instances of \textbf{overgeneralization}.}
+%     \label{tab:examples-appendix}
+% \end{table}
+% \endgroup
+
+%元组失败的；单个token的；难以泛化的，惊讶的可以泛化的；未能保持原分布的activation为啥寄了？
+% --- end included file: tab/case_study.tex ---
+
+
+In Table \ref{tab:wise_fail_examples}, we present bad cases of using WISE to edit the \texttt{LLaMA-2-7B} on the ZsRE dataset and mitigating these failures is critical for future work in model editing.
+We observe that in $i)$ errors occur only in part of the tokens, and these errors constitute a large proportion of the bad cases, indicating that the edits have not been sufficiently fitted.
+$ii)$ displays cases where the entire output is incorrect, and factual failures indicate difficulties in retaining memory of parameters for some rare entities (such as Persian $iia, iib$).
+$iv)$ presents cases of generalization failure, for example in $ivd)$, where the model answered ``English'' but did not fully follow the ground truth, indicating significant room for improvement in the accuracy of generalized edits.
+Meanwhile, in $iii)$ we surprisingly find that even when WISE errs on the Edit Prompt, it can correctly answer its paraphrase $iii b)$ \textit{``The kind of voice of Gemma Bosini is what?''}.
+This indicates that WISE can handle contextual information correctly in some cases but falls short in specific editing instructions, suggesting that optimizing editing instructions (modifying the editing context) may be a direction for improvement.
+
+
+\subsection{Importance of \textit{Knowledge Anchor} When Merging Models}\label{app_subsec:knowledge_anchor}
+
+\begin{wraptable}{l}{0.4\textwidth}
+    \definecolor{gray}{rgb}{0.9373,0.9373,0.9373}
+    \newcolumntype{a}{>{\columncolor{gray}}c}
+    \centering
+    \vspace{-0.5cm}
+    \caption{\small Analysis of Merging \textit{w.o.} and \textit{w.} "knowledge anchor" (KA). $T=1000$. ZsRE. \texttt{LLaMA-2-7B}.}
+    \resizebox{1.0\linewidth}{!}{
+        \begin{tabular}{lcccc|aaaa}
+        \toprule
+        \multirow{2}{*}{\textbf{$\rho/k$}}
+        
+         %\cmidrule(lr){5-7}\cmidrule(lr){8-10} 
+         % \cmidrule(lr){2-7}
+         & \multicolumn{4}{c}{\textit{w.o.} KA} & \multicolumn{4}{c}{\textit{w.} KA} \\
+         \cmidrule(lr){2-9}
+         & \multicolumn{4}{c|}{\makecell{Rel.  ~Gen.  ~Loc. ~Avg.}} & \multicolumn{4}{c}{\makecell{Rel.  ~Gen.  ~Loc. ~Avg.}} \\
+         \midrule
+        2/0.30 & 0.76 & 0.72 & 1.00  &0.83 & \textbf{0.79} & \textbf{0.73} & 1.00 & \textbf{0.84}  \\
+        2/0.50 &0.74 &\textbf{0.73} &1.00 & 0.82 &\textbf{0.77} &0.72 &1.00 &\textbf{0.83} \\
+        3/0.33 &0.72 &0.68 &1.00 &0.80 &\textbf{0.75} &\textbf{0.71} &1.00 &\textbf{0.82} \\
+        5/0.20 &0.64 &0.61 &1.00 &0.75 &\textbf{0.73} &\textbf{0.68} &1.00 &\textbf{0.80} \\
+        \bottomrule 
+        \end{tabular}
+    }
+    \label{tab:KA_ablation}
+    \vspace{-0.4cm}
+\end{wraptable}
+
+Here, we discuss the effects of independent (ensured by non-overlapping masks) vs partially overlapping parameters within MLP subspaces on editing performance, as shown in Table \ref{tab:KA_ablation}.
+It is observable that, despite varying mask ratios \(\rho\) and the number of subspaces \(k\), partial overlap (w. KA) consistently outperforms independent configurations (w.o. KA) in terms of Reliability (Rel.) and Generalization (Gen.). 
+For example, at \(\rho/k\) of 5/0.20, there is a relative improvement of 9\% and 7\% respectively.
+This demonstrates that the overlapping regions contribute as ``anchors'' for knowledge fusion, facilitating information transfer across different subspaces.
+Moreover, the shared parameters provide a natural regularization \cite{subspace_reg} mechanism, helping synchronize model behavior across different subspaces.
+
+\subsection{Ablation Study of Random Prefix Token}
+\label{sec:random_token_ablation}
+\begin{figure}[tbh!]
+    \vspace{-0.3cm}
+    \definecolor{figgreen}{rgb}{0.547,0.695,0.434}
+    \definecolor{figblue}{rgb}{0.145, 0.451, 0.73}
+    \definecolor{figyellow}{rgb}{1.000, 0.547, 0}
+    \centering
+    \includegraphics[width=0.8\linewidth]{img/pt_ablation.pdf}
+    \vspace{-0.2cm}
+    \caption{\textbf{Ablation studies on Random Prefix Token (PT) of WISE.} Light/Dark colors indicate the Editing Sucess w.o./w. PT addition. ZsRE. \texttt{LlaMA-2-7B}}
+    \label{fig:random_token_ablation}
+    \vspace{-11pt}%
+\end{figure}
+
+As described in Section \ref{subsec:exp_setting}, we employ random prefix token augmentation to enable the editing knowledge to cope with various contexts. That is, for a single $\mathbf{x}_e$, it expands into $
+(\text{prefix}_{i}, \mathbf{x}_e)$. The prefix is derived from tokens that are randomly generated by the original LM $f_{\Theta}$, serving as an economical data augmentation method. We observe that the editing success rate is compromised (Figure \ref{fig:random_token_ablation}). Specifically, for instance, at T=1000, Rel. and Gen. decreased by 0.15 and 0.17, respectively. By utilizing randomly generated prefix tokens, the model is able to learn a broader range of linguistic features, thereby exhibiting greater robustness in practical applications. We believe that access to the "data generator" can deepen the model's memory of editing samples.
+
+
+
+
+\subsection{Parameter Efficiency} \label{subsec: parameter_efficiency}
+\begin{wrapfigure}{r}{0.4\columnwidth}
+    \centering
+    \vspace{-23pt}
+    \includegraphics[width=0.4\textwidth]{img/gpu_consumption.pdf}
+    \vspace{-17pt}%
+    \caption{Computational costs.}
+    \label{fig:gpu_consum}
+    \vspace{-13pt}%
+\end{wrapfigure}
+The key to lifelong model editing is maintaining constant or slowly increasing computational costs as the number of edits expands.
+Here, we provide a quantitative analysis using \texttt{LLaMA-2-7B} as an example.
+Suppose we select \texttt{model.layers[27].mlp.down\_proj.weight} as side memory. In that case, the theoretically added parameters are \(11008 \times 4096 \times 4 = 0.18\) GB, which accounts for 0.64\% of the original LLaMA's \(7B \times 4 = 28\) GB (ignoring the VRAM required for input activations).
+As shown in Figure \ref{fig:gpu_consum}, in practice, WISE-Merge increases VRAM by 4\% compared to the original \texttt{LLaMA} and remains constant over time.
+WISE-Retrieve, instead of merging, uses retrieval routing, meaning the computational cost increases over time, but this increase is gradual and can easily handle thousands or tens of thousands of inputs.
+Additionally, if we partially merge side MLPs (combining WISE-Retrieve and WISE-Merge), we can further reduce the computational demands of WISE-Retrieve.
+% --- end included file: appendix/supplementary_results.tex ---
+
+
+% --- begin included file: appendix/theorem_proof.tex ---
+\section{Proof of Theorem~\ref{theorem:subspace_overlap}}\label{app_sec:proof}
+
+\newcommand{\qedsymbol}{\hfill $\square$}
+
+% \begin{theorem}\label{app_theorem:subspace_overlap}
+%     \textbf{Subspace Overlap.} 
+%     Generate $k$ memory subspaces $\mathbf{W}_{v'}^{i}, i \in [k]$ by random mask with 1's ratio $\rho$, so each memory has $\rho\cdot|\mathbf{W}_{v'}|$ active trained parameters. For any two subspaces $\mathbf{W}_{v'}^{i}$ and $\mathbf{W}_{v'}^{j}$ $i\neq j ;i,j \in [k]$, there are $\rho^2\cdot|\mathbf{W}_{v'}|$ active parameters that are overlapped. For all $k$ subspaces, there are $\rho^k\cdot|\mathbf{W}_{v'}|$ overlapped active parameters.
+% \end{theorem}
+
+% \textit{Proof:} Different random masks are sampled independently, so we treat the sampling of the masks as stochastic independent events. Therefore, we have the following induction.
+
+% \begin{enumerate}
+%     \item The probability that one parameter is sampled each time is $\rho$.
+%     \item If we sample twice because the sampling is independent, the probability that one parameter is sampled twice is $\rho^2$.
+%     \item $\dots$
+%     \item If we sample $k$ times, the probability that one parameter is sampled $k$ times is $\rho^k$.
+% \end{enumerate}
+
+% The number of parameters is $|\mathbf{W}_{v'}|$. Thus, the number of parameters overlapped in two random masks is $\rho^2\cdot|\mathbf{W}_{v'}|$ and the number of parameters overlapped in $k$ random masks is $\rho^k\cdot|\mathbf{W}_{v'}|$.
+
+% \qedsymbol
+
+\begin{theorem}\label{app_theorem:subspace_overlap}
+    \textbf{Subspace Overlap.} 
+    Generate $k$ memory subspaces $\mathbf{W}_{v'}^{i}, i \in [k]$ by random mask with 1's ratio $\rho$, so each memory has $\rho\cdot|\mathbf{W}_{v'}|$ active trained parameters. For any two subspaces $\mathbf{W}_{v'}^{i}$ and $\mathbf{W}_{v'}^{j}$ $i\neq j ;i,j \in [k]$, there are $\rho^2\cdot|\mathbf{W}_{v'}|$ active parameters that are overlapped. For all $k$ subspaces, there are $\rho^k\cdot|\mathbf{W}_{v'}|$ overlapped active parameters.
+\end{theorem}
+
+\textit{Proof:} We aim to prove the Subspace Overlap theorem by induction.
+
+Let $\mathbf{W}_{v'}^{i}$ represent the $i$-th memory subspace generated by a random mask with a sparsity ratio of $\rho$, where $i \in [k]$. Each memory subspace $\mathbf{W}_{v'}^{i}$ contains $\rho\cdot|\mathbf{W}_{v'}|$ active trained parameters.
+
+We start by considering the case of two memory subspaces, $\mathbf{W}_{v'}^{i}$ and $\mathbf{W}_{v'}^{j}$, where $i \neq j$ and $i, j \in [k]$.
+
+Let $P(\text{parameter sampled}) = \rho$ be the probability that a parameter is sampled in one mask generation event.
+
+\begin{enumerate}
+    \item For a single mask generation, the probability that a specific parameter is sampled is $\rho$. We denote this probability as $P(\text{sampled}) = \rho$.
+    \item Considering two independent mask generation events, the probability that the same parameter is sampled in both masks is the product of their individual probabilities, i.e., $\rho^2$. This is derived from the independence of the events. Mathematically:
+    \[ P(\text{sampled in both masks}) = P(\text{sampled}) \times P(\text{sampled}) = \rho \times \rho = \rho^2. \]
+    \item Extending this logic, for $k$ independent mask generation events, the probability that a specific parameter is sampled in all $k$ masks is $\rho^k$. Mathematically:
+    \[ P(\text{sampled in all } k \text{ masks}) = \underbrace{P(\text{sampled}) \times P(\text{sampled}) \times \cdots \times P(\text{sampled})}_{k \text{ times}} = \rho^k. \]
+\end{enumerate}
+
+Now, let's calculate the number of parameters overlapped in two random masks:
+
+The total number of parameters in $\mathbf{W}_{v'}$ is $|\mathbf{W}_{v'}|$.
+
+Thus, the number of parameters overlapped in two random masks, $\mathbf{W}_{v'}^{i}$ and $\mathbf{W}_{v'}^{j}$, is $\rho^2\cdot|\mathbf{W}_{v'}|$.
+
+Extending this to $k$ random masks, the number of parameters overlapped in all $k$ masks is $\rho^k\cdot|\mathbf{W}_{v'}|$.
+
+This concludes the proof.
+
+\qedsymbol
+
+% --- end included file: appendix/theorem_proof.tex ---
+
+
+\section{Detailed Related Works}\label{app_sec:more_related_works}
+\paragraph{Memory and Knowledge Injection of LLMs} 
+The memories of LLMs can be divided into long-term (episodic) memory and working memory (short-term)~\cite{llm_controllable_working_memory,memoria,spalm}. Long-term memory refers to the knowledge stored in the model's parameters, which can be updated by (re)pretraining~\cite{gpt-1}, finetuning~\cite{lora}, and model editing~\cite{knowledge_editing_survey_1}. Working memory is stored in sustained activations/representations of neurons, which will be awakened during inference time~\cite{llm_controllable_working_memory}. In-context learning (ICL) is a kind of working memory~\cite{chain_of_thoughts}, also along with retrieval-based editing methods like GRACE~\cite{grace}. 
+How to reinforce memory and inject/update knowledge for LLMs is a fundamental question~\cite{memoryllm,ft_vs_rag,fewshotft_vs_icl}. ICL or finetuning? Different works show different conclusions. In \cite{fewshotft_vs_icl}, the authors find that few-shot finetuning is more generalizable than ICL, especially for out-of-distribution data. In \cite{ft_vs_rag}, the authors contrast finetuning with retrieval-augmented generation (RAG) in terms of knowledge injection and find that RAG is better in most cases, and combining both will produce the best results. 
+However, finetuning and pretraining are computation-expensive~\cite{llama-2,grace} and usually suffer from catastrophic forgetting~\cite{catastrophic_forgetting_llm} and overfitting~\cite{memorization_overfitting}. For ICL and RAG, the working memory is sometimes not controllable, the model may not follow the information of the contexts~\cite{llm_controllable_working_memory}, and the context window is limited~\cite{landmark_attention,infini_attention}, and there are works addressing these issues by training controllable ICL~\cite{llm_controllable_working_memory}, long-context ~\cite{landmark_attention,infini_attention}, and recurrent memory architecture design~\cite{memoryllm}. 
+SPALM is proposed to add language models with storage modules that resemble both working and long-term memories~\cite{spalm}. 
+% Also, model editing is an emerging technology that aims to enable data-efficient, fast, and non-destructive knowledge updates to LLMs~\cite{knowledge_editing_survey_1,knowledge_editing_survey_2}.
+
+\paragraph{Model Editing of LLMs} 
+Model editing can be summarized as the following lines of research. 
+\textbf{\textit{Constrained finetuning:}} Preliminary model editing uses constrained finetuning to update parameters based on new examples~\cite{constrained_ft_me_1,constrained_ft_me_2}. 
+\textbf{\textit{Locate-and-edit:}} ROME~\cite{rome} locates the factual associations in autoregressive LLMs and conducts accurate and efficient edits by taking MLPs as key-value memories. 
+Then, MEMIT~\cite{memit} extends ROME from single-editing to mass-editing.
+COMEBA-HK \cite{comeba} identifies the Local Editing Scope and extends MEMIT for sequential editing.
+In addition, T-Patcher~\cite{t-patcher} targets the last feed-forward layer of LLMs, adding an additional neuron for each edit. 
+\textbf{\textit{Meta learning:}} Recent meta-learning methods use hypernetworks for aiding editing. MEND~\cite{mend} learns a hypernetwork that can decouple the finetuning gradients into the gradient updates that generalize the edits and won't damage the performances on unrelated inputs. To remedy the cancellation effect of MEND, MALMEN~\cite{malmen} uses hypernetwork to produce the weight shifts of editing and formulates the weight shift aggregation as the least square problem. 
+\textbf{\textit{Retrieval-based methods:}} Instead of directly editing the model parameters, retrieval-based methods aim to improve the working memory of LLMs to enable model editing. IKE \cite{ike} uses context-edit facts to guide the model when generating edited facts. 
+DeCK \cite{deck} employs contrasting knowledge decoding, which enhances the confidence of in-context-based editors in the edited facts. SERAC~\cite{serac} (a modified version dubbed as DEFER~\cite{grace}) records edit items in a file and trains additional scope classifier and counterfactual model to detect, retrieve, and generate the edit-related results. Though the editing retriever and generator are neural networks, they are too small to have the power of LLMs. GRACE~\cite{grace} adopts a discrete codebook of edits for retrieving and replacing the edits' layer representations during inference. From single editing~\cite{rome} to mass editing~\cite{malmen,memit}, and from static editing to sequential~\cite{t-patcher} (continual) or lifelong editing~\cite{grace}, model editing is developing to meet more realistic demands.
+
+\paragraph{Continual Learning}
+Continual learning \cite{continual_survey1, continual_survey2} tackles the catastrophic forgetting problem in deep learning models with new knowledge~\cite{de2021continual}, and recent research has focused on various methods in this area. One such method is continual finetuning, where LLMs are refined over time with the arrival of new instances. For instance, a comprehensive study by \cite{lin2022continual} explores continual finetuning extensively. However, it has been observed that regularizing finetuning with continual learning techniques such as Elastic Weight Consolidation~\cite{ewc}, Experience Replay \cite{rolnick2019experience}, and Maximally Interfered Replay \cite{aljundi2019online} can lead to a rapid decay in performance on previous tasks, although it aids in retaining some memory of past inputs. 
+This suggests that editing, as opposed to vanilla continual finetuning, presents unique challenges, especially considering that edits are unlikely to be evenly distributed \cite{henn2021principled}. 
+One promising direction within the realm of continual learning is the adoption of key-value methods, inspired by advancements in computer vision \cite{liu2021post,van2017neural}. Recent studies have showcased the effectiveness of continual prompt-learning for NLP \cite{wang2022dualprompt,wang2022learning}, particularly in applications like text retrieval \cite{xiong2020approximate}. 
+Notably, discrete key-value methods have been shown to excel in handling shifting distributions \cite{trauble2023discrete}, with some recent efforts extending their application to question answering \cite{dai2022lifelong}. 
+These methods cache values to ensure that inputs remain within the distribution for downstream encoders, thus facilitating the incorporation of longer-term memory, provided there are adequate computational resources.
+% --- end included file: appendix/appendix.tex ---
+
+%
+% --- begin included file: checklist.tex ---
+\newpage
+\section*{NeurIPS Paper Checklist}
+
+%%% BEGIN INSTRUCTIONS %%%
+% The checklist is designed to encourage best practices for responsible machine learning research, addressing issues of reproducibility, transparency, research ethics, and societal impact. Do not remove the checklist: {\bf The papers not including the checklist will be desk rejected.} The checklist should follow the references and precede the (optional) supplemental material.  The checklist does NOT count towards the page
+% limit. 
+
+% Please read the checklist guidelines carefully for information on how to answer these questions. For each question in the checklist:
+% \begin{itemize}
+%     \item You should answer \answerYes{}, \answerNo{}, or \answerNA{}.
+%     \item \answerNA{} means either that the question is Not Applicable for that particular paper or the relevant information is Not Available.
+%     \item Please provide a short (1–2 sentence) justification right after your answer (even for NA). 
+%    % \item {\bf The papers not including the checklist will be desk rejected.}
+% \end{itemize}
+
+% {\bf The checklist answers are an integral part of your paper submission.} They are visible to the reviewers, area chairs, senior area chairs, and ethics reviewers. You will be asked to also include it (after eventual revisions) with the final version of your paper, and its final version will be published with the paper.
+
+% The reviewers of your paper will be asked to use the checklist as one of the factors in their evaluation. While "\answerYes{}" is generally preferable to "\answerNo{}", it is perfectly acceptable to answer "\answerNo{}" provided a proper justification is given (e.g., "error bars are not reported because it would be too computationally expensive" or "we were unable to find the license for the dataset we used"). In general, answering "\answerNo{}" or "\answerNA{}" is not grounds for rejection. While the questions are phrased in a binary way, we acknowledge that the true answer is often more nuanced, so please just use your best judgment and write a justification to elaborate. All supporting evidence can appear either in the main paper or the supplemental material, provided in appendix. If you answer \answerYes{} to a question, in the justification please point to the section(s) where related material for the question can be found.
+
+% IMPORTANT, please:
+% \begin{itemize}
+%     \item {\bf Delete this instruction block, but keep the section heading ``NeurIPS paper checklist"},
+%     \item  {\bf Keep the checklist subsection headings, questions/answers and guidelines below.}
+%     \item {\bf Do not modify the questions and only use the provided macros for your answers}.
+% \end{itemize} 
+ 
+
+%%% END INSTRUCTIONS %%%
+
+
+\begin{enumerate}
+
+\item {\bf Claims}
+    \item[] Question: Do the main claims made in the abstract and introduction accurately reflect the paper's contributions and scope?
+    \item[] Answer: \answerYes{} % Replace by \answerYes{}, \answerNo{}, or \answerNA{}.
+    \item[] Justification: Abstract and Section \ref{sec:intro} Introduction
+    \item[] Guidelines:
+    \begin{itemize}
+        \item The answer NA means that the abstract and introduction do not include the claims made in the paper.
+        \item The abstract and/or introduction should clearly state the claims made, including the contributions made in the paper and important assumptions and limitations. A No or NA answer to this question will not be perceived well by the reviewers. 
+        \item The claims made should match theoretical and experimental results, and reflect how much the results can be expected to generalize to other settings. 
+        \item It is fine to include aspirational goals as motivation as long as it is clear that these goals are not attained by the paper. 
+    \end{itemize}
+
+\item {\bf Limitations}
+    \item[] Question: Does the paper discuss the limitations of the work performed by the authors?
+    \item[] Answer: \answerYes{} % Replace by \answerYes{}, \answerNo{}, or \answerNA{}.
+    \item[] Justification: Section \ref{sec: limitation} Limitations
+    \item[] Guidelines:
+    \begin{itemize}
+        \item The answer NA means that the paper has no limitation while the answer No means that the paper has limitations, but those are not discussed in the paper. 
+        \item The authors are encouraged to create a separate "Limitations" section in their paper.
+        \item The paper should point out any strong assumptions and how robust the results are to violations of these assumptions (e.g., independence assumptions, noiseless settings, model well-specification, asymptotic approximations only holding locally). The authors should reflect on how these assumptions might be violated in practice and what the implications would be.
+        \item The authors should reflect on the scope of the claims made, e.g., if the approach was only tested on a few datasets or with a few runs. In general, empirical results often depend on implicit assumptions, which should be articulated.
+        \item The authors should reflect on the factors that influence the performance of the approach. For example, a facial recognition algorithm may perform poorly when image resolution is low or images are taken in low lighting. Or a speech-to-text system might not be used reliably to provide closed captions for online lectures because it fails to handle technical jargon.
+        \item The authors should discuss the computational efficiency of the proposed algorithms and how they scale with dataset size.
+        \item If applicable, the authors should discuss possible limitations of their approach to address problems of privacy and fairness.
+        \item While the authors might fear that complete honesty about limitations might be used by reviewers as grounds for rejection, a worse outcome might be that reviewers discover limitations that aren't acknowledged in the paper. The authors should use their best judgment and recognize that individual actions in favor of transparency play an important role in developing norms that preserve the integrity of the community. Reviewers will be specifically instructed to not penalize honesty concerning limitations.
+    \end{itemize}
+
+\item {\bf Theory Assumptions and Proofs}
+    \item[] Question: For each theoretical result, does the paper provide the full set of assumptions and a complete (and correct) proof?
+    \item[] Answer: \answerYes{} % Replace by \answerYes{}, \answerNo{}, or \answerNA{}.
+    \item[] Justification: Assumptions in Section \ref{subsec:knowledge_merging} and Proofs in Appendix \ref{app_sec:proof}
+    \item[] Guidelines:
+    \begin{itemize}
+        \item The answer NA means that the paper does not include theoretical results. 
+        \item All the theorems, formulas, and proofs in the paper should be numbered and cross-referenced.
+        \item All assumptions should be clearly stated or referenced in the statement of any theorems.
+        \item The proofs can either appear in the main paper or the supplemental material, but if they appear in the supplemental material, the authors are encouraged to provide a short proof sketch to provide intuition. 
+        \item Inversely, any informal proof provided in the core of the paper should be complemented by formal proofs provided in appendix or supplemental material.
+        \item Theorems and Lemmas that the proof relies upon should be properly referenced. 
+    \end{itemize}
+
+    \item {\bf Experimental Result Reproducibility}
+    \item[] Question: Does the paper fully disclose all the information needed to reproduce the main experimental results of the paper to the extent that it affects the main claims and/or conclusions of the paper (regardless of whether the code and data are provided or not)?
+    \item[] Answer: \answerYes{} % Replace by \answerYes{}, \answerNo{}, or \answerNA{}.
+    \item[] Justification: We report the setup throughout the paper as well as in the Section \ref{subsec:exp_setting} and Appendix \ref{app_sec:implem_details}
+    \item[] Guidelines:
+    \begin{itemize}
+        \item The answer NA means that the paper does not include experiments.
+        \item If the paper includes experiments, a No answer to this question will not be perceived well by the reviewers: Making the paper reproducible is important, regardless of whether the code and data are provided or not.
+        \item If the contribution is a dataset and/or model, the authors should describe the steps taken to make their results reproducible or verifiable. 
+        \item Depending on the contribution, reproducibility can be accomplished in various ways. For example, if the contribution is a novel architecture, describing the architecture fully might suffice, or if the contribution is a specific model and empirical evaluation, it may be necessary to either make it possible for others to replicate the model with the same dataset, or provide access to the model. In general. releasing code and data is often one good way to accomplish this, but reproducibility can also be provided via detailed instructions for how to replicate the results, access to a hosted model (e.g., in the case of a large language model), releasing of a model checkpoint, or other means that are appropriate to the research performed.
+        \item While NeurIPS does not require releasing code, the conference does require all submissions to provide some reasonable avenue for reproducibility, which may depend on the nature of the contribution. For example
+        \begin{enumerate}
+            \item If the contribution is primarily a new algorithm, the paper should make it clear how to reproduce that algorithm.
+            \item If the contribution is primarily a new model architecture, the paper should describe the architecture clearly and fully.
+            \item If the contribution is a new model (e.g., a large language model), then there should either be a way to access this model for reproducing the results or a way to reproduce the model (e.g., with an open-source dataset or instructions for how to construct the dataset).
+            \item We recognize that reproducibility may be tricky in some cases, in which case authors are welcome to describe the particular way they provide for reproducibility. In the case of closed-source models, it may be that access to the model is limited in some way (e.g., to registered users), but it should be possible for other researchers to have some path to reproducing or verifying the results.
+        \end{enumerate}
+    \end{itemize}
+
+
+\item {\bf Open access to data and code}
+    \item[] Question: Does the paper provide open access to the data and code, with sufficient instructions to faithfully reproduce the main experimental results, as described in supplemental material?
+    \item[] Answer: \answerYes{} % Replace by \answerYes{}, \answerNo{}, or \answerNA{}.
+    \item[] Justification: We use publicly available datasets (Appendix \ref{app_sec:implem_details}), Code and Data are also provided in supplemental material.
+    \item[] Guidelines:
+    \begin{itemize}
+        \item The answer NA means that paper does not include experiments requiring code.
+        \item Please see the NeurIPS code and data submission guidelines (\url{https://nips.cc/public/guides/CodeSubmissionPolicy}) for more details.
+        \item While we encourage the release of code and data, we understand that this might not be possible, so “No” is an acceptable answer. Papers cannot be rejected simply for not including code, unless this is central to the contribution (e.g., for a new open-source benchmark).
+        \item The instructions should contain the exact command and environment needed to run to reproduce the results. See the NeurIPS code and data submission guidelines (\url{https://nips.cc/public/guides/CodeSubmissionPolicy}) for more details.
+        \item The authors should provide instructions on data access and preparation, including how to access the raw data, preprocessed data, intermediate data, and generated data, etc.
+        \item The authors should provide scripts to reproduce all experimental results for the new proposed method and baselines. If only a subset of experiments are reproducible, they should state which ones are omitted from the script and why.
+        \item At submission time, to preserve anonymity, the authors should release anonymized versions (if applicable).
+        \item Providing as much information as possible in supplemental material (appended to the paper) is recommended, but including URLs to data and code is permitted.
+    \end{itemize}
+
+
+\item {\bf Experimental Setting/Details}
+    \item[] Question: Does the paper specify all the training and test details (e.g., data splits, hyperparameters, how they were chosen, type of optimizer, etc.) necessary to understand the results?
+    \item[] Answer: \answerYes{} % Replace by \answerYes{}, \answerNo{}, or \answerNA{}.
+    \item[] Justification: In Appendix \ref{app_sec:implem_details}, we provide detailed descriptions of data splits and the proposed method's hyperparameters and baselines' hyperparameters. Additionally, in Section \ref{subsec: further_analysis}, we discuss how to select them for the proposed method.
+    \item[] Guidelines:
+    \begin{itemize}
+        \item The answer NA means that the paper does not include experiments.
+        \item The experimental setting should be presented in the core of the paper to a level of detail that is necessary to appreciate the results and make sense of them.
+        \item The full details can be provided either with the code, in appendix, or as supplemental material.
+    \end{itemize}
+
+\item {\bf Experiment Statistical Significance}
+    \item[] Question: Does the paper report error bars suitably and correctly defined or other appropriate information about the statistical significance of the experiments?
+    \item[] Answer: \answerYes{} % Replace by \answerYes{}, \answerNo{}, or \answerNA{}.
+    \item[] Justification: The LLMs only have one checkpoint of the corresponding size, e.g., \texttt{LLaMA-2-7B}, so we only edit once for each setting. But we test our method and baselines under various models, settings, and datasets, therefore, the statistical significance of the experiments can be verified and supported.
+    \item[] Guidelines:
+    \begin{itemize}
+        \item The answer NA means that the paper does not include experiments.
+        \item The authors should answer "Yes" if the results are accompanied by error bars, confidence intervals, or statistical significance tests, at least for the experiments that support the main claims of the paper.
+        \item The factors of variability that the error bars are capturing should be clearly stated (for example, train/test split, initialization, random drawing of some parameter, or overall run with given experimental conditions).
+        \item The method for calculating the error bars should be explained (closed form formula, call to a library function, bootstrap, etc.)
+        \item The assumptions made should be given (e.g., Normally distributed errors).
+        \item It should be clear whether the error bar is the standard deviation or the standard error of the mean.
+        \item It is OK to report 1-sigma error bars, but one should state it. The authors should preferably report a 2-sigma error bar than state that they have a 96\% CI, if the hypothesis of Normality of errors is not verified.
+        \item For asymmetric distributions, the authors should be careful not to show in tables or figures symmetric error bars that would yield results that are out of range (e.g. negative error rates).
+        \item If error bars are reported in tables or plots, The authors should explain in the text how they were calculated and reference the corresponding figures or tables in the text.
+    \end{itemize}
+
+\item {\bf Experiments Compute Resources}
+    \item[] Question: For each experiment, does the paper provide sufficient information on the computer resources (type of compute workers, memory, time of execution) needed to reproduce the experiments?
+    \item[] Answer: \answerYes{} % Replace by \answerYes{}, \answerNo{}, or \answerNA{}.
+    \item[] Justification: In Appendix \ref{app_sec: training_details}, \ref{subsec: parameter_efficiency} and Section \ref{subsec: further_analysis}
+    \item[] Guidelines:
+    \begin{itemize}
+        \item The answer NA means that the paper does not include experiments.
+        \item The paper should indicate the type of compute workers CPU or GPU, internal cluster, or cloud provider, including relevant memory and storage.
+        \item The paper should provide the amount of compute required for each of the individual experimental runs as well as estimate the total compute. 
+        \item The paper should disclose whether the full research project required more compute than the experiments reported in the paper (e.g., preliminary or failed experiments that didn't make it into the paper). 
+    \end{itemize}
+    
+\item {\bf Code Of Ethics}
+    \item[] Question: Does the research conducted in the paper conform, in every respect, with the NeurIPS Code of Ethics \url{https://neurips.cc/public/EthicsGuidelines}?
+    \item[] Answer: \answerYes{} % Replace by \answerYes{}, \answerNo{}, or \answerNA{}.
+    \item[] Justification: We use publicly standard datasets that do not contain information about individual people or offensive context to our knowledge. Ethical considerations are discussed in Section \ref{sec: limitation}.
+    \item[] Guidelines:
+    \begin{itemize}
+        \item The answer NA means that the authors have not reviewed the NeurIPS Code of Ethics.
+        \item If the authors answer No, they should explain the special circumstances that require a deviation from the Code of Ethics.
+        \item The authors should make sure to preserve anonymity (e.g., if there is a special consideration due to laws or regulations in their jurisdiction).
+    \end{itemize}
+
+
+\item {\bf Broader Impacts}
+    \item[] Question: Does the paper discuss both potential positive societal impacts and negative societal impacts of the work performed?
+    \item[] Answer: \answerYes{} % Replace by \answerYes{}, \answerNo{}, or \answerNA{}.
+    \item[] Justification: In Section \ref{sec: limitation}
+    \item[] Guidelines:
+    \begin{itemize}
+        \item The answer NA means that there is no societal impact of the work performed.
+        \item If the authors answer NA or No, they should explain why their work has no societal impact or why the paper does not address societal impact.
+        \item Examples of negative societal impacts include potential malicious or unintended uses (e.g., disinformation, generating fake profiles, surveillance), fairness considerations (e.g., deployment of technologies that could make decisions that unfairly impact specific groups), privacy considerations, and security considerations.
+        \item The conference expects that many papers will be foundational research and not tied to particular applications, let alone deployments. However, if there is a direct path to any negative applications, the authors should point it out. For example, it is legitimate to point out that an improvement in the quality of generative models could be used to generate deepfakes for disinformation. On the other hand, it is not needed to point out that a generic algorithm for optimizing neural networks could enable people to train models that generate Deepfakes faster.
+        \item The authors should consider possible harms that could arise when the technology is being used as intended and functioning correctly, harms that could arise when the technology is being used as intended but gives incorrect results, and harms following from (intentional or unintentional) misuse of the technology.
+        \item If there are negative societal impacts, the authors could also discuss possible mitigation strategies (e.g., gated release of models, providing defenses in addition to attacks, mechanisms for monitoring misuse, mechanisms to monitor how a system learns from feedback over time, improving the efficiency and accessibility of ML).
+    \end{itemize}
+    
+\item {\bf Safeguards}
+    \item[] Question: Does the paper describe safeguards that have been put in place for responsible release of data or models that have a high risk for misuse (e.g., pretrained language models, image generators, or scraped datasets)?
+    \item[] Answer: \answerNA{} % Replace by \answerYes{}, \answerNo{}, or \answerNA{}.
+    \item[] Justification: \answerNA{}
+    \item[] Guidelines:
+    \begin{itemize}
+        \item The answer NA means that the paper poses no such risks.
+        \item Released models that have a high risk for misuse or dual-use should be released with necessary safeguards to allow for controlled use of the model, for example by requiring that users adhere to usage guidelines or restrictions to access the model or implementing safety filters. 
+        \item Datasets that have been scraped from the Internet could pose safety risks. The authors should describe how they avoided releasing unsafe images.
+        \item We recognize that providing effective safeguards is challenging, and many papers do not require this, but we encourage authors to take this into account and make a best faith effort.
+    \end{itemize}
+
+\item {\bf Licenses for existing assets}
+    \item[] Question: Are the creators or original owners of assets (e.g., code, data, models), used in the paper, properly credited and are the license and terms of use explicitly mentioned and properly respected?
+    \item[] Answer: \answerYes{} % Replace by \answerYes{}, \answerNo{}, or \answerNA{}.
+    \item[] Justification: Section \ref{subsec:exp_setting} and Appendix \ref{app_sec:implem_details}. We use publicly available artifacts.
+    \item[] Guidelines:
+    \begin{itemize}
+        \item The answer NA means that the paper does not use existing assets.
+        \item The authors should cite the original paper that produced the code package or dataset.
+        \item The authors should state which version of the asset is used and, if possible, include a URL.
+        \item The name of the license (e.g., CC-BY 4.0) should be included for each asset.
+        \item For scraped data from a particular source (e.g., website), the copyright and terms of service of that source should be provided.
+        \item If assets are released, the license, copyright information, and terms of use in the package should be provided. For popular datasets, \url{paperswithcode.com/datasets} has curated licenses for some datasets. Their licensing guide can help determine the license of a dataset.
+        \item For existing datasets that are re-packaged, both the original license and the license of the derived asset (if it has changed) should be provided.
+        \item If this information is not available online, the authors are encouraged to reach out to the asset's creators.
+    \end{itemize}
+
+\item {\bf New Assets}
+    \item[] Question: Are new assets introduced in the paper well documented and is the documentation provided alongside the assets?
+    \item[] Answer: \answerNA{} % Replace by \answerYes{}, \answerNo{}, or \answerNA{}.
+    \item[] Justification: \answerNA{}
+    \item[] Guidelines:
+    \begin{itemize}
+        \item The answer NA means that the paper does not release new assets.
+        \item Researchers should communicate the details of the dataset/code/model as part of their submissions via structured templates. This includes details about training, license, limitations, etc. 
+        \item The paper should discuss whether and how consent was obtained from people whose asset is used.
+        \item At submission time, remember to anonymize your assets (if applicable). You can either create an anonymized URL or include an anonymized zip file.
+    \end{itemize}
+
+\item {\bf Crowdsourcing and Research with Human Subjects}
+    \item[] Question: For crowdsourcing experiments and research with human subjects, does the paper include the full text of instructions given to participants and screenshots, if applicable, as well as details about compensation (if any)? 
+    \item[] Answer: \answerNA{} % Replace by \answerYes{}, \answerNo{}, or \answerNA{}.
+    \item[] Justification: \answerNA{}
+    \item[] Guidelines:
+    \begin{itemize}
+        \item The answer NA means that the paper does not involve crowdsourcing nor research with human subjects.
+        \item Including this information in the supplemental material is fine, but if the main contribution of the paper involves human subjects, then as much detail as possible should be included in the main paper. 
+        \item According to the NeurIPS Code of Ethics, workers involved in data collection, curation, or other labor should be paid at least the minimum wage in the country of the data collector. 
+    \end{itemize}
+
+\item {\bf Institutional Review Board (IRB) Approvals or Equivalent for Research with Human Subjects}
+    \item[] Question: Does the paper describe potential risks incurred by study participants, whether such risks were disclosed to the subjects, and whether Institutional Review Board (IRB) approvals (or an equivalent approval/review based on the requirements of your country or institution) were obtained?
+    \item[] Answer: \answerNA{} % Replace by \answerYes{}, \answerNo{}, or \answerNA{}.
+    \item[] Justification: \answerNA{}
+    \item[] Guidelines:
+    \begin{itemize}
+        \item The answer NA means that the paper does not involve crowdsourcing nor research with human subjects.
+        \item Depending on the country in which research is conducted, IRB approval (or equivalent) may be required for any human subjects research. If you obtained IRB approval, you should clearly state this in the paper. 
+        \item We recognize that the procedures for this may vary significantly between institutions and locations, and we expect authors to adhere to the NeurIPS Code of Ethics and the guidelines for their institution. 
+        \item For initial submissions, do not include any information that would break anonymity (if applicable), such as the institution conducting the review.
+    \end{itemize}
+
+\end{enumerate}
+
+% --- end included file: checklist.tex ---
+
+
+\end{document}

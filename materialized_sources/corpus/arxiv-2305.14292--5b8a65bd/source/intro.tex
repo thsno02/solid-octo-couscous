@@ -1,0 +1,60 @@
+\section{Introduction}
+
+\begin{figure*}
+    \centering
+    \includegraphics[trim={0 0 0 3em},clip ,width=0.95\textwidth]{images/pipeline.pdf}
+    \caption{All \system components, and a sample conversation about an upcoming movie, edited for brevity. The steps taken to generate a response include (1) generating a query to retrieve from Wikipedia, (2) summarizing and filtering the retrieved passages, (3) generating a response from an LLM, (4) extracting claims from the LLM response (5) fact-checking the claims in the LLM response using retrieved evidence, (6) drafting a response, and (7) refining the response.}
+    \vspace{-0.5em}
+    \label{fig:pipeline}
+\end{figure*}
+
+Recent dramatic advances in LLM chatbots have made them indispensable tools for millions of people~\cite{chatgpt-users2023} who have come to rely on their broad skill set.
+Yet, LLM chatbots are prone to providing misleading information, or \emph{hallucination}~\cite{bang2023multitask}, often using a convincing and confident language. Notably, LLMs do not speak accurately about {\em recent} events that occurred after their pre-training, and are far less knowledgeable about less popular, or {\em tail}, topics~\cite{mallen2022trust, sun2023headtotail}.
+Therefore, for knowledge-intensive tasks~\cite{lewis2020retrieval}, users need to painstakingly verify any information they receive with external sources lest they be misled.
+
+This paper focuses on three metrics for knowledge-intensive dialogues: factuality, conversationality, and latency. 
+A knowledge-based chatbot needs to be first and foremost \emph{factual}. We assume access to a source of trusted text corpus; here the English Wikipedia is assumed to be factual. While LLMs tend to hallucinate, they can carry out natural and engaging conversations rather than giving dry answers to users' questions. We refer to the ability to give relevant, informational, natural, non-repetitive and temporally accurate answers collectively as \emph{conversationality}.
+We single out {\em latency} as the third metric of focus because solutions addressing factuality like ~\citet{gao-etal-2023-rarr, jiang2023active, trivedi-etal-2023-interleaving, zhao2023verifyandedit} tend to incur a high latency that degrades user experience and hinders adoption. 
+
+\subsection{Current Approaches}
+The basis of factuality in this work is information retrieval (IR), which bases the chatbot's responses on retrieved information from a trusted corpus~\cite{zhang2023large,   li2022survey, shuster-etal-2021-retrieval-augmentation}. The \emph{retrieve-then-generate} approach generates a response from data retrieved with the user query~\cite{lewis2020retrieval, trivedi-etal-2023-interleaving, izacard2022atlas, shuster2022blenderbot, chen2021blenderbot}. Previous work is either not evaluated on conversational tasks~\cite{lewis2020retrieval, trivedi-etal-2023-interleaving, shi2023replug}, or as we show in this paper, is likely to generate irrelevant and unnatural outputs when properly evaluated~\cite{izacard2022atlas}.
+More importantly, chatbots based on retrieve-then-generate pipelines may still hallucinate. In popular academic datasets like Wizard of Wikipedia~\cite{dinan2019wizard} and Wizard of the Internet~\cite{komeili-etal-2022-internet}, which are widely used to train retrieve-then-generate chatbots, crowdworkers are free to add ungrounded information to their responses; in a GPT-4-based commercial system like Bing Chat, only 58.7\% of the facts generated are grounded in what it retrieves~\cite{bingchat2023}.
+
+Another IR approach is to fact-check a system's outputs and remove errors~\cite{gao-etal-2023-rarr, jiang2023active}.
+When applied to LLM chatbots, the responses are conversational, but as shown in this paper, are lacking in content for recent or tail topics.  Other IR approaches require expensive changes to the pre-training process of language models~\cite{lewis2020retrieval, realm2020}.
+
+Complementary to IR, \emph{Knowledge Editing} updates model weights to include recent knowledge as it becomes available~\cite{de-cao-etal-2021-editing, meng2022locating, mitchell2022memory}.
+Similarly, \emph{Continual Learning} can be used to add new knowledge to LLMs~\cite{jang-etal-2022-temporalwiki}. While these approaches improve factuality on recent knowledge, they cannot address the tail knowledge problem. 
+
+\subsection{\system Overview}
+\label{sec:overview}
+This paper presents \system, the first few-shot chatbot that provides up-to-date and fact-checked information with high conversationality and low latency. 
+
+{\bf Few-Shot Knowledge-Grounded Chatbots.}
+Our 7-stage pipeline (Figure~\ref{fig:pipeline}) combines the best of IR approaches: We (1) use the user utterance to retrieve information that LLMs may not be aware of, and (2) leverage the generative power of LLMs by asking them for responses and fact-checking them. All this curated information is used to draft and refine the final response.
+
+It is not easy to stop LLMs from hallucinating.
+In retrieve-then-generate pipelines, when IR does not retrieve any relevant information or when no relevant information is available in the knowledge corpus, LLMs hallucinate to pick up the slack. Thus, \system summarizes and filters the retrieved information instead of generating a response directly. We fact-check every claim generated by LLMs separately and teach the system to say ``I don't know'' when necessary. We teach it to understand the time context; e.g. a future tense in an article may refer to a past event at the time of the conversation. Most importantly, we do not prematurely optimize for speed by forgoing these needed steps, but rely on model distillation to reduce the latency only once high quality is achieved.
+
+The resulting pipeline is not specific to any corpus. While this paper applies this pipeline to Wikipedia, the largest corpus of curated knowledge, to create \system, it is applicable to any free-text corpus, including personal and corporate confidential information. The pipeline is not specific to any LLM either, and we apply it to three different LLMs in this paper.
+
+{\bf Distillation for improved latency, affordability, and privacy}. 
+Not only is our 7-stage LLM-based pipeline slow and expensive, sending user data to LLM APIs does not provide the privacy and confidentiality needed by many applications. The simplicity in each of our stages makes it possible to effectively distill our best system into a smaller multi-tasking model, which is responsive and affordable, and can be deployed locally for privacy. We release this model to aid further research and reproducibility of our results.
+
+{\bf Evaluation of LLM-based agents}. 
+We find that LLM-based chatbots have surpassed the quality of systems that  
+conventional static crowdsourced benchmarks~\cite{dinan2019wizard, komeili-etal-2022-internet} were meant to evaluate. For example, these benchmarks mainly evaluate the ability to chat about the \emph{head} knowledge, which LLM chatbots are already very good at. We devise a human-and-LLM hybrid evaluation methodology that can adequately analyze all chatbots, regardless of whether they are knowledge-grounded or LLM-based.
+
+\subsection{Contributions}
+We create {\bf a factual and engaging open-domain chatbot} with a 7-stage pipeline using a few-shot prompted LLM, as shown in Figure~\ref{fig:pipeline}.
+    We validate the concept with three GPT-4, GPT-3.5, and LLaMA~\cite{touvron2023llama} based chatbots grounded in Wikipedia.
+    
+    Our experiments with simulated users show that the GPT-4-based \system (\systemgf) achieves a 97.3\% factual accuracy of its claims in simulated conversations. Each version of \system is more accurate than the LLM it is based on by an average of 31.2\%, 27.8\% and 50.2\% for GPT-4, GPT-3.5 and LLaMA respectively.   
+    It also outperforms the fine-tuned SOTA retrieval-based Atlas~\cite{izacard2022atlas} in factuality and, unlike Atlas, matches the conversationality of LLMs. 
+    
+Our {\em real} user study shows that WikiChat achieves 97.9\% in factuality on conversations of recent topics, 
+2.3 times more factual than GPT-4, while receiving  higher user ratings.
+
+We are the first to demonstrate the {\bf feasibility of distilling a multi-part system built with in-context learning~\cite{brown2020language} into a smaller yet effective model}. Our distillation of \systemgf into a 7B-parameter LLaMA achieves a factual accuracy of 91.1\%, outperforming much larger baselines, while having 3.2 times lower end-to-end latency than its teacher model.
+
+We introduce an {\bf efficient and effective human-and-LLM methodology for evaluating knowledge-grounded chatbots} in settings beyond what is possible with just crowdsourcing.

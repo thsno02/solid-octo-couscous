@@ -1,0 +1,49 @@
+\begin{table*}[!t]
+\centering\small
+\adjustbox{max width=\textwidth}{%
+\begin{tabular}{
+@{}l
+r@{ $\to$ }rcc
+r@{ $\to$ }rcc
+r@{ $\to$ }rcc
+@{}}
+\toprule
+ & \multicolumn{4}{c}{GPT-3 outputs on NQ}
+ & \multicolumn{4}{c}{GPT-3 outputs on SQA}
+ & \multicolumn{4}{c}{GPT-3 outputs on QReCC}
+ \\
+ \cmidrule(lr){2-5} \cmidrule(lr){6-9} \cmidrule(lr){10-13}
+ Model
+ & \multicolumn{2}{c}{$\attrauto{}$} & $\preslev{}$ & \multicolumn{1}{c}{$\HM{}$}
+ & \multicolumn{2}{c}{$\attrauto{}$} & $\preslev{}$ & \multicolumn{1}{c}{$\HM{}$}
+ & \multicolumn{2}{c}{$\attrauto{}$} & $\preslev{}$ & \multicolumn{1}{c@{}}{$\HM{}$}
+ \\
+\midrule
+EFEC
+& 48.3 & 66.8 & 41.5 & 51.2
+& 32.6 & 50.6 & 29.4 & 37.2
+& 26.4 & 53.1 & 39.0 & 44.9
+\\
+LaMDA
+& 36.2 & 61.1 & 45.9 & 52.4
+& 22.3 & 27.3 & 43.3 & 33.5
+& 19.0 & 33.9 & 28.3 & 30.8
+\\
+PaLM \approach{}
+& 48.3 & 57.2 & 89.6 & 69.8
+& 32.6 & 36.3 & 91.6 & 52.0
+& 26.4 & 31.1 & 87.7 & \textbf{45.9}
+\\
+GPT-3 \approach{}
+& 48.0 & 59.3 & 91.8 & \textbf{72.0}
+& 34.7 & 37.0 & 91.8 & \textbf{52.8}
+& 23.2 & 25.3 & 89.7 & 39.5
+\\
+\bottomrule
+\end{tabular}
+}
+\caption{\textbf{Results on passages from GPT-3.} We report the automatic metrics: $\attrauto$, $\preslev$, and harmonic mean between the two ($\HM{}$). We show auto-AIS scores both before and after editing (before $\rightarrow$ edit), with respect to the attribution report $A$ produced by the model.
+The results show similar trends as the results on passages from PaLM and LaMDA in Table~\ref{tab:main_results}.
+}
+\label{tab:gpt3_passages_results}
+\end{table*}

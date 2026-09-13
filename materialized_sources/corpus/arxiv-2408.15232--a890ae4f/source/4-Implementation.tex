@@ -1,0 +1,138 @@
+% \yijia{This part is too detailed for the intro. Copied it here as it may be useful for describing evaluation metrics:
+
+% The evaluation methods include both automatic and human assessments. Automatic evaluations focus on the coherence, relevance, and comprehensiveness of the long-form reports, as well as the effectiveness of discourse steering.}
+% \TODO{Confused by the English.  What is THE automatic evaluation? I thought  you are generating the dataset? Shouldn't you move details of the simulated user to the automatic evaluation experiment?
+%Section 4.2 and 4.3 apply to both automatic and user studies? I suggest a reorg. Talk about the system implementation. The baselines seem to be common to both.  Then create a section on Automatic Evluation Expt then another for real user.}
+
+%\subsection{Baselines}
+%\TODO{I don't understand why the first setting uses 1 and 2, and the setting uses 1 and 3. I recommend that you either mention it here up front, or better just describe the baseline for each setting sequentially. This organization begs the question why you are choosing 2 out of 3 each time with no justification. Why don't we describe the set up and result for each experiment in two sections.  I spent all the time learning about the metrics for expt 1 and then I see them used much later after reading so many other independent things. If you introduce them and discuss them, it makes so much sense.  I couldn't understand why Fig 3 novelty has nothing to do with Table 3 novelty for example until I re-read section 4.1}
+%\yucheng{I restructured the paper. Now Section 4 talks about experiments setup (4.1 talks about baselines and we have auto and human eval; 4.2 talks about metrics; 4.3 talks about implementations); Section 5 talks about auto eval setup and results; Section 6 talks about human eval setup and results}
+
+%As shown in~\reftab{table:setup_comparison}, no previous system supports both ongoing interaction and report generation. We extend a conversational QA system and a report generation system as the following baselines:
+% \subsection{Experiment Setups}
+% We compare \system with the following baselines: (1) \textbf{RAG Chatbot}, a baseline that retrieves information from the search engine and interacts with the user through a one-question-one-answer paradigm. (2) \textbf{STORM + QA}, a baseline that uses the STORM framework~\citep{shao2024assisting} to generate a report for a given topic to provide general information. It then allows the user to ask follow-up questions and provides corresponding answers retrieved with the search engine. (3) Traditional \textbf{Search Engine}. \TODO{Table 3 has only 2 baseline results.} \yucheng{explained below}
+
+% \begin{itemize}
+% \vspace{-0.5em}
+%     \item {\textit{RAG Chatbot}, a baseline that interacts with the user through a one-question-one-answer paradigm and generates a report based on the conversation history.}
+%     \vspace{-0.5em}
+%     \item{\textit{STORM + QA}, a baseline that uses the STORM framework~\citep{shao2024assisting} to generate a report for a given topic. We extend STORM by allowing the user to ask follow-up questions, and then generate a full-length report based on both the simulated QA and user-driven QA.}
+% \end{itemize}
+
+
+
+
+
+
+% % ---- Report evaluation ---- %
+% \begin{table*}[h]
+% \centering
+% \resizebox{\textwidth}{!}{%
+% \begin{tabular}{lcccccc} 
+% \toprule
+% \textbf{} & \textbf{Broad Coverage} & \textbf{Novelty} & \textbf{Depth} & \textbf{Interest level} & \textbf{Relevance} & \textbf{User utterance \%}\\ 
+% \midrule
+% Direct Chat  & 3.50 & 2.44 & 3.26 & 3.02 & 3.57 & 50.00\% \\
+% STORM + QA & 3.61 & 2.50 & 3.43 & 3.01 & 3.61 & 30.00\% \\
+% \midrule
+% \system & \textbf{3.79} & \textbf{3.05} & \textbf{3.77} & \textbf{3.38} & \textbf{3.78} & \textbf{6.67\%} \\
+% ~ w/o moderator & 3.69 & 2.89 & 3.41 & 3.29 & 3.56 & \textbf{6.67\%} \\
+% ~ w/o multi experts & 3.75 & 2.93 & \textbf{3.77} & 3.25 & 3.73 & \textbf{6.67\%} \\
+% \bottomrule
+% \end{tabular}
+% }
+% \caption{Rubric grading evaluation results.}
+% \label{table:report_grading}
+% \vspace{-0.3em}
+% \end{table*}
+
+% ---- Report evaluation ---- %
+%\begin{table*}[h]
+%\centering
+%\resizebox{\textwidth}{!}{%
+%\begin{tabular}{lcccc!{\vrule width \lightrulewidth}cc!{\vrule width \lightrulewidth}c} 
+%\toprule
+% & \multicolumn{4}{c!{\vrule width \lightrulewidth}}{\textbf{Rubric Grading}} & \multicolumn{2}{c!{\vrule width \lightrulewidth}}{\textbf{Deterministic Metrics}} & \multirow{2}{*}{\textbf{\% of User Turns}}  \\
+% & Coverage & Novelty & Depth & Relevance                                     & Info Diversity & \# Cited URLs                                                    &                                             \\ 
+%\midrule
+%RAG Chatbot  & 3.50 & 2.44 & 3.26  & 3.57 & \todo{}&\todo{} &50.00\% \\
+%STORM + QA & 3.61 & 2.50 & 3.43 & 3.61 & \todo{} & \todo{}  & 30.00\% \\
+%\midrule
+%\textbf{\system} & \textbf{3.79} & \textbf{3.05} & \textbf{3.77}  & \textbf{3.78} & \todo{} & \todo{} & 6.67\% \\
+%~ w/o Moderator & 3.69 & 2.89 & 3.41  & 3.56 & \todo{}& \todo{} & 6.67\% \\
+%~ w/o Multiple Participants & 3.75 & 2.93 & \textbf{3.77}  & 3.73 & \todo{} & \todo{} & 6.67\% \\
+%\bottomrule
+%\end{tabular}
+%}
+%\caption{Results of final report quality in automatic evaluation. \todo{significance test against baseline.}}
+%\label{table:report_grading}
+%\vspace{-0.3em}
+%\end{table*}
+
+% ---- Report Quality Only ---- %
+%\begin{table}
+%\centering
+%\resizebox{\columnwidth}{!}{%
+%\begin{tabular}{lcccc} 
+%\toprule
+%                         & Coverage & Novelty & Depth & Relevance  \\ 
+%\midrule
+%RAG Chatbot              & 3.50     & 2.44    & 3.26  & 3.57       \\
+%STORM + QA               & 3.61     & 2.50    & 3.43  & 3.61       \\
+%\midrule
+%\textbf{\system}                 & 3.79     & 3.05    & 3.77  & 3.78       \\
+%~ \small{w/o Modrator}           & 3.69     & 2.89    & 3.41  & 3.56       \\
+%~ \small{w/o Multi-Participant} & 3.75     & 2.93    & 3.77  & 3.73       \\
+%\bottomrule
+%\end{tabular}
+%}
+%\caption{Results of final report quality in automatic evaluation. \todo{significance test against baseline.} The rubric grading uses a 1-5 scale.}
+%\label{table:report_grading}
+%\end{table}
+
+\begin{table*}
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lccccc!{\vrule width \lightrulewidth}ccc} 
+\toprule
+                        & \multicolumn{5}{c!{\vrule width \lightrulewidth}}{\textbf{Report Quality}} & \multicolumn{3}{c}{\textbf{Question-Answering Turn Quality}}  \\
+                        & Relevance & Breadth & Depth & Novelty & Info Diversity                                    & Consistency & Engagement & \# Unique URLs      \\ 
+\midrule
+RAG Chatbot             & 3.57     & 3.50    & 3.26  & 2.44        & 0.595                                  & 4.37        & 4.13       & 2.94                           \\
+STORM + QA              & 3.61     & 3.61    & 3.43  & 2.50                    &0.592                      & 4.34        & 4.11       & 2.89                         \\ 
+\midrule
+\textbf{\system}                & \textbf{3.78}     & \textbf{3.79}    & \textbf{3.77}\dag   & \textbf{3.05}\dag      & \textbf{0.602}                                    & \textbf{4.40}\dag        & \textbf{4.33}\dag       & \textbf{6.04}\dag                     \\
+~ w/o Multi-Expert & 3.73     & 3.75    & \textbf{3.77}  & 2.93                           & 0.589               & \textbf{4.40}        & 4.32       & 5.91                    \\
+~ w/o Moderator         & 3.56     & 3.69    & 3.41  & 2.89                       & 0.577                   & 4.39        & 4.28       & 5.67                     \\
+\bottomrule
+\end{tabular}
+}
+\caption{Automatic evaluation results for report quality and the quality of question-answering turns in the discourse with simulated users. Ablations are included as follows: “w/o Multi-Expert” denotes 1 expert and 1 moderator, and “w/o Moderator” denotes $N$ experts and 0 moderator.\dag~denotes significant differences ($p<0.05$) from a paired $t$-test between \system and both baselines. The rubric grading uses a 1-5 scale. All scores reported are the mean values.} 
+%\TODO{Ablation: should we say, 1 expert + moderator; N experts -whatever N is. I don't know why QA consistency, engagement are significant, the differences are so small.}
+%\yucheng{I made revision in the caption it make it easier to follow; I think it's safe to use "w/o xxx" as it's standard usage of ablation study in the table for many papers.}\yucheng{Statistics significance is compared to best baseline methods exclude its ablations. I double checked the eval data and it's correct reporting.}
+\vspace{-1em}
+\label{table:report_grading}
+\end{table*}
+
+
+
+
+
+%We reduce the STORM \citep{shao2024assisting} hyperparameters N and M to 2.
+
+
+%\TODO{Don't know why the number of setups has anything to do with complex info seeking. You should instead explain why you need 2 and how they complement each other.} \yucheng{Make sense! I add some justification below while also outline in the following two sections, we will cover both evaluation and result sequentially.}
+% As complex information-seeking involves ongoing user interaction (\refsec{sec:task_setup}), our experiments include two setups for evaluation.
+
+% We employ both automatic and human evaluations to comprehensively assess \system. Automatic evaluation (\refsec{sec:auto_eval}), using baselines \textbf{RAG Chatbot} and \textbf{STORM + QA}, allows for consistent simulation of user behavior and scalable testing. In contrast, human evaluation (\refsec{sec:human_eval}), using baselines \textbf{RAG Chatbot} and \textbf{Search Engine}, reflects familiar real-world interactions, providing insights into user experience.
+
+
+
+% We conduct automatic evaluation (\refsec{sec:results}) and human evaluation (\refsec{sec:human_eval}) to systematically assess the quality of \system. For automatic evaluation, we use the \data dataset. The user policy $\pi$ is parameterized as an LM (\texttt{gpt-4o-2024-05-13}) prompted with the topic $t$, the goal $g$, the discourse history $\mathcal{D}$, and the instruction for question generation.
+
+% We further conducted an IRB-approved human evaluation by recruiting 20 volunteers on the Internet using five pairs of complex information-seeking tasks we manually constructed. %\footnote{The study has been approved by our institution's IRB.}. 
+
+
+
+% \subsection{\system Implementation}
+The LM component of \system is implemented using zero-shot prompting via the DSPy framework \citep{khattab2023dspy} and \texttt{gpt-4o-2024-05-13} (see full prompts in Appendix~\ref{appendix:rubric}). We ground \system on the Internet using the You.com search API\footnote{\url{https://documentation.you.com/api-reference/search}} although the system is compatible with other search engines or IR systems. Hyperparameters $N$, $K$, $L$, $\alpha$ are set to 3, 10, 2, and 0.5, respectively. The text embeddings in \refequ{eq:rerank_score} are obtained from \texttt{text-embedding-3-small}. We set the LM temperature as 1.0 and top\_p as 0.9 for all experiments. For human evaluation, we develop a web application (\reffig{Fig.human_eval_demo}) for users to interact with \system in real time.

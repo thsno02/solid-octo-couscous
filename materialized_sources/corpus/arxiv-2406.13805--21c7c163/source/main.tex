@@ -1,0 +1,608 @@
+\documentclass{article}
+
+% if you need to pass options to natbib, use, e.g.:
+%     \PassOptionsToPackage{numbers, compress}{natbib}
+% before loading neurips_data_2024
+
+% ready for submission
+% \usepackage{neurips_data_2024}
+
+% to compile a preprint version, add the [preprint] option, e.g.:
+     \usepackage[preprint]{neurips_data_2024}
+% This will indicate that the work is currently under review.
+
+% to compile a camera-ready version, add the [final] option, e.g.:
+%     \usepackage[final]{neurips_data_2024}
+
+% to avoid loading the natbib package, add option nonatbib:
+%    \usepackage[nonatbib]{neurips_data_2024}
+
+% Submissions to the datasets and benchmarks are typically non anonymous,
+% but anonymous submissions are allowed. If you feel that you must submit 
+% anonymously, you can compile an anonymous version by adding the [anonymous] 
+% option, e.g.:
+%     \usepackage[anonymous]{neurips_data_2024}
+% This will hide all author names.
+
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{xcolor}         % colors
+\usepackage{graphicx}
+\usepackage{wrapfig}
+
+\usepackage{enumitem}
+\setlist{topsep=0pt, leftmargin=*}
+
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{xcolor}         % colors
+\usepackage{pdfpages}
+
+
+
+
+\usepackage{cite}
+\usepackage{url}    
+\urlstyle{same}
+\usepackage{xcolor}
+\usepackage{wrapfig}
+\usepackage{color, soul}
+\usepackage{times}
+\usepackage{colortbl}
+\usepackage{amsmath}
+\usepackage{makecell}
+\usepackage{latexsym}
+\usepackage{indentfirst}
+\usepackage{enumerate}
+\usepackage{multirow}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{color}
+\usepackage{listings}
+\usepackage{amssymb}
+\usepackage{inconsolata}
+\usepackage{microtype}
+\usepackage{textcomp}  % Required for encoding \textbigcircle
+\usepackage{scalerel}  % Required for emoji \scalerel
+
+\usepackage{caption,subcaption,graphicx}
+
+
+\title{WikiContradict: A Benchmark for Evaluating LLMs on Real-World Knowledge Conflicts from Wikipedia}
+
+
+% spacing commands----------------------
+%\renewcommand{\tabcolsep}{3pt}
+\addtolength{\textfloatsep}{-15pt}
+
+% The \author macro works with any number of authors. There are two commands
+% used to separate the names and addresses of multiple authors: \And and \AND.
+%
+% Using \And between authors leaves it to LaTeX to determine where to break the
+% lines. Using \AND forces a line break at that point. So, if LaTeX puts 3 of 4
+% authors names on the first line, and the last on the second line, try using
+% \AND instead of \And before the third author name.
+
+\author{Yufang Hou$^{1}$, Alessandra Pascale$^{1}$, Javier Carnerero-Cano$^{1}$, Tigran Tchrakian$^{1}$ \\ \textbf{Radu Marinescu}$^{1}$, \textbf{Elizabeth Daly}$^{1}$, \textbf{Inkit Padhi}$^{2}$, \textbf{Prasanna Sattigeri}$^{2}$ \\
+$^{1}$ IBM Research Europe - Ireland \\
+$^{2}$ IBM Research, Thomas J. Watson Research Center, Yorktown Heights, USA\\
+\texttt{\{yhou|apascale|tigran|radu.marinescu|elizabeth.daly\}@ie.ibm.com}   \\
+\texttt{\{javier.cano|inkpad\}@ibm.com}, \texttt{psattig@us.ibm.com} 
+}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Retrieval-augmented generation (RAG) has emerged as a promising solution to mitigate the limitations of large language models (LLMs), such as hallucinations and outdated information. However, it remains unclear how LLMs handle knowledge conflicts arising from different augmented retrieved passages, especially when these passages originate from the same source and have equal trustworthiness. In this work, we conduct a comprehensive evaluation of LLM-generated answers to questions that have varying answers based on contradictory passages from Wikipedia, a dataset widely regarded as a high-quality pre-training resource for most LLMs. Specifically, we introduce \texttt{WikiContradict}, a benchmark consisting of 253 high-quality, human-annotated instances designed to assess LLM performance when augmented with retrieved passages containing real-world knowledge conflicts. We benchmark a diverse range of both closed and open-source LLMs under different QA scenarios, including RAG with a single  passage, and RAG with 2 contradictory passages. Through rigorous human evaluations on a subset of \texttt{WikiContradict} instances involving 5 LLMs and over 3,500 judgements, we shed light on the behaviour and limitations of these models. For instance, when provided with two passages containing contradictory facts, all models struggle to generate answers that accurately reflect the conflicting nature of the context, especially for implicit conflicts requiring reasoning. Since human evaluation is costly, we
+also introduce an automated model that estimates LLM performance using a strong open-source
+language model, achieving an F-score of 0.8. Using this automated metric, we evaluate more than 1,500 answers from seven LLMs across all \texttt{WikiContradict} instances.
+To facilitate future work, we release \texttt{WikiContradict} on: \url{https://ibm.biz/wikicontradict}.
+\end{abstract}
+
+\input{sections/introduction}
+\input{sections/rel}
+\input{sections/dataset}
+\input{sections/humaneval}
+\input{sections/autoeval}
+\input{sections/limitations}
+\input{sections/conclusion}
+
+
+\bibliography{lib}
+\bibliographystyle{abbrvnat}
+
+\newpage
+
+\appendix
+
+
+\section{Annotation Guidelines}
+
+\label{appx:guidelines}
+
+Here we include the details about the pre-defined contradiction taxonomy and the full annotation guideline. The annotation interface was developed using Label Studio\footnote{\url{https://labelstud.io/}}.
+
+
+\includepdf[pages=-]{appendices/Appendix_A_WikipediaContradictionAnnotationGuideline.pdf}
+
+\section{Details on the Prompt Templates 5.1 - 5.4 and Human Evaluation Results}
+
+\label{appx:details_prompt}
+
+Here we include the details of the Prompt Templates 5.1 - 5.4 and Human Evaluation Results (see Section 4 of the paper).
+
+\includepdf[pages=-]{appendices/Appendix_B_Additional_Human_Evaluation.pdf}
+
+
+\section{Further Details on the Judge LLM Prompt}
+
+\label{appx:details_judge}
+
+Here we include further details on the judge LLM prompt (see Section 5 of the paper).
+
+
+\includepdf[pages=-]{appendices/Appendix_C_LLM_Judge_Prompt.pdf}
+
+
+\section{Additional Experimental Settings}
+
+To understand LLMs’ behavior when faced with real-world inter-context conflicts (human evaluation), we tested \textit{Mistral-7b-instruct}, \textit{Mixtral-8x7b-instruct}, \textit{Llama2-2-70b-chat}, \textit{Llama3-70b-instruct}, and \textit{GPT-4-turbo-2024-04-09}. For the judge LLMs (automatic evaluation), we used \textit{Mistral-7b-instruct}, \textit{Mixtral-8x7b-instruct}, \textit{Llama2-2-70b-chat}, \textit{Llama3-70b-instruct}, \textit{GPT-4-turbo-2024-04-09}, and \textit{GPT-4o-2024-05-13}. These models were selected due to their state-of-the-art performance in natural language processing tasks and their robustness across a wide range of applications. For \textit{Mistral-7b-instruct}, \textit{Mixtral-8x7b-instruct}, \textit{Llama2-2-70b-chat}, and \textit{Llama3-70b-instruct}, we set the maximum number of tokens to 250, the minimum number of tokens to 1, and the decoding method to greedy search. For \textit{GPT-4-turbo-2024-04-09} and \textit{GPT-4o-2024-05-13}, we used the OpenAI Chat Completions API with the following settings: \texttt{temperature} = 0, \texttt{max\_tokens} = 250, \texttt{seed} = 5, \texttt{messages} = [\{"\texttt{role}": "\texttt{system}", "\texttt{content}": ""\}, $\{$"\texttt{role}": "\texttt{user}", "\texttt{content}": \texttt{prompt\_1}$\}$].
+
+
+
+
+
+\section{Data Format}
+
+\label{appx:format}
+
+
+\texttt{WikiContradict} is given in JSON format to store the corresponding information, so researchers can easily use our data. There are 253 instances in total.
+
+
+
+An example of our JSON format is:
+\begin{lstlisting}[language=python]      
+{
+    "title": "",
+    "url": "",
+    "paragraph_A": "",
+    "paragraph_A_clean": "",
+    "tag": "",
+    "tagDate": "",
+    "tagReason": "",
+    "annotationResult": {
+        "wikitag_label_valid": "",
+        "valid_comment": "",
+        "paragraphA_article": "",
+        "paragraphA_information": "",
+        "paragraphA_information_standalone": "",
+        "paragraphB_article": "",
+        "paragraphB_information": "",
+        "paragraphB_information_standalone": "",
+        "wikitag_label_samepassage": "",
+        "relevantInfo_comment_A": "",
+        "relevantInfo_comment_B": "",
+        "Contradict type I": "",
+        "Contradict type II": "",
+        "Contradict type III": "",
+        "Contradict type IV": "",
+        "taxonomy": [
+            [
+                ""                    
+            ]
+        ],
+        "question1": "",
+        "question1_answer1": "",
+        "question1_answer2": "",
+        "question2": "",
+        "question2_answer1": "",
+        "question2_answer2": ""
+    }
+}
+\end{lstlisting}
+
+
+The description of each key in the previous example is as follows:
+
+\begin{itemize}
+    \item \texttt{title}: Title of article.
+    \item \texttt{url}: URL of article.
+    \item \texttt{paragraph\_A}: Paragraph automatically retrieved (containing the tag).
+    \item \texttt{paragraph\_A\_clean}: Paragraph automatically retrieved (removing the tag).
+    \item \texttt{tag}: Type of tag of the article (Inconsistent/Self-contradictory/Contradict-other). 
+    \item \texttt{tagDate}: Date of the tag.
+    \item \texttt{tagReason}: Reason for the tag.
+    \item  \texttt{annotationResult}: Results of the human data annotation.
+    \begin{itemize}
+        \item \texttt{wikitag\_label\_valid}: Valid or invalid tag (Valid/Invalid).
+        \item \texttt{valid\_comment}: Comment on the tag.
+        \item \texttt{paragraphA\_article}: Title of article containing passage 1.
+        \item \texttt{paragraphA\_information}: Relevant information of passage 1.
+        \item \texttt{paragraphA\_information\_standalone}: Decontextualized relevant information of passage 1.
+        \item \texttt{paragraphB\_article}: Relevant information of passage 2.
+        \item \texttt{paragraphB\_information\_standalone}: Decontextualized relevant information of passage 2.
+        \item \texttt{wikitag\_label\_samepassage}: Boolean value stating whether passage 1 and passage 2 are the same (Same/Different).
+        \item \texttt{relevantInfo\_comment\_A}: Comment on the information of passage 1.
+        \item \texttt{relevantInfo\_comment\_B}: Comment on the information of passage 2.
+        \item \texttt{Contradict type I}: Contradiction type I focuses on the fine-grained semantics of the contradiction, e.g., date/time, location, language, etc. 
+        \item \texttt{Contradict type II}: Contradiction type II focuses on the modality the contradiction.  It describes the modality of passage 1 and passage 2, whether the information is from a piece of text, or from a row an infobox or a table. 
+        \item \texttt{Contradict type III}: Contradiction type III focuses on the source the contradiction.  It describes whether passage 1 and passage 2 are from the same article or not. 
+        \item \texttt{Contradict type IV}: Contradiction type IV focuses on the reasoning aspect.  It describes whether the contraction is explicit or implicit (Explicit/Implicit). Implicit contradiction requires some reasoning to understand why passage 1 and passage 2 are contradicted. 
+        \item \texttt{taxonomy}: Array of key-values corresponding to contradict type I, contradict type II, contradict type III, and contradict type IV. 
+        \item \texttt{question1}: Question 1 inferred from the contradiction.
+        \item \texttt{question1\_answer1}: Gold answer to question 1 according to passage 1.
+        \item \texttt{question1\_answer2}: Gold answer to question 1 according to passage 2.
+                \item \texttt{question2}: Question 2 inferred from the contradiction.
+        \item \texttt{question2\_answer1}: Gold answer to question 2 according to passage 1.
+        \item \texttt{question2\_answer2}: Gold answer to question 2 according to passage 2.    
+    \end{itemize}
+\end{itemize}
+
+\section{Examples of \texttt{WikiContradict}}
+
+\label{appx:examples}
+
+
+\begin{figure}[ht]
+\centering
+\begin{subfigure}{0.55\textwidth}
+    \centering    \includegraphics[width=\textwidth]{figs/example_1_1.png}
+    %\caption{$y=x$}
+\end{subfigure}\\
+\begin{subfigure}{0.55\textwidth}
+    \centering    \includegraphics[width=\textwidth]{figs/example_1_2.png}
+    %\caption{$y=\sin x$}
+\end{subfigure}\\
+\begin{subfigure}{0.55\textwidth}
+    \centering    \includegraphics[width=\textwidth]{figs/example_1_3.png}
+    %\caption{$y=\cos x$}
+\end{subfigure}\\
+\begin{subfigure}{0.55\textwidth}
+    \centering    \includegraphics[width=\textwidth]{figs/example_1_4.png}
+    %\caption{$y=\cos x$}
+\end{subfigure}\\
+\begin{subfigure}{0.55\textwidth}
+    \centering    \includegraphics[width=\textwidth]{figs/example_1_5.png}
+    %\caption{$y=\cos x$}
+\end{subfigure}\\
+\begin{subfigure}{0.55\textwidth}
+    \centering    \includegraphics[width=\textwidth]{figs/example_1_6.png}
+    %\caption{$y=\cos x$}
+\end{subfigure}\\
+\caption{Example of annotation of Mediterranean seas.}
+\label{fig:example1}
+\end{figure}
+
+
+\begin{figure}[ht]
+\centering
+\begin{subfigure}{0.55\textwidth}
+    \centering    \includegraphics[width=\textwidth]{figs/example_2_1.png}
+    %\caption{$y=x$}
+\end{subfigure}\\
+\begin{subfigure}{0.55\textwidth}
+    \centering    \includegraphics[width=\textwidth]{figs/example_2_2.png}
+    %\caption{$y=\sin x$}
+\end{subfigure}\\
+\begin{subfigure}{0.55\textwidth}
+    \centering    \includegraphics[width=\textwidth]{figs/example_2_3.png}
+    %\caption{$y=\cos x$}
+\end{subfigure}\\
+\begin{subfigure}{0.55\textwidth}
+    \centering    \includegraphics[width=\textwidth]{figs/example_2_4.png}
+    %\caption{$y=\cos x$}
+\end{subfigure}\\
+\begin{subfigure}{0.55\textwidth}
+    \centering    \includegraphics[width=\textwidth]{figs/example_2_5.png}
+    %\caption{$y=\cos x$}
+\end{subfigure}\\
+\begin{subfigure}{0.55\textwidth}
+    \centering    \includegraphics[width=\textwidth]{figs/example_2_6.png}
+    %\caption{$y=\cos x$}
+\end{subfigure}
+\caption{Example of annotation of Mitta Mitta River.}
+\label{fig:example2}
+\end{figure}
+
+
+\begin{figure}[ht]
+\centering
+\begin{subfigure}{0.55\textwidth}
+    \centering    \includegraphics[width=\textwidth]{figs/example_3_1.png}
+    %\caption{$y=x$}
+\end{subfigure}\\
+\begin{subfigure}{0.55\textwidth}
+    \centering    \includegraphics[width=\textwidth]{figs/example_3_2.png}
+    %\caption{$y=\sin x$}
+\end{subfigure}\\
+\begin{subfigure}{0.55\textwidth}
+    \centering    \includegraphics[width=\textwidth]{figs/example_3_3.png}
+    %\caption{$y=\cos x$}
+\end{subfigure}\\
+\begin{subfigure}{0.55\textwidth}
+    \centering    \includegraphics[width=\textwidth]{figs/example_3_4.png}
+    %\caption{$y=\cos x$}
+\end{subfigure}\\
+\begin{subfigure}{0.55\textwidth}
+    \centering    \includegraphics[width=\textwidth]{figs/example_3_5.png}
+    %\caption{$y=\cos x$}
+\end{subfigure}\\
+\begin{subfigure}{0.55\textwidth}
+    \centering    \includegraphics[width=\textwidth]{figs/example_3_6.png}
+    %\caption{$y=\cos x$}
+\end{subfigure}
+\caption{Example of annotation of Wolfoo.}
+\label{fig:example3}
+\end{figure}
+
+Here we show some examples of \texttt{WikiContradict} annotated through Label Studio, in Figure \ref{fig:example1}, \ref{fig:example2}, and \ref{fig:example3}. Note that data the Step 3 of the annotation (contradiction reason) is not included in the dataset.
+
+\section{Datasheets for \texttt{WikiContradict}}
+
+In this appendix, we provide the dataset documentation and intended uses following the framework \textit{Datasheet for Datasets} \citep{gebru2021datasheets}. %Moreover, we added the field \textit{data ethics} from \textit{Accountability Frameworks} \citep{hutchinson2021towards}.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Dataset Documentation and Intended Uses}
+\paragraph{For what purpose was the dataset created? Was there a specific task in mind? Was there a specific gap that needed to be filled? Please provide a description.}
+The dataset was created to enable research on assessing LLM performance when dealing with retrieved passages containing real-world knowledge conflicts. The dataset was created intentionally with that task in mind, focusing on a benchmark consisting of high-quality, human-annotated instances.
+
+\paragraph{Who created this dataset (e.g., which team, research group) and on behalf of which entity (e.g.,
+15 company, institution, organization)?} 
+The dataset was created by Yufang Hou, Alessandra Pascale, Javier Carnerero-Cano, Tigran Tchrakian, Radu Marinescu, Elizabeth Daly, Inkit Padhi, and Prasanna Sattigeri. All authors are employed by IBM Research.
+
+\paragraph{Who funded the creation of the dataset?}
+There was no associated grant.
+
+\paragraph{Any other comments?}
+N/A.
+
+\subsection{Composition}
+\paragraph{What do the instances that comprise the dataset represent (e.g., documents, photos, people, countries)? Are there multiple types of instances (e.g., movies, users, and ratings; people and
+interactions between them; nodes and edges)? Please provide a description.}
+The instances are extracted passages from Wikipedia articles. The data format and examples of \texttt{WikiContradict} can be found in Appendix \ref{appx:format} and \ref{appx:examples}, respectively.
+
+\paragraph{How many instances are there in total (of each type, if appropriate)?}
+There are 253 instances in total.
+
+\paragraph{Does the dataset contain all possible instances or is it a sample (not necessarily random) of instances from a larger set? If the dataset is a sample, then what is the larger set? Is the sample representative of the larger set (e.g., geographic coverage)? If so, please describe how this representativeness was validated/verified. If it is not representative of the larger set, please describe why not (e.g., to cover a more diverse range of instances, because instances were withheld or unavailable).}
+The dataset contains all possible instances.
+
+\paragraph{What data does each instance consist of? ``Raw'' data (e.g., unprocessed text or images) or features? In either case, please provide a description.}
+Each instance consists of a question, a pair of contradictory passages extracted from Wikipedia, and two distinct answers, each derived from on the passages. The pair is annotated by a human annotator who identify where the conflicted information is and what type of conflict is observed. The annotator then produces a set of questions related to the passages with different answers reflecting the conflicting source of knowledge.
+
+\paragraph{Is there a label or target associated with each instance?If so, please provide a description}
+N/A.
+
+\paragraph{Is any information missing from individual instances? If so, please provide a description, explaining why this information is missing (e.g., because it was unavailable). This does not include intentionally removed information, but might include, e.g., redacted text.}
+Each annotation instance contains at least one question and two possible answers, but some instances may contain more than one question (and the corresponding two possible answers for each question). Some instances may not contain a value for \texttt{paragraphA\_clean}, \texttt{tagDate}, and \texttt{tagReason} (see Appendix \ref{appx:format}).
+
+\paragraph{Are relationships between individual instances made explicit (e.g., users’ movie ratings, social network links)? If so, please describe how these relationships are made explicit. }
+N/A.
+
+\paragraph{Are there recommended data splits (e.g., training, development/validation,testing)? If so, please provide a description of these splits, explaining the rationale behind them.}
+N/A.
+
+\paragraph{Are there any errors, sources of noise, or redundancies in the dataset? If so, please provide a description.}
+Since our dataset requires manual annotation, annotation noise is inevitably introduced.
+
+
+\paragraph{Is the dataset self-contained, or does it link to or otherwise rely on external resources (e.g.,
+websites, tweets, other datasets)?}
+The dataset is entirely self-contained.
+
+\paragraph{Does the dataset contain data that might be considered confidential (e.g., data that is protected by legal privilege or by doctor-patient confidentiality, data that includes the content of individuals’ non-public communications)?If so, please provide a description.}
+No.
+
+
+\paragraph{Does the dataset contain data that, if viewed directly, might be offensive, insulting, threatening, or might otherwise cause anxiety? If so, please describe why.}
+No.
+
+\paragraph{Does the dataset identify any subpopulations (e.g., by age, gender)? If so, please describe how these subpopulations are identified and provide a description of their respective distributions within the dataset.}
+N/A.
+
+\paragraph{Is it possible to identify individuals (i.e., one or more natural per- sons), either directly or indirectly (i.e., in combination with other data) from the dataset? If so, please describe how.}
+N/A.
+
+
+\paragraph{Does the dataset contain data that might be considered sensitive in any way (e.g., data that reveals race or ethnic origins, sexual orientations, religious beliefs, political opinions or union memberships, or locations; financial or health data; biometric or genetic data; forms of government identification, such as social security numbers; criminal history)? If so, please provide a description.}
+No.
+
+\paragraph{Any other comments?}
+None.
+
+\subsection{Collection process}
+\paragraph{How was the data associated with each instance acquired? Was the data directly observable (e.g., raw text, movie ratings), reported by subjects (e.g., survey responses), or indirectly inferred/derived from other data (e.g., part-of-speech tags, model-based guesses for age or language)? If data was reported by subjects or indirectly inferred/derived from other data, was the data validated/verified? If so, please describe how.}
+The data was mostly observable as raw text. The raw data was retrieved from Wikipedia articles containing inconsistent, self-contradictory, and contradict-other tags. The first two tags denote contradictory statements within the same article, whereas the third tag highlights instances where the content of one article contradicts that of another article. In total, we collected around 1,200 articles that contain these tags through the Wikipedia maintenance category ``Wikipedia articles with content issues''. Given a content inconsistency tag provided by Wikipedia editors, the annotators verified whether the tag is valid by checking the relevant article content, the editor’s comment, as well as the information in the edit history and the article’s talk page if necessary.
+
+\paragraph{What mechanisms or procedures were used to collect the data (e.g., hardware apparatus or sensor, manual human curation, software program, software API)? How were these mechanisms or procedures validated? }
+The authors modified the code of an existing Python package called wikitextparser, which allows users easily extract and/or manipulate templates, template parameters, parser functions, tables, external links, wikilinks, lists, etc. found in wikitexts. The authors parsed the relevant Wikipedia articles into clean text, and modified the code to keep the inconsistent, self-contradictory, and contradict-other tags.
+
+
+
+\paragraph{If the dataset is a sample from a larger set, what was the sampling strategy (e.g., deterministic,
+probabilistic with specific sampling probabilities)? }
+N/A.
+
+\paragraph{Who was involved in the data collection process (e.g., students, crowdworkers, contractors) and how were they compensated (e.g., how much were crowdworkers paid)?}
+All the authors of this paper (Yufang Hou, Alessandra Pascale, Javier Carnerero-Cano, Tigran Tchrakian, Radu Marinescu, Elizabeth Daly, Inkit Padhi, and Prasanna Sattigeri) were involved in the data collection process.
+
+\paragraph{Over what timeframe was the data collected? Does this timeframe match the creation timeframe of the data associated with the instances (e.g., recent crawl of old news articles)? If not, please describe the time-frame in which the data associated with the instances was created.}
+The dataset was collected between February 2024 and June 2024 from Wikipedia.
+
+\paragraph{Were any ethical review processes conducted (e.g., by an institutional review board)? If so, please provide a description of these review processes, including the outcomes, as well as a link
+or other access point to any supporting documentation.}
+N/A
+
+\paragraph{Did you collect the data from the individuals in question directly, or obtain it via third parties or other sources (e.g., websites)?}
+N/A.
+
+\paragraph{Did the individuals in question consent to the collection and use of their data? If so, please describe (or show with screenshots or other information) how consent was requested and provided, and provide a link or other access point to, or otherwise reproduce, the exact language to which the individuals consented.}
+N/A.
+
+\paragraph{If consent was obtained, were the consenting individuals provided with a mechanism to revoke their consent in the future or for certain uses? If so, please provide a description, as well as a link or other access point to the mechanism (if appropriate).}
+N/A.
+
+\paragraph{Has an analysis of the potential impact of the dataset and its use on data subjects (e.g., a data protection impact analysis) been conducted? If so, please provide a description of this analysis, including the outcomes, as well as a link or other access point to any supporting documentation.}
+N/A.
+
+\paragraph{Any other comments?}
+None.
+
+
+
+\subsection{Preprocessing/cleaning/labeling}
+\paragraph{Was any preprocessing/cleaning/labeling of the data done (e.g., discretization or bucketing,
+tokenization, part-of-speech tagging, SIFT feature extraction, removal of instances, processing
+of missing values)? If so, please provide a description. If not, you may skip the remainder of the
+questions in this section.}
+The annotators were required to slightly modify the original passages to make them stand-alone (decontextualization). Normally, this requires resolving the coreference anaphors or the bridging anaphors in the first sentence (see annotation guidelines). In Wikipedia, oftentimes the antecedents for these anaphors are the article titles themselves.
+
+\paragraph{Was the ``raw'' data saved in addition to the preprocessed/cleaned/labeled data (e.g., to support
+unanticipated future uses)? If so, please provide a link or other access point to the ``raw'' data.}
+Yes. The dataset itself contains all the raw passages.
+
+\paragraph{Is the software used to preprocess/clean/label the instances available? If so, please provide a link or other access point.}
+We have used Python language to implement data cleaning. We will share the scripts details in our codebase.
+
+\paragraph{Any other comments?}
+None.
+
+\subsection{Uses}
+\paragraph{Has the dataset been used for any tasks already? If so, please provide a description.}
+The dataset has been used in the paper to assess LLMs performance when augmented with retrieved passages containing real-world knowledge conflicts.
+
+\paragraph{Is there a repository that links to any or all papers or systems that use the dataset? If so, please
+provide a link or other access point.}
+We will provide links to the repository after acceptance.
+
+\paragraph{What (other) tasks could the dataset be used for?}
+The dataset could be used for improving the performance of LLMs when presented with conflicting sources of information, by augmenting the prompt or fine-tuning the model.
+
+\paragraph{Is there anything about the composition of the dataset or the way it was collected and preprocessed/cleaned/labeled that might impact future uses? For example, is there anything that a future user might need to know to avoid uses that could result in unfair treatment of individuals or groups (e.g., stereotyping, quality of service issues) or other undesirable harms (e.g., financial harms, legal risks) If so, please provide a description. Is there anything a future user could do to mitigate these undesirable harms?}
+There is minimal risk for harm: the data was already public on Wikipedia.
+
+
+
+\paragraph{Are there tasks for which the dataset should not be used? If so, please provide a description.}
+N/A.
+
+
+\subsection{Distribution}
+\paragraph{Will the dataset be distributed to third parties outside of the entity (e.g., company, institution,
+organization) on behalf of which the dataset was created?If so, please provide a description.}
+Yes, the dataset and its metadata will be publicly available on the repository after acceptance.
+
+\paragraph{How will the dataset will be distributed (e.g., tarball on website, API, GitHub)? Does the dataset
+have a digital object identifier (DOI)?}
+The dataset and DOI will be published after acceptance. The dataset will be distributed on the website: \url{https://ibm.biz/wikicontradict}. %The DOI of the dataset is:
+Moreover, the UI and metadata record documenting the dataset available for viewing and downloading will be available on: \url{https://ibm.biz/wikicontradict_ui}.
+
+
+\paragraph{When will the dataset be distributed?}
+The dataset will be released after acceptance.
+
+\paragraph{Will the dataset be distributed under a copyright or other intellectual property (IP) license,
+and/or under applicable terms of use (ToU)? If so, please describe this license and/or ToU, and
+provide a link or other access point to, or otherwise reproduce, any relevant licensing terms or
+ToU, as well as any fees associated with these restrictions.}
+\texttt{WikiContradict} is distributed under an MIT\footnote{\url{https://www.mit.edu/~amini/LICENSE.md}} license.
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED ``AS IS'', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+\paragraph{Have any third parties imposed IP-based or other restrictions on the data associated with the
+instances? If so, please describe these restrictions, and provide a link or other access point to,
+or otherwise reproduce, any relevant licensing terms, as well as any fees associated with these
+restrictions.}
+No.
+
+\paragraph{Do any export controls or other regulatory restrictions apply to the dataset or to individual
+instances? If so, please describe these restrictions, and provide a link or other access point to,
+or otherwise reproduce, any supporting documentation.}
+No.
+
+\subsection{Maintenance}
+\paragraph{Who is supporting/hosting/maintaining the dataset?}
+Yufang Hou, Alessandra Pascale, Javier Carnerero-Cano, and Tigran Tchrakian are supporting/maintaining the dataset.
+
+\paragraph{How can the owner/curator/manager of the dataset be contacted (e.g., email address)? }
+If you wish to extend or contribute to our dataset, please contact us via email: Yufang Hou (\texttt{yhou@ie.ibm.com}), Alessandra Pascale (\texttt{apascale@ie.ibm.com}), Javier Carnerero-Cano (\texttt{javier.cano@ibm.com}), Tigran Tchrakian (\texttt{tigran@ie.ibm.com}), Radu Marinescu (\texttt{radu.marinescu@ie.ibm.com}), Elizabeth Daly (\texttt{elizabeth.daly@ie.ibm.com}), Inkit Padhi (\texttt{inkpad@ibm.com}), and Prasanna Sattigeri (\texttt{psattig@us.ibm.com}).
+
+
+
+
+\paragraph{Is there an erratum? If so, please provide a link or other access point.}
+Any updates to the dataset will be shared via GitHub.
+
+\paragraph{Will the dataset be updated (e.g., to correct labeling errors, add new instances, delete instances)? If so, please describe how often, by whom, and how updates will be communicated to users (e.g.,mailing list,GitHub)?}
+If we find inconsistencies in the dataset or extend the dataset, we will release the new version on the website and GitHub.
+
+\paragraph{If the dataset relates to people, are there applicable limits on the retention of the data associated with the instances (e.g., were individuals in question told that their data would be retained for a fixed period of time and then deleted)? }
+N/A.
+
+\paragraph{Will older versions of the dataset continue to be supported/hosted/maintained? If so, please
+describe how. If not, please describe how its obsolescence will be communicated to users.}
+All versions of \texttt{WikiContradict} will be continue to be supported and maintained on website. We will post the updates on the website and GitHub.
+
+\paragraph{If others want to extend/augment/build on/contribute to the dataset, is there a mechanism for
+them to do so? If so, please provide a description. Will these contributions be validated/verified?
+If so, please describe how. If not, why not? Is there a process for communicating/distributing
+these contributions to other users? If so, please provide a description.}
+Yes. Please contact the authors of this paper for building upon this dataset.
+
+\subsection{Responsibility}
+The authors bear all responsibility in case of violation of rights, etc. We confirm that the dataset is licensed under MIT license.
+
+
+
+\section{Explicit License}
+
+
+\texttt{WikiContradict} is distributed under an MIT\footnote{\url{https://www.mit.edu/~amini/LICENSE.md}} license.
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED ``AS IS'', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
+
+
+\section{Ethics Statement}
+
+The authors bear all responsibility in the event of any violation of rights, the dataset will be released after acceptance under an MIT licence.
+
+\paragraph{Biases}  
+Our data is downloaded from Wikipedia. As such, the data is biased towards the original content and sources. Given that human data annotation involves some degree of subjectivity we created a comprehensive 17-page annotation guidelines document to clarify important cases during the annotation process.  The annotators were explicitly instructed not to take their personal feeling about the particular topic. Nevertheless, some degree of intrinsic subjectivity might have impacted the techniques picked up by the annotators during the annotation.
+
+
+
+
+
+
+
+
+
+
+
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+\end{document}

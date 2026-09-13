@@ -1,0 +1,68 @@
+\def\wikix{Saprang was considered one of the top contenders to lead the army and the junta after CNS leader Sonthi Boonyaratkalin's mandatory retirement in 2007. However, in September 2007 he was demoted to be Deputy Permanent Secretary of the Defense Ministry, while his rival, General Anupong Paochinda, was promoted}
+\def\wikiy{to Deputy Attorney General. Later, he was replaced}
+\def\wikiloc{In 1663 Scottish mathematician James Gregory had suggested in his Optica Promota that observations of a transit of the planet Mercury, at widely spaced points on the surface of the Earth, could be used to calculate the solar parallax and hence the astronomical unit using triangulation. Aware of this, a young Edmond Halley made observations of such a transit on 28 October O.S. 1677 from Saint Helena but was disappointed to find that only Richard Towneley in Burnley, Lancashire had made another accurate observation of the event whilst Gallet, at Avignon, simply recorded that it had occurred. Halley was not satisfied that the resulting calculation of the solar parallax at 45 " was accurate.}
+\def\wikixx{However, in September 2007 he was demoted to be Deputy Permanent Secretary of the Defense Ministry, while his rival, General Anupong Paochinda, was promoted}
+\def\wikiyy{to Deputy Attorney General. Later, he was replaced}
+
+\def\feverx{Nepal borders France.}
+\def\fevery{Yes}
+\def\feverloc{Belgium is made up of three regions.}
+\def\feverxx{Nepal is bordered by France.}
+\def\feveryy{Yes}
+
+\def\zsrex{Which continent is Mount Andrews on?}
+\def\zsrey{South America}
+\def\zsreloc{To which fictional work does Dennis Rickman belong in?}
+\def\zsreyloc{EastEnders}
+\def\zsrexx{In which continent is Mount Andrews located?}
+\def\zsreyy{South America}
+
+\def\makewikitable{%
+\begin{table}
+    \centering
+    \begin{tabular}{p{1cm}p{12cm}}
+        \toprule
+        $\xe,\ye$ & \wikix~\textbf{\wikiy} \\
+        \cmidrule{2-2}
+        $\xloc$ & \wikiloc \\
+        \cmidrule{2-2}
+        $\xe',\ye'$ & \wikixx~\textbf{\wikiyy} \\
+        \bottomrule
+    \end{tabular}
+    \caption{\textbf{Training set example from the Wikitext editing dataset.} Bolded text corresponds to the edit labels $\ye$ and $\ye'$. The locality example $\xloc$ is used to constrain the pre- and post-edit model's predictive distributions to be similar at for \textit{every} token in the sequence.}
+    \label{tab:wikitext-example}
+\end{table}
+}
+
+\def\makefeverzsretables{
+\begin{table}
+\subfloat[\textbf{FEVER fact-checking editing dataset example.} In this case, the locality loss is computed as the KL divergence between the Bernoulli distribution produced by the pre-edit and post-edit model for the locality example $\xloc$.]{
+    \centering
+    \begin{tabular}{l@{\hspace{5pt}}p{4.75cm}}
+        \toprule
+        $\xe,\ye$ & \feverx~\textbf{\fevery} \\
+        \cmidrule{2-2}
+        $\xloc$ & \feverloc \\
+        \cmidrule{2-2}
+        $\xe',\ye'$ & \feverxx~\textbf{\feveryy} \\
+        \bottomrule
+        \\
+        \\
+    \end{tabular}
+}\hfill
+\subfloat[\textbf{zsRE question-answering editing dataset example.} Because computing the KL divergence of the model over all possible answers to the question is computationally expensive, we use the label (\zsreyloc) and compute the KL divergence between the pre- and post-edit model at each of these tokens as an approximation.]{
+    \centering
+    \begin{tabular}{l@{\hspace{5pt}}p{5.25cm}}
+        \toprule
+        $\xe$ & \zsrex~\textbf{\zsrey} \\
+        \cmidrule{2-2}
+        $\xloc,y_\text{loc}$ & \zsreloc~\textbf{\zsreyloc} \\
+        \cmidrule{2-2}
+        $\xe',\ye'$ & \zsrexx~\textbf{\zsreyy} \\
+        \bottomrule
+    \end{tabular}
+}
+    \caption{\textbf{Editing data samples} from the FEVER fact-checking and zsRE question-answering editing datasets from \cite{Cao2021EditingFK}. \textbf{Bold text} corresponds to labels used for editing or approximating the locality constraint.}
+    \label{tab:zsre-example}
+\end{table}
+}

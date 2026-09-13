@@ -1,0 +1,56 @@
+# Architecture evidence: langfuse/langfuse
+
+- `README.md:74` — ✨ Core Features
+- `README.md:90` — 📦 Deploy Langfuse
+- `README.md:94` — Langfuse Cloud
+- `README.md:104` — Self-Host Langfuse
+- `README.md:128` — 🔌 Integrations
+- `README.md:132` — Main Integrations:
+- `README.md:146` — Packages integrated with Langfuse:
+- `README.md:169` — 🚀 Quickstart
+- `README.md:173` — 1️⃣ Create new project
+- `README.md:179` — 2️⃣ Log your first LLM call
+- `README.md:194` — LANGFUSE_BASE_URL="https://us.cloud.langfuse.com" # 🇺🇸 US region
+- `README.md:215` — 3️⃣ See traces in Langfuse
+- `README.md:223` — 💭 Support
+- `README.md:238` — 🤝 Contributing
+- `README.md:246` — 🥇 License
+- `README.md:250` — Dependencies
+- `README.md:254` — ⭐️ Star History
+- `README.md:264` — ❤️ Open Source Projects Using Langfuse
+- `README.md:368` — 🔒 Security & Privacy
+- `README.md:372` — Telemetry
+- `CONTRIBUTING.md:9` — Contributing to Langfuse
+- `CONTRIBUTING.md:34` — Making a change
+- `CONTRIBUTING.md:55` — Project Overview
+- `CONTRIBUTING.md:61` — Technologies we use
+- `CONTRIBUTING.md:77` — Architecture Overview
+- `CONTRIBUTING.md:81` — Network Overview
+- `CONTRIBUTING.md:110` — Database Overview
+- `CONTRIBUTING.md:116` — Repository Structure
+- `CONTRIBUTING.md:128` — Development Setup
+- `CONTRIBUTING.md:140` — Codex Cloud Setup
+- `CONTRIBUTING.md:180` — Cursor Cloud Setup
+- `CONTRIBUTING.md:215` — Shared Agent Setup
+- `CONTRIBUTING.md:310` — Monorepo quickstart
+- `CONTRIBUTING.md:344` — System behavior
+- `CONTRIBUTING.md:346` — Ingestion API `(/public/api/ingestion)`
+- `CONTRIBUTING.md:357` — Commit messages
+- `CONTRIBUTING.md:361` — Running Unit Tests
+- `CONTRIBUTING.md:366` — Test Database Setup
+- `CONTRIBUTING.md:384` — Tests in the `web` package (public API)
+- `CONTRIBUTING.md:410` — Tests in the `worker` package
+- `CONTRIBUTING.md:418` — CI/CD
+- `CONTRIBUTING.md:432` — Staging environment
+- `CONTRIBUTING.md:443` — Production environment
+- `CONTRIBUTING.md:465` — Theming
+- `CONTRIBUTING.md:484` — Color Variables
+- `CONTRIBUTING.md:528` — Adding New Colors
+- `CONTRIBUTING.md:535` — Maintainers
+- `CONTRIBUTING.md:537` — Using secrets stored in 1Password
+- `CONTRIBUTING.md:547` — Editing default models and prices
+- `CONTRIBUTING.md:557` — Transition period until V3 release
+- `CONTRIBUTING.md:561` — Updating the OpenAPI Specs & fern SDKs
+- `CONTRIBUTING.md:583` — License
+- `CONTRIBUTING.md:589` — Troubleshoot CLA License Check
+- `SECURITY.md:1` — Security Policy

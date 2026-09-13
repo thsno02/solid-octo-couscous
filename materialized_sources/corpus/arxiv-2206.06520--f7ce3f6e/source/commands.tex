@@ -1,0 +1,57 @@
+\newcommand{\basemodel}{f_{base}}
+\newcommand{\editedmodel}{f_{e}}
+\newcommand{\pbase}{p_{base}}
+\newcommand{\pedited}{p_{e}}
+\newcommand{\semimodel}{\tilde{f}}
+\newcommand{\cls}{g_\phi}
+\newcommand{\feat}{\texttt{E}_\phi}
+\newcommand{\rep}{h_\psi}
+\newcommand{\papertitle}{Memory-Based Model Editing at Scale}
+\newcommand{\inp}{\mathcal{X}}
+\newcommand{\out}{\mathcal{Y}}
+\newcommand{\fullname}{Semi-parametric editing with a retrieval-augmented counterfactual model}
+\newcommand{\fullnamevar}{Semi-parametric editing with a retrieval- augmented counterfactual model}
+\newcommand{\name}{SERAC}
+\newcommand{\edits}{Z_e}
+\newcommand{\editdata}{\mathcal{D}_{e}}
+
+\newcommand{\rawstring}[1]{\textsc{\footnotesize #1}}
+\newcommand{\thetae}{{\theta_e}}
+\newcommand{\ze}[1][]{z_e^{#1}}
+\newcommand{\xe}{x_e}
+\newcommand{\ye}[1][]{\ifthenelse{\equal{#1}{}}{y_e}{y_e(#1)}}
+\newcommand{\scope}[1]{S\left(#1\right)}
+\newcommand{\xloc}[1][]{x_{out}^{#1}}
+\newcommand{\yloc}[1][]{y_{out}^{#1}}
+\newcommand{\hxloc}{\bar{x}_{out}}
+\newcommand{\xtest}[1][]{x_{in}^{#1}}
+\newcommand{\ytest}[1][]{y_{in}^{#1}}
+\newcommand{\xunk}[1][]{x'}
+\newcommand{\yunk}[1][]{y'}
+\newcommand{\hxtest}{\bar{x}'}
+\newcommand{\hytest}{\bar{y}'}
+\newcommand{\editpair}[1][]{[\xe^{#1}; \ye^{#1}]}
+
+\DeclareMathOperator*{\E}{\mathbb{E}}
+
+
+\DeclareMathOperator*{\argmax}{argmax}
+\DeclareMathOperator*{\argmin}{argmin}
+
+% Chris's comments. At the end you can turn this off either by changing the below line to \commentsfalse or deleting all \cm.* commands and this block.
+\newif\ifcomments
+\commentstrue
+\ifcomments
+\usepackage[normalem]{ulem}
+\definecolor{CMpurple}{rgb}{0.6,0.18,0.64}
+\newcommand\cm[1]{\textcolor{CMpurple}{\textsf{\scriptsize[\textbf{CM\@:} #1]}}}
+\newcommand\cmi[1]{\textcolor{CMpurple}{#1}}
+\newcommand\cmm[1]{\marginpar{\raggedright\tiny\textcolor{CMpurple}{\textsf{{\bfseries CM\@:} #1}}}}
+\newcommand\cms{\bgroup\markoverwith{\textcolor{CMpurple}{\rule[.4ex]{2pt}{0.8pt}}}\ULon}
+\else
+\newcommand\cm[1]{}
+\newcommand\cmi[1]{\ignorespaces}
+\newcommand\cmm[1]{}
+\newcommand\cms[1]{#1}
+\fi
+
