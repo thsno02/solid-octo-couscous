@@ -1,0 +1,128 @@
+\subsection{Further Analysis}
+\label{subsec: further_analysis}
+% \begin{figure}[ht]
+%     \vspace{-13pt}
+%     \centering
+%     \includegraphics[width=0.5\textwidth]{img/zsre_effect_of_activation_loss.pdf}%
+%     \includegraphics[width=0.5\textwidth]{img/Hallucination_effect_of_activation_loss.pdf}%
+%     \vspace{-3pt}%
+%     \caption{Activation values of the \texttt{down\_proj} module.}
+%     \vspace{-5pt}
+%     \label{fig:act_loss_effect}
+% \end{figure}
+\begin{wrapfigure}{r}{0.4\columnwidth}
+    \centering
+    \vspace{-0.7cm}
+    \begin{minipage}{0.4\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{img/zsre_effect_of_activation_loss.pdf}
+        \vspace{-17pt}
+    \end{minipage}
+    \begin{minipage}{0.4\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{img/Hallucination_effect_of_activation_loss.pdf}
+    \end{minipage}
+    \vspace{-0.3cm}%
+    \caption{\textbf{Activations of the memory routing module of WISE when varying $T$.} \texttt{X-axis}: Num edits. \texttt{LLaMA-7B}.}
+    \vspace{-0.7cm}%
+    \label{fig:act_loss_effect}
+\end{wrapfigure}
+\paragraph{Visualization of WISE's Routing Activation.} 
+To demonstrate the effectiveness of memory routing, we record the activation values $\Delta_{\text{act}}(\mathbf{x})$ of 1000 (QA, ZsRE)/600 (Halluc.) queries during the inference stage via knowledge merging into a single side memory.
+As shown in Figure \ref{fig:act_loss_effect}, the purple horizontal line represents the activation threshold $\epsilon$ recorded during the editing phase.
+Almost all unrelated queries show low activations with values less than 10 in ZsRE and less than 20 in Halluc.; meanwhile, WISE accurately routes the editing prompt and unseen paraphrases into the side memory.
+This ensures editing locality and prevents excessive shifts from the pre-training distribution during lifelong editing.
+
+
+% \begin{wrapfigure}{r}{0.3\columnwidth}
+%     \centering
+%     \vspace{-10pt}
+%     \centering
+%     \includegraphics[width=0.3\textwidth]{img/layer_varying_scores.pdf}
+%     \vspace{-13pt}%
+%     \caption{Varying layer.}
+%     \vspace{-13pt}%
+%     \label{fig:layer_varying}
+% \end{wrapfigure}
+
+
+% \begin{wrapfigure}{r}{0.7\columnwidth}
+%     \centering
+%     \vspace{-10pt}
+%     \centering
+%     \includegraphics[width=0.48\linewidth]{img/rho_k_analysis_avg.pdf}
+%     \includegraphics[width=0.48\linewidth]{img/rho_k_analysis_subspace_overlap.pdf}
+%     \vspace{-13pt}%
+%     \caption{$\rho$ and $k$.}
+%     \vspace{-13pt}%
+%     \label{fig:rho_k_analysis}
+% \end{wrapfigure}
+
+\begin{figure}[t]
+\centering
+\vspace{-0.4cm}
+    \begin{minipage}{0.32\linewidth}\centering
+         \vspace{0.1cm}
+    \centering
+    \includegraphics[width=0.95\textwidth]{img/layer_varying_scores.pdf}
+    % \vspace{-13pt}%
+    \caption{\small\textbf{Analysis of locating FFN layer of side memory for WISE.} ZsRE, \texttt{LLaMA-2-7B}.}
+    % \vspace{-13pt}%
+    \label{fig:layer_varying}
+    \end{minipage}
+    \hspace{0.05in}
+    \begin{minipage}{0.65\linewidth}\centering
+         % \vspace{-0.2cm}
+    \centering
+    \includegraphics[width=0.45\linewidth]{img/rho_k_analysis_avg.pdf}
+    \includegraphics[width=0.48\linewidth]{img/rho_k_analysis_subspace_overlap.pdf}
+    % \vspace{-13pt}%
+    \caption{\small\textbf{Analysis of different mask ratios $\rho$ and subspaces $k$ for WISE.} Left: Avg. performance of Rel., Gen., and Loc.; Right: the subspace overlap probability in Theorem~\ref{theorem:subspace_overlap}. ZsRE, \texttt{LLaMA-2-7B}.}
+    % \vspace{-13pt}%
+    \label{fig:rho_k_analysis}
+    \end{minipage}
+    \vspace{-0.5cm}
+\end{figure}
+
+\paragraph{Localization Analysis of WISE's Side Memory.}
+\label{subsec:layer_selection}
+To validate the benefits of editing mid-to-late layers, we select decoder layers from early, intermediate, mid-to-late, and late stages.
+As shown in Figure \ref{fig:layer_varying}, the ablation results reveal that editing critical layers like the early and final layers (0, 1, 31) is ineffective, even resulting in a very low Loc. value of 0.096, which indicates a failure to recognize the editing scope.
+This may occur because the early layers represent fundamental grammatical information, and the final layer directly controls the decoding procedure, leading to poor editing of advanced language functions.
+Editing in the intermediate layers is suboptimal but still shows a markable improvement compared to early layers, possibly because intermediate layers start to integrate basic grammatical information with more complex semantic data.
+Notably, the mid-to-late layers demonstrate exceptional editing performance; for instance, selecting layer 26 results in an 80\% success rate and generalization while maintaining 100\% locality.
+This empirically supports our claim in Section \ref{subsec:locating_side_memory} that the redundant mid-to-late layers \cite{shortgpt} are ideal side memory layers and confirms the hierarchical nature of information processing in Transformer LLMs \cite{hierarchy_1, hierarchy_2}.\looseness=-1
+
+\paragraph{Analysis of $\rho$ and $k$ for WISE.} We analyze the important hyperparameters of WISE: the mask ratio $\rho$ and the number of subspaces $k$ in Figure~\ref{fig:rho_k_analysis}.
+On the left figure, for $k=2$, the best $\rho$ is 0.2, satisfying $k*\rho=0.4<1$, which implies the effectiveness of our subspace design that higher knowledge density will cause better generalization. When scaling $k$, we observe an increasing demand of $\rho$. From Theorem~\ref{theorem:subspace_overlap}, the probability of subspace overlap is $\rho^k$, and we hypothesize that this overlap is important as an anchor for model merging. Interestingly, from the right figure, it can be observed that the optimal cases always have the $\rho^k$ closest to 0.03. This shows an inherent tradeoff between merge anchor and merge conflicts, and the subspace overlaps around 0.03 are optimal for the best performances. Such experiments indicate that 20\% FFN parameters can accommodate at least 500 edited samples. When "mask memory exhaustion" occurs, we can allocate new mask parameters to store new knowledge. Using retrieve when knowledge isn't full and merging as needed to save memory, achieves true lifelong model editing.\looseness=-1
+
+\input{tab/ZsRE_scaling2_3K}
+\paragraph{Scale Up to 3K of Edits.} \label{subsec: scaling2_3K}
+We scale the number of continual edits to 3K in Table \ref{tab:zsre_scaling2_3K}. 
+We compare WISE-Merge, keeping one side memory by multi-time merging, and WISE-Retrieve, keeping several side memories by routing and retrieving among different side memories.  
+For WISE-Retrieve, we show an upper bound ``\textit{oracle}'', which always identifies the correct routing path. 
+We observe that the WISE series maintains high scalability, consistently outperforming the strongest baselines including MEMIT-MASS and GRACE.
+WISE-Retrieve based on top-1 activation retrieval demonstrates the best results in 3K edits, showing the effectiveness of well-organized memory subspaces and routing strategies during editing.
+We note that the ``\textit{oracle}'' exhibits marginal performance decline when scaling the edits from 2K to 3K, yet it demonstrates remarkable performance across all metrics. 
+This underscores the potential of WISE to handle extremely long continual edits, contingent upon substantial improvement in the retrieval of side memories. 
+Additionally, an appropriate replay of edits can further improve retrieval accuracy, as detailed in Appendix \ref{app_sec: retrieve_analysis}.
+
+\input{tab/router_ablation}
+\paragraph{Contribution of Router designs in WISE.}
+Without the router strategy, all inputs either pass solely through the main or side memory. To further validate its effectiveness, we conduct additional ablations with $L_a$. WISE's performance on ZsRE is shown in Table \ref{tab:router_ablation}. We observe the expected decrease in Loc. w.o. $L_a$, such as dropping from 1.00 to 0.72 at T=1000, reveals the router's effectiveness in identifying editing scopes, minimizing side effects, and retaining a substantial amount of pre-training knowledge.
+
+\begin{wrapfigure}{r}{0.45\columnwidth}
+    \centering
+    \vspace{-16pt}
+    \includegraphics[width=0.45\textwidth]{img/inference_time.pdf}
+    \vspace{-17pt}%
+    \caption{\textbf{Inference time of WISE when varying $T$.} ZsRE, \texttt{LLaMA-2-7B}.}
+    \label{fig:inference_time}
+    \vspace{-13pt}%
+\end{wrapfigure}
+\paragraph{Inference Time Analysis of WISE.} 
+Figure \ref{fig:inference_time} shows the inference time of a single instance for LLaMA after $t \in [0, 3000]$ editing steps, measured across 10 trials of each setting. 
+Consistent with our expectations, we find that WISE-Merge incurs a constant inference delay (about 3\%) as the editing stream expands.
+WISE-Retrieve, due to the introduction of retrieval routing, shows an increase in inference time as the number of edits increases, with a time cost increment of about 7\% after 3K edits.
+% We discuss memory usage in Appendix \ref{subsec: parameter_efficiency}, where 
+Knowledge merging ensures that WISE-Merge only brings constant additional costs (0.64\% extra parameters and 4\% extra GPU VRAM, as detailed in Appendix \ref{subsec: parameter_efficiency}), contrasting with past memory-based works that continuously demand more available memory \cite{grace, serac}.

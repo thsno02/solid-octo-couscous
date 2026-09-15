@@ -1,0 +1,18 @@
+\section{Experimental Setup}\label{sec:setup}
+
+\paragraph{Tasks and Datasets.} 
+We demonstrate the effectiveness of our method on three types of tasks\footnote{We evaluate on the test sets of GSM8K, ARC, OpenBookQA, and ANLI, and the dev set of DROP (ground truth labels of the test set are not publicly available).}:
+\begin{itemize}[leftmargin=*]
+\item \textbf{Arithmetic reasoning}: We use the math problem set GSM8K~\citep{Cobbe2021TrainingVT}, and a reading comprehension benchmark DROP~\citep{Dua2019DROPAR} which requires numerical reasoning. We follow~\cite{Zhou2022LeasttoMostPE} to partition the DROP dataset into football related and non-football related subsets for training.
+\item \textbf{Commonsense reasoning}: We use the OpenBookQA~\citep{Mihaylov2018CanAS} dataset, and the AI2 Reasoning Challenge (ARC)~\citep{Clark2018ThinkYH} dataset. Note that for ARC, we only use the Challenge sub-set (ARC-c) in our experiments. Both datasets contain multiple-choice questions.
+\item \textbf{Natural Language Inference}: We use the Adversarial NLI (ANLI)~\citep{Mihaylov2018CanAS} subsets, ANLI-A2 and ANLI-A3, which are the more challenging subsets compared to ANLI-A1. These datasets contain pairs of sentences with relations of entailment, neutral, or contradiction. 
+\end{itemize}
+
+\paragraph{Models, Training settings and Hyperparameters}
+We follow previous studies~\citep{Wei2022ChainOT, Wang2022SelfConsistencyIC} and conduct our experiments on an autoregressive Transformer-based language model with 540 billion parameters. The CoT examples for each dataset are listed in Appendix~\ref{sec:app_prompt}. 
+We generate $m=32$ reasoning paths for each question in a training set. Since each reasoning path is augmented into four formats in Sec.~\ref{sec:mix_formats}, the final training samples are up to the size of $128\times |\Dcal^\mathtt{train}|$, with $|\Dcal^\mathtt{train}|$ being the size of the corresponding training set. 
+For all datasets except DROP, we use the whole training set; To reduce the training burden, we sample $5$k examples from the non-football and football partition of the DROP dataset, and sample $5$k examples from ANLI-A2 and ANLI-A3.
+For each dataset, we fine-tune the model for 10k steps with a learning rate of $5$e$-5$ and a batch size of $32$.
+For multiple path decoding, we use a sampling temperature of $T=0.7$ with the pre-trained model as suggested by~\cite{Wang2022SelfConsistencyIC}. We use $T=1.2$ for the language model after self-improvement (\method). We set the maximum number of decoded steps to $256$ for all experiments.
+
+

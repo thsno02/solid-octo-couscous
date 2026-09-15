@@ -1,0 +1,115 @@
+# Architecture evidence: open-metadata/OpenMetadata
+
+- `README.md:1` — OpenMetadata
+- `README.md:5` — The Open Context Layer for AI
+- `README.md:32` — Why OpenMetadata for AI?
+- `README.md:62` — The Context OpenMetadata Connects
+- `README.md:78` — Architecture: Context + Memory Graph
+- `README.md:95` — Context Graph, Semantics, and Memory
+- `README.md:127` — Memories: Organizational Context for Humans and Agents
+- `README.md:149` — MCP, Semantic Search, APIs, AI SDK, and Memory
+- `README.md:153` — MCP Server
+- `README.md:172` — Semantic Search
+- `README.md:182` — APIs, SDKs, Events, and Webhooks
+- `README.md:190` — Use It From Code
+- `README.md:201` — Python SDK — connect and read metadata
+- `README.md:228` — AI SDK — give an agent governed context via MCP
+- `README.md:237` — Convert MCP tools to LangChain format — one line
+- `README.md:240` — Or call a tool directly
+- `README.md:246` — Docs & examples
+- `README.md:255` — What You Can Build
+- `README.md:257` — AI Data Discovery
+- `README.md:260` — Trusted AI Assistants
+- `README.md:263` — Agent Memory and Tribal Knowledge
+- `README.md:266` — Impact Analysis Agents
+- `README.md:269` — Governance Automation
+- `README.md:272` — Data Quality Automation
+- `README.md:275` — Developer and Coding Agent Workflows
+- `README.md:280` — Open Standards and Interoperability
+- `README.md:309` — Core Platform Capabilities
+- `README.md:324` — Quickstart
+- `README.md:338` — Documentation and Community
+- `README.md:350` — Open Source and Enterprise AI
+- `README.md:361` — Contributing
+- `README.md:373` — License
+- `CLAUDE.md:1` — CLAUDE.md
+- `CLAUDE.md:11` — About OpenMetadata
+- `CLAUDE.md:17` — Stack at a glance
+- `CLAUDE.md:28` — Environment setup (every session)
+- `CLAUDE.md:57` — Repository layout
+- `CLAUDE.md:77` — Hard cross-cutting constraints (apply to every session, all languages)
+- `CLAUDE.md:122` — Pointer index — when to reach for what
+- `CLAUDE.md:124` — Path-scoped rules (`.claude/rules/*.md`, auto-load on matching files)
+- `CLAUDE.md:140` — Repo coding conventions (read before writing non-trivial code)
+- `CLAUDE.md:152` — Skills (invoke by name; procedures, not rules)
+- `CLAUDE.md:174` — Harness integrity (CI, warnings-only)
+- `CONTRIBUTING.md:1` — Contributors
+- `Makefile:30` — Yarn
+- `Makefile:59` — Ingestion models generation
+- `Makefile:71` — Reference docs generation (deterministic; CI fails if the committed output drifts)
+- `Makefile:89` — Dots escaped so the banner match below is a real version match, not a
+- `Makefile:90` — regex wildcard, and so 4.9.20 cannot satisfy a 4.9.2 check.
+- `Makefile:92` — install_antlr_cli resolves the CLI in three steps, cheapest first:
+- `Makefile:94` — 1. Already on PATH at the pinned version -> nothing to do.
+- `Makefile:95` — 2. Distro package, when apt offers exactly $(ANTLR_VERSION). Ubuntu noble and
+- `Makefile:96` — later ship 4.9.2, matching the pinned antlr4-python3-runtime and the JS
+- `Makefile:97` — antlr4 runtimes, so CI never touches a public artifact host - those
+- `Makefile:98` — rate-limit our shared CI egress IP and have broken the build repeatedly.
+- `Makefile:99` — 3. Pinned, checksum-verified download (macOS, non-Debian images, or a distro
+- `Makefile:100` — carrying a different ANTLR such as jammy's 4.7.2).
+- `Makefile:102` — The checksum is what makes step 3 trustworthy; the archive check next to it is a
+- `Makefile:103` — second opinion, so it reads the archive with whichever tool the host has rather
+- `Makefile:104` — than insisting on one. Requiring a JDK tool to install a CLI that only needs a
+- `Makefile:105` — JRE to run breaks slim runtime images (e.g. ingestion-base ships
+- `Makefile:106` — default-jre-headless, which has java but no jar) on a download that already
+- `Makefile:107` — verified clean. A tool that is present and rejects the archive still fails the
+- `Makefile:108` — build; only the case where no reader exists falls through to the checksum alone,
+- `Makefile:109` — and such a host has no java either, so it could not run the CLI regardless.
+- `Makefile:111` — The version match in step 2 is exact. A distro shipping a different ANTLR falls
+- `Makefile:112` — through to the download rather than silently generating parsers that the pinned
+- `Makefile:113` — runtimes will reject.
+- `Makefile:115` — For step 3, override ANTLR_MAVEN_BASE to pull from an internal Maven mirror
+- `Makefile:116` — instead of Central. The default primary is Google's Central mirror, which is
+- `Makefile:117` — CDN-backed and not subject to repo1's per-IP 429 throttling that breaks
+- `Makefile:118` — multi-arch Docker publishes; repo1 stays as the fallback if the mirror is
+- `Makefile:119` — unreachable. The pinned SHA-256 below verifies whatever is fetched, so the
+- `Makefile:120` — source is swappable without lowering trust.
+- `Makefile:201` — SNYK
+- `Makefile:204` — Drop pip's build/lib tree before scanning so `snyk code test` does not
+- `Makefile:205` — double-report findings (once under src/, once under build/lib/). Same
+- `Makefile:206` — applies to snyk-airflow-apis-report below.
+- `Makefile:276` — Ingestion Operators
+- `Makefile:320` — Commented section for independent usage of the module update_pyproject_version independently to update github actions
+- `Makefile:357` — Fix license header in all UI files.
+- `Makefile:362` — Run TypeScript type-checking for src files (does not auto-fix errors).
+- `Makefile:367` — Run TypeScript type-checking for Playwright files (does not auto-fix errors).
+- `Makefile:372` — Sync all i18n files to have the same keys and order. This doesn't modify the translation.
+- `Makefile:373` — Just makes sure all files have the same keys in the same order to avoid conflicts and make it easier to maintain.
+- `Makefile:378` — Generate the docs markdown file for all applications.
+- `Makefile:383` — Fix all linting and formatting errors in src folder.
+- `Makefile:388` — Fix all linting and formatting errors in playwright tests.
+- `Makefile:393` — Fix all linting and formatting errors in core components.
+- `Makefile:398` — Fix linting and formatting errors in changed files in src folder
+- `Makefile:399` — Changed files are detected based on the current branch against main branch.
+- `Makefile:400` — So make sure to run this after rebasing to main to get the correct list of changed files.
+- `Makefile:405` — Fix linting and formatting errors in changed playwright test files
+- `Makefile:406` — Changed files are detected based on the current branch against main branch.
+- `Makefile:407` — So make sure to run this after rebasing to main to get the correct list of changed files.
+- `Makefile:412` — Fix linting and formatting errors in changed core components files
+- `Makefile:413` — Changed files are detected based on the current branch against main branch.
+- `Makefile:414` — So make sure to run this after rebasing to main to get the correct list of changed files.
+- `Makefile:419` — Run all full UI checkstyle operations with one command.
+- `Makefile:425` — Run all changed-file UI checkstyle operations with one command.
+- `SECURITY.md:1` — Security Policy
+- `SECURITY.md:3` — Supported Versions
+- `SECURITY.md:13` — Reporting a Vulnerability
+- `docs/index.md:1` — Documentation Index
+- `docs/index.md:18` — Start here — root guides (not under `docs/`)
+- `docs/index.md:27` — Backend & platform design docs (`docs/`)
+- `docs/index.md:43` — Plans & specs (`docs/plans/`, `docs/superpowers/`)
+- `docs/index.md:52` — Generated references (`docs/generated/`)
+- `docs/index.md:59` — Repo audit & quality (`docs/`)
+- `docs/index.md:67` — Assets (`docs/assets/`)
+- `docs/index.md:73` — UI reference docs (outside `docs/`)
+- `docs/index.md:83` — Ingestion & bootstrap reference (outside `docs/`)
+- `docs/index.md:90` — Caveats (verification notes)

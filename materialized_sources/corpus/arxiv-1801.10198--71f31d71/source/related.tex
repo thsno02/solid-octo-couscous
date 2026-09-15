@@ -1,0 +1,75 @@
+\section{Related Work}
+\label{sec:related}
+\subsection{Other datasets used in neural abstractive summarization}
+Neural abstractive summarization was pioneered in
+\citet{Rush2015}, where they train headline generation models using the
+English Gigaword corpus
+\citep{graff2003english}, consisting of news articles from number of publishers.
+However, the task is more akin to sentence paraphrasing
+ than summarization
+as only the first sentence of an article is used to predict the headline,
+another sentence.
+RNN-based encoder-decoder models with attention (seq2seq) perform very well on this task
+in both
+ROUGE \citep{lin2004rouge}, an automatic metric often used in summarization,
+and human evaluation
+\citep{chopra2016abstractive}.
+
+In \citet{nallapati2016abstractive}, an abstractive
+summarization dataset is
+proposed by modifying a question-answering dataset of news articles paired
+with story highlights from Daily Mail and CNN. This task is more difficult than
+ headline-generation because the information used in the highlights may
+ come from many parts of the article and not only the first sentence. One downside
+ of the dataset is that it has an order-of-magnitude fewer parallel examples (310k vs. 3.8M) to learn from.
+ Standard seq2seq models with attention do less well, and a number
+ of techniques are used to augment performance.
+ Another downside is that it is unclear what the guidelines are for
+ creating story highlights and it is obvious that there are significant
+ stylistic differences between the two news publishers.
+
+ In our work we also train neural abstractive models, but
+ in the multi-document regime with Wikipedia.
+ As can be seen in Table~\ref{dataset-sizes}, the input and output text are
+ generally much larger, with significant variance depending on the article.
+ The summaries (Wikipedia lead) are multiple sentences and sometimes multiple
+ paragraphs, written in a fairly uniform style as encouraged
+ by the Wikipedia Manual of Style\footnote{\url{https://en.wikipedia.org/wiki/Wikipedia:Manual_of_Style}}. However, the input documents may consist
+ of documents of arbitrary style originating from arbitrary sources.
+
+ We also show in Table~\ref{dataset-sizes} the ROUGE-1 recall scores of the output
+ given the input, which is the proportion of unigrams/words
+ in the output co-occuring
+ in the input. A higher score corresponds to a dataset more amenable to
+ extractive summarization. In particular, if the output is completely embedded somewhere
+ in the input (e.g. a wiki-clone), the score would be 100. Given a score of only 59.2 compared
+ to 76.1 and 78.7 for other summarization datasets shows that ours is the least amenable to purely extractive methods.
+
+\subsection{Tasks involving Wikipedia}
+There is a rich body of work incorporating Wikipedia for machine learning tasks, including
+question-answering (\citet{hewlett2016wikireading}, \citet{rajpurkar2016squad}) and
+information extraction \citep{lehmann2015dbpedia}, and text generation from 
+structured data 
+\citep{Lebret2016}.
+
+The closest work to ours involving generating Wikipedia is \cite{Sauper2009},
+where articles are generated extractively (instead of abstractively in our case)
+from reference documents using learned
+templates. The Wikipedia articles are restricted to two categories, whereas we
+use all article types. The reference documents are obtained from a search engine,
+with the Wikipedia topic used as query similar to our search engine references.
+However we also show results with documents only found in the
+References section of the Wikipedia articles.
+
+\subsection{Transformer models} \label{related_transformer}
+Previous work on neural abstractive summarization relies on RNNs as
+fundamental modules, mirroring techniques successful
+in machine translation (MT).
+Recently, state-of-the-art MT results were obtained using a
+non-recurrent architecture, called the Transformer \citep{vaswani2017attention}.
+The lack of recurrence enables greater within-training-example parallelization,
+at the cost of quadratic complexity in the input sequence length.
+We find the Transformer transfers well to medium length, input sequence
+summarization and describe modifications to better handle longer sequences.
+
+\input{dataset_table.tex}

@@ -1,0 +1,30 @@
+# Architecture evidence: monarch-initiative/ontogpt
+
+- `README.md:1` — OntoGPT
+- `README.md:8` — Introduction
+- `README.md:14` — Why OntoGPT?
+- `README.md:28` — Quick Start
+- `README.md:60` — Web Application
+- `README.md:78` — Model APIs
+- `README.md:126` — Open Models
+- `README.md:138` — Agent Skills
+- `README.md:142` — Evaluations
+- `README.md:146` — Related Projects
+- `README.md:150` — Tutorials and Presentations
+- `README.md:162` — Citation
+- `README.md:166` — Acknowledgements
+- `Makefile:37` — $(RUN) erdantic ontogpt.templates.$* -o $@
+- `Makefile:54` — -- OWL Pipeline --
+- `Makefile:59` — prefix with 'web' for a URL in recipe-urls.csv
+- `Makefile:60` — prefix with 'case' for a previously downloaded recipe in cases/ directory
+- `Makefile:97` — seed terms for ROBOT extract
+- `pyproject.toml:92` — Generated pydantic modules are not hand-formatted.
+- `pyproject.toml:105` — some specific phrases, variables and mixed case (CamelCase etc)
+- `docs/index.md:1` — Introduction
+- `docs/index.md:5` — Methods
+- `docs/index.md:14` — Why OntoGPT?
+- `docs/index.md:28` — Quick Start
+- `docs/index.md:62` — Web Applications
+- `docs/index.md:80` — Citation
+- `docs/index.md:84` — Contributing
+- `docs/index.md:90` — Acknowledgements

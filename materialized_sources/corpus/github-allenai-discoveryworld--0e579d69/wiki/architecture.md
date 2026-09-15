@@ -1,0 +1,44 @@
+# Architecture evidence: allenai/discoveryworld
+
+- `README.md:1` — DiscoveryWorld: A Virtual Environment for Developing and Evaluating Automated Scientific Discovery Agents
+- `README.md:6` — Example Agent Video
+- `README.md:11` — 1. Quick Start
+- `README.md:13` — 1.1. I want to read about DiscoveryWorld
+- `README.md:18` — 1.2. I want to play DiscoveryWorld using the graphical user interface intended for humans
+- `README.md:23` — 1.3. I want to make my own DiscoveryWorld agent, or examine the baseline agents.
+- `README.md:29` — 1.4. I want to examine the raw data from the agent runs or human runs described in the paper, or see videos of agents playing DiscoveryWorld.
+- `README.md:35` — 1.5. I want to view the instructions provided to the human scientists when they played DiscoveryWorld.
+- `README.md:38` — 1.6. I want to see a human scientist playthrough of a DiscoveryWorld task.
+- `README.md:42` — 2. Installation and Running
+- `README.md:44` — 2.1. Installation
+- `README.md:65` — 2.2. Running the Graphical User Interface
+- `README.md:77` — 2.3. Controls
+- `README.md:99` — 2.4. Logging
+- `README.md:104` — 3. API Documentation
+- `README.md:106` — 3.1 Philosophy
+- `README.md:116` — 3.2. Minimal Example (Random Agent)
+- `README.md:120` — 3.3. Initializing the API and instantiating a specific world.
+- `README.md:134` — 3.3.1 Scenarios (Task Themes)
+- `README.md:141` — 3.3.2 Difficulties
+- `README.md:148` — 3.3.3 Parametric Variation Seed
+- `README.md:152` — 3.3.4 Thread ID and Uniqueness
+- `README.md:158` — 3.4. Observation
+- `README.md:188` — 3.5. Actions
+- `README.md:192` — Assemble an action packet
+- `README.md:200` — Arguments are the UUIDs of specific objects.  These typically come from the `uuid` field of an object found in the observation
+- `README.md:201` — Here we'll just assume `accessibleObjects` is a list of nearby and accessible objects, taken from the observation, and
+- `README.md:202` — randomly pick two objects from it to serve as arguments.
+- `README.md:208` — Perform the action
+- `README.md:212` — 3.5.1. What actions are available?
+- `README.md:240` — 3.6. Scoring and Scorecards.
+- `README.md:262` — 3.7. Environment `tick()` function (important)
+- `README.md:267` — Perform the world tick
+- `README.md:271` — 3.8. Logging, Frames, Videos
+- `README.md:329` — 3.9.  Minimal pseudocode LLM agent example
+- `README.md:341` — Given an observation, return an action to take
+- `README.md:409` — Example of how to use the DiscoveryWorldAPI to interact with the environment
+- `README.md:455` — Main
+- `README.md:468` — 4. Citation
+- `README.md:481` — 5. Attribution
+- `README.md:493` — 7. License
+- `README.md:499` — 8. Contact

@@ -1,0 +1,10 @@
+We introduced \ours, a new evaluation of the factual precision of long-form generation from LMs that breaks a generation down into a series of atomic facts and computes a fraction of facts supported by a given knowledge source.
+We first performed extensive human evaluation, finding that commercial, state-the-art-art LMs---InstructGPT, ChatGPT, and search engine augmented, PerplexityAI---make a substantial amount of errors, e.g., having a \ours\ of 58\% in the case of ChatGPT.
+%
+Since human evaluation is time-consuming and costly, we proposed a model that estimates \ours, allowing an automatic evaluation of \ours.
+We found our estimator based on retrieval over a knowledge source and competitive language models estimates \ours\ close to the ground truth, and showcased its application by evaluating 12 recently-released LMs that could have cost \$65K if evaluated by humans and providing insights about them.
+
+
+Within four months since its initial release, \ours\ has actively been used in subsequent work, evaluating factual precision of recently-proposed models~\cite{ye2023flask,sun2023exploring,malaviya2023expertqa,dhuliawala2023chain}.
+%
+As future work, we suggest: (1) considering other aspects of factuality such as recall (coverage of factual information); (2) further improving the estimator for a better approximation of factual precision; and (3) leveraging \ours\ to correct model generations (briefly explored in Appendix \ref{sec:editing}).

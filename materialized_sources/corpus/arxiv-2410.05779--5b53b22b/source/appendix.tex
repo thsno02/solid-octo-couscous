@@ -1,0 +1,146 @@
+\section{Appendix}
+\label{app:appendix}
+In this section, we elaborate on the methodologies and experimental settings used in the \model\ framework. It describes the specific steps for extracting entities and relationships from documents, detailing how large language models (LLMs) are utilized for this purpose. The section also specifies the prompt templates and configurations used in LLM operations, ensuring clarity in the experimental setup. Additionally, it outlines the evaluation criteria and dimensions used to assess the performance of \model\ against baselines from various dimensions.
+
+\subsection{Experimental Data Details}
+
+\begin{table}[h]
+\caption{Statistical information of the datasets.}
+\label{dataset}
+\centering
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Statistics}  & \textbf{Agriculture} & \textbf{CS} & \textbf{Legal} & \textbf{Mix} \\
+\midrule
+Total Documents & 12  & 10  & 94  & 61  \\
+Total Tokens    & 2,017,886 & 2,306,535 & 5,081,069 & 619,009 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{dataset} presents statistical information for four datasets: Agriculture, CS, Legal, and Mix. The Agriculture dataset consists of 12 documents totaling 2,017,886 tokens, while the CS dataset contains 10 documents with 2,306,535 tokens. The Legal dataset is the largest, comprising 94 documents and 5,081,069 tokens. Lastly, the Mix dataset includes 61 documents with a total of 619,009 tokens.
+
+\vspace{-0.1in}
+\subsection{Case Example of Retrieval-Augmented Generation in \model.}
+\label{app:retrieval_and_generation_examples}
+\begin{figure}[h]
+\centering
+\includegraphics[width=1\textwidth]{figs/retrieval_and_generation_example.png}
+\caption{A retrieval and generation example.}
+\label{fig:retrieval_and_generation_example}
+\end{figure}
+In Figure \ref{fig:retrieval_and_generation_example}, we illustrate the retrieve-and-generate process. When presented with the query, ``What metrics are most informative for evaluating movie recommendation systems?'', the LLM first extracts both low-level and high-level keywords. These keywords guide the dual-level retrieval process on the generated knowledge graph, targeting relevant entities and relationships. The retrieved information is organized into three components: entities, relationships, and corresponding text chunks. This structured data is then fed into the LLM, enabling it to generate a comprehensive answer to the query.
+
+\vspace{-0.1in}
+\subsection{Overview of the Prompts Used in \model}
+\subsubsection{Prompts for Graph Generation}
+\label{app:graph_construct_prompt}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=1\textwidth]{figs/graph_construct_prompt.png}
+\caption{Prompts for Graph Generation}
+\label{fig:graph_construct_prompt}
+\end{figure}
+
+% The graph construction prompt we provided in \ref{fig:graph_construct_prompt} is designed to extract and structure entity-relationship information from a text document based on specified entity types. The process involves first identifying entities, categorizing them into types such as organization, person, geo, and event, and providing detailed descriptions of their attributes and activities. The prompt then identifies relationships between these entities, offering explanations, assigning strength scores, and summarizing the relationships with high-level keywords. 
+The graph construction prompt outlined in Figure~\ref{fig:graph_construct_prompt} is designed to extract and structure entity-relationship information from a text document based on specified entity types. The process begins by identifying entities and categorizing them into types such as organization, person, location, and event. It then provides detailed descriptions of their attributes and activities. Next, the prompt identifies relationships between these entities, offering explanations, assigning strength scores, and summarizing the relationships using high-level keywords.
+
+\subsubsection{Prompts for Query Generation}
+\label{app:graph_construct_prompt}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=1\textwidth]{figs/query_generate_prompt.png}
+\caption{Prompts for Query Generation}
+\label{fig:query_generate_prompt}
+\end{figure}
+
+% In Figure \ref{fig:query_generate_prompt}, the query generation prompt is presented as a framework for identifying potential users and their tasks based on a given dataset description. The prompt outlines how to specify five distinct users who would find value in engaging with the dataset. For each user, the prompt defines five key tasks they would undertake when working with the dataset. Additionally, for each (user, task) combination, five high-level questions are formulated that require a comprehensive understanding of the dataset. 
+In Figure~\ref{fig:query_generate_prompt}, the query generation prompt outlines a framework for identifying potential user roles (e.g., data scientist, finance analyst, and product manager) and their objectives for generating queries based on a specified dataset description. The prompt explains how to define five distinct users who would benefit from interacting with the dataset. For each user, it specifies five key tasks they would perform while working with the dataset. Additionally, for each (user, task) combination, five high-level questions are posed to ensure a thorough understanding of the dataset.
+
+\subsubsection{Prompts for Keyword Extraction}
+\label{app:keywords_generate_prompt}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=1\textwidth]{figs/Keywords_generate_prompt.png}
+\caption{Prompts for Keyword Extraction}
+\label{fig:keywords_generate_prompt}
+\end{figure}
+
+In Figure~\ref{fig:keywords_generate_prompt}, the prompt describes a method for extracting keywords from a user's query, distinguishing between high-level and low-level keywords. High-level keywords represent broad concepts or themes, while low-level keywords focus on specific entities and details. The extracted keywords are returned in JSON format, organized into two fields: ``high\_level\_keywords'' for overarching ideas and ``low\_level\_keywords'' for specific details.
+
+
+\subsubsection{Prompts for RAG Evaluation}
+\label{app:evaluation_prompt}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=1\textwidth]{figs/evaluation_prompt.png}
+\caption{Prompts for RAG Evaluation}
+\label{fig:evaluation_prompt}
+\end{figure}
+
+The evaluation prompt is illustrated in Figure~\ref{fig:evaluation_prompt}. It introduces a comprehensive evaluation framework for comparing two answers to the same question based on three key criteria: Comprehensiveness, Diversity, and Empowerment. Its purpose is to guide the LLM through the process of selecting the better answer for each criterion, followed by an overall assessment. For each of the three criteria, the LLM must identify which answer performs better and provide a rationale for its choice. Ultimately, an overall winner is determined based on performance across all three dimensions, accompanied by a detailed summary that justifies the decision. The evaluation is structured in JSON format, ensuring clarity and consistency, and facilitating a systematic comparison between the two answers.
+
+\vspace{-0.1in}
+\subsection{Case Study: Comparison Between \model\ and the Baseline NaiveRAG.}
+
+\begin{table}[t]
+\centering
+\caption{Case Study: Comparison Between \model\ and the Baseline NaiveRAG.}
+\vspace{-0.08in}
+\label{tab:case_2}
+\resizebox{\textwidth}{!}{
+\begin{tabular}{|l|p{15cm}|}
+\hline
+\textbf{Query} & How do indigenous perspectives on ownership and collaboration influence corporate mergers in countries like Canada and Australia? \\ \hline
+\textbf{NaiveRAG} & Indigenous perspectives on ownership and collaboration play a significant role in shaping corporate mergers in countries like Canada and Australia, particularly where resources and land rights intersect with Indigenous sovereignty and cultural values. These perspectives emphasize community engagement, respect for traditional land use, and a collaborative approach to resource management, influencing corporate strategies and outcomes.
+
+\textellipsis
+
+Both nations illustrate that prioritizing Indigenous perspectives leads to more sustainable and equitable outcomes. Acknowledging Indigenous rights and fostering collaborative relationships can reduce conflicts and enhance corporate reputations. Ultimately, integrating Indigenous perspectives is a pathway to better business practices and community relations.
+
+ \\ \hline
+\textbf{LightRAG} & \textbf{Indigenous Perspectives on Ownership and Collaboration in Corporate Mergers}
+
+Indigenous perspectives significantly influence corporate mergers in countries like Canada and Australia. These views emphasize communal rights to land and resources, spiritual connections to the environment, and the importance of collaboration over competition.
+
+\textbf{Cultural Significance of Land Ownership} [...]
+
+\textbf{The Role of Collaboration} [...]
+
+\textbf{Legal and Regulatory Frameworks} [...] \newline
+
+\textbf{Conclusion}
+
+Indigenous perspectives shape corporate mergers by emphasizing communal ownership and collaborative partnerships. Corporations must adopt respectful, inclusive practices that honor Indigenous cultural values and rights, paving the way for sustainable, mutually beneficial outcomes.
+
+ \\ \hline
+\textbf{LLM Decision} & \textbf{Comprehensiveness}:  
+"Winner": "Answer 2 (LightRAG)", % \newline
+
+"Explanation": "Answer 2 provides a thorough exploration of the indigenous perspectives by discussing cultural significance, collaboration, and legal frameworks, including specific examples and detailed insights. In contrast, Answer 1, while informative, lacks the same depth in analyzing the various dimensions of the indigenous perspectives on ownership and collaboration." \newline
+
+\textbf{Diversity}:  
+"Winner": "Answer 2 (LightRAG)", %\newline
+
+"Explanation": "Answer 2 presents a wider array of perspectives, focusing on the communal aspect of land ownership, spiritual connections, and practical examples of collaboration. It covers more ground by contrasting Indigenous views with Western notions, whereas Answer 1 primarily focuses on corporate strategies and outcomes with limited perspective." \newline
+
+\textbf{Empowerment}:  
+"Winner": "Answer 2 (LightRAG)", % \newline
+
+"Explanation": "Answer 2 equips the reader with nuanced understanding and actionable insights by highlighting the importance of collaboration and the legal frameworks involved. It empowers corporations by illustrating how adopting an inclusive approach can facilitate better outcomes. Answer 1, while practical, does not emphasize the moral or ethical implications as strongly." \newline
+
+\textbf{Overall Winner}:  
+"Winner": "Answer 2 (LightRAG)",  %\newline
+
+"Explanation": "Answer 2 excels overall due to its comprehensive exploration, diversity of perspectives, and empowerment of the reader with actionable insights about indigenous perspectives and collaboration in corporate mergers. Although Answer 1 is more direct, the depth and breadth of Answer 2 make it the stronger response." \\ \hline
+
+\end{tabular}
+}
+% \vspace{-0.2in}
+\end{table}
+
+To further illustrate \model's superiority over baseline models in terms of comprehensiveness, empowerment, and diversity, we present a case study comparing \model\ and NaiveRAG in Table~\ref{tab:case_2}. This study addresses a question regarding indigenous perspectives in the context of corporate mergers. Notably, \model\ offers a more in-depth exploration of key themes related to indigenous perspectives, such as cultural significance, collaboration, and legal frameworks, supported by specific and illustrative examples. In contrast, while NaiveRAG provides informative responses, it lacks the depth needed to thoroughly examine the various dimensions of indigenous ownership and collaboration. The dual-level retrieval process employed by \model\ enables a more comprehensive investigation of specific entities and their interrelationships, facilitating extensive searches that effectively capture overarching themes and complexities within the topic.

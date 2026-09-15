@@ -1,0 +1,53 @@
+\setlength\intextsep{5pt}
+
+\setlength{\floatsep}{0pt}
+\setlength{\textfloatsep}{5pt}
+
+\algrenewcommand\algorithmicindent{0.51em}
+
+\makeatletter
+\g@addto@macro{\endtabular}{\rowfont{}}% Clear row font
+\makeatother
+\newcommand{\rowfonttype}{}% Current row font
+\newcommand{\rowfont}[1]{% Set current row font
+  \gdef\rowfonttype{#1}#1%
+}
+\newcolumntype{L}{>{\rowfonttype}l}
+\newcolumntype{C}{>{\rowfonttype}c}
+\newcolumntype{R}{>{\rowfonttype}r}
+
+\makeatletter
+\let\origsection\section
+\renewcommand\section{\@ifstar{\starsection}{\nostarsection}}
+
+\newcommand\nostarsection[1]
+{\sectionprelude\origsection{#1}\sectionpostlude}
+
+\newcommand\starsection[1]
+{\sectionprelude\origsection*{#1}\sectionpostlude}
+
+\newcommand\sectionprelude{%
+  \vspace{-1.5mm}
+}
+
+\newcommand\sectionpostlude{%
+  \vspace{-2mm}
+}
+
+\let\origsubsection\subsection
+\renewcommand\subsection{\@ifstar{\starsubsection}{\nostarsubsection}}
+
+\newcommand\nostarsubsection[1]
+{\subsectionprelude\origsubsection{#1}\subsectionpostlude}
+
+\newcommand\starsubsection[1]
+{\subsectionprelude\origsubsection*{#1}\subsectionpostlude}
+
+\newcommand\subsectionprelude{%
+  \vspace{-1.5mm}
+}
+
+\newcommand\subsectionpostlude{%
+  \vspace{-1.5mm}
+}
+\makeatother

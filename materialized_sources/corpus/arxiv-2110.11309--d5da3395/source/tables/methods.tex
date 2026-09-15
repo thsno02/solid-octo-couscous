@@ -1,0 +1,20 @@
+\begin{wraptable}{R}{0.48\textwidth}
+    \vspace{-11mm}
+    \centering
+    \small
+    \begin{tabular}{l@{\hspace{2pt}}c@{\hspace{2pt}}c@{\hspace{2pt}}c@{\hspace{2pt}}c@{\hspace{2pt}}c}
+    \toprule
+     & \mrow{2}{Preserves\\model?} & \mrow{2}{Only\\\scalebox{0.8}{$(\xe,\ye)$}?} & \mrow{2}{Batched\\edits?} & \mrow{2}{Scales\\to 10B?} & \mrow{2}{Few\\steps?} \\
+    Editor & & & & \\
+    \midrule
+    FT & \greenyes & \greenyes & \greenyes & \greenyes & \redno \\
+    FT+KL & \greenyes & \redno & \greenyes & \greenyes & \redno \\
+    ENN & \redno & \greenyes & \greenyes & \redno & \greenyes \\
+    KE & \greenyes & \greenyes & \yellowmaybe & \greenyes & \greenyes \\
+    \midrule
+    \name & \greenyes & \greenyes & \greenyes & \greenyes & \greenyes \\
+    \bottomrule
+    \end{tabular}
+    \caption{\textbf{Conceptual comparisons} of model editors; \name~provides a unique combination of useful attributes. \textbf{Preserves model} means the editor guarantees model predictions will not be altered \textit{before} an edit is applied. \textbf{Only $(\xe,\ye)$} means the editor applies an edit at test time using only the edit pair (not needing access to the training set at test time as well). \textbf{Batched edits} means the editor has been shown to apply multiple edits at once. \textbf{Scales to 10B} means our implementation of the editor could run on a model with over 10B parameters \rebuttal{using our single-GPU environment (see Appendix~\ref{sec:environment-details})}. \rebuttal{\textbf{Few steps} means edits are applied with one or a small number of steps. \textbf{FT} refers to fine-tuning; \textbf{FT+KL} adds a KL-divergence penalty between the original and fine-tuned model.}}
+    \label{tab:methods}
+\end{wraptable}

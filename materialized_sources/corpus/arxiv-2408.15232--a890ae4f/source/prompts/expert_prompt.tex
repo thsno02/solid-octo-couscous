@@ -1,0 +1,47 @@
+\begin{prompt}
+class QuestionToQuery(dspy.Signature):
+    """You want to answer the question or support a claim using Google search. 
+        What do you type in the search box?
+        The question is raised in a round table discussion on a topic. The question may or may not focus on the topic itself.
+        Write the queries you will use in the following format:
+        - query 1
+        - query 2
+        ...
+        - query n"""
+
+    topic = dspy.InputField(prefix='Topic context:', format=str)
+    question = dspy.InputField(prefix='I want to collect information about: ', format=str)
+    queries = dspy.OutputField(prefix="Queries: \n", format=str)
+
+
+class AnswerQuestion(dspy.Signature):
+    """ You are an expert who can use information effectively. You have gathered the related information and will now use the information to form a response.
+    Make your response as informative as possible and make sure every sentence is supported by the gathered information. 
+    If [Gathered information] is not directly related to the [Topic] and [Question], start your response with "Based on the available information, I cannot fully address the question." Then, provide the most relevant answer you can based on the available information, and explain any limitations or gaps.
+    Use [1], [2], ..., [n] in line (for example, "The capital of the United States is Washington, D.C.[1][3]."). 
+    You DO NOT need to include a References or Sources section to list the sources at the end. The style of writing should be formal.
+    """
+
+    topic = dspy.InputField(prefix='Topic you are discussing about:', format=str)
+    question = dspy.InputField(prefix='You want to provide insight on: ', format=str)
+    info = dspy.InputField(
+        prefix='Gathered information:\n', format=str)
+    style = dspy.InputField(prefix="Style of your response should be:", format=str)
+    answer = dspy.OutputField(
+        prefix="Now give your response. (Try to use as many different sources as possible and do not hallucinate.)",
+        format=str
+    )
+
+class ConvertUtteranceStyle(dspy.Signature):
+    """
+    You are an invited speaker in the round table conversation. 
+    Your task is to make the question or the response more conversational and engaging to facilitate the flow of conversation.
+    Note that this is ongoing conversation so no need to have welcoming and concluding words. Previous speaker utterance is provided only for making the conversation more natural.
+    Note that do not hallucinate and keep the citation index like [1] as it is. Also,
+    """
+    expert = dspy.InputField(prefix="You are inivited as: ", format=str)
+    action = dspy.InputField(prefix="You want to contribute to conversation by: ", format=str)
+    prev = dspy.InputField(prefix="Previous speaker said: ", format=str)
+    content = dspy.InputField(prefix="Question or response you want to say: ", format=str)
+    utterance = dspy.OutputField(prefix="Your utterance (keep the information as much as you can with citations, prefer shorter answers without loss of information): ", format=str)
+\end{prompt}

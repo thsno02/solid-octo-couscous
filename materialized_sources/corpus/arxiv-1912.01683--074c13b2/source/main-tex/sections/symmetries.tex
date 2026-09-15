@@ -1,0 +1,163 @@
+\section{Certain environmental symmetries produce power-seeking tendencies}\label{sec:symmetries} 
+\Cref{prop:more-opt} proves that for all $\gamma\in[0,1]$ and for \emph{most distributions $\D$}, $\pwrNoResize[\farleft,\gamma][\D]\leq \pwrNoResize[\farright,\gamma][\D]$. But first, we explore why this must be true.
+
+$\F(\farleft)=\{\geom\unitvec[\farleft],\frac{1}{1-\gamma^2}(\unitvec[\farleft] + \gamma\unitvec[\topleft])\}$ and $ \F(\farright)=\{\geom\unitvec[\farright],\frac{1}{1-\gamma^2}(\unitvec[\farright] + \gamma\unitvec[\topright]), \unitvec[\farright]+\geom[\gamma]\unitvec[\topright]\}$. These two sets look awfully similar. $\F(\farleft)$ is a ``subset'' of $\F(\farright)$, only with ``different states.'' \Cref{fig:case-study-similar} demonstrates a state permutation $\phi$ which \emph{embeds} $\F(\farleft)$ into $\F(\farright)$.
+
+\begin{figure}[h!]
+    \centering
+    \vspace{-0pt}
+    \includegraphics{main-tex/assets/tikz/main-paper/pdfs/similar.pdf}
+    \vspace{-6pt}
+    \caption{Intuitively, the agent can do more starting from $r_{\searrow}$ than from $\ell_{\swarrow}$. By \cref{def:dist-sim}, $\F(\farright)$ contains a copy of $\F(\farleft)$:}
+    \vspace{-11pt}
+    \begin{align*}
+    \phi\cdot\F(\farleft)
+    \defeq\{\tfrac{1}{1-\gamma}\permute\unitvec[\farleft],\tfrac{1}{1-\gamma^2}\permute(\unitvec[\farleft] + \gamma\unitvec[\topleft])\}=\{\tfrac{1}{1-\gamma}\unitvec[\farright],\tfrac{1}{1-\gamma^2}(\unitvec[\farright] + \gamma\unitvec[\topright])\}\subsetneq \F(\farright).
+\end{align*}
+    \vspace{-20pt}
+    \label{fig:case-study-similar}
+\end{figure} 
+
+\begin{restatable}[Similarity of vector sets]{definition}{DefStateDistSimilar}\label{def:dist-sim}
+Consider state permutation $\phi\in\mdpPermGroup$ inducing an $\abs{\St}\times \abs{\St}$ permutation matrix $\permute$ in row representation: $(\permute)_{ij}=1$ if $i=\phi(j)$ and $0$ otherwise. For $X\subseteq \rewardVS$, $\phi\cdot X\defeq \set{\permute \x \mid \x \in X}$. $X'\subseteq \rewardVS$ \emph{is similar to $X$} when $\exists \phi: \phi\cdot X'=X$. $\phi$ is an \emph{involution} if $\phi=\phi\inv$ (it either transposes states, or fixes them in place). $X$ \emph{contains a copy of $X'$} when $X'$ is similar to a subset of $X$ via an involution $\phi$.
+\end{restatable}
+\begin{restatable}[Similarity of vector function sets]{definition}{DefStateFnSimilar}\label{def:dist-fn-sim}
+Let $I\subseteq \reals$. If $F,F'$ are sets of functions $I\mapsto \rewardVS$, $F$ \emph{is (pointwise) similar to $F'$} when $\exists \phi:\forall \gamma\in I: \{\permute \f(\gamma) \mid \f \in F\}= \{\f'(\gamma) \mid \f' \in F'\}$. \end{restatable} 
+ 
+Consider a reward function $R'$ assigning 1 reward to  $\farleft$ and $\topleft$ and 0 elsewhere. $R'$ assigns more optimal value to $\farleft$ than to $\farright$: $\VfNoResize[*][R']{\farleft,\gamma}=\geom> 0=\VfNoResize[*][R']{\farright,\gamma}$. Considering $\phi$ from \cref{fig:case-study-similar}, $\phi\cdot R'$ assigns 1 reward to $\farright$ and $\topright$ and 0 elsewhere. Therefore, $\phi\cdot R'$ assigns more optimal value to $\farright$ than to $\farleft$: $\VfNoResize[*][\phi\cdot R']{\farleft,\gamma}=0<\geom =\VfNoResize[*][\phi\cdot R']{\farright,\gamma}$. Remarkably, this $\phi$ has the property that for \emph{any} $R$ which assigns $\farleft$ greater optimal value than $\farright$ (\ie{} $\VfNoResize{\farleft,\gamma}> \VfNoResize{\farright,\gamma}$), the opposite holds for the permuted $\phi\cdot R$: $\VfNoResize[*][\phi\cdot R]{\farleft,\gamma}< \VfNoResize[*][\phi\cdot R]{\farright,\gamma}$. 
+
+We can permute reward functions, but we can also permute reward function distributions. Permuted distributions simply permute which states get which rewards.
+
+\begin{figure}[!ht]\centering
+    \includegraphics[width=4cm]{main-tex/assets/tikz/main-paper/pdfs/orbit.pdf}
+    \caption{A permutation of a reward function swaps which states get which rewards. We will show that in certain situations, for any reward function $R$, power-seeking is optimal for most of the permutations of $R$. The orbit of a reward function is the set of its permutations. We can also consider the orbit of a distribution over reward functions. This figure shows the probability density plots of the Gaussian distributions $\D$ and $\D'$ over $\reals^2$. The symmetric group $S_2$ contains the identity permutation $\phi_{\text{id}}$ and the reflection permutation $\phi_\text{swap}$ (switching the $y$ and $x$ values). The orbit of $\D$ consists of $\phi_\text{id}\cdot \D=\D$ and $\phi_\text{swap}\cdot\D=\D'$.\label{fig:orbit-normal}}
+\end{figure} 
+
+\begin{restatable}[Pushforward distribution of a permutation]{definition}{pushfwdPermDist}\label{def:pushforward-permute}
+Let $\phi\in\mdpPermGroup$. $\phi\cdot\Dany$ is the pushforward distribution induced by applying the random vector $f(\rf)\defeq \permute\rf$ to $\Dany$.
+\end{restatable}
+
+\begin{restatable}[Orbit of a probability distribution]{definition}{orbit}
+The \emph{orbit} of $\Dany$ under the symmetric group $\mdpPermGroup$ is $\mdpPermGroup\cdot \Dany\defeq \{\phi\cdot\Dany\mid \phi\in\mdpPermGroup\}$.
+\end{restatable}
+
+For example, the orbit of a degenerate state indicator distribution $\D_{s}$ is $\orbi[\D_{s}]=\{\D_{s'} \mid s' \in \St\}$, and \cref{fig:orbit-normal} shows the orbit of a 2D Gaussian distribution. 
+
+Consider again the involution $\phi$ of \cref{fig:case-study-similar}. For every $\Dbd$ for which $\farleft$ has more $\pwr[][\Dbd]$ than $\farright$, $\farleft$ has less $\pwr[][\phi\cdot\Dbd]$ than $\farright$. This fact is not obvious—it is shown by the proof of \cref{lem:expect-superior}. 
+
+Imagine $\Dbd$'s orbit elements ``voting'' whether $\farleft$ or $\farright$ has strictly more $\pwrNoDist$. \Cref{prop:more-opt} will show that $\farright$ can't lose the ``vote'' for the orbit of \emph{any} bounded reward function distribution. \Cref{def:ineq-most-dists} formalizes this ``voting'' notion.\footnote{The voting analogy and the ``most'' descriptor imply that we have endowed each orbit with the counting measure. However, \emph{a priori}, we might expect that some orbit elements are more empirically likely to be specified than other orbit elements. See \cref{sec:discussion} for more on this point.}
+
+\begin{restatable}[Inequalities which hold for most probability distributions]{definition}{ineqMost}\label{def:ineq-most-dists}
+Let $f_1,f_2:\Delta(\rewardVS)\to \reals$ be functions from reward function distributions to real numbers and let $\distSet\subseteq \Delta(\rewardVS)$ be closed under permutation. We write $f_1(\D)\geqMost[][\distSet] f_2(\D)$
+\footnote{We write $f_1(\D)\geqMost[][] f_2(\D)$ when $\distSet$ is clear from context.} when, for \emph{all} $\D\in \distSet$, the following cardinality inequality holds:
+\begin{equation}
+\abs{\{\D' \in\orbi[\D]\mid f_1(\D')>f_2(\D')\}}\geq \abs{\{\D'\in\orbi[\D]\mid f_1(\D')<f_2(\D')\}}.
+\end{equation}
+\end{restatable} 
+
+\begin{restatable}[States with ``more options'' have more $\pwrNoDist$]{prop}{morePowerMoreOptions}\label{prop:more-opt}
+If $\F(s)$ contains a copy of $\Fnd(s')$ via $\phi$, then $\forall \gamma\in[0,1]:\pwrNoResize[s,\gamma][\Dbd]\geqMost[][] \pwrNoResize[s',\gamma][\Dbd]$. If $\Fnd(s)\setminus \phi\cdot \Fnd(s')$ is non-empty, then for all $\gamma\in(0,1)$, the converse $\leqMost[][]$ statement does not hold.
+\end{restatable}
+
+\Cref{prop:more-opt} proves that for all $\gamma\in[0,1]$, $\pwrNoResize[\farright,\gamma][\Dbd]\geqMost[][] \pwrNoResize[\farleft,\gamma][\Dbd]$ via $s'\defeq \farleft,s\defeq \farright$, and the involution $\phi$ shown in \cref{fig:case-study-similar}. In fact, because $(\geom\unitvec[\topright])\in \Fnd(\farright)\setminus \phi\cdot\Fnd(\farleft)$, $\farright$ has ``strictly more options'' and therefore fulfills \cref{prop:more-opt}'s stronger condition. 
+ 
+\Cref{prop:more-opt} is shown using the fact that $\phi$ injectively maps $\D$ under which $\farright$ has less $\pwr[][\D]$, to distributions $\phi\cdot\D$ which agree with the intuition that $\farright$ offers more control. Therefore, at least half of each orbit must agree, and $\farright$ never ``loses the $\pwrNoDist$ vote'' against $\farleft$.\footnote{\Cref{prop:more-opt} also proves that in general, $\sink$ has less $\pwrNoDist$ than $\farleft$ and $\farright$. However, this does not prove that most distributions $\D$ satisfy the joint inequality $\pwrNoResize[\sink,\gamma][\D]\leq\pwrNoResize[\farleft,\gamma][\D]\leq \pwrNoResize[\farright,\gamma][\D]$. This only proves that these inequalities hold pairwise for most $\D$. The orbit elements $\D$ which agree that $\sink$ has less $\pwr[][\D]$ than $\farleft$ need not be the same elements $\D'$ which agree that $\farleft$ has less $\pwr[][\D']$ than $\farright$.} 
+
+\subsection{Keeping options open tends to be \texorpdfstring{$\pwrNoDist$}{POWER}-seeking and tends to be optimal}
+Certain symmetries in the {\mdp} structure ensure that, compared to $\leftA$, going $\rightA$ tends to be optimal and to be $\pwrNoDist$-seeking. Intuitively, by going $\rightA$, the agent has ``strictly more choices.'' \Cref{graph-options} will formalize this tendency.
+
+\begin{restatable}[Equivalent actions]{definition}{equivAction}\label{def:equiv-action}
+Actions $a_1$ and $a_2$ are \emph{equivalent at state $s$} (written $a_1 \equiv_s a_2$) if they induce the same transition probabilities: $T(s,a_1)=T(s,a_2)$.
+\end{restatable}
+
+The agent can reach states in $\{\closeright, \topright,\farright\}$ by taking actions equivalent to $\rightA$ at state $\start$. 
+
+\begin{restatable}[States reachable after taking an action]{definition}{reachSA}\label{def:reachSA}
+$\reach{s,a}$ is the set of states reachable with positive probability after taking the action $a$ in state $s$.
+\end{restatable}
+
+\begin{restatable}[Keeping options open tends to be $\pwrNoDist$-seeking and tends to be optimal]{prop}{graphOptions}\label{graph-options}\hfill
+
+Suppose $F_a\defeq \FRestrictAction{s}{a}$ contains a copy of $F_{a'}\defeq \FRestrictAction{s}{a'}$ via $\phi$. 
+\begin{enumerate}
+    \item If $s\not \in \reach{s,a'}$, then $\forall\gamma\in[0,1]:\E{s_{a}\sim T(s,a)}{\pwr[s_{a},\gamma][\Dbd]}\geqMost[][\DSetBd] \E{s_{a'}\sim T(s,a')}{\pwr[s_{a'},\gamma][\Dbd]}$. \label{item:power-options}
+    \item If $s$ can only reach the states of $\reach{s,a'}\cup\reach{s,a}$ by taking actions equivalent to $a'$ or $a$ at state $s$, then $\forall\gamma\in[0,1]:\optprob[\Dany]{s,a,\gamma}\geqMost \optprob[\Dany]{s,a',\gamma}$.\label{item:opt-prob-options} 
+\end{enumerate}
+ 
+If $\Fnd(s)\cap \prn{F_a\setminus \phi\cdot F_{a'}}$ is non-empty, then $\forall\gamma\in(0,1)$, the converse $\leqMost[][]$ statements do not hold.
+\end{restatable}
+
+\begin{figure}[!ht]\centering
+    \includegraphics{main-tex/assets/tikz/main-paper/pdfs/similar-action}
+    \caption{Going $\rightA$ is optimal for most reward functions. This is because whenever $R$ makes $\leftA$ strictly optimal over $\rightA$, its permutation $\phi\cdot R$ makes $\rightA$ strictly optimal over $\leftA$ by switching which states get which rewards.}
+    \label{fig:case-study-similar-action}
+\end{figure} 
+
+We check the conditions of \cref{graph-options}. $s\defeq \start$, $a'\defeq \leftA$, $a\defeq \rightA$. \Cref{fig:case-study-similar-action} shows that $\star \not \in \reach{\star,\leftA}$ and that $\star$ can only reach $\{\closeleft, \topleft,\farleft\}\cup \{\closeright, \topright,\farright\}$ when the agent immediately takes actions equivalent to $\leftA$ or $\rightA$. $\FRestrictAction[\start]{\start}{\rightA}$ contains a copy of $\FRestrictAction[\start]{\start}{\leftA}$ via $\phi$. Furthermore, $\Fnd(\start)\cap\{\unitvec[\start]+\gamma\unitvec[\closeright]+\gamma^2\unitvec[\farright]+\geom[\gamma^3]\unitvec[\topright],\unitvec[\start]+\gamma\unitvec[\closeright]+\geom[\gamma^2]\unitvec[\topright]\}=\{\unitvec[\start]+\gamma\unitvec[\closeright]+\geom[\gamma^2]\unitvec[\topright]\}$ is non-empty, and so all conditions are met. 
+
+For any $\gamma\in[0,1]$ and $\D$ such that $\optprob[\D]{\start,\leftA,\gamma} > \optprob[\D]{\start,\rightA,\gamma}$, environmental symmetry ensures that $\optprob[\phi\cdot\D]{\start,\leftA,\gamma} < \optprob[\phi\cdot\D]{\start,\rightA,\gamma}$. A similar statement holds for $\pwrNoDist$. 
+
+\subsection{When \texorpdfstring{$\gamma=1$}{reward is undiscounted}, optimal policies tend to navigate towards ``larger'' sets of cycles}\label{sec:rsds}
+\Cref{prop:more-opt} and \cref{graph-options} are powerful because they apply to all $\gamma\in[0,1]$, but they can only be applied given hard-to-satisfy environmental symmetries. In contrast, \cref{RSDSimPower} and \cref{rsdIC} apply to many structured environments common to {\rl}. 
+
+Starting from $\start$, consider the cycles which the agent can reach. Recurrent state distributions ({\rsd}s) generalize deterministic graphical cycles to potentially stochastic environments. {\rsd[R]}s simply record how often the agent tends to visit a state in the limit of infinitely many time steps.  
+
+\begin{restatable}[Recurrent state distributions \citep{puterman_markov_2014}]{definition}{DefRSD}\label{def:rsd}
+The \emph{recurrent state distributions}  which can be induced from state $s$ are $\RSD \defeq \set{\lim_{\gamma\to1} (1-\gamma) \fpi{s}(\gamma) \mid \pi \in \Pi}$. $\RSDnd$ is the set of \textsc{rsd}s which strictly maximize average reward for some reward function.
+\end{restatable}
+
+As suggested by \cref{fig:case-study-power}, $\RSD[\start]=\{\unitvec[\farleft], \half(\unitvec[\farleft]+\unitvec[\topleft]), \unitvec[\sink], \unitvec[\topright], \half(\unitvec[\topright]+\unitvec[\farright]),\unitvec[\farright]\}$. As discussed in \cref{sec:visit-dists}, $\half(\unitvec[\topright]+\unitvec[\farright])$ is dominated: Alternating between $\topright$ and $\farright$ is never strictly better than choosing one or the other.
+
+A reward function's optimal policies can vary with the discount rate. When $\gamma =1$, optimal policies ignore transient reward because \emph{average} reward is the dominant consideration.
+\begin{restatable}[Average-optimal policies]{definition}{defAverage}\label{average-definition}
+The \emph{average-optimal policy set} for reward function $R$ is $\average[R]\defeq \set{\pi\in\Pi \mid \forall s \in \St: \dbf^{\pi,s} \in  \argmax_{\dbf\in\RSD} \dbf^\top \rf}$ (the policies which induce optimal {\rsd}s at all states). For $D\subseteq \RSD$, the \emph{average optimality probability} is $\avgprob[\Dany]{D}\defeq \optprob[R\sim \Dany]{\exists \dbf^{\pi,s} \in D: \pi \in \average}$.
+\end{restatable}
+
+Average-optimal policies maximize average reward. Average reward is governed by {\rsd} access. For example, $\farright$ has ``more'' {\rsd}s than $\sink$; therefore, $\farright$ usually has greater $\pwrNoDist$ when $\gamma=1$. 
+
+\begin{restatable}[When $\gamma=1$, \textsc{rsd}s control $\pwrNoDist$]{prop}{RSDSimPower}\label{RSDSimPower}
+If $\RSD$ contains a copy of $\RSDnd[s']$ via $\phi$, then $\pwr[s,1][\Dbd]\geqMost[][] \pwr[s',1][\Dbd]$. If $\RSDnd\setminus \phi\cdot \RSDndNoResize[s']$ is non-empty, then the converse $\leqMost[][]$ statement does not hold. \end{restatable}
+
+We check that both conditions of \cref{RSDSimPower} are satisfied when $s'\defeq\sink, s\defeq \farright$, and the involution $\phi$ swaps $\sink$ and $\farright$. Formally, $\phi\cdot\RSDnd[\sink]=\phi\cdot\{\unitvec[\sink]\}=\{\unitvec[\farright]\}\subsetneq \{\unitvec[\farright],\unitvec[\topright]\}=\RSDndNoResize[\farright]\subseteq[\farright]$. The conditions are satisfied. 
+
+Informally, states with more {\rsd}s generally have more $\pwrNoDist$ at $\gamma= 1$, no matter their transient dynamics. Furthermore, average-optimal policies are more likely to end up in larger sets of {\rsd}s than in smaller ones. Thus, average-optimal policies tend to navigate towards parts of the state space which contain more \textsc{rsd}s.
+\begin{figure}[h]
+    \centering
+    \includegraphics{main-tex/assets/tikz/main-paper/pdfs/rsds}
+    \vspace{-5pt}
+    \caption{The cycles in $\RSD[\start]$. Most reward functions make it average-optimal to avoid $\sink$, because $\sink$ is only a single inescapable terminal state, while other parts of the state space offer more 1-cycles.\label{fig:case-fig-rsd}}
+\end{figure}
+
+\begin{restatable}[Average-optimal policies tend to end up in ``larger'' sets of {\rsd}s]{thm}{rsdIC}\label{rsdIC} Let $D,D'\subseteq \RSD$. Suppose that $D$ contains a copy of $D'$ via $\phi$, and that the sets $D\cup D'$ and $\RSDnd\setminus \prn{D'\cup D}$ have pairwise orthogonal vector elements (\ie{} pairwise disjoint vector support). Then $\avgprob[\Dany]{D}\geqMost[][] \avgprob[\Dany]{D'}$. If $\RSDnd\cap\prn{D\setminus \phi\cdot D'}$ is non-empty, the converse $\leqMost[][]$ statement does not hold.
+\end{restatable} 
+
+\begin{restatable}[Average-optimal policies tend not to end up in any given {\stateEnd}]{cor}{avgAvoidTerminal}\label{cor:avg-avoid-terminal} Suppose $\unitvec[s_x],\unitvec[s']\in\RSD$ are distinct. Then $\avgprob[\Dany]{\RSD\setminus\{\unitvec[s_x]\}}\geqMost[][] \avgprob[\Dany]{\{\unitvec[s_x]\}}$. If there is a third $\unitvec[s'']\in\RSD$, the converse $\leqMost[][]$ statement does not hold.
+\end{restatable}
+
+\Cref{fig:case-fig-rsd} illustrates that $\unitvec[\sink],\unitvec[\farright],\unitvec[\topright]\in\RSD[\start]$. Thus, both conclusions of \cref{cor:avg-avoid-terminal} hold: $\avgprob[\Dany]{\RSD[\start]\setminus\{\unitvec[\sink]\}}\geqMost[][] \avgprob[\Dany]{\{\unitvec[\sink]\}}$ and $\avgprob[\Dany]{\RSD[\start]\setminus\{\unitvec[\sink]\}}\not\leqMost[][] \avgprob[\Dany]{\{\unitvec[\sink]\}}$. In other words, average-optimal policies tend to end up in {\rsd}s besides $\sink$. Since $\sink$ is a terminal state, it cannot reach other {\rsd}s. Since average-optimal policies tend to end up in other {\rsd}s, average-optimal policies tend to avoid $\sink$.
+ 
+This section's results prove the $\gamma=1$ case. \Cref{thm:cont-power} shows that $\pwrNoDist$ is continuous at  $\gamma=1$. Therefore, if an action is strictly $\pwrNoDist_\D$-seeking when $\gamma=1$, it is strictly $\pwrNoDist_\D$-seeking at discount rates sufficiently close to 1. Future work may connect average optimality probability to optimality probability at $\gamma\approx 1$. 
+
+Lastly, our key results apply to all degenerate reward function distributions. Therefore, these results apply not just to distributions over reward functions, but to  individual reward functions.
+
+\subsection{How to reason about other environments}
+Consider an embodied navigation task through a room with a vase. \Cref{graph-options} suggests that optimal policies tend to avoid immediately breaking the vase, since doing so would strictly decrease available options.
+
+\Cref{rsdIC} dictates where average-optimal agents tend to end up, but not what actions they tend to take in order to reach their {\rsd}s. Therefore, care is needed. In appendix \ref{app:not-always}, \cref{fig:power-not-ic} demonstrates an environment in which seeking $\pwrNoDist$ is a detour for most reward functions (since optimality probability measures ``median'' optimal value, while $\pwrNoDist$ is a function of mean optimal value). However, suppose the agent confronts a fork in the road: Actions $a$ and $a'$ lead to two disjoint sets of {\rsd}s $D_{a}$ and $D_{a'}$, such that $D_a$ contains a copy of $D_{a'}$. \Cref{rsdIC} shows that $a$ will tend to be average-optimal over $a'$, and \cref{RSDSimPower} shows that $a$ will tend to be $\pwrNoDist$-seeking compared to $a'$. Such forks seem reasonably common in environments with irreversible actions.
+
+\Cref{rsdIC} applies to many structured {\rl} environments, which tend to be spatially regular and to factorize along several dimensions. Therefore,  different sets of {\rsd}s will be similar, requiring only modification of factor values. For example, if an embodied agent can deterministically navigate a set of three similar rooms (spatial regularity), then the agent's position factors via \{room number\} $\times$ \{position in room\}. Therefore, the {\rsd}s can be divided into three similar subsets, depending on the agent’s room number.
+
+\Cref{cor:avg-avoid-terminal} dictates where average-optimal agents tend to end up, but not how they get there. \Cref{cor:avg-avoid-terminal} says that such agents tend not to \emph{stay} in any given {\stateEnd}. It does not say that such agents will avoid \emph{entering} such states. For example, in an embodied navigation task, a robot may enter a {\stateEnd} by idling in the center of a room. \Cref{cor:avg-avoid-terminal} implies that average-optimal robots tend not to idle in that particular spot, but not that they tend to avoid that spot entirely.
+
+However, average-optimal robots \emph{do} tend to avoid getting shut down. The agent's task {\mdp} often represents agent shutdown with terminal states. A terminal state is, by \cref{def:onecyc}, unable to access other {\stateEnd}s. Since \cref{cor:avg-avoid-terminal} shows that average-optimal agents  tend to end up in other {\stateEnd}s, average-optimal policies must tend to completely avoid the terminal state. Therefore, we conclude that in many such situations, average-optimal policies tend to avoid shutdown. Intuitively, survival is power-seeking relative to dying, and so  shutdown-avoidance is power-seeking behavior.
+\begin{figure}[b]
+    \centering
+    \vspace{-5pt}
+    \includegraphics[]{main-tex/assets/tikz/main-paper/pdfs/pacman.pdf}
+    \vspace{-5pt}
+    \caption{Consider the dynamics of the Pac-Man video game. Ghosts kill the player, at which point we consider the player to enter a ``game over'' terminal state which shows the final configuration. This rewardless {\mdp} has Pac-Man's dynamics, but \emph{not} its usual score function. Fixing the dynamics, as the reward function varies, $\rightA$ tends to be average-optimal over $\leftA$. Roughly, this is because the agent can do more by staying alive.}
+    \vspace{-5pt}
+    \label{fig:pacman}
+\end{figure}
+
+In \cref{fig:pacman}, the player dies by going {\leftA}, but can reach thousands of {\rsd}s by heading in other directions. Even if some average-optimal policies  go {\leftA} in order to reach \cref{fig:pacman}'s ``game over'' terminal state, all other {\rsd}s cannot be reached by going {\leftA}. There are many {\stateEnd}s besides the immediate terminal state. Therefore, \cref{cor:avg-avoid-terminal} proves that average-optimal policies tend to not go {\leftA} in this situation. Average-optimal policies tend to avoid immediately dying in Pac-Man, even though most reward functions do not resemble Pac-Man's original score function.

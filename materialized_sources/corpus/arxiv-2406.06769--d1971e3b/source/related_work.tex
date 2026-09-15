@@ -1,0 +1,76 @@
+
+
+
+\section{Related Work}
+
+Recently, several real-world discovery systems have shown success in areas such as genetics (Adam \citep{King2004FunctionalGH}, Eve \citep{Williams2015CheaperFD}),
+chemistry (CoScientist \citep{Boiko2023AutonomousCR}, ChemCrow \citep{Bran2023AugmentingLL}) and protenomics
+  (AlphaFold \citep{Jumper2021HighlyAP}, RoseTTAFold \citep{Krishna2023GeneralizedBM}). However, these systems
+are expensive and task-specific. Inspired by these, \env aims to be a broad coverage, virtual
+environment allowing general scientific research skills to be developed and evaluated.
+There are many virtual environments that touch on aspects of the discovery
+process (see Table~\ref{tab:env_comparison}), although \env is the first aimed at the full end-to-end pipeline:
+
+Many {\bf physical simulation environments} were developed (e.g., for
+robotics), focusing on object manipulation and navigation. Some are
+visual/spatial environments (e.g., AI2-Thor \citep{Kolve2017AI2THORAI}, ALFRED \cite{ALFRED20}),
+while others are textual/symbolic (e.g., TextWorld \cite{Ct2018TextWorldAL}, MiniGrid \cite{MinigridMiniworld23}, ALFWorld \cite{Shridhar2020ALFWorldAT}).
+
+Many {\bf game worlds} require exploration and discovery, e.g., NetHack \citep{NetHack}, MineDojo \cite{fan2022minedojo}.
+However, these operate in counterfactual worlds where good scientific choices
+are not always rewarded, and are primarily aimed at entertainment.
+
+Some virtual environments (abstractly) cover {\bf real world} tasks.
+WebArena \citep{zhou2024webarena} simulates Web-based activities, e.g., browsing for a phone-number, on-line shopping,
+aiming to improve an agent's task-specific Web navigation skills. Perhaps closest
+to \env is ScienceWorld \citep{Wang2022ScienceWorldIY}, a text-based environment for solving simple science
+quests known to elementary science students, such as ``convert a liquid into a solid'' (e.g., put water in the freezer).
+ScienceWorld requires commonsense object manipulation at the level of an elementary science student, but not ideation or systematic search to complete tasks. In contrast, we show that \env contains discovery tasks that are challenging even for human scientists with \textsc{PhDs} in the natural sciences.
+
+Finally, some environments are explicitly designed to host {\bf hypothesis search}.
+Alchemy \citep{wang2021alchemy} is a 3D video game to find which mixture of potions transforms a stone into a more valuable form.
+Similarly in IVRE \citep{xu2023interactive}, users perform artificial category experiments to identify which blocks are ``blickets''.
+These environments exercise the systematic search part of the discovery pipeline.
+Likewise, MLAgentBench  \citep{Huang2023MLAgentBenchEL} requires software experiments to solve a
+challenge (improve a ML algorithm), but in the constrained environment
+of ML software. In contrast, \env aims to cover a broad range of tasks
+in a (simulated) physical environment, covering the full end-to-end
+discovery pipeline.
+
+
+
+
+\begin{savenotes}
+\begin{table}[t]
+\centering
+\scriptsize
+\caption{\footnotesize A comparison of existing virtual environments with \env. Note that to control for spatial complexity across environments, for the purposes of counting actions, move actions are considered single actions (i.e. \textit{move [dir]}). Information in this table has been pieced together by looking at the different source materials for each environment (e.g., paper, website, and codebase). These should be taken as our best estimate.}
+\label{tab:env_comparison}
+\begin{tabular}{lccccccc}
+\toprule
+\textbf{}               &   \textbf{Multi-}    &   \textbf{} &   \textbf{\# of}  &            \textbf{Para-}           &   \textbf{\# Obj.}  & \textbf{\# of}   & \textbf{Task}  \\
+\textbf{Environment}    &   \textbf{modal}    &   \textbf{Domain} &   \textbf{Tasks}  &   \textbf{metric} &   \textbf{Props.}  & \textbf{Actions}   & \textbf{Length}  \\
+\midrule
+\rowcolor[HTML]{F3F3F3} 
+\textsc{MiniGrid}~\citep{MinigridMiniworld23}       &   Image/Symbol           & Pick+Place            &  23    & Yes     & 4     & 4     &   85       \\
+\textsc{Alfred}~\citep{ALFRED20}         &   Image        & Pick+Place            &  6    & Yes   & 20     & 7     &   50       \\
+\rowcolor[HTML]{F3F3F3} 
+\textsc{AlfWorld}~\citep{Shridhar2020ALFWorldAT}       &   Text/Image    & Pick+Place            &  6    & Yes   & 16     & 9     &   10       \\
+\textsc{MineDojo}~\citep{fan2022minedojo}       &   Image        & Minecraft             &   10\blfootnote{We only considered programmatic tasks as they can be measured accurately. Then, we only count the (sub)categories since most programmatic tasks are parametric variations of those.} & Yes     & 256+     & 12    &   100k     \\
+\rowcolor[HTML]{F3F3F3} 
+\textsc{Nethack LE}~\citep{NetHack}     &   Text+Image   & Dungeon               &  1    & Yes   & 69     & 78    &   80k     \\
+\textsc{Alchemy}~\citep{wang2021alchemy}        &   Image/Symbol           & Chemistry            &  1    & Yes     & 3     & 9     &   200       \\
+\rowcolor[HTML]{F3F3F3} 
+\textsc{IVRE}~\citep{xu2023interactive}           &   Image/Symbol           & Hypothesis Testing &  1    & Yes     & 3     & 9     &   10       \\
+\textsc{ScienceWorld}~\citep{wang2022scienceworld}   &   Text        & Elem. Science         &  30   & Yes   & 36     & 25    &   100      \\
+\rowcolor[HTML]{E3E3E3} 
+\textbf{\env} &   Text+Image   & Sci. Discovery        &  24+10   & Yes   & 63     & 14    &   1k        \\
+\bottomrule        
+\end{tabular}
+\end{table}
+\end{savenotes}
+ 
+
+
+
+

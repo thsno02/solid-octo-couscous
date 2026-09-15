@@ -1,0 +1,5 @@
+\section{SERAC Implementation Details}
+\label{sec:serac_impl}
+We use publicly available Huggingface \cite{wolf2019hugging} implementations and checkpoints for all experiments. For the SERAC classifier model, we use \texttt{distilbert-base-cased} \cite{Sanh2019DistilBERTAD} across all models and experimental settings. For the counterfactual model, we use \texttt{t5-small} for the question-answering experiments, \texttt{bert-base-uncased} for fact-checking, and \texttt{facebook/blenderbot\_small-90M} \cite{roller2021recipes} for conversational sentiment modulation. We use T5 pretrained on NQ (\texttt{google/t5-large-ssm-nq}) for question-answering, \texttt{bert-base-uncased} finetuned by \citet{Cao2021EditingFK} on FEVER \cite{Thorne18Fever} for fact-checking, and \texttt{facebook/blenderbot\_small-90M} for sentiment modulation.
+
+All scope classifier and counterfactual models are trained using Adam with a learning rate of $1\times 10^{-5}$. 

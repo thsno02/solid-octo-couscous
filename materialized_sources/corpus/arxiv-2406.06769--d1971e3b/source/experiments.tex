@@ -1,0 +1,27 @@
+\section{Experiments, Baseline Agents, and Human Baselines}
+
+In this section we examine the performance of strong baseline agents on each of the \env tasks.  In addition, we investigate the performance of human scientists, and highlight the performance gap between current agent models and real human scientists. 
+
+\subsection{Experimental setup}
+
+For the purposes of this work, we seek to better understand the zero-shot generalization performance of AI agents on tasks that require iterative scientific discovery: that is, coming up with hypotheses, doing in-game experiments to (in)validate them, then arriving at a discovered solution for the task.  As such, we evaluate the performance of three contemporary baselines in a zero-shot setting (though \textit{single-task, multi-task, or curriculum learning} settings with separate training and evaluation sets are possible with this benchmark; see \textsc{Appendix}~\ref{sec:train_eval_splits} for these configurations).  In the zero-shot setting, an agent has no prior exposure to \env, and is evaluated on all 120 tasks.  Each task is evaluated independently, without carry-over knowledge from one task to another. 
+
+
+
+\subsection{Baseline Agent Models}
+
+The baseline agents are described below, with model performance on Discovery tasks shown in Table~\ref{tab:agent-performance-discovery}, and performance on Unit Tests shown in Table~\ref{tab:agent-performance-unit-tests}. We use the \textsc{GPT-4o} model for all our agents due to its higher performance and lower cost compared to other models.  For space we provide high-level descriptions of each model here,  with additional implementation details and run costs provided in \textsc{Appendix}~\ref{sec:appendix-additional-model-details}. 
+
+\textbf{ReAct}: This agent uses the ReAct~\cite{Yao2022ReActSR} approach of generating a thought and action at each step given the recent trajectory of thoughts, actions and observations. Each action is executed in the environment and the observation is added to the trajectory. In addition to this trajectory, we also provide the current game state information as text, e.g., nearby objects, teleportable locations, etc. If needed, we trim the trajectory (remove oldest steps first) to fit the prompt within the maximum token limit, which (in practice) included up to the last 40 steps of the trajectory. %
+To evaluate this agent's discovered knowledge, we evaluate the concatenation of the agent's ``thoughts'' across all time steps.
+
+\textbf{Plan+Exec}: Since the ReAct trajectories can be very long and lead to errors due to distractors, we also evaluate a plan-and-execute~\cite{wang-etal-2023-plan,intercode} approach. We use the LLM to generate a plan, and each step of the plan is independently executed using the same ReAct agent as above. Since each plan step is simpler than the task, their ReAct trajectories are much smaller, reducing the distractors.  Discovery tasks require an iterative planning approach to adapt to new findings, so we use iterative decomposition~\cite{decomp} to only generate one step of the plan based on the previous planning steps and their success. %
+Discovered knowledge is evaluated as with the ReAct agent from the execution steps.
+
+\textbf{Hypothesizer}: This agent resembles the architecture of \textsc{CLIN}~\cite{Majumder2023CLINAC}, with the agent keeping an explicit working memory of running hypotheses and measurements that are updated after taking each action, and conditioning its next actions on the contents of this memory.  This explicit knowledge store allows more directly evaluating an agent's discovered knowledge (with an example of Hypothesizer's knowledge provided in \autoref{sec:appendix-hypothesizer}).  The agent similarly maintains a brief plan and running hypothesis, and is prompted to explain how its action progresses the plan to evaluate that hypothesis. %
+
+
+
+\subsection{Human Evaluation}
+
+To compare model performance against human performance, we recruited 11 practicing human scientists to complete the \env tasks, with their performance shown in Table~\ref{tab:human-performance}.  Scientists were recruited on the \textsc{UpWork} platform, each with: (1) an \textsc{MSc} or \textsc{PhD} in a natural science, (2) self-evaluated comfort and fluency with statistical methods and common software like spreadsheets, (3) comfort and previous experience with 2D top-down games.  Additional details regarding human participant experiments are provided in \textsc{Appendix}~\ref{sec:appendix_human}.

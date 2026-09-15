@@ -1,0 +1,37 @@
+# Architecture evidence: microsoft/graphrag
+
+- `README.md:1` — GraphRAG
+- `README.md:25` — Overview
+- `README.md:31` — Quickstart
+- `README.md:35` — Repository Guidance
+- `README.md:41` — Diving Deeper
+- `README.md:47` — Prompt Tuning
+- `README.md:52` — Versioning
+- `README.md:58` — Responsible AI FAQ
+- `README.md:69` — Trademarks
+- `README.md:77` — Privacy
+- `CONTRIBUTING.md:1` — Contributing to GraphRAG
+- `CONTRIBUTING.md:8` — Code of Conduct
+- `CONTRIBUTING.md:18` — Reporting Security Issues
+- `CONTRIBUTING.md:23` — How to Contribute, File an Issue
+- `CONTRIBUTING.md:29` — File a new Issue
+- `CONTRIBUTING.md:39` — Add information
+- `CONTRIBUTING.md:49` — DO NOT post "+1" comments
+- `CONTRIBUTING.md:57` — Thank you
+- `SECURITY.md:1` — Security
+- `SECURITY.md:7` — Reporting Security Issues
+- `SECURITY.md:31` — Preferred Languages
+- `SECURITY.md:35` — Policy
+- `pyproject.toml:69` — Keep poethepoet for task management to minimize changes
+- `pyproject.toml:80` — Add more update toml tasks as packages are added
+- `pyproject.toml:106` — Pass in a test pattern
+- `pyproject.toml:150` — Keep all existing tool configurations
+- `pyproject.toml:245` — https://github.com/microsoft/pyright/blob/9f81564a4685ff5c55edd3959f9b39030f590b2f/docs/configuration.md#sample-pyprojecttoml-file
+- `docs/index.md:1` — Welcome to GraphRAG
+- `docs/index.md:18` — Get Started with GraphRAG 🚀
+- `docs/index.md:23` — GraphRAG vs Baseline RAG 🔍
+- `docs/index.md:32` — The GraphRAG Process 🤖
+- `docs/index.md:36` — Index
+- `docs/index.md:43` — Query
+- `docs/index.md:52` — Prompt Tuning
+- `docs/index.md:58` — Versioning

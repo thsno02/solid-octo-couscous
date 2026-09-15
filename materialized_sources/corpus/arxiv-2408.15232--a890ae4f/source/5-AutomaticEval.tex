@@ -1,0 +1,31 @@
+% \noindent
+% \textbf{Setup 1 (Automatic Evaluation with Simulated Users)}\quad
+
+
+Automatic evaluation enables scalable testing and allows for consistent simulation of user behavior. We compare \system with the following baselines: (1) \textbf{RAG Chatbot}, a baseline that retrieves information from the search engine and interacts with the user through a one-question-one-answer paradigm. (2) \textbf{STORM + QA}, a baseline that uses the STORM framework~\citep{shao2024assisting} to generate a report for a given topic to provide general information. It then allows the user to ask follow-up questions and provides corresponding answers retrieved with the search engine.
+
+\subsection{Evaluation Setup}
+We use the \data dataset where each data point consists of an initial topic $t$ and goal $g$. 
+We simulate the user 
+with an LM (\texttt{gpt-4o-2024-05-13}) prompted with $t$, $g$, the discourse history $\mathcal{D}$, and the instruction for question generation. To ensure a fair comparison, we terminate the information-seeking session once it reaches 30 search queries for \system and both baselines. For all methods, the final report is generated using the two-stage approach of outline generation followed by section-by-section article generation, as proposed by STORM~\citep{shao2024assisting}, based on the interaction history. We evaluate the system quality by assessing the final report and the interaction history (\ie, discourse) with the automatic metrics defined in~\refsec{sec:eval_metrics}.
+%\TODO{Ooops, w don't know what a user policy is.  Did I misread the front? If you are not going to explain the "instruction for question generation" why bother making a formal symbol policy, as if you are going to change it to different things.  } \yucheng{I make some notes in Section 2 task setup, where we used to define user policy $\pi$.}
+
+\subsection{Automatic Metrics}
+\label{sec:eval_metrics}
+\noindent
+\textbf{Report Quality}\quad
+%We assess the quality of the complex information-seeking assistance system by evaluating the final report (see~\refsec{sec:task_setup}) 
+We evaluate the final report on four aspects, \textit{Relevance}, \textit{Broad Coverage (Breadth)}, \textit{Depth}, and \textit{Novelty}, as indicators of the quality of the whole information-seeking process.\footnote{The same four aspects are used in human evaluation.} We employ Prometheus 2 \citep{kim2024prometheus}, a 7B evaluator LM, to score the report based on a 5-point rubric. To further quantify the diversity of the collected information, we also report the \textit{Information Diversity} as the average pairwise dissimilarity of $\mathcal{I}$,
+\begin{equation}\nonumber
+    1-\frac{\sum_{i,j\in\mathcal{I},i\neq j}\operatorname{cos}(\mathbf{i}, \mathbf{j})}{|\mathcal{I}|(|\mathcal{I}|-1)},
+\end{equation}
+where $\mathbf{i},\mathbf{j}$ are corresponding text embeddings obtained from OpenAI's \texttt{text-embedding-3-small}.%\footnote{\url{https://platform.openai.com/docs/guides/embeddings}}. 
+
+
+%Since our task setup involves user interaction, we also report the percentage of user turns. Higher rubric scores with a lower percentage of user turns indicate better alignment with the user’s latent intent and minimal user effort. For \textit{Coverage} and \textit{Depth}, besides rubric gradings, we further employ deterministic metrics, such as \todo{information diversity and the number of unique cited URLs}.% For verifiability, we follow the methodology outlined in \citet{shao2024assisting}, calculating citation recall and citation precision as defined by \citet{gao-etal-2023-enabling}. Additionally, we utilize Mistral 7B-Instruct \citep{jiang2023mistral} to verify that cited passages support the generated sentences.
+
+\noindent
+\textbf{Discourse Quality}\quad
+Since the discourse itself is valuable for human learning, we also evaluate the discourse trace using a 5-point rubric to grade each turn. This grading assesses \textit{Novelty}, \textit{Intent Alignment}, and \textit{No Repetition} for question-asking utterances (\ie, utterances with the intent \intent{Original Question} or \intent{Request Information}). For question-answering utterances that provide information%(\ie, utterances with the intent ``Potential Answer'' and ``Further Details'')
+, we assess \textit{Consistency} and \textit{Engagement}. We also report the number of unique cited URLs in these utterances to indicate information diversity at the turn level. %For discourse quality, the evaluation is conducted at the utterance level and the final metric is the average result across all turns. 
+Both the rubrics for report evaluation and utterance evaluation are included in Appendix~\ref{appendix:rubric}.

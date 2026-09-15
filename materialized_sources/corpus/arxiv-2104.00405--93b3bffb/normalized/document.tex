@@ -1,0 +1,918 @@
+% This version of CVPR template is provided by Ming-Ming Cheng.
+% Please leave an issue if you found a bug:
+% https://github.com/MCG-NKU/CVPR_Template.
+
+%\documentclass[review]{cvpr}
+\documentclass[final]{cvpr}
+
+% TO CONTRIBUTORS
+% ADD YOUR NAME + AFFILIATION HERE:
+
+% NAME - AFFILIATION
+
+% Matthias De Lange - KU Leuven, Belgium
+% Tinne Tuytelaars - KU Leuven, Belgium
+% Christopher Kanan - Rochester Institute of Technology 
+% Tyler L. Hayes - Rochester Institute of Technology
+% German I. Parisi - University of Hamburg
+% Jeremy Forest - NYU
+% Keiland W. Cooper - Department of Neurobiology and Behavior, University of California, Irvine
+% Simone Scardapane, Jary Pomponi - Sapienza University of Rome
+% Eden Belouadah - Université Paris-Saclay, CEA, List, F-91120, Palaiseau, France + IMT Atlantique, Computer Science Department, CS 83818 F-29238, Brest, France
+% Adrian Popescu - Université Paris-Saclay, CEA, List, F-91120, Palaiseau, France
+% Marc Masana - Computer Vision Center, Barcelona
+% Joost van de Weijer - Computer Vision Center, Barcelona
+% Martin Mundt - Goethe University (Frankfurt, Germany)
+% Fabio Cuzzolin - Oxford Brookes University
+% Subutai Ahmad - Numenta, Redwood City, USA
+% Gido M. van de Ven - Baylor College of Medicine, Houston, USA  &  University of Cambridge, UK
+
+% \usepackage{titling}
+% \thanksmarkseries{alph}
+
+\usepackage{times}
+\usepackage{epsfig}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{subcaption}
+\usepackage{booktabs}
+\usepackage{tabularx}
+
+% Include other packages here, before hyperref.
+\usepackage{color} 
+\usepackage{setspace}
+\usepackage[frozencache=true,cachedir=.]{minted}
+
+\makeatletter
+\@namedef{ver@everyshi.sty}{}
+\makeatother
+\usepackage{tcolorbox}
+\usepackage{amsthm}
+
+\theoremstyle{definition}
+\newtheorem*{definition}{Definition}
+
+\tcbuselibrary{listings, minted, skins}
+
+\tcbset{listing engine=minted}
+
+% \newtcblisting{mypython}{listing only, minted language=java, minted style=paraiso-dark,
+%     colback=bg, enhanced, frame hidden, minted options={fontfamily=fdm, 
+%     fontsize=\footnotesize, tabsize=2, breaklines, autogobble}}
+
+% \definecolor{inline}{RGB}{187,57,82}
+% \definecolor{bg}{RGB}{22,43,58}
+% \setminted[python]{bgcolor=bg, fontfamily=fdm, fontsize=\footnotesize}
+
+\definecolor{mygray}{rgb}{0.99, 0.99, 0.99}
+\setminted[python]{fontsize=\footnotesize, baselinestretch=1.0, linenos, xleftmargin=1em}
+\setminted[Text]{fontsize=\footnotesize, baselinestretch=1.0,
+linenos, xleftmargin=1em}
+
+\usemintedstyle{friendly}
+ 
+
+% If you comment hyperref and then uncomment it, you should delete
+% egpaper.aux before re-running latex.  (Or just hit 'q' on the first latex
+% run, let it finish, and you should be clear).
+\usepackage[pagebackref=true,breaklinks=true,colorlinks,bookmarks=false]{hyperref}
+
+\def\cvprPaperID{37} % *** Enter the CVPR Paper ID here
+\def\confYear{CVPR 2021}
+%\setcounter{page}{4321} % For final version only
+
+% User packages and commands
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{inconsolata}
+
+\newcommand{\vlinline}[1]{{\color{orange}VL: #1}}
+\newcommand{\antinline}[1]{{\color{blue}ANT: #1}}
+\newcommand{\codeinline}[1]{\texttt{#1}}
+
+%\usepackage{footmisc}
+
+% \makeatletter
+% \footglue=.1em plus.1em minus.1em
+% \long\def\@makefntext#1{\leavevmode
+%   \@makefnmark\nobreak
+%   #1%
+% }
+% \makeatother
+
+\begin{document}
+
+%%%%%%%%% TITLE
+\title{Avalanche: an End-to-End Library for Continual Learning}
+
+% \author{
+% Vincenzo Lomonaco\thanks{Corresponding author: vincenzo.lomonaco@unipi.it}\ \thanks{Avalanche lead maintainers.}\ \thanks{University of Pisa, Italy.}, Lorenzo Pellegrini\footnotemark[2]\ \thanks{University of Bologna, Italy.}, Andrea Cossu\footnotemark[2]\ \footnotemark[3],
+% Antonio Carta\footnotemark[2]\ \footnotemark[3], Gabriele Graffieti\footnotemark[2]\ \footnotemark[4],
+% \vspace{-1em}
+% \and
+% Tyler L. Hayes\thanks{Rochester Institute of Technology, United States.}, Matthias De Lange\thanks{KU Leuven, Belgium.}, Marc Masana\thanks{Computer Vision Center, Spain.}, Jary Pomponi\thanks{Sapienza University of Rome, Italy.}, Gido van de Ven\thanks{Baylor College of Medicine, United States.}, Martin Mundt\thanks{Goethe University, Germany.},
+% \vspace{-1em}
+% \and
+% Qi She\thanks{ByteDance AI Lab, China.}, Keiland Cooper\thanks{University of California, United States.}, Jeremy Forest\thanks{New York University, United States.},\ \ Eden Belouadah\thanks{Université Paris-Saclay, France.},\ \ Simone Calderara\thanks{University of Modena and Reggio-Emilia, Italy.}, German I. Parisi\thanks{University of Hamburg, Germany.},
+% \vspace{-1em}
+% \and
+%  Fabio Cuzzolin\thanks{Oxford Brookes University}, Andreas Tolias\footnotemark[8], Simone Scardapane\footnotemark[8], Luca Antiga\thanks{Orobix, Italy.}, Subutai Amhad\thanks{Numenta, United States.}, Adrian Popescu\footnotemark[14],
+% \vspace{-1em}
+% \and
+% Christopher Kanan\footnotemark[5], Joost van de Weijer\footnotemark[7], Tinne Tuytelaars\footnotemark[6], Davide Bacciu\footnotemark[3], Davide Maltoni\footnotemark[4]
+% }
+
+\author{Vincenzo Lomonaco$^{1 \dagger}$\thanks{Corresponding author: vincenzo.lomonaco@unipi.it}~
+Lorenzo Pellegrini$^{2}$\thanks{Avalanche lead maintainers.}
+Andrea Cossu$^{1}$$^,$$^{18}$\footnotemark[2]~
+Antonio Carta$^1$\footnotemark[2]~
+Gabriele Graffieti$^{2}$\footnotemark[2]\\
+Tyler L. Hayes$^{3}$~
+Matthias De Lange$^{4}$~
+Marc Masana$^{5~}$~
+Jary Pomponi$^{6~}$~
+Gido van de Ven$^{7~}$\\
+Martin Mundt$^{8~}$~
+Qi She$^{9~}$~
+Keiland Cooper$^{10~}$~
+Jeremy Forest$^{11~}$~
+Eden Belouadah$^{12~}$\\
+Simone Calderara$^{13~}$~
+German I. Parisi$^{14~}$~
+Fabio Cuzzolin$^{15~}$~
+Andreas Tolias$^{7~}$~
+Simone Scardapane$^{6~}$\\
+Luca Antiga$^{16~}$~
+Subutai Amhad$^{17~}$~
+Adrian Popescu$^{12~}$~
+Christopher Kanan$^{3~}$\\
+Joost van de Weijer$^{5~}$~
+Tinne Tuytelaars$^{4~}$~
+Davide Bacciu$^{1~}$~
+Davide Maltoni$^{2~}$\vspace{0.1cm}\\
+  {\normalsize
+  $^1$University of Pisa \quad
+  $^2$University of Bologna \quad
+  $^3$Rochester Institute of Technology}\\
+  {\normalsize
+  $^4$KU Leuven \quad
+  $^5$Universitat Autònoma de Barcelona \quad
+  $^6$Sapienza University of Rome}\\
+  {\normalsize
+  $^7$Baylor College of Medicine \quad
+  $^8$Goethe University \quad
+  $^9$ByteDance AI Lab}\\
+  {\normalsize
+  $^{10}$University of California \quad
+  $^{11}$New York University \quad
+  $^{12}$Université Paris-Saclay}\\
+  {\normalsize
+  $^{13}$University of Modena and Reggio-Emilia \quad
+  $^{14}$University of Hamburg}\\
+  {\normalsize
+  $^{15}$Oxford Brookes University\quad
+  $^{16}$Orobix\quad
+  $^{17}$Numenta\quad
+  $^{18}$Scuola Normale Superiore\vspace{0.1cm}}\\
+  {\url{https://avalanche.continualai.org}}
+}
+
+\maketitle
+
+%%%%%%%%% ABSTRACT
+\begin{abstract}
+    
+Learning continually from non-stationary data streams is a long-standing goal and a challenging problem in machine learning. Recently, we have witnessed a renewed and fast-growing interest in continual learning, especially within the deep learning community. However, algorithmic solutions are often difficult to re-implement, evaluate and port across different settings, where even results on standard benchmarks are hard to reproduce. In this work, we propose Avalanche, an open-source end-to-end library for continual learning research based on PyTorch. Avalanche is designed to provide a shared and collaborative codebase for fast prototyping, training, and reproducible evaluation of continual learning algorithms.
+    
+\end{abstract}
+
+%%%%%%%%% BODY TEXT
+\section{Introduction}
+\emph{Continual Learning} (CL), also referred to as \emph{Lifelong} or \emph{Incremental Learning}, is a challenging research problem~\cite{chen2018}. Lately, it has become the object of fast-growing interest from the research community, especially thanks to recent investigations leveraging gradient-based deep architectures~\cite{hadsell2020, parisi2019}. In the last few years, machine learning has witnessed a prolific, variegated, and original research production on the topic: from Computer Vision~\cite{delange2021continual, lomonaco2019, masana2020class} to Robotics~\cite{lesort2020, pellegrini2019latent, parisi2020online}, from Reinforcement Learning ~\cite{khetarpal2020towards, lomonaco2020} to Sequence Learning~\cite{cossu2021}, among others.
+
+\begin{figure}[t]
+\begin{center}
+  \includegraphics[width=\columnwidth]{img/avalanche}
+\end{center}
+  \caption{Operational representation of Avalanche with its main modules (top), the main object instances (middle) and the generated stream of data (bottom). A \emph{Benchmark} generates a stream of experiences $e_i$ which are sequentially accessible by the continual learning algorithm $A_{CL}$ with its internal model $M$. The \emph{Evaluator} object directly interacting with the algorithm provides a unified interface to control and compute several performance metrics ($p_i$), delegating results logging to the \emph{Logger(s)} objects.}
+\label{fig:avl}
+\end{figure}
+
+However, continual learning algorithms today are often designed and implemented from scratch with different assumptions, settings, and benchmarks that make them difficult to compare among each other or even port to slightly different contexts. A crucial factor for the consolidation of a fast-growing research topic in the machine learning domain is the availability of tools and libraries easing the implementation, assessment, and replication of models across different settings, while promoting the reproducibility of results from the literature~\cite{pineau2020improving}.
+
+In this work, we propose \emph{Avalanche}, an open-source (MIT licensed) end-to-end library for continual learning based on PyTorch~\cite{paszke2019pytorch}, devised to provide a shared and collaborative codebase for fast prototyping, training, and evaluation of continual learning algorithms.
+
+We designed Avalanche according to a set of fundamental design principles (Sec.~\ref{sec:principles}) which, we believe, can help researchers and practitioners in a number of ways: i) \emph{Write less code, prototype faster, and reduce errors}; ii) \emph{Improve reproducibility}; iii) \emph{Favor modularity and reusability}; iv) \emph{Increase code efficiency, scalability and portability}; v) \emph{
+%Increase research products 
+Foster impact and usability}.
+
+
+The contributions of this paper can be summarized as follows:
+
+\begin{enumerate}[noitemsep, nolistsep]
+    %\item We discuss a set of fundamental design principles on which Avalanche is based (Sec.~\ref{sec:principles}).
+    \item We propose a general continual learning framework that provides the conceptual foundation for Avalanche (Sec.~\ref{sec:framework}).
+    \item We discuss the general design of the library based on five main modules: \emph{Benchmarks}, \emph{Training}, \emph{Evaluation}, \emph{Models}, and \emph{Logging} (Sec.~\ref{sec:modules}).
+    \item We release the open-source, collaboratively maintained project at \url{https://github.com/ContinualAI/avalanche}, as the result of a collaboration involving over 15 organizations across Europe, United States, and China.
+\end{enumerate}
+
+Prior work related to this project is discussed in Section~\ref{sec:related}. Lastly, we discuss in Section~\ref{sec:conclusion} the importance that an \emph{all-in-one}, \emph{community-driven} library may have for the future of continual learning and its possible extensions.
+
+\section{Design Principles}
+\label{sec:principles}
+
+Avalanche has been designed with five main principles in mind: i) \emph{Comprehensiveness and Consistency}; ii) \emph{Ease-of-Use}; iii) \emph{Reproducibility and Portability}; iv) \emph{Modularity and Independence}; v) \emph{Efficiency and Scalability}. These principals, we argue, are important for any continual learning project but become essential for tackling the most interesting research challenges and real-world applications.
+
+\paragraph{Comprehensiveness and consistency} The main design principle for Avalanche follows from the concept of \emph{comprehensiveness}, the idea of providing %a comprehensive 
+an exhaustive
+and unifying library with \emph{end-to-end} support for continual learning research and development. A comprehensive codebase does not only provide a unique and clear access point to researchers and practitioners working on the topic, but also favors \emph{consistency} across the library,  with a coherent and easy interaction across modules and sub-modules. Last but not least, it promotes the consolidation of a large community able to provide better support for the library.
+
+\paragraph{Ease-of-Use} The second principle is the focus on \emph{simplicity}: simple solutions to complex problems and a simple usage of the library. We concentrate our efforts on the design of an intuitive Application Programming Interface (API), an official website, and rich documentation with a curated list of executable notebooks and examples\footnote{The official website, documentation, notebooks, and examples are available at \url{https://avalanche.continualai.org}.}.
+
+\paragraph{Reproducibility and Portability} Reproducing research paper results is a difficult but much needed task in machine learning~\cite{hutson2018artificial}. The problem is exacerbated in continual learning. A critical design objective of Avalanche is to allow experimental results to be seamlessly reproduced. This allows researchers to simply integrate their own original research into the shared codebase and compare their solution with the existing literature, forming a virtuous circle. Hence, reproducibility is not only a core objective of sound and consistent scientific research, but also a means to speed up the development of original continual learning solutions.
+
+\paragraph{Modularity and Independence} \emph{Modularity} is another fundamental design principle. In Avalanche, simplicity is sometimes bent in favor of modularity and reusability. This is essential for scalability and to collaboratively bring the codebase to maturity. A particular focus on module \emph{independence} is maintained to guarantee the stand-alone usability of individual module functionalities and facilitates learning of a particular tool.
+
+\paragraph{Efficiency and Scalability} Computational and memory requirements in machine learning have grown significantly throughout the last two decades~\cite{thompson2020computational}. Standard deep learning libraries such as TensorFlow~\cite{tensorflow2015-whitepaper} or PyTorch~\cite{paszke2019pytorch} already focus on \emph{efficiency} and \emph{scalability} as two fundamental designing principles, since modern research experiments can take months to complete~\cite{schwartz2019green}. Avalanche is based on the same principles: offering the end-user a seamless and transparent experience regardless of the use-case or the hardware platform that the library is run on.
+
+\section{Continual Learning Framework}
+\label{sec:framework}
+
+Recently, we have witnessed a significant attempt to formalize a general framework for continual learning algorithms~\cite{lomonaco2019, lomonaco2020, vandeven2018a}. These proposals often categorize scenarios and algorithms based on their unique properties and specific settings. However, as outlined in this paper, within the formal design of Avalanche, we take a different approach. 
+
+Given the fast-evolving, often conflicting views of the problem, we aim to lower the number of assumptions to a minimum, favoring simplicity and flexibility. In practice, this translates into providing users with a set of building blocks that can be used in any continual learning solution without imposing any strong nomenclature, constraining abstractions, or assumptions.
+
+In Avalanche, data is modeled as an ordered sequence (or stream) composed of $n$, usually \emph{non-iid}, learning \emph{experiences}: 
+
+\begin{equation*}
+    e_0, e_1, \dots, e_n.
+\end{equation*}
+A learning experience is a set composed of one or multiple samples which can be used to update the model. This is often referred to in the literature as \emph{batch} or \emph{task}. 
+This formulation is general enough to be used in several continual learning contexts, such as supervised, reinforcement, or unsupervised continual learning. Avalanche provides a general set of abstractions that do not impose any particular constraints on the content of the experiences. For example, in a supervised training regime, each learning experience $e_i$ can be seen as a set of triplets $\langle x_i, y_i, t_i \rangle$, where $x_i$ and $y_i$ represent an input and its corresponding target, respectively, while $t_i$ is the \emph{task label}, which may or may not be available. 
+
+During training, a \emph{continual learning algorithm} $A_{CL}$ processes experiences sequentially and uses them to update the model and its internal state. In Avalanche, each algorithm has a training mode, used to update the model, and an evaluation mode, which may be used to process streams of experiences for testing purposes.
+
+The continual learning framework we propose can be formalized as follows. 
+
+\begin{definition}[Continual Learning Framework]
+A continual Learning algorithm $A_{CL}$ is expected to update its internal state (e.g. its internal model $M$ or other data structures) based on the sequential
+exposure to a non-stationary stream of experiences ($e_1, \dots, e_n$). The objective of $A_{CL}$ is to improve its performance on a set of metrics ($p_1,\dots,p_m$) as assessed on a test stream of experiences ($e_1^{t}, \dots, e_n^t$). 
+\end{definition}
+
+\section{Main Modules}
+\label{sec:modules}
+
+The library is organized into five main modules: \textbf{Benchmarks} (Sec. \ref{sec:benchmarks}), \textbf{Training} (Sec. \ref{sec:training}), \textbf{Evaluation} (Sec. \ref{sec:eval}), \textbf{Models} (Sec. \ref{sec:models}), and \textbf{Logging} (Sec. \ref{sec:logging}). % FAB: previously you used Capital initials, now lowercase - please be consistent
+Table~\ref{tab:features} summarizes the features provided by Avalanche at the current stage of development. In Fig.~\ref{fig:avl}, an operational representation of the library modules and their interplay within the aforementioned reference framework is shown.
+
+% \paragraph{Benchmarks} The benchmarks module maintains a uniform API for data handling: It is mostly about generating the stream of experiences from one or multiple datasets. It contains all the major continual learning benchmarks (similar to what has been done for \texttt{torchvision}~\cite{marcel2010torchvision}).
+
+% \paragraph{Training} The training module provides utilities for the $A_{CL}$ algorithm implementation and training. This includes simple and efficient ways of creating new continual learning strategies as well as providing a set of pre-implemented CL baselines and state-of-the-art algorithms ready to be used.
+
+% \paragraph{Evaluation} The evaluation module provides utilities, metrics and basic building blocks that can provide support in the evaluation of a continual learning algorithm with respect to multiple factors and at different granularity.
+
+% \paragraph{Logging} This module includes advanced logging, plotting and dashboard features, including native \texttt{stdout}, \texttt{file} and \texttt{TensorBoard} support. This is particularly important for enabling a seamless debugging and monitoring experience.
+
+% \paragraph{Models} This module makes several architectures and pre-trained models available that can be used as a starting point for any $A_{CL}$ algorithm, similar to what has been done in \texttt{torchvision.models}.
+
+
+\begin{table*}[t]
+    \renewcommand{\arraystretch}{0.9}
+    \centering
+    \begin{tabularx}{\textwidth}{c|X}
+    \toprule
+    & \multicolumn{1}{c}{\textbf{Supported features}}  \\
+    \midrule
+    \textbf{Benchmarks} & Split/Permuted/Rotated MNIST~\cite{lopez-paz2017}, Split Fashion Mnist~\cite{farquhar2018}, Split Cifar10/100/110~\cite{rebuffi2017,maltoni2019}, Split CUB200, Split ImageNet~\cite{rebuffi2017}, Split TinyImageNet~\cite{delange2021continual}, Split/Permuted/Rotated Omniglot~\cite{schwarz2018}, CORe50~\cite{lomonaco2017}, OpenLORIS~\cite{she2019}, Stream51~\cite{roady2020stream}.\\
+    \textbf{Scenarios} & Multi Task~\cite{lesort2020}, Single Incremental Task~\cite{lesort2020}, Multi Incremental Task~\cite{lesort2020}, Class incremental~\cite{rebuffi2017icarl,vandeven2018a}, Domain Incremental~\cite{vandeven2018a}, Task Incremental~\cite{vandeven2018a}, Task-agnostic, Online, New Instances, New Classes, New Instances and Classes.  \\
+    \textbf{Strategies} & Naive (Finetuning), CWR*~\cite{lomonaco2020a}, Replay, GDumb~\cite{prabhu2020}, Cumulative, LwF~\cite{li2016}, GEM~\cite{lopez-paz2017}, A-GEM~\cite{chaudhry2019}, EWC~\cite{kirkpatrick2017}, Synaptic Intelligence~\cite{zenke2017}, AR1~\cite{maltoni2019}, Joint Training. \\
+    \textbf{Metrics} & Accuracy, Loss (user specified), Confusion Matrix, Forgetting, CPU Usage, GPU usage, RAM usage, Disk Usage, Timing, Multiply, and Accumulate~\cite{jeangoudoux2018,diaz-rodriguez2018}. \\
+    \textbf{Loggers} & Text Logger, Interactive Logger, Tensorboard Logger~\cite{tensorflow2015-whitepaper}, Weights and Biases (W\&B) Logger~\cite{wandb} (in progress).\\
+   \bottomrule
+    \end{tabularx}
+    \caption{Avalanche supported features for the Alpha release (v0.0.1).}
+    \label{tab:features}
+\end{table*}
+
+\begin{figure}[t]
+  \includegraphics[width=\columnwidth]{img/avalanche_experiences_example.png}
+  \caption{Example of a generated stream in Avalanche, composed by five experiences, implementing the common SplitMNIST benchmark \cite{zenke2017}. When accessing experience $e_3$, the $A_{CL}$ algorithm has no access to previous or future experiences.} % FAB: are you not in this way ruling out memory replay?
+\label{fig:exps_example}
+\end{figure}
+
+\subsection{Benchmarks}
+\label{sec:benchmarks}
+
+Continual learning revolves around the idea of dealing with a non-stationary stream of experiences. An example stream from the standard SplitMNIST benchmark \cite{zenke2017} composed of five experiences is shown in  Fig.~\ref{fig:exps_example}. A target system powered by a continual learning strategy is required to learn from experiences (e.g., by considering additional classes in a class-incremental setting \cite{masana2020class}) in order to improve its performance or expand its set of capabilities.
+This means that the component in charge of generating the data stream is usually the first building block of a continual learning experiment. It is no surprise that a considerable amount of time is spent defining and implementing the data loading module.
+The benchmarks module % Capital or not?
+offers a powerful set of tools one can leverage to greatly simplify this process.
+
+The term \emph{benchmark} is used in Avalanche to describe a recipe that specifies how the stream of data is created by defining the originating dataset(s), the contents of the stream, the amount of examples, task labels and boundaries~\cite{aljundi2019d}, etc. When defining such elements, some degree of freedom is retained to allow obtaining different \emph{benchmark instances}. For example, different instantiations of the SplitMNIST benchmark \cite{zenke2017} can be obtained by setting different class assignments. Alternatively, distinct instances of the PermutedMNIST~\cite{goodfellow2013empirical} benchmark can be obtained by choosing different pixel permutations.
+
+The \emph{benchmarks} module is designed with the idea of providing an extensive set of out-of-the-box loaders covering the most common benchmarks (i.e. SplitCIFAR~\cite{rebuffi2017}, PermutedMNIST~\cite{goodfellow2013empirical}, etc.) through the \emph{classic} submodule. A simple example illustrating how to use the “SplitMNIST” benchmark \cite{zenke2017} is shown in Fig.~\ref{code:classic-benchmarks}.
+Moreover, a wide range of tools are available that enables the creation of customized benchmarks. The goal is to provide full support to researchers implementing benchmarks that do not easily fit into the existing categories.
+
+Most out-of-the-box benchmarks are based on the dataset implementation provided by the \codeinline{torchvision} library. A proper implementation is provided for other datasets (such as CORe50~\cite{lomonaco2017}, Stream-51~\cite{roady2020stream}, and OpenLORIS~\cite{she2019}). The benchmark preparation and data loading process can seamlessly handle memory-intensive benchmarks, such as Split-ImageNet~\cite{rebuffi2017}, without the need to load the whole dataset into memory in advance.
+
+Further, the benchmarks module is entirely standalone, meaning that it can be used independently from the rest of Avalanche.
+
+\paragraph{Benchmarks creation}
+
+The benchmarks module exposes a uniform API that makes it easy to define a new continual learning benchmark.
+
+\begin{figure}
+\begin{tcolorbox}[title={Classic Benchmarks}, colback=mygray]
+\inputminted{python}{scenario_creation.py}
+\end{tcolorbox}
+\caption{Simple instantiation of a \emph{Classic} continual learning benchmark.}
+\label{code:classic-benchmarks}
+\end{figure}
+
+The \emph{classic} package hosts an ever-growing set of common benchmarks and is expected to cover the usage requirements of the vast majority of researchers. However, there are situations in which implementing a novel benchmark is required. Avalanche offers a flexible API that can be used to easily handle this situation.
+
+Starting from the higher-level API, Avalanche offers explicit support for creating benchmarks that fit one of the ready-to-use scenarios. The concept of \emph{scenario} is slightly different from that of `benchmark' as it describes a more general recipe independent of a specific dataset.
+If the benchmark to be implemented fits either in the \textit{New Instances} or \textit{New Classes} scenarios \cite{maltoni2019}, one can consider using one of the specific generators \codeinline{nc\_scenario} or \codeinline{ni\_scenario}. Both generators take a pair of train and test datasets and produce a benchmark instance. The New Classes generator splits all the available classes in a number of subsets equal to the required number of experiences. Patterns are then allocated to each experience by assigning all patterns of the selected classes. This means that the New Classes generator can be used as a basis to set up Task or Class-incremental learning benchmarks~\cite{vandeven2018a}. The New Instances generator splits the original training set by creating experiences containing an equal amount of patterns using a random allocation schema. The main intended usage for this generator is to help in setting up Domain-Incremental learning benchmarks~\cite{vandeven2018a}. Most classic benchmarks are based on these generators. Fig.~\ref{code:generators} shows a simple example of using \codeinline{nc\_scenario}.
+
+
+\begin{figure}[ht]
+\begin{tcolorbox}[title={Benchmarks Generators}, colback=mygray]
+\inputminted{python}{nc_scenario.py}
+\end{tcolorbox}
+\caption{Example of the \emph{"New Classes"} benchmark generator on the MNIST dataset.}
+\label{code:generators}
+\end{figure}
+
+If the benchmark does not fit into a predefined scenario, a \textit{generic generator} can be used. At the moment, Avalanche allows users to create benchmark instances from lists of files, Caffe-style filelists~\cite{jia2014caffe}, lists of PyTorch datasets, or even directly from Tensors. We expect that the number of generic generators will rapidly grow in order to cover the most common use cases and allow for maximum flexibility.
+
+\paragraph{Streams and Experiences}
+
+Not all continual learning benchmarks limit themselves to describing %provide the description of 
+a single stream of data. Many %benchmarks in the  setting 
+contemplate an out-of-distribution stream, a validation stream and possibly several other arbitrary streams, each linked to a different semantic. For instance, \cite{chaudhry2019} proposes a benchmark where a separate stream of data is used for cross-validation, while %the benchmark described in 
+\cite{roady2020stream} defines an out-of-distribution stream used to evaluate the novelty detection capabilities of the model.
+
+%Because of these observations, 
+Motivated by this remark,
+we decided to model benchmark instances as a composition of streams of experiences. This choice has two positive effects on the resulting API. Firstly, the way streams and experiences can be accessed is shared across all benchmark instances. Secondly, this modeling of benchmark instances does not force any preconceived schema upon researchers. Avalanche leaves the semantic aspects regarding the definition and usage of each stream to the creator of the benchmark.
+
+A simple example showing the versatility of this design choice concerns the test stream: in order to allow for a proper evaluation of a continual learning strategy, benchmarks do not only need to describe the stream of training experiences but also need to 
+%give a proper description of 
+properly describe a testing protocol. Such protocol is, in turn, based on one or more test datasets on which appropriate metrics can be computed. % FAB: I wonder if this fits our new semi-supervised setting in which training and testing happen on the same data stream (training on pseudolabels, and testing on actual labels)?
+%For many benchmarks, the idea of having multiple sequential test subsets may follow the same idea shown for the training stream.
+In many cases, the test data may need to be structured into a sequence of `test experiences', analogously to what happens with the training data stream.
+% FAB: I reformulated this for it sounded bad
+For instance, in Class-Incremental learning % FAB: can we come up with a synonym for benchmark to avoid all these repetitions?
+the test set may be split into different experiences each containing only test patterns % FAB: I would propose to use "instances" instead of "patterns" throughout; also, we never formally define them
+related to classes %encountered 
+in the corresponding training experience.
+
+% The idea of forcing the creator of a benchmark to expose a single test set was taken into consideration during the design process. That idea was quickly discarded because such constraint would not have allowed for the required degree of flexibility with the inevitable result of forcing researchers to create workarounds to obtain the desired behavior and thus making Avalanche much less useful.
+
+Avalanche currently supports two different streams: \textit{train} and \textit{test}, while the support for arbitrary streams (for instance, out-of-distribution stream) will be implemented in the near future.
+
+Each experience can be obtained by iterating over one of the available streams. Fig.~\ref{code:train-loop} shows how, starting from a benchmark instance, streams can be retrieved and used. Each experience carries a PyTorch dataset, task label(s) and other useful benchmark-specific information that can be used for introspection. An experience also carries a numerical identifier that defines its position in the originating stream. In fact, experiences in a stream can be also accessed by index. This functionality makes it easy to couple related experiences from different streams.
+
+\begin{figure}[ht]
+\begin{tcolorbox}[title={Main Training Loop}, colback=mygray]
+\inputminted{python}{scenario_loop.py}
+\end{tcolorbox}
+\caption{Example of the main training loop over the stream of experiences.}
+\label{code:train-loop}
+\end{figure}
+
+\paragraph{Task Labels and Nomenclature}
+
+Every mechanism, internal aspect, name of function and class in the benchmarks module were designed with the intent of keeping Avalanche as neutral as possible with respect to the presence of task labels. Task boundaries, task descriptors and task labels are widely used in the continual learning literature to define both semantic and practical aspects of a benchmark. However, the meaning of those concepts is usually blurred with the definition of the specific benchmark to which they are applied to, making it hard to clearly pin-point a generic way to manage them.
+% FAB: when we make this sort of arguments, I feel it would be very useful to make a little concrete example for an actual paper
+
+Based on this observation, and due to the fact that the usage of task-specific information may become more extravagant or sophisticated in the future, we decided that Avalanche should not force any kind of convention. This means that the choice of whether to use task labels and how to use them is left to the user.
+
+Following this idea, the \codeinline{GenericCLScenario} class, which is the common class for all scenarios instances, allows researchers to assign task labels at pattern granularity, thus allowing for experiences with zero or more task labels. We deemed this the most natural choice for Avalanche: we believe that a continual learning library should not constrain researchers by superimposing a certain view of the field upon them. % FAB: completely agree
+Instead, the idea of enabling the user to create complex setups in a simple way, without forcing a subjective interpretation, will probably prove to be more robust as the field continues to evolve.
+
+\subsection{Training}
+\label{sec:training}
+
+The \codeinline{training} module implements both popular continual learning strategies and a set of abstractions that make it easy for a user to implement custom continual learning algorithms. Each strategy in Avalanche implements a method for training (\codeinline{train}) and a method for evaluation (\codeinline{eval}), which can work either on single experiences or on entire slices % FAB: bit informal
+of the data stream. Currently, Avalanche provides $11$ continual learning strategies (with many more to come), that can be used to train baselines in a few lines of code, as shown in Fig.~\ref{code:strategies}. See Table~\ref{tab:features} for a complete list of the available strategies.
+
+\begin{figure}[ht]
+\begin{tcolorbox}[title={Training Strategies}, colback=mygray]
+\inputminted{python}{training_instance.py} 
+\end{tcolorbox}
+\caption{Simple instantiation of an already available strategy in Avalanche.}
+\label{code:strategies}
+\end{figure}
+
+\paragraph{Training/Eval Loops} In Avalanche, continual learning strategies subclass \codeinline{BaseStrategy}, which provides generic training and evaluation loops. % FAB: verb is missing here!
+These can be extended and adapted by each strategy. For example, \codeinline{JointTraining} implements offline training by concatenating the entire data stream in a single dataset and training only once. The pseudo-code in Fig.~\ref{code:train-structure} shows part of the \texttt{BaseStrategy.train} loop (\texttt{eval} has a similar structure).
+
+\begin{figure}[ht]
+\begin{tcolorbox}[title={Training Structure}, colback=mygray]
+\inputminted{python}{pseudo_train.py} 
+\end{tcolorbox}
+\caption{Main training structure, the skeleton of the \texttt{BaseStrategy} class.}
+\label{code:train-structure}
+\end{figure}
+
+Under the hood, \codeinline{BaseStrategy} deals with most of the boilerplate code. % FAB: boilerplate?
+The generic loops are able to seamlessly handle common continual learning scenarios, independently of differences such as the presence or absence of task labels.
+
+\paragraph{Plugin System} \codeinline{BaseStrategy} provides a simple callback mechanism. This is used by strategies, metrics, and loggers to interact with the training loop and execute their code at the correct points using a simple interface and provides an easy interface to implement new strategies by adding custom code to the generic loops. \codeinline{BaseStrategy} provides the global state (current mini-batch, logits, loss, ...) to suitable plugins so that they can access all the information they need. In practice, most strategies in Avalanche are implemented via plugins. This approach has several advantages compared to a custom training loop. Firstly, the readability of the code is enhanced since most strategies only need to specify a few methods. Secondly, this allows for multiple strategies to be combined together. For example, we can define a hybrid strategy that uses Elastic Weight Consolidation (EWC)~\cite{kirkpatrick2017} and replay using the snippet of code shown in Fig.~\ref{code:hybrid-strategies}. % FAB: I like this kind of examples, I think we should have more
+
+\begin{figure}[ht]
+\begin{tcolorbox}[title={Hybrid Strategies}, colback=mygray]
+\inputminted{python}{training_hybrid.py}
+\end{tcolorbox}
+\caption{Example of an on-the-fly instantiation of hybrid strategies through Plugins.}
+\label{code:hybrid-strategies}
+\end{figure}
+
+\subsection{Evaluation} \label{sec:eval}
+
+The performance of a CL algorithm should be assessed by monitoring multiple aspects of the computation~\cite{lesort2020}. The \codeinline{evaluation} module offers a wide set of metrics to evaluate experiments.\\
+Avalanche's design principle is to separate the issues of \textit{what to monitor} and \textit{how to monitor} it: the \codeinline{evaluation} module provides support for the former through the metrics, while the \codeinline{logging} module fulfills the latter (Section~\ref{sec:logging}). Metrics do not specify in which format their output should be displayed, while loggers do not alter metrics logic. Metrics can work even without a logger: the strategy's \emph{train} and \emph{eval} methods return a dictionary with all the metrics logged during the experiment. 
+
+Few lines of code are sufficient to monitor a vast set of metrics: \textit{accuracy}, \textit{loss}, \textit{catastrophic forgetting}, \textit{confusion matrix}, \textit{timing}, \textit{ram/disk/CPU/GPU usage} and Multiply and Accumulate~\cite{jeangoudoux2018} (which measures the computational cost of the model's forward pass in terms of floating point operations).
+Each metric comes with a standalone class and a set of plugin classes aimed at emitting metric values on specific moments during training and evaluation.
+
+\paragraph{Stand-alone Metrics}
+Stand-alone metrics are meant to be used independently of all Avalanche functionalities. Each metric can be instantiated as a simple Python object.  The metric will keep an internal state to store metric values. The state can be reset, updated or returned to the user by calling the related \codeinline{reset}, \codeinline{update} and \codeinline{result} methods, respectively.
+
+\paragraph{Plugin Metrics}
+Plugin metrics are meant to be easily integrated into the Avalanche training and evaluation loops. Plugin metrics emit a curve composed by multiple values at different points in time. Usually, plugin metrics emit values after each training iteration, training epoch, evaluation experience or at the end of the entire evaluation stream. For example, \codeinline{EpochAccuracy} reports the accuracy over all training epochs, while \codeinline{ExperienceLoss} produces as many curves as the number of experiences. Each curve monitors the evaluation accuracy of an experience at the end of each training loop. \\ 
+Avalanche recommends the use of already implemented helper functions to simplify the creation of each plugin metric. The output of these functions can be passed as parameters directly to the \codeinline{EvaluationPlugin}.
+
+\paragraph{Evaluation Plugin}
+\codeinline{EvaluationPlugin} is the component responsible for the orchestration of both plugin metrics and loggers. Its role is to gather metrics outputs and forward them to the loggers during training and evaluation loops. All the user has to do to keep track of an experiment is to provide the strategy object with an instance of the \codeinline{EvaluationPlugin} with the target metrics and loggers as parameters. Fig.~\ref{code:eval-plugin} shows how to use the evaluation plugin and metric helper functions. \\ 
+
+Avalanche's effort to monitor different facets of performance aims at enabling a wider experimental assessment, which is too often focused only on the forgetting of previous knowledge~\cite{diaz-rodriguez2018}.
+
+\begin{figure}[ht]
+\begin{tcolorbox}[title={Evaluation Plugin}, colback=mygray]
+\inputminted{python}{eval_plugin.py} 
+\end{tcolorbox}
+\caption{Avalanche evaluation plugin (or \emph{evaluator}) object instantiation example.}
+\label{code:eval-plugin}
+\end{figure}
+
+\subsection{Logging} \label{sec:logging}
+Nowadays, logging facilities are fundamental to monitor in real time the behavior of an ongoing experiment (which may last from minutes to days). \\
+The Avalanche \codeinline{logging} module is in charge of displaying to the user the result of each plugin metric during the different experiment phases. Avalanche provides three different loggers: \codeinline{TextLogger}, \codeinline{InteractiveLogger} and \codeinline{TensorboardLogger} \cite{tensorflow2015-whitepaper}. They provide reports on textual file, standard output and Tensorboard, respectively. As soon as a metric emits a value, the Text Logger prints the complete metric name followed by its value in the destination file. See Fig.~\ref{fig:tensorboard} for an example of Tensorboard output. The \texttt{InteractiveLogger} reports the same output as \texttt{TextLogger}, but it also uses the \emph{tqdm} package\footnote{\url{https://tqdm.github.io}} % FAB: I recommend using the \url package for links throughout the paper
+to display a progress bar during training and evaluation. \texttt{TensorboardLogger} is able to show images and more complex outputs, which cannot be appropriately printed on standard output or textual file. We are also working on the integration of the Weights and Biases logger~\cite{wandb}, which should be released soon.\\
+Integrating loggers into both training and evaluation loops is straightforward. Once created, loggers have to be passed to the \texttt{EvaluationPlugin}, which will be in charge of redirecting metrics outputs to each logger during the experiment. See Fig.~\ref{code:eval-plugin} for an example of loggers creation.
+
+Users can easily design their own loggers by extending the class \texttt{StrategyLogger}, which provides the necessary interface to interact with the \texttt{EvaluationPlugin}.
+
+% \begin{figure}[ht]
+% \begin{tcolorbox}[title={Text Logger}, colback=mygray]
+% \inputminted{Text}{textlogger.txt}
+% \label{lst:textlogger}
+% \end{tcolorbox}
+% \caption{Text logger output example.}
+% \label{code:text-logger}
+% \end{figure}
+
+
+\begin{figure}[t]
+    \centering
+    \begin{subfigure}[t]{0.22\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{img/Top1_Acc_Epoch.png}
+        \caption{Accuracy over epochs during training}
+    \end{subfigure}
+    \begin{subfigure}[t]{0.22\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{img/Loss_Epoch.png}
+        \caption{Loss over epochs during training}
+    \end{subfigure}
+    \begin{subfigure}[t]{0.22\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{img/Top1_Acc_Exp_eval_phase.png}
+        \caption{Accuracy over first experience across $5$ training experiences}
+    \end{subfigure}
+    \begin{subfigure}[t]{0.2\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{img/confusion_matrix.png}
+        \caption{Confusion Matrix}
+    \end{subfigure}
+    \centering
+    \caption{\codeinline{Tensorboard Logger} output examples.}
+    \label{fig:tensorboard}
+\end{figure}
+
+\subsection{Models}
+\label{sec:models}
+
+The Avalanche \codeinline{models} module offers a set of simple machine learning architectures ready to be used in experiments. In particular, the module contains versions of feedforward and convolutional neural networks and a pre-trained version of MobileNet (v1)~\cite{howard2017}. The main purpose of these models is to let the user focus on Avalanche features, rather than on writing lines of code to build a specific architecture. We plan to extend our model support with more advanced architectures, also tailored to specific CL applications. 
+
+\section{Related Works}
+\label{sec:related}
+
+Reproducibility is one of the main principles upon which Avalanche is based. Experiments in the continual learning field are often challenging to reproduce, due to the different implementations of protocols, benchmarks and strategies by different authors. This issue of insufficient reproducibility is not limited to continual learning. The whole artificial intelligence community is affected; a number of authors have recently discussed some possible solutions to the problem~\cite{dToolAI-rep, Pineau2020ImprovingRI, a_step_towards_repro}.
+
+The advent of machine (and deep) learning libraries, mainly TensorFlow \cite{tensorflow2015-whitepaper} and PyTorch \cite{paszke2019pytorch} has partially mitigated the reproducibility problem.
+Using these libraries assures a standard implementation of many machine learning building blocks, reducing ambiguities due to bespoke and different implementations of basic concepts. 
+
+In recent times, the continual learning community has put a lot of effort into addressing these problems, by providing code and libraries aimed to increase the reproducibility of continual learning experiments \cite{delange2021continual, cl_benchmarks, masana2020class, pmlr-v80-serra18a-hat, vandeven2018generative, vandeven2018a}. On the one hand, these first attempts lack the generality and the consistency of Avalanche, especially regarding the creation of different and complex benchmarks, and the continual support of a large community. On the other hand, they demonstrate, however, the growing interest of the entire community towards these issues.
+
+Another area other than continual learning which has recently seen a proliferation of libraries and tools similar in spirit to Avalanche is reinforcement learning (RL). One of the most popular such benchmark RL libraries is OpenAI Gym~\cite{openAI-gym}, within which a multitude of different RL environments is available. A similar library is ViZDoom~\cite{wydmuch2018vizdoom}, in which an agent plays the famous computer game \emph{Doom}. Other relevant projects in the field of reinforcement learning are Dopamine~\cite{castro18dopamine}, which focuses on simplicity and easy prototyping, and project Malmo~\cite{malmo}, which is based on the famous Minecraft game. 
+
+Many of these libraries, however, only focus on the agent's interaction with the environment (which, in the continual learning domain, can be translated into the definition of benchmarks and scenarios), providing none or just a few base strategies or baselines. In the reinforcement learning field, this problem is addressed by other libraries that include standard implementations of baselines algorithms, such as OpenAI baselines~\cite{openAI-baselines} and stable baselines \cite{stable-baselines}. 
+
+Another prominent example of a collection of baseline training strategies and pretrained models is the natural language processing transformers library by Hugging Face~\cite{hugginface}. Many basic concepts upon which Avalanche is based (e.g. plugins, loggers, benchmarks) can also be found in more general machine learning libraries such as PyTorch Lighting~\cite{falcon2019pytorch} and fastai~\cite{howard2020fastai}. Indeed, Avalanche is based on the same comprehensiveness and consistency principle, hence not only benchmarks but also strategies and metrics are included. This promotes consistency across the different parts of the library and simplifies the interaction between different modules. Moreover, Avalanche could be integrated with the mentioned deep learning libraries, thanks to the similarity regarding design principles and code structure. 
+
+Another important problem in research is the bookkeeping of experiments. Having a tool that keeps track of any single run (hyper-parameters, model used, algorithm used, variants, inputs to the model, etc.) is crucial for reproducibility, especially when strategies such as grid search are applied.
+As discussed in Sec. \ref{sec:logging}, Avalanche already implements a fine-grained and punctual logging, which allows to visualize and save the results of different experiments. Moreover, Avalanche could be easily integrated with standalone libraries specifically developed for experiments bookkeeping and visualization, such as Sacred~\cite{sacred} or Weights and Biases (wandb) \cite{wandb}.
+
+\section{Conclusion and Future Work}
+\label{sec:conclusion}
+
+In the last decade, we have witnessed a significant effort towards making research in machine learning more transparent, reproducible and open-access. However, although research papers are increasingly accompanied by publicly hosted codebases, it is often difficult to run and integrate such software into environments which are typically different from the one within which it was originally designed. This not only hampers reproducibility but also inhibits scalability, for each research paper ends up creating its own implementation almost from scratch.
+
+Avalanche aims to provide a coherent, end-to-end, easily extendable library for continual learning research and development; a solid reference point and shared resource for researchers and practitioners working on continual learning and related areas.
+
+As reported in Table~\ref{tab:features}, the current Avalanche \texttt{Alpha} version focuses on continual supervised learning for vision tasks, as a significant amount of deep learning research in this area was designed and assessed in this context \cite{hadsell2020}. However, being Avalanche a \emph{community-driven} effort, we plan in both the near and medium terms to support the integration of additional learning paradigms (e.g. Reinforcement or Unsupervised Learning), tasks type (e.g. Detection, Segmentation) and application contexts (e.g. Natural Language Processing, Speech Recognition), depending on the research community demands and priorities.
+
+We hope that this library, as a powerful avalanche, may trigger a positive reinforcement loop within our community, nudging it to shift towards a more collaborative and inclusive research environment and helping all of us tackle together the grand research challenges presented by a frontier topic such as continual learning.
+
+% \subsection{Language}
+
+% All manuscripts must be in English.
+
+% \subsection{Dual submission}
+
+% Please refer to the author guidelines on the \confYear~web page for a
+% discussion of the policy on dual submissions.
+
+% \subsection{Paper length}
+% Papers, excluding the references section,
+% must be no longer than eight pages in length. The references section
+% will not be included in the page count, and there is no limit on the
+% length of the references section. For example, a paper of eight pages
+% with two pages of references would have a total length of 10 pages.
+% {\bf There will be no extra page charges for \confYear.}
+
+% Overlength papers will simply not be reviewed.  This includes papers
+% where the margins and formatting are deemed to have been significantly
+% altered from those laid down by this style guide.  Note that this
+% \LaTeX\ guide already sets figure captions and references in a smaller font.
+% The reason such papers will not be reviewed is that there is no provision for
+% supervised revisions of manuscripts.  The reviewing process cannot determine
+% the suitability of the paper for presentation in eight pages if it is
+% reviewed in eleven.  
+
+% %-------------------------------------------------------------------------
+% \subsection{The ruler}
+% The \LaTeX\ style defines a printed ruler which should be present in the
+% version submitted for review.  The ruler is provided in order that
+% reviewers may comment on particular lines in the paper without
+% circumlocution.  If you are preparing a document using a non-\LaTeX\
+% document preparation system, please arrange for an equivalent ruler to
+% appear on the final output pages.  The presence or absence of the ruler
+% should not change the appearance of any other content on the page.  The
+% camera ready copy should not contain a ruler. 
+% (\LaTeX\ users may use options of cvpr.cls to switch between different 
+% versions.)  
+% Reviewers:
+% note that the ruler measurements do not align well with lines in the paper
+% --- this turns out to be very difficult to do well when the paper contains
+% many figures and equations, and, when done, looks ugly.  Just use fractional
+% references (e.g.\ this line is $095.5$), although in most cases one would
+% expect that the approximate location will be adequate.
+
+% \subsection{Mathematics}
+
+% Please number all of your sections and displayed equations.  It is
+% important for readers to be able to refer to any particular equation.  Just
+% because you didn't refer to it in the text doesn't mean some future reader
+% might not need to refer to it.  It is cumbersome to have to use
+% circumlocutions like ``the equation second from the top of page 3 column
+% 1''.  (Note that the ruler will not be present in the final copy, so is not
+% an alternative to equation numbers).  All authors will benefit from reading
+% Mermin's description of how to write mathematics:
+% \url{http://www.pamitc.org/documents/mermin.pdf}.
+
+
+% \subsection{Blind review}
+
+% Many authors misunderstand the concept of anonymizing for blind
+% review.  Blind review does not mean that one must remove
+% citations to one's own work---in fact it is often impossible to
+% review a paper unless the previous citations are known and
+% available.
+
+% Blind review means that you do not use the words ``my'' or ``our''
+% when citing previous work.  That is all.  (But see below for
+% techreports.)
+
+% Saying ``this builds on the work of Lucy Smith [1]'' does not say
+% that you are Lucy Smith; it says that you are building on her
+% work.  If you are Smith and Jones, do not say ``as we show in
+% [7]'', say ``as Smith and Jones show in [7]'' and at the end of the
+% paper, include reference 7 as you would any other cited work.
+
+% An example of a bad paper just asking to be rejected:
+% \begin{quote}
+% \begin{center}
+%     An analysis of the frobnicatable foo filter.
+% \end{center}
+
+%   In this paper we present a performance analysis of our
+%   previous paper [1], and show it to be inferior to all
+%   previously known methods.  Why the previous paper was
+%   accepted without this analysis is beyond me.
+
+%   [1] Removed for blind review
+% \end{quote}
+
+
+% An example of an acceptable paper:
+
+% \begin{quote}
+% \begin{center}
+%      An analysis of the frobnicatable foo filter.
+% \end{center}
+
+%   In this paper we present a performance analysis of the
+%   paper of Smith \etal [1], and show it to be inferior to
+%   all previously known methods.  Why the previous paper
+%   was accepted without this analysis is beyond me.
+
+%   [1] Smith, L and Jones, C. ``The frobnicatable foo
+%   filter, a fundamental contribution to human knowledge''.
+%   Nature 381(12), 1-213.
+% \end{quote}
+
+% If you are making a submission to another conference at the same time,
+% which covers similar or overlapping material, you may need to refer to that
+% submission in order to explain the differences, just as you would if you
+% had previously published related work.  In such cases, include the
+% anonymized parallel submission~\cite{Authors14} as additional material and
+% cite it as
+% \begin{quote}
+% [1] Authors. ``The frobnicatable foo filter'', F\\6G 2014 Submission ID 324,
+% Supplied as additional material {\tt fg324.pdf}.
+% \end{quote}
+
+% Finally, you may feel you need to tell the reader that more details can be
+% found elsewhere, and refer them to a technical report.  For conference
+% submissions, the paper must stand on its own, and not {\em require} the
+% reviewer to go to a techreport for further details.  Thus, you may say in
+% the body of the paper ``further details may be found
+% in~\cite{Authors14b}''.  Then submit the techreport as additional material.
+% Again, you may not assume the reviewers will read this material.
+
+% Sometimes your paper is about a problem which you tested using a tool which
+% is widely known to be restricted to a single institution.  For example,
+% let's say it's 1969, you have solved a key problem on the Apollo lander,
+% and you believe that the CVPR70 audience would like to hear about your
+% solution.  The work is a development of your celebrated 1968 paper entitled
+% ``Zero-g frobnication: How being the only people in the world with access to
+% the Apollo lander source code makes us a wow at parties'', by Zeus \etal.
+
+% You can handle this paper like any other.  Don't write ``We show how to
+% improve our previous work [Anonymous, 1968].  This time we tested the
+% algorithm on a lunar lander [name of lander removed for blind review]''.
+% That would be silly, and would immediately identify the authors. Instead
+% write the following:
+% \begin{quotation}
+% \noindent
+%   We describe a system for zero-g frobnication.  This
+%   system is new because it handles the following cases:
+%   A, B.  Previous systems [Zeus et al. 1968] didn't
+%   handle case B properly.  Ours handles it by including
+%   a foo term in the bar integral.
+
+%   ...
+
+%   The proposed system was integrated with the Apollo
+%   lunar lander, and went all the way to the moon, don't
+%   you know.  It displayed the following behaviours
+%   which show how well we solved cases A and B: ...
+% \end{quotation}
+% As you can see, the above text follows standard scientific convention,
+% reads better than the first version, and does not explicitly name you as
+% the authors.  A reviewer might think it likely that the new paper was
+% written by Zeus \etal, but cannot make any decision based on that guess.
+% He or she would have to be sure that no other authors could have been
+% contracted to solve problem B.
+% \medskip
+
+% \noindent
+% FAQ\medskip\\
+% {\bf Q:} Are acknowledgements OK?\\
+% {\bf A:} No.  Leave them for the final copy.\medskip\\
+% {\bf Q:} How do I cite my results reported in open challenges?
+% {\bf A:} To conform with the double blind review policy, you can report results of other challenge participants together with your results in your paper. For your results, however, you should not identify yourself and should not mention your participation in the challenge. Instead present your results referring to the method proposed in your paper and draw conclusions based on the experimental comparison to other results.\medskip\\
+
+% \begin{figure}[t]
+% \begin{center}
+% \fbox{\rule{0pt}{2in} \rule{0.9\linewidth}{0pt}}
+%   %\includegraphics[width=0.8\linewidth]{egfigure.eps}
+% \end{center}
+%   \caption{Example of caption.  It is set in Roman so that mathematics
+%   (always set in Roman: $B \sin A = A \sin B$) may be included without an
+%   ugly clash.}
+% \label{fig:long}
+% \label{fig:onecol}
+% \end{figure}
+
+% \subsection{Miscellaneous}
+
+% \noindent
+% Compare the following:\\
+% \begin{tabular}{ll}
+%  \verb'$conf_a$' \6  $conf_a$ \\
+%  \verb'$\mathit{conf}_a$' \6 $\mathit{conf}_a$
+% \end{tabular}\\
+% See The \TeX book, p165.
+
+% The space after \eg, meaning ``for example'', should not be a
+% sentence-ending space. So \eg is correct, {\em e.g.} is not.  The provided
+% \verb'\eg' macro takes care of this.
+
+% When citing a multi-author paper, you may save space by using ``et alia'',
+% shortened to ``\etal'' (not ``{\em et.\ al.}'' as ``{\em et}'' is a complete word.)
+% However, use it only when there are three or more authors.  Thus, the
+% following is correct: ``
+%   Frobnication has been trendy lately.
+%   It was introduced by Alpher~\cite{Alpher02}, and subsequently developed by
+%   Alpher and Fotheringham-Smythe~\cite{Alpher03}, and Alpher \etal~\cite{Alpher04}.''
+
+% This is incorrect: ``... subsequently developed by Alpher \etal~\cite{Alpher03} ...''
+% because reference~\cite{Alpher03} has just two authors.  If you use the
+% \verb'\etal' macro provided, then you need not worry about double periods
+% when used at the end of a sentence as in Alpher \etal.
+
+% For this citation style, keep multiple citations in numerical (not
+% chronological) order, so prefer \cite{Alpher03,Alpher02,Authors14} to
+% \cite{Alpher02,Alpher03,Authors14}.
+
+
+% \begin{figure*}
+% \begin{center}
+% \fbox{\rule{0pt}{2in} \rule{.9\linewidth}{0pt}}
+% \end{center}
+%   \caption{Example of a short caption, which should be centered.}
+% \label{fig:short}
+% \end{figure*}
+
+% %------------------------------------------------------------------------
+% \section{Formatting your paper}
+
+% All text must be in a two-column format. The total allowable width of the
+% text area is $6\frac78$ inches (17.5 cm) wide by $8\frac78$ inches (22.54
+% cm) high. Columns are to be $3\frac14$ inches (8.25 cm) wide, with a
+% $\frac{5}{16}$ inch (0.8 cm) space between them. The main title (on the
+% first page) should begin 1.0 inch (2.54 cm) from the top edge of the
+% page. The second and following pages should begin 1.0 inch (2.54 cm) from
+% the top edge. On all pages, the bottom margin should be 1-1/8 inches (2.86
+% cm) from the bottom edge of the page for $8.5 \times 11$-inch paper; for A4
+% paper, approximately 1-5/8 inches (4.13 cm) from the bottom edge of the
+% page.
+
+% %-------------------------------------------------------------------------
+% \subsection{Margins and page numbering}
+
+% All printed material, including text, illustrations, and charts, must be kept
+% within a print area 6-7/8 inches (17.5 cm) wide by 8-7/8 inches (22.54 cm)
+% high.
+% %
+% Page numbers should be in footer with page numbers, centered and .75
+% inches from the bottom of the page and make it start at the correct page
+% number rather than the 4321 in the example.  To do this fine the line (around
+% line 20)
+% \begin{verbatim}
+% \setcounter{page}{4321}
+% \end{verbatim}
+% where the number 4321 is your assigned starting page.
+
+
+
+% %-------------------------------------------------------------------------
+% \subsection{Type-style and fonts}
+
+% Wherever Times is specified, Times Roman may also be used. If neither is
+% available on your word processor, please use the font closest in
+% appearance to Times to which you have access.
+
+% MAIN TITLE. Center the title 1-3/8 inches (3.49 cm) from the top edge of
+% the first page. The title should be in Times 14-point, boldface type.
+% Capitalize the first letter of nouns, pronouns, verbs, adjectives, and
+% adverbs; do not capitalize articles, coordinate conjunctions, or
+% prepositions (unless the title begins with such a word). Leave two blank
+% lines after the title.
+
+% AUTHOR NAME(s) and AFFILIATION(s) are to be centered beneath the title
+% and printed in Times 12-point, non-boldface type. This information is to
+% be followed by two blank lines.
+
+% The ABSTRACT and MAIN TEXT are to be in a two-column format.
+
+% MAIN TEXT. Type main text in 10-point Times, single-spaced. Do NOT use
+% double-spacing. All paragraphs should be indented 1 pica (approx. 1/6
+% inch or 0.422 cm). Make sure your text is fully justified---that is,
+% flush left and flush right. Please do not place any additional blank
+% lines between paragraphs.
+
+% Figure and table captions should be 9-point Roman type as in
+% Figures~\ref{fig:onecol} and~\ref{fig:short}.  Short captions should be centred.
+
+% \noindent Callouts should be 9-point Helvetica, non-boldface type.
+% Initially capitalize only the first word of section titles and first-,
+% second-, and third-order headings.
+
+% FIRST-ORDER HEADINGS. (For example, {\large \bf 1. Introduction})
+% should be Times 12-point boldface, initially capitalized, flush left,
+% with one blank line before, and one blank line after.
+
+% SECOND-ORDER HEADINGS. (For example, { \bf 1.1. Database elements})
+% should be Times 11-point boldface, initially capitalized, flush left,
+% with one blank line before, and one after. If you require a third-order
+% heading (we discourage it), use 10-point Times, boldface, initially
+% capitalized, flush left, preceded by one blank line, followed by a period
+% and your text on the same line.
+
+% %-------------------------------------------------------------------------
+% \subsection{Footnotes}
+
+% Please use footnotes\footnote {This is what a footnote looks like.  It
+% often distracts the reader from the main flow of the argument.} sparingly.
+% Indeed, try to avoid footnotes altogether and include necessary peripheral
+% observations in
+% the text (within parentheses, if you prefer, as in this sentence).  If you
+% wish to use a footnote, place it at the bottom of the column on the page on
+% which it is referenced. Use Times 8-point type, single-spaced.
+
+
+% %-------------------------------------------------------------------------
+% \subsection{References}
+
+% List and number all bibliographical references in 9-point Times,
+% single-spaced, at the end of your paper. When referenced in the text,
+% enclose the citation number in square brackets, for
+% example~\cite{Authors14}.  Where appropriate, include the name(s) of
+% editors of referenced books.
+
+% \begin{table}
+% \begin{center}
+% \begin{tabular}{|l|c|}
+% \hline
+% Method \6 Frobnability \\
+% \hline\hline
+% Theirs \6 Frumpy \\
+% Yours \6 Frobbly \\
+% Ours \6 Makes one's heart Frob\\
+% \hline
+% \end{tabular}
+% \end{center}
+% \caption{Results.   Ours is better.}
+% \end{table}
+
+% %-------------------------------------------------------------------------
+% \subsection{Illustrations, graphs, and photographs}
+
+% All graphics should be centered.  Please ensure that any point you wish to
+% make is resolvable in a printed copy of the paper.  Resize fonts in figures
+% to match the font in the body text, and choose line widths which render
+% effectively in print.  Many readers (and reviewers), even of an electronic
+% copy, will choose to print your paper in order to read it.  You cannot
+% insist that they do otherwise, and therefore must not assume that they can
+% zoom in to see tiny details on a graphic.
+
+% When placing figures in \LaTeX, it's almost always best to use
+% \verb+\includegraphics+, and to specify the  figure width as a multiple of
+% the line width as in the example below
+% {\small\begin{verbatim}
+%   \usepackage[dvips]{graphicx} ...
+%   \includegraphics[width=0.8\linewidth]
+%                   {myfile.eps}
+% \end{verbatim}
+% }
+
+
+% %-------------------------------------------------------------------------
+% \subsection{Color}
+
+% Please refer to the author guidelines on the \confYear~web page for a discussion
+% of the use of color in your document.
+
+% %------------------------------------------------------------------------
+% \section{Final copy}
+
+% You must include your signed IEEE copyright release form when you submit
+% your finished paper. We MUST have this form before your paper can be
+% published in the proceedings.
+
+% Please direct any questions to the production editor in charge of these
+% proceedings at the IEEE Computer Society Press: 
+% \url{https://www.computer.org/about/contact}.
+{\small
+\bibliographystyle{ieee_fullname}
+\bibliography{egbib, CL}
+}
+
+\end{document}

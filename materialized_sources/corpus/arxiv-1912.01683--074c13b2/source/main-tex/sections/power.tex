@@ -1,0 +1,46 @@
+\section{Some states give the agent more control over the future}\label{sec:power}
+The agent has more options at $\farleft$ than at the inescapable terminal  state $\sink$. Furthermore, since $\topright$ has a loop, the agent has more options at $\farright$ than at $\farleft$. A glance at \cref{fig:case-study-power} leads us to intuit that $\farright$ affords the agent \emph{more power} than $\sink$. 
+
+What is power? Philosophers have many answers. One prominent answer is the \emph{dispositional} view: Power is the ability to achieve a range of goals \citep{sattarov2019power}. In an {\mdp}, the optimal value function $\OptVf{s,\gamma}$ captures the agent's ability to ``achieve the goal'' $R$. Therefore, \emph{average} optimal value captures the agent's ability to achieve a range of goals $\Dbd$.\footnote{$\Dbd$'s bounded support ensures that $\E{R\sim \Dbd}{\OptVf{s,\gamma}}$ is well-defined.}
+
+\begin{restatable}[Average optimal value]{definition}{avgVal}\label{def:vavg}
+The \emph{average optimal value}\footnote{Appendix \ref{sec:suboptimal-power} relaxes the optimality assumption.} at state $s$ and discount rate $\gamma \in (0,1)$ is $\vavg[s,\gamma][\Dbd]\defeq\E{R\sim \Dbd}{\OptVf{s,\gamma}}=\E{\rf\sim\Dbd}{\max_{\f\in \F(s)} \f(\gamma)^\top \rf}.$
+\end{restatable}
+\begin{figure}[!ht]
+    \centering
+    \vspace{-8pt}
+    \includegraphics{main-tex/assets/tikz/main-paper/pdfs/pwr-compare}
+    \caption{Intuitively, state $\farright$ affords the agent more power than state $\sink$. Our $\pwrNoDist$ formalism captures that intuition by computing a function of the agent's average optimal value across a range of reward functions. For $\Dist_u\defeq \text{unif}(0,1)$, $\vavgNoResize[\sink,\gamma][\Diid[\Dist_u]]=\half\geom$, $\vavgNoResize[\farleft,\gamma][\Diid[\Dist_u]]=\half+ \frac{\gamma}{1-\gamma^2}(\frac{2}{3}+\half\gamma)$, and $\vavgNoResize[\farright,\gamma][\Diid[\Dist_u]]=\half+\geom[\gamma]\frac{2}{3}$. $\half$ and $\frac{2}{3}$ are the expected maxima of one and two draws from the uniform distribution, respectively. For all $\gamma\in(0,1)$, $\vavgNoResize[\sink,\gamma][\Diid[\Dist_u]]<\vavgNoResize[\farleft,\gamma][\Diid[\Dist_u]]<\vavgNoResize[\farright,\gamma][\Diid[\Dist_u]]$.  $\pwrNoResize[\sink,\gamma][\Diid[\Dist_u]]=\half$, $\pwrNoResize[\farleft,\gamma][\Diid[\Dist_u]]=\frac{1}{1+\gamma}(\frac{2}{3}+\half\gamma)$, and $\pwrNoResize[\farright,\gamma][\Diid[\Dist_u]]=\frac{2}{3}$. The $\pwrNoDist$ of $\farleft$ reflects the fact that when greater reward is assigned to $\topleft$, the agent only visits $\topleft$ every other time step.} 
+    \vspace{-10pt}
+    \label{fig:case-study-power}
+\end{figure}
+
+\Cref{fig:case-study-power} shows the pleasing result that for the max-entropy distribution, $\farright$ has greater average optimal value than $\sink$. However, average optimal value has a few problems as a measure of power. The agent is rewarded for its initial presence at state $s$ (over which it has no control), and because $\lone{\f(\gamma)}=\geom$ (\cref{prop:visit-dist-prop}) diverges as $\gamma \to 1$, $\lim_{\gamma\to 1}\vavg$ tends to diverge. \Cref{def:power} fixes these issues in order to better measure the agent's control over the future.
+
+\begin{restatable}[$\pwrNoDist$]{definition}{defPow}\label{def:power} Let $\gamma \in (0,1)$.
+\begin{align}
+    \pwr[s,\gamma][\Dbd]&\defeq \E{\rf\sim\Dbd}{\max_{\f\in \F(s)} \frac{1-\gamma}{\gamma}\prn{\f(\gamma)-\unitvec}^\top \rf}=\frac{1-\gamma}{\gamma}\E{R\sim \Dbd}{\OptVf{s,\gamma}-R(s)}.\label{eq:pwr-def}
+\end{align}
+\end{restatable} 
+
+$\pwrNoDist$ has nice formal properties.
+
+\begin{restatable}[Continuity of $\pwrNoDist$]{lem}{ContPower}\label{thm:cont-power} $\pwr[s,\gamma][\Dbd]$ is Lipschitz continuous on $\gamma\in[0,1]$. 
+\end{restatable} 
+
+\begin{restatable}[Maximal $\pwrNoDist$]{prop}{maxPwrGeneral}\label{lem:max-power-general}
+$\pwr[s,\gamma][\Dbd]\leq \E{R\sim \Dbd}{\max_{s\in\St}R(s)}$, with equality if $s$ can deterministically reach all states in one step and all states are {\stateEnd}s. 
+\end{restatable}
+
+\begin{restatable}[$\pwrNoDist$ is smooth across reversible dynamics]{prop}{smooth}\label{prop:smooth-pwr-dynamics}Let $\Dbd$ be bounded $[b,c]$. Suppose $s$ and $s'$ can both reach each other in one step with probability 1. 
+\begin{align}\big|\pwr[s,\gamma][\Dbd]-\pwr[s',\gamma][\Dbd]\big|\leq (c-b)(1-\gamma).
+\end{align} 
+\end{restatable} 
+
+We consider power-seeking to be relative. Intuitively, ``live and keep some options open'' seeks more power than ``die and keep no options open.'' Similarly, ``maximize open options'' seeks more power than ``don't maximize open options.'' 
+
+\begin{restatable}[$\pwrNoDist$-seeking actions]{definition}{DefPowSeek}\label{def:pow-seek}
+At state $s$ and discount rate $\gamma\in[0,1]$, action $a$ \emph{seeks more $\pwr$ than $a'$} when $\E{s_a \sim T(s,a)} {\pwrNoResize[s_a,\gamma]} \geq \E{s_{a'} \sim T(s,a')} {\pwrNoResize[s_{a'},\gamma]}$.
+\end{restatable}
+
+$\pwrNoDist$ is sensitive to choice of distribution. $\D_{\farleft}$ gives maximal $\pwr[][\D_{\farleft}]$ to $\farleft$. $\D_{\farright}$ assigns maximal $\pwr[][\D_{\farright}]$ to $\farright$. $\D_{\sink}$ even gives maximal $\pwr[][\D_{\sink}]$ to $\sink$! In what sense does $\sink$ have ``less $\pwrNoDist$'' than $\farright$, and in what sense does {\rightA} ``tend to seek $\pwrNoDist$'' compared to {\leftA}?  

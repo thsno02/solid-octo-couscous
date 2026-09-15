@@ -1,0 +1,52 @@
+%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%% v1 %%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\section{A Memory-Based Model Editor}
+\label{sec:method}
+To motivate a model editor that does not modify the base model parameters, we note the observation by \citet{csordas2021are} that neural networks `over-specialize' their parameters to individual inputs. That is, for two related inputs to a neural network, the two corresponding subsets of the model's parameters responsible for its predictions may have very little overlap, or even be disjoint. The gradient for one example (e.g., an edit descriptor $\editpair$) may therefore contain little useful information for updating the parameters responsible for predictions for distant, but related examples (e.g., $\xtest$ or $\xloc$). In light of the potential shortcomings of gradient-based model editors, we propose the memory-based (or, semi-parametric) approach model editing, which directly reasons over the explicit content of the edit descriptors, rather than relying a derivative quantity such as a gradient.
+
+The memory-based approach to model editing is intuitively simple, wrapping the base model with an explicit cache of edits, an edit scope classifier, and a counterfactual model that `overrides' the base model when necessary. After applying several edits, the `wrapped' model makes a prediction for a new input in two steps. First, the classifier estimates the probability that the new input falls into the scope of each cached edit example. If the classifier's in-scope probability is greater than 0.5 for any edit, the edit giving the highest probability is retrieved, and the counterfactual model's prediction conditioned on both the new input and edit is returned. Otherwise, the base model's prediction is returned. This procedure is described in Figure~\ref{fig:method-overview} and is described more formally in the next section.
+
+After applying several edits $\edits=\{\ze[i]\}$, the `wrapped' model makes a prediction for a new input $\xunk$ in two steps. First, the classifier estimates $\alpha^i = P(\xunk \in \scope{\ze[i]})$, the probability that $\xunk$ falls into the scope of the cached edit $\ze[i]$ for all $i$ up to $|\edits|$. We define $i^* = \argmax_i \alpha^i$, the most likely edit example to contain $\xunk$ in its scope.
+% Assuming that equivalence neighborhoods are disjoint\footnote{We could generalize this to a $k$-disjointness property, in which an equivalence neighborhood overlaps with only up to $k-1$ other neighborhoods; however, for existing benchmarks, the ($1$-)disjointness property suffices.}, $\xtest$ may fall into the equivalence neighborhood of no more than one of the edit examples in $\edits$. 
+Second, if $\alpha^{i^*} > 0.5$, the prediction from the counterfactual model, conditioned on both $\xunk$ and $\ze[i^*]$, is returned; otherwise $\basemodel(x)$ is returned. This procedure is described in Figure~\ref{fig:method-overview} and is described more formally in the next section.
+
+\subsection{{\fullname}}
+
+{\name} is essentially a semi-parametric model of the form $\semimodel(\xtest, \basemodel, \phi, \psi, \edits)$ (we abbreviate as just $\semimodel(\xtest)$) that produces predictions in the output space $\mathcal{Y}$, where $\edits$ is a set of variable size. {\name} contains two key components, a \textit{classifier} and a \textit{counterfactual model}. The classifier $\cls(\xtest, \xe, \ye) : \inp \times (\inp \times \out) \rightarrow [0, 1]$ estimates the probability that an input $\xtest$ falls within the equivalence neighborhood of edit example $(\xe, \ye)$. The counterfactual model $\rep(\xtest, \xe, \ye) : \inp \times (\inp \times \out) \rightarrow \out$ predicts what the label for $\xtest$ would be under the counterfactual world described by $(\xe, \ye)$. The classifier's output is computed as\footnote{This parameterization can be interpreted as producing the pdf of an \textit{unnormalized} multivariate Gaussian centered at $\rep([\xe;\ye])$ with diagonal covariance $\frac{1}{\gamma}$, evaluated at $\rep(\xtest)$.}
+\begin{equation}
+    \cls(\xtest, \xe, \ye) = \exp\left[-\gamma \|\feat(x) - \feat([\xe; \ye])\|^2_2\right]
+\end{equation}
+where $\feat$ is a learned embedding function parameterized by $\phi$, $\text{sim}$ is cosine similarity, $\gamma$ is a learned scaling parameter, and $[\xe; \ye]$ is the concatenation of the edit input and target sequences. The counterfactual model $\rep$ is simply a small sequence model (such as GPT-2-small or T5-small) that prepends the edit example $[\xe; \ye]$ to the input $\xtest$.
+
+\textbf{Forward pass (test time).} When presented with an input $\xtest$ at test time, {\name} computes the forward pass as
+\begin{equation}
+    \semimodel(\xtest) = 
+    \begin{cases}
+        \basemodel(\xtest) & \beta < 0.5 \\
+        \rep(\xtest, \xe^{i^*}, \ye^{i^*}) & \beta \ge 0.5
+    \end{cases}
+\end{equation}
+where $i^* = \argmax_i \cls(\xtest, \xe^i, \ye^i)$, the index of the most relevant edit example, and $\beta = \cls(\xtest, \xe^{i^*}, \ye^{i^*})$, the similarity score of the most relevant edit example. If $\edits$ is empty, we simply set $\semimodel(\xtest) = \basemodel(\xtest)$.
+\subsection{Training}
+Similarly to past work \citep{Cao2021EditingFK,mitchell2021fast,hase2021language}, {\fullname} is trained using a dataset of the form $\editdata = \{(\xe,\ye,\xloc,\xtest,\ytest)\}$, where $\ze$ is the edit descriptor, $\xloc$ is the negative example (whose label should not change after editing) used to learn a precise editor, and $(\xtest, \ytest)$ is a sample from $N(\xe, \ye)$ used to learn a general editor. In some cases, each training tuple may contain a hard negative $\hxloc$ and/or a hard positive $(\hxtest, \hytest)$. We train the classifier and counterfactual model separately, both with supervised learning.
+
+The \textbf{classifier} $\cls$ is trained to predict whether an input $x$ falls within the equivalence neighborhood $N(\xe, \ye)$ of a particular edit example. Therefore, the classifier is trained to minimize average binary cross entropy loss over the training dataset $\editdata$, assigning label 1 to $(\xtest, \xe, \ye)$ and $(\hxtest, \xe, \ye)$ and label 0 to $(\xloc, \xe, \ye)$ and $(\hxloc, \xe, \ye)$. The \textbf{counterfactual model} $\rep$ is trained to minimize the negative log likelihood of $\ytest$ given $[\xe; \ye; \xtest]$ and $\hytest$ given $[\xe; \ye; \hxtest]$ on average over $\editdata$.
+
+The classifier loss is given as\footnote{We omit terms using hard positives and negatives for brevity, but when hard positives or negatives are available, they are added to the loss in the same way as other positives and negatives.}
+\begin{multline}
+\ell(\phi) = -\frac{1}{|\editdata|}\sum_j \log g_\phi(\xtest, \xe^j, \ye^j)\;+ \\
+         \log (1 - g_\phi(\xloc, \xe^j, \ye^j)).
+\end{multline}
+The counterfactual loss is similarly
+\begin{equation}
+\ell(\psi) = -\frac{1}{|\editdata|}\sum_j \log p_\psi(\ytest | \xe, \ye, \xtest)
+\end{equation}
+where in a slight abuse of notation $p_\psi(\cdot | \xe, \ye, \xtest)$ is the probability distribution over label sequences given the inputs and parameters $\psi$.
+
+Failures of \textit{precision} are entirely attributable to the classifier; negative examples do not appear in the loss function for the counterfactual model. Failures of \textit{generality} may be due to failures of either the classifier (false negative) or the counterfactual model (evaluating the counterfactual incorrectly when the classifier correctly detects a positive pair).
+
+
+% In contrast to past gradient-based model editors, {\name} can be trained \textit{completely independently from the models it will edit}. In other words, a single model editor can be trained and immediately applied to both a deployed distilGPT-2 model with $\sim$80 million parameters and a full-sized GPT-3 model over three orders of magnitude larger with no modification (assuming they both use the same tokenization). Perhaps more importantly, we have decoupled the computational demands of training the model \textit{editor} from the scale of the model it will eventually edit, which is of great practical significance.

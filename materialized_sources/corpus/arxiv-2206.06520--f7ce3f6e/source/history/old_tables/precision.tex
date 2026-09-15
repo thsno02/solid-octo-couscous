@@ -1,0 +1,28 @@
+\begin{table*}[t]
+    \centering
+    \small
+    \begin{tabular}{clccccccc|ccc}
+        \toprule
+        & Metric & FT & MEND & MEND+ & ENN & ENN+ & KE & KE+ & {\name} & {\name}+ & MEM+ no $\rep$ \\
+        \midrule
+        \multirow{3}{*}{\shortstack{\textbf{T5-small (90M)} \\ zsRE}} & ES & & & & & & & & & \\
+        & DD & & & & & & & & & \\
+        & DD-hard & & & & & & & & & \\
+        \midrule
+        \multirow{3}{*}{\shortstack{\textbf{T5-large (770M)} \\ zsRE}} & ES & & & & & & & & & \\
+        & DD & & & & & & & & & \\
+        & DD-hard & & & & & & & & & \\
+        \midrule
+        \midrule
+        \multirow{3}{*}{\shortstack{\textbf{GPT-2-med. (330M)} \\ WikiData5m}} & ES & & & & & & & & & \\
+        & DD & & & & & & & & & \\
+        & DD-hard & & & & & & & & & \\
+        \midrule
+        \multirow{3}{*}{\shortstack{\textbf{GPT-2 (1.4B)} \\ WikiData5m}} & ES & & & & & & & & & \\
+        & DD & & & & & & & & & \\
+        & DD-hard & & & & & & & & & \\
+        \bottomrule
+    \end{tabular}
+    \caption{Evaluating the \textit{precision} of various model editors, specifically to hard negatives. The `+' suffix indicates the method was trained with hard negatives. {\name} is best able to leverage hard negatives mined during training to reduce drawdown without reducing edit success, while other methods see edit success decline when hard negatives are used during training. We report both average drawdown (DD) on all negatives and drawdown only on hard negatives (DD-hard).}
+    \label{tab:overgeneralization}
+\end{table*}

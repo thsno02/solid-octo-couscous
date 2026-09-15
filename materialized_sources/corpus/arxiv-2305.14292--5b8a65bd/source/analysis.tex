@@ -1,0 +1,203 @@
+\section{Implementation}
+\label{sec:experiment}
+
+{\bf \system Using GPT.}
+We create two versions of \system based on GPT models: \systemgt is based on GPT-3.5 (text-davinci-003); \systemgf is based on GPT-4 (gpt-4-0314)\footnote{Accessed via the Microsoft Azure OpenAI API}.
+
+{\bf Distilling \system to LLaMA.}
+We use LLaMA as the target of distillation as it currently has the highest quality-to-size ratio among the publicly available language models.
+We generate training data from 750 Wikipedia articles covering head, tail and recent topics; these are disjoint from the set of topics we use for evaluation. 
+Simulating a 10-turn conversation between the user simulator and \systemgf for each topic results in a total of 37,499 (instruction, input, output) tuples.
+We hold out 5\% of these conversations for validation, and fine-tune a 7B-parameter LLaMA on the rest. 
+
+{\bf Information Retrieval System.}
+We use \colbert v2~\cite{santhanam-etal-2022-colbertv2} and PLAID~\cite{plaid2022} over Wikipedia as our IR system. 
+We use the WikiExtractor tool\footnote{\url{https://github.com/attardi/wikiextractor}} to extract the clean text from the English Wikipedia dump obtained on 4/28/2023. Like \colbert, we divide each article (ignoring tables and information boxes) into disjoint text blocks referred to as passages and prepend them with their article title. We limit the combined length of the passage and title to 120 words. In \system, we set $N_{\text{evidence}}=2$ and $N_{\text{IR}}=3$. These are chosen empirically to obtain a high recall on our development set.
+
+
+\begin{table*}[ht]
+\centering
+\scalebox{0.85}{
+\begin{tabular}{l l c c c c c c}
+ \hline
+& & Factual & Relevant & Informational & Natural & Non-Repetitive & Temporal \\
+ \hline
+ 
+       & \systemgf & 98.8 & 5.0 $\pm$ 0.0 & 5.0 $\pm$ 0.2 & 5.0 $\pm$ 0.1 & 5.0 $\pm$ 0.0 & 99.0 \\
+       & GPT-4     & 94.9 & 5.0 $\pm$ 0.4 & 4.7 $\pm$ 0.6 & 5.0 $\pm$ 0.2 & 5.0 $\pm$ 0.2 & 99.0 \\
+   & \systemgt & 97.1 & 4.9 $\pm$ 0.5 & 4.8 $\pm$ 0.6 & 5.0 $\pm$ 0.2 & 4.9 $\pm$ 0.5 & 94.0 \\
+Head       & GPT-3.5   & 91.9 & 5.0 $\pm$ 0.0 & 4.6 $\pm$ 0.7 & 5.0 $\pm$ 0.1 & 5.0 $\pm$ 0.2 & 96.0 \\
+       & \systeml  & 95.2 & 4.9 $\pm$ 0.6 & 4.6 $\pm$ 0.8 & 4.9 $\pm$ 0.4 & 4.9 $\pm$ 0.3 & 96.0 \\
+       & LLaMA     & 83.9 & 4.7 $\pm$ 0.8 & 4.0 $\pm$ 1.0 & 4.6 $\pm$ 0.8 & 5.0 $\pm$ 0.2 & 96.0 \\
+       & Atlas     & 90.6 & 3.6 $\pm$ 1.3 & 2.7 $\pm$ 1.1 & 3.6 $\pm$ 1.1 & 4.5 $\pm$ 1.2 & 94.0 \\
+ \hline
+ 
+       & \systemgf & 94.6 & 4.8 $\pm$ 0.5 & 4.5 $\pm$ 1.0 & 4.9 $\pm$ 0.4 & 5.0 $\pm$ 0.2 & 99.0 \\
+       & GPT-4     & 56.0 & 5.0 $\pm$ 0.0 & 4.8 $\pm$ 0.4 & 5.0 $\pm$ 0.0 & 5.0 $\pm$ 0.0 & 100.0 \\
+   & \systemgt & 82.2 & 4.7 $\pm$ 0.8 & 4.5 $\pm$ 1.0 & 4.9 $\pm$ 0.5 & 4.7 $\pm$ 0.8 & 98.0 \\
+Tail       & GPT-3.5   & 50.0 & 4.9 $\pm$ 0.4 & 4.5 $\pm$ 0.8 & 5.0 $\pm$ 0.2 & 5.0 $\pm$ 0.1 & 98.0 \\
+       & \systeml  & 87.1 & 4.6 $\pm$ 0.8 & 4.1 $\pm$ 1.3 & 4.8 $\pm$ 0.6 & 4.8 $\pm$ 0.6 & 98.0 \\
+       & LLaMA     & 21.2 & 4.3 $\pm$ 1.1 & 3.7 $\pm$ 1.3 & 4.4 $\pm$ 1.1 & 4.8 $\pm$ 0.6 & 93.0 \\
+       & Atlas     & 86.5 & 3.9 $\pm$ 1.2 & 3.0 $\pm$ 1.1 & 3.8 $\pm$ 1.1 & 4.5 $\pm$ 1.2 & 99.0 \\
+ \hline
+ 
+       & \systemgf & 98.5 & 4.8 $\pm$ 0.5 & 4.5 $\pm$ 0.9 & 4.9 $\pm$ 0.3 & 5.0 $\pm$ 0.1 & 100.0 \\
+       & GPT-4     & 47.5 & 4.9 $\pm$ 0.5 & 4.7 $\pm$ 0.7 & 5.0 $\pm$ 0.1 & 5.0 $\pm$ 0.1 & 97.0 \\
+ & \systemgt & 88.2 & 4.7 $\pm$ 0.8 & 4.4 $\pm$ 1.1 & 4.9 $\pm$ 0.4 & 4.7 $\pm$ 0.8 & 94.0 \\
+Recent       & GPT-3.5   & 42.3 & 4.9 $\pm$ 0.6 & 4.3 $\pm$ 1.0 & 5.0 $\pm$ 0.3 & 4.9 $\pm$ 0.3 & 91.0 \\
+       & \systeml  & 90.9 & 4.6 $\pm$ 0.8 & 4.1 $\pm$ 1.2 & 4.8 $\pm$ 0.6 & 4.9 $\pm$ 0.4 & 97.0 \\
+       & LLaMA     & 17.7 &  4.7 $\pm$ 0.8 & 4.1 $\pm$ 1.0 & 4.6 $\pm$ 0.8 & 4.9 $\pm$ 0.4 & 92.0 \\
+       & Atlas     & 89.4 & 3.5 $\pm$ 1.3 & 2.8 $\pm$ 1.2 & 3.8 $\pm$ 1.2 & 4.5 $\pm$ 1.2 & 81.0 \\
+ \hline
+ 
+       & \systemgf & \underline{97.3} & 4.9 $\pm$ 0.4 & 4.6 $\pm$ 0.8 & 4.9 $\pm$ 0.3 & 5.0 $\pm$ 0.2 & 99.3 \\
+       & GPT-4     & 66.1 & \underline{5.0 $\pm$ 0.4} & 4.8 $\pm$ 0.6 & \underline{5.0 $\pm$ 0.1} & 5.0 $\pm$ 0.1 & 98.7 \\
+   & \systemgt & \underline{89.2} & 4.8 $\pm$ 0.7 & 4.6 $\pm$ 0.9 & 4.9 $\pm$ 0.4 & 4.8 $\pm$ 0.7 & 95.3 \\
+ All       & GPT-3.5   & 61.4 & \underline{4.9 $\pm$ 0.4} & 4.5 $\pm$ 0.8 & \underline{5.0 $\pm$ 0.2} & \underline{5.0 $\pm$ 0.2} & 95.0 \\
+       & \systeml  & \underline{91.1} & 4.7 $\pm$ 0.7 & \underline{4.3 $\pm$ 1.1} & \underline{4.8 $\pm$ 0.5} & 4.9 $\pm$ 0.5 & 97.0 \\
+       & LLaMA     & 40.9 & 4.5 $\pm$ 0.9 & 4.0 $\pm$ 1.1 & 4.5 $\pm$ 0.9 & 4.9 $\pm$ 0.4 & 93.7 \\
+       & Atlas     & 88.8 & 3.6 $\pm$ 1.3 & 2.8 $\pm$ 1.2 & 3.8 $\pm$ 1.1 & 4.5 $\pm$ 1.2 & 91.3 \\
+
+ \hline
+\end{tabular}
+}
+\caption{Evaluation results of \system and baselines on simulated conversations. Factual and Temporal accuracy are percentages. Other metrics are averages of integers between 1 and 5 (inclusive) and we report their mean and standard deviation. Factual accuracy is from human evaluation, other metrics are from few-shot GPT-4.
+Higher is better for all metrics. In the \emph{All} section, values that are better than their comparable model (e.g. \systemgf vs. GPT-4) in a statistically significant way with $p \leq 0.05$ are underscored.}
+    \vspace{-1em}
+\label{table:results}
+\end{table*}
+
+
+\section{Simulated Dialogues Experiment}
+Our first experiment analyzes how our systems perform under various scenarios using simulated users. 
+
+\subsection{Experiment Setup}
+We compare \system to several LLM baselines: a 7B-parameter LLaMA, GPT-3.5, and GPT-4, all prompted to act as knowledge-oriented chatbots (See Table~\ref{prompt:baseline} for the prompt).
+We also compare with Atlas~\cite{izacard2022atlas}, a fine-tuned retrieval-based model, which has the state-of-the-art results on Wizard of Wikipedia and several other datasets in KILT~\cite{petroni-etal-2021-kilt}. 
+We update its knowledge source and fine-tune its model to use the same Wikipedia dump 
+as \system
+(Appendix~\ref{appendix:hyperparameters}).
+
+We simulate users using GPT-4 due to its higher quality. Each chatbot carries out conversations on 20 topics in each of the head, tail, and recent knowledge categories. For each conversation, we simulate 10 turns (5 user turns and 5 chatbot turns) with the user starting the conversation. This is comparable with other datasets: Wizard of Wikipedia and Wizard of the Internet have 9 and 5 turns per dialogue on average, respectively. 
+Examples of simulated conversations can be found in Appendix~\ref{sec:example-dialogs}.
+
+To mimic how a curious user with limited knowledge may explore a topic, {\em only} the title and the first sentence of a Wikipedia article on a topic is shown to the user simulator (prompt in Table~\ref{prompt:user-simulator}), but it is free to explore related topics from its own general knowledge.
+The chatbot's response is not limited to what is in the article.
+
+Table~\ref{table:results} summarizes our main results for \system and all baselines on simulated conversations.
+
+\subsection{Factuality}
+We define the {\em factual accuracy of a chatbot} 
+to be the percentage of {\em claims} the bot makes in a given dialogue set, that are supported by the knowledge corpus.
+As mentioned in Section~\ref{sec:factual-evaluation}, this is done by obtaining per-claim judgments of factuality from crowdworkers. We obtain 3 judgements for each of the 5974 claims our chatbots output in total.
+
+The first column of Table~\ref{table:results} shows the results of our human evaluation of factual accuracy. \systemgf achieves an impressive factual accuracy of 98.8\%, 94.6\%, and 98.5\% for head, tail, and recent topics, respectively. 
+\systemgf scores on average 8.1\% and 6.2\% higher than \systemgt and \systeml. \system's GPT-4, GPT-3.5, and LLaMA versions
+outperform their base LLMs with an average of 31.2\%, 27.8\%, and 50.2\% respectively, with this gap increasing significantly in recent and tail knowledge. 
+These results suggest that our pipeline is able to effectively mitigate the hallucination of LLMs.
+
+Note that GPT-4 scores lower in tail and recent knowledge compared to head, by 38.9\% and 47.4\%, respectively, and the score for recent knowledge would be much lower had the simulated user not occasionally talked about older background information in the conversations. This illustrates that the common practice of solely evaluating on head knowledge would not have properly shown this weakness of LLMs. 
+
+All three versions of \system outperform the SOTA fine-tuned model Atlas on average in factuality,
+
+\subsection{Conversationality}
+
+Each version of \system improves factuality over its base model without sacrificing conversationality. Even \systeml is as good or better than LLaMA in all metrics, while scoring within 0.1 to 0.3 points of its teacher \systemgf.
+
+Atlas sacrifices substantial conversationality for factuality.
+Our analysis of 100 sampled dialogue turns reveals how Atlas underperforms in each metric. {\em Informationality}: it often gives short one-sentence answers when a detailed description is warranted. {\em Relevance}: it is less likely to address the user's questions. {\em Naturalness}: Atlas mainly copies from the retrieved passages instead of matching the tone of the conversation. {\em Non-repetition}: it sometimes generates repetitive, near duplicate responses. {\em Temporal accuracy}: it confuses different dates.
+
+\subsection{Latency}
+We measure the end-to-end latency and cost of our various chatbots. Retrieval from Wikipedia only accounts for about 0.2 seconds per turn and is negligible compared to the time spent waiting for LLM outputs. All API calls are done in parallel when possible, e.g. the stages 1-2 and 3-4 are independent and therefore done in parallel. LLaMA models are served on a single local NVIDIA A100 GPU using HuggingFace's TGI library~\cite{huggingface-tgi}.
+
+
+\begin{table}[t]
+\small
+\centering
+
+\begin{tabular}{l r r r}
+ \hline
+    & Cost per & {\centering Time per} & Time per\\
+        &  Claim (\textcent) & {\centering Claim (s)} & {\centering Turn (s)}\\
+ \hline
+\systemgf &  19.6 & 7.4 & 26.6\\
+GPT-4     &  0.7 & 2.3  & 5.8\\
+\systemgt & 9.9 & 4.1   & 14.4\\
+GPT-3.5   &  0.1 & 0.5  & 1.1\\
+\systeml  &  - & 2.3    & 7.6\\
+LLaMA     &  - & 0.8    & 1.6\\
+ \hline
+\end{tabular}
+    \vspace{-0.5em}
+\caption{The average cost (in cents) and latency (in seconds) of each chatbot. The LLaMA models are run on a local GPU at a negligible cost.}
+    \vspace{-1em}
+\label{table:latency}
+\end{table}
+
+
+Table~\ref{table:latency} shows the average cost and latency of various chatbots, 
+LLaMA costs are negligible compared to the cost of other LLMs. Distilling \systemgf into \systeml lowers its per-claim latency 3.2 times, bringing it in line with GPT-4. This makes \systeml a viable alternative to the baselines: has similarly low latency, costs less and is significantly more factual. 
+
+We note that a naive implementation of \systeml took about 15 seconds per output claim. We reduced the latency 6.5 times by (1) fusing stages 6-7, (2) removing chains of thought, (3) using TGI with FlashAttention~\cite{dao2022flashattention}, and other optimizations.
+
+\subsection{Analysis of Results}
+\label{sec:analysis}
+
+{\bf \system makes more claims than all baselines in all subsets (Table~\ref{table:dataset_claims}).}
+\systemgf, \systemgt and \systeml make an average of 3.6, 3.5 and 3.3 claims per turn, compared to 2.5, 2.2, and 2.0 claims of their base LLMs, and only 1.4 claims of Atlas. Our chatbots make more claims in the head subset as more information is available.
+ 
+
+{\bf Both information retrieval (Stages 1 and 2) and the underlying LLM (Stages 3 to 5) contribute to \system (Table~\ref{table:evidence}.)}
+27.0\%, 32.2\% and 24.5\% of the claims in the final response of \systemgf, \systemgt and \systeml come from fact-checked LLM responses 
+and the rest are from IR. This is the content that retrieve-then-generate systems cannot produce. 
+
+{\bf On average, about one-third of the claims in LLM responses do not pass \system's fact-checking (Table~\ref{table:evidence}).} The number of rejections is much higher in tail and recent subsets. This matches our expectation on where LLMs make more factual errors. Removing these errors during the fact-checking stage is \system's main weapon against hallucination.
+\systeml has the highest rejection rate on tail (54.0\%) and recent (64.4\%) subsets because the underlying LLaMA model hallucinates a lot more.
+
+{\bf \system says ``I don't know'' when necessary (Table~\ref{table:idk}).} 
+Our pipeline is carefully designed to prevent hallucination when no relevant information is available.
+This is more prevalent for tail and recent knowledge, where the simulated user is likely to ask about the information that is not yet available in Wikipedia.
+
+{\bf \system's refinement stage improves conversationality, especially in tail and recent topics (Table~\ref{table:feedback_scores}).}
+Comparing the BLEU scores~\cite{papineni-etal-2002-bleu} of the draft and the final responses (Table~\ref{table:refine_bleu}), we notice that 
+\system makes the most changes on tail and recent topics. Refinement improves naturalness, informationality and relevance of all versions of \system by 0.1 to 0.4 points, and temporal correctness by 2.3\% to 3.3\%.
+
+
+\section{A {\em Real} User Study}
+We conduct a study where participants are asked to chat about a recent topic of their choice, a scenario that is particularly challenging for LLMs. We use Prolific~\cite{prolific} to recruit 40 participants (20 female) for our user study. Each person is randomly assigned to either \systemgf or GPT-4 without telling them which, and chats for 5 user turns. After each turn, they are asked to rate the response on a scale of 1 to 5. Afterwards, we ask each participant to comment on their experience.
+More details in Appendix~\ref{sec:user_study}.
+
+
+Table~\ref{table:user_study} shows the average factual accuracy (human evaluated) and real user ratings. \system achieves an accuracy of 97.9\%, which is similar to that of simulated conversations. It outperforms GPT-4 in factuality by 55.0\%, and achieves a statistically significant higher rating of 3.8 vs 3.4. 
+
+
+Most participants who talked to \systemgf reported a positive experience.
+Multiple participants praised its ability to provide ``accurate and ``up-to-date information'' and multiple said that 
+it is ``natural'', ``conversational'', ``detailed'' and ``direct''. They commented that it is ``fun to play with'' and ``impressive'' in finding information.
+
+\begin{table}[t]
+\centering
+\small
+\begin{tabular}{c c c}
+ \hline
+& Factual & User Rating \\
+ \hline
+\systemgf &  97.9 & 3.8 \\
+GPT-4 &  42.9 & 3.4 \\
+ \hline
+\end{tabular}
+\caption{Results from the user study. User rating difference is statistically significant with $p \leq 0.05$ ($t=2.18, p=0.03$).\vspace{-.5cm}}
+\label{table:user_study}
+\end{table}
+5 participants complained about the latency of the system caused mainly by fact-checking, as the study was conducted using the slower \systemgf.
+6 complained that the chatbot did not give a direct answer to some of their requests. However, it turns out that 
+\systemgf was right in giving no information, because Wikipedia truly lacked the information they sought.
+We did not find a single valid complaint of hallucination. 
+
+GPT-4 received some favorable comments from 10 participants, noting that it is informational and that
+that it gave
+``reasonable'' answers and seemed ``educated''. However, it received 10 complaints: 6 on a lack of specificity: ``did not include a key piece of information'', or that ``its responses were vague'', ``not nuanced'' and ``was generic and regurgitated surface level information''; 2 on how it completely misunderstood them (due to obvious hallucination in its responses); 2 on wrong or outdated responses.
+
+More concerning, however, was that conversations that received favorable comments also contain numerous plausible but factually incorrect responses, except that the users did not realize that. This shows how easy it is to be mislead by LLM-based chatbots.
+
+In summary, our user study suggests that \systemgf is successful as an engaging and factual chatbot while GPT-4 frequently hallucinates.

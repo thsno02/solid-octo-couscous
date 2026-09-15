@@ -1,0 +1,216 @@
+\section{More Experimental Results and Analyses} \label{app_sec:more_results}
+% \input{tab/gptj-main_table}
+\begin{figure}[!t]
+    \centering
+    \includegraphics[width=0.245\textwidth]{img/gpt-j/gptj_zsre_Reliability.pdf}%
+    \includegraphics[width=0.245\textwidth]{img/gpt-j/gptj_zsre_Generality.pdf}%
+    \includegraphics[width=0.245\textwidth]{img/gpt-j/gptj_zsre_Locality.pdf}%
+    \includegraphics[width=0.245\textwidth]{img/gpt-j/gptj_zsre_Average.pdf}%
+    \vspace{-3pt}%
+    \caption{GPT-J-6B, ZsRE, continual editing.}
+    \label{fig:gpt-j_zsre_fig}
+    \vspace{-3pt}
+\end{figure}
+
+\subsection{On the Pitfall of GRACE: Generalization Collapses in Decoder-only LLMs} \label{subsec: grace_generalization_analysis}
+
+\begin{figure}[t]
+    \begin{minipage}{0.99\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{img/radii_1.pdf}
+        % \caption{Block 27. $\epsilon_\text{init} = 1.0$}
+        \label{fig:radii_1.0}
+        \vspace{-0.78cm}
+    \end{minipage}
+    \begin{minipage}{0.99\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{img/radii_3.pdf}
+        % \caption{Block 27. $\epsilon_\text{init} = 3.0$}
+        \label{fig:radii_3.0}
+        \vspace{-0.78cm}
+    \end{minipage}
+    \begin{minipage}{0.99\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{img/radii_10.pdf}
+        % \caption{Block 27. $\epsilon_\text{init} = 10.0$}
+        \label{fig:radii_10.0}
+        \vspace{-0.78cm}
+    \end{minipage}
+    \begin{minipage}{0.99\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{img/radii_500.pdf}
+        % \caption{Block 27. $\epsilon_\text{init} = 500.0$}
+        \label{fig:radii_500.0}
+    \end{minipage}
+    \vspace{-0.5cm}
+    \caption{Investigation on the query $\mathbf{x}$ and its distance to the nearest Key $k$, as well as the \textit{deferral radius} $\epsilon$ of that Key. Red and Blue respectively represent the paraphrase query $\mathbf{x}_{e'}$ and the unrelated query $\mathbf{x}_{\text{loc}}$, with the hatch representing the radius of the nearest Key. We observe that when conflicts occur (hit the codebook Key but with different Edit Target $\mathbf{y}_e$), the \textit{deferral radius} $\epsilon$  decays exponentially. This results in GRACE being unable to encompass the paraphrase $\mathbf{x}_{e'}$ and maintain high locality, regardless of how $\epsilon_{\text{init}}$ is adjusted. ZsRE, \texttt{LLaMA-2-7B}.}\label{fig:grace_failure}
+\end{figure}
+
+Here, we discuss why GRACE exhibits poor generalization when editing decoder-only LMs.
+
+As shown in Figure \ref{fig:grace_failure}, we continuously edit 15 samples $(\mathbf{x}_e, \mathbf{y}_e)$ using GRACE and observe the nearest codebook \textit{Key} for their paraphrases $\mathbf{x}_{e'}$ and unrelated queries $\mathbf{x}_{\text{loc}}$, as well as the governed \textit{Deferral radii} $\epsilon$ of those \textit{Keys}.
+When overlapping \textit{Keys} exist, GRACE reduces the \textit{Deferral radii} to split this \textit{Keys} and then adds a new codebook entry, resulting in exponentially decaying of radii $\epsilon$ during the editing process. Though $\epsilon$ is initialized from a high $\epsilon_{\text{init}}$, it will be small and ineffective after continuous edits. 
+From Figure \ref{fig:grace_failure}, we observe that GRACE is more likely to have a conservative strategy that sets smaller Deferral radii during editing. Smaller Deferral radii will cause $\mathbf{x}_{e'}$ to fail to hit the codebook (the distance to the nearest \textit{Key} is farther than its \textit{Deferral radii}) but let $\mathbf{x}_{\text{loc}}$ successfully far away from the radii, resulting low generalization and high locality. Also, we observe that the Deferral radii method is not effective under any $\epsilon_{\text{init}}$; for all tested $\epsilon_{\text{init}}$ values of 1.0, 3.0, 10.0, and 500.0, they all have low generalization and high locality. 
+
+This suggests that in autoregressive LMs, the distribution of the last token cannot effectively represent semantics; whereas in encoder-only and encoder-decoder architectures, capturing semantic information through vector representation has been extensively studied \cite{bert, sentencebert, simcse}. This is consistent with the degree of generalization shown by GRACE when anchoring the T5 \cite{T5} Encoder layer. 
+Some related works \cite{meaning_trajectory} also indicate that in autoregressive models, semantic similarity measures based on averages of output tokens underperform, recommending the use of score distributions over text continuations to represent semantic distances.
+
+\subsection{Impact of Knowledge Merging Strategies for WISE} \label{app_sec:varying_merge}
+\begin{wraptable}{r}{0.3\textwidth}
+    \centering
+    % \vspace{-1.0cm}
+    \caption{\small Varying Merging Strategy. ZsRE. \texttt{LLaMA-2-7B}.}
+    \resizebox{1\linewidth}{!}{
+    \begin{tabular}{l|cccc}
+    \toprule
+    \textbf{Methods} & Rel. & Gen. & Loc. & Avg.\\
+    \midrule
+    \textit{Linear}  & .63 & .61 & .93 & .72\\
+    \textit{Slerp}  & .62 & .64 & .91  & .72\\
+    \textit{Dare}  & .68 & .63 & .92  & .74\\
+    \textit{Dare\_Ties}  & .67 & .63 & .83 & .71\\
+    \rowcolor[gray]{0.94} 
+    \textit{Ties}  & \textbf{.85} & \textbf{.81} & \underline{.94}  & \textbf{.87}\\
+    \rowcolor[gray]{0.94} 
+    \textit{Sign}  & \underline{.80} & \underline{.76} & \textbf{.97} & \underline{.84}\\
+    \bottomrule
+    \end{tabular}}
+    \vspace{-10pt}
+    \label{tab:knowledge-merging-strategy}
+\end{wraptable}
+
+Here, we conduct a more in-depth study of the knowledge merging strategies for WISE, exploring various merging approaches including ($i$)~\underline{\textit{Linear}}, which uses a simple weighted average;
+($ii$)~\underline{\textit{Slerp}}, which spherically interpolates the parameters of two models;
+($iii$)~\underline{\textit{Ties}}, a component used in the main experiments of this paper that resolves merging disturbances through TRIM ELECT SIGN;
+($iv$)~\underline{\textit{Dare}}: which follows a Bernoulli distribution to delete redundant parameters and rescale the remaining ones;
+($v$)~\underline{\textit{Dare\_Ties}}, which combines dare and the sign consensus algorithm of TIES;
+and ($vi$)~\underline{\textit{Sign}}, an ablation component of Ties that addresses directional conflicts—all utilizing the official implementation from MergeKit \cite{mergekit} \footnote{\url{https://github.com/arcee-ai/mergekit}}.
+We randomly sample 100 edits from ZsRE, retaining a fine-tuned MLP every 50 edits (merging 2 MLPs).
+As shown in Table \ref{tab:knowledge-merging-strategy}, we observe that ignoring the direction of parameter updates (Linear, Slerp, Dare) leads to a significant decline in editing performance, underscoring the importance of addressing knowledge conflicts in overlapping parameters.
+The success of \textit{Sign} also reaffirms this point.
+Meanwhile, the randomly masked knowledge shards exhibit a non-redundancy, indivisible nature.
+This is demonstrated by the significantly weaker performance of \textit{Dare\_Ties} compared to \textit{Ties}/\textit{Sign}, indicating that removing parameter updates can lead to the loss of edited knowledge or even potential "anchors".
+
+\subsection{Analysis of Retrieving Top-1 Activation} \label{app_sec: retrieve_analysis}
+\begin{figure}[!htbp]
+    \centering
+    \begin{subfigure}[t]{0.35\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{img/memo_act_es.pdf}
+        \caption{\hspace{5pt}Average of Rel. and Gen.}
+        \label{fig:memo_act_es}		
+    \end{subfigure}
+    \hspace{5pt}
+    \begin{subfigure}[t]{0.358\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{img/memo_act_prec.pdf}
+        \caption{\hspace{3pt}Retrieval Acc. by Top-1 Activation}
+        \label{fig:memo_act_prec}	
+    \end{subfigure}
+    % \centering
+    % \includegraphics[width=0.7\linewidth]{img/memo_act.pdf}
+    % \vspace{-13pt}%
+    \caption{Comparing editing results of WISE-\texttt{\{Retrieve, $\text{Retrieve}_\text{oracle}$, Retrieve w. $\mathrm{L}_{\text{memo}}$\}} when varying $T$. (a) shows the simple average of Rel. and Gen. (ES.), while 
+    (b) shows retrieval accuracy, i.e., whether the Top-1 Activation routes to the correct MLP (prec@1). \texttt{X-axis}: Num edits. ZsRE. \texttt{LlaMA-2-7B}.}
+    % \vspace{-13pt}%
+    \label{fig:memo_act}
+\end{figure}
+
+WISE-\texttt{Retrieve} retains each knowledge-sharding memory and retrieves through Top-1 Activation.
+However, as shown in Table \ref{tab:zsre_scaling2_3K} and Figure \ref{fig:memo_act_prec}, the retrieval accuracy still has significant room for improvement; specifically, when $T$ reaches 3K, the accuracy of routing to the correct MLP drops to around 60\%, indicating the specificity between side memories is insufficient.
+One possible reason is that when sampling the edits from a single dataset (ZsRE), the editing instances $(\mathbf{x}_e, \mathbf{y}_e)$ all belong to the same domain.
+This leads to some very similar instances being captured by multiple expert side memories (resulting in high activations for all side memories), introducing more retrieval failures.
+
+Therefore, to improve the specificity of side memory and reduce the probability of routing errors, we attempt to add a new constraint $L_{\text{memo}}$ to Equation \ref{equ:routing_loss}.
+For knowledge-sharding memory $\mathbf{W}_i$, we randomly replay instances $(\mathbf{x}_{\mathrm{m}}, \mathbf{y}_{\mathrm{m}})$ from the edit set $\mathcal{D}_{\mathbf{W}_j}$ of past shard $\mathbf{W}_{j, \, j \in [0, i-1]}$, ensuring that $\mathbf{W}_i$ remains inactive for $\mathbf{x}_{\mathrm{m}}$:
+
+$$L_a' = L_a + \underbrace{\max(0, \Delta_{\text{act}}(\mathbf{x}_{\mathrm{m}}) - \alpha)}_{L_\text{memo}}, \quad \text{s.t.}\; \mathbf{x}_{\mathrm{m}} \in \mathcal{D}_{\mathbf{W}_j}.$$
+
+As shown in Figure \ref{fig:memo_act_prec}, this replay behavior increases the specificity between side memories, maintaining nearly \textbf{88\%} retrieval accuracy at $T=3K$. 
+Figure \ref{fig:memo_act_es} also shows that WISE-\texttt{Retrieve} \textit{w.} $L_{\text{memo}}$ improves Edit Success (ES.) by \textbf{8.39\%} compared to WISE-\texttt{Retrieve}, providing a promising direction for future work.
+With finer-grained activation management, we might be able to bridge the performance gap between \texttt{Retrieve} and \texttt{Oracle}.
+
+\subsection{Case Study}
+\input{tab/case_study}
+
+In Table \ref{tab:wise_fail_examples}, we present bad cases of using WISE to edit the \texttt{LLaMA-2-7B} on the ZsRE dataset and mitigating these failures is critical for future work in model editing.
+We observe that in $i)$ errors occur only in part of the tokens, and these errors constitute a large proportion of the bad cases, indicating that the edits have not been sufficiently fitted.
+$ii)$ displays cases where the entire output is incorrect, and factual failures indicate difficulties in retaining memory of parameters for some rare entities (such as Persian $iia, iib$).
+$iv)$ presents cases of generalization failure, for example in $ivd)$, where the model answered ``English'' but did not fully follow the ground truth, indicating significant room for improvement in the accuracy of generalized edits.
+Meanwhile, in $iii)$ we surprisingly find that even when WISE errs on the Edit Prompt, it can correctly answer its paraphrase $iii b)$ \textit{``The kind of voice of Gemma Bosini is what?''}.
+This indicates that WISE can handle contextual information correctly in some cases but falls short in specific editing instructions, suggesting that optimizing editing instructions (modifying the editing context) may be a direction for improvement.
+
+
+\subsection{Importance of \textit{Knowledge Anchor} When Merging Models}\label{app_subsec:knowledge_anchor}
+
+\begin{wraptable}{l}{0.4\textwidth}
+    \definecolor{gray}{rgb}{0.9373,0.9373,0.9373}
+    \newcolumntype{a}{>{\columncolor{gray}}c}
+    \centering
+    \vspace{-0.5cm}
+    \caption{\small Analysis of Merging \textit{w.o.} and \textit{w.} "knowledge anchor" (KA). $T=1000$. ZsRE. \texttt{LLaMA-2-7B}.}
+    \resizebox{1.0\linewidth}{!}{
+        \begin{tabular}{lcccc|aaaa}
+        \toprule
+        \multirow{2}{*}{\textbf{$\rho/k$}}
+        
+         %\cmidrule(lr){5-7}\cmidrule(lr){8-10} 
+         % \cmidrule(lr){2-7}
+         & \multicolumn{4}{c}{\textit{w.o.} KA} & \multicolumn{4}{c}{\textit{w.} KA} \\
+         \cmidrule(lr){2-9}
+         & \multicolumn{4}{c|}{\makecell{Rel.  ~Gen.  ~Loc. ~Avg.}} & \multicolumn{4}{c}{\makecell{Rel.  ~Gen.  ~Loc. ~Avg.}} \\
+         \midrule
+        2/0.30 & 0.76 & 0.72 & 1.00  &0.83 & \textbf{0.79} & \textbf{0.73} & 1.00 & \textbf{0.84}  \\
+        2/0.50 &0.74 &\textbf{0.73} &1.00 & 0.82 &\textbf{0.77} &0.72 &1.00 &\textbf{0.83} \\
+        3/0.33 &0.72 &0.68 &1.00 &0.80 &\textbf{0.75} &\textbf{0.71} &1.00 &\textbf{0.82} \\
+        5/0.20 &0.64 &0.61 &1.00 &0.75 &\textbf{0.73} &\textbf{0.68} &1.00 &\textbf{0.80} \\
+        \bottomrule 
+        \end{tabular}
+    }
+    \label{tab:KA_ablation}
+    \vspace{-0.4cm}
+\end{wraptable}
+
+Here, we discuss the effects of independent (ensured by non-overlapping masks) vs partially overlapping parameters within MLP subspaces on editing performance, as shown in Table \ref{tab:KA_ablation}.
+It is observable that, despite varying mask ratios \(\rho\) and the number of subspaces \(k\), partial overlap (w. KA) consistently outperforms independent configurations (w.o. KA) in terms of Reliability (Rel.) and Generalization (Gen.). 
+For example, at \(\rho/k\) of 5/0.20, there is a relative improvement of 9\% and 7\% respectively.
+This demonstrates that the overlapping regions contribute as ``anchors'' for knowledge fusion, facilitating information transfer across different subspaces.
+Moreover, the shared parameters provide a natural regularization \cite{subspace_reg} mechanism, helping synchronize model behavior across different subspaces.
+
+\subsection{Ablation Study of Random Prefix Token}
+\label{sec:random_token_ablation}
+\begin{figure}[tbh!]
+    \vspace{-0.3cm}
+    \definecolor{figgreen}{rgb}{0.547,0.695,0.434}
+    \definecolor{figblue}{rgb}{0.145, 0.451, 0.73}
+    \definecolor{figyellow}{rgb}{1.000, 0.547, 0}
+    \centering
+    \includegraphics[width=0.8\linewidth]{img/pt_ablation.pdf}
+    \vspace{-0.2cm}
+    \caption{\textbf{Ablation studies on Random Prefix Token (PT) of WISE.} Light/Dark colors indicate the Editing Sucess w.o./w. PT addition. ZsRE. \texttt{LlaMA-2-7B}}
+    \label{fig:random_token_ablation}
+    \vspace{-11pt}%
+\end{figure}
+
+As described in Section \ref{subsec:exp_setting}, we employ random prefix token augmentation to enable the editing knowledge to cope with various contexts. That is, for a single $\mathbf{x}_e$, it expands into $
+(\text{prefix}_{i}, \mathbf{x}_e)$. The prefix is derived from tokens that are randomly generated by the original LM $f_{\Theta}$, serving as an economical data augmentation method. We observe that the editing success rate is compromised (Figure \ref{fig:random_token_ablation}). Specifically, for instance, at T=1000, Rel. and Gen. decreased by 0.15 and 0.17, respectively. By utilizing randomly generated prefix tokens, the model is able to learn a broader range of linguistic features, thereby exhibiting greater robustness in practical applications. We believe that access to the "data generator" can deepen the model's memory of editing samples.
+
+
+
+
+\subsection{Parameter Efficiency} \label{subsec: parameter_efficiency}
+\begin{wrapfigure}{r}{0.4\columnwidth}
+    \centering
+    \vspace{-23pt}
+    \includegraphics[width=0.4\textwidth]{img/gpu_consumption.pdf}
+    \vspace{-17pt}%
+    \caption{Computational costs.}
+    \label{fig:gpu_consum}
+    \vspace{-13pt}%
+\end{wrapfigure}
+The key to lifelong model editing is maintaining constant or slowly increasing computational costs as the number of edits expands.
+Here, we provide a quantitative analysis using \texttt{LLaMA-2-7B} as an example.
+Suppose we select \texttt{model.layers[27].mlp.down\_proj.weight} as side memory. In that case, the theoretically added parameters are \(11008 \times 4096 \times 4 = 0.18\) GB, which accounts for 0.64\% of the original LLaMA's \(7B \times 4 = 28\) GB (ignoring the VRAM required for input activations).
+As shown in Figure \ref{fig:gpu_consum}, in practice, WISE-Merge increases VRAM by 4\% compared to the original \texttt{LLaMA} and remains constant over time.
+WISE-Retrieve, instead of merging, uses retrieval routing, meaning the computational cost increases over time, but this increase is gradual and can easily handle thousands or tens of thousands of inputs.
+Additionally, if we partially merge side MLPs (combining WISE-Retrieve and WISE-Merge), we can further reduce the computational demands of WISE-Retrieve.

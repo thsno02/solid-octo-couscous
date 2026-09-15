@@ -1,0 +1,659 @@
+\documentclass{article}
+
+\usepackage[final]{nips_2017}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{amsfonts}
+\usepackage{nicefrac}
+\usepackage{microtype}
+\usepackage{color}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{lipsum}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{xpatch}
+\usepackage{fancyvrb}
+
+\newcommand{\X}{\mathcal{X}}
+\newcommand{\Y}{\mathcal{Y}}
+\newcommand{\T}{\mathcal{T}}
+
+\makeatletter
+\xpatchcmd{\algorithmic}{\ALG@tlm\z@}{\ALG@tlm\z@\leftmargin 0pt}{}{}
+\makeatother
+
+\title{Gradient Episodic Memory for Continual Learning}
+
+\author{
+  David Lopez-Paz and Marc'Aurelio Ranzato\\
+  Facebook Artificial Intelligence Research\\
+  \texttt{\{dlp,ranzato\}@fb.com} \\
+}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+  One major obstacle towards AI is the poor ability of models to solve new
+  problems quicker, and without forgetting previously acquired knowledge.  To
+  better understand this issue, we study the problem of \emph{continual
+  learning}, where the model observes, once and one by one, examples concerning
+  a sequence of tasks.  First, we propose a set of metrics to evaluate models
+  learning over a continuum of data. These metrics characterize models not only
+  by their test accuracy, but also in terms of their ability to transfer
+  knowledge across tasks.  Second, we propose a model for continual learning,
+  called Gradient Episodic Memory (GEM) that alleviates forgetting, while
+  allowing beneficial transfer of knowledge to previous tasks.  Our experiments
+  on variants of the MNIST and CIFAR-100 datasets demonstrate the strong
+  performance of GEM when compared to the state-of-the-art.
+\end{abstract}
+
+\section{Introduction}
+The starting point in supervised learning is to collect a \emph{training set}
+$D_{\text{tr}} = \{(x_i, y_i)\}_{i=1}^n$, where each \emph{example} $(x_i,
+y_i)$ is composed by a \emph{feature vector} $x_i \in \X$, and a \emph{target
+vector} $y_i \in \Y$. Most supervised learning methods assume that each example
+$(x_i, y_i)$ is an identically and independently distributed (iid) sample from
+a \emph{fixed} probability distribution $P$, which describes a single learning
+task.  The goal of supervised learning is to construct a model $f : \X \to \Y$,
+used to predict the target vectors $y$ associated to unseen feature vectors
+$x$, where $(x, y) \sim P$. To accomplish this, supervised learning methods
+often employ the {Empirical Risk Minimization} (ERM)
+principle~\citep{Vapnik98}, where $f$ is found by minimizing
+$\frac{1}{|D_{\text{tr}}|} \sum_{(x_i, y_i) \in D_\text{tr}} \ell(f(x_i),
+y_i)$, where  $\ell : \Y \times \Y \to [0, \infty)$ is a loss function
+penalizing prediction errors. In practice, ERM often requires multiple passes
+over the training set. 
+
+ERM is a major simplification from what we deem as human learning. In stark
+contrast to learning machines, learning humans observe data as an ordered
+sequence, seldom observe the same example twice, they can only memorize a few
+pieces of data, and the sequence of examples concerns different learning tasks.
+Therefore, the iid assumption, along with any hope of employing the ERM
+principle, fall apart. In fact, straightforward applications of ERM lead to
+``catastrophic forgetting''~\citep{catastrophic}.  That is, the learner forgets
+how to solve past tasks after it is exposed to new tasks.
+
+This paper narrows the gap between ERM and the more human-like learning
+description above. In particular, our learning machine will observe,
+\emph{example by example}, the \emph{continuum of data}
+\begin{equation}\label{eq:continuum}
+(x_1, t_1, y_1), \ldots, (x_i, t_i, y_i), \ldots, (x_n, t_n, y_n),
+\end{equation}
+where besides input and target vectors, the learner observes $t_i \in \T$, a
+\emph{task descriptor} identifying the task associated to the pair $(x_i, y_i)
+\sim P_{t_i}$.  Importantly, examples are not drawn iid from a fixed
+probability distribution over triplets $(x,t,y)$, since a whole sequence of
+examples from the current task may be observed before switching to the next
+task.  The goal of \emph{continual learning} is to construct a model $f : \X
+\times \T$ able to predict the target $y$ associated to a test pair $(x, t)$,
+where $(x, y) \sim P_t$. In this setting, we face challenges unknown to ERM:
+\begin{enumerate}
+  \item \emph{Non-iid input data}: the continuum of data is not \emph{iid} with
+  respect to any fixed probability distribution $P(X,T,Y)$ since, once tasks
+  switch, a whole sequence of examples from the new task may be observed.
+  \item \emph{Catastrophic forgetting}: learning new tasks may hurt the
+  performance of the learner at previously solved tasks.
+  \item \emph{Transfer learning}: when the tasks in the continuum are related,
+  there exists an opportunity for transfer learning. This would translate into
+  faster learning of new tasks, as well as performance improvements in old
+  tasks.
+\end{enumerate}
+
+The rest of this paper is organized as follows. In Section~\ref{sec:continuum},
+we formalize the problem of continual learning, and introduce a set of metrics
+to evaluate learners in this scenario.  In Section~\ref{sec:model}, we propose
+GEM, a model to learn over continuums of data that alleviates forgetting, while
+transferring beneficial knowledge to past tasks.  In
+Section~\ref{sec:experiments}, we compare the performance of GEM to the
+state-of-the-art.  Finally, we conclude by reviewing the related literature in
+Section~\ref{sec:relatedwork}, and offer some directions for future research in
+Section~\ref{sec:conclusion}. Our source code is available at
+\url{https://github.com/facebookresearch/GradientEpisodicMemory}.
+
+\section{A Framework for Continual Learning}\label{sec:continuum}
+We focus on the \emph{continuum} of data of
+\eqref{eq:continuum}, where each triplet $(x_i, t_i, y_i)$ is formed by a
+feature vector $x_i \in \X_{t_i}$, a task descriptor $t_i \in \T$, and a target
+vector $y_i \in \Y_{t_i}$. For simplicity, we assume that the continuum is
+\emph{locally iid}, that is, every triplet $(x_i, t_i, y_i)$ satisfies $(x_i,
+y_i) \stackrel{iid}{\sim} P_{t_i}(X, Y)$.
+
+While observing the data \eqref{eq:continuum} \emph{example by example}, our
+goal is to learn a predictor $f : \X \times \T \to \Y$, which can be queried
+\emph{at any time} to predict the target vector $y$ associated to a test pair
+$(x, t)$, where $(x,y) \sim P_t$. Such test pair can belong to a task that we
+have observed in the past, the current task, or a task that we will experience
+(or not) in the future.
+
+\paragraph{Task descriptors} An important component in our framework is the
+collection of task descriptors $t_1, \ldots, t_n \in \mathcal{T}$. In the
+simplest case, the task descriptors are integers $t_i = i \in \mathbb{Z}$
+enumerating the different tasks appearing in the continuum of data.  More
+generally, task descriptors $t_i$ could be structured objects, such as a
+paragraph of natural language explaining how to solve the $i$-th task. Rich
+task descriptors offer an opportunity for zero-shot learning, since the
+relation between tasks could be inferred using new task descriptors alone.
+Furthermore, task descriptors disambiguate similar learning tasks.  In
+particular, the same input $x_i$ could appear in two different tasks, but
+require different targets. Task descriptors can reference the existence of
+multiple \emph{learning environments}, or provide additional (possibly
+hierarchical) \emph{contextual information} about each of the examples.
+However, in this paper we focus on alleviating catastrophic forgetting when
+learning from a continuum of data, and leave zero-shot learning for future
+research.
+
+Next, we discuss the training protocol and evaluation metrics for continual
+learning.
+
+\subsection*{Training Protocol and Evaluation Metrics} Most of the literature
+about learning over a sequence of tasks~\citep{progressive, pathnet, ewc,
+icarl} describes a setting where i) the number of tasks is small, ii) the
+number of examples per task is large, iii) the learner performs several passes
+over the examples concerning each task, and iv) the only metric reported is the
+average performance across all tasks.  In contrast, we are interested in the
+``more human-like'' setting where i) the number of tasks is large, ii) the
+number of training examples per task is small, iii) the learner observes the
+examples concerning each task only once, and iv) we report metrics that measure
+both transfer and forgetting.
+
+Therefore, at training time we provide the learner with only one example at the
+time (or a small mini-batch), in the form of a triplet $(x_i, t_i, y_i)$. The
+learner never experiences the same example twice, and tasks are streamed in
+sequence. We do not need to impose any order on the tasks, since a future task
+may coincide with a past task.
+
+Besides monitoring its performance across tasks, it is also important to assess
+the ability of the learner to {\em transfer} knowledge. More specifically, we
+would like to measure:
+\begin{enumerate}
+  \item \emph{Backward transfer} (BWT), which is the influence that learning a
+  task $t$ has on the performance on a previous task $k \prec t$. On the one
+  hand, there exists \emph{positive} backward transfer when learning about some
+  task $t$ increases the performance on some preceding task $k$. On the other
+  hand, there exists \emph{negative} backward transfer when learning about some
+  task $t$ decreases the performance on some preceding task $k$. Large negative
+  backward transfer is also known as \emph{(catastrophic) forgetting}. 
+  \item \emph{Forward transfer} (FWT), which is the influence that learning a
+  task $t$ has on the performance on a future task $k \succ t$. In particular,
+  \emph{positive} forward transfer is possible when the model is able to
+  perform ``zero-shot'' learning, perhaps by exploiting the structure available
+  in the task descriptors. 
+\end{enumerate}
+
+For a principled evaluation, we consider access to a test set for each of the
+$T$ tasks. After the model finishes learning about the task $t_i$, we evaluate
+its \emph{test} performance on all $T$ tasks.  By doing so, we construct the
+matrix $R \in \mathbb{R}^{T \times T}$, where $R_{i,j}$ is the test
+classification accuracy of the model on task $t_j$ after observing the last
+sample from task $t_i$.  Letting $\bar{b}$ be the vector of test accuracies for
+each task at random initialization, we define three metrics:
+\begin{eqnarray}
+\mbox{\small {\bf Average Accuracy: } \normalsize ACC} & = & \frac{1}{T}
+\sum_{i=1}^T R_{T,i} \label{eq:acc} \\
+\mbox{\small {\bf Backward Transfer: } \normalsize BWT} & = & \frac{1}{T-1}
+\sum_{i=1}^{T-1} R_{T,i} - R_{i,i}   \label{eq:bwt} \\
+\mbox{\small {\bf Forward Transfer: } \normalsize FWT} & = & \frac{1}{T-1}
+\sum_{i=2}^{T} R_{i-1,i} - \bar{b}_i. \label{eq:fwt} 
+\end{eqnarray}
+The larger these metrics, the better the model. If two
+models have similar ACC, the most preferable one is the one with larger BWT and
+FWT. Note that it is meaningless to discuss backward transfer for the first
+task, or forward transfer for the last task.
+
+For a fine-grained evaluation that accounts for learning speed, one 
+can build a matrix $R$ with more rows than tasks, by evaluating more often.
+In the extreme case, the number of rows could equal the number of
+continuum samples $n$.  Then, the number $R_{i,j}$ is the test accuracy
+on task $t_j$ after observing the $i$-th example in the continuum. Plotting
+each column of $R$ results into a learning curve.
+
+\section{Gradient of Episodic Memory (GEM)}\label{sec:model}
+In this section, we propose Gradient Episodic Memory (GEM), a model for
+continual learning, as introduced in Section~\ref{sec:continuum}.  The main
+feature of GEM is an \emph{episodic memory} $\mathcal{M}_t$, which stores a
+subset of the observed examples from task $t$.  For simplicity, we assume
+integer task descriptors, and use them to index the episodic memory.  When
+using integer task descriptors, one cannot expect significant positive forward
+transfer (zero-shot learning). Instead, we focus on minimizing negative
+backward transfer (catastrophic forgetting) by the efficient use of episodic
+memory.
+
+In practice, the learner has a total budget of $M$ memory locations.  If the
+number of total tasks $T$ is known, we can allocate $m=M/T$ memories for each
+task.  Conversely, if the number of total tasks $T$ is unknown, we can
+gradually reduce the value of $m$ as we observe new tasks \citep{icarl}.  For
+simplicity, we assume that the memory is populated with the last $m$ examples
+from each task, although better memory update strategies could be employed
+(such as building a coreset per task).  In the following, we consider
+predictors $f_\theta$ parameterized by $\theta \in \mathbb{R}^p$, and define
+the loss at the memories from the $k$-th task as
+\begin{equation}
+  \ell(f_\theta, \mathcal{M}_k) = \frac{1}{|\mathcal{M}_k|} \sum_{(x_i, k, y_i)
+  \in \mathcal{M}_k} \ell(f_\theta(x_i, k), y_i). \label{eq:loss_past_task}
+\end{equation}
+Obviously, minimizing the loss at the current example together with
+\eqref{eq:loss_past_task} results in overfitting to the examples stored in
+$\mathcal{M}_k$.  As an alternative, we could keep the predictions at past
+tasks invariant by means of distillation~\citep{icarl}.  However, this would
+deem positive backward transfer impossible.  Instead, we will use the losses
+\eqref{eq:loss_past_task} as {\em inequality constraints}, avoiding their
+increase but allowing their decrease.  In contrast to the state-of-the-art
+\citep{ewc, icarl}, our model therefore allows \textit{positive} backward
+transfer.
+
+More specifically, when observing the triplet $(x, t, y)$, we solve the
+following problem:
+\begin{align}
+\text{minimize}_\theta\quad& \ell(f_\theta(x,t), y)\nonumber\\
+\text{subject to}\quad& \ell(f_\theta, \mathcal{M}_{k}) \leq
+\ell(f^{t-1}_{\theta}, \mathcal{M}_{k}) \mbox{ for all } k < t,
+\label{eq:projgrad-batch}
+\end{align}
+where $f^{t-1}_{\theta}$ is the predictor state at the end of learning of task
+$t-1$.
+
+In the following, we make two key observations to
+solve~\eqref{eq:projgrad-batch} efficiently.  First, it is unnecessary to store
+old predictors $f^{t-1}_\theta$, as long as we guarantee that the loss at
+previous tasks does not increase after each parameter update $g$.  Second,
+assuming that the function is locally linear (as it happens around small
+optimization steps) and that the memory is representative of the examples from
+past tasks, we can diagnose increases in the loss of previous tasks by
+computing the angle between their loss gradient vector and the proposed update.
+Mathematically, we rephrase the constraints~\eqref{eq:projgrad-batch} as:
+\begin{equation}
+\left\langle g, g_{k} \right\rangle := 
+\left
+\langle
+\frac{\partial \ell(f_\theta(x, t), y)}
+{\partial \theta}, 
+\frac{\partial \ell(f_\theta, \mathcal{M}_k)}
+{\partial \theta}
+\right\rangle \ge 0, \mbox{ for all } 
+ k < t.
+\label{eq:constraints}
+\end{equation}
+If all the inequality constraints~\eqref{eq:constraints} are satisfied, then
+the proposed parameter update $g$ is unlikely to increase the loss at previous
+tasks.  On the other hand, if one or more of the inequality
+constraints~\eqref{eq:constraints} are violated, then there is at least one
+previous task that would experience an increase in loss after the parameter
+update.  If violations occur, we propose to project the proposed gradient $g$
+to the closest gradient $\tilde{g}$ (in squared $\ell_2$ norm) satisfying all
+the constraints~\eqref{eq:constraints}. Therefore, we are interested in: 
+\begin{align}
+\text{minimize}_{\tilde{g}} \frac{1}{2} \quad& \|g - \tilde{g}\|_2^2\nonumber\\
+\text{subject to} \quad& \langle \tilde{g}, g_k \rangle \geq 0 \text{ for all } k < t.\label{eq:gemprimal}
+\end{align}
+
+To solve \eqref{eq:gemprimal} efficiently, recall the primal of a Quadratic
+Program (QP) with inequality constraints:
+\begin{align}
+    \text{minimize}_z \quad&\frac{1}{2} z^\top C z + p^\top z\nonumber\\
+    \text{subject to} \quad&Az \geq b,\label{eq:primal}
+\end{align}
+where $C \in \mathbb{R}^{p \times p}$, $p\in \mathbb{R}^p$, $A \in
+\mathbb{R}^{(t-1) \times p}$, and $b\in\mathbb{R}^{t-1}$.  The dual problem of~\eqref{eq:primal} 
+is:
+\begin{align}
+    \text{minimize}_{u,v}   \quad&\frac{1}{2} u^\top C u - b^\top v\nonumber\\
+    \text{subject to}       \quad&A^\top v - Cu = p,\nonumber\\
+                                 &v \geq 0.\label{eq:dual}
+\end{align}
+If $(u^\star, v^\star)$ is a solution to \eqref{eq:dual}, then there is a
+solution $z^\star$ to \eqref{eq:primal} satisfying $Cz^\star = Cu^\star$
+\citep{dorn1960duality}.
+Quadratic programs are at the heart of support vector
+machines \citep{scholkopf2001learning}.
+
+With these notations in hand, we write the primal GEM QP \eqref{eq:gemprimal} as:
+\begin{align*}
+    \text{minimize}_z   \quad& \frac{1}{2} z^\top z -g^\top z + \frac{1}{2} g^\top g\\
+    \text{subject to}   \quad& Gz \geq 0,
+\end{align*}
+where $G = (g_1, \ldots, g_{t-1})$, and we discard the constant term $g^\top g$.
+This is a QP on $p$ variables (the number of parameters of the neural
+network), which could be measured in the millions. However, we can pose the
+dual of the GEM QP as: 
+\begin{align}
+    \text{minimize}_{v}   \quad&\frac{1}{2} v^\top GG^\top v + g^\top G^\top v\nonumber\\
+    \text{subject to} \quad&v \geq 0,\label{eq:project}
+\end{align}
+since $u = G^\top v + g$ and the term $g^\top g$ is constant.  This is a QP on
+$t-1 \ll p$ variables, the number of observed tasks so far. Once we solve the
+dual problem \eqref{eq:project} for $v^\star$, we can recover the projected
+gradient update as $\tilde{g} = G^\top v^\star  + g$.  In practice, we found
+that adding a small constant $\gamma \geq 0$ to $v^\star$ biased the gradient
+projection to updates that favoured benefitial backwards transfer.
+
+Algorithm~\ref{alg:gem:train} summarizes the training and evaluation protocol
+of GEM over a continuum of data. The pseudo-code includes the computation of
+the matrix R, containing the sufficient statistics to compute the metrics ACC,
+FWT, and BWT described in Section~\ref{sec:continuum}.
+
+\paragraph{A causal compression view} We can interpret GEM as a model that
+learns the subset of correlations common to a set of distributions (tasks).
+Furthermore, GEM can (and will in our MNIST experiments) be used to predict
+target vectors associated to previous or new tasks without making use of task
+descriptors. This is a desired feature in causal inference problems, since
+causal predictions are invariant across different environments \citep{icp}, and
+therefore provide the most compressed representation of a set of distributions
+\citep{causal_compression}.
+ 
+\begin{algorithm}
+    \caption{Training a GEM over an \emph{ordered} continuum of data}
+    \label{alg:gem:train}
+    \begin{minipage}[t]{.5\linewidth}
+    \begin{algorithmic}
+    \small
+    \Procedure{Train}{$f_\theta, \mbox{Continuum}_{\text{train}}, \mbox{Continuum}_{\text{test}}$} 
+        \State $\mathcal{M}_t \leftarrow \lbrace\rbrace$ for all $t = 1, \ldots, T$.
+        \State $R \leftarrow 0 \in \mathbb{R}^{T\times T}$. 
+        \For{$t = 1, \ldots, T$}:
+        \For{$(x,y)$ in $\mbox{Continuum}_{\text{train}}(t)$}
+            \State $\mathcal{M}_t \leftarrow \mathcal{M}_t \cup (x,y)$
+            \State $g \leftarrow \nabla_\theta \, \ell (f_\theta(x, t), y)$
+            \State $g_{k} \leftarrow \nabla_\theta \, \ell (f_\theta, \mathcal{M}_{k})$ for all
+                $k < t$ 
+            \State $\tilde{g} \leftarrow$ \textsc{Project}($g, g_1, \ldots, g_{t-1}$), see \eqref{eq:project}.
+            \State $\theta \leftarrow \theta - \alpha \tilde{g}$.
+        \EndFor
+        \State $R_{t,:} \leftarrow \textsc{Evaluate}(f_\theta, \text{Continuum}_{\text{test}})$
+        \EndFor
+        \State \textbf{return} $f_\theta$, R
+    \EndProcedure
+    \end{algorithmic}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{.4\linewidth}
+    \begin{algorithmic}
+    \small
+    \Procedure{Evaluate}{$f_\theta, \mbox{Continuum}$} 
+        \State $r \leftarrow 0 \in \mathbb{R}^T$
+        \For{$k = 1, \ldots, T$}
+        \State $r_k \leftarrow 0$
+        \For{$(x,y)$ in $\mbox{Continuum}(k)$} 
+            \State $r_k \leftarrow r_k +  \mbox{accuracy}(f_\theta(x, k), y)$
+        \EndFor
+        \State $r_k \leftarrow r_k \,/\, \text{len}(\text{Continuum}(k))$
+        \EndFor
+        \State \textbf{return} $r$
+    \EndProcedure
+    \end{algorithmic}
+    \end{minipage}
+\end{algorithm}
+
+\section{Experiments}\label{sec:experiments}
+We perform a variety of experiments to assess the
+performance of GEM in continual learning.
+
+\subsection{Datasets}
+We consider the following datasets:
+\begin{itemize}
+  \item {\em MNIST Permutations}~\citep{ewc}, a variant of the MNIST
+  dataset of handwritten digits~\citep{mnist}, where each task is transformed 
+  by a fixed permutation of pixels. In this dataset, the input distribution
+  for each task is unrelated.
+  \item {\em MNIST Rotations}, a variant of MNIST where each task contains digits
+  rotated by a fixed angle between $0$ and $180$ degrees.
+  \item {\em Incremental CIFAR100}~\citep{icarl}, a variant of the CIFAR object
+  recognition dataset with 100 classes~\citep{cifar100}, where each task
+  introduces a new set of classes. For a total number of $T$ tasks, each new
+  task concerns examples from a disjoint subset of $100/T$ classes. Here, the
+  input distribution is similar for all tasks, but different tasks require 
+  different output distributions.
+\end{itemize}
+
+For all the datasets, we considered $T=20$ tasks. On the MNIST datasets, each
+task has 1000 examples from 10 different classes. On the CIFAR100 dataset
+each task has 2500 examples from 5 different classes.  The model observes the
+tasks in sequence, and each example once. The evaluation for each task is
+performed on the test partition of each dataset. 
+
+\subsection{Architectures}
+On the MNIST tasks, we use fully-connected neural networks with two hidden
+layers of $100$ ReLU units.  On the CIFAR100 tasks, we use a smaller version of
+ResNet18~\citep{resnet}, with three times less feature maps across all layers.
+Also on CIFAR100, the network has a final linear classifier per task.
+This is one simple way to leverage the task descriptor, in order to adapt the
+output distribution to the subset of classes for each task.  We train all the
+networks and baselines using plain SGD on mini-batches of $10$ samples. All
+hyper-parameters are optimized using a grid-search (see
+Appendix~A), and the best results for each model are reported.
+
+\subsection{Methods}
+We compare GEM to five alternatives:
+\begin{enumerate}
+  \item a {\em single} predictor trained across all tasks.
+  \item one \emph{independent} predictor per task. Each \emph{independent}
+  predictor has the same architecture as ``single'' but with $T$ times less
+  hidden units than ``single''. Each new independent predictor can be
+  initialized at   random, or be a clone of the last trained predictor (decided
+  by grid-search).
+  \item a \emph{multimodal} predictor, which has the same architecture of
+  ``single'', but with a dedicated input layer per task (only for MNIST
+  datasets). 
+  \item \emph{EWC}~\citep{ewc}, where the loss is regularized to avoid
+  catastrophic forgetting.
+  \item \emph{iCARL}~\citep{icarl}, a class-incremental learner that classifies
+  using a nearest-exemplar algorithm, and prevents catastrophic forgetting by
+  using an episodic memory. iCARL requires the same input representation across
+  tasks, so this method only applies to our experiment on CIFAR100. 
+\end{enumerate}
+GEM, iCaRL and EWC have the same architecture as ``single'', plus episodic memory. 
+
+\subsection{Results}
+\begin{figure}
+  \begin{center}
+  \includegraphics[width=0.49\textwidth]{figures/barplot_mnist_permutations.pdf}\hfill\includegraphics[width=0.49\textwidth]{figures/evoplot_mnist_permutations.pdf}
+  \vskip 0.5cm
+ \includegraphics[width=0.49\textwidth]{figures/barplot_mnist_rotations.pdf}\hfill\includegraphics[width=0.49\textwidth]{figures/evoplot_mnist_rotations.pdf}
+  \vskip 0.5cm
+  \includegraphics[width=0.49\textwidth]{figures/barplot_cifar100.pdf}\hfill\includegraphics[width=0.49\textwidth]{figures/evoplot_cifar100.pdf}
+  \end{center}
+  \caption{Left: ACC, BWT, and FWT for all datasets and methods.
+  Right: evolution of the test accuracy at the first task, as more tasks are learned.}
+  \label{figure:results}
+\end{figure}
+\begin{table}
+  \caption{CPU Training time (s) of MNIST experiments for all methods.}
+  \begin{center}
+  \begin{tabular}{lrrrrr}
+  \toprule
+  task & single & independent & multimodal & EWC & GEM\\
+  \midrule
+  permutations & $11$ & $11$ & $14$  & $179$  & $77$\\
+  rotations    & $11$ & $16$ & $13$  & $169$ & $135$\\
+  \bottomrule
+  \end{tabular}
+  \end{center}
+  \label{table:timing}
+\end{table}
+
+Figure~\ref{figure:results} (left) summarizes the average accuracy (ACC,
+Equation~\ref{eq:acc}), backward transfer (BWT, Equation~\ref{eq:bwt}) and
+forward transfer (FWT, Equation~\ref{eq:fwt}) for all datasets and methods.  We
+provide the full evaluation matrices $R$ in Appendix~B.
+Overall, GEM performs similarly or better than the multimodal model (which is
+very well suited to the MNIST tasks). GEM minimizes backward transfer, while
+exhibiting negligible or positive forward transfer.
+
+Figure~\ref{figure:results} (right) shows the evolution of the test accuracy of
+the first task throughout the continuum of data. GEM exhibits minimal 
+forgetting, and positive backward transfer in
+CIFAR100. 
+
+Overall, GEM performs significantly better than other continual learning
+methods like EWC, while spending less computation (Table~\ref{table:timing}).
+GEM's efficiency comes from optimizing over a number of variables equal to the
+number of tasks ($T=20$ in our experiments), instead of optimizing over a
+number of variables equal to the number of parameters ($p=1109240$ for CIFAR100
+for instance). GEM's bottleneck is the necessity of computing previous task
+gradients at each learning iteration.
+
+\subsubsection{Importance of memory, number of passes, and order of tasks}
+Table~\ref{table:memory} shows the final ACC in the CIFAR-100 experiment for
+both GEM and iCARL as a function their episodic memory size. Also seen in
+Table~\ref{table:memory}, the final ACC of GEM is an increasing function of the
+size of the episodic memory, eliminating the need to carefully tune this
+hyper-parameter. GEM outperforms iCARL for a wide range of memory sizes.
+\begin{table}
+  \caption{ACC as a function of the episodic memory size for GEM and iCARL, on
+  CIFAR100.}
+  \begin{center}
+  \begin{tabular}{lrrrr}
+  \toprule
+  memory size & $200$ & $1,280$ & $2,560$ & $5,120$\\
+  \midrule
+  GEM & $0.487$ & $0.579$ & $0.633$ & $0.654$ \\
+  iCARL & $0.436$ & $0.494$ & $0.500$  & $0.508$ \\
+  \bottomrule
+  \end{tabular}
+  \end{center}
+  \label{table:memory}
+\end{table}
+
+Table~\ref{table:varying_epochs} illustrates the importance of memory as we do
+more than one pass through the data on the MNIST rotations experiment. Multiple
+training passe exacerbate the catastrophic forgetting problem.  For instance,
+in the last column of Table~\ref{table:varying_epochs} (except for the result
+in the first row), each model is shown examples of a task five times (in random
+order) before switching to the next task.  Table~\ref{table:varying_epochs}
+shows that memory-less methods (like ``single'' and ``multimodal'') exhibit
+higher negative BWT, leading to lower ACC.  On the other hand, memory-based
+methods such as EWC and GEM lead to higher ACC  as the number of passes through
+the data increases.  However, GEM suffers less negative BWT than EWC, leading
+to a higher ACC.
+
+Finally, to relate the performance of GEM to the best possible performance on
+the proposed datasets, the first row of Table~\ref{table:varying_epochs}
+reports the ACC of ``single'' when trained with iid data from all tasks. This
+mimics usual multi-task learning, where each mini-batch contains examples taken
+from a random selection of tasks.  By comparing the first and last row of
+Table~\ref{table:varying_epochs}, we see that GEM matches the ``oracle
+performance upper-bound'' ACC provided by iid learning, and minimizes negative
+BWT.
+
+\begin{table}
+  \caption{ACC/BWT on the MNIST Rotations dataset, when varying the number of
+  epochs per task.}
+  \begin{center}
+  \begin{tabular}{lrrr}
+  \toprule
+  method & 1 epoch & 2 epochs & 5 epochs \\
+  \midrule
+  single, shuffled data  &  0.83/{\color{white}-0.00} & 0.87/{\color{white}-0.00} & 0.89/{\color{white}-0.00} \\
+  single      & 0.53/-0.08 & 0.49/-0.25 & 0.43/-0.40 \\
+  independent & 0.56/-0.00 & 0.64/-0.00 & 0.67/-0.00 \\
+  multimodal  & 0.76/-0.02 & 0.72/-0.11 & 0.59/-0.28 \\
+  EWC         & 0.55/-0.19 & 0.59/-0.17 & 0.61/-0.11 \\
+  GEM         & 0.86/+0.05 & 0.88/+0.02 & 0.89/-0.02 \\
+  \bottomrule
+  \end{tabular}
+  \end{center}
+  \label{table:varying_epochs}
+\end{table}
+
+\section{Related work}\label{sec:relatedwork}
+Continual learning~\citep{ring1994}, also called \emph{lifelong
+learning}~\citep{thrun-iros94, learning_to_learn, lifelong, nthing}, considers
+learning through a sequence of tasks, where the learner has to retain knowledge
+about past tasks and leverage that knowledge to quickly acquire new skills.
+This learning setting led to implementations~\citep{nell, ella, child}, and
+theoretical investigations~\citep{baxter, balcan_lifelong,pentina16}, although
+the latter ones have been restricted to {linear} models. In this work, we
+revisited continual learning but proposed to focus on the more realistic
+setting where examples are seen only once, memory is finite, and the learner is
+also provided with (potentially structured) task descriptors.  Within this
+framework, we introduced a new set of metrics, a training and testing protocol,
+and a new algorithm, GEM, that outperforms the current state-of-the-art in
+terms of limiting forgetting.
+
+The use of task descriptors is similar in spirit to recent work in
+Reinforcement Learning~\citep{horde, uvfa}, where task or goal descriptors are
+also fed as input to the system.  The \emph{CommAI project} \citep{commai,
+commai2} shares our same motivations, but focuses on highly structured task
+descriptors, such as strings of text. In contrast, we focus on the problem of
+catastrophic forgetting~\citep{catastrophic, catastrophic_french,
+connectionist, hippocampus, catastrophic_empirical}.
+
+Several approaches have been proposed to avoid catastrophic forgetting.  The
+simplest approach in neural networks is to freeze early layers, while cloning
+and fine-tuning later layers on the new task~\citep{oquab} (which we considered
+in our ``independent'' baseline). This relates to methods that leverage a
+modular structure of the network with primitives that can be shared across
+tasks~\citep{progressive, pathnet, expert_gate, denoyer15, eigen14}.
+Unfortunately, it has been very hard to scale up these methods to lots of
+modules and tasks, given the combinatorial number of compositions of modules. 
+
+Our approach is most similar to the regularization approaches that     consider
+a single model, but modify its learning objective to prevent catastrophic
+forgetting.  Within this class of methods, there are approaches that leverage
+``synaptic'' memory \citep{ewc, synaptic}, where learning rates are adjusted to
+minimize changes in parameters important for previous tasks.  Other approaches
+are instead based on ``episodic'' memory \citep{less_forgetting, lwc,
+encoder_lifelong, icarl}, where examples from previous tasks are stored and
+replayed to maintain predictions invariant by means of distillation
+\citep{distillation}. GEM is related to these latter approaches but, unlike
+them, allows for positive backward transfer. 
+
+More generally, there are a variety of setups in the machine learning
+literature related to continual learning.  \emph{Multitask learning}
+\citep{multitask} considers the problem of maximizing the performance of a
+learning machine across a variety of tasks, but the setup assumes simultaneous
+access to all the tasks at once. Similarly, \emph{transfer learning}
+\citep{transfer_learning} and \emph{domain adaptation}
+\citep{domain_adaptation} assume the simultaneous availability of multiple
+learning tasks, but focus at improving the performance at one of them in
+particular.  \emph{Zero-shot learning} \citep{zero_lampert, zero_palatucci} and
+\emph{one-shot learning} \citep{one_shot, matchingnet, santoro16, learnet} aim
+at performing well on unseen tasks, but ignore the catastrophic forgetting of
+previously learned tasks.  \emph{Curriculum learning} considers learning a
+sequence of data \citep{curriculum}, or a sequence of tasks
+\citep{curriculum_tasks}, sorted by increasing difficulty. 
+
+\section{Conclusion}\label{sec:conclusion}
+We formalized the scenario of \emph{continual learning}. First, we defined
+training and evaluation protocols to assess the quality of models in terms of
+their \emph{accuracy}, as well as their ability to transfer knowledge {\em
+forward} and {\em backward} between tasks.  Second, we introduced GEM, a simple
+model that leverages an episodic memory to avoid forgetting and favor positive
+backward transfer. Our experiments demonstrate the competitive performance of
+GEM against the state-of-the-art.
+
+GEM has three points for improvement. First, GEM does not leverage structured
+task descriptors, which may be exploited to obtain positive forward transfer
+(zero-shot learning). Second, we did not investigate advanced memory management
+(such as building \emph{coresets of tasks}~\citep{coresetMoG}). Third, each GEM
+iteration requires one backward pass per task, increasing computation time.
+These are exciting research directions to extend learning machines beyond ERM,
+and to continuums of data.
+
+\clearpage
+\newpage
+
+\section*{Acknowledgements}
+We are grateful to M. Baroni, L. Bottou, M. Nickel, Y. Olivier and A. Szlam for
+their insight. We are grateful to Martin Arjovsky for the QP interpretation of
+GEM.
+
+\bibliographystyle{abbrvnat}
+{
+    \small
+    \bibliography{continuum}
+}
+
+\clearpage
+\newpage
+\appendix
+\input{appendix}
+
+\end{document}

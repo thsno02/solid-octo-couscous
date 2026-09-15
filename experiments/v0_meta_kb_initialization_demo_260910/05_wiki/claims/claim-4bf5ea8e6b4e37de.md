@@ -1,0 +1,117 @@
+---
+uid: wiki-page:evidence-973c18c6200bf335
+title: Claim 4bf5ea8e6b4e37de
+slug: claims/claim-4bf5ea8e6b4e37de
+page_type: evidence
+status: review
+summary: We introduce Meta and -Bench, a new framework and benchmark for evaluating and developing LLM agents on
+  AI research tasks. This is the first Gym environment for machine learning (ML) tasks, enabling research on reinforce
+aliases: []
+ontology_refs:
+- experiment:meta-kb-v0
+claim_refs:
+- claim:4bf5ea8e6b4e37de
+source_refs: &id001
+- arxiv:2502.14499
+page_refs:
+- wiki-page:source-3dda2384308efbda
+- wiki-page:map-governance-evaluation
+outgoing_links:
+- target: wiki-page:source-3dda2384308efbda
+  relation: evidenced_by
+  claim_refs:
+  - claim:4bf5ea8e6b4e37de
+  notes: null
+- target: wiki-page:map-governance-evaluation
+  relation: part_of
+  claim_refs:
+  - claim:4bf5ea8e6b4e37de
+  notes: null
+sections:
+- heading: Candidate statement
+  claim_refs:
+  - claim:4bf5ea8e6b4e37de
+  source_refs: *id001
+  editorial_intent: Expose the exact candidate statement.
+- heading: Evidence bindings
+  claim_refs:
+  - claim:4bf5ea8e6b4e37de
+  source_refs: *id001
+  editorial_intent: Resolve to local selectors.
+temporal:
+  created_at: '2026-09-13T17:38:21Z'
+  updated_at: '2026-09-13T17:38:21Z'
+  valid_from: null
+  valid_to: null
+  as_of: '2026-09-13T17:38:21Z'
+provenance:
+  build_id: build:llm-wiki-v0:d303e0f210b88f64
+  generated_by_agent: pipeline/build_llm_wiki.py
+  generated_by_model: null
+  prompt_or_skill_version: deterministic-llm-wiki-v0.2
+  compiled_from_revisions:
+  - arxiv:2502.14499@sha256:de8bc15be762914dd2f056f00efe2b83d51ce852a7035d65e866e6cdecbbb65a
+  created_at: '2026-09-13T17:38:21Z'
+  updated_at: '2026-09-13T17:38:21Z'
+  manual_edits_preserved: false
+review:
+  state: needs_human
+  reviewers: []
+  decision_ref: null
+  checked_claim_refs: []
+  unresolved_issues:
+  - Scientific, semantic, neutrality, and due-weight review remain required before publication.
+freshness:
+  status: fresh
+  checked_at: '2026-09-13T17:38:21Z'
+  max_age_days: 30
+  source_dependencies: *id001
+  staleness_reasons: []
+consumption:
+  audiences:
+  - human
+  - agent
+  summary_tiers:
+    one_line: We introduce Meta and -Bench, a new framework and benchmark for evaluating and developing LLM agents
+      on AI research tasks. This is the first Gym environment for machine learning (ML) tasks, enabling research
+      on reinforce
+    short: We introduce Meta and -Bench, a new framework and benchmark for evaluating and developing LLM agents
+      on AI research tasks. This is the first Gym environment for machine learning (ML) tasks, enabling research
+      on reinforce
+    full: null
+  estimated_tokens: 152
+  machine_entry_points:
+  - ../../04_claims/claims.jsonl
+  - ../../03_evidence/evidence.jsonl
+  - ../catalog/pages.jsonl
+---
+
+# Source assertion from MLGym: A New Framework and Benchmark for Advancing AI Research Agents
+
+> **Candidate only.** This page exposes one atomic claim and its evidence bindings.
+
+## Candidate statement
+
+We introduce Meta and -Bench, a new framework and benchmark for evaluating and developing LLM agents on AI research tasks. This is the first Gym environment for machine learning (ML) tasks, enabling research on reinforcement learning (RL) algorithms for training such agents.
+
+## Scope
+
+- Claim ID: `claim:4bf5ea8e6b4e37de`
+- Scope: `source-reported assertion`
+- Domain: [governance-evaluation](../maps/governance-evaluation.md)
+- Promotion state: `candidate`
+
+## Evidence bindings
+
+| Evidence | Selector | Local artifact | Tier |
+|---|---|---|---|
+| `evidence:0b3ad94ceb672903` | `local://materialized_sources/corpus/arxiv-2502.14499--a7f1a2e8/normalized/document.txt#L74-L74` | `materialized_sources/corpus/arxiv-2502.14499--a7f1a2e8/normalized/document.txt` | `full_text` |
+
+## Review requirements
+
+Check entailment, selector precision, source quality, identity, scope, contradiction, and due weight before promotion.
+
+## Related pages
+
+- [MLGym: A New Framework and Benchmark for Advancing AI Research Agents](../sources/arxiv-2502.14499.md) — `evidenced_by`
+- [Governance Evaluation](../maps/governance-evaluation.md) — `part_of`

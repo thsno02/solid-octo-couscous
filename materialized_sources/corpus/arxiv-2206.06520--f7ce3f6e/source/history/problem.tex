@@ -1,0 +1,79 @@
+
+%%%%%%%%%%%%%%%##%%
+%%%%% Problem v2 %%%%%
+%%%%%%%%%%%%%##%%%%
+
+We consider the problem of editing a base model $\basemodel$ using an \textit{edit descriptor} $\ze$ describing how the edited model $\editedmodel$ should change its behavior. The edit descriptor may be a concatenated input-output pair $\editpair$ \rawstring{Who is the UK PM? Boris Johnson} 
+%%CF.1.23: I think it would probably be a good idea to introduce notation for the input-output pair too, at the very least since you use such notation in figure 1
+or an arbitrary utterance \rawstring{Change sentiment on vaccines to be positive.}
+%%CF.1.23: I might suggest picking a more mundane example here and leave this to the qualitative results, since the implications of this example (and the reverse of this example) are thought-provoking in a way that distracts the reader from the writing. You'll also have more space to discuss the implications shortly after the experiments, whereas you generally won't have an opportunity to discuss implications in the technical sections.
+describing the desired change in model behavior. We can regard the former type of edit descriptor implicit (as the desired change in model behavior must be inferred from the example) and the latter explicit.
+
+In most cases, applying an edit with descriptor $\ze$ should impact model predictions for a large number of inputs. 
+%%CF.1.23: "for a large number of inputs that are within the scope of the edit example"? That would allow you to introduce the terminology informally before describing it formally
+In the UK example above, the edited model's predictions should change for rephrases of the edit descriptor input as well as for inputs asking about logically-entailed facts like \rawstring{Boris Johnson is the PM of where?} or \rawstring{True or False: Theresa May is the UK PM}. Thus we refer to the set of inputs whose true label is affected by the edit as the \textit{scope} of an edit $\scope{\ze}$. An edit is \textit{successful} if the edited model adheres to the behavior defined by $\ze$ for \textit{in-scope} inputs. An edit is \textit{well-scoped} if model behavior on \textit{out-of-scope} inputs is left unchanged\footnote{We might consider a successful edit as one with high recall and a well-scoped edit as one with high precision, with regards to the input examples for which the edited model behaves as desired.}. If an in-scope input requires some non-trivial reasoning to deduce its label from the edit example, we call it a hard in-scope input.
+%%CF.1.23: how about a "hard in-scope example"? I like that a bit better than input here, because the label is part of what makes it hard.
+If an out-of-scope input is closely semantically related to the edit example, we call it a hard out-of-scope input.
+%%CF.1.23: same comment
+In the setting when $n$ edits $\edits = \{\ze[i]\}$ are applied, either in sequence or simultaneously in a batch, we define $\scope{\edits} = \cup_i \scope{\ze[i]}$ to be the union of the individual edit scopes.
+%%CF.1.23: I think the below deserves its own paragraph, since it is unrelated to what is discussed above, and is pretty important. I would also suggest putting this info about the training dataset of edits before talking about in-scope/out-of-scope, since it is a core part of the problem statement, whereas the in-scope/out-of-scope is simply defining auxiliary terminology.
+To train a model editor, we assume access
+%%CF.1.23: I would phrase this more as part of the problem rather than an added assumption, since it is a core part of the problem.  e.g. "Model editors are trained using a dataset of training edits that are representative of the edits that we expect users to provide at test time." (Also, I think it would be worth generally describing the problem in English fully before introducing notation)
+to a dataset $\editdata =\{\ze, \xtest, \ytest, \xloc\}$
+%%CF.1.23: I would change the notation for \xloc to reflect the out-of-scope terminology. (maybe x_oos?)
+of edits describing the types of desired edits, where $\xtest$ is an in-scope test input,
+%%CF.1.23: I would avoid the terminology "test input" for examples in the training edit dataset.
+$\ytest$ is its corresponding label, and $\xloc$ is an out-of-scope input.
+%%CF.1.23: seems like you are missing a \yloc?
+
+%%CF.1.23: It's weird to have one paragraph header in the section (akin to how it is weird to have one subsection in a section). Revise?
+\textbf{Evaluation.} Based on the notions of \textit{successful} and \textit{well-scoped} edits, we use the metrics of edit success (\textbf{ES}) and drawdown (\textbf{DD}) to evaluate a model editor.
+%%CF.1.23: following prior work?
+Intuitively, ES measures similarity between the edited model behavior and the \textit{desired} edited model behavior for in-scope inputs, while DD measures disagreement between the pre-edit and post-edit model for out-of-scope inputs. High ES and low DD is desirable, with ES of one and DD of zero being perfect editor performance.
+%%CF.1.23: The below is a bit weird because you are moving from a general definition of the problem to something that is much more specific to the experiments. I think it would be good to have some sign-posting to say something along the lines of "The specific ways of measuring of edit success and drawdown depend on the application domain; hence, we will outline two example instantiations of these metrics next."
+
+For \textbf{question-answering} and \textbf{fact-checking} tasks, we define ES as simply the average exact-match agreement between the edited model and true labels for in-scope inputs:
+\begin{equation}
+    \mathbf{ES_{ex}}(\ze) \triangleq \frac{1}{|\scope{\ze}|}\sum_{x' \in \scope{\ze}} \mathbbm{1}\{\editedmodel(x') = \ye[x']\}
+\end{equation}
+where $\ye[\xtest]$ is the desired label for $\xtest$ under the edit $\ze$.
+We define drawdown similarly as
+\begin{equation}
+    \mathbf{DD_{ex}}(\ze,O) \triangleq \frac{1}{|O(\ze)|}\sum_{x' \in O(\ze)} \mathbbm{1}\{\editedmodel(x') \neq \basemodel(x')\}
+\end{equation}
+%%CF.1.23: If you are going to use notation for O, then it would be worth defining it earlier. Is O simply going to be Dataset \ S(z_e), or is it something more specific to z_e? I think it's important for this to be mentioned earlier, e.g. when you talk about the training dataset of edits, since it will affect the training process.
+where $O$ is some set of out-of-scope inputs for $\ze$. Recent work
+%%CF.1.23: citation?
+suggests that choosing $O$ to simply be all out-of-scope inputs computes an easier form of drawdown, while restricting $O$ to be the hard out-of-scope inputs for $\ze$ is a more challenging criterion. 
+%%CF.1.23: can you describe how you get these hard examples?
+Because sampling the entire sets $\scope{\ze}$ and $O$ is not feasible in practice, we approximate these averages with samples.
+%%CF.1.23: Why not just write equation 1 and 2 as expectations rather than sums? I think that would make it even more obvious that you are going to sample, which means that you shouldn't need to explicitly say it here
+
+In our \textbf{conversational sentiment} editing experiments, the model editor's goal is to modify a dialogue agent's sentiment on a particular topic without affecting the agent's generations for other topics. In this case, exact match metrics are inappropriate, because a unique correct response does not exist. Instead, we use a metric that uses pre-generated sequences 
+%%CF.1.23: what are pre-generated sequences?
+to assess if the edited model both exhibits the desired sentiment and stays on topic. 
+%%CF.1.23: Please explain in English before explaining in equations -- i.e. something about how we want these models to have the correct sentiment while being on-topic.
+We measure sentiment accuracy with the rescaled likelihood ratio $\mathbf{z_{sent}} \triangleq \sigma(l_e^+ - l_e^-)$, where $l^+$ and $l^-$ are the average per-token log likelihood of the \textit{edited} model on pre-generated on-topic responses with the \textit{correct} sentiment (which may be positive or negative) and \textit{incorrect} sentiment, respectively, and $\sigma$ is the sigmoid function. We measure topical consistency with $\mathbf{z_{topic}} \triangleq \min\left(1, \exp(l_e^+ - l_{base}^+)\right)$, where $l_{base}^+$ is the average per-token log likelihood of the \textit{base} model on pre-generated on-topic responses with the correct sentiment. Intuitively, $\mathbf{z_{sent}}$ goes to one if the edited model assigns high probability to correct sentiment responses relative to incorrect sentiment responses and goes to zero in the opposite case. Intuitively, $\mathbf{z_{topic}}$ is one if the edited model assigns at least as much total probability mass to on-topic completions as $\basemodel$ and decays to zero otherwise. We measure edit success with the geometric mean of $\mathbf{z_{sent}}$ and $\mathbf{z_{topic}}$:
+\begin{equation}
+    \mathbf{ES_{sent}} \triangleq \left(\mathbf{z_{sent}} \times \mathbf{z_{topic}}\right)^{\frac{1}{2}}.
+    %%CF.1.23: I think \times usually means some sort of cross product, which I don't think is what you mean. Are you looking for the dot product? 
+\end{equation}
+To measure drawdown, we simply replace the exact match term in $\mathbf{DD}_{ex}$ with KL-divergence:
+\begin{equation}
+    \small
+    \mathbf{DD_{sent}}(\ze,O) \triangleq \frac{1}{|O(\ze)|}\sum_{\substack{x' \in\\  O(\ze)}} \text{KL}\left(\pbase\left(\cdot|x'\right) \| \pedited\left(\cdot|x'\right)\right).
+\end{equation}
+We average each metric over many examples in an evaluation dataset for each respective editing problem [todo: explain].
+
+% and $l^-$ is the We bin pre-computed responses to the topic of interest into $\{r_i^+\}$ and $\{r_i^-\}$, where elements of $\{r_i^+\}$ match the desired sentiment (which may be positive or negative) and elements of $\{r_i^-\}$ have the opposite sentiment. We define 
+% \begin{equation}
+%     \mathbf{ll}^+ = \left(\frac{1}{n^+}\sum_i\frac{1}{|r_i^+|}\sum_t \log p_{\thetae}(r_{i,t}|r_{i,<t})\right)
+% \end{equation}
+% and similarly for negative sequences to get $\mathbf{ll}^-$. The edit success score is then
+% \begin{equation}
+%     \sigma(\mathbf{l^+} - \mathbf{l^-})
+% \end{equation}
+
+% \textbf{[informal] Relationship to past problem formulations.} Past work has generally considered only implicit edit descriptors, perhaps because existing model editors generally rely on the gradient of the likelihood of the edit descriptor label wrt model parameters to make an edit. However, the ability to leverage explicit edit descriptors is 
+
+% ENN doesn't formalize generalization at all, making the literal caching-based approach technically a good solution for their problem statement. KE adds the notion of generalization to rephrases. MEND formalizes the idea of generalizing edits within an equivalence neighborhood. SLAG adds the distinction between generalizing to semantically equivalent inputs and generalizing to more difficult \textit{entailed} inputs. ROME considers editing a model's factual knowledge, specifically of facts that relate a subject and object. In addition to the edit pair $\editpair$, an editor in this setting is also provided with an annotation of the subset of the tokens in $\xe$ that correspond to the subject, and $\ye$ is assumed to correspond to the object only. 

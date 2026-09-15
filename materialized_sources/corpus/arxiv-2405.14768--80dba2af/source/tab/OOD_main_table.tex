@@ -1,0 +1,66 @@
+% \begin{table}[ht]
+%     \centering
+%     \setstretch{1.2}
+%     \vspace{0.2cm}
+%     \resizebox{0.9\linewidth}{!}{
+%         \begin{tabular}{lcccccc}
+%         \toprule
+%         \multirow{3}{*}{\textbf{Method}}
+        
+%         %\cmidrule(lr){5-7}\cmidrule(lr){8-10} 
+        
+%          % \cmidrule(lr){2-7}
+%          & \multicolumn{3}{c}{$\textbf{n = 10}$} & \multicolumn{3}{c}{$\textbf{n = 100}$} \\
+%          \cmidrule(lr){2-7}
+%          & Reliability & OOD Generality & Locality & Reliability & OOD Generality & Locality \\
+%          \midrule
+%          \texttt{GPT-J-6B} &\textit{0.5556} &\textit{0.2143} &- &\textit{0.5556} &\textit{0.2143} &- \\
+%          \midrule
+%          FT-EWC \citep{grace} &0.8659 &0.1666 &0.1332 &0.8141 &0.2173 &0.1815 \\
+%          ROME \citep{serac}  &0.0862 &0.0020 &0.0591 &0.0545 &0.0012 &0.0290 \\
+%          MEMIT-MASS \citep{memit}  &0.7331 &0.2178 &0.9939 &0.7837 &0.2717 &0.9687 \\
+%          DEFER \citep{memit}  &0.6804 &0.3270 &0.0849 &0.5211 &0.2603 &0.0778 \\
+%          GRACE \citep{memit}  &0.9717 &0.2836 &1.000 &0.9716 &0.2846 &1.000 \\
+%          \rowcolor{blue!8}\textbf{WISE}  &0.9863 &0.3555 &0.9782 &0.9598 &0.3726 &0.9970 \\
+%         \bottomrule 
+%         \end{tabular}
+%     }
+%     \label{tab:ood_main_editing}
+%     \vspace{0.2cm}
+%     \caption{OOD (Out of Distribution) editing results for Temporal.}
+%     \vspace{-0.3cm}
+% \end{table}
+
+\addtolength{\tabcolsep}{-3pt}
+\begin{wraptable}{r}{0.4\textwidth}
+    \centering
+    \vspace{-0.4cm}
+    \caption{\textbf{OOD results for Temporal dataset.} \texttt{GPT-J-6B} is used.}
+    % \setstretch{1.2}
+    \vspace{-0.2cm}
+    \resizebox{1.0\linewidth}{!}{
+        \begin{tabular}{lccc|c|ccc|c}
+        \toprule
+        \multirow{3}{*}{\textbf{Method}}
+        
+         %\cmidrule(lr){5-7}\cmidrule(lr){8-10} 
+         % \cmidrule(lr){2-7}
+         & \multicolumn{4}{c}{$T = 10$} & \multicolumn{4}{c}{$T = 75$} \\
+         \cmidrule(lr){2-9}
+         & Rel. & OOD Gen. & Loc. &Avg. & Rel. & OOD Gen. & Loc. &Avg. \\
+         \midrule
+          \textit{w/o Editing} &\textit{0.56} &\textit{0.21} &- &\textit{0.39 }&\textit{0.56} &\textit{0.21} &- &\textit{0.39} \\
+         \midrule
+         FT-EWC &0.87 &0.17 &0.13 &0.39 &0.81 &0.22 &0.18 &0.40 \\
+         ROME  &0.09 &0.00 &0.06 &0.05 &0.05 &0.00 &0.03 &0.03 \\
+         MEMIT-MASS  &0.73 &0.22 &0.99 &0.65 &0.78 &0.27 &0.97 &0.67 \\
+         DEFER  &0.68 &0.33 &0.08 &0.36 &0.52 &0.26 &0.08 &0.29 \\
+         GRACE  &0.97 &0.28 &\textbf{1.00} &0.75 &\textbf{0.97} &0.28 &\textbf{1.00} &0.75 \\
+         \midrule
+         \rowcolor{blue!8}\textbf{WISE}  &\textbf{0.99} &\textbf{0.36} &0.98  &\textbf{0.78} &0.96 &\textbf{0.37} &\textbf{1.00}  &\textbf{0.78} \\
+        \bottomrule 
+        \end{tabular}
+    }
+    \label{tab:ood_main_editing}
+    \vspace{-0.3cm}
+\end{wraptable}

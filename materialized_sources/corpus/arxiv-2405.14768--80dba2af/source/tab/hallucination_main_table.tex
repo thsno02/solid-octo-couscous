@@ -1,0 +1,99 @@
+% \begin{table}[ht]
+%     \centering
+%     \setstretch{1.2}
+%     \vspace{0.2cm}
+%     \resizebox{\linewidth}{!}{
+%     \begin{tabular}{lcc|cc|cc|cc}
+%     \toprule
+%     \multirow{3}{*}{\textbf{Method}} & \multicolumn{8}{c}{\textbf{HALLUCINATION}} \\
+    
+%     %\cmidrule(lr){5-7}\cmidrule(lr){8-10} 
+    
+%      \cmidrule(lr){2-9}
+%      & \multicolumn{2}{c|}{$T=1$} & \multicolumn{2}{c|}{$T=10$} & \multicolumn{2}{c|}{$T=100$} & \multicolumn{2}{c}{$T=600$} \\
+%      \midrule
+%      & Rel. (\textit{PPL} $\downarrow$) & Loc. ($\uparrow$) & Rel. (\textit{PPL} $\downarrow$) & Loc. ($\uparrow$)& Rel. (\textit{PPL} $\downarrow$)  & Loc. ($\uparrow$) & Rel. (\textit{PPL} $\downarrow$) & Loc. ($\uparrow$) \\
+%      \midrule
+%      \multicolumn{9}{c}{\texttt{\textbf{LLaMA-2-7B}}} \\
+%      \midrule
+%      FT-L \citep{rome} &4.4051 &0.9648  &12.5682 &0.7051  &33.0566 &0.4138  &69.2170 &0.26g84 \\
+%      FT-EWC \citep{grace} &2.5649 &0.2391  &3.6312 &0.0941  &2.1011 &0.1576  &4.5649 &0.2391 \\
+%      MEND \citep{mend} &5.6493 &0.8682  &11.0093 &0.8614  &10.0350 &0.8831  &1847.9 &0.000 \\
+%      ROME \citep{serac} &1.6782 &0.9910  &2.0370 &0.9385  &94.1549 &0.0498  &104.93 &0.0230 \\
+%      MEMIT \citep{memit} &1.6603 &0.9960  &2.3571 &0.9714  &76.6493 &0.0496  &107.61 &0.0182 \\
+%     MEMIT-MASS \citep{memit} &1.6603 &0.9960  &1.6066 &0.9867  &7.1760 &0.9560  &13.4705 &0.9378 \\
+%      DEFER \citep{memit} &1.2851 &0.2316  &3.6400 &0.2833  &8.9123 &0.1900  &19.1570 &0.1175 \\
+%      ICE \citep{memit} &1.0058 &0.8882 &1.1432 &0.8819 &2.6298 &0.8836   &4.1700 &0.8814 \\
+%      GRACE \citep{memit} &2.5853 &0.9974  &9.6159 &1.000  &9.4369 &0.9998  &9.3375 &0.9974 \\
+%      % ICE \citep{memit} & & & & & &  & & \\
+
+%      \textbf{WISE} &1.9125 &0.9993  &1.0355 &0.9958  &1.1423 &0.9952  &3.1191 &0.9858 \\
+%      \midrule
+%      \multicolumn{9}{c}{\texttt{\textbf{Mistral-7B}}} \\
+%      \midrule
+%      FT-L \citep{rome} &25.0257 &0.3777  &99.9910 &0.02719  &1594.93 &0.0046  &- &- \\
+%      FT-EWC \citep{grace} &1.7489 &0.0386  &3.0541 &0.0915  &4.7309 &0.1707  &5.4572 &0.2453 \\
+%      MEND \citep{mend} &7.6408 &0.9569  &83.7369 &0.0460  &23114.94 &0.0107  &- &- \\
+%      ROME \citep{serac} &2.0446 &0.9932  &3.4454 &0.9225  &103.751 &0.0263  &241.1745 &0.0109 \\
+%      MEMIT \citep{memit} &1.6394 &0.9982  &15.8920 &0.8853  &97.2321 &0.0380  &132.2973 &0.0184 \\
+%      MEMIT-MASS \citep{memit} &1.6394 &0.9982  &2.7810 &0.9896  &3.2242 &0.9679  &7.2757 &0.9458 \\
+%      DEFER \citep{memit} &4.7619 &0.4505 &7.3021 &0.2509  &9.5392 &0.4319 &24.1573 &0.1273 \\
+%      ICE \citep{memit} &1.0111 &0.8810 &1.1405 &0.8833 &2.6722 &0.8778   &4.3573 &0.8832 \\
+%      GRACE \citep{memit} &1.3926 &1.000  &5.9656 &1.000  &9.5273 &1.000  &9.5661 &1.000 \\
+%      % ICE \citep{memit} & & & & & &   & & \\
+%      \textbf{WISE} &1.4017 &1.000  &2.5646 &0.9368  &1.3057 &0.9865  &5.2129 &0.9329 \\
+%     \bottomrule 
+%     \end{tabular}
+%     }
+%     \label{tab:single_main_editing}
+%     \vspace{0.2cm}
+%     \caption{Main editing results for HALLUCINATION.}
+%     \vspace{-0.3cm}
+% \end{table}
+
+
+\begin{table}[t]
+\vspace{-0.5cm}
+    \caption{\textbf{Main editing results for Hallucination setting (SelfCheckGPT dataset).} $T$: Num Edits.}
+    \centering
+    \setstretch{1.2}
+    % \vspace{0.2cm}
+    % \setlength{\tabcolsep}{5pt}
+    \resizebox{0.99\linewidth}{!}{
+    \begin{tabular}{l|cc|cc|cc|cc!{\vrule width 0.09em}cc|cc|cc|cc}
+    \toprule
+    \multicolumn{17}{c}{\textbf{Hallucination}} \\
+    \midrule
+     &\multicolumn{8}{c!{\vrule width 0.09em}}{\texttt{\textbf{LLaMA-2-7B}}}  &\multicolumn{8}{c}{\texttt{\textbf{Mistral-7B}}} \\
+     \cmidrule(lr){2-9} \cmidrule(lr){10-17}
+     & \multicolumn{2}{c|}{$T=1$} & \multicolumn{2}{c|}{$T=10$} & \multicolumn{2}{c|}{$T=100$} & \multicolumn{2}{c!{\vrule width 0.09em}}{$T=600$} & \multicolumn{2}{c|}{$T=1$} & \multicolumn{2}{c|}{$T=10$} & \multicolumn{2}{c|}{$T=100$} & \multicolumn{2}{c}{$T=600$}\\
+     \midrule
+     \textbf{Method}& Rel. (\textit{PPL} $\downarrow$) & Loc. ($\uparrow$) & Rel. ($\downarrow$) & Loc. ($\uparrow$)& Rel. ($\downarrow$)  & Loc. ($\uparrow$) & Rel. ($\downarrow$) & Loc. ($\uparrow$)& Rel. ($\downarrow$) & Loc. ($\uparrow$)& Rel. ($\downarrow$) & Loc. ($\uparrow$)& Rel. ($\downarrow$) & Loc. ($\uparrow$)& Rel. ($\downarrow$) & Loc. ($\uparrow$) \\
+     \midrule
+     FT-L &4.41 &0.96  &12.57 &0.71  &33.06 &0.41  &69.22 &0.26 &25.03 &0.38  &100.00 &0.03  &1594.93 &0.00  &- &- \\
+     FT-EWC &2.56 &0.24  &3.63 &0.09  &2.10 &0.16  &4.56 &0.24 &1.75 &0.04  &3.05 &0.09  &4.73 &0.17  &5.46 &0.25\\
+     MEND &5.65 &0.87  &11.01 &0.86  &10.04 &0.88  &1847.90 &0.00 &7.64 &0.96  &83.74 &0.05  &23114.94 &0.01  &- &- \\
+     ROME &1.68 &0.99  &2.04 &0.94  &94.15 &0.05  &104.93 &0.02 &2.04 &0.99  &3.45 &0.92  &103.75 &0.03  &241.17 &0.01\\
+     MEMIT &1.66 &\textbf{1.00}  &2.36 &0.97  &76.65 &0.05  &107.61 &0.02 &1.64 &\textbf{1.00}  &15.89 &0.89  &97.23 &0.04  &132.30 &0.02\\
+     MEMIT-MASS &1.66 &\textbf{1.00}  &1.61 &0.99  &7.18 &0.96  &13.47 &0.94 &1.64 &\textbf{1.00}  &2.78 &0.99  &3.22 &0.97  &7.28 &0.95\\
+     DEFER &\textbf{1.29} &0.23  &3.64 &0.28  &8.91 &0.19  &19.16 &0.12 &4.76 &0.45 &7.30 &0.25  &9.54 &0.43 &24.16 &0.13\\
+     GRACE &2.21 &\textbf{1.00}  &8.67 &\textbf{1.00}  &9.67 &\textbf{1.00}  &9.34 &\textbf{1.00} &\textbf{1.39} &\textbf{1.00}  &5.97 &\textbf{1.00}  &9.53 &\textbf{1.00}  &9.57 &\textbf{1.00}\\
+     \midrule
+     \rowcolor{blue!8}\textbf{WISE} &1.91 &\textbf{1.00}  &\textbf{1.04} &\textbf{1.00}  &\textbf{1.14} &\textbf{1.00}  &\textbf{3.12} &0.99 &1.40 &\textbf{1.00}  &\textbf{2.56} &0.94  &\textbf{1.31} &0.99  &\textbf{5.21} &0.93\\
+    \bottomrule 
+    \end{tabular}
+    }
+    \label{tab:halluc_main_editing}
+    \vspace{-0.3cm}
+\end{table}
+
+
+% activation scatter
+% size scaling
+% grace generality (t-SNE) [meaning trajectory]
+% Hparams: Mask_Ratio, Merge_Freq
+% Layer粒度，为什么选择中后层
+% TRR 等价于 locality
+% loc activation 1000 200
+% RAG 为什么泛化性差，ICL不efficiency。
+% 和SERAC的具体区别

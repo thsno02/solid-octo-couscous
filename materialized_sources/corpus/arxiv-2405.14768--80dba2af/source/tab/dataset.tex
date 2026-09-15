@@ -1,0 +1,24 @@
+\addtolength{\tabcolsep}{-3pt}
+\begin{wraptable}{r}{0.50\textwidth}
+    \vspace{-0.4cm}
+    \centering
+    \caption{Dataset statistics for main results.
+    \textit{Locality Data} is the irrelevant data of the editing process. $T$ is the number of samples. \textit{Pre-edit} is the unedited model's performance on each dataset.}
+    \vspace{-0.2cm}
+    \resizebox{\linewidth}{!}{
+    \begin{tabular}{ccccc}
+    \toprule
+    \textsc{Setting} & \textsc{Editing Data} & $T$ & Pre-edit (LLaMA/Mistral) & \textsc{Locality Data} \\ 
+    % \cmidrule(lr){2-4}
+    % & Dataset & N & Pre-edit & Dataset \\
+    \midrule
+    QA & ZsRE \cite{zsre} & 1,000 & 0.36/0.39 ACC & NQ \cite{NQ}\\
+    Halluc. & SelfCheckGPT \cite{selfcheckgpt} & 600 & 27.4/19.4 PPL & RedPajama \cite{redpajama}\\
+    OOD Gen. & Temporal \cite{canonical_examples} & 100 & 0.56 $\delta$-ACC (GPT-J) & Pile \cite{pile}\\
+    \bottomrule\\    
+    \end{tabular}
+    }
+    \label{tab:datasets}
+    \vspace{-0.4cm}
+\end{wraptable}
+\addtolength{\tabcolsep}{3pt}

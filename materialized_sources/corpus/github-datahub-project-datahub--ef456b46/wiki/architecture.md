@@ -1,0 +1,122 @@
+# Architecture evidence: datahub-project/datahub
+
+- `README.md:27` — The #1 Open Source AI Data Catalog
+- `README.md:92` — 📊 **NEW: Open Source Analytics Agent**
+- `README.md:117` — What is DataHub?
+- `README.md:129` — Why DataHub?
+- `README.md:141` — 🧠 The Context Foundation
+- `README.md:151` — 📑 Table of Contents
+- `README.md:168` — ❓ Frequently Asked Questions
+- `README.md:195` — macOS / Linux (simplest)
+- `README.md:198` — Or via pip (any platform)
+- `README.md:210` — 🎨 See DataHub in Action
+- `README.md:242` — 🚀 Quick Start
+- `README.md:244` — Option 1: Try the Hosted Demo (Fastest)
+- `README.md:250` — Option 2: Run Locally (Recommended)
+- `README.md:259` — Homebrew (macOS / Linux)
+- `README.md:262` — Or pip (any platform)
+- `README.md:272` — Access DataHub at http://localhost:9002
+- `README.md:273` — Default credentials: datahub / datahub
+- `README.md:284` — Option 3: Run from Source (For Contributors)
+- `README.md:289` — Clone the repository
+- `README.md:293` — One-time setup (Python CLI + dev tooling)
+- `README.md:296` — Start DataHub (Gradle profiles under docker/profiles)
+- `README.md:299` — Access DataHub at http://localhost:9002
+- `README.md:300` — Default credentials: datahub / datahub
+- `README.md:303` — Next Steps
+- `README.md:311` — 📦 Installation Options
+- `README.md:323` — 🏗️ Architecture Overview
+- `README.md:335` — 💻 Use Cases & Examples
+- `README.md:349` — snowflake_recipe.yml
+- `README.md:372` — Run ingestion
+- `README.md:375` — Expected output:
+- `README.md:376` — ✓ Connecting to Snowflake...
+- `README.md:377` — ✓ Discovered 150 tables in ANALYTICS_DB
+- `README.md:378` — ✓ Discovered 75 tables in MARKETING_DB
+- `README.md:379` — ✓ Ingesting metadata...
+- `README.md:380` — ✓ Successfully ingested 225 datasets to DataHub
+- `README.md:408` — Initialize DataHub client
+- `README.md:412` — Search for datasets containing "customer"
+- `README.md:421` — Example output:
+- `README.md:422` — Found: urn:li:dataset:(urn:li:dataPlatform:snowflake,analytics.customer_profiles,PROD)
+- `README.md:423` — Found: urn:li:dataset:(urn:li:dataPlatform:bigquery,marketing.customer_segments,PROD)
+- `README.md:517` — Create emitter to send metadata to DataHub
+- `README.md:520` — Create dataset URN (unique identifier)
+- `README.md:527` — Define dataset properties
+- `README.md:545` — Emit metadata to DataHub
+- `README.md:580` — Initialize MCP server for DataHub
+- `README.md:583` — Follow the interactive prompts to configure:
+- `README.md:584` — - DataHub GMS endpoint (e.g., http://localhost:8080)
+- `README.md:585` — - Authentication token (if required)
+- `README.md:586` — - MCP server settings
+- `README.md:648` — Common Use Cases
+- `README.md:661` — 📝 DataHub in Action
+- `README.md:691` — 🏢 Trusted by Industry Leaders
+- `README.md:695` — By Industry
+- `README.md:715` — Featured Case Studies
+- `README.md:725` — 🌐 DataHub Ecosystem
+- `README.md:729` — Official Repositories
+- `README.md:738` — Community Plugins & Integrations
+- `README.md:748` — Integrations by Category
+- `README.md:764` — 💬 Community & Support
+- `README.md:768` — 🗓️ Town Halls
+- `README.md:775` — 💬 Get Help & Connect
+- `README.md:787` — 📧 Stay Updated
+- `README.md:792` — 🎓 Learning Resources
+- `README.md:801` — 🤝 Contributing
+- `README.md:809` — 📚 Resources & Learning
+- `README.md:811` — 📰 Featured Content
+- `README.md:832` — 🔗 Important Links
+- `README.md:850` — 📄 License
+- `AGENTS.md:1` — DataHub — Agent Development Guide
+- `AGENTS.md:6` — Code Navigation (LSP)
+- `AGENTS.md:17` — Essential Commands
+- `AGENTS.md:28` — Note that each directory typically has a build.gradle file, but the available tasks follow similar conventions.
+- `AGENTS.md:30` — Java code.
+- `AGENTS.md:33` — Python code.
+- `AGENTS.md:38` — Markdown, GraphQL, YAML formatting
+- `AGENTS.md:52` — Code Formatting and Linting
+- `AGENTS.md:56` — Available Formatting Tasks
+- `AGENTS.md:70` — Markdown files
+- `AGENTS.md:74` — GraphQL schemas
+- `AGENTS.md:78` — GitHub Actions YAML
+- `AGENTS.md:82` — Java code
+- `AGENTS.md:85` — Python code
+- `AGENTS.md:90` — When CI Formatting Checks Fail
+- `AGENTS.md:114` — Why Use Gradle Tasks?
+- `AGENTS.md:125` — Architecture Overview
+- `AGENTS.md:129` — Core Services
+- `AGENTS.md:136` — Key Modules
+- `AGENTS.md:155` — Metadata Model Concepts
+- `AGENTS.md:163` — Validation Architecture
+- `AGENTS.md:172` — Authorization Architecture
+- `AGENTS.md:183` — Development Flow
+- `AGENTS.md:190` — Working on Docs
+- `AGENTS.md:195` — Quick start
+- `AGENTS.md:204` — How the docs site is assembled
+- `AGENTS.md:209` — Where docs live
+- `AGENTS.md:223` — Adding or editing a hand-authored doc
+- `AGENTS.md:231` — Adding a DataHub Cloud release note
+- `AGENTS.md:242` — Code Standards
+- `AGENTS.md:244` — General Principles
+- `AGENTS.md:251` — Language-Specific
+- `AGENTS.md:265` — Code Comments
+- `AGENTS.md:288` — Good: Explains WHY and provides context
+- `AGENTS.md:289` — Use a 30-second timeout because Snowflake's query API can hang indefinitely
+- `AGENTS.md:290` — on large result sets. See issue #12345.
+- `AGENTS.md:293` — Bad: Restates what's obvious from code
+- `AGENTS.md:294` — Set connection timeout to 30 seconds
+- `AGENTS.md:298` — Testing Strategy
+- `AGENTS.md:305` — Testing Principles: Focus on Value Over Coverage
+- `AGENTS.md:403` — Security Testing: Configuration Property Classification
+- `AGENTS.md:413` — Commits
+- `AGENTS.md:419` — Pull Requests
+- `AGENTS.md:441` — Confidentiality in Committed Code
+- `AGENTS.md:456` — Starting / Operating DataHub
+- `AGENTS.md:461` — `datahub-dev` CLI Tool
+- `AGENTS.md:475` — End-to-End Workflow
+- `AGENTS.md:486` — Module-to-Container Mapping
+- `AGENTS.md:498` — Environment Variables
+- `AGENTS.md:515` — Feature Flag Lifecycle
+- `AGENTS.md:531` — Stopping DataHub
+- `AGENTS.md:538` — Remote Runners

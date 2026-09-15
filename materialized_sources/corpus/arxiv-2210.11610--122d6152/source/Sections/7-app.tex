@@ -1,0 +1,17 @@
+
+\clearpage
+\appendix
+\section{Appendix}
+\label{app:appendix}
+
+\subsection{Results on UL2 model}
+We also apply \method on a recently proposed public language model, UL2~\citep{Tay2022UL2UL}, using the pre-trained model at step 2,650,000\footnote{UL2: \url{https://github.com/google-research/google-research/tree/master/ul2}}. We use a fixed set of hyperparameters for fine-tuning on each dataset. Specifically, we generate $m=40$ reasoning paths for each question in a training set for majority voting. We fine-tune the model for 10k steps with a learning rate of $5$e$-5$ and a batch size of $32$. For multiple path decoding, we use a sampling temperature of $T=0.5$ with the pre-trained UL2 model following~\citet{Tay2022UL2UL}, and set $T=0.7$ for the language model after \method. We set the maximum number of decode steps to $256$ for all experiments.
+
+The results are shown in Table~\ref{tab:ul2_res}. For arithmetic reasoning datasets, we follow~\citep{Tay2022UL2UL} to provide both exact matching accuracy scores as well as accuracy scores after an equation-correction postprocessing step. We observe that for most datasets, \method still improves the reasoning accuracy, but the improvement on UL2 is not as large as that on \bigmodel. We think the reason is that, since \method exploits the implicit rationale of language models, and the capacity of a language model is determined by its size, larger models can capture more high-order semantics and are more likely to benefit from \method. 
+
+\input{Tables/ul2_res}
+
+\subsection{Chain-of-Thought Prompts for Each Dataset}~\label{sec:app_prompt}
+We list the Chain-of-Thought Prompts for each dataset for ``CoT-Prompting'' experiments and self-generated training samples.
+
+\input{Tables/gsm8k_prompt}

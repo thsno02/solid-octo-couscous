@@ -1,0 +1,25 @@
+# Architecture evidence: treeverse/lakeFS
+
+- `README.md:19` — lakeFS is Data Version Control (Git for Data)
+- `README.md:29` — Getting Started
+- `README.md:40` — Getting Started with Docker
+- `README.md:52` — Quickstart
+- `README.md:58` — Why Do I Need lakeFS?
+- `README.md:60` — ETL Testing with Isolated Dev/Test Environment
+- `README.md:66` — Reproducibility
+- `README.md:77` — Write-Audit-Publish
+- `README.md:85` — Rollback
+- `README.md:93` — Community
+- `README.md:103` — More information
+- `README.md:109` — Licensing
+- `README.md:116` — Who Uses lakeFS?
+- `Dockerfile:1` — syntax=docker/dockerfile:1
+- `Makefile:10` — https://openapi-generator.tech
+- `Makefile:50` — This cannot detect whether untracked files have yet to be added.
+- `Makefile:51` — That is sort-of a git feature, but can be a limitation here.
+- `Makefile:261` — Run all validation/linting steps
+- `Makefile:299` — helpers
+- `SECURITY.md:1` — Security Policy
+- `SECURITY.md:3` — Supported Versions
+- `SECURITY.md:17` — Staying Up to Date
+- `SECURITY.md:23` — Reporting a Vulnerability

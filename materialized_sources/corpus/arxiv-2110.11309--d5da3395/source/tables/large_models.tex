@@ -1,0 +1,20 @@
+\begin{table}
+    \centering
+    \small
+    \begin{tabular}{lcccccccc}
+    \toprule
+       & \multicolumn{4}{c}{\textbf{Wikitext Generation}} & \multicolumn{4}{c}{\textbf{zsRE Question-Answering}} \\ 
+       \cmidrule(lr){2-5} \cmidrule(lr){6-9}
+       & \multicolumn{2}{c}{GPT-Neo (2.7B)} & \multicolumn{2}{c}{GPT-J (6B)} & \multicolumn{2}{c}{T5-XL (2.8B)} & \multicolumn{2}{c}{T5-XXL (11B)} \\
+       \midrule
+       Editor & ES $\uparrow$ & ppl. DD $\downarrow$ & ES $\uparrow$ & ppl. DD $\downarrow$ & ES $\uparrow$ & acc. DD $\downarrow$ & ES $\uparrow$ & acc. DD $\downarrow$ \\
+       \midrule
+       FT & 0.55 & 0.195 & 0.80 & 0.125 & 0.58 & \textbf{\textlt{0.001}} & 0.87 & \textbf{\textlt{0.001}} \\
+       FT+KL & 0.40 & \textbf{0.026} & 0.36 & 0.109 & 0.55 & \textbf{\textlt{0.001}} & 0.85 & \textbf{\textlt{0.001}} \\
+       KE & 0.00 & 0.137 & 0.01 & 0.068 & 0.03 & \textbf{\textlt{0.001}} & 0.04 & \textbf{\textlt{0.001}} \\
+       \name & \textbf{0.81} & 0.057 & \textbf{0.88} & \textbf{0.031} & \textbf{0.88} & 0.001 & \textbf{0.89} & \textbf{\textlt{0.001}} \\
+     \bottomrule
+    \end{tabular}
+    \caption{\textbf{Editing very large pre-trained models} on our Wikitext generative editing problem and the zsRE question-answering editing problem used by \citet{Cao2021EditingFK}. \name~consistently produces more effective edits (higher success, lower drawdown) than existing editors. \textbf{ES} is the edit success rate, while \textbf{ppl.\ DD} and \textbf{acc.\ DD} are the model drawdown in units of perplexity increase or accuracy decrease, respectively. Due to ENN's memory requirements, we were unable to run the algorithm for models of this size. The low drawdown for all T5 models may occur because the T5 models (pre-trained on mask filling and finetuned for question-answering by \citet{roberts2020knowledge}) might not be fully converged on the question-answering problem. Edits may therefore effectively serve as task specification, further fine-tuning the model on question-answering. \rebuttal{\textbf{FT} refers to fine-tuning; \textbf{FT+KL} is fine-tuning with a KL-div. penalty between the original and fine-tuned model.}}
+    \label{tab:large-model-results}
+\end{table}

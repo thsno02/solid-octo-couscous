@@ -1,0 +1,84 @@
+\section{WikiContradict}
+\label{sec:dataset}
+In this section, we describe the process of leveraging contradiction tags from Wikipedia to develop \texttt{WikiContradict}, a QA-based benchmark consisting of 253 human-annotated instances that cover different types of real-world knowledge conflicts. 
+
+
+\begin{figure}
+    \centering 
+    \includegraphics[width=.9\textwidth]{figs/Annotation.pdf}
+    \caption{\texttt{WikiContradict} data annotation pipeline.}
+    \label{fig:annotation}
+\end{figure}
+
+\subsection{Data collection and processing}
+Although Wikipedia is widely regarded as a high-quality pre-training dataset for most LLMs, its content is not without flaws, including speculation, inconsistencies, and other content issues. To address these problems, Wikipedia editors use a wide range of maintenance tags to flag  problematic content for improvement. However, these maintenance tags are typically removed when creating Wikipedia datasets for LLM pre-training, which results in content with various quality issues being included in the pre-training process.
+
+In this work, we focus on three tags that indicate content inconsistencies: \emph{inconsistent}, \emph{self-contradictory}, and \emph{contradict-other}. The first two tags denote contradictory statements within the same article, whereas the third tag highlights instances where the content of one article contradicts that of another article. In total, we collect around 1,200 articles that contain these tags through the Wikipedia maintenance category ``\emph{Wikipedia articles with content issues}''\footnote{\url{https://en.wikipedia.org/wiki/Category:Wikipedia_articles_with_content_issues}. The dataset is collected on Feburary 26, 2024.}. The upper portion of Figure \ref{fig:annotation} illustrates a Wikipedia article that has been flagged by an ``\emph{inconsistent}'' tag with the comment ``\emph{contradictory number of monks}''. The tagged paragraphs from these articles, together with the editors' comments whenever available, serve as the starting point for our annotations.
+
+\subsection{Data annotation}
+We developed an annotation interface using Label Studio\footnote{\url{https://labelstud.io/}}, as shown in the lower portion of Figure \ref{fig:annotation}. Given a content inconsistency tag provided by Wikipedia editors, our annotators first need to verify whether the tag is valid by checking the relevant article content, the editor's comment, as well as the information in the edit history and the article's talk page if necessary.   
+
+For the verified valid tags, we instruct annotators to extract the two contradictory paragraphs/sentences from the original article(s), slightly modifying them as needed to create stand-alone passages. Such modifications normally require the annotators to resolve anaphoric references (e.g., \emph{She}) in the first sentence of each passage. Next, the annotators should provide a brief explanatory text to clarify the contradictions between the two passages and categorize them using a pre-defined taxonomy, such as \emph{Date, Number, Explicit, Implicit}. Implicit contradiction requires us do to some reasoning to understand why the two passages are contradicted 
+whereas explicit contradiction is more straightforward, with the inconsistency clearly evident on the surface.
+
+
+Finally, the annotators must craft at least one question that effectively highlights the contradictions between the two passages, eliciting different answers depending on which passage is referenced. The two examples from Figure \ref{fig:example} illustrate our annotation results. On average, annotators spent around 30 minutes to annotate a tag; longer times are required to annotate tags related to implicit conflicts, especially for cases in which the reasons of inconsistency are not explicitly mentioned in the comments from Wikipedia editors.  More details about the pre-defined contradiction taxonomy and the full annotation guideline can be found in Appendix \ref{appx:guidelines} of the supplementary materials.
+
+\subsection{Data statistics}
+
+
+\begin{wraptable}{r}{6cm}
+ \vspace*{-2.5\baselineskip}
+   \caption{\texttt{WikiContradict} dataset.}
+   \vspace{5pt}
+  \label{tab:datastat}
+  \centering
+  \begin{small}
+
+  \begin{tabular}{l|l}
+    \toprule
+    Wikipedia tags     &     261  \\ 
+    Verified valid tags     &    130  \\  
+    \midrule
+    Annotated instances & 253  \\ 
+    \midrule
+    \multicolumn{2}{c}{Question type} \\ 
+        \midrule
+         Yes/No questions & 133    (53\%)  \\
+         Wh-questions       & 120  (47\%)\\
+   \midrule
+    \multicolumn{2}{c}{Contradiction type} \\ 
+        \midrule
+         Explicit & 161    (64\%)  \\ 
+         Implicit  & 92    (36\%)\\    
+         \bottomrule
+  \end{tabular}
+  \end{small}
+\end{wraptable}
+
+
+Using the annotation pipeline outlined in the previous section, the authors annotated the collected Wikipedia articles marked with inconsistency tags, yielding a total of 253 annotated instances. Each instance comprises a question, two contradictory passages, and two distinct answers, each derived from one of the passages. 
+Table \ref{tab:datastat} shows an overview of the dataset statistics. Notably, among all annotated instances, approximately 61\% of questions are categorized as wh-questions seeking specific information. Furthermore, a significant proportion of instances (36\%) contain implicit contradictions.
+
+
+
+
+\begin{figure}[t]
+    \centering 
+    \includegraphics[width=0.9\textwidth]{figs/Evaluation.pdf}
+    \caption{\texttt{WikiContradict} evaluation.}
+    \label{fig:evaluation}
+\end{figure}
+
+\subsection{Evaluation}
+\label{sec:evalProtocal}
+To investigate how LLMs respond to real-world inter-context conflicts, we develop five prompt templates to evaluate their performance under different question-answering (QA) scenarios.  As illustrated in Figure \ref{fig:evaluation}, for each annotated instance from the \texttt{WikiContradict} dataset, we generate five question prompts based on these pre-defined templates. Specifically, template 1 evaluates a model's internal knowledge, while templates 2 and 3 examine its performance in the RAG setting with a single retrieved passage. Templates 4 and 5, on the other hand, assess a model's ability to handle QA in the RAG setting with two contradictory passages that can lead to different answers.
+
+To evaluate LLMs' responses to these question prompts, we follow the relaxed evaluation mode from FreshLLM \citep{vu2023freshllms} by allowing additional hallucinated or inaccurate information as long as the primary answer is accurate and any additional information does not contradict with the primary answer. More specifically, each response is evaluated as ``\emph{correct}'', ``\emph{partially correct}'', or ``\emph{incorrect}'':
+\begin{itemize}
+    \item ``\emph{Correct}'' if the response accurately matches all the answers in the annotated answer list. For prompt templates 4 and 5, the response should identify and contain the contradictory answers that reflect the heterogeneous nature of the context. Additionally, the correct response should not indicate a preference for one answer over another, and it should not combine two different correct answers without indicating the contradictory nature of these answers.
+    \item ``\emph{Partially correct}'' applies to prompt templates 1, 4, and 5; it means that the response only matches one of the answers in the annotated answer list, or the response matches all the answers in the correct answer list but indicates a preference for one answer over another.
+    \item ``\emph{Incorrect}'' if the response does not match any of the annotated answers, or the response merely combines two contradictory answers from the annotated answer list and indicates that both are possible at the same time without indicating the contradictory nature of the two context passages.
+\end{itemize}
+  
+Following the criteria described above, for the question from Example 2 of Figure \ref{fig:example}, an LLM response to prompt template 4, ``\ul{\emph{According to the context, the number of monks who know the secret recipe of Chartreuse is either three or two. The first statement suggests that three monks know the recipe, while the second statement contradicts this, stating that only two monks at Grande Chartreuse know the secret recipe.}}'' is a \emph{\textbf{correct}} response. In contrast, the LLM response to prompt template 3, ``\ul{\emph{Two monks know the secret recipe of Chartreuse.}}'' is \emph{\textbf{partially correct}}, as it only captures one aspect of the contradictory information presented in the context.

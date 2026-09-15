@@ -1,0 +1,161 @@
+\section{Methods and Models}
+Because the amount of text in input reference documents $(C_i, S_i)$
+can be very large
+(see Table \ref{wikisum-stats})
+it is infeasible to train an end-to-end abstractive model given the memory constraints
+of current hardware.
+Hence, we first coarsely select a subset of the input using
+extractive summarization.
+The second stage involves training an abstractive model that generates
+the Wikipedia text while conditioning on this extraction. This two-stage
+process is inspired by
+by how humans might summarize multiple long documents: First highlight
+pertinent information, then conditionally generate the summary based on
+the highlights.
+
+\subsection{Extractive stage}
+We investigate three  extractive methods from the summarization literature,
+along with a trivial and cheating method,  to assess the importance of this stage.
+For each article, $a_i$ we create a ranked list of paragraphs,
+$\{p^i_{R_i(j)}\}$, occurring in $(C_i, S_i)$ where $R_i(j)$ is the rank of the $j$th paragraph $p^i_j$ of $(C_i, S_i)$.
+From this we select the first $L$ tokens as input to the second
+abstractive stage.
+
+
+\begin{enumerate}
+    \item \textit{Identity}: As a trivial baseline extractor, we simply use the first $L$ tokens of the input.
+\item \textit{tf-idf}: A non-trivial ranking is to consider ranking paragraphs as documents in a query-retrieval
+problem, where the query is the title of the article, $T(a_i)$. We compute tf-idf \citep{ramos2003using}
+for the query, with respect to the documents, $\{p^i_j\}$. That is, we summate
+for each word in the query
+\[N_w \cdot log (\frac{N_d}{N_{dw}}) \]
+where $N_w$, $N_d$, and $N_{dw}$ are the count of the word in the document,
+total number of documents, and total number of documents containing the word, 
+respectively.
+
+\item \textit{TextRank} \citep{textrank}: A weighted graph is defined
+	where text units are nodes and edges are defined
+		by a similarity measure based on word overlap.
+	An algorithm similar to PageRank \citep{pagerank} is then used to
+	compute the ranking of text units. We used paragraphs for the text units.
+\item \textit{SumBasic} \citep{sumbasic}: Word frequencies in the input text
+	are used to assign scores to words, which are in turn used to score
+        sentences. After selecting the best scoring sentence, words in it
+        have their scores reduced, and the process is repeated until the desired
+	summary length is reached.
+
+\item \textit{Cheating}
+    To further demonstrate the quality of extraction on the final performance,
+    we implement a cheating extractor that ranks $\{p^i_j\}$ using recall of bigrams
+    in the ground truth text:
+
+\begin{equation}
+d(p^i_j, a_i) = \frac{bigrams(p^i_j) \cap bigrams(a_i)}{bigrams(a_i)}
+\label{cheating-similarity}
+\end{equation}
+\end{enumerate}
+
+
+\subsection{Abstractive stage}
+\subsubsection{Data representation}
+Given the ordered paragraphs $\{p^i_{R_i(j)}\}$,
+we derive the raw text input simply as the concatenation of the paragraphs in
+order,
+the most relevant at the beginning, and prefixed with the title.
+
+We then encode the text using sub-word tokenization similar to \citet{wu2016google}
+with a vocabulary size of 32,000 yielding tokenized input, $x_i$:
+   \[ text_i = T(a_i) \Vert \{p^i_{R_i(j)}\}  \]
+ \[ tokenize(text_i) = x_i = (x_i^1, x_i^2, ..., x_i^{n_i}) \]
+
+For various values of $L$ in experiments, we truncate the tokens to form the input sequence:
+  \[ m^L_i = (x_i^1, ... x_i^{min(L, n_i)}) \]
+
+For the output, we use the same vocabulary and tokenization for the Wikipedia
+lead text but do not do any truncation across experiments.
+
+Next we describe the abstractive models, $W$, that learn to write articles, $a_i = W(m^L_i)$,
+which we treat as a sequence transduction problem from very long input sequences
+(up to $L=11000$) to medium output sequences (typically less than 500).
+
+\subsubsection{Baseline Models}
+
+% http://google3/third_party/py/tensor2tensor/models/lstm.py?l=265&rcl=169297690
+As a baseline we apply the standard LSTM encoder-decoder with
+attention (seq2seq-att) as in \cite{bahdanau2014neural} to this task.
+As is typical we train to optimize the maximum-likelihood objective:
+
+\[ y_i = tokenize(a_i) \]
+\[\prod_{i=1}^{N}p(y_i | m^L_i) \]
+
+A stronger, more recent baseline that we use is the non-recurrent
+Transformer model described in \ref{related_transformer}, which also has symmetric
+encoder and decoder modules (T-ED).
+
+\subsubsection{Transformer Decoder (T-D)}
+We introduce a simple but effective modification to T-ED for long sequences
+that drops the encoder module (almost reducing model parameters by half for a given
+hyper-parameter set), combines the input and output
+sequences into a single "sentence" and is trained as a standard language model. 
+
+That is, we convert a sequence-transduction example $(m^1, ..., m^n) \mapsto (y^1, ..., y^\eta)$ into
+the sentence $(w^1, ..., w^{n+\eta+1}) = (m^1, ..., m^n, \delta, y^1, ..., y^\eta)$, where $\delta$ is a special separator token
+ and train a model to predict the next word given the previous ones:
+ \[p(w^1, ..., w^{n+\eta}) = \prod_{j=1}^{n+\eta} p(w^i | w^1, ..., w^{j-1}) \]
+
+Since the model is forced to predict the next token in the input, $m$, as well as $y$,
+error signals are propagated from both input and output time-steps during training. We also
+suspect that for monolingual text-to-text tasks redundant information is re-learned about language in the encoder and decoder. 
+ We believe this allows for easier optimization and empirically observe this 
+ with longer sequences (see Section \ref{discussion}).
+ Note that because of the
+ self-attention of the Transformer, when generating the next token, attention
+ from both $m$ and $y$ are considered.
+ At inference we provide the input sequence, $m_i$, initially, and auto-regressively generate the output, $y_i$, as normal.
+
+
+\subsubsection{Transformer Decoder with memory-compressed attention (T-DMCA)} \label{t-dmca}
+To re-use the terminology used to describe the Transformer,
+the attention is a function of a query ($Q$) and set of key ($K$) and value ($V$) pairs.
+To handle longer sequences, we modify the multi-head self-attention
+of the Transformer to reduce memory usage
+by limiting the dot products between $Q$ and $K$ in:
+	\[Attention(Q, K, V) = softmax(\frac{QK^T}{\sqrt{d_k}}) V \]
+
+\textbf{Local attention}: Sequence tokens are divided into blocks of similar length and 
+    attention is performed in each block independently. As the attention memory cost per block 
+    becomes constant, this modification allow us to keep the number of activations linear
+    with respect to the sequence length. In our experiments, we choose to have blocks of 256 tokens.
+
+\textbf{Memory-compressed attention}:
+After projecting the tokens into the query, key, and value embeddings, we reduce the number of keys
+and values by using a strided convolution. The number of queries remains unchanged.
+This modification allows us to divide the number of activations by a compression factor.
+In our experiments we use convolution kernels of size 3 with stride 3.
+In contrast to local attention layers,
+which only capture the local information within a block,
+the memory-compressed attention layers are able to exchange information
+globally on the entire sequence.
+
+These modifications (see Figure \ref{td_model}) allow us in practice to process
+sequences 3x in length over the T-D model.  For both local and memory-compressed attention, masking is added to prevent the queries from attending to future keys and values.
+Our final architecture is a 5-layer network (LMLML) alternating between local-attention (L) layers and
+memory-compressed attention (M) layers (in \citet{vaswani2017attention} it is 6 identical layers).
+We also added in some experiments
+one mixture of experts (MoE) layer \citep{shazeer2017outrageously}
+to increase the network's capacity.
+
+
+\begin{figure}[h]
+\fbox{%
+    \includegraphics[width=\textwidth]{AttentionsFigures.png}
+}%
+	\caption{The architecture of the self-attention layers used in the T-DMCA model.
+	Every attention layer takes a sequence of tokens as input and produces
+	a sequence of similar length as the output.
+	\textbf{Left:} Original self-attention as used in the transformer-decoder.
+	\textbf{Middle:} Memory-compressed attention which reduce the number of keys/values.
+	\textbf{Right:} Local attention which splits the sequence into individual smaller sub-sequences.
+	The sub-sequences are then merged together to get the final output sequence.}
+\label{td_model}
+\end{figure}

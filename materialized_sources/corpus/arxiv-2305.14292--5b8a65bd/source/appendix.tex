@@ -1,0 +1,541 @@
+\section{Example Conversations}
+\label{sec:example-dialogs}
+Tables \ref{table:example-wikichat-gf}, \ref{table:example-wikichat-llama}, \ref{table:example-gpt}, and \ref{table:example-atlas} provide examples of conversations between our user simulator and four chatbots, on the same topic: the 2023 Australian Open Men's singles~\footnote{\url{https://en.wikipedia.org/wiki/2023_Australian_Open_\%E2\%80\%93_Men\%27s_singles}}.
+Tables~\ref{table:example-wikichat-gpt4-userstudy} and \ref{table:example-gpt4-userstudy} show two conversations between human users and GPT-4 and \systemgf, from our user study.
+The simulations were done using a Wikipedia dump on 4/28/2023.
+The user study was conducted on 6/17/2023 using a Wikipedia dump of the same date.
+
+\include{sample_outputs}
+
+
+\section{Experiment Details}
+
+\paragraph{Statistical significance tests}
+For statistical significance tests throughout the paper, we use independent two-sample t-test and consider the difference significant if $p \leq 0.05$.
+
+\paragraph{Simulation Topics.}
+We obtain the number of visits and edits of each Wikipedia article using the Wikimedia API~\footnote{Accessed via \url{https://wikimedia.org/api/rest_v1/}}.
+
+As mentioned in the paper, to select the recent topics, we look at the most edited Wikipedia
+articles in the first four months of 2023.
+Filtering based on the creation date did not lead to meaningful articles as there are many articles about old topics that just received articles in Wikipedia. Instead, in our experience, most of the highly edited Wikipedia articles are about actual new topics.
+
+\paragraph{Hyperparameters.}
+\label{appendix:hyperparameters}
+We use temperature of 0 and greedy decoding for all experiments, except the user simulator which has a temparature of 1.0 and nucleus sampling~\cite{degeneration2019} with p=0.5.
+We use no repetition penalty, except for a repetition penalty of 1.1 for the baseline LLaMA model, because we find that repetition penalty of 1.0 (i.e. no penalty) results in the model frequently degenerating~\cite{degeneration2019} repetitions.
+
+In most prompts of \system, we include at most the last five turns of the dialogue history to reduce the chance of causing confusion for the few-shot models in longer conversations.
+
+\paragraph{Baseline Atlas.}
+We use the 3B-parameter Atlas-XL and update its index to the same Wikipedia index as \system for a fair comparison.
+We reproduce their best model on Wizard of Wikipedia, which is obtained by fine-tuning the Atlas pre-trained model and its retriever using the train set, except that we update their index to the same Wikipedia dump as \system. For this, we use the fine-tuning code in the Atlas code repository~\footnote{\url{https://github.com/facebookresearch/atlas/blob/main/example_scripts/nq/train.sh}}, and set learning rate to 4e-5, dropout to 0.1, weight decay to 0.01, and retriever number of contexts to 40. We use a target maximum length of 64 instead of 16, to accommodate longer outputs.
+After this, the resulting model matches the Wizard of Wikipedia validation score reported in~\citet{izacard2022atlas}.
+
+\paragraph{Distillation to LLaMA.}
+When fine-tuning LLaMA-7B in the distillation experiments, we use hyperparameters from \cite{alpaca}, namely learning rate of $2\times 10^{-5}$, cosine learning rate schedule, batch size of 128, and training for 3 epochs.
+Initial experiments with LLaMA-30B showed no significant improvements.
+Training is done on 4 NVIDIA A100 (80 GB) GPUs.
+
+
+\paragraph{Automatic Evaluation.}
+\label{appendix:automatic_eval}
+In order to verify that using GPT-4 for conversationality metrics (Section ~\ref{sec:auto_eval}) is indeed reasonable, we compare its scores against two authors of this paper. Table~\ref{table:kappa} shows inter-annotator agreement for ratings on 50 randomly sampled conversation turns from all chatbots, measured by calculating Cohen's Kappa. The annotators are given the same instructions that is given to GPT-4 as prompt.
+
+\begin{table*}[ht]
+\centering
+\begin{tabular}{lccccc} 
+ \hline
+& Relevant & Inform. & Natural & Non-Rep. \\
+ $\kappa$ between author 1 and author 2 & 0.41 & 0.61 & 0.28 & 0.48 \\
+ $\kappa$ between author 1 and GPT-4 & 0.45 & 0.35 & 0.11 & 0.38 \\
+ $\kappa$ between author 2 and GPT-4 & 0.67 & 0.60 & 0.49 & 0.41 \\
+ \hline
+
+\end{tabular}
+\caption{Cohen's Kappa between different annotators for conversationality metrics.}
+\label{table:kappa}
+\end{table*}
+
+
+\paragraph{An Alternative to \system's Verification Stage.}
+
+For the verification stage (Stage 5), we initially experimented with two approaches for verification: the Kernel Graph Attention Network (KGAT) verifier~\cite{liu-etal-2020-fine} and a few-shot prompt-based verifier with chain-of-thought prompting~\cite{chain-of-thought}. KGAT is a model specifically designed for fact-checking and fine-tuned on the FEVER dataset~\cite{thorne-etal-2018-fever}.
+
+While KGAT performs effectively for FEVER-style fact verification tasks, we found its performance lacking in our setting. FEVER claims are derived from edited Wikipedia sentences, leading to spurious correlations that do not exist when claims come from chatbots. In addition, we were able to incorporate user utterances and conversation history as context in the few-shot verifier, while KGAT only looks at the claim and the evidence. Hence, we decided to conduct our experiments using the prompt-based verifier.
+
+\section{Analysis of \system}
+\subsection{Saying ``I don't know''.} 
+As mentioned earlier, \system concedes that it does not know when none of the LLM-generated passes fact-checking and no relevant bullet points are retrieved. Table~\ref{table:idk} contains the data on how frequently this happens. In this case, the \emph{draft} prompt is skipped and instead a ``Sorry, I'm not sure'' is sent to the refinement prompt, which dresses it up to match the conversation. For example:
+
+User: ``Are there any specific ethical dilemmas the characters face in the [M3GAN] film?''
+
+\system: ``Yes, the movie raises ethical questions about AI, but I don't want to spoil the plot by revealing specific dilemmas. You'll have to watch the film to find out!''
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{c c c c c}
+ \hline
+          & Head & Tail & Recent & All \\
+ \hline
+\systemgf & 1.1 & 19.0 & 18.0 & 12.7 \\
+\systemgt & 0.0 & 13.0 & 8.0 & 7.0 \\
+\systeml  & 1.0 & 22.0 & 20.0 & 14.3 \\
+ \hline
+\end{tabular}
+\caption{Percentage of turns in which \system does not find relevant information in Wikipedia to retrieve or fact-check.}
+\label{table:idk}
+\end{table}
+
+%, due to the fact that Wikipedia articles on these topics have received far less attention from volunteers and are more sparse, because of the less popular nature of their topic (tail), or the less time they have had (recent).
+
+\subsection{Number of claims per turn}
+
+\begin{table}[ht]
+\centering
+\scalebox{0.9}{
+\begin{tabular}{llccc} 
+ \hline
+          & & IR & LLM & Verified \\
+ \hline
+\multirow{4}{*}{\systemgf} & Head   & 4.3 & 2.8 & 80.1\% \\
+ & Tail   & 3.6 & 2.2 & 55.4\% \\
+          & Recent & 4.0 & 2.1 & 43.8\% \\
+          & All    & 4.0 & 2.4 & 61.7\% \\
+ \hline
+\multirow{4}{*}{\systemgt}  & Head   & 4.3 & 2.6 & 87.6\% \\
+          & Tail   & 2.6 & 2.2 & 57.7\% \\
+          & Recent & 3.1 & 2.0 & 54.0\% \\
+          & All    & 3.3 & 2.3 & 68.0\% \\
+ \hline
+\multirow{4}{*}{\systeml} & Head   & 4.7 & 2.5 & 84.7\% \\
+         & Tail   & 3.3 & 2.2 & 46.0\% \\
+         & Recent & 3.8 & 1.9 & 35.6\% \\
+         & All    & 3.9 & 2.2 & 57.5\% \\
+ \hline
+\end{tabular}
+}
+\caption{The average number of relevant bullet points that \system obtains from information retrieval and LLM-generated responses, and the percentage of claims that pass the fact-checking stage.}
+\label{table:evidence}
+\end{table}
+
+
+
+
+Table~\ref{table:evidence} contains the raw data on the contribution of IR vs. LLM, and 
+Table~\ref{table:dataset_claims} contains the raw data on the number of claims, both mentioned in Section~\ref{sec:analysis}.
+\begin{table}[ht]
+\centering
+\begin{tabular}{c c c c c}
+ \hline
+          & Head & Tail & Recent & All \\
+ \hline
+\systemgf & 4.4 & 3.1 & 3.4 & 3.6 \\
+GPT-4     & 2.8 & 2.6 & 2.2 & 2.5 \\
+\systemgt & 4.2 & 3.2 & 3.2 & 3.5 \\
+GPT-3.5   & 2.6 & 2.1 & 1.9 & 2.2 \\
+\systeml  & 4.0 & 3.0 & 3.1 & 3.3 \\
+LLaMA     & 2.1 & 2.0 & 2.0 & 2.0 \\
+Atlas     & 1.4 & 1.3 & 1.5 & 1.4 \\
+ \hline
+\end{tabular}
+\caption{The average number of claims per turn for each subset and chatbot.}
+\label{table:dataset_claims}
+\end{table}
+
+
+\subsection{Refinement improvements}
+Tables~\ref{table:refine_bleu} and ~\ref{table:feedback_scores} have the raw data on the refinement stage, used in Section~\ref{sec:analysis}.
+\begin{table}[ht]
+\centering
+\begin{tabular}{l c c c c} 
+ \hline
+& Head & Tail & Recent & All \\
+ \hline
+\systemgf & 84.1 & 66.0 & 69.7 & 73.3 \\
+\systemgt & 88.9 & 76.9 & 80.7 & 82.2 \\
+\systeml & 77.1 & 66.1 & 66.4 & 69.9 \\
+ \hline
+\end{tabular}
+\caption{Analysis of \system's response refinement. BLEU score with the refined response as the prediction and the response before refinement as the target.}
+\label{table:refine_bleu}
+\end{table}
+
+\begin{table*}[ht]
+\centering
+\begin{tabular}{ccccccc} 
+ \hline
+& & Relevant & Inform. & Natural & Non-Rep. & Temporal \\
+ \hline
+ \multirow{4}{*}{\systemgf} 
+         & Head   & 0.2 & 0.3 & 0.2 & 0.0 & 0.0 \% \\
+         & Tail   & 0.3 & 0.4 & 0.4 & 0.2 & 1.0 \% \\
+         & Recent & 0.2 & 0.3 & 0.4 & 0.1 & 6.0 \% \\
+         & All    & 0.2 & 0.3 & 0.3 & 0.1 & 2.3 \% \\
+ \hline
+  \multirow{4}{*}{\systemgt} 
+         & Head   & 0.0 & 0.0 & 0.1 & 0.0 & 2.0 \% \\
+         & Tail   & 0.1 & 0.3 & 0.3 & 0.0 & 5.0 \% \\
+         & Recent & 0.1 & 0.1 & 0.2 & 0.1 & 3.0 \% \\
+         & All    & 0.1 & 0.1 & 0.2 & 0.1 & 3.3 \% \\
+ \hline
+  \multirow{4}{*}{\systeml} 
+         & Head   & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 \% \\
+         & Tail   & 0.2 & 0.2 & 0.3 & 0.1 & 3.0 \% \\
+         & Recent & 0.2 & 0.3 & 0.4 & 0.0 & 6.0 \% \\
+         & All    & 0.1 & 0.2 & 0.2 & 0.1 & 3.0 \% \\
+ \hline
+
+\end{tabular}
+\caption{Improvements of automatic conversationality metrics made by refinement.}
+\label{table:feedback_scores}
+\end{table*}
+
+
+
+
+
+
+\section{User Study}
+\label{sec:user_study}
+We use Prolific to conduct our user study. We select 40 participants (20 female) from the US who are fluent in English. Each participant is paid with the rate of \$12 per hour. Figure~\ref{fig:user-study-screenshot} shows the user interface.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.48\textwidth]{images/user_study_ui.png}
+    \caption{Screenshot of the interface shown to participants in the user study, after one turn of conversation.}
+    \label{fig:user-study-screenshot}
+\end{figure}
+
+Figure~\ref{fig:user-ratings} shows the distribution of the user ratings from Table~\ref{table:user_study}.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.4\textwidth]{images/user_ratings.jpg}
+    \caption{User ratings for \systemgf and GPT-4.}
+    \label{fig:user-ratings}
+\end{figure}
+
+
+\section{Human Evaluation}
+\label{sec:human-eval}
+
+We conduct human evaluation for part of our evaluation of factual accuracy (as described in Section \ref{sec:factual-evaluation}). We use the Scale Rapid~\footnote{\url{www.scale.com}} platform.
+Figure \ref{fig:scale-screenshot} shows the instruction and one of the examples we provide. Figure~\ref{fig:scale-screenshot2} shows the user interface for each annotation task.
+We present the human annotator with the last user utterance, the chatbot's response, and a claim extracted from the chatbot's response using GPT-4. The annotator is then tasked with reading the 5 evidence passages and determining whether the claim is correct, incorrect, or if there is insufficient information to verify the claim.
+We use a three-way consensus pipeline, where each claim is assessed by three graders independently, and the final label is determined based on the majority vote. One author periodically audits their work, providing feedback and adding examples and tests for crowdworkers as needed.
+
+We provide annotators with detailed instructions on the task, and 8 examples covering special cases.
+We provide 7 training tasks used for onboarding, and 22 evaluation tasks.
+Only crowdworkers who receive a score of 90\% in this evaluation can move to the main task.
+We compensate each worker for \$0.2 per task, and we have one task per (system, dialogue turn, claim). This means that since there are more claims in longer chatbot responses, workers are compensated more for longer responses. In the end, each worker receives about \$12 per hour of work.
+
+
+\begin{figure*}
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/scale.pdf}
+    \caption{Screenshot of the instructions and one of the examples we provide to crowdworkers for evaluation of factuality.}
+    \label{fig:scale-screenshot}
+\end{figure*}
+
+\begin{figure*}
+    \centering
+    \includegraphics[width=0.9\textwidth]{images/scale2.png}
+    \caption{Screenshot of each task crowdworkers see. For each claim, we provide them with 5 paragraphs from Wikipedia.}
+    \label{fig:scale-screenshot2}
+\end{figure*}
+
+
+
+\section{All Prompts}
+\label{sec:pipeline-prompts}
+We provide the prompts mentioned in this paper. For brevity, we only show on of the few-shot examples used in each prompt. The full text of prompts can be obtained from our code repository.
+The syntax used is the Jinja2 template language, which supports Python-like loops (\texttt{\{\% for \%\}\{\% endfor \%\}}), conditions (\texttt{\{\% if \%\}\{\% endif \%\}}), variables (\texttt{\{\{ var \}\}}) and comments (\texttt{\{\# \#\}}).
+In all prompts, \texttt{dlg} is a python list,
+\texttt{today} is a string like \texttt{4/28/2023}, \texttt{current\_year} is a string like \texttt{2023}, and \texttt{location} is set to \texttt{U.S.}
+
+
+
+\begin{table*}
+\begin{lstlisting}[basicstyle=\ttfamily\small]
+The current year is {{ current_year }}. The following is a conversation between you and a chatbot on the topic of "{{ title }}" ({{ passage }})
+- Do not assume that the chatbot is able to have physical experiences, like watching a movie.
+- Ask interesting follow-up questions when needed, and expand on the chatbot's responses using your life experiences.
+- Never volunteer information, and never correct chatbot's mistakes.
+- Continue the conversation for 15 turns. {# This is set to 15, even though simulations end after 10 turns. If we set this to 10 turns, the simulator will start saying goodbye too early. #}
+
+{# The first two turns don't have any content and won't be sent to the Chatbot. They are just meant to specify the format. #}
+You: Hi!
+Chatbot: Hi, how can I assist you today?
+
+{% for dlg_turn in dlg %}
+    You: {{ dlg_turn.user_utterance }}
+    Chatbot: {{ dlg_turn.agent_utterance }}
+{% endfor %}
+You:
+\end{lstlisting}
+\caption{User simulator prompt. This prompt is zero-shot. \texttt{title} is the title of the Wikipedia page used for simulation, and \texttt{passage} is the first sentence of that article}
+\label{prompt:user-simulator}
+\end{table*}
+
+
+\begin{table*}
+\begin{lstlisting}[basicstyle=\ttfamily\small]
+
+You are chatting with a user. Use Google search to form a response. You are both located in {{ location }}. Today's date is {{ today }}.
+- What do you type in the search box?
+- What date do you want the search results to be? Enter "recent" if you are looking for the newest results. Enter "none" if the date is not important.
+
+{# Few-shot example 1 #}
+You: Do you want to talk about sports?
+User: Sure! Who is your favorite basketball player?
+[Search needed? Yes. You Google "popular basketball players". The year of the results is "none".]
+You: It has to be Lebron James.
+User: Did he play well in his last game?
+[Search needed? Yes. You Google "how did Lebron James do in his most recent game". The year of the results is "recent".]
+
+... {# More few-shot examples #}
+
+{# The current dialogue #}
+{% for dlg_turn in dlg %}
+    {% if dlg_turn.user_utterance is not none %}
+        User: {{ dlg_turn.user_utterance }}
+    {% endif %}
+    {% if dlg_turn.initial_search_query is not none %}
+        [Search needed? Yes. You Google "{{ dlg_turn.initial_search_query }}". The year of the results is "{{ dlg_turn.initial_search_query_time }}".]
+    {% endif %}
+    {% if dlg_turn.agent_utterance is not none %}
+        You: {{ dlg_turn.agent_utterance }}
+    {% endif %}
+{% endfor %}
+User: {{ new_user_utterance }}
+[Search needed?
+\end{lstlisting}
+\caption{Query generation prompt in \system (Stage 1). This prompt has 6 few-shot examples.}
+\label{prompt:query-generation}
+\end{table*}
+
+\begin{table*}
+\begin{lstlisting}[basicstyle=\ttfamily\small]
+You Google different search queries and then Break down the relevant parts of the articles you find. Today's date is {{ today }}.
+
+{# Few-shot example 1 #}
+Query: "worst earthquake ever"
+Title: January 1934 earthquake in India and Nepal 
+Article: The 1934 Nepal\u2013India earthquake or 1934 Bihar\u2013Nepal earthquake was one of the worst earthquakes in India's history. The towns of Munger and Muzaffarpur were completely destroyed. This 8.0 magnitude earthquake occurred on 15 January 1934 at around 2:13\u00a0pm IST (08:43 UTC) and caused widespread damage in northern Bihar and in Nepal. Earthquake. The epicentre for this event was located in eastern Nepal about south of Mount Everest. The areas where the most damage to life and property occurred extended from Purnea in the east to Champaran in the west (a distance of nearly ), and from Kathmandu in the north to Munger in the south (a distance of nearly )."
+
+Break down verbatum part(s) of this article that are related to the search query "worst earthquake ever" or say None if the article is unrelated:
+- The 1934 Nepal-India earthquake, also known as the 1934 Bihar-Nepal earthquake, was one of the worst earthquakes in India's history.
+- The 1934 Nepal-India earthquake had a magnitude of 8.0 and occurred on 15 January 1934.
+- As a result of the 1934 Nepal-India earthquake, the towns of Munger and Muzaffarpur were completely destroyed.
+- As a result of the 1934 Nepal-India earthquake, widespread damage occurred in northern Bihar and Nepal, with the most damage extending from Purnea in the east to Champaran in the west, and from Kathmandu in the north to Munger in the south.
+
+{# Few-shot example 2 #}
+Query: "age of Bruce Willis"
+Title: Matt Willis
+Article: In April 2005, aged 21, Willis stayed for three weeks at London's Priory Hospital for the treatment of alcoholism. In July 2006, aged 23, he was admitted again for a few days for drug abuse, because he was addicted to cannabis from the age of 13. He began to have problems from the drug-taking including physiological and memory problems. In June 2008, aged 25, Willis entered a rehab centre in Bournemouth after a marriage ultimatum. It was reported that a night out with close friend Amy Winehouse pushed Willis too far. Willis took the full five week course in drugs and alcohol.
+
+Break down verbatum part(s) of this article that are related to the search query "age of Bruce Willis" or say None if the article is unrelated:
+None
+
+... {# More few-shot examples #}
+
+{# The current dialogue #}
+Query: "{{ query }}"
+Title: {{ title }}
+Article: {{ article }}
+
+Break down verbatum part(s) of this article that are related to the search query "{{ query }}" or say None if the article is unrelated:
+\end{lstlisting}
+\caption{Summarize and filter prompt of \system (Stage 2). This prompt has 7 few-shot examples.}
+\label{prompt:summarization}
+\end{table*}
+
+\begin{table*}
+\begin{lstlisting}[basicstyle=\ttfamily\small]
+You are a friendly, knowledgeable and truthfull chatbot, talking to a user.
+Respond in at most one paragraph.
+Today's date is {{ today }}.
+
+{% for dlg_turn in dlg %}
+    User: {{ dlg_turn.user_utterance }}
+    You: {{ dlg_turn.agent_utterance }}
+{% endfor %}
+User: {{ new_user_utterance }}
+You:
+\end{lstlisting}
+\caption{The prompt for baseline chatbots, also used for Stage 3 of \system. This prompt is zero-shot.}
+\label{prompt:baseline}
+\end{table*}
+
+
+\begin{table*}
+\begin{lstlisting}[basicstyle=\ttfamily\small]
+You are chatting with a user. Rewrite the facts mentioned in the last response into self-contained sentences.
+Exclude opinions, or subjective statements.
+Today's date is {{ today }}.
+
+{# Few-shot example 1 #}
+User: When was chinese new year this year?
+You: It was on February 5th.
+Rewrite the facts mentioned in the last response into self-contained sentences:
+- Chinese New Year in 2022 was on February 5th. The year of the results is "2022".
+
+{# Few-shot example 2 #}
+User: How are you doing today?
+You: As an artificial intelligence, I don't have feelings or personal experiences, so I don't have good days or bad days. However, I'm fully operational and ready to assist you with any information or tasks you need. What can I help you with today?
+Rewrite the facts mentioned in the last response into self-contained sentences:
+Nothing.
+
+{# Few-shot example 3 #}
+User: Do you know about Queen Elizabeth II? I was just reading about her.
+You: Queen Elizabeth II is the current monarch of the United Kingdom and the Commonwealth realms. She was born in 1926 and became queen in 1952.
+Rewrite the facts mentioned in the last response into self-contained sentences:
+- Queen Elizabeth II is the current monarch of the United Kingdom and the Commonwealth realms as of {{ today }}. The year of the results is "recent".
+- Queen Elizabeth II was born in 1926. The year of the results is "1926".
+- Queen Elizabeth II became queen in 1952. The year of the results is "1952".
+
+... {# More few-shot examples #}
+
+{# The current dialogue #}
+{% for dlg_turn in dlg[-2:] %} {# Only the last few turns are given, because longer conversations confuse the LLM, and are not needed for fact-checking. #}
+    {% if dlg_turn.user_utterance is not none %}
+        User: {{ dlg_turn.user_utterance }}
+    {% endif %}
+    {% if dlg_turn.agent_utterance is not none %}
+        You: {{ dlg_turn.agent_utterance }}
+    {% endif %}
+{% endfor %}
+User: {{ new_user_utterance }}
+You: {{ current_agent_utterance }}
+Rewrite the facts mentioned in the last response into self-contained sentences:
+\end{lstlisting}
+\caption{Claim extraction prompt of \system (Stage 4). This prompt has 8 few-shot examples.}
+\label{prompt:claim-splitting}
+\end{table*}
+
+\begin{table*}
+\begin{lstlisting}[basicstyle=\ttfamily\small]
+The following is a conversation between a user and a chatbot. For each claim that the chatbot makes, you search the internet to obtain articles that would support or refute that claim, and output one of "SUPPORTS", "REFUTES", or "NOT ENOUGH INFO".
+Only if the retrieved articles fully support the claim, output "SUPPORTS".
+Today's date is {{ today }}.
+
+{# Few-shot example 1 #}
+Chatbot: How was your trip to Hawaii?
+User: It was great! In fact, I witnessed the eruption of the largest volcano on earth.
+Chatbot: Wow, I hope I could see it, but sounds kinda dangerous. Is it the Mauna Loa?
+User: Yes, it is! Do you know when it started erupting?
+Chatbot: Yes, it started erupting on March 25, 1984.
+[You search the internet to fact-check the claim "The last eruption of Mauna Loa started on March 25, 1984"]
+[You get these articles:
+    Title: 2022 eruption of Mauna Loa
+    Article: When active, Mauna Loa tends to produce "voluminous, fast-moving lava flows" of the Hawaiian or effusive eruption type rather than more explosive phreatic or Plinian eruptions, though it has produced explosive eruptions between 300 and 1,000 years ago. Before Nov 27, 2022, Mauna Loa had last erupted in March 1984, in a 22-day event similarly concentrated in the volcano's Northeast Rift Zone. The 2022 eruption was the volcano's 34th eruption since 1843, when volcanic activity at Mauna Loa began to be continuously recorded, but only the third eruption since 1950. The 38-year span between the 1984 and 2022 eruptions was Mauna Loa's longest period of quiescence on record.
+
+    Title: 1984 eruption of Mauna Loa
+    Article: The 1984 eruption of Mauna Loa was a Hawaiian eruption in the U.S. state of Hawaii that lasted from March 25 to April 15, 1984. It ended a 9-year period of quiescence at the volcano and continued for 22 days, during which time lava flows and lava fountains issued from the summit caldera and fissures along the northeast and southwest rift zones. Although the lava threatened Hilo, the flow stopped before reaching the outskirts of town.
+
+]
+Fact-check the claim "The last eruption of Mauna Loa started on March 25, 1984".
+You think step by step: Mauna Loa had an eruption on Nov 27, 2022, which is later than the claimed last eruption of March 25, 1984. So the last eruption of Mauna Loa was not on March 25, 1984. So the fact-checking result is "REFUTES".
+
+... {# More few-shot examples #}
+
+{# The current dialogue #}
+Chatbot: {{ original_reply }}
+[You search the internet to fact-check the claim "{{ claim }}"]
+[You get these articles:
+{% for title in evidence_titles %}
+    Title: {{ title }}
+    Article: {{ evidence_texts[loop.index-1]}}
+
+{% endfor %}
+]
+Fact-check the claim "{{ claim }}".
+You think step by step:
+\end{lstlisting}
+\caption{Verification prompt of \system (Stage 5). This prompt has 6 few-shot examples.}
+\label{prompt:verify}
+\end{table*}
+
+\begin{table*}
+\begin{lstlisting}[basicstyle=\ttfamily\small]
+The following is a conversation between a friendly, knowledgeable and truthful chatbot, called WikiChat, and a user.
+WikiChat can use search to get external knowledge when needed. In responding to the user, WikiChat carefully aggregates search results in at most one paragraph.
+Today's date is {{ today }}.
+
+{# Few-shot example 1 #}
+User: What new discoveries from James Webb Space telescope can I tell my 9 year old about?
+WikiChat: Your 9-year old would be fascinated to hear that the James Webb Space Telescope has discovered farthest galaxies ever found. It has found galaxies so far away that it took 13.4 billion years for their lights to reach the telescope. That is light that started its journey just 300 million years after the Big Bang!
+User: what is big bang?
+WikiChat: The Big Bang is the prevailing cosmological model for the universe from the earliest known periods through its subsequent large-scale evolution. In layman's terms, it is the explosion that created our universe.
+User: what else can I tell my child about?
+[Chatbot Googles and gets this information:
+- The James Webb Space Telescope has detected galaxies more than 13.4 billion light years away, less than 300 million years after the Big Bang.
+- This is a new record and astronomers are excited to learn more about these distant galaxies.
+- The telescope is named after James E. Webb, who was the administrator of NASA from 1961 to 1968 during the Mercury, Gemini, and Apollo programs.
+]
+WikiChat: The James Webb Space telescope is named after James E. Webb, who was the administrator of NASA from 1961 to 1968 during the Mercury, Gemini, and Apollo programs.
+
+... {# More few-shot examples #}
+
+{# The current dialogue #}
+{% for dlg_turn in dlg[-2:] %}
+    User: {{ dlg_turn.user_utterance }}
+    WikiChat: {{ dlg_turn.agent_utterance }}
+{% endfor %}
+{# include the search results only for the last turn #}
+User: {{ last_user_utterance }}
+{% if evidences is not none %}
+    [Chatbot Googles and gets this information:
+        {% for evi in evidences %}
+            - {{ evi }}
+        {% endfor %}
+    ]
+{% endif %}
+WikiChat:
+\end{lstlisting}
+
+\caption{Draft response prompt of \system (Stage 6). This prompt has 4 few-shot examples.}
+\label{prompt:draft-response}
+\end{table*}
+
+\begin{table*}
+\begin{lstlisting}[basicstyle=\ttfamily\small]
+Given a conversation history between a user and a chatbot, provide feedback on the chatbot's final response, then revise the response based on the following criteria:
+* Relevant: The response should be on-topic and directly address the user's question. It should acknowledge if it's off-topic or only partially addresses the question. Irrelevant information should be avoided.
+* Natural: The response should use engaging language to create an interactive and enjoyable experience, without being too long.
+* Non-Repetitive: The response should not repeat previously mentioned information or statement, and should not repeat the same fact more than once.
+* Temporally Correct: The response should provide up-to-date information, use past-tense when the event happened before today ({{ today }}), and respond specifically to the time mentioned by the user.
+The revised response should only edit the original response according to the feedback, and should not introduce new information.
+
+Today's date is {{ today }}.
+
+{# Few-shot example 1 #}
+User: What do you think is the best TV drama of 2022?
+Chatbot: I think it has to be House of the Dragon.
+User: Why is that?
+Response: I love it because both the plot and the visuals are great. It actually won the Golden Globe Award for the best drama TV series. I'm not sure when it was released, but I think it was August 21, 2022.
+
+Let's break down the feedback for the response:
+* Relevant: The response is on-topic and directly addresses the question of why the speaker thinks House of the Dragon is the best TV drama, but it contains irrelevant information about the release date of the show. 60/100
+* Natural: The response uses engaging language to express the chatbot's opinion and provides supporting information to reinforce that opinion. 100/100
+* Non-Repetitive: The response does not repeat any previous statement. 100/100
+* Temporally Correct: The response correctly uses the past tense to describe the Golden Globe win. 100/100
+
+User: Why is that?
+Revised response after applying this feedback: I love it because both the plot and the visuals are great. It actually won the Golden Globe Award for the best drama TV series.
+
+... {# More few-shot examples #}
+
+{# The current dialogue #}
+{% for dlg_turn in dlg[-2:] %} {# Only include the last few turns. #}
+    User: {{ dlg_turn.user_utterance }}
+    Chatbot: {{ dlg_turn.agent_utterance }}
+{% endfor %}
+User: {{ new_dlg_turn.user_utterance }}
+Response: {{ new_dlg_turn.agent_utterance }}
+Let's break down the feedback for the response:
+\end{lstlisting}
+\caption{Refinement prompt of \system (Stage 7). This prompt has 6 few-shot examples.}
+\label{prompt:refine}
+\end{table*}

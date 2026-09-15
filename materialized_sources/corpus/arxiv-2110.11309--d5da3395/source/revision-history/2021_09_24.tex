@@ -1,0 +1,209 @@
+\documentclass{article}
+\usepackage{iclr2022_conference,times}
+\usepackage[utf8]{inputenc}
+\usepackage{booktabs}
+\usepackage{nth}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{graphicx}
+\usepackage{wrapfig}
+\usepackage{floatrow}
+\usepackage{pifont}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{caption}
+\usepackage{relsize}
+\usepackage{multirow}
+\usepackage{array}
+\usepackage{relsize}
+\usepackage{url}
+\usepackage{hyperref}
+
+% \algrenewcommand\algorithmicindent{0.5em}% Not needed with font scaling
+
+
+\input{commands}
+
+\title{Fast Model Editing at Scale}
+
+\author{Eric Mitchell, Charles Lin, Spencer Braun, Antoine Bosselut, Chris Manning, Chelsea Finn}
+\date{August 2021}
+
+
+\begin{document}
+
+\maketitle
+
+%%%
+% See revision-history for old versions & comments
+%%%
+\begin{abstract}
+    While large pre-trained models have enabled impressive results on a variety of downstream tasks, the largest existing models still make errors, and even accurate predictions may become outdated over time. Because detecting all such failures at training time is impossible, enabling both developers and end users of such models to correct inaccurate outputs while leaving the model otherwise intact is desirable. However, the distributed, black-box nature of the representations learned by large neural networks makes such targeted edits difficult to apply. If presented with only a single problematic input and new desired output, fine-tuning approaches are slow and tend to overfit. Other existing editing algorithms are either computationally infeasible or simply ineffective when applied to very large models. To enable easy post-hoc editing at scale, we propose \name, a collection of small auxiliary editing networks that learn to use a single desired input-output pair to make fast, local edits to a pre-trained model. \name~transforms the gradient obtained by standard fine-tuning, using a low-rank decomposition of the gradient to make the parameterization of this transformation tractable. \name~can be trained to enable editing an existing model in less than a day on a single GPU even for 10 billion+ parameter models. Our experiments with the T5, GPT, BERT, and BART model classes show that \name~is the only approach to model editing that produces consistent edits for models with tens of million to over 10 billion parameters.
+\end{abstract}
+
+\section{Introduction}
+\label{sec:intro}
+
+\input{figures_tex/fig1}
+
+Large neural networks have become a fundamental tool in solving data-driven problems in computer vision \citep{huang2017densely}, natural language and audio processing \citep{vaswani2017attention}, and sequential decision making \citep{wu2021greedy}. However, deploying and maintaining such models can be difficult: when a neural network produces an undesirable output, making a localized update to correct its behavior for a single input or small number of inputs is non-trivial, owing to the distributed nature of the model's representation. The computational requirements of large scale state-of-the-art language models exacerbates this challenge. For example (see Figure~\ref{fig:problem-method}), after being trained on data gathered from the internet, a large language model might assign higher probability to \textit{Theresa May} than to \textit{Boris Johnson} when presented with \textit{Who is the prime minister of the UK?} as a prompt (for an example with a real T5 model \citep{2020t5} see Table~\ref{tab:examples}). An ideal model editing procedure could quickly update the model parameters to increase the relative likelihood of \textit{Boris Johnson} without changing the model output for unrelated inputs. This procedure would produce edits that exhibit \textit{reliability}, successfully changing the model's output on the problematic input; \textit{locality}, minimally affecting the model's output for unrelated inputs; and \textit{generality}, also generating the corrected output for inputs that are related to the edit input (e.g., \textit{Who is the UK PM?}).
+
+Perhaps the simplest approach to making such edits is additional fine-tuning with a new label for the example that needs to be corrected. Yet fine-tuning on just the problematic input with a new label tends to overfit to that example, even when constraining the distance between the pre- and post- fine-tuning parameters \citep{zhu2020modifying,Cao2021EditingFK}. This overfitting leads to failures of both locality and generality, and while fine-tuning on the edit example in conjunction with continued training on the training set better enforces locality, it requires persistent access to the full training set during test time and is computationally demanding; we find that it can take more than an order of magnitude longer to apply edits. The need for edits to generalize suggests that treating editing as a learning problem could be useful.
+In this direction, recent work has described a bi-level meta-learning objective that finds a model initialization for which regular, unconstrained fine-tuning on a single edit example and label produces quick, local edits \citep{Sinitsin2020Editable}. While this strategy is effective, its computational requirements also prevent it from scaling to very large models, where fast, effective edits are most needed. We find that computationally efficient alternatives to learning to edit \citep{Cao2021EditingFK} fail to produce reliable edits for very large models. Thus, we aim to devise an approach to model editing that yields reliable, local, and general edits, while being easy to scale to extremely large (over 10 billion parameter) models.
+
+We develop a solution by training lightweight \textit{model editor networks} that can produce edits to a pre-trained model's weights when provided with the standard fine-tuning gradient of a given correction as input. Because gradients are high-dimensional objects, directly parameterizing a function mapping a gradient into a modified gradient is intractable. Even for a single $d \times d$ weight matrix, a naive implementation of this gradient mapping function requires a mapping from $\mathbb{R}^{\mathcal{O}(d^2)} \rightarrow \mathbb{R}^{\mathcal{O}(d^2)}$, which is impractical for large models where $d\sim10^4$. However, by \textit{decomposing} this gradient into its rank-1 outer product form, our approach is instead able to learn a function $g:\mathbb{R}^{\mathcal{O}(d)} \rightarrow \mathbb{R}^{\mathcal{O}(d)}$. We call our approach \fullname~(\name). \name~parameterizes these gradient mapping functions as simple MLPs with a single hidden layer (see Figure~\ref{fig:arch}), using an insignificant number of parameters compared with large pre-trained models with billions of parameters. Using this gradient factorization, \name~scales without modification to the very large (10 billion+ parameter) models currently in use. Further, \name~can be applied to any pre-trained model, regardless of its pre-training procedure, leaving the model's predictions completely unchanged until edits are actually required.
+
+The primary contribution of this work is an effective algorithm for fast model editing that scales to the largest publicly available pre-trained models by leveraging the low-rank structure of fine-tuning gradients. In addition, we provide a conceptual and empirical comparison of \name~with existing approaches to model editing. Our experiments utilize a variety of language-related tasks and transformer models, showing that \name~is the only algorithm that can consistently edit the largest GPT-2 \citep{radford2019language} and T5 \citep{2020t5} language models. Finally, our ablation experiments highlight the impact of \name's key design choices, showing that variants of \name~are likely to scale to models with hundreds of billions of parameters.
+
+
+\section{The Model Editing Problem}
+The objective of model editing is to use a single pair of input and desired output to alter a \textit{base model}'s output for that input as well as its \textit{equivalence neighborhood} (related input/output pairs), while leaving model behavior on unrelated inputs unchanged. For a question-answering model, a \textit{model editor} would use a question and new desired answer to update the model in a way that correctly answers the question as well as its semantically-equivalent rephrasings, without affecting model performance on unrelated questions. Some model editors involve a training phase that is performed before they can apply edits; this phase utilizes an edit dataset (separate from but likely related to the dataset that the original model was trained on) that specifies the types of model edits that will be made.
+
+More precisely, the base model $\basemodel:\mathcal{X} \times \Theta \rightarrow \mathcal{Y}$ is a differentiable function mapping an input $x$ and set of parameters $\theta$ to an output $y$. A model editor is a function $E : \mathcal{X} \times \mathcal{Y} \times \Theta \times \mathcal{L} \times \Phi \rightarrow \Theta$ that maps an \textit{edit input} $\xe$, \textit{edit label} $\ye$, loss function $l:\mathcal{X} \times \mathcal{Y} \times \Theta \rightarrow \mathbb{R}$, set of model parameters $\theta$, and optional editor parameters $\phi$ to a new set of model parameters $\theta'$. In line with past work \citep{Sinitsin2020Editable,Cao2021EditingFK}, we use the loss function $l(x,y,\theta) = p_\theta(y|x)$, but other choices are possible. Model editors are evaluated with a held-out dataset $\dtest = \{(\xe,\ye,\xloc,\xe',\ye')_i\}$. The locality input $\xloc$ is unrelated to $\xe$ and is used to quantify the extent to which model predictions change for unrelated outputs. The alternative edit input and label $\xe'$ and $\ye'$ are sampled from the \textit{equivalence neighborhood} $\mathcal{N}(\xe,\ye)$ of $\xe$ and $\ye$, the set of inputs (and their corresponding new outputs) for which the model's output should be updated to reflect the new information in $\xe,\ye$.
+
+We call a model editor reliable if $l(\xe,\ye,\theta')$ is small on average for $\dtest$. We call a model editor local if $\text{KL}(p_\theta(\cdot | \xloc) \| p_{\theta'}(\cdot | \xloc))$ is small on average for $\xloc$ sampled from $\dtest$. We say a model editor generalizes if $l(\xe',\ye',\theta')$ is small on average for $\dtest$. To fit the model editor parameters $\phi$, some algorithms (including the one we propose) utilize a dataset $\dtrain$ of edits, containing tuples similar to $\dtest$. We call a model editor efficient if the compute time and memory requirements for computing $\phi$ as well as the time and memory required to evaluate $E$ are small.
+
+\section{\fullname}
+Broadly, \name~is a procedure that takes a pre-trained model $\basemodel$ and edit training set $\dtrain$ to produce a collection of model editor networks $g_\ell$ that each edit the model's layers given new edit example pairs $(\xe, \ye)$ at test time. Each editor function transforms the fine-tuning gradient for a particular layer into a parameter update for the layer that provides the reliability, locality, generality, and efficiency properties described earlier. Because gradients are high-dimensional objects, the input and output spaces of these networks are also very high-dimensional, and parameterizing them in a computationally feasible manner is challenging. In this section, we describe how \name~does so, starting with a low-rank factorization of fully-connected layer gradients. We then describe the initialization and normalization schemes needed to train this parameterization.
+
+\subsection{A parameter-efficient transformation of high-dimensional gradients}
+
+\input{figures_tex/arch}
+
+Making more precise the high-level description above, the input to a \name~network $g_\ell$ is the fine-tuning gradient $\nabla_{W_\ell} p_\theta(\ye|\xe)$ for layer $\ell$ and the output is the parameter edit for layer $\ell$, which we call $\tilde\nabla_{W_\ell}$. As noted in Section~\ref{sec:intro}, for a $d \times d$ weight matrix, this function has $d^2$ inputs and $d^2$ outputs. Even if we restrict $g_\ell$ to be a linear network with no hidden layers and restrict $g_\ell$ to output a rank-1 parameter edit, this function would still require $d^2(d+d) = 2d^3$ parameters. For a low-rank linear parameterization of $g_\ell$ with rank $r$, we have $r(d^2 + 2d)$ parameters, which still carries an unacceptable cost for non-trivial $r$, considering that $d\sim 10^4$ for some large models \citep{radford2019language,2020t5}.
+
+We solve this problem by using the fact that the input to $g_\ell$, the fine-tuning gradient, is itself a rank-1 matrix. That is, the gradient of some loss $L$ with respect to a weight matrix $W_{\ell}$ in layer $\ell$ of a neural network is a rank-1 matrix for each element in the batch (see Algorithm 6.4 of \cite{Goodfellow-et-al-2016} or Chapter 2 of \cite{nielsen2015neural}):
+\begin{equation}
+    \nabla_{W_\ell}L = \sum_{i=1}^B\delta_{\ell + 1}^i{u_\ell^{i\,\top}}
+\end{equation}
+where $B$ is the batch size, $\delta_{\ell+1}$ is the gradient of the loss for batch element $i$ with respect to the \textit{preactivations} at layer $\ell+1$, and $u_\ell$ are the activations for batch element $i$ at layer $\ell$. This formulation is trivially extended to attention-based sequence models such as Transformers \citep{vaswani2017attention,radford2019language} with an additional sum over sequence index $j$, but for simplicity, we will merge this with the batch index without loss of generality. This property enables a network to condition directly on the gradient with only $2d$ (rather than $d^2$) input neurons with no approximation error.
+
+Leveraging this parameterization, \name~learns functions $g_\ell$ with parameters $\phi_\ell$ mapping $u_\ell$ and $\delta_{\ell+1}$ to \textit{pseudoactivations} $\tilde u_\ell$ and \textit{pseudodelta} $\tilde\delta_{\ell+1}$. The model edit for weight matrix $W_\ell$ for a batch of $B$ edit examples is thus
+\begin{align}
+    \tilde{\nabla}_{W_\ell} &= \sum_{i=1}^B\tilde\delta_{\ell + 1}^{i}{\tilde u_\ell^{i\,\top}}
+\end{align}
+To summarize, \name~parameterizes $g_\ell$ as an MLP with low-rank weight matrices, residual connections, and a single hidden layer; see Figure~\ref{fig:arch}. For each edit example in the batch, the inputs $u_\ell^i$ and $\delta_{\ell+1}^i$ are concatenated and passed together to $g_\ell$, which produces a vector of equal cardinality, which is then split into pseudoactivations $\tilde u_\ell^i$ and pseudodeltas $\tilde \delta_{\ell+1}^i$. In the next subsection, we describe the nuances of this architecture in greater detail. 
+
+\subsection{Effective initialization and normalization for editor networks}
+While the parameterization presented in the previous section can tractably \textit{represent} a function mapping gradients to model edits, training an editor network with this parameterization to provide useful edits presents its own challenges. Specifically, the random initialization typically used for MLPs sacrifices a useful inductive bias that we would like to retain, and the scaling of the inputs to \name~networks makes input normalization important.
+
+\textbf{Initialization} The weights in MLPs are typically initialized randomly, for example with Xavier initialization \citep{pmlr-v9-glorot10a}. While random initialization is indeed effective in many settings, in the context of model editing, we hope to leverage the prior that an effective model edit is likely similar to the raw fine-tuning gradient. Random initialization sacrifices this inductive bias, and we find that it leads to unproductive model edits making optimization challenging. For this reason, we initialize \name~to compute the exact identity function using a residual connection \citep{he2016deep} and a partially random, partially zero-initialization strategy related to Fixup \citep{zhang2018residual}. At initialization, a \name~network computes $g_\ell(z)$ where $z=\text{concat}(u_\ell, \delta_{\ell+1})$ as:
+\begin{align}
+    h &= z + \sigma(U_1V_1 z + b_1) \\
+    g(z) &= h + U_2V_2 h
+\end{align}
+where $\sigma$ is a non-linear activation function with the property that $\sigma(0) = 0$ (ReLU in this work\footnote{We define the gradient of the ReLU function at 0 as 1, rather than 0 as is the case in some libraries for automatic differentiation.}), $U_1,V_1$ corresponds to a low rank factorization of the first layer weight matrix (similarly for $U_2,V_2$), the matrices $U_1$ and $U_2$ are initialized with zeros, and $V_1$ and $V_2$ use standard Xavier uniform initialization \citep{pmlr-v9-glorot10a}. $U_1,V_1$ and $U_2,V_2$ comprise the low-rank parameterization of the first and second layers, respectively.
+
+\textbf{Normalization} The inputs to a \name~network ($u_\ell$ and $\delta_{\ell+1}$) can differ in magnitude by several orders of magnitude. This poor conditioning causes training to be slow and edit performance to suffer (see Section~\ref{sec:ablations}). Input normalization addresses this issue. We normalize each dimension of both $u_\ell$ and $\delta_{\ell+1}$; the input to $g_\ell$ is the concatenation of $\bar{u}_\ell=\text{norm}(u_\ell)$ and $\bar{\delta}_{\ell+1} = \text{norm}(\delta_{\ell+1})$, where $\bar{u}_\ell$ and $\bar{\delta}_{\ell+1}$ are normalized to have zero mean and unit variance, with means and variances computed over the edit train set and the sequence index.
+
+\subsection{Training \name}
+
+\input{algs/mend}
+
+
+Using the \name~parameterization, initialization, and normalization together, we can use an editing training set $\dtrain$ to learn parameters $\phi_\ell$ for each of the \name~networks $g_\ell$. Before training, we select the weights of the model $\mathcal{W}=\{W_1,...,W_N\}$ that we would like to make `editable' (e.g., the weight matrices in the last $N$ layers). At each step of training, we sample an edit example $(\xe,\ye)$, locality example $\xloc$, and edit generalization examples $(\xe',\ye')$ from the edit train set $\dtrain$. The locality example is sampled independently from the edit example, so that it is very likely that it is unrelated to the edit example. The edit generalization examples are related to the edit inputs and labels (e.g., a rephrasing of the question/answer in the edit example). We use $(\xe,\ye)$ to compute the raw gradient $\nabla_{W_\ell}p_{\theta_\mathcal{W}}(\ye|\xe)$ for each weight matrix $W_\ell\in\mathcal{W}$, using $\theta_\mathcal{W}$ to denote the model parameters with un-edited weights. We then compute the parameter update for each layer as $\tilde W_\ell = \alpha_\ell W_\ell - \tilde\delta_{\ell+1}\tilde u_\ell^{\top}$, where $\tilde \delta_{\ell+1}, \tilde u_\ell = g_\ell(\delta_{\ell+1},u_\ell)$ and $\alpha_\ell$ is a learned (scalar) learning rate for $\ell$.
+
+We compute training losses using the edited model parameters $\mathcal{\tilde W}$, which we then backpropagate into the editing networks. Note that we do not compute any higher-order gradients, because we do not backpropagate into the pre-edit model parameters. The training losses are $\losse$, which measures edit success, and $\lossl$, which measures the locality of the edit. We define $\losse = -\log p_{\theta_\mathcal{\tilde W}}(\ye'|\xe')$ (the negative log likelihood of the edit generalization label given the edit generalization input under the edited model parameters) and $\losse = \text{KL}(p_{\theta_\mathcal{W}}(\cdot|\xloc) \| p_{\theta_\mathcal{\tilde W}}(\cdot|\xloc))$ (the KL divergence between the pre-edit and post-edit model conditioned on the locality input $\xloc$). Intuitively, $\losse$ is small if the model has successfully updated its output for the edit example and its equivalence neighborhood, while $\lossl$ is small if the edit did not affect the model's behavior on unrelated inputs.
+
+The total training loss for a \name~network is computed as
+\begin{align}
+    L = c_\text{e} \losse(\theta_\mathcal{\tilde W}) + c_\text{l} \lossl(\theta_\mathcal{W},\theta_\mathcal{\tilde W})
+\end{align}
+
+We optimize $L$ with respect to the \name~parameters at each time step using the Adam optimizer \citep{kingma2015adam}.
+
+\section{Related Work}
+
+\input{figures_tex/memory}
+
+Existing strategies for model editing have used meta-learning-based \citep{finn2017maml,Sinitsin2020Editable} and hypernetwork-based \citep{ha2017hyper,Cao2021EditingFK} approaches to the problem, treating the problem of editing itself as a learning problem as we do. Other works use fine-tuning with constraints in parameter space to prevent model degradation as a result of editing \citep{zhu2020modifying,Sotoudeh2021ProvableRO}. \cite{Cao2021EditingFK} observe however that constraints in parameter-space do not always translate to useful constraints in function-space for expressive networks like the ones considered in this work. Model editing shares with continual learning \citep{mccloskey1989catastrophic,parisi2018continual} the goal of assimilating or updating a model's behavior without forgetting old information or behaviors, commonly known as the problem of catastrophic forgetting \citep{mccloskey1989catastrophic,ratcliff1990connectionist,kirkpatrick2017overcoming}. However, in continual learning settings, a model is typically expected to learn wholly new behaviors or datasets \citep{kirkpatrick2017overcoming,parisi2018continual} without forgetting, while in this work we consider more localized model edits. In the context of meta-learning, various methods also leverage transformations of gradients in order to achieve more productive model updates for few-shot learning \citep{li2017metasgd,lee2018gradient,park2019meta,Flennerhag2020Meta-Learning}. However, these approaches do not to our knowledge leverage the factorized gradient, limiting them to simpler transformations (typically linear) of the gradient and/or transformations that also impact the function computed by the forward pass of the model.
+
+In the NLP literature, many papers have investigated the locus of various types of knowledge in language models, using learned probe models or iterative search procedures to ascertain the presence of linguistic structures \citep{belinkov-etal-2017-neural,conneau-etal-2018-cram,hewitt-manning-2019-structural} or particular facts about the world \cite{petroni-etal-2019-language,Jiang2020HowCW,dai2021knowledge}. However, these works typically do not consider \textit{interventions} on a model's knowledge. Exceptions are \cite{dai2021knowledge} and \cite{wang2020kadapter}, which assume access to many datapoints representing the knowledge to be edited; the present work considers the case in which we intend to edit the model using \textit{only} the single input known to cause a problem.
+
+\paragraph{Editable Neural Networks (ENN)}
+\label{sec:enn-prelims}
+Editable neural networks \citep{Sinitsin2020Editable} search for a set of model parameters that both provide good performance for a `base task' (e.g., image classification or machine translation) and enable rapid editing by gradient descent to update the model's predictions for a set of `edit examples' without changing the model's behavior for unrelated inputs. ENN optimizes the following objective, based on the MAML algorithm \citep{finn2017maml}:
+\begin{align}
+    \mathcal{L}_\text{ENN}(\theta, \mathcal{D}_\text{base}, \mathcal{D}_\text{edit}, \mathcal{D}_\text{loc}) =  L_\text{base}(\mathcal{D}_\text{base}, \theta) + c_\text{edit}\cdot L_\text{edit}(\mathcal{D}_\text{edit}, \theta^\prime) + c_\text{loc}\cdot \lossl(\mathcal{D}_\text{loc}, \theta, \theta^\prime).\label{eq:enn-loss}
+\end{align}
+The first term of Equation~\ref{eq:enn-loss} is the base task loss; for a generative language model, we have $ L_\text{base}(\mathcal{D}_\text{base}, \theta) = -\log p_{\theta}(\mathcal{D}_\text{base})$ where $\mathcal{D}_\text{base}$ is a batch of training sequences. $ L_\text{base}$ is the edit \textit{reliability} loss, encouraging the model to significantly change its output for the edit examples in $\mathcal{D}_\text{edit}$. Finally, $\lossl$ is the edit \textit{locality} loss, which penalizes the edited model $\theta'$ for deviating from the predictions of the pre-edit model $\theta$ on $\mathcal{D}_\text{loc}$, data unrelated to $\mathcal{D}_\text{edit}$ and sampled from the same distribution as $\mathcal{D}_\text{base}$.
+
+% The editing procedure and corresponding losses are defined as follows:
+% \begin{align}
+%     \label{eq:enn-edit}\theta^\prime = \text{Edit}(\mathcal{D}_\text{edit}, \theta) &= \theta + \eta \nabla_\theta \log p_\theta(\mathcal{D}_\text{edit}) \\
+%     \label{eq:enn-edit-outer} L_\text{edit}(\mathcal{D}_\text{edit}, \theta') &= -\log p_{\theta^\prime}(\mathcal{D}_\text{edit}) \\
+%     \label{eq:enn-loc} \lossl(\mathcal{D}_\text{loc}, \theta, \theta^\prime) &= \frac{1}{N}\sum_i^N D_{KL}(p_\theta(\cdot \mid x_\text{loc}^i)\,\|\, p_{\theta^\prime}(\cdot \mid x_\text{loc}^i)).
+% \end{align}
+% where $\mathcal{D}_\text{loc} = \{(x_\text{loc}^i, y_\text{loc}^i)\}_{i=1}^N$ is a batch of $N$ training examples, $ L_\text{edit}$ ensures that edited parameters actually increase the likelihood of the edit example(s), and $ \lossl$ regularizes edits to affect only the edit example(s). 
+
+See \citet{Sinitsin2020Editable} for a more detailed explanation of ENN training and alternative objectives for $ L_\text{edit}$ and $ \lossl$.
+
+\paragraph{\textsc{KnowledgeEditor} (KE)}
+\cite{Cao2021EditingFK} propose \textsc{KnowledgeEditor}, a hypernetwork-based approach for editing the knowledge in language models. KE is an RNN that conditions explicitly on the input, incorrect output, and new desired label and outputs a mask $m_i$, offset $b_i$, and a scalar scaling factor $\alpha$ to the gradient $\nabla_{W_i}$ for several of the weight matrices in a transformer model, where $m_i,b_i,\nabla_{W_i} \in \mathbb{R}^{d \times d}$ for a $d \times d$ weight matrix. The update to the model is $\theta' = \theta - \alpha (m_i \circ \nabla_{W_i}) + b_i$. Because the weight matrices in state-of-the-art transformer models are very high-dimensional, the mask and offset output by KE are rank-1 to retain tractability.
+
+\section{Experiments}
+\input{tables/large_models}
+
+\textbf{Experiments section is the major TODO still (describing in more detail the setup, providing more interpretation).}
+
+A key motivation for our proposed approach is computational efficiency and, thus, scalability to large models that are common in many language tasks. In this section, we verify that \name~can easily be applied to models with over a billion parameters. We train \name~to edit 4 different GPT-2 models on the wikitext editing task used in Section~\ref{sec:large-models}, editing the mlp weights in the last 3 transformer blocks for all model sizes. Models vary in size from 110 million to over 1.5 billion parameters. We make \textbf{no modifications} to \name~or its hyperparameters for each model, and all runs are trained entirely on a single NVIDIA RTX Titan GPU. No gradient checkpointing or memory-reduction optimizations are needed.
+
+Our experiments are intended to answer several questions about algorithms for editing transformers. First, how does each algorithm trade off edit success with model degradation induced by editable training and the edits themselves? Second, to what extent is explicit supervision over how edits should generalize needed during training? Third, does \name~scale to very large (billion+ parameter) transformer models? Finally, are the design components such as identity initialization and input normalization actually necessary?
+
+\subsection{Editing very large transformer models}
+\label{sec:large-models}
+In this section, we consider the largest publicly-available Transformer models and various algorithms for editing them. We use GPT-Neo (2.7B parameters) \citep{gpt-neo} and GPT-J (6B parameters) \citep{gpt-j}, roughly 2x and 4x larger than GPT-2 \citep{radford2019language}, and the largest 2 T5 models, T5-XL (2.8B parameters) and T5-XXL (11B parameters). Results are shown in Table~\ref{tab:large-model-results}.
+\textbf{Takeaway: \name~is most consistent performer; ENN doesn't scale, FT works sometimes but not others, and KE doesn't really work at all}
+
+\subsection{Smaller scale editing on datasets from prior work}
+
+In addition to evaluating on the largest models available, we conduct an editing comparison using the models and datasets of \cite{Cao2021EditingFK}, which are 1-2 orders of magnitude smaller than the models in Section~\ref{sec:large-models}. However, this scale is useful because at this scale, ENN is not too expensive to run. Results are presented in Table~\ref{tab:small_models}. \textbf{Takeaway: At small scale, differences between algorithms are much smaller; \name~ is "best" because it works for big models too.}
+
+\input{tables/small_models}
+
+\subsection{Impacts of edit generalization data}
+Our second group of experiments investigates the intrinsic ability of various editing algorithms to make editings that \textit{generalize}. During evaluation, each algorithm performs an edit using a single edit example $(\xe, \ye)$ as before, but edit \textit{success} is evaluated using a different (but related) input $\tilde \xe$. For example, if $\xe=$ \textit{Where does FC Fyn play home games?}, we might have $\tilde \xe=$ \textit{What is the name of the stadium where FC Fyn plays their home games?}.
+
+\textbf{Takeaways: Edit generalization data is significant for one dataset, not the other}
+
+\input{tables/generalization}
+
+\subsection{Qualitative outputs}
+In order to get a better sense of the abilities of \name, we include several qualitative outputs, including a failure case. TODO \textbf{Takeaways: \name~works for `real' inputs, and you can apply it multiple times in a row}
+
+\input{tables/qualitative_outputs}
+
+\subsection{Ablations}
+\label{sec:ablations}
+Finally, we conduct ablation studies to validate the key components of \name, including identity initialization, input normalization, and MLP weight rank. For the initialization ablation, we replace identity initialization with standard Xavier (or Glorot) initialization. We used a single fixed $c_\text{edit}$ for all experiments. Table~\ref{tab:ablations} shows the results. While reducing the rank of the \name~weight matrices yields a gentle degradation in overall editability, removing \textit{either} input normalization or the identity initialization results in essentially complete failure of learning. The average activation tends to be orders of magnitude larger than the average $\delta$. We conclude that normalization likely balances the contribution of these two inputs to the gradient update to the \name~parameters, which would otherwise be a very poorly-conditioned problem. Further, the magnitude of activations varies significantly across tasks. Normalization makes the scale of \name~parameter updates similar across tasks, enabling the usage of the \textbf{same hyperparameters} for all experiments.
+
+\input{tables/ablations}
+
+% \section{Related Work}
+% Existing strategies for model editing have used meta-learning-based \citep{finn2017maml,Sinitsin2020Editable} and hypernetwork-based \citep{ha2017hyper,Cao2021EditingFK} approaches to the problem, treating the problem of editing itself as a learning problem as we do. Other works use fine-tuning with constraints in parameter space to prevent model degradation as a result of editing \citep{zhu2020modifying,Sotoudeh2021ProvableRO}. \cite{Cao2021EditingFK} observe however that constraints in parameter-space do not always translate to useful constraints in function-space for expressive networks like the ones considered in this work. Model editing shares with continual learning \citep{mccloskey1989catastrophic,parisi2018continual} the goal of assimilating or updating a model's behavior without forgetting old information or behaviors (commonly known as the problem of catastrophic forgetting \citep{mccloskey1989catastrophic,ratcliff1990connectionist,kirkpatrick2017overcoming}). However, in continual learning settings, a model is typically expected to learn wholly new behaviors or datasets \citep{kirkpatrick2017overcoming,parisi2018continual} without forgetting, while in this work we generally consider more localized model edits. In the context of meta-learning, various methods also leverage transformations of gradients in order to achieve more productive model updates for few-shot learning \citep{li2017metasgd,lee2018gradient,park2019meta,Flennerhag2020Meta-Learning}. However, these approaches do not (to our knowledge) leverage the factorized gradient, limiting them to simpler transformations (typically linear) of the gradient and/or transformations that also impact the function computed by the forward pass of the model.
+
+% In the NLP literature, many works have investigated the locus of various types of knowledge in language models, using learned probe models or iterative search procedures to ascertain the presence of linguistic structures \citep{belinkov-etal-2017-neural,conneau-etal-2018-cram,hewitt-manning-2019-structural} or particular facts about the world \cite{petroni-etal-2019-language,Jiang2020HowCW,dai2021knowledge}. However, these works typically do not consider \textit{interventions} on a model's knowledge. Exceptions are \cite{dai2021knowledge} and \cite{wang2020kadapter}, which assume access to many datapoints representing the knowledge to be edited; the present work considers the case in which we intend to edit the model using \textit{only} the single input known to cause a problem.
+
+\section{Limitations \& Future Work}
+\begin{enumerate}
+    \item Editing datasets are relatively limited (we over-generalize)
+    \item Didn't try batched edits (but this should work)
+    \item Required labeled input rephrasings (future work)
+\end{enumerate}
+In addition to addressing the mentioned limitations, future work might consider how \name~can be useful for making other types of model corrections, such as eliminating broad categories of toxic generations from a generative language model after seeing only a single toxic output. Further, because \name~is not in principle limited to editing Transformer-style models, future work might investigate other types of useful edits, such as editing policies controlling a robot to avoid particular undesirable behaviors. Our hope is that \name~provides a flexible framework for editing trained neural networks to rapidly address problematic or dangerous model behaviors discovered after deployment and ultimately extend the useful lifetime of trained neural networks.
+\section{Discussion}
+In this work, we presented an efficient approach to editing very large (10 billion+) parameter neural networks, which we call \fullname, or \name. We showed that \name~is the only method that successfully edits the largest publicly-available Transformer models from the GPT and T5 model families. To do so, \name~treats the model editing problem itself as a learning problem, using a relatively small edit dataset to learn model editor networks that can correct model errors using only a single pair of input and desired output. \name~leverages the fact that gradients with respect to the fully-connected layers in neural networks are rank-1, enabling a parameter-efficient architecture that represents this gradient transform.
+
+
+
+\newpage
+\bibliographystyle{plainnat}
+\bibliography{main}
+
+\newpage
+
+\appendix
+
+\input{supp}
+
+\end{document}

@@ -1,0 +1,122 @@
+# Architecture evidence: Future-House/paper-qa
+
+- `README.md:1` — PaperQA2
+- `README.md:69` — Quickstart
+- `README.md:84` — Example Output
+- `README.md:105` — What is PaperQA2
+- `README.md:137` — PaperQA2 vs PaperQA
+- `README.md:151` — PaperQA2 Goes CalVer in December 2025
+- `README.md:180` — What's New in Version 5 (aka PaperQA2)?
+- `README.md:197` — What's New in December 2025?
+- `README.md:224` — PaperQA2 Algorithm
+- `README.md:244` — Installation
+- `README.md:270` — CLI Usage
+- `README.md:356` — Bundled Settings
+- `README.md:369` — Rate Limits
+- `README.md:403` — Library Usage
+- `README.md:418` — Agentic Adding/Querying Documents
+- `README.md:454` — Manual (No Agent) Adding/Querying Documents
+- `README.md:467` — valid extensions include .pdf, .txt, .md, .html, .docx, .xlsx, .pptx, and code files (e.g., .py, .ts, .yaml)
+- `README.md:470` — Prepare the Docs object by adding a bunch of documents
+- `README.md:475` — Set up how we want to query the Docs object
+- `README.md:480` — Query the Docs object to get an answer
+- `README.md:485` — Async
+- `README.md:521` — Choosing Model
+- `README.md:583` — Locally Hosted
+- `README.md:654` — Embedding Model
+- `README.md:664` — Specifying the Embedding Model
+- `README.md:723` — Local Embedding Models (Sentence Transformers)
+- `README.md:755` — Adjusting number of sources
+- `README.md:776` — Using Code or HTML
+- `README.md:801` — Multimodal Support
+- `README.md:847` — Using External DB/Vector DB and Caching
+- `README.md:863` — Creating Index
+- `README.md:875` — Manifest Files
+- `README.md:893` — Reusing Index
+- `README.md:929` — Using Clients Directly
+- `README.md:944` — Andres M. Bran, Sam Cox, Oliver Schilter, Carlo Baldassari,
+- `README.md:945` — Andrew D. White, and Philippe Schwaller.
+- `README.md:946` — Augmenting large language models with chemistry tools. Nature Machine Intelligence,
+- `README.md:947` — 6:525-535, May 2024. URL: https://doi.org/10.1038/s42256-024-00832-8,
+- `README.md:948` — doi:10.1038/s42256-024-00832-8.
+- `README.md:949` — This article has 243 citations and is from a domain leading peer-reviewed journal.
+- `README.md:952` — 243
+- `README.md:955` — cc-by
+- `README.md:958` — https://www.nature.com/articles/s42256-024-00832-8.pdf
+- `README.md:981` — Settings Cheatsheet
+- `README.md:1063` — Where do I get papers?
+- `README.md:1070` — Callbacks
+- `README.md:1086` — add some docs...
+- `README.md:1091` — Caching Embeddings
+- `README.md:1097` — Customizing Prompts
+- `README.md:1119` — Pre and Post Prompts
+- `README.md:1125` — FAQ
+- `README.md:1127` — How come I get different results than your papers?
+- `README.md:1138` — How is this different from LlamaIndex or LangChain?
+- `README.md:1155` — Can I save or load?
+- `README.md:1163` — save
+- `README.md:1167` — load
+- `README.md:1172` — Reproduction
+- `README.md:1193` — Citation
+- `CONTRIBUTING.md:1` — Contributing to PaperQA
+- `CONTRIBUTING.md:6` — Setting up the development environment
+- `CONTRIBUTING.md:17` — Installing the package for development
+- `CONTRIBUTING.md:27` — Running tests and other tooling
+- `CONTRIBUTING.md:57` — Using `pytest-recording` and VCR cassettes
+- `pyproject.toml:18` — Full list: https://pypi.python.org/pypi?%3Aaction=list_classifiers
+- `pyproject.toml:152` — Type-checks the interior of functions without type annotations.
+- `pyproject.toml:154` — Allows enabling one or multiple error codes globally. Note: This option will
+- `pyproject.toml:155` — override disabled error codes from the disable_error_code option.
+- `pyproject.toml:169` — Shows a short summary line after error messages.
+- `pyproject.toml:171` — A regular expression that matches file names, directory names and paths which mypy
+- `pyproject.toml:172` — should ignore while recursively discovering files to check. Use forward slashes (/) as
+- `pyproject.toml:173` — directory separators on all platforms.
+- `pyproject.toml:177` — Specifies the paths to use, after trying the paths from MYPYPATH environment variable.
+- `pyproject.toml:178` — Useful if you'd like to keep stubs in your repo, along with the config file.
+- `pyproject.toml:179` — Multiple paths are always separated with a : or , regardless of the platform.
+- `pyproject.toml:180` — User home directory and environment variables will be expanded.
+- `pyproject.toml:182` — Specifies the OS platform for the target program, for example darwin or win32
+- `pyproject.toml:183` — (meaning OS X or Windows, respectively). The default is the current platform
+- `pyproject.toml:184` — as revealed by Python’s sys.platform variable.
+- `pyproject.toml:186` — Comma-separated list of mypy plugins.
+- `pyproject.toml:188` — Use visually nicer output in error messages: use soft word wrap, show source
+- `pyproject.toml:189` — code snippets, and show error location markers.
+- `pyproject.toml:191` — Shows column numbers in error messages.
+- `pyproject.toml:193` — Shows error codes in error messages.
+- `pyproject.toml:194` — SEE: https://mypy.readthedocs.io/en/stable/error_codes.html#error-codes
+- `pyproject.toml:196` — Prefixes each error with the relevant context.
+- `pyproject.toml:198` — Warns about casting an expression to its inferred type.
+- `pyproject.toml:200` — Shows a warning when encountering any code inferred to be unreachable or
+- `pyproject.toml:201` — redundant after performing type analysis.
+- `pyproject.toml:203` — Warns about per-module sections in the config file that do not match any
+- `pyproject.toml:204` — files processed when invoking mypy.
+- `pyproject.toml:206` — Warns about unneeded `# type: ignore` comments.
+- `pyproject.toml:210` — Suppresses error messages about imports that cannot be resolved.
+- `pyproject.toml:212` — Per-module configuration options
+- `pyproject.toml:225` — Maximum number of attributes for a class (see R0902).
+- `pyproject.toml:229` — Maximum number of characters on a single line.
+- `pyproject.toml:233` — Files or directories matching the regular expression patterns are skipped.
+- `pyproject.toml:234` — The regex matches against base names, not paths. The default value ignores
+- `pyproject.toml:238` — Use multiple processes to speed up Pylint. Specifying 0 will auto-detect the
+- `pyproject.toml:239` — number of processors available to use, and will cap the count on Windows to
+- `pyproject.toml:240` — avoid hangs.
+- `pyproject.toml:242` — List of plugins (as comma separated values of python module names) to load,
+- `pyproject.toml:243` — usually to register additional checkers.
+- `pyproject.toml:250` — Disable the message, report, category or checker with the given id(s).
+- `pyproject.toml:313` — Enable the message, report, category or checker with the given id(s).
+- `pyproject.toml:317` — Newline-separated list of ignores from https://github.com/SAP/pylint-per-file-ignores
+- `pyproject.toml:324` — Set true to activate the evaluation score.
+- `pyproject.toml:328` — Minimum lines number of a similarity.
+- `pyproject.toml:342` — Add the specified OPTS to the set of command line arguments as if they had been
+- `pyproject.toml:343` — specified by the user.
+- `pyproject.toml:345` — set how loops are scoped to avoid https://github.com/BerriAI/litellm/issues/5854
+- `pyproject.toml:347` — Sets a list of filters and actions that should be taken for matched warnings.
+- `pyproject.toml:348` — By default all warnings emitted during the test session will be displayed in
+- `pyproject.toml:349` — a summary at the end of the test session.
+- `pyproject.toml:356` — List of directories that should be searched for tests when no specific directories,
+- `pyproject.toml:357` — files or test ids are given in the command line when executing pytest from the rootdir
+- `pyproject.toml:358` — directory. File system paths may use shell-style wildcards, including the recursive **
+- `pyproject.toml:359` — pattern.
+- `pyproject.toml:361` — Timeout in seconds before dumping the stacks. Default is 0 which means no timeout.
+- `pyproject.toml:379` — Line length to use when enforcing long-lines violations (like `E501`).
+- `pyproject.toml:381` — Enable application of unsafe fixes.

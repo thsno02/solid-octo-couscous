@@ -1,0 +1,61 @@
+# Architecture evidence: OpenRefine/OpenRefine
+
+- `README.md:1` — OpenRefine
+- `README.md:20` — Download
+- `README.md:24` — Snapshot releases
+- `README.md:29` — Run from source
+- `README.md:38` — Documentation
+- `README.md:43` — Contributing to the project
+- `README.md:49` — Contact us
+- `README.md:56` — Licensing and legal issues
+- `README.md:60` — Funding OpenRefine
+- `README.md:67` — Credits
+- `AGENTS.md:1` — AGENTS.md - OpenRefine Project Information
+- `AGENTS.md:5` — Project Overview
+- `AGENTS.md:15` — Technology Stack
+- `AGENTS.md:17` — Backend
+- `AGENTS.md:24` — Frontend
+- `AGENTS.md:30` — Project Modules
+- `AGENTS.md:39` — Build System
+- `AGENTS.md:41` — Building OpenRefine
+- `AGENTS.md:53` — Running OpenRefine
+- `AGENTS.md:56` — On Mac OS and Linux
+- `AGENTS.md:59` — On Windows
+- `AGENTS.md:75` — Other Build Commands
+- `AGENTS.md:90` — Testing Infrastructure
+- `AGENTS.md:92` — Unit Tests
+- `AGENTS.md:97` — End-to-End Tests
+- `AGENTS.md:110` — Testing in CI
+- `AGENTS.md:116` — Development Workflow
+- `AGENTS.md:118` — Code Contributions
+- `AGENTS.md:127` — Code Style and Formatting
+- `AGENTS.md:137` — Important Files
+- `AGENTS.md:145` — Extension System
+- `AGENTS.md:159` — Project Dependencies
+- `AGENTS.md:161` — Backend Dependencies
+- `AGENTS.md:168` — Frontend Dependencies
+- `AGENTS.md:178` — Data and Configuration
+- `AGENTS.md:185` — Internationalization
+- `AGENTS.md:192` — Community and Support
+- `AGENTS.md:200` — Fiscal Sponsorship
+- `AGENTS.md:204` — Important Notes for AI Agents
+- `AGENTS.md:217` — Getting Started for Development
+- `AGENTS.md:220` — Clone the repository
+- `AGENTS.md:224` — Ensure you have required tools installed:
+- `AGENTS.md:225` — - JDK 21 or newer (up to JDK 26)
+- `AGENTS.md:226` — - Apache Maven
+- `AGENTS.md:227` — - Node.js 24 or newer
+- `AGENTS.md:229` — Build the project
+- `AGENTS.md:232` — Run OpenRefine
+- `AGENTS.md:235` — Access at http://127.0.0.1:3333
+- `AGENTS.md:238` — Additional Resources
+- `CONTRIBUTING.md:5` — Provide peer user support
+- `CONTRIBUTING.md:15` — Promote OpenRefine
+- `CONTRIBUTING.md:20` — Contribute translations
+- `CONTRIBUTING.md:27` — Contribute documentation
+- `CONTRIBUTING.md:32` — Contribute code
+- `CONTRIBUTING.md:46` — How to submit PR's (pull requests), patches, and bug fixes
+- `CONTRIBUTING.md:62` — New functionality via extensions
+- `SECURITY.md:1` — OpenRefine Security Policy
+- `SECURITY.md:3` — Supported Versions
+- `SECURITY.md:9` — Reporting a Vulnerability

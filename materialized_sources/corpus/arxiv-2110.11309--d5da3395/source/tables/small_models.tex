@@ -1,0 +1,21 @@
+\begin{table}
+    \centering
+    \small
+    \begin{tabular}{lcccccc}
+    \toprule
+        & \multicolumn{2}{c}{\textbf{FEVER Fact-Checking}} & \multicolumn{2}{c}{\textbf{zsRE Question-Answering}} & \multicolumn{2}{c}{\textbf{Wikitext Generation}}  \\
+        \cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule{6-7}
+        & \multicolumn{2}{c}{BERT-base (110M)} & \multicolumn{2}{c}{BART-base (139M)} & \multicolumn{2}{c}{distilGPT-2 (82M)} \\
+        \midrule
+        Editor & ES $\uparrow$ & acc. DD $\downarrow$ & ES $\uparrow$ & acc. DD $\downarrow$ & ES $\uparrow$ & ppl. DD $\downarrow$ \\
+        \midrule
+        FT & 0.76 & \textbf{\textlt{0.001}} & 0.96 & \textbf{\textlt{0.001}} & 0.29 & 0.938 \\
+        FT+KL & 0.64 & \textbf{\textlt{0.001}} & 0.89 & \textbf{\textlt{0.001}} & 0.17 & \textbf{0.059} \\
+        ENN & \textbf{0.99} & 0.003 & \textbf{0.99} & \textbf{\textlt{0.001}} & \textbf{0.93} & 0.094 \\
+        KE & 0.95 & 0.004 & \textbf{0.98} & \textbf{\textlt{0.001}} & 0.25 & 0.595 \\
+        \name & \textbf{\textgt{0.99}} & \textbf{\textlt{0.001}} & \textbf{0.98} & 0.002 & 0.86 & 0.225 \\
+        \bottomrule
+    \end{tabular}
+    \caption{\textbf{Small-scale model editing} with various model editors on three editing problems. ENN and \name~show the most consistently good performance, with ENN exceeding \name's performance on the Wikitext problem. \name's primary advantages are its consistent performance from 100M to 10B parameter models and the fact that it does not modify the pre-edit model (unlike ENN). The pre-trained models and editing data for the FEVER fact-checking and zsRE question-answering problems are used from the checkpoints and data released by \citet{Cao2021EditingFK}; for generation, we use distilGPT-2 fine-tuned on Wikitext2 \citep{distilgpt2}.}
+    \label{tab:small_models}
+\end{table}

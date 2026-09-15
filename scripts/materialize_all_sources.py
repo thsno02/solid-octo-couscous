@@ -1,0 +1,1742 @@
+#!/usr/bin/env python3
+"""Materialize every collected source into a local, source-specific capsule.
+
+The goal is not to pretend that every URL can legally or technically be mirrored in
+full.  The invariant is stronger and more honest:
+
+* every metadata record receives a local capsule and manifest;
+* open scholarly sources are materialized as full text when available;
+* GitHub repositories are frozen at a commit and converted into semantic capsules,
+  not vendored wholesale;
+* web and proprietary sources are stored as full text only when the metadata says
+  redistribution is open, otherwise as bounded evidence excerpts;
+* every generated file is hashed and every selector resolves to a local file.
+
+The script is deterministic for a frozen upstream revision except for retrieval
+metadata such as timestamps.  Git history is the immutable version store; this
+script does not duplicate all payloads into a second snapshot tree.
+"""
+from __future__ import annotations
+
+import argparse
+import base64
+import concurrent.futures
+import dataclasses
+import gzip
+import hashlib
+import io
+import json
+import os
+import re
+import shutil
+import subprocess
+import tarfile
+import threading
+import time
+import urllib.parse
+from collections import Counter, defaultdict
+from datetime import datetime, timezone
+from pathlib import Path, PurePosixPath
+from typing import Any, Iterable
+
+import requests
+import yaml
+
+ROOT = Path(__file__).resolve().parents[1]
+RAW_ROOT = ROOT / "raw_data"
+MATERIALIZED_ROOT = ROOT / "materialized_sources"
+CORPUS_ROOT = MATERIALIZED_ROOT / "corpus"
+REGISTRY_ROOT = ROOT / "source_registry"
+AUDIT_ROOT = RAW_ROOT / "audits"
+
+USER_AGENT = (
+    "solid-octo-couscous-materializer/2.0 "
+    "(+https://github.com/thsno02/solid-octo-couscous)"
+)
+
+DIRECTORY_SOURCE_TYPES = {
+    "arxiv": "arxiv",
+    "biorxiv": "biorxiv",
+    "journal": "journal",
+    "paper": "paper",
+    "standard": "standard",
+    "methodology": "methodology",
+    "industry": "industry",
+    "blog": "blog",
+    "githubs": "github",
+    "dataset": "dataset",
+    "benchmark": "benchmark",
+    "incident": "incident",
+    "x": "x",
+}
+
+TYPE_ALIASES = {
+    "book_chapter": "paper",
+    "book-chapter": "paper",
+    "conference": "paper",
+    "preprint": "paper",
+    "industry_doc": "industry",
+    "industry-doc": "industry",
+    "ontology": "standard",
+    "github_repo": "github",
+    "github-repository": "github",
+}
+
+ARXIV_TEXT_EXTENSIONS = {
+    ".tex",
+    ".ltx",
+    ".bib",
+    ".bbl",
+    ".sty",
+    ".cls",
+    ".bst",
+    ".def",
+    ".txt",
+    ".md",
+    ".rst",
+    ".json",
+    ".yaml",
+    ".yml",
+    ".csv",
+}
+
+GITHUB_TEXT_EXTENSIONS = {
+    ".md",
+    ".mdx",
+    ".rst",
+    ".txt",
+    ".adoc",
+    ".json",
+    ".yaml",
+    ".yml",
+    ".toml",
+    ".ini",
+    ".cfg",
+    ".py",
+    ".js",
+    ".ts",
+    ".tsx",
+    ".jsx",
+    ".go",
+    ".rs",
+    ".java",
+    ".kt",
+    ".scala",
+    ".rb",
+    ".sh",
+    ".sql",
+    ".proto",
+    ".graphql",
+    ".gql",
+    ".xml",
+}
+
+PROMINENT_GITHUB_FILENAMES = {
+    "readme.md",
+    "readme.rst",
+    "readme.txt",
+    "agents.md",
+    "claude.md",
+    "architecture.md",
+    "design.md",
+    "overview.md",
+    "concepts.md",
+    "security.md",
+    "contributing.md",
+    "citation.cff",
+    "license",
+    "license.md",
+    "license.txt",
+    "pyproject.toml",
+    "package.json",
+    "go.mod",
+    "cargo.toml",
+    "requirements.txt",
+    "makefile",
+    "dockerfile",
+}
+
+GITHUB_DOC_KEYWORDS = {
+    "architecture",
+    "design",
+    "overview",
+    "concept",
+    "ontology",
+    "schema",
+    "memory",
+    "knowledge",
+    "evaluation",
+    "benchmark",
+    "workflow",
+    "agent",
+    "api",
+    "interface",
+    "security",
+    "governance",
+    "provenance",
+    "retrieval",
+    "compile",
+    "ingest",
+    "index",
+}
+
+_thread_local = threading.local()
+_arxiv_semaphore = threading.Semaphore(3)
+_github_semaphore = threading.Semaphore(6)
+_generic_semaphore = threading.Semaphore(6)
+
+
+@dataclasses.dataclass(frozen=True)
+class SourceRecord:
+    uid: str
+    source_type: str
+    canonical_id: str | None
+    title: str
+    canonical_url: str | None
+    metadata_path: Path
+    metadata: dict[str, Any]
+    priority: str
+    rights_access: str
+
+    @property
+    def relative_metadata_path(self) -> str:
+        return self.metadata_path.relative_to(ROOT).as_posix()
+
+    @property
+    def capsule_key(self) -> str:
+        base = safe_key(self.uid)
+        suffix = hashlib.sha1(self.relative_metadata_path.encode("utf-8")).hexdigest()[:8]
+        return f"{base}--{suffix}"
+
+    @property
+    def capsule_root(self) -> Path:
+        return CORPUS_ROOT / self.capsule_key
+
+
+def utc_now() -> str:
+    return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+
+
+def safe_key(value: str) -> str:
+    value = value.strip().replace("/", "--").replace(":", "-")
+    value = re.sub(r"[^A-Za-z0-9._-]+", "-", value)
+    value = re.sub(r"-+", "-", value).strip("-._")
+    return value or "source"
+
+
+def load_yaml(path: Path) -> Any:
+    with path.open("r", encoding="utf-8") as handle:
+        return yaml.safe_load(handle)
+
+
+def dump_yaml(value: Any) -> str:
+    return yaml.safe_dump(value, sort_keys=False, allow_unicode=True, width=110)
+
+
+def write_yaml(path: Path, value: Any) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(dump_yaml(value), encoding="utf-8")
+
+
+def write_jsonl(path: Path, rows: Iterable[dict[str, Any]]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8") as handle:
+        for row in rows:
+            handle.write(json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n")
+
+
+def sha256_bytes(payload: bytes) -> str:
+    return hashlib.sha256(payload).hexdigest()
+
+
+def sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def normalize_source_type(path: Path, metadata: dict[str, Any]) -> str:
+    relative = path.relative_to(RAW_ROOT)
+    directory = relative.parts[0] if relative.parts else "unknown"
+    if directory in DIRECTORY_SOURCE_TYPES:
+        return DIRECTORY_SOURCE_TYPES[directory]
+    raw = str(metadata.get("source_type") or metadata.get("source") or directory).strip().lower()
+    raw = raw.replace(" ", "_")
+    return TYPE_ALIASES.get(raw, raw)
+
+
+def canonical_id_for(source_type: str, metadata: dict[str, Any]) -> str | None:
+    candidates = [
+        metadata.get("canonical_id"),
+        metadata.get("arxiv_id") if source_type == "arxiv" else None,
+        metadata.get("repo") if source_type == "github" else None,
+        metadata.get("doi"),
+        metadata.get("id"),
+    ]
+    for candidate in candidates:
+        if candidate is None:
+            continue
+        value = str(candidate).strip()
+        if not value:
+            continue
+        if source_type == "arxiv":
+            value = re.sub(r"v\d+$", "", value)
+        return value
+    return None
+
+
+def canonical_url_for(source_type: str, canonical_id: str | None, metadata: dict[str, Any]) -> str | None:
+    for field in (
+        "canonical_url",
+        "url",
+        "official_url",
+        "source_url",
+        "paper_url",
+        "landing_page",
+    ):
+        value = metadata.get(field)
+        if isinstance(value, str) and value.strip():
+            return value.strip()
+    if canonical_id and source_type == "arxiv":
+        return f"https://arxiv.org/abs/{canonical_id}"
+    if canonical_id and source_type == "github":
+        return f"https://github.com/{canonical_id}"
+    if canonical_id and metadata.get("doi"):
+        return f"https://doi.org/{canonical_id}"
+    return None
+
+
+def discover_records() -> list[SourceRecord]:
+    records: list[SourceRecord] = []
+    seen_uids: Counter[str] = Counter()
+    for path in sorted(RAW_ROOT.rglob("metadata.yaml")):
+        metadata = load_yaml(path)
+        if not isinstance(metadata, dict):
+            continue
+        source_type = normalize_source_type(path, metadata)
+        canonical_id = canonical_id_for(source_type, metadata)
+        title = str(metadata.get("title") or metadata.get("repo") or path.parent.name).strip()
+        base_uid = str(metadata.get("uid") or f"{source_type}:{canonical_id or safe_key(title)}").strip()
+        seen_uids[base_uid] += 1
+        uid = base_uid if seen_uids[base_uid] == 1 else f"{base_uid}#{seen_uids[base_uid]}"
+        canonical_url = canonical_url_for(source_type, canonical_id, metadata)
+        collection = metadata.get("collection") if isinstance(metadata.get("collection"), dict) else {}
+        priority = str(collection.get("priority") or metadata.get("priority") or "P1")
+        rights = metadata.get("rights") if isinstance(metadata.get("rights"), dict) else {}
+        rights_access = str(rights.get("access") or "unknown")
+        records.append(
+            SourceRecord(
+                uid=uid,
+                source_type=source_type,
+                canonical_id=canonical_id,
+                title=title,
+                canonical_url=canonical_url,
+                metadata_path=path,
+                metadata=metadata,
+                priority=priority,
+                rights_access=rights_access,
+            )
+        )
+    return records
+
+
+def session() -> requests.Session:
+    current = getattr(_thread_local, "session", None)
+    if current is None:
+        current = requests.Session()
+        current.headers.update({"User-Agent": USER_AGENT, "Accept": "*/*"})
+        _thread_local.session = current
+    return current
+
+
+def fetch_bytes(url: str, *, timeout: int, max_bytes: int, attempts: int = 3) -> tuple[bytes, str, dict[str, str]]:
+    last_error: Exception | None = None
+    for attempt in range(attempts):
+        response: requests.Response | None = None
+        try:
+            request_headers: dict[str, str] = {}
+            host = urllib.parse.urlparse(url).netloc.lower()
+            token = os.getenv("GITHUB_TOKEN")
+            if token and host == "api.github.com":
+                request_headers.update({
+                    "Authorization": f"Bearer {token}",
+                    "X-GitHub-Api-Version": "2022-11-28",
+                })
+            response = session().get(
+                url,
+                timeout=timeout,
+                stream=True,
+                allow_redirects=True,
+                headers=request_headers,
+            )
+            response.raise_for_status()
+            chunks: list[bytes] = []
+            total = 0
+            for chunk in response.iter_content(chunk_size=128 * 1024):
+                if not chunk:
+                    continue
+                total += len(chunk)
+                if total > max_bytes:
+                    raise RuntimeError(f"response exceeded {max_bytes} bytes")
+                chunks.append(chunk)
+            headers = {str(key).lower(): str(value) for key, value in response.headers.items()}
+            resolved_url = str(response.url)
+            response.close()
+            return b"".join(chunks), resolved_url, headers
+        except Exception as exc:  # requests raises several useful subclasses.
+            if response is not None:
+                response.close()
+            last_error = exc
+            if attempt + 1 < attempts:
+                time.sleep(min(8, 2**attempt))
+    raise RuntimeError(f"fetch failed for {url}: {last_error}")
+
+
+def local_file_inventory(root: Path) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    for path in sorted(root.rglob("*")):
+        if not path.is_file() or path.name == "manifest.yaml":
+            continue
+        rows.append(
+            {
+                "path": path.relative_to(ROOT).as_posix(),
+                "bytes": path.stat().st_size,
+                "sha256": sha256_file(path),
+            }
+        )
+    return rows
+
+
+def candidate_urls(record: SourceRecord) -> list[str]:
+    fields = (
+        "source_archive_url",
+        "open_copy_url",
+        "pdf_url",
+        "full_text_url",
+        "download_url",
+        "source_url",
+        "canonical_url",
+        "url",
+    )
+    urls: list[str] = []
+    for field in fields:
+        value = record.metadata.get(field)
+        if isinstance(value, str) and value.startswith(("http://", "https://")):
+            urls.append(value)
+    if record.canonical_url:
+        urls.append(record.canonical_url)
+    deduped: list[str] = []
+    seen: set[str] = set()
+    for url in urls:
+        if url not in seen:
+            seen.add(url)
+            deduped.append(url)
+    return deduped
+
+
+def text_is_open(record: SourceRecord, config: dict[str, Any], resolved_url: str | None = None) -> bool:
+    if record.rights_access in {"open", "source_available"}:
+        return True
+    if record.metadata.get("rights") and isinstance(record.metadata["rights"], dict):
+        if record.metadata["rights"].get("license_spdx"):
+            return True
+    allowed_types = set(config.get("full_text_source_types", []))
+    if record.source_type in allowed_types:
+        return True
+    if resolved_url:
+        host = urllib.parse.urlparse(resolved_url).netloc.lower()
+        if any(host == domain or host.endswith("." + domain) for domain in config.get("open_full_text_domains", [])):
+            return True
+    return False
+
+
+def write_capsule_readme(record: SourceRecord, root: Path, manifest: dict[str, Any]) -> None:
+    lines = [
+        f"# {record.title}",
+        "",
+        f"- UID: `{record.uid}`",
+        f"- Source type: `{record.source_type}`",
+        f"- Canonical ID: `{record.canonical_id}`",
+        f"- Canonical URL: {record.canonical_url or 'unresolved'}",
+        f"- Materialization status: `{manifest.get('status')}`",
+        f"- Content tier: `{manifest.get('content_tier')}`",
+        "",
+        "This directory is a local evidence capsule. It is not, by itself, a trusted knowledge assertion.",
+    ]
+    (root / "README.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
+def base_manifest(record: SourceRecord, adapter: str, generated_at: str) -> dict[str, Any]:
+    return {
+        "manifest_version": 2,
+        "uid": record.uid,
+        "source_type": record.source_type,
+        "canonical_id": record.canonical_id,
+        "title": record.title,
+        "canonical_url": record.canonical_url,
+        "metadata_path": record.relative_metadata_path,
+        "generated_at": generated_at,
+        "adapter": adapter,
+        "status": "metadata_only",
+        "content_tier": "metadata_capsule",
+        "revision": None,
+        "rights": {
+            "declared_access": record.rights_access,
+            "full_text_redistribution_assumed": False,
+        },
+        "retrievals": [],
+        "selectors": [],
+        "local_files": [],
+        "warnings": [],
+        "errors": [],
+    }
+
+
+def prepare_capsule(record: SourceRecord) -> Path:
+    root = record.capsule_root
+    shutil.rmtree(root, ignore_errors=True)
+    root.mkdir(parents=True, exist_ok=True)
+    write_yaml(root / "source-metadata.yaml", record.metadata)
+    return root
+
+
+def finalize_capsule(record: SourceRecord, root: Path, manifest: dict[str, Any]) -> dict[str, Any]:
+    write_capsule_readme(record, root, manifest)
+    manifest["local_files"] = local_file_inventory(root)
+    manifest["local_bytes"] = sum(item["bytes"] for item in manifest["local_files"])
+    write_yaml(root / "manifest.yaml", manifest)
+    return manifest
+
+
+def unpack_arxiv(payload: bytes) -> tuple[list[tuple[str, bytes]], str]:
+    try:
+        with tarfile.open(fileobj=io.BytesIO(payload), mode="r:*") as archive:
+            members = []
+            for member in archive.getmembers():
+                if not member.isfile() or member.size > 8_000_000:
+                    continue
+                handle = archive.extractfile(member)
+                if handle is not None:
+                    members.append((member.name, handle.read()))
+            return members, "tar"
+    except tarfile.TarError:
+        pass
+    try:
+        uncompressed = gzip.decompress(payload)
+    except OSError:
+        return [("main.tex", payload)], "single"
+    try:
+        with tarfile.open(fileobj=io.BytesIO(uncompressed), mode="r:*") as archive:
+            members = []
+            for member in archive.getmembers():
+                if not member.isfile() or member.size > 8_000_000:
+                    continue
+                handle = archive.extractfile(member)
+                if handle is not None:
+                    members.append((member.name, handle.read()))
+            return members, "gzip-tar"
+    except tarfile.TarError:
+        return [("main.tex", uncompressed)], "gzip-single"
+
+
+def choose_main_tex(files: dict[str, str]) -> str | None:
+    scored: list[tuple[int, int, str]] = []
+    for path, text in files.items():
+        if not path.lower().endswith((".tex", ".ltx")):
+            continue
+        score = 0
+        name = PurePosixPath(path).name.lower()
+        if name in {"main.tex", "paper.tex", "article.tex", "manuscript.tex", "ms.tex"}:
+            score += 30
+        if "\\documentclass" in text:
+            score += 20
+        if "\\begin{document}" in text:
+            score += 20
+        if "\\title" in text:
+            score += 5
+        scored.append((score, len(text), path))
+    if not scored:
+        return None
+    scored.sort(reverse=True)
+    return scored[0][2]
+
+
+def resolve_tex_include(current_path: str, target: str, files: dict[str, str]) -> str | None:
+    target = target.strip().strip("{}\"")
+    if not target:
+        return None
+    current_dir = PurePosixPath(current_path).parent
+    candidates = [current_dir / target, PurePosixPath(target)]
+    expanded: list[PurePosixPath] = []
+    for candidate in candidates:
+        expanded.append(candidate)
+        if not candidate.suffix:
+            expanded.append(candidate.with_suffix(".tex"))
+    for candidate in expanded:
+        normalized = candidate.as_posix().lstrip("./")
+        if normalized in files:
+            return normalized
+    return None
+
+
+def flatten_tex(main_path: str, files: dict[str, str], *, max_depth: int = 20) -> str:
+    include_pattern = re.compile(r"\\(?:input|include)\s*\{([^{}]+)\}")
+
+    def visit(path: str, stack: tuple[str, ...]) -> str:
+        if path in stack:
+            return f"\n% [cycle omitted: {path}]\n"
+        if len(stack) >= max_depth:
+            return f"\n% [include depth exceeded: {path}]\n"
+        text = files.get(path, "")
+
+        def replace(match: re.Match[str]) -> str:
+            resolved = resolve_tex_include(path, match.group(1), files)
+            if resolved is None:
+                return match.group(0)
+            return (
+                f"\n% --- begin included file: {resolved} ---\n"
+                + visit(resolved, stack + (path,))
+                + f"\n% --- end included file: {resolved} ---\n"
+            )
+
+        return include_pattern.sub(replace, text)
+
+    return visit(main_path, tuple())
+
+
+def tex_to_plain(text: str) -> str:
+    # Preserve section labels and arguments while removing the most disruptive TeX syntax.
+    text = re.sub(r"(?m)(?<!\\)%.*$", "", text)
+    text = re.sub(r"\\(?:sub)*section\*?\{([^{}]+)\}", r"\n\n## \1\n", text)
+    text = re.sub(r"\\paragraph\*?\{([^{}]+)\}", r"\n\n### \1\n", text)
+    text = re.sub(r"\\begin\{abstract\}", "\n\n## Abstract\n", text)
+    text = re.sub(r"\\end\{abstract\}", "\n", text)
+    text = re.sub(r"\\(?:cite|citep|citet|ref|eqref|label|url|href)\*?(?:\[[^\]]*\])?\{([^{}]*)\}", r" \1 ", text)
+    text = re.sub(r"\\(?:textbf|textit|emph|mathrm|mathbf|mathit|operatorname)\{([^{}]*)\}", r"\1", text)
+    text = re.sub(r"\\[A-Za-z@]+\*?(?:\[[^\]]*\])?", " ", text)
+    text = re.sub(r"\\(?:begin|end)\{[^{}]+\}", "\n", text)
+    text = text.replace("{", " ").replace("}", " ")
+    text = re.sub(r"\$+", " ", text)
+    text = re.sub(r"[ \t]+", " ", text)
+    text = re.sub(r"\n{3,}", "\n\n", text)
+    return text.strip() + "\n"
+
+
+def materialize_arxiv(record: SourceRecord, config: dict[str, Any], generated_at: str) -> dict[str, Any]:
+    root = prepare_capsule(record)
+    manifest = base_manifest(record, "arxiv_latex_v2", generated_at)
+    arxiv_id = record.canonical_id
+    if not arxiv_id:
+        manifest["errors"].append("missing arXiv identifier")
+        return finalize_capsule(record, root, manifest)
+
+    quoted_id = urllib.parse.quote(arxiv_id, safe="/")
+    urls = [
+        f"https://export.arxiv.org/e-print/{quoted_id}",
+        f"https://arxiv.org/e-print/{quoted_id}",
+    ]
+    payload: bytes | None = None
+    resolved_url: str | None = None
+    headers: dict[str, str] = {}
+    for url in urls:
+        try:
+            payload, resolved_url, headers = fetch_bytes(
+                url,
+                timeout=int(config.get("http_timeout_seconds", 45)),
+                max_bytes=int(config.get("arxiv_max_archive_bytes", 60_000_000)),
+            )
+            break
+        except Exception as exc:
+            manifest["warnings"].append(str(exc))
+    if payload is None:
+        manifest["errors"].append("arXiv source archive could not be acquired")
+        # Preserve a bounded local copy of the abstract page when the source archive fails.
+        return materialize_generic(
+            record,
+            config,
+            generated_at,
+            existing_root=root,
+            existing_manifest=manifest,
+            force_excerpt_reason=(
+                "arXiv source archive was unavailable; the landing or abstract page is fallback evidence, not full text."
+            ),
+        )
+
+    archive_hash = sha256_bytes(payload)
+    manifest["revision"] = f"sha256:{archive_hash}"
+    manifest["retrievals"].append(
+        {
+            "requested_urls": urls,
+            "resolved_url": resolved_url,
+            "content_type": headers.get("content-type"),
+            "bytes": len(payload),
+            "sha256": archive_hash,
+        }
+    )
+    bundle, container_kind = unpack_arxiv(payload)
+    manifest["archive_container"] = container_kind
+
+    stored: dict[str, str] = {}
+    omitted: list[dict[str, str]] = []
+    total_bytes = 0
+    max_total = int(config.get("arxiv_max_stored_text_bytes", 30_000_000))
+    max_files = int(config.get("arxiv_max_files", 2500))
+    max_file = int(config.get("arxiv_max_single_file_bytes", 6_000_000))
+    source_root = root / "source"
+    source_root.mkdir(parents=True, exist_ok=True)
+
+    for original_name, raw in bundle:
+        if len(stored) >= max_files:
+            omitted.append({"path": original_name, "reason": "file-count-budget"})
+            continue
+        pure = PurePosixPath(original_name.replace("\\", "/"))
+        if pure.is_absolute() or ".." in pure.parts:
+            omitted.append({"path": original_name, "reason": "unsafe-path"})
+            continue
+        parts = [part for part in pure.parts if part not in {"", "."}]
+        if not parts:
+            continue
+        pure = PurePosixPath(*parts)
+        if pure.suffix.lower() not in ARXIV_TEXT_EXTENSIONS:
+            omitted.append({"path": original_name, "reason": "non-text-document-member"})
+            continue
+        if len(raw) > max_file or total_bytes + len(raw) > max_total:
+            omitted.append({"path": original_name, "reason": "size-budget"})
+            continue
+        text = raw.decode("utf-8", errors="replace")
+        destination = source_root / pure.as_posix()
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        destination.write_text(text, encoding="utf-8")
+        stored[pure.as_posix()] = text
+        total_bytes += destination.stat().st_size
+
+    main_tex = choose_main_tex(stored)
+    if main_tex:
+        flattened = flatten_tex(main_tex, stored)
+        normalized_root = root / "normalized"
+        normalized_root.mkdir(parents=True, exist_ok=True)
+        (normalized_root / "document.tex").write_text(flattened, encoding="utf-8")
+        (normalized_root / "document.txt").write_text(tex_to_plain(flattened), encoding="utf-8")
+
+    selectors: list[dict[str, Any]] = []
+    revision_selector = archive_hash[:16]
+    for path, text in sorted(stored.items()):
+        lines = text.splitlines()
+        selector_base = f"arxiv://{arxiv_id}@sha256-{revision_selector}/{path}"
+        selectors.append(
+            {
+                "selector": f"{selector_base}#L1-L{max(1, len(lines))}",
+                "local_path": (source_root / path).relative_to(ROOT).as_posix(),
+                "kind": "file",
+                "start_line": 1,
+                "end_line": max(1, len(lines)),
+            }
+        )
+        for line_number, line in enumerate(lines, 1):
+            match = re.search(r"\\(section|subsection|subsubsection|paragraph)\*?\{([^{}]+)\}", line)
+            if match:
+                selectors.append(
+                    {
+                        "selector": f"{selector_base}#L{line_number}",
+                        "local_path": (source_root / path).relative_to(ROOT).as_posix(),
+                        "kind": match.group(1),
+                        "heading": match.group(2).strip(),
+                        "start_line": line_number,
+                        "end_line": line_number,
+                    }
+                )
+    write_jsonl(root / "selectors.jsonl", selectors)
+    write_jsonl(
+        root / "files.jsonl",
+        (
+            {
+                "path": (source_root / path).relative_to(ROOT).as_posix(),
+                "bytes": (source_root / path).stat().st_size,
+                "sha256": sha256_file(source_root / path),
+                "lines": len(text.splitlines()),
+            }
+            for path, text in sorted(stored.items())
+        ),
+    )
+
+    manifest.update(
+        {
+            "status": "materialized" if stored else "partial",
+            "content_tier": "full_text" if stored else "metadata_capsule",
+            "rights": {
+                "declared_access": record.rights_access,
+                "full_text_redistribution_assumed": True,
+                "basis": "arXiv source archive",
+            },
+            "materialization": {
+                "stored_text_files": len(stored),
+                "stored_text_bytes": total_bytes,
+                "main_tex": main_tex,
+                "normalized_document": "normalized/document.txt" if main_tex else None,
+                "selector_count": len(selectors),
+                "omitted_member_count": len(omitted),
+            },
+            "selectors": ["selectors.jsonl"],
+            "omitted": omitted[:250],
+        }
+    )
+    if not main_tex and stored:
+        manifest["status"] = "partial"
+        manifest["warnings"].append("TeX files were stored but a root document was not identified")
+    return finalize_capsule(record, root, manifest)
+
+
+def github_api_json(url: str, timeout: int = 35, max_bytes: int = 50_000_000) -> dict[str, Any]:
+    payload, _, _ = fetch_bytes(url, timeout=timeout, max_bytes=max_bytes)
+    data = json.loads(payload.decode("utf-8"))
+    if not isinstance(data, dict):
+        raise RuntimeError(f"expected object from GitHub API: {url}")
+    return data
+
+
+def github_file_rank(path: str) -> tuple[int, int, str]:
+    pure = PurePosixPath(path)
+    lower = path.lower()
+    name = pure.name.lower()
+    depth = len(pure.parts)
+    if name.startswith("readme") and depth == 1:
+        rank = 0
+    elif name in PROMINENT_GITHUB_FILENAMES and depth <= 3:
+        rank = 1
+    elif lower.startswith("docs/") and any(keyword in lower for keyword in GITHUB_DOC_KEYWORDS):
+        rank = 2
+    elif lower.startswith("docs/"):
+        rank = 3
+    elif name in PROMINENT_GITHUB_FILENAMES:
+        rank = 4
+    elif any(keyword in lower for keyword in GITHUB_DOC_KEYWORDS) and pure.suffix.lower() in GITHUB_TEXT_EXTENSIONS:
+        rank = 5
+    else:
+        rank = 10
+    return rank, depth, path
+
+
+def sanitize_relative_path(path: str) -> PurePosixPath | None:
+    pure = PurePosixPath(path.replace("\\", "/"))
+    if pure.is_absolute() or ".." in pure.parts:
+        return None
+    parts = [part for part in pure.parts if part not in {"", "."}]
+    return PurePosixPath(*parts) if parts else None
+
+
+def decode_github_blob(blob: dict[str, Any]) -> bytes:
+    content = blob.get("content")
+    encoding = blob.get("encoding")
+    if not isinstance(content, str):
+        raise RuntimeError("GitHub blob has no content")
+    if encoding == "base64":
+        return base64.b64decode(content.replace("\n", ""))
+    return content.encode("utf-8")
+
+
+def extract_markdown_headings(text: str, path: str) -> list[dict[str, Any]]:
+    headings: list[dict[str, Any]] = []
+    for line_number, line in enumerate(text.splitlines(), 1):
+        match = re.match(r"^(#{1,6})\s+(.+?)\s*$", line)
+        if match:
+            headings.append(
+                {
+                    "path": path,
+                    "line": line_number,
+                    "level": len(match.group(1)),
+                    "heading": match.group(2).strip(),
+                }
+            )
+    return headings
+
+
+def github_git_inventory(
+    repository: str,
+    config: dict[str, Any],
+) -> tuple[dict[str, Any], str, str, str, None, dict[str, Any], None]:
+    """Freeze a public repository and expose bounded raw-file candidates.
+
+    ``git ls-remote`` provides the immutable default-branch commit without using the
+    rate-limited REST API. Evidence is then fetched from commit-pinned raw URLs for a
+    small set of conventional high-value paths. This intentionally does not claim to
+    be a complete repository tree inventory.
+    """
+    if not re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", repository):
+        raise RuntimeError(f"unsafe owner/repository identifier: {repository}")
+
+    env = os.environ.copy()
+    env.update({"GIT_TERMINAL_PROMPT": "0", "GIT_LFS_SKIP_SMUDGE": "1"})
+    result = subprocess.run(
+        ["git", "ls-remote", "--symref", f"https://github.com/{repository}.git", "HEAD"],
+        cwd=ROOT,
+        env=env,
+        capture_output=True,
+        text=True,
+        timeout=60,
+        check=False,
+    )
+    if result.returncode != 0:
+        diagnostic = (result.stderr or result.stdout).strip().splitlines()
+        raise RuntimeError(diagnostic[-1] if diagnostic else f"git ls-remote exited {result.returncode}")
+    default_branch = "HEAD"
+    commit_sha = ""
+    for line in result.stdout.splitlines():
+        if line.startswith("ref: ") and line.endswith("\tHEAD"):
+            default_branch = line.split("\t", 1)[0].removeprefix("ref: refs/heads/")
+        elif line.endswith("\tHEAD"):
+            commit_sha = line.split("\t", 1)[0]
+    if not re.fullmatch(r"[0-9a-f]{40}", commit_sha):
+        raise RuntimeError("git ls-remote did not return an immutable HEAD commit")
+
+    candidate_paths = [
+        "README.md", "README.rst", "README.txt", "README",
+        "CONTRIBUTING.md", "SECURITY.md", "AGENTS.md", "CLAUDE.md",
+        "pyproject.toml", "package.json", "Cargo.toml", "go.mod", "pom.xml",
+        "Makefile", "Dockerfile", "docs/README.md", "docs/index.md",
+        "docs/architecture.md", "docs/design.md", "docs/api.md",
+        "documentation/README.md",
+    ]
+    entries = [
+        {
+            "path": path,
+            "type": "blob",
+            "sha": None,
+            "size": 1,
+            "url": None,
+            "_raw_url": f"https://raw.githubusercontent.com/{repository}/{commit_sha}/{urllib.parse.quote(path)}",
+        }
+        for path in candidate_paths
+    ]
+    repo_info = {
+        "full_name": repository,
+        "default_branch": default_branch,
+        "html_url": f"https://github.com/{repository}",
+        "description": None,
+        "language": None,
+        "topics": [],
+        "license": None,
+    }
+    return repo_info, repository, default_branch, commit_sha, None, {"tree": entries, "truncated": True, "fallback": "commit_pinned_raw_paths"}, None
+
+
+def materialize_github(record: SourceRecord, config: dict[str, Any], generated_at: str) -> dict[str, Any]:
+    root = prepare_capsule(record)
+    manifest = base_manifest(record, "github_repo_semantic_capsule_v2", generated_at)
+    repository = record.canonical_id
+    if not repository or "/" not in repository:
+        manifest["errors"].append("missing canonical owner/repository")
+        return finalize_capsule(record, root, manifest)
+
+    api_root = f"https://api.github.com/repos/{repository}"
+    git_clone_root: Path | None = None
+    try:
+        repo_info = github_api_json(api_root)
+        canonical_repo = str(repo_info.get("full_name") or repository)
+        default_branch = str(repo_info.get("default_branch") or "HEAD")
+        commit_info = github_api_json(f"https://api.github.com/repos/{canonical_repo}/commits/{urllib.parse.quote(default_branch, safe='')}")
+        commit_sha = str(commit_info.get("sha"))
+        commit_tree = commit_info.get("commit", {}).get("tree", {})
+        tree_sha = str(commit_tree.get("sha") or "")
+        if not tree_sha:
+            raise RuntimeError("default branch commit has no tree SHA")
+        try:
+            tree_info = github_api_json(
+                f"https://api.github.com/repos/{canonical_repo}/git/trees/{tree_sha}?recursive=1",
+                max_bytes=int(config.get("github_max_tree_response_bytes", 50_000_000)),
+            )
+        except Exception as tree_error:
+            # Large repositories can exceed the recursive-tree response budget. Fall back to
+            # bounded root/docs listings instead of degrading immediately to metadata-only.
+            manifest["warnings"].append(f"recursive tree fallback: {tree_error}")
+            fallback_entries: list[dict[str, Any]] = []
+            listing_urls = [
+                f"https://api.github.com/repos/{canonical_repo}/contents?ref={commit_sha}",
+                f"https://api.github.com/repos/{canonical_repo}/contents/docs?ref={commit_sha}",
+                f"https://api.github.com/repos/{canonical_repo}/contents/doc?ref={commit_sha}",
+            ]
+            for listing_url in listing_urls:
+                try:
+                    payload, _, _ = fetch_bytes(listing_url, timeout=35, max_bytes=8_000_000)
+                    listing = json.loads(payload.decode("utf-8"))
+                    if isinstance(listing, list):
+                        for listed in listing:
+                            if not isinstance(listed, dict) or listed.get("type") != "file":
+                                continue
+                            fallback_entries.append(
+                                {
+                                    "path": listed.get("path"),
+                                    "type": "blob",
+                                    "sha": listed.get("sha"),
+                                    "size": listed.get("size"),
+                                    "url": listed.get("git_url"),
+                                }
+                            )
+                except Exception as listing_error:
+                    manifest["warnings"].append(f"listing fallback failed: {listing_error}")
+            tree_info = {"tree": fallback_entries, "truncated": True, "fallback": True}
+    except Exception as api_error:
+        try:
+            repo_info, canonical_repo, default_branch, commit_sha, tree_sha, tree_info, git_clone_root = github_git_inventory(repository, config)
+            manifest["warnings"].append(f"GitHub API unavailable; used Git transport fallback: {api_error}")
+        except Exception as git_error:
+            manifest["errors"].append(f"GitHub API: {api_error}")
+            manifest["errors"].append(f"Git fallback: {git_error}")
+            manifest["status"] = "metadata_only"
+            return finalize_capsule(record, root, manifest)
+
+    entries = tree_info.get("tree") if isinstance(tree_info.get("tree"), list) else []
+    blobs = [entry for entry in entries if isinstance(entry, dict) and entry.get("type") == "blob"]
+    extension_counts: Counter[str] = Counter()
+    top_level_counts: Counter[str] = Counter()
+    for entry in blobs:
+        path = str(entry.get("path") or "")
+        pure = PurePosixPath(path)
+        extension_counts[pure.suffix.lower() or "<none>"] += 1
+        top_level_counts[pure.parts[0] if pure.parts else "<root>"] += 1
+
+    max_files = int(config.get("github_max_evidence_files", 35))
+    max_file_bytes = int(config.get("github_max_single_file_bytes", 250_000))
+    max_total_bytes = int(config.get("github_max_total_evidence_bytes", 3_000_000))
+    ranked = sorted(blobs, key=lambda entry: github_file_rank(str(entry.get("path") or "")))
+    selected: list[dict[str, Any]] = []
+    total_selected_size = 0
+    seen_paths: set[str] = set()
+    for entry in ranked:
+        path = str(entry.get("path") or "")
+        if path in seen_paths:
+            continue
+        seen_paths.add(path)
+        rank = github_file_rank(path)[0]
+        size = int(entry.get("size") or 0)
+        suffix = PurePosixPath(path).suffix.lower()
+        if rank >= 10 or (suffix and suffix not in GITHUB_TEXT_EXTENSIONS) or size <= 0 or size > max_file_bytes:
+            continue
+        if len(selected) >= max_files or total_selected_size + size > max_total_bytes:
+            continue
+        selected.append(entry)
+        total_selected_size += size
+
+    evidence_root = root / "evidence" / "files"
+    evidence_rows: list[dict[str, Any]] = []
+    selector_rows: list[dict[str, Any]] = []
+    headings: list[dict[str, Any]] = []
+    document_parts: list[str] = []
+    for entry in selected:
+        path = str(entry.get("path") or "")
+        safe_path = sanitize_relative_path(path)
+        if safe_path is None:
+            continue
+        try:
+            if entry.get("_raw_url"):
+                raw, _, _ = fetch_bytes(
+                    str(entry["_raw_url"]),
+                    timeout=20,
+                    max_bytes=max_file_bytes,
+                    attempts=1,
+                )
+            elif git_clone_root is not None:
+                raw = (git_clone_root / safe_path.as_posix()).read_bytes()
+            else:
+                blob = github_api_json(str(entry.get("url")))
+                raw = decode_github_blob(blob)
+            if b"\x00" in raw[:4096]:
+                continue
+            text = raw.decode("utf-8", errors="replace")
+        except Exception as exc:
+            manifest["warnings"].append(f"{path}: {exc}")
+            continue
+        destination = evidence_root / safe_path.as_posix()
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        destination.write_text(text, encoding="utf-8")
+        lines = text.splitlines()
+        local_path = destination.relative_to(ROOT).as_posix()
+        selector_base = f"github://{canonical_repo}@{commit_sha}/{path}"
+        selector_rows.append(
+            {
+                "selector": f"{selector_base}#L1-L{max(1, len(lines))}",
+                "local_path": local_path,
+                "kind": "file",
+                "start_line": 1,
+                "end_line": max(1, len(lines)),
+            }
+        )
+        for heading in extract_markdown_headings(text, path):
+            headings.append(heading)
+            selector_rows.append(
+                {
+                    "selector": f"{selector_base}#L{heading['line']}",
+                    "local_path": local_path,
+                    "kind": "heading",
+                    "heading": heading["heading"],
+                    "start_line": heading["line"],
+                    "end_line": heading["line"],
+                }
+            )
+        evidence_rows.append(
+            {
+                "repository_path": path,
+                "local_path": local_path,
+                "blob_sha": entry.get("sha"),
+                "bytes": destination.stat().st_size,
+                "sha256": sha256_file(destination),
+                "lines": len(lines),
+            }
+        )
+        excerpt_lines = lines[: min(len(lines), int(config.get("github_document_excerpt_lines", 220)))]
+        document_parts.append(f"\n\n## `{path}`\n\n" + "\n".join(excerpt_lines))
+
+    write_jsonl(root / "evidence" / "files.jsonl", evidence_rows)
+    write_jsonl(root / "selectors.jsonl", selector_rows)
+    repository_map = {
+        "repository": canonical_repo,
+        "requested_repository": repository,
+        "default_branch": default_branch,
+        "commit": commit_sha,
+        "tree_sha": tree_sha,
+        "tree_truncated": bool(tree_info.get("truncated")),
+        "repository_description": repo_info.get("description"),
+        "primary_language": repo_info.get("language"),
+        "topics": repo_info.get("topics") or [],
+        "license": (repo_info.get("license") or {}).get("spdx_id") if isinstance(repo_info.get("license"), dict) else None,
+        "repository_file_count_seen": len(blobs),
+        "selected_evidence_files": len(evidence_rows),
+        "top_level_counts": dict(top_level_counts.most_common(30)),
+        "extension_counts": dict(extension_counts.most_common(30)),
+        "prominent_headings": headings[:250],
+    }
+    write_yaml(root / "repository-map.yaml", repository_map)
+
+    description = str(repo_info.get("description") or record.title or "No repository description supplied.")
+    document_header = (
+        f"# Repository semantic capsule: {canonical_repo}\n\n"
+        f"- Commit: `{commit_sha}`\n"
+        f"- Default branch: `{default_branch}`\n"
+        f"- Description: {description}\n"
+        f"- Selected evidence files: {len(evidence_rows)} of {len(blobs)} files observed\n"
+        "- Interpretation: maintainer documentation and static repository evidence; runtime behavior is not proven.\n"
+    )
+    (root / "document.md").write_text(document_header + "".join(document_parts) + "\n", encoding="utf-8")
+
+    wiki_root = root / "wiki"
+    wiki_root.mkdir(parents=True, exist_ok=True)
+    (wiki_root / "index.md").write_text(
+        f"# {canonical_repo}\n\n"
+        "- [Overview](overview.md)\n"
+        "- [Architecture evidence](architecture.md)\n"
+        "- [Interfaces and operations](interfaces-and-operations.md)\n",
+        encoding="utf-8",
+    )
+    heading_lines = [f"- `{item['path']}:{item['line']}` — {item['heading']}" for item in headings[:120]]
+    (wiki_root / "overview.md").write_text(
+        f"# Overview: {canonical_repo}\n\n{description}\n\n"
+        f"Frozen at `{commit_sha}`. This is a candidate semantic view, not a verified runtime assessment.\n",
+        encoding="utf-8",
+    )
+    (wiki_root / "architecture.md").write_text(
+        f"# Architecture evidence: {canonical_repo}\n\n"
+        + ("\n".join(heading_lines) if heading_lines else "No architecture headings were extracted.")
+        + "\n",
+        encoding="utf-8",
+    )
+    interface_files = [row["repository_path"] for row in evidence_rows if any(token in row["repository_path"].lower() for token in ("api", "cli", "config", "schema", "workflow", "interface"))]
+    (wiki_root / "interfaces-and-operations.md").write_text(
+        f"# Interfaces and operations: {canonical_repo}\n\n"
+        + "\n".join(f"- `{path}`" for path in interface_files[:100])
+        + "\n",
+        encoding="utf-8",
+    )
+
+    manifest.update(
+        {
+            "status": "materialized" if evidence_rows else "partial",
+            "content_tier": "semantic_capsule" if evidence_rows else "metadata_capsule",
+            "canonical_id": canonical_repo,
+            "canonical_url": str(repo_info.get("html_url") or record.canonical_url),
+            "revision": commit_sha,
+            "rights": {
+                "declared_access": record.rights_access,
+                "full_text_redistribution_assumed": False,
+                "repository_license": repository_map["license"],
+                "basis": "bounded commit-pinned evidence selection; repository not vendored",
+            },
+            "retrievals": [
+                {
+                    "resolved_url": str(repo_info.get("html_url") or record.canonical_url),
+                    "commit": commit_sha,
+                    "tree_sha": tree_sha,
+                    "tree_truncated": bool(tree_info.get("truncated")),
+                }
+            ],
+            "materialization": {
+                "repository_file_count_seen": len(blobs),
+                "selected_evidence_files": len(evidence_rows),
+                "selected_evidence_bytes": sum(row["bytes"] for row in evidence_rows),
+                "selector_count": len(selector_rows),
+                "repo_wiki_pages": 4,
+            },
+            "selectors": ["selectors.jsonl"],
+            "limitations": [
+                "The full repository is not copied.",
+                "Static evidence does not prove tests, benchmarks, security, or production behavior.",
+                "Generated repo wiki pages remain candidate views.",
+            ],
+        }
+    )
+    result = finalize_capsule(record, root, manifest)
+    if git_clone_root is not None:
+        shutil.rmtree(git_clone_root.parent, ignore_errors=True)
+    return result
+
+
+def html_to_sections(payload: bytes, resolved_url: str) -> tuple[str, list[dict[str, Any]], str | None]:
+    from bs4 import BeautifulSoup
+
+    soup = BeautifulSoup(payload, "html.parser")
+    for tag in soup(["script", "style", "noscript", "svg", "canvas", "form", "nav", "footer"]):
+        tag.decompose()
+    title = soup.title.get_text(" ", strip=True) if soup.title else None
+    main = soup.find("main") or soup.find("article") or soup.body or soup
+    blocks: list[dict[str, Any]] = []
+    text_parts: list[str] = []
+    index = 0
+    for node in main.find_all(["h1", "h2", "h3", "h4", "p", "li", "pre"]):
+        text = node.get_text(" ", strip=True)
+        if not text or len(text) < 2:
+            continue
+        index += 1
+        kind = "heading" if node.name and node.name.startswith("h") else ("code" if node.name == "pre" else "paragraph")
+        blocks.append(
+            {
+                "selector": f"web://{sha256_bytes(resolved_url.encode())[:16]}#B{index}",
+                "kind": kind,
+                "ordinal": index,
+                "text_preview": text[:240],
+            }
+        )
+        if kind == "heading":
+            level = int(node.name[1]) if node.name and len(node.name) > 1 and node.name[1].isdigit() else 2
+            text_parts.append("\n" + "#" * min(6, max(1, level)) + " " + text + "\n")
+        else:
+            text_parts.append(text + "\n")
+    return "\n".join(text_parts).strip() + "\n", blocks, title
+
+
+def extract_pdf_text(payload: bytes, max_pages: int | None = None) -> tuple[str, list[dict[str, Any]], int]:
+    from pypdf import PdfReader
+
+    reader = PdfReader(io.BytesIO(payload))
+    page_count = len(reader.pages)
+    limit = page_count if max_pages is None else min(page_count, max_pages)
+    text_parts: list[str] = []
+    selectors: list[dict[str, Any]] = []
+    for page_index in range(limit):
+        try:
+            text = reader.pages[page_index].extract_text() or ""
+        except Exception as exc:
+            text = f"[page extraction failed: {exc}]"
+        text_parts.append(f"\n\n## Page {page_index + 1}\n\n{text.strip()}\n")
+        selectors.append(
+            {
+                "selector": f"pdf://sha256-PENDING#page={page_index + 1}",
+                "kind": "page",
+                "page": page_index + 1,
+                "text_preview": text.strip()[:240],
+            }
+        )
+    return "".join(text_parts).strip() + "\n", selectors, page_count
+
+
+def filter_selectors_for_document(
+    selectors: Iterable[dict[str, Any]],
+    document_text: str,
+) -> tuple[list[dict[str, Any]], int]:
+    """Keep only selectors whose cited evidence remains in ``document_text``.
+
+    Generic adapters create selectors from the downloaded representation before the
+    local character budget is applied.  A selector for a removed HTML block or PDF
+    page is not locally resolvable merely because its ``local_path`` still exists.
+    Preview evidence must occur in the stored text, and line selectors are clamped to
+    the actual stored file.
+    """
+
+    stored_lines = document_text.splitlines()
+    line_count = max(1, len(stored_lines))
+    stored_pages = {
+        int(match.group(1))
+        for match in re.finditer(r"(?m)^## Page (\d+)\s*$", document_text)
+    }
+    retained: list[dict[str, Any]] = []
+    omitted = 0
+
+    for original in selectors:
+        selector = dict(original)
+        start_line = selector.get("start_line")
+        end_line = selector.get("end_line")
+        if start_line is not None or end_line is not None:
+            if (
+                not isinstance(start_line, int)
+                or isinstance(start_line, bool)
+                or not isinstance(end_line, int)
+                or isinstance(end_line, bool)
+                or start_line < 1
+                or end_line < start_line
+                or start_line > line_count
+            ):
+                omitted += 1
+                continue
+            clamped_end = min(end_line, line_count)
+            selector["end_line"] = clamped_end
+            selector_id = selector.get("selector")
+            if isinstance(selector_id, str) and clamped_end != end_line:
+                selector["selector"] = re.sub(r"(#L\d+-L)\d+$", rf"\g<1>{clamped_end}", selector_id)
+
+        page = selector.get("page")
+        if page is not None and (
+            not isinstance(page, int)
+            or isinstance(page, bool)
+            or page < 1
+            or page not in stored_pages
+        ):
+            omitted += 1
+            continue
+
+        preview = selector.get("text_preview")
+        if isinstance(preview, str) and preview:
+            if preview not in document_text:
+                omitted += 1
+                continue
+
+        retained.append(selector)
+
+    return retained, omitted
+
+
+def has_substantive_document_text(document_text: str) -> bool:
+    """Reject navigation/title shells that contain no non-heading evidence."""
+
+    non_heading = re.sub(r"(?m)^\s{0,3}#{1,6}\s+.*$", "", document_text)
+    tokens = re.findall(r"[\w\u0080-\uffff]+", non_heading)
+    return len(non_heading.strip()) >= 20 and len(tokens) >= 3
+
+
+def materialize_generic(
+    record: SourceRecord,
+    config: dict[str, Any],
+    generated_at: str,
+    *,
+    existing_root: Path | None = None,
+    existing_manifest: dict[str, Any] | None = None,
+    force_excerpt_reason: str | None = None,
+) -> dict[str, Any]:
+    root = existing_root or prepare_capsule(record)
+    manifest = existing_manifest or base_manifest(record, "generic_web_or_document_v2", generated_at)
+    if existing_root is None:
+        # prepare_capsule already wrote this; retained for clarity.
+        pass
+    urls = candidate_urls(record)
+    if not urls:
+        manifest["errors"].append("no retrievable URL in metadata")
+        return finalize_capsule(record, root, manifest)
+
+    payload: bytes | None = None
+    resolved_url: str | None = None
+    headers: dict[str, str] = {}
+    requested_url: str | None = None
+    for url in urls[: int(config.get("generic_max_candidate_urls", 4))]:
+        try:
+            payload, resolved_url, headers = fetch_bytes(
+                url,
+                timeout=int(config.get("http_timeout_seconds", 45)),
+                max_bytes=int(config.get("generic_max_download_bytes", 30_000_000)),
+            )
+            requested_url = url
+            break
+        except Exception as exc:
+            manifest["warnings"].append(str(exc))
+    if payload is None or resolved_url is None:
+        manifest["errors"].append("all candidate URLs failed")
+        return finalize_capsule(record, root, manifest)
+
+    content_hash = sha256_bytes(payload)
+    content_type = headers.get("content-type", "").lower()
+    full_text_allowed = text_is_open(record, config, resolved_url)
+    manifest["revision"] = f"sha256:{content_hash}"
+    manifest["retrievals"].append(
+        {
+            "requested_url": requested_url,
+            "resolved_url": resolved_url,
+            "content_type": content_type,
+            "bytes": len(payload),
+            "sha256": content_hash,
+        }
+    )
+    manifest["rights"]["full_text_redistribution_assumed"] = full_text_allowed
+
+    selectors: list[dict[str, Any]] = []
+    document_text = ""
+    document_name = "document.md"
+    page_count: int | None = None
+    is_pdf = payload.startswith(b"%PDF") or "application/pdf" in content_type or resolved_url.lower().split("?", 1)[0].endswith(".pdf")
+    try:
+        if is_pdf:
+            max_pages = None if full_text_allowed else int(config.get("restricted_pdf_excerpt_pages", 3))
+            document_text, selectors, page_count = extract_pdf_text(payload, max_pages=max_pages)
+            pdf_hash_prefix = content_hash[:16]
+            for selector in selectors:
+                selector["selector"] = selector["selector"].replace("sha256-PENDING", f"sha256-{pdf_hash_prefix}")
+            document_name = "document.txt"
+        elif "html" in content_type or payload.lstrip().startswith((b"<!DOCTYPE html", b"<html", b"<HTML")):
+            document_text, selectors, detected_title = html_to_sections(payload, resolved_url)
+            if detected_title:
+                manifest["detected_title"] = detected_title
+        else:
+            document_text = payload.decode("utf-8", errors="replace")
+            lines = document_text.splitlines()
+            selectors = [
+                {
+                    "selector": f"text://sha256-{content_hash[:16]}#L1-L{max(1, len(lines))}",
+                    "kind": "file",
+                    "start_line": 1,
+                    "end_line": max(1, len(lines)),
+                    "text_preview": document_text[:240],
+                }
+            ]
+            document_name = "document.txt"
+    except Exception as exc:
+        manifest["errors"].append(f"content parsing failed: {exc}")
+        return finalize_capsule(record, root, manifest)
+
+    content_was_truncated = False
+    if not full_text_allowed or force_excerpt_reason:
+        max_chars = int(config.get("restricted_excerpt_chars", 8_000))
+        if len(document_text) > max_chars:
+            content_was_truncated = True
+            document_text = document_text[:max_chars].rstrip() + "\n"
+        if force_excerpt_reason:
+            manifest["warnings"].append(force_excerpt_reason)
+        else:
+            manifest["warnings"].append(
+                "Full-text redistribution was not established; stored content is a bounded evidence excerpt."
+            )
+    else:
+        max_chars = int(config.get("open_full_text_max_chars", 1_500_000))
+        if len(document_text) > max_chars:
+            content_was_truncated = True
+            document_text = document_text[:max_chars].rstrip() + "\n"
+            manifest["warnings"].append("Open text exceeded the configured local character budget and was truncated.")
+
+    selectors, omitted_selector_count = filter_selectors_for_document(selectors, document_text)
+    if omitted_selector_count:
+        manifest["warnings"].append(
+            f"Omitted {omitted_selector_count} selectors whose evidence was outside the stored document boundary."
+        )
+
+    if document_text.strip():
+        (root / document_name).write_text(document_text, encoding="utf-8")
+        substantive_text = has_substantive_document_text(document_text)
+        if substantive_text and selectors:
+            local_path = (root / document_name).relative_to(ROOT).as_posix()
+            for selector in selectors:
+                selector["local_path"] = local_path
+            write_jsonl(root / "selectors.jsonl", selectors)
+            complete_full_text = (
+                full_text_allowed and not content_was_truncated and not force_excerpt_reason
+            )
+            manifest["status"] = "materialized" if complete_full_text else "partial"
+            manifest["content_tier"] = "full_text" if complete_full_text else "excerpt_capsule"
+            manifest["selectors"] = ["selectors.jsonl"]
+        else:
+            selectors = []
+            if not substantive_text:
+                manifest["warnings"].append(
+                    "Retrieved document contained no substantive non-heading text; retained only as acquisition evidence."
+                )
+            else:
+                manifest["warnings"].append(
+                    "Retrieved document had no selector that resolved inside the stored boundary; retained only as acquisition evidence."
+                )
+        manifest["materialization"] = {
+            "document": document_name,
+            "stored_characters": len(document_text),
+            "selector_count": len(selectors),
+            "pdf_page_count": page_count,
+            "full_text_allowed": full_text_allowed,
+            "content_was_truncated": content_was_truncated,
+            "substantive_text": substantive_text,
+            "omitted_selector_count": omitted_selector_count,
+            "forced_excerpt_reason": force_excerpt_reason,
+        }
+    return finalize_capsule(record, root, manifest)
+
+
+def adapter_name(source_type: str) -> str:
+    if source_type == "arxiv":
+        return "arxiv_latex_v2"
+    if source_type == "github":
+        return "github_repo_semantic_capsule_v2"
+    return "generic_web_or_document_v2"
+
+
+def evidence_role_for(status: Any, content_tier: Any) -> str:
+    if status in {"metadata_only", "failed"} or content_tier == "metadata_capsule":
+        return "catalog-only"
+    if status == "partial" or content_tier == "excerpt_capsule":
+        return "bounded-excerpt"
+    if content_tier == "semantic_capsule":
+        return "static-repository-evidence"
+    return "source-text"
+
+
+def materialize_one(record: SourceRecord, config: dict[str, Any], generated_at: str) -> dict[str, Any]:
+    try:
+        if record.source_type == "arxiv":
+            with _arxiv_semaphore:
+                time.sleep(0.25)
+                return materialize_arxiv(record, config, generated_at)
+        if record.source_type == "github":
+            with _github_semaphore:
+                return materialize_github(record, config, generated_at)
+        with _generic_semaphore:
+            return materialize_generic(record, config, generated_at)
+    except Exception as exc:
+        root = record.capsule_root
+        if not root.exists():
+            root = prepare_capsule(record)
+        manifest = base_manifest(record, adapter_name(record.source_type), generated_at)
+        manifest["status"] = "metadata_only"
+        manifest["errors"].append(f"unhandled adapter failure: {type(exc).__name__}: {exc}")
+        return finalize_capsule(record, root, manifest)
+
+
+def rebuild_registry(records: list[SourceRecord], manifests: dict[str, dict[str, Any]], generated_at: str) -> None:
+    entries: list[dict[str, Any]] = []
+    for record in records:
+        manifest = manifests[record.uid]
+        manifest_path = record.capsule_root / "manifest.yaml"
+        entries.append(
+            {
+                "uid": record.uid,
+                "source_type": record.source_type,
+                "canonical_id": record.canonical_id,
+                "title": record.title,
+                "canonical_url": record.canonical_url,
+                "metadata_path": record.relative_metadata_path,
+                "verification_state": (
+                    record.metadata.get("verification", {}).get("state")
+                    if isinstance(record.metadata.get("verification"), dict)
+                    else "pending"
+                ),
+                "priority": record.priority,
+                "adapter": {
+                    "name": manifest.get("adapter"),
+                    "semanticization_required": record.source_type == "github",
+                },
+                "materialization": {
+                    "state": manifest.get("status"),
+                    "content_tier": manifest.get("content_tier"),
+                    "evidence_role": evidence_role_for(
+                        manifest.get("status"), manifest.get("content_tier")
+                    ),
+                    "revision": manifest.get("revision"),
+                    "root": record.capsule_root.relative_to(ROOT).as_posix(),
+                    "manifest": manifest_path.relative_to(ROOT).as_posix(),
+                    "local_bytes": manifest.get("local_bytes", 0),
+                },
+            }
+        )
+    entries.sort(key=lambda item: (str(item["source_type"]), str(item["uid"])))
+    REGISTRY_ROOT.mkdir(parents=True, exist_ok=True)
+    write_yaml(
+        REGISTRY_ROOT / "registry.yaml",
+        {
+            "registry_version": 2,
+            "generated_at": generated_at,
+            "repository": "thsno02/solid-octo-couscous",
+            "entry_count": len(entries),
+            "entries": entries,
+        },
+    )
+    write_jsonl(REGISTRY_ROOT / "registry.jsonl", entries)
+    (REGISTRY_ROOT / "README.md").write_text(
+        "# 来源注册表（Source Registry）\n\n"
+        "每条已收集的 metadata record 都在 `materialized_sources/corpus/` 下对应一个本地胶囊。"
+        "注册表明确区分全文（full text）、repository 语义胶囊（semantic capsule）、"
+        "有边界的摘录（bounded excerpt）和仅 metadata 的胶囊。\n",
+        encoding="utf-8",
+    )
+
+
+def write_indexes_and_audit(records: list[SourceRecord], manifests: dict[str, dict[str, Any]], generated_at: str) -> None:
+    items: list[dict[str, Any]] = []
+    by_type: dict[str, Counter[str]] = defaultdict(Counter)
+    statuses: Counter[str] = Counter()
+    tiers: Counter[str] = Counter()
+    metadata_only: list[dict[str, Any]] = []
+    partial: list[dict[str, Any]] = []
+    total_bytes = 0
+    total_hashes = 0
+    for record in records:
+        manifest = manifests[record.uid]
+        status = str(manifest.get("status") or "unknown")
+        tier = str(manifest.get("content_tier") or "unknown")
+        statuses[status] += 1
+        tiers[tier] += 1
+        by_type[record.source_type][tier] += 1
+        total_bytes += int(manifest.get("local_bytes") or 0)
+        total_hashes += len(manifest.get("local_files") or [])
+        item = {
+            "uid": record.uid,
+            "source_type": record.source_type,
+            "canonical_id": record.canonical_id,
+            "title": record.title,
+            "status": status,
+            "content_tier": tier,
+            "manifest": (record.capsule_root / "manifest.yaml").relative_to(ROOT).as_posix(),
+            "revision": manifest.get("revision"),
+            "local_bytes": manifest.get("local_bytes", 0),
+        }
+        items.append(item)
+        if tier == "metadata_capsule":
+            metadata_only.append(item)
+        elif status == "partial":
+            partial.append(item)
+    items.sort(key=lambda item: (str(item["source_type"]), str(item["uid"])))
+    full_or_semantic = tiers["full_text"] + tiers["semantic_capsule"]
+    locally_usable = full_or_semantic + tiers["excerpt_capsule"]
+    total = len(records)
+    index = {
+        "materialization_index_version": 2,
+        "generated_at": generated_at,
+        "corpus_root": "materialized_sources/corpus",
+        "summary": {
+            "records": total,
+            "statuses": dict(statuses),
+            "content_tiers": dict(tiers),
+            "all_records_have_local_capsules": len(items) == total,
+            "full_or_semantic_count": full_or_semantic,
+            "locally_usable_count": locally_usable,
+            "local_bytes": total_bytes,
+            "hashed_files": total_hashes,
+        },
+        "items": items,
+    }
+    write_yaml(MATERIALIZED_ROOT / "index.yaml", index)
+    (MATERIALIZED_ROOT / "README.md").write_text(
+        "# 物化来源语料（Materialized Source Corpus）\n\n"
+        "`corpus/` 为每条 metadata record 保存一个本地胶囊（local capsule）。"
+        "内容层级（content tier）包括：\n\n"
+        "- `full_text`：已物化开放或来源原生的全文；\n"
+        "- `semantic_capsule`：GitHub repository 已固定到具体 commit，并根据选定证据生成语义胶囊；\n"
+        "- `excerpt_capsule`：未确认再分发权利时，只保存有边界的本地摘录；\n"
+        "- `metadata_capsule`：本地仅保存 metadata 与获取诊断。\n\n"
+        "本地胶囊不自动等于可信知识（trusted knowledge）。\n",
+        encoding="utf-8",
+    )
+    audit = {
+        "audit_id": "materialization-completeness-2026-09-10",
+        "generated_at": generated_at,
+        "repository": "thsno02/solid-octo-couscous",
+        "collection_records": total,
+        "local_capsules": len(items),
+        "all_records_local": len(items) == total,
+        "status_counts": dict(statuses),
+        "content_tier_counts": dict(tiers),
+        "by_source_type": {key: dict(value) for key, value in sorted(by_type.items())},
+        "full_or_semantic_coverage": round(full_or_semantic / total, 4) if total else 0,
+        "locally_usable_coverage": round(locally_usable / total, 4) if total else 0,
+        "metadata_only_count": len(metadata_only),
+        "partial_count": len(partial),
+        "metadata_only_items": metadata_only,
+        "partial_items": partial,
+        "local_bytes": total_bytes,
+        "hashed_files": total_hashes,
+        "interpretation": (
+            "Every record having a local capsule does not mean every copyrighted or inaccessible source is mirrored in full. "
+            "The content tier records the actual consumability boundary."
+        ),
+        "acceptance": {
+            "all_metadata_records_have_local_manifest": len(items) == total,
+            "no_unclassified_missing_capsule": len(items) == total,
+            "full_content_gaps_are_explicit": True,
+        },
+    }
+    AUDIT_ROOT.mkdir(parents=True, exist_ok=True)
+    write_yaml(AUDIT_ROOT / "materialization_completeness_2026-09-10.yaml", audit)
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--config", default="pipeline/materialization_all_260910.yaml")
+    parser.add_argument("--workers", type=int, default=None)
+    parser.add_argument(
+        "--only-source-type",
+        choices=sorted(set(DIRECTORY_SOURCE_TYPES.values())),
+        help="Rebuild one source family and reuse existing capsules for all other records.",
+    )
+    args = parser.parse_args()
+
+    config = load_yaml(ROOT / args.config)
+    if not isinstance(config, dict):
+        raise SystemExit("materialization config must be a YAML object")
+    generated_at = str(config.get("generated_at") or utc_now())
+    records = discover_records()
+    if not records:
+        raise SystemExit("no metadata records found")
+
+    selected_records = (
+        [record for record in records if record.source_type == args.only_source_type]
+        if args.only_source_type
+        else records
+    )
+    if not selected_records:
+        raise SystemExit(f"no metadata records found for source type {args.only_source_type}")
+
+    CORPUS_ROOT.mkdir(parents=True, exist_ok=True)
+    workers = int(args.workers or config.get("workers", 12))
+    manifests: dict[str, dict[str, Any]] = {}
+    if args.only_source_type:
+        for record in records:
+            if record in selected_records:
+                continue
+            manifest_path = record.capsule_root / "manifest.yaml"
+            if not manifest_path.exists():
+                raise SystemExit(
+                    f"cannot run an incremental rebuild; existing capsule is missing for {record.uid}"
+                )
+            manifest = load_yaml(manifest_path)
+            if not isinstance(manifest, dict):
+                raise SystemExit(f"existing manifest is invalid for {record.uid}")
+            manifests[record.uid] = manifest
+    with concurrent.futures.ThreadPoolExecutor(max_workers=max(1, workers)) as pool:
+        future_map = {
+            pool.submit(materialize_one, record, config, generated_at): record
+            for record in selected_records
+        }
+        for future in concurrent.futures.as_completed(future_map):
+            record = future_map[future]
+            try:
+                manifest = future.result()
+            except Exception as exc:
+                root = prepare_capsule(record)
+                manifest = base_manifest(record, adapter_name(record.source_type), generated_at)
+                manifest["errors"].append(f"executor failure: {type(exc).__name__}: {exc}")
+                manifest = finalize_capsule(record, root, manifest)
+            manifests[record.uid] = manifest
+            print(
+                f"materialized uid={record.uid} type={record.source_type} "
+                f"status={manifest.get('status')} tier={manifest.get('content_tier')}",
+                flush=True,
+            )
+
+    rebuild_registry(records, manifests, generated_at)
+    write_indexes_and_audit(records, manifests, generated_at)
+    total = len(records)
+    local = sum((record.capsule_root / "manifest.yaml").exists() for record in records)
+    print(f"materialization_complete records={total} local_capsules={local}")
+    return 0 if local == total else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

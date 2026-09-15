@@ -1,0 +1,129 @@
+\section{\ours}
+\subsection{Structure Design}
+\begin{figure}[t]
+\centering
+\subfigure[Generation]{\label{fig:generation}\includegraphics[width=0.8\linewidth]{figures/generation.png}}
+\subfigure[Self-Update]{\label{fig:injection}\includegraphics[width=.9\linewidth]{figures/injection2.png}}
+\caption{\textbf{The framework of \ours.}
+(a) During generation, all memory tokens in the $l$-th layer of memory pool $\theta^l$ are attended by the hidden states $h_l$. (b) During self-update,
+The last $k$ memory tokens from $\theta_l$ are taken to be concatenated with the hidden states $h_l$ as the input to $\phi_l$. 
+The output $h_{l+1}$ goes to the next layer. The last $K$ tokens of $h_{l+1}$ serve as the new memory tokens ${e_\theta^l}'$. 
+We randomly drop $K$ tokens in $\theta_l$ and concatenate the left $\theta_l$ (denoted as $\theta^l(d)$) with ${e_\theta^l}'$ to obtain new memory $\theta_l'$.}
+\vspace{-15pt}
+\label{fig:model_framework}
+\end{figure}
+
+
+\subsubsection{Memory Pool}
+\label{ssub:memory_pool}
+We choose to instantiate $\phi$ with an off-the-shelf LLM, specifically Llama2~\citep{llama2}. 
+$\phi$ consists of multiple transformer layers, 
+denoted as $\phi = \{\phi_l\}_{l=1}^{L}$, where $L$ represents the total number of layers. 
+To facilitate the transformer $\phi$ to understand the memory pool $\theta$, we conceptualize $\theta$ as hidden vectors within each transformer layer, symbolized as $\theta = \{\theta_l\}_{l=1}^L$. 
+Each $\theta_l$ is of dimension $N \times d$, corresponding to $N$ hidden states and the word embedding dimension $d$ in $\phi$. 
+We term $\theta_l$ \textit{memory tokens}. 
+The \textit{memory tokens} serve as the representation of previous knowledge that the model has seen in a more compressed manner. 
+We intend to maximize the memory size, so we assign the memory pool to every layer to significantly enlarge the memory pool.
+During the generation phase, all memory tokens are used, as illustrated in Figure \ref{fig:generation}. 
+The attention map is designed to
+enable every token in $x$ to attend to all memory tokens. If $x$ comprises $n_x$ tokens, the attention map assumes a shape of $n_x \times (n_x + N)$, yielding a linear complexity w.r.t.~the size of the memory pool. 
+
+\subsubsection{Self-Update Process}
+\label{ssub:self_update_process}
+Figure \ref{fig:injection} illustrates the self-update process. 
+The goal of self-update is to ensure that \ours can always digest the latest knowledge and memorize the previously learned knowledge at its best. We discuss the self-update process in this subsection and prove in section~\ref{sec:aof} that \ours only forgets stale knowledge at an exponential decay rate with a theoretical guarantee.
+When introducing new knowledge $x_c$ (in the following, we denote the new knowledge as \textit{context} $x_c$ to distinguish it from $x$ in the last section), the model must integrate $x_c$ into $\theta$ as per Eq.(\ref{eq:one_step_injection}). 
+To avoid additional modules and complexities, we use the transformer $\phi$ for the update.
+% We first tokenize $x_c$ and input it into the word-embedding layer to obtain $h_1$. 
+Ideally, the input to $\phi_l$ should be the memory pool $\theta_l$ and the hidden states $h_l$ (where $h_1$ are the word embeddings of tokenized $x_c$). We find it essential to maintain the gradient flow from both the self-update and the generation to achieve better performance (see Section ~\ref{ssub:newest_information_incorporation}). However, it is much more costly to feed the entire pool $\theta_l$ to $\phi_l$ during self-update. To solve this problem, 
+we extract the last $K$ tokens of $\theta_l$ where $K<<N$ and denote these extracted tokens as $e_\theta^l$.
+$e_\theta^l$ is then concatenated with $h_l$ to form the input of $\phi_l$, where $h_l$ can attend to the preceding context $e_\theta^l$.
+The attention also employs an attention map of dimension
+$\max(n_{x_c}, K) \times (n_{x_c} + K)$, where $n_{x_c}$ is the number of tokens in $x_c$ (Note that in Figure \ref{fig:injection} we show the case when $n_{x_c} > K$. The case when $k > n_{x_c}$ is shown in Figure \ref{fig:injection_additional} in Appendix). 
+The last $K$ hidden states of the output $h_{l+1}$ are designated as ${e_\theta^l}'$. Then we drop $K$ memory tokens from the current memory pool $\theta^l$ and squeeze $\theta^l$ to the left side of the newly formed memory pool ${\theta^l}'$ where the new memory tokens ${e_\theta^l}'$ fill the right side.
+In this way, ${e_\theta^l}'$ is still of dimension $d$, with the new knowledge injected into the last $K$ dimensions.
+
+\subsubsection{Analysis of Forgetting}
+\label{sec:aof}
+The design of the self-update process draws inspiration from the concept of \textit{exponential forgetting} in human cognition, as described by the Ebbinghaus Forgetting Curve, and analogous to the intuition in MemoryBank~\citep{MemoryBank}. 
+Through this structure, we aim to simulate exponential forgetting. In each update we drop $K$ tokens from the memory pool; statistically, we drop $K/N$ of the knowledge from the existing memory pool, which means that knowledge within the memory pool would be exponentially forgotten at a rate of $K/N$. 
+Here, $N$ denotes the total memory size, while $K$ denotes the number of tokens that are used to incorporate knowledge in $x_c$. Thus, $N$ denotes the total capacity of the memory while $K$ represents the compression ratio. The smaller $K$, the more compressed the knowledge. 
+
+After self-update, the latest knowledge is preserved entirely without any random dropping. After $N/K$ update steps, the retention ratio for knowledge injected $N/K$ steps earlier can be calculated as:
+\begin{equation}\label{eq:NK}
+    (1 - \frac{K}{N})^{N/K}.
+\end{equation}
+In Eq.~\ref{eq:NK}, with the memory pool $\theta_l$ getting larger ($N$ becomes greater) and the knowledge in $x_c$ getting more compressed ($K$ becomes smaller), we can approach the following limit: 
+\begin{equation}\label{eq:NK_limit}
+    \lim_{\frac{N}{K}\rightarrow \infty} (1 - \frac{K}{N})^{N/K} = 1/e,
+\end{equation}
+where $e$ is the natural constant, therefore, to achieve minimal forgetting, the strategy involves reducing the compression ratio (by minimizing $K$, as we essentially compress knowledge from $h_l$ into $e_\theta^{l'}$) and increasing the memory size (by maximizing $N$).
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=1.0\linewidth]{figures/training1.png}
+    \vspace{-15pt}
+    \caption{\textbf{Training Process for new knowledge incorporation.} 
+    During training, we randomly choose one of two shown processes to proceed with 50\% probability each. The description pertains to the first layer, and the subsequent layers share an analogous procedure. 
+    % Only the procedure of the first layer is drawn here while the following layers have the same procedures. 
+    After sampling $(x_1,x_2)$ from the dataset, we first perform self-update with $x_1$ as depicted in the left side of both processes. Subsequently, the modified memory ${e_\theta^1}'$ is employed to predict $x_2$. 
+    % Then we use the updated memory ${e_\theta^1}'$ to predict $x_2$. 
+    Of the two processes, the upper one maintains gradient flow throughout the entire process, optimizing the knowledge compression from $x_1$ to ${e_\theta^l}'$ ($l \in \{1,\cdots,L\}$). In contrast, the lower process executes the self-update without gradient. Both processes are designed to encourage the use of the knowledge in the memory pool for the prediction.
+    }
+    \vspace{-20pt}
+    \label{fig:training-process-for-new-information-incorporation}
+\end{figure}
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=.9\linewidth]{figures/training2.png}
+    \caption{\textbf{Training process for continuous contexts understanding.} We only draw two self-update steps here with $x_1, x_2$ though there should be $n-1$ self-updates in this training iteration.
+    We show the procedure of $l$-th layer here. At the bottom of the figure, $h_1^n$ refers to the word embeddings of $x_n$, and $h_L^n$ is used for loss value calculation. 
+    Essentially we are compressing the knowledge from $x_1,\cdots,x_{n-1}$ into $\theta^{l^{n-1}}$ to predict $x_n$.}
+    \vspace{-15pt}
+    \label{fig:training2}
+\end{figure}
+
+\subsection{Training Strategy}
+We adopt the next word prediction task to pretrain our model.
+Our training methodology for \ours is strategically designed to optimize towards three core objectives discussed as follows:
+\subsubsection{New knowledge incorporation}
+\label{ssub:newest_information_incorporation}
+The training process begins by selecting a document $d$ from the dataset, which is then divided into two segments $(x_1, x_2)$. 
+Then we update the memory pool $\theta$ with $x_1$, followed by using the updated memory pool to predict $x_2$. 
+The whole process is described in Figure \ref{fig:training-process-for-new-information-incorporation}. Ideally, we would design the whole process shown in the lower part of the figure with gradient enabled (see figure \ref{fig:ideal_new-information-incorporation}). 
+However, this approach incurs prohibitive memory demands, especially when the memory pool is large. To mitigate this issue,
+in $l$-th layer, we propose to only use ${e_\theta^l}'$ for the prediction of $x_2$ rather than the whole updated memory $\theta_l'$ when keeping the gradient flow, and use $\theta_l'$ when the self-update process with $x_1$ is performed without gradient.
+In each iteration, the two aforementioned processes are randomly selected, to ensure that our model can absorb the knowledge in $x_1$ into $\theta$ and use the memory pool $\theta$ during the generation. 
+\subsubsection{Enhancing continuous contexts understanding} 
+\label{ssub:enhancing_continuous_contexts_understanding}
+In Section \ref{ssub:newest_information_incorporation}, 
+We encourage the model to understand the latest knowledge injected, where the model can make predictions based on the new memory pool $\theta'$. 
+However, the model only needs the last $K$ tokens of each layer $\theta_l'$ since only ${e_\theta^{l}}'$ (the last $K$ tokens of $\theta_l'$) contains the knowledge of the last injected context. 
+Thus our model may suffer from predicting the next token based on multiple injected contexts, which is essentially the long context problem. 
+We propose a training routine illustrated in Figure \ref{fig:training2} to address this problem. In Figure \ref{fig:training2}, a long document is sampled and segmented into $n$ parts $(x_1, \cdots, x_n)$, with each segment being shorter than a predefined maximum length. 
+The first $n-1$ segments are then sequentially injected into the memory pool $\theta$ using Eq.(\ref{eq:multi_step_injection}), resulting in $\theta_{n-1}$.
+Note that this whole injection process of $(x_1, \cdots, x_{n-1})$ is executed with gradient disabled. 
+Upon obtaining $\theta_{n-1}$, we calculate the cross-entropy loss on segment $x_n$. With this training procedure, we wish to enhance the model's ability to understand and process continuous contexts.
+
+
+\subsubsection{Mitigating forgetting problems} 
+\label{ssub:mitigating_forgetting_problems}
+To address the forgetting issue, we design a task that involves contexts across multiple documents. Specifically, we sample one main document $d$ and multiple side documents $d'$ (we take one side document as an example) and split them into segments $(x_1, \cdots, x_n)$ and $(x_1',\cdots, x_n')$. The first $n-1$ segments of the main document $(x_1, \cdots, x_{n-1})$ and the side document $(x_1',\cdots,x_{n}')$ are then injected into the model sequentially. To force the model to recall the related context injected a long time ago, we make the model predict the last segment of the main document ${x_n}$. Similarly, the gradient is disabled during all the injections. We encourage the model to use the knowledge from long ago to make the prediction, thereby mitigating the forgetting problem effectively. The implementation details of this part are described in Appendix \ref{ssub:implementation_details_of_non_forgetting}.
+
+To maintain the integrity of our model, i.e., to avoid the issue that the model may start malfunctioning after updating $\theta$ too many times, we update $\theta$ with the context after back-propagation. Specifically, we update $\theta$ with $x_1$ in Section \ref{ssub:newest_information_incorporation} and with $\{x_1,\cdots,x_{n-1}\}$ in Section \ref{ssub:enhancing_continuous_contexts_understanding} at the end of each training iteration. Intuitively, we are regularizing the distribution of ${e_\theta^l}'$ to be the same as that of $\theta_l$ to maintain integrity after arbitrarily many updates.
+
+\vspace{-5pt}
+\subsection{Model Instantiation}
+% To instantiate our model, 
+We use Llama2-7b as $\phi$, consisting of $32$ layers, with a hidden dimension of $4,096$. The model we propose has $7,680$ memory tokens in every layer, meaning that $\theta \in \mathbb{R}^{32 \times 7680 \times 4096}$, comprising 1.066B parameters. 
+
+\vspace{-5pt}
+\subsection{Discussions}
+\textbf{Extension to Other Architectures}: Our experimental framework involves the use of Llama2-7b as the instantiation for the function $\phi$. This selection was driven by the popularity and performance of Llama2-7b as a large language model during the development phase of our project. It is important to note, however, that the framework of our model is broadly applicable across various large language models (LLMs) that have transformer architectures with full attention mechanisms. 
+
+\textbf{Scalability of the Memory Size}: In our main experiments, we expand the memory size to approximately 1 billion parameters. We wish to emphasize that the efficiency of the self-update process (discussed in Section \ref{ssub:self_update_process}) remains unaffected by increases in the memory pool size. This efficiency is due to the model's design, which only adopts the most recent $K$ tokens from the memory pool as the input during self-updates. Consequently, the primary scalability constraint arises from the attention mechanism between the memory tokens and the input tokens during generation (as depicted in Figure \ref{fig:generation}). As the memory pool enlarges, the computational complexity of these attention mechanisms increases \textbf{linearly} with respect to the number of tokens $N$ in the memory pool, which is because the complexity of the attention is $N\times K$. With distributed training, our framework has the potential to be scaled to significantly larger memory sizes.
+
+\textbf{The design of Random Dropping}: Random dropping is a fairly straightforward way to keep the size of the memory pool fixed while maintaining an exponential forgetting mechanism. 
+Other possible strategies include applying an exponential decay factor to the memory pool from the previous step and aggregating the decayed memory pool with the new memory. We have experimented with aggregating existing memory and new memory instead of using random dropping. However, we found that maintaining the integrity of hidden states for tokens seems to be beneficial. Aggregating hidden states often disrupts both the original and new knowledge, resulting in situations where even the knowledge injected into the memory during the last self-update process cannot be fully extracted.
+In contrast, while random dropping carries the risk of forgetting previous information, it allows for the full recovery of information from the context injected during the last self-update step, as there is no random dropping applied to the new memory tokens at the last update. Therefore, we choose random dropping as we believe it provides a more natural way to integrate existing hidden states with new hidden states.

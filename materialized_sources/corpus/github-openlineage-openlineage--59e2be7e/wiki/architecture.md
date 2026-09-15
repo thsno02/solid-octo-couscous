@@ -1,0 +1,42 @@
+# Architecture evidence: OpenLineage/OpenLineage
+
+- `README.md:12` — Overview
+- `README.md:19` — Problem
+- `README.md:21` — Before
+- `README.md:28` — With OpenLineage
+- `README.md:35` — Scope
+- `README.md:40` — Core model
+- `README.md:47` — Spec
+- `README.md:50` — Integrations
+- `README.md:54` — Related projects
+- `README.md:59` — Community
+- `README.md:69` — Talks
+- `README.md:83` — Contributing
+- `README.md:87` — Report a Vulnerability
+- `README.md:91` — Star History
+- `AGENTS.md:1` — AGENTS.md
+- `AGENTS.md:5` — Protected paths
+- `AGENTS.md:16` — Spec changes
+- `AGENTS.md:29` — Setup commands
+- `AGENTS.md:34` — Build commands
+- `AGENTS.md:39` — Testing
+- `AGENTS.md:47` — Commit conventions
+- `AGENTS.md:57` — AI disclosure
+- `AGENTS.md:72` — Code style
+- `AGENTS.md:78` — License headers
+- `AGENTS.md:83` — Client coordination
+- `AGENTS.md:92` — PR guidelines
+- `AGENTS.md:96` — Repository structure
+- `AGENTS.md:107` — References
+- `CONTRIBUTING.md:1` — Contributing to OpenLineage
+- `CONTRIBUTING.md:7` — Joining the community
+- `CONTRIBUTING.md:13` — Reporting an Issue
+- `CONTRIBUTING.md:21` — Contributing to the project
+- `CONTRIBUTING.md:23` — Creating Pull Requests
+- `CONTRIBUTING.md:45` — Branching
+- `CONTRIBUTING.md:51` — Proposing changes
+- `CONTRIBUTING.md:65` — New Integrations
+- `CONTRIBUTING.md:81` — First-Time Contributors
+- `CONTRIBUTING.md:94` — Running pre-commit hooks
+- `CONTRIBUTING.md:104` — License header
+- `CONTRIBUTING.md:115` — Development

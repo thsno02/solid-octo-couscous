@@ -1,0 +1,164 @@
+\usetikzlibrary{trees}
+\usetikzlibrary{matrix, patterns, positioning}
+
+
+\definecolor{connect-line}{RGB}{0,0,0}
+\definecolor{middle-color}{RGB}{255,255,255}
+% \definecolor{leaf-color}{RGB}{166,208,153}
+% \definecolor{leaf-color}{RGB}{173,216,230}
+\definecolor{leaf-color}{RGB}{255,255,255}
+% \definecolor{line-color}{RGB}{166,208,153}
+\definecolor{line-color}{RGB}{25,25,112}
+
+\definecolor{yellow-defined}{RGB}{254,194,0}
+
+\definecolor{black}{RGB}{0,0,0}
+
+% \definecolor{external}{RGB}{230,75,53}
+% \definecolor{global}{RGB}{7,105,82}
+% \definecolor{local}{RGB}{207,134,0}
+
+\definecolor{external}{RGB}{21,155,255}
+\definecolor{global}{RGB}{255,55,55}
+\definecolor{local}{RGB}{69,177,79}
+
+\tikzstyle{yellow-root}=[draw=yellow-defined,
+    rounded corners, minimum height=1em,
+    fill=yellow-defined!40,text opacity=1, align=center,
+    fill opacity=.5,  text=black,align=center,font=\footnotesize,
+    inner xsep=3pt,
+    inner ysep=1pt,
+]
+
+\tikzstyle{external-leaf}=[draw=external,
+    rounded corners,minimum height=1em,
+    fill=leaf-color!40,text opacity=1, align=left,
+    fill opacity=.5,  text=black,align=left,font=\footnotesize,
+    inner xsep=3pt,
+    inner ysep=1pt,
+]
+\tikzstyle{external-middle}=[draw=external,
+    rounded corners,minimum height=1em,
+    fill=middle-color!40,text opacity=1, align=center,
+    fill opacity=.5,  text=black,align=center,font=\footnotesize,
+    inner xsep=3pt,
+    inner ysep=1pt,
+]
+    
+\tikzstyle{global-leaf}=[draw=global,
+    rounded corners,minimum height=1em,
+    fill=leaf-color!40,text opacity=1, align=left,
+    fill opacity=.5,  text=black,align=left,font=\footnotesize,
+    inner xsep=3pt,
+    inner ysep=1pt,
+]
+\tikzstyle{global-middle}=[draw=global,
+    rounded corners,minimum height=1em,
+    fill=middle-color!40,text opacity=1, align=center,
+    fill opacity=.5,  text=black,align=center,font=\footnotesize,
+    inner xsep=3pt,
+    inner ysep=1pt,
+]
+
+\tikzstyle{local-leaf}=[draw=local,
+    rounded corners,minimum height=1em,
+    fill=leaf-color!40,text opacity=1, align=left,
+    fill opacity=.5,  text=black,align=left,font=\footnotesize,
+    inner xsep=3pt,
+    inner ysep=1pt,
+]
+\tikzstyle{local-middle}=[draw=local,
+    rounded corners,minimum height=1em,
+    fill=middle-color!40,text opacity=1, align=center,
+    fill opacity=.5,  text=black,align=center,font=\footnotesize,
+    inner xsep=3pt,
+    inner ysep=1pt,
+]
+
+
+\forestset{
+  custom edge/.style={
+edge path={\noexpand\path[\forestoption{edge}, rounded corners](!u.parent anchor) -- (.child anchor)\forestoption{edge label}}
+  }
+}
+\forestset{
+  straight edge/.style={
+    edge path={
+      \noexpand\path [\forestoption{edge}] (!u.parent anchor) -- (.child anchor)\forestoption{edge label};
+    }
+  }
+}
+
+
+    
+\begin{figure*}[ht]
+\centering
+\begin{forest}
+  for tree={
+edge={-, draw=connect-line, line width=1pt},
+ % edge path={    \noexpand\path[\forestoption{edge}, rounded corners]    (!u.parent anchor) -- +(-1pt,0pt)  -| ([xshift=0pt].child anchor)\forestoption{edge label};  },
+    grow=east,
+    reversed=true,
+    anchor=base west,
+    parent anchor=east,
+    child anchor=west,
+    base=middle,
+    font=\footnotesize,
+    rectangle,
+    line width=1.2pt,
+    draw=connect-line,
+    rounded corners,align=left,
+    minimum width=2em,
+    s sep=4pt,
+    inner xsep=3pt,
+    inner ysep=0pt,
+  },
+  where level=1{text width=4.5em}{},
+  where level=2{text width=5em,font=\footnotesize}{},
+  where level=3{font=\footnotesize}{},
+  where level=4{straight edge, font=\footnotesize}{},
+  where level=5{font=\footnotesize}{},
+  [\textbf{KME} , yellow-root ,edge=external, 
+        [External Memorization, external-middle, edge=external, text width=7.5em, fill=external!30
+            [Memory-based, external-middle, text width=8.2em, edge=external, fill=external!30
+                [ MeLLo~\cite{MQuAKE} {,} MemPrompt~\cite{MemPrompt}{,} IKE~\cite{IKE}{,}\\ Language Patch~\cite{Patch}{,} SERAC~\cite{SERAC}{,} KAFT~\cite{KAFT} 
+, external-leaf, text width=15.8em,  edge=external ]
+            ]
+            [Extension-based, external-middle, text width=8.2em, edge=external, fill=external!30
+                [CALINET~\cite{CALINET}{,} T-Patcher~\cite{Transformer-Patcher}{,} GRACE~\cite{hartvigsen2022aging}{,} \\
+                COMEBA-HK~\cite{e1}{,} SWEA~\cite{e2}
+                , external-leaf, text width=15.8em, edge=external]
+            ]
+        ]
+        [Global Optimization, global-middle, edge=global, text width=7.5em, fill=global!30
+            [Constrained Fine-tuning, global-middle, text width=8.2em, edge=global, fill=global!30
+                [RecAdam\cite{chen2020recall}{,} Editable Training~\cite{sinitsin2020editable}{,} \\ PPA~\cite{lee2022plugandplay}{,} {Modifying-Memory}\cite{zhu2020modifying}{,} \\
+                F-Learning~\cite{ni2023forgetting}{,} 
+                  MELO~\cite{yu2024melo}{,} RECT~\cite{gu2024model}
+,global-leaf, text width=15.8em, edge=global,] %ACT~\cite{wang2023cross}{,} OCGNN~\cite{wang2021one}{,}
+            ]
+            [Intermediate Fine-tuning, global-middle, text width=8.2em, edge=global, fill=global!30
+                [ KGEditor~\cite{cheng2023editing}{,} KE~\cite{cao2021editing}{,} SLAG~\cite{hase2023methods}{,} MEND\cite{mitchell2022fast} 
+                , global-leaf, text width=15.8em, edge=global]
+            ]
+        ]
+        [Local Modification, local-middle, edge=local, text width=7.5em, fill=local!30
+            [Groundtruth-based, local-middle, text width=8.2em, edge=local,fill=local!30
+                [KD\cite{dai2022knowledge}{,} 
+  ROME \cite{meng2022locating}{,} DEPN \cite{wu2023depn}{,} PMET \cite{li2023pmet}{,} \\ 
+   MEMIT \cite{meng2023mass}{,} EMMET \cite{gupta2024unified}{,} DINM \cite{wang2024detoxifying} 
+                , local-leaf, text width=15.8em, edge=local ] % \cite{xu2022more} 
+            ]
+            %edge path={\noexpand\path[\forestoption{edge}, rounded corners](!u.parent anchor) -- (.child anchor)}
+            [Prompt-based, local-middle, text width=8.2em, edge=local,fill=local!30
+                [MEMIT$_{\mathrm{CSK}}$ \cite{gupta2023editing}{,} BIRD \cite{ma2023untying}
+                , local-leaf, text width=15.8em, edge=local]
+            ]
+        ]
+    ]
+\end{forest}
+\vspace{-3mm}
+\caption{The categorization of KME techniques for LLMs and the corresponding works.}
+\vspace{-3mm}
+\label{fig:categorization}
+\end{figure*}

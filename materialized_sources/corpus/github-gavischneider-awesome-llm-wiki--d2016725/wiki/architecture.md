@@ -1,0 +1,43 @@
+# Architecture evidence: gavischneider/awesome-llm-wiki
+
+- `README.md:3` — Awesome LLM Wiki [![Awesome](https://awesome.re/badge.svg)](https://awesome.re) ![Last-Commit](https://img.shields.io/github/last-commit/gavischneider/awesome-llm-wiki) [![Join the Discussion](https://img.shields.io/badge/Reddit-r/LLM_Wiki-orange)](https://reddit.com/r/LLM_Wiki) [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/gavischneider/awesome-llm-wiki) [![Stars](https://img.shields.io/github/stars/gavischneider/awesome-llm-wiki)](https://github.com/gavischneider/awesome-llm-wiki)
+- `README.md:11` — Contents
+- `README.md:47` — Foundations
+- `README.md:55` — GitHub Gists
+- `README.md:65` — Articles and Guides
+- `README.md:69` — Conceptual Primers and Foundations
+- `README.md:123` — Comparative Analyses (Wiki vs. RAG)
+- `README.md:146` — Codebase and Developer Context
+- `README.md:157` — Digital Gardens and Public Notes
+- `README.md:166` — Scaling and Enterprise Systems
+- `README.md:177` — Tutorials and Setup Guides
+- `README.md:211` — Case Studies and Retrospectives
+- `README.md:266` — Books and Ebooks
+- `README.md:272` — Specifications and Standards
+- `README.md:276` — Open Knowledge Format (OKF)
+- `README.md:282` — Tools and Plugins
+- `README.md:286` — Libraries and Frameworks
+- `README.md:308` — Applications and Desktop Clients
+- `README.md:345` — Editor Extensions and Plugins
+- `README.md:366` — General-Purpose Wiki Compilers
+- `README.md:410` — Codebase and Documentation Builders
+- `README.md:428` — Graph Compilation and Semantic Link Analyzers
+- `README.md:440` — Ingestion and Synchronization Utilities
+- `README.md:454` — MCP Servers and Integrations
+- `README.md:481` — Hosting and Infrastructure Platforms
+- `README.md:498` — Agent Skills and System Rules
+- `README.md:532` — Starter Templates and Boilerplates
+- `README.md:555` — Live Implementations and Reference Vaults
+- `README.md:566` — Research and Papers
+- `README.md:599` — Academic Courses and Lectures
+- `README.md:605` — Videos
+- `README.md:643` — Podcasts
+- `README.md:647` — Build With AI
+- `README.md:652` — Microsoft Cloud IT Pro Podcast
+- `README.md:656` — Working Code Podcast
+- `README.md:660` — Forums and Discussions
+- `README.md:668` — Contributing
+- `AGENTS.md:1` — Repository Schema
+- `CONTRIBUTING.md:1` — Contributing Guidelines
+- `CONTRIBUTING.md:5` — Submission Rules
+- `CONTRIBUTING.md:12` — How to Submit

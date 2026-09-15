@@ -1,0 +1,117 @@
+---
+uid: wiki-page:evidence-e9b49fbec0e6beb9
+title: Claim 1929edca74fa3fa5
+slug: claims/claim-1929edca74fa3fa5
+page_type: evidence
+status: review
+summary: We study how to apply large language models to write grounded and organized long-form articles from scratch,
+  with comparable breadth and depth to Wikipedia pages. This underexplored problem poses new challenges at the pr
+aliases: []
+ontology_refs:
+- experiment:meta-kb-v0
+claim_refs:
+- claim:1929edca74fa3fa5
+source_refs: &id001
+- arxiv:2402.14207
+page_refs:
+- wiki-page:source-7fabb86557bf2f15
+- wiki-page:map-llm-wiki
+outgoing_links:
+- target: wiki-page:source-7fabb86557bf2f15
+  relation: evidenced_by
+  claim_refs:
+  - claim:1929edca74fa3fa5
+  notes: null
+- target: wiki-page:map-llm-wiki
+  relation: part_of
+  claim_refs:
+  - claim:1929edca74fa3fa5
+  notes: null
+sections:
+- heading: Candidate statement
+  claim_refs:
+  - claim:1929edca74fa3fa5
+  source_refs: *id001
+  editorial_intent: Expose the exact candidate statement.
+- heading: Evidence bindings
+  claim_refs:
+  - claim:1929edca74fa3fa5
+  source_refs: *id001
+  editorial_intent: Resolve to local selectors.
+temporal:
+  created_at: '2026-09-13T17:38:21Z'
+  updated_at: '2026-09-13T17:38:21Z'
+  valid_from: null
+  valid_to: null
+  as_of: '2026-09-13T17:38:21Z'
+provenance:
+  build_id: build:llm-wiki-v0:d303e0f210b88f64
+  generated_by_agent: pipeline/build_llm_wiki.py
+  generated_by_model: null
+  prompt_or_skill_version: deterministic-llm-wiki-v0.2
+  compiled_from_revisions:
+  - arxiv:2402.14207@sha256:28b57e9821da798bf8ccfa3f144bfa37cd96ff3582c2211c83eff5ffcf0ccfc2
+  created_at: '2026-09-13T17:38:21Z'
+  updated_at: '2026-09-13T17:38:21Z'
+  manual_edits_preserved: false
+review:
+  state: needs_human
+  reviewers: []
+  decision_ref: null
+  checked_claim_refs: []
+  unresolved_issues:
+  - Scientific, semantic, neutrality, and due-weight review remain required before publication.
+freshness:
+  status: fresh
+  checked_at: '2026-09-13T17:38:21Z'
+  max_age_days: 30
+  source_dependencies: *id001
+  staleness_reasons: []
+consumption:
+  audiences:
+  - human
+  - agent
+  summary_tiers:
+    one_line: We study how to apply large language models to write grounded and organized long-form articles from
+      scratch, with comparable breadth and depth to Wikipedia pages. This underexplored problem poses new challenges
+      at the pr
+    short: We study how to apply large language models to write grounded and organized long-form articles from scratch,
+      with comparable breadth and depth to Wikipedia pages. This underexplored problem poses new challenges at the
+      pr
+    full: null
+  estimated_tokens: 158
+  machine_entry_points:
+  - ../../04_claims/claims.jsonl
+  - ../../03_evidence/evidence.jsonl
+  - ../catalog/pages.jsonl
+---
+
+# Source assertion from Assisting in Writing Wikipedia-like Articles From Scratch with Large Language Models
+
+> **Candidate only.** This page exposes one atomic claim and its evidence bindings.
+
+## Candidate statement
+
+We study how to apply large language models to write grounded and organized long-form articles from scratch, with comparable breadth and depth to Wikipedia pages. This underexplored problem poses new challenges at the pre-writing stage, including how to research the topic and prepare an outline prior to writing.
+
+## Scope
+
+- Claim ID: `claim:1929edca74fa3fa5`
+- Scope: `source-reported assertion`
+- Domain: [llm-wiki](../maps/llm-wiki.md)
+- Promotion state: `candidate`
+
+## Evidence bindings
+
+| Evidence | Selector | Local artifact | Tier |
+|---|---|---|---|
+| `evidence:1fe97aa395c695a6` | `local://materialized_sources/corpus/arxiv-2402.14207--b99559f4/normalized/document.txt#L130-L130` | `materialized_sources/corpus/arxiv-2402.14207--b99559f4/normalized/document.txt` | `full_text` |
+
+## Review requirements
+
+Check entailment, selector precision, source quality, identity, scope, contradiction, and due weight before promotion.
+
+## Related pages
+
+- [Assisting in Writing Wikipedia-like Articles From Scratch with Large Language Models](../sources/arxiv-2402.14207.md) — `evidenced_by`
+- [Llm Wiki](../maps/llm-wiki.md) — `part_of`

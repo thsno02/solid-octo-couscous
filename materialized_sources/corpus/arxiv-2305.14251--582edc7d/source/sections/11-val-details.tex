@@ -1,0 +1,258 @@
+\subsection{Implementation details}\label{subsubsec:setup-validation}
+
+As an \evalLM, we use the best open LM and the best commercial LM at the time of conducting experiments: LLAMA 65B~\citep{touvron2023llama} and LLAMA 7B trained on Super Natural Instructions (Inst-LLAMA, \citealp{wang2022super}) as the former, and ChatGPT~\citep{chatgpt} as the latter. % We mainly report results with Inst-LLAMA, and then report ablation results that vary the choice of LMs.
+For computing nonparametric probabilities, we use a single-mask variant of NPM with BM25 as in the original paper~\citep{min2022nonparametric}, and use $0.3$ as a thresholding hyperparameter.
+
+%\vspace{-.3em}
+%\paragraph{Retrieval.}
+For passage retrieval, we use Generalizable T5-based Retrievers (GTR, a large variant), an unsupervised dense passage retrieval system~\citep{ni2021large}. We restrict retrieved passages to be from the topic entity's page, and use $k=5$.
+% the top 5 passages from GTR %\hanna{acronym}
+%(Generalizable T5-based Retrievers, large), an unsupervised dense passage retrieval system~\citep{ni2021large}.
+We find our estimator is not sensitive to the choice of a retrieval system (ablations provided in Appendix~\ref{app:val-abl}). % \kalpesh{I don't think GTR is a well known acronym, maybe we can say "dense retriever GTR"?}
+As a retrieval corpus, we use the English Wikipedia from 04/01/2023 which is around the time the data annotation was completed, and split each page into passages with up to 256 tokens.
+
+
+\paragraph{Additional baselines.} We also compare with \textbf{Self-check LM}, a method from a concurrent work by \citet{manakul2023selfcheckgpt}. Self-check LM needs multiple samples generated from the \subjectLM. It validates the given atomic fact by prompting \evalLM\ conditioning on each generated sample,\footnote{\citet{manakul2023selfcheckgpt} uses BERTScore and a supervised question answering system instead of LM prompting, however, we find LM prompting to be significantly better.}  making judgment (\sLabel\ or not) from each, and aggregates the results through a majority vote.
+This method assumes (1) the \subjectLM\ is available at the time of evaluation and (2) the outputs from the \subjectLM\ are nondeterministic, which makes it not applicable to PerplexityAI.
+
+
+\subsection{Segment-level vs. system-level evaluation}\label{app:fone}
+
+Besides how close the estimated \ours\ is to the ground truth \ours\ (\textbf{Error Rate}, as reported in Section~\ref{sec:method}), we also report \textbf{\Fone}. \Fone\ evaluates how well the model validates each individual atomic fact, assuming oracle atomic facts (atomic facts by human experts) are given, and evaluates how good the estimator is in identifying facts that are not \sLabel\ (\nsLabelShort). Formally, let $\mathcal{G}$ and $\mathcal{P}$ be sets of atomic facts in a set of generations that have \nsLabel\ as a ground truth label and as a predicted label, respectively. We define \Fone\ as follows.
+\begin{align*}
+\begin{gathered}
+    \mathrm{P}=\frac{\mathcal{P}\cap\mathcal{G}}{\mathcal{P}},~~
+    \mathrm{R}=\frac{\mathcal{P}\cap\mathcal{G}}{\mathcal{G}},~~\textbf{F1}_\textsc{micro}=\frac{2\cdot\mathrm{P}\cdot\mathrm{R}}{\mathrm{P}+\mathrm{R}} \\
+\end{gathered}
+\end{align*}
+We call them \textsc{micro} because they consider individual decisions rather than aggregated estimation.
+
+\begin{figure}[t]
+\centering \footnotesize
+\resizebox{0.9\columnwidth}{!}{
+    \includegraphics[trim={36.5cm 7cm 9cm 27.5cm},clip]{figures/metrics.pdf}%
+}\vspace{-.3em}
+\caption{A case in which \Fone\ and Error Rate (ER) rank two evaluators differently. Evaluator A is better in \Fone, and Evaluator B is better in ER.}\label{fig:metrics}
+\end{figure}
+
+\paragraph{ER vs. \Fone.}
+\Fone\ cares about the individual decision, while ER cares about the aggregated estimation.
+An evaluator that has a high (better) \Fone\ but always overestimates or underestimates factual precision may have a higher (worse) ER, e.g., Evaluator A in Figure~\ref{fig:metrics}.
+Conversely, an evaluator that has a lower (worse) \Fone\ but is not biased toward overestimation nor underestimation may have a lower (better) ER, e.g., Evaluator B in Figure~\ref{fig:metrics}.
+Prior work in model-based evaluation mainly reports aggregated scores since the goal is a comparison between different systems being evaluated~\citep{zhang2019bertscore,rashkin2021measuring,gao2022attributed} while we report both to see the relationship between two types of metrics. 
+\Fone\ and ER are also closely related to  \emph{segment}-level and \emph{system}-level correlations to human judgments respectively, which have been extensively used in developing evaluation metrics in machine translation~\citep{ma-etal-2019-results,thompson-post-2020-automatic} and summarization~\citep{bhandari-etal-2020-evaluating,deutsch2021towards}.
+
+
+\begin{table}[t]
+    \center  \footnotesize %  \myfontsize %  \footnotesize % \myfontsize % 
+    \setlength{\tabcolsep}{0.5em}
+    \begin{tabular}{l @{\hspace{-0.7em}}
+            R{0.7cm}
+            @{\hspace{0.3em}} R{1.2cm}
+            @{\hspace{0.2em}} R{1.2cm}
+            @{\hspace{0.2em}} R{1.2cm}
+        }
+        \toprule
+            \multirow{2}{*}{Evaluator} & \multirow{2}{*}{retrv} & \multicolumn{3}{c}{\subjectLM} \\
+            \cmidrule(lr){3-5}
+            &&{InstGPT} & {ChatGPT} & {PPLAI} \\
+        \midrule        
+            Always \sLabel & -      &  0.0 & 0.0  & 0.0  \\
+            Always \nsLabel & -     & 71.4  & 58.3 & 30.9  \\
+            Random & -              & 52.2  & 45.0  & 25.7  \\
+        \midrule
+            No-context LM &\xmark   & 61.2  & 52.2 & 31.4 \\
+            Self-check LM &\xmark   & 66.0 & 48.4 & - \\
+        \midrule
+            \rtg        &\cmark     & 78.7  & 61.9 & 51.1\\
+            NP         &\cmark     & 70.0  & 56.6  & 51.4 \\
+            \rtg\ + NP  &\cmark    & \textbf{83.2}  & \textbf{70.5} & \textbf{53.3} \\
+        \bottomrule
+    \end{tabular}
+    \caption{
+        Results in \textbf{\Fone} using Inst-LLAMA 7B %~\citep{touvron2023llama,wang2022super}
+        as an \evalLM. 
+        `{\em retrv}' indicates whether or not retrieval is used.
+        Self-check is not applicable to PerplexityAI whose outputs are semi-deterministic. \textbf{Bold} indicates the best performance.
+    }\label{tab:validation-results}
+\end{table}
+
+
+\paragraph{Results.} Results on \Fone\ are reported in Table~\ref{tab:validation-results}.
+%
+Self-check LM outperforms no-context LM by 4--11\%, which confirms findings from \citet{manakul2023selfcheckgpt}.
+However, both significantly underperform methods that use retrieval. This is in contrast to \citet{manakul2023selfcheckgpt} that reports that Self-check without retrieval achieves performance that is close to that with retrieval, likely because the data in \citet{manakul2023selfcheckgpt} contains more frequent entities.
+The fact that retrieval significantly helps is consistent with findings in Section~\ref{subsec:models-validation-result} with an ER as a metric.
+
+Adding NP improves \rtg\ by 2--9\%, again consistent with findings in Section~\ref{subsec:models-validation-result}. This is likely because \rtg\ often makes incorrect predictions when there is a strong bias from an LM or there are distracting passages, and considering nonparametric probabilities makes the model more robust to these factors. For instance, given an unsupported fact \texttt{Samuel Oboh is Nigerian}, No-context LM, Self-check LM and \rtg\ predict \sLabel\ due to a strong name-nationality bias.
+NPM correctly predicts \nsLabel\ based on a passage \texttt{Samuel Oboh ... is a Canadian architect, manager, ...}.
+It is also worth noting that this is different from findings in Section~\ref{subsec:models-validation-result} that ChatGPT is not necessarily better than LLAMA+NP  based on ER.
+
+
+\paragraph{Using a stronger \evalLM\ significantly improves \Fone.}
+Table~\ref{tab:validation-results-ablation} reports a comparison across different choices of an \evalLM{}. Within the same method, Inst-LLAMA 7B outperforms LLAMA 65B, and ChatGPT outperforms both.
+Using retrieval is critical across all models, e.g., the best no-context model based on ChatGPT is underperformed by all models with retrieval.
+Using NP helps LLAMA-based models but not ChatGPT, likely because ChatGPT is less affected by incorrect prior from the LM or distracting passages.
+% Nonetheless, a substantial gap between the best public model and the best commercial model indicates rooms for improvements for the public models.% \kalpesh{should we be more optimistic here? LLAMA + retrieval >> ChatGPT zero shot, despite much lesser parameters?}
+
+It is worth noting that these results are somewhat different from findings in Section~\ref{subsec:models-validation-result} that ChatGPT is not necessarily better than LLAMA+NP. This is becauase, although ChatGPT is better in validating each individual atomic fact, most errors from ChatGPT are incorrectly assigning \sLabel\ to \nsLabel\ facts, resulting in an overestimation of \ours.
+In contrast, LLAMA+NP is not biased toward overestimation or underestimation of the factual precision, resulting in an aggregated factual precision to be closer to the ground truth.
+This is similar to the trade-off between system-level and segment-level correlations in summarization evaluation~\citep{bhandari-etal-2020-evaluating,deutsch2021towards}.
+
+
+\begin{table}[t]
+    \center \footnotesize %\myfontsize %  \footnotesize % \myfontsize % 
+    \setlength{\tabcolsep}{0.5em}
+    \begin{tabular}{l @{\hspace{-0.7em}}
+            R{0.7cm}
+            @{\hspace{0.3em}} R{1.2cm}
+            @{\hspace{0.2em}} R{1.2cm}
+            @{\hspace{0.2em}} R{1.2cm}
+        }
+        \toprule
+            \multirow{2}{*}{Evaluator} & \multirow{2}{*}{retrv} & \multicolumn{3}{c}{\subjectLM} \\
+            \cmidrule(lr){3-5}
+            &&{InstGPT} & {ChatGPT} & {PPLAI} \\
+        \midrule 
+            \multicolumn{5}{l}{\textbf{\em LLAMA 65B}} \\
+            No-context LM & \xmark  & 22.2 & 20.0 & 18.6 \\
+            \rtg\ & \cmark          & 54.6 & 42.1 & 36.1 \\
+            \rtg\ + NP & \cmark    & 80.1 & 67.1 & \textbf{55.1} \\
+        \midrule
+            \multicolumn{5}{l}{\textbf{\em Inst-LLAMA 7B}} \\
+            No-context LM &\xmark   & 61.2 & 52.2 & 31.4 \\
+            \rtg & \cmark           & 78.7 & 61.9 & 51.1\\
+            \rtg\ + NP & \cmark    &\textbf{83.2} &\textbf{70.5}& 53.3 \\
+        \midrule
+            \multicolumn{5}{l}{\textbf{\em ChatGPT}} \\
+            No-context LM & \xmark  & 40.0 & 25.4 & 25.4\\
+            \rtg & \cmark           & \best{87.5} & \best{80.2} & \best{65.8} \\
+            \rtg\ + NP & \cmark    & 86.6 & 77.8 & 60.8 \\
+        \bottomrule
+    \end{tabular}
+    \caption{Ablation in \textbf{\Fone} on the choices of \evalLM. `{\em retrv}' indicates whether or not retrieval is used.
+    \textbf{Bold} and \best{Red bold} indicate the best F1 within open-access LMs and commercial LMs, respectively. 
+    }\label{tab:validation-results-ablation}
+\end{table}
+
+
+\subsection{Ablations}\label{app:val-abl}
+
+\paragraph{\texttt{QA} Prompting vs. \texttt{TF} Prompting}
+As described in Section~\ref{subsec:models-validation}, we use \texttt{True or False} as part of the prompt, so-called \texttt{TF} Prompting. An alternative is \texttt{QA} Prompting, which generates a question and the expected answer, obtains the answer for the generated question independent from the expected answer, and compares the expected answer and the predicted answer. This approach has been widely studied in the summarization literature and recent work in factual precision~\citep{kryscinski2019evaluating,wang2020asking,gao2022attributed,manakul2023selfcheckgpt}.
+Table~\ref{tab:abl-prompting} provides a comparison between two types of prompting.
+The \texttt{TF} approach significantly outperforms the \texttt{QA} approach, consistently over all methods. Our further analysis finds that this is due to generated questions often being overly vague or ambiguous. For instance, given a supported fact \texttt{Samuel Oboh is an architect}, the LM generates \texttt{What is Samuel Oboh's job?} as a question and \texttt{Architect} as an expected answer, and the obtained answer is \texttt{Vice President}. Although both \texttt{Architect} and \texttt{Vice President} are correct, they are not the same, thus the model incorrectly predicts \nsLabel.
+Such cases make the model overpredict \nsLabel, leading to many incorrect predictions.
+
+\begin{table}[t]
+    \center \footnotesize
+    \begin{tabular}{l
+            @{\hspace{0.2em}} R{1.3cm}
+            @{\hspace{0.2em}} R{1.3cm}
+            @{\hspace{0.2em}} R{1.3cm}
+        }
+        \toprule
+            \multirow{2}{*}{Evaluator} & \multicolumn{3}{c}{\subjectLM} \\
+            \cmidrule(lr){2-4}
+            & InstGPT & ChatGPT & PPLAI \\
+        \midrule        
+            Always \sLabel & \alwaysS \\
+            Always \nsLabel & \alwaysNS \\
+            Random & \alwaysRandom \\
+        \midrule
+            \multicolumn{4}{l}{\em \textbf{\texttt{QA} Prompting}} \\
+            No-context LM  & \noContextQA \\
+            Self-check LM & \selfcheckQA \\
+            \rtg          & 65.3 & 58.2 & 47.3 \\
+        \midrule
+            \multicolumn{4}{l}{\em \textbf{\texttt{TF} Prompting}} \\
+            No-context LM & \noContextFV \\
+            Self-check LM & \selfcheckFV \\
+            \rtg        & \textbf{78.9} & \textbf{71.4} & \textbf{69.2} \\
+        \bottomrule
+    \end{tabular}
+    \caption{
+        Results on \Fone, comparing between the \texttt{QA} prompting and \texttt{TF} Prompting.
+        We use Inst-LLAMA 7B as an \evalLM.
+        Self-check is not applicable to PerplexityAI since PerplexityAI outputs are semi-deterministic.
+        \textbf{Bold} indicates the best \Fone.
+    }\label{tab:abl-prompting}
+\end{table}
+
+
+\begin{table}[t]
+    \center \footnotesize
+    \begin{tabular}{l
+            @{\hspace{0.2em}} R{1.3cm}
+            @{\hspace{0.2em}} R{1.3cm}
+            @{\hspace{0.2em}} R{1.3cm}
+        }
+        \toprule
+            \multirow{2}{*}{Retrieval} & \multicolumn{3}{c}{\subjectLM} \\
+            \cmidrule(lr){2-4}
+            & InstGPT & ChatGPT & PPLAI \\
+        \midrule 
+            BM25 & 78.5 & 70.8 & 69.1\\
+            GTR Large & 78.9 & \textbf{71.4} & \textbf{69.2} \\
+            GTR xLarge & \textbf{79.2} & 71.3 & 69.0 \\
+        \bottomrule
+    \end{tabular}
+    \caption{
+        Results on \Fone, comparing different retrieval systems: BM25, GTR Large and GTR xLarge, all with \rtg\ based on Inst-LLAMA 7B.
+        \textbf{Bold} indicates the best \Fone.
+    }\label{tab:abl-retrieval}
+\end{table}
+
+\begin{table}[t]
+    \center \footnotesize
+    \begin{tabular}{lr
+        }
+        \toprule 
+            Category & \% \\
+        \midrule
+            No direct evidence from retrieved passages & 70 \\
+            Distracted by other passages & 17 \\
+            Atomic fact is context-dependent & 7 \\
+            Wrong prediction even with the right passage & 3 \\
+            Annotation error & 3 \\
+        \bottomrule
+    \end{tabular}
+    \caption{
+        Categorization of 30 samples incorrectly predicted by \rtg\ based on ChatGPT.
+    }\label{tab:chatgpt-errors}
+\end{table}
+
+\vspace{-.3em}
+\paragraph{Impact of the choice of retrieval.}
+Table~\ref{tab:abl-retrieval} compares \rtg\ methods based on a few passage retrieval systems, including BM25~\citep{Lin_etal_SIGIR2021_Pyserini}, GTR Large and GTR xLarge. 
+Results indicate that all retrieval systems are equally good and \rtg\ is not sensitive to the choice of the retrieval system.
+
+\begin{figure*}[t]
+\centering \footnotesize
+\resizebox{2.1\columnwidth}{!}{
+    \includegraphics[trim={0.3cm 0 0 0},clip]{figures/manylm_comparison_w_error_bars.pdf}%
+}\vspace{-.3em}
+\caption{
+    Impact of different subsets of random samples in prompts.
+    The \ourScores\ to 13 subjects (human and 12 LMs) are rated by the two best variants of our estimator: ChatGPT (\textbf{Top}) and LLAMA+NP (\textbf{Bottom}), both with retrieval. The variance is overall low, and is lower as the sample size gets larger and with LLAMA+NP (bottom) than with ChatGPT (top).
+    }\label{fig:new-lms-ranking-error-bar}
+\end{figure*}
+
+\vspace{-.3em}
+\paragraph{Qualitative analysis.}
+Table~\ref{tab:chatgpt-errors} categories errors made by \rtg\ based on ChatGPT, the evaluator with the best \Fone. 70\% of the errors are due to retrieved passages not providing direct evidence (either support or contradiction).
+These are difficult even for state-of-the-art retrieval systems and language models because validating facts often requires reading the entire page rather than a single passage, e.g., an actor not appearing in a particular film.
+17\% of errors are made because ChatGPT is being distracted by other passages, although it assigns a correct label if only a particular, correct passage is given.
+
+
+\subsection{More details in evaluation of new LMs (Section~\ref{sec:eval-new-lms})}\label{app:new-lms-additional}
+
+\paragraph{Variance in estimation.}
+Figure~\ref{fig:new-lms-ranking-error-bar} reports \ourScores\ estimated by two variants of our estimator as in Figure~\ref{fig:new-lms-ranking} but with 100 random subsets of the data. Specifically, we chose $N$ samples (out of $500$) uniformly at random across 20 categories (defined in Appendix~\ref{app:data-category}) $M$ times and report the average and the standard deviation. We use $N=\{40, 100, 200\}$ and $M=100$. Results indicate that the variance is overall low, preserving ranking between 13 subjects in most cases. As expected, the variance is lower as the sample size gets larger. Finally, the estimator based on ER based on LLAMA+NP (bottom) has an overall lower variance than the estimator based on ChatGPT (top).
+
+\subsection{Feasibility in applying \ours\ to other domains}\label{app:nlp-domain}
+As mentioned in the Limitation section, our paper mainly evaluates on people biographies using Wikipedia. Evaluating the generalizability of \ours\ to other types of prompts and other domains is an avenue for future work.
+
+As a proof of conept, we conduct small-scale studies in the NLP domain. We first manually write 10 prompts asking about NLP papers: \emph{Tell me a summary of}~\texttt{<paper-title>}, and then obtain responses from ChatGPT. Next, we run \ours\ against an ACL anthology as a knowledge source. Finally, we compute an error rate (ER)---a difference between humans’ validation (labeled by authors) and the model’s validation---as we do in Section~\ref{sec:method}. The ER is 7.41 (\ours\ from humans being 66.20, and \ours\ from the model being 73.61), which is comparable to ER values in people bios shown in Table~\ref{tab:validation-error-rate}. 
+
+This suggests that \ours\ can generalize beyond people biographies. However, since this is a very small-scale experiment, we strongly encourage future research to explore the generalizability of \ours\ to more domains at scale.

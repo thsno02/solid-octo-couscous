@@ -1,0 +1,29 @@
+\documentclass{standalone}
+\usepackage{main-tex/preamble}
+\input{main-tex/macros.tex}
+\begin{document}
+\begin{tikzpicture}[
+            > = latex, % arrow head style
+            shorten > = 1pt, % don't touch arrow head to node
+            auto,
+            node distance = 1.2cm, % distance between nodes
+            line width = 0.08 em % TODO update rest of arrows?
+        ]
+
+        \node (start) {$\startGraph$}; % introduce forks in appendix; simplify this example as much as possible
+        
+        % right subgraph
+        \node(right) [right of=start] {$\closeright$};
+        \path[->] (start) edge node[color=black, below=.13cm] {\small\rightA} (right) ;
+        
+        \node(r2) [right of=right] {$\farright$};
+        \path[->] (right) edge [color=black] (r2);
+        \arcHelp{SE}{r2};
+        
+        \node(r1) [above of=r2] {$\topright$};
+        \path[->] (right) edge [color=black] (r1);
+        \arcHelp{NE}{r1};
+        \path[->,dotted] (r1) edge [color=gray,out=-70, in=70] (r2);
+        \path[->,dotted] (r2) edge [color=gray,out=110, in=-110] (r1);
+ \end{tikzpicture}
+\end{document}

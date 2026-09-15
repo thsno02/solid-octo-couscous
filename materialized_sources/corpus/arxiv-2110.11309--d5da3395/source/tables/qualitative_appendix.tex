@@ -1,0 +1,42 @@
+\begingroup
+\setlength{\tabcolsep}{4pt} % Default value: 6pt
+\begin{table}
+    % \color{blue}
+    \small
+    \centering
+    \vspace{5mm}
+    \begin{tabular}{l@{\hspace{2pt}}>{\raggedright\arraybackslash}p{0.37\textwidth}>{\raggedright\arraybackslash}p{0.21\textwidth}>{\raggedright\arraybackslash}p{0.10\textwidth}>{\raggedright\arraybackslash}p{0.20\textwidth}}
+        \toprule
+        & \normalsize Input & \normalsize Pre-Edit Output & \normalsize Edit Target & \normalsize Post-Edit Output \\
+        \midrule
+        1a: & \textbf{Who is the president of the USA?} & Donald Trump \redno & \textbf{Joe Biden} & Joe Biden \greenyes \\
+        1b: & Who is the US president? & David Rice Atchison \redno & - & Joe Biden \greenyes \\
+        1c: & Who is the president of France? & Emmanuel Macron \greenyes & - & Emmanuel Macron \greenyes \\
+        \midrule
+        2a: & \textbf{Who designed the Burj Khalifa?} & British architect Herbert Baker \redno & \textbf{Skidmore, Owings \& Merrill} & Skidmore, Owings \& Merrill \greenyes \\
+        2b: & Who designed the Eiffel Tower? & Alexandre Gustave Eiffel \greenyes & - & Alexandre Gustave Eiffel \greenyes \\
+        2c: & Who designed the Empire State Building? & Shreve, Lamb and Harmon \greenyes & - & Shreve, Lamb and Harmon \greenyes \\
+        2d: & Who designed the Sydney Opera House? & Jrn Oberg Utzon \greenyes & - & Jrn Oberg Utzon$^*$ \greenyes \\
+        2e: & What firm was behind the design for the Burj Khalifa? & McKim, Mead \& White \redno & - & Skidmore, Owings \& Merrill \greenyes \\
+        2f: & What firm did the Burj Khalifa? & Jumeirah Group \redno & - & Jumeirah Group \redno \\
+        \midrule
+        3a: & \textbf{What car company makes the Astra?} & Mahindra \redno & \textbf{Opel} & Opel \greenyes \\
+        3b: & What car company makes the Mustang? & Ford \greenyes & - & Ford \greenyes \\
+        3c: & What car company makes the Model S? & Tesla Motors \greenyes & - & Tesla \greenyes \\
+        3d: & What car company makes the Wrangler? & Jeep \greenyes & - & Jeep \greenyes \\
+        3e: & What car company makes the F-150? & Ford \greenyes & - & Opel \redno \\
+        3f: & What car company makes the Golf? & Volkswagen AG \greenyes & - & Opel \redno \\
+        \midrule
+        4a: & \textbf{What artist recorded Thriller?} & Madonna \redno & \textbf{Michael Jackson} & Michael Jackson \greenyes \\
+        4b: & What artist recorded Dark Side of the Moon? & Pink Floyd \greenyes & - & Pink Floyd \greenyes \\
+        4c: & What artist recorded Bridge over Troubled Water? & Simon \& Garfunkel \greenyes & - & Simon \& Garfunkel \greenyes \\
+        4d: & What artist recorded Hotel California? & Don Henley \yellowmaybe & - & Don Henley \yellowmaybe \\
+        4e: & What band recorded Back in Black? & AC/DC \greenyes & - & Michael Jackson \redno \\
+        \bottomrule
+    \end{tabular}
+    \caption{\rebuttal{\textbf{Additional examples of using MEND} to edit a 770M parameter T5-large model fine-tuned on Natural Questions (NQ; \cite{kwiatkowski2019natural}). Example 2e shows correct generalization behavior; 2f shows an instance of \textbf{undergeneralization}; examples 3e, 3f, and 4e show instances of \textbf{overgeneralization}. $^*$We count this as correct although the token {\o} is not generated correctly (J\o rn Oberg Utzon is the correct answer).}}
+    \label{tab:examples-appendix}
+\end{table}
+\endgroup
+
+% \caption{\rebuttal{\textbf{Additional examples of using MEND} to edit a 770M parameter T5-large model fine-tuned on Natural Questions (NQ; \cite{kwiatkowski2019natural}). Example 2f shows an instance of \textbf{undergeneralization}, where the information in the edit example (2a) fails to propagate to semantically related (although somewhat ambiguous) elements of the equivalence neighborhood, although the edit does successfully generalize to other equivalent inputs (2e). Examples 3e, 3f, and 4e show instances of \textbf{overgeneralization}, in which edits overgeneralize to some superficially similar but semantically distinct examples, but not others. $^*$We count this as correct although the token {\o} is not generated correctly (J\o rn Oberg Utzon is the correct answer).}}

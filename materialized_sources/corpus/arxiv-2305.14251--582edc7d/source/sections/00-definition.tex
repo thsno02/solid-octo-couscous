@@ -1,0 +1,137 @@
+
+\definecolor{green}{rgb}{0.1,0.1,0.1}
+\definecolor{chocolate}{HTML}{D2691E}
+\definecolor{maroon}{HTML}{A00000}
+\definecolor{indigo}{HTML}{4B0082}
+\definecolor{green}{HTML}{008000}
+\definecolor{red}{HTML}{a91e1e}
+\definecolor{cadmiumgreen}{rgb}{0.0, 0.42, 0.24}
+\newcommand{\mydarkgreen}[1]{\textcolor{cadmiumgreen}{#1}}
+\newcommand{\best}[1]{\textcolor{red}{\textbf{#1}}}
+
+\DeclareMathOperator*{\argmax}{argmax} 
+\DeclareMathOperator*{\argtopk}{argTopk} 
+\newcolumntype{L}[1]{>{\PreserveBackslash\raggedright}p{#1}}
+\newcolumntype{R}[1]{>{\raggedleft\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+
+\usepackage{amssymb}% http://ctan.org/pkg/amssymb
+\usepackage{pifont}% http://ctan.org/pkg/pifont
+\newcommand{\cmark}{{\protect\color{maroon} \ding{51}}}
+\newcommand{\xmark}{\ding{55}}
+\newcommand{\gmark}{{\protect\color{ForestGreen} \ding{51}}}
+\makeatletter
+\newcommand*\myfontsize{%
+  \@setfontsize\myfontsize{8}{9}%
+}
+\makeatother
+
+
+\makeatletter
+\newcommand*\mysmallfontsize{%
+  \@setfontsize\mysmallfontsize{7.4}{8.4}%
+}
+\makeatother
+
+
+
+
+
+%\newcommand{\ours}{\textsc{PreAF}}
+%\newcommand{\oursauto}{\textsc{PreAF}$_\text{EST}$}
+
+% \newcommand{\ours}{FPA}
+% \newcommand{\oursauto}{FPA$_\text{Est}$}
+% \newcommand{\estimator}{FPAEstimator}
+% \newcommand{\ourslong}{\textbf{F}actual \textbf{P}recision in \textbf{A}tomic level}
+\newcommand{\ours}{\textsc{FActScore}}
+\newcommand{\oursEst}{\textsc{FActScore}$_\text{Est}$}
+%\newcommand{\estimator}{FSEstimator}
+\newcommand{\ourslong}{\textbf{F}actual precision in \textbf{A}tomi\textbf{c}i\textbf{t}y \textbf{Score}}
+\newcommand{\ourScore}{\textsc{FActScore}}
+\newcommand{\ourScores}{\textsc{FActScore}s}
+
+\newcommand{\subjectLM}{LM$_\textsc{subj}$}
+\newcommand{\evalLM}{LM$_\textsc{eval}$}
+
+\newcommand{\sLabel}{\texttt{Supported}}
+\newcommand{\nsLabel}{\texttt{Not-supported}}
+\newcommand{\irLabel}{\texttt{Irrelevant}}
+
+\newcommand{\sLabelShort}{\texttt{S}}
+\newcommand{\nsLabelShort}{\texttt{NS}}
+\newcommand{\irLabelShort}{\texttt{IR}}
+
+\newcommand{\rtg}{Retrieve$\rightarrow$LM}
+\newcommand{\rtgShort}{Retrv$\rightarrow$LM}
+
+% \newcommand{\Accuracy}{Accuracy$_\textsc{micro}$}
+\newcommand{\Fone}{F1$_\textsc{micro}$}
+
+\usepackage{adjustbox}
+\newcommand{\marktext}[2]{\adjustbox{bgcolor=#1}{\strut #2}}
+\newcommand{\myblue}[1]{\marktext{blue!30}{\texttt{#1}}}
+\newcommand{\mypink}[1]{\marktext{pink!70}{\texttt{#1}}}
+\newcommand{\mypurple}[1]{\marktext{purple!30}{\texttt{#1}}}
+
+\newcommand{\myskip}[1]{}
+
+
+%%%%%% results
+
+\newcommand{\alwaysS}{ 30.8 & 37.1 & 45.0 }
+\newcommand{\alwaysNS}{ 35.7 & 29.1 & 15.5 }
+\newcommand{\alwaysRandom}{ 50.5 & 50.2 & 43.2 }
+
+\newcommand{\noContextQA}{ 56.5 & 48.8 & 32.5 }
+\newcommand{\noContextFV}{ 57.3 & 55.3 & 41.7 }
+\newcommand{\selfcheckQA}{ 65.3 & 63.2 & - }
+\newcommand{\selfcheckFV}{ 68.0 & 61.9 & - }
+
+\newcommand{\retrievalQA}{ 64.3 & 58.2 & 47.3 }
+\newcommand{\retrievalFV}{ 78.9 & 71.4 & 69.2 }
+\newcommand{\npm}{ 70.6 & 66.4 & \textbf{69.5} }
+\newcommand{\retrievalFVnpm}{ \textbf{80.5} & \textbf{74.5} & 68.5 }
+
+
+\newcommand{\noContextFVseven}{  &  &  }
+\newcommand{\retrievalFVseven}{  &  &  }
+\newcommand{\retrievalFVsevennpm}{  &  &  }
+
+\newcommand{\noContextFVsixtyfive}{ 41.6 & 46.4 & 51.4 }
+\newcommand{\retrievalFVsixtyfive}{ 63.0 & 60.5 & 63.5 }
+\newcommand{\retrievalFVsixtyfivenpm}{ 78.5 & 73.1 & \textbf{71.4} }
+
+\newcommand{\noContextFVchatgpt}{ 51.9 & 49.1 & 53.3 }
+\newcommand{\selfcheckchatgpt}{ 77.7 & 70.6 & - }
+\newcommand{\retrievalFVchatgpt}{ \best{86.8} & \best{84.0} & \best{78.7} }
+\newcommand{\retrievalFVchatgptnpm}{ \best{86.8} & 83.4 & 77.7 }
+
+%%% sent-level
+
+\newcommand{\noContextFVSent}{ 32.2 & 38.0 & 49.8 }
+\newcommand{\retrievalFVSent}{ 53.5 & 46.6 & 56.6 }
+\newcommand{\retrievalFVnpmSent}{ 66.8 & 62.0 & \underline{\textbf{68.9}} }
+
+\newcommand{\noContextFVSentGenerated}{ 57.5 & 56.8 & 39.8 }
+\newcommand{\retrievalFVSentGenerated}{ 71.8 & 67.0 & 63.9 }
+\newcommand{\retrievalFVnpmSentGenerated}{ \textbf{75.0} & \textbf{70.2} & 66.3 }
+
+\newcommand{\noContextFVSentOracle}{ 56.5 & 55.3 & 36.7 }
+\newcommand{\retrievalFVSentOracle}{ 74.5 & 67.5 & 65.2 }
+\newcommand{\retrievalFVnpmSentOracle}{ \underline{76.9} & \underline{71.7} & 67.5 }
+
+
+\newcommand{\retrievalFVchatgptSent}{ 72.7 & 66.2 & 73.4 }
+\newcommand{\retrievalFVchatgptnpmSent}{ 73.6 & 67.7 & 74.1 }
+
+\newcommand{\retrievalFVchatgptSentGenerated}{ 81.4 & \best{80.3} & \best{76.6}  }
+\newcommand{\retrievalFVchatgptnpmSentGenerated}{ \best{81.6} & 80.3 & 76.4 }
+
+\newcommand{\retrievalFVchatgptSentOracle}{ \underline{84.6} & 81.8 & \underline{77.4} }
+\newcommand{\retrievalFVchatgptnpmSentOracle}{ 84.4 & \underline{82.0} & \underline{77.4} }
+
+
+
+
+
+

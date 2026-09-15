@@ -1,0 +1,18 @@
+\begin{figure}
+\centering
+    \begin{subfigure}{\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{media/stage3/policy-diagram.jpeg}
+      \caption{Policy network}
+      \label{fig:policy-diagram}
+    \end{subfigure}
+    \par\bigskip
+    \begin{subfigure}{\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{media/stage3/value-function-diagram.jpeg}
+      \caption{Value-function network}
+      \label{fig:value-function-diagram}
+    \end{subfigure}
+    \caption{\textbf{Illustration of the RL architecture.} The conditional policy (a) and value-function (b) are depicted, both augmented with a separate TEN for terrain embeddings. The policy is conditioned on a particular terrain (via the TEN) and prompt, and produces a sample, which is interpreted as Python code. The code is then used to compile a Sodaracer, which is evaluated in a simulation to procuce a reward $R$. The value function is conditioned on the same terrain (via its own TEN) and prompt, and outputs an estimation of the value ($V$) of every token output by the policy sample. During learning, the value-function is trained to predict advantages estimated using GAE \citep{schulman2015high}.}
+\label{fig:rl-architecture}
+\end{figure}

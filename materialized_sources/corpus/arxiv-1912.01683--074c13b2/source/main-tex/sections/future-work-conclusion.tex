@@ -1,0 +1,27 @@
+\section{Discussion} \label{sec:discussion}
+Reconsider the case of a hypothetical intelligent real-world agent which optimizes average reward for some objective. Suppose the designers initially have control over the agent. If the agent began to misbehave, perhaps they could just deactivate it. Unfortunately, our results suggest that this strategy might not work. Average-optimal agents would generally stop us from deactivating them, if physically possible. Extrapolating from our results, we conjecture that when $\gamma\approx 1$, optimal policies tend to seek power by accumulating resources—to the detriment of any other agents in the environment.
+
+\paragraph{Future work.}
+Real-world training procedures often do not satisfy {\rl} convergence theorems. Thus, learned policies are rarely optimal. We expect this point to seriously constrain the applicability of this theory. Emphatically, optimal policies are often qualitatively divorced from the actual policies learned by reinforcement learning. For example, the mathematics of policy gradient algorithms is not to update policies so as to maximize reward. Instead, the rewards provide gradients to the parameterization of the policy \citep{rewardNotOpt}. On that view, reward functions are simply sources of gradient updates which designers use in order to control generalization behavior. 
+
+Most real-world tasks are partially observable. Although our results only apply to optimal policies in finite {\mdp}s, we expect the key conclusions to generalize. Furthermore, irregular stochasticity in environmental dynamics can make it hard to satisfy \cref{rsdIC}'s similarity requirement. We look forward to future work which addresses partially observable environments, suboptimal policies, or ``almost similar'' {\rsd} sets.  
+
+Past work shows that it would be bad for an agent to disempower humans in its environment. In a two-player agent / human game, minimizing the human's information-theoretic empowerment \citep{salge_empowermentintroduction_2014} produces  adversarial agent behavior \citep{adversary}. In contrast,  maximizing human empowerment produces helpful agent behavior  \citep{salge2017empowerment, guckelsberger2016intrinsically,du2020ave}. We do not yet formally understand if, when, or why $\pwrNoDist$-seeking policies tend to disempower other agents in the environment.
+
+More complex environments probably have more pronounced power-seeking incentives. Intuitively, there are often many ways for power-seeking to be optimal, and relatively few ways for power-seeking not to be optimal. For example, suppose that in some environment, \cref{rsdIC} holds for one million involutions $\phi$. Does this guarantee more pronounced incentives than if \cref{rsdIC} only held for one involution?
+
+We proved sufficient conditions for when reward functions tend to have optimal policies which seek power. In the absence of prior information, one should expect that an arbitrary reward function has optimal policies which exhibit power-seeking behavior under these conditions. However, we have prior information: AI designers usually try to specify a good reward function. Even so, it may be hard to specify orbit elements which do not—at optimum—incentivize bad power-seeking.
+
+\paragraph{Societal impact.} We believe that this paper builds toward a rigorous understanding of the risks presented by AI power-seeking incentives. Understanding these risks is the first step in addressing them. However, basic theoretical work can have many consequences. For example, this theory could somehow help future researchers build power-seeking agents which disempower humans. We believe that the benefit of understanding outweighs the potential societal harm. 
+ 
+\paragraph{Conclusion.} 
+We developed the first formal theory of the statistical tendencies of optimal policies in reinforcement learning. In the context of {\mdp}s, we proved sufficient conditions under which optimal policies tend to seek power, both formally (by taking $\pwrNoDist$-seeking actions) and intuitively (by taking actions which keep the agent's options open). Many real-world environments have symmetries which produce power-seeking incentives. In particular, optimal policies tend to seek power when the agent can be shut down or destroyed. Seeking control over the environment will often involve resisting shutdown, and perhaps monopolizing resources.
+
+We caution that many real-world tasks are partially observable and that learned policies are rarely optimal. Our results do not mathematically \emph{prove} that hypothetical superintelligent AI agents will seek power. However, we hope that this work will foster thoughtful, serious, and rigorous discussion of this possibility.
+
+\if\isfinal1
+\section*{Acknowledgments}
+Alexander Turner was supported by the Berkeley Existential Risk Initiative and the Long-Term Future Fund. Alexander Turner, Rohin Shah, and Andrew Critch were supported by the Center for Human-Compatible AI. Prasad Tadepalli was supported by the National Science Foundation.
+
+Yousif Almulla, John E. Ball, Daniel Blank, Steve Byrnes, Ryan Carey, Michael Dennis, Scott Emmons, Alan Fern, Daniel Filan, Ben Garfinkel, Adam Gleave, Edouard Harris, Evan Hubinger,  DNL Kok, Vanessa Kosoy, Victoria Krakovna, Cassidy Laidlaw, Joel Lehman, David Lindner, Dylan Hadfield-Menell, Richard Möhn, Alexandra Nolan, Matt Olson, Neale Ratzlaff, Adam Shimi, Sam Toyer, Joshua Turner, Cody Wild, Davide Zagami, and our anonymous reviewers provided valuable feedback.
+\fi

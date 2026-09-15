@@ -1,0 +1,51 @@
+\documentclass{standalone}
+\usepackage{main-tex/preamble}
+\input{main-tex/macros.tex}
+\begin{document}
+\begin{tikzpicture}[
+            > = latex, % arrow head style
+            shorten > = 1pt, % don't touch arrow head to node
+            auto,
+            node distance = 1.2cm, % distance between nodes
+            %ultra thick, % line style
+            line width = 0.08 em
+        ]
+
+        \node (start) {$\startGraph$};
+        \node[hide] (shide) {};% introduce forks in appendix; simplify this example as much as possible
+        
+        % sink subgraph
+        \node (sink) [above of=start] {$\sink$};
+        \path[hideArr,->] (start) edge (sink);
+        \arcHelp[\ifluatex -2.2pt\else -1pt\fi][4.5pt]{N}{sink};
+        
+        % left subgraph
+        \node (left) [left of=start] {$\closeleft$};
+        \node[hide] (leftH) [left of=start] {};
+        \path[hideArr, ->] (start) edge node[below=-.18cm] {\small\leftA} (left) ;
+        
+        \node (l2) [left of=left] {$\farleft$};
+        \path[hideArr, ->] (left) edge (l2);
+        \arcHelp{SW}{l2};
+        
+         \node (l1) [above of=l2] {$\topleft$};
+        \path[->] (l1) edge [out=-70, in=70] (l2);
+        \path[->] (l2) edge [out=110, in=-110] (l1);
+        \path[hideArr, ->] (left) edge (l1);
+        
+        % right subgraph
+        \node(right) [right of=start] {$\closeright$};
+        \node[hide] (rightHide) [right of=start] {};
+        \path[hideArr,->] (start) edge node[below=-.25cm] {\small\rightA} (right) ;
+        
+        \node(r2) [right of=right] {$\farright$};
+        \path[hideArr, ->] (right) edge (r2);
+        \arcHelp{SE}{r2};
+        
+        \node(r1) [above of=r2] {$\topright$};
+        \path[hideArr, ->] (right) edge (r1);
+        \arcHelp{NE}{r1};
+        \path[->] (r1) edge [out=-70, in=70] (r2);
+        \path[->] (r2) edge [out=110, in=-110] (r1);
+     \end{tikzpicture}
+\end{document}

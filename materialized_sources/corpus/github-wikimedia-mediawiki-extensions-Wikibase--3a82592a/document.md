@@ -1,0 +1,203 @@
+# Repository semantic capsule: wikimedia/mediawiki-extensions-Wikibase
+
+- Commit: `41d3195768a36c6716441085660a87c1028024ac`
+- Default branch: `master`
+- Description: wikimedia/mediawiki-extensions-Wikibase
+- Selected evidence files: 3 of 21 files observed
+- Interpretation: maintainer documentation and static repository evidence; runtime behavior is not proven.
+
+
+## `README.md`
+
+- - -
+Introduction to Wikibase
+====================
+[![Wikibase Secondary CI](https://github.com/wikimedia/Wikibase/actions/workflows/secondaryCI.yml/badge.svg)](https://github.com/wikimedia/Wikibase/actions/workflows/secondaryCI.yml)
+
+The Wikibase.git package is part of the [Wikibase software](http://wikiba.se/) and consists of
+multiple MediaWiki extensions and other components.
+
+The package allows for the creation, maintenance, dissemination, and usage of structured data
+in MediaWiki.
+
+High level documentation can be found on [wikiba.se](https://wikiba.se/) and [mediawiki.org](https://www.mediawiki.org/wiki/Wikibase).
+Lower level documentation can be found on doc.wikimedia.org [here](https://doc.wikimedia.org/Wikibase/master/php/).
+
+## Install
+
+Wikibase depends on various [composer](http://getcomposer.org/) libraries.
+
+Once you have Wikibase in your MediaWiki extensions directory, go to the root of your MediaWiki folder,
+and if `composer.local.json` does not yet exist there, copy `composer.local.json-sample` to `composer.local.json`
+(see [MediaWiki's Composer documentation](https://www.mediawiki.org/wiki/Composer#Using_composer-merge-plugin)).
+
+Then run:
+```bash
+composer install
+```
+
+If you already ran `composer install` during the installation of MediaWiki, run instead:
+```bash
+composer update
+```
+
+
+> When using ways to combine MediaWiki with the extension folders (e.g. symlinks or docker volumes) please make sure that the folders are available to composer in the same structure they are available to the webserver, too.
+
+This will install both Wikibase Client and Repo together on the same wiki.
+
+If you want to only have one or the other, then set `$wgEnableWikibaseRepo = false` or
+`$wgEnableWikibaseClient` to false for the one you don't want to enable.
+
+Wikibase also depends on several JavaScript libraries. They are included in this repository as submodules.
+To fetch files of these libraries, you might need to run, in the Wikibase extension folder, the following command:
+```bash
+git submodule update --init
+```
+
+### Development
+
+Wikibase uses tools to ensure the quality of software developed. To invoke these tools, inside the Wikibase folder, run:
+
+```bash
+composer install
+composer run-script test
+```
+
+> As this uses development dependencies and custom configuration, executing it from the MediaWiki root folder (via `composer run-script test extensions/Wikibase`) will not work satisfactorily
+
+#### JavaScript
+
+Wikibase makes use of frontend software from various eras - resulting in a heterogenous technological landscape.
+
+Some notable (not a comprehensive list) mentions are
+* the use of [ResourceLoader](https://www.mediawiki.org/wiki/ResourceLoader) to
+  * allow for concatenation and minification of code neatly organized in separate files
+  * translate less to CSS
+  * model module inter-dependencies
+  * handle delivery to the client through MediaWiki
+* use of the [Javascript interfaces exposed by MediaWiki](https://www.mediawiki.org/wiki/Manual:Interface/JavaScript); e.g. `mw.hook` in [EntityInitializer](./repo/resources/wikibase.EntityInitializer.js)
+* frontend components making heavy use of jQuery; e.g. for so called [experts](repo/resources/experts/Entity.js)
+* the use of qunit to test this code; e.g. in `repo/tests/qunit`, available [via a special page](https://www.mediawiki.org/wiki/Manual:JavaScript_unit_testing)
+* [vue.js](https://vuejs.org/guide/introduction.html) as a frontend framework; e.g. in [data-bridge](./client/data-bridge), the [Lexeme](https://gerrit.wikimedia.org/r/plugins/gitiles/mediawiki/extensions/WikibaseLexeme/) extension, and [termbox](https://gerrit.wikimedia.org/g/wikibase/termbox)
+
+#### Adding language code support in Wikibase
+
+To add support for a new language code (for labels or monolingual text) please refer to the [detailed documentation](https://www.mediawiki.org/wiki/Manual:Adding_and_removing_languages#Wikibase).
+
+## `package.json`
+
+{
+	"name": "wikibase",
+	"version": "0.1.0",
+	"private": true,
+	"scripts": {
+		"api-testing": "npm-run-all -p api-testing:*",
+		"api-testing:wikibase": "mocha --timeout 0 --recursive tests/api-testing",
+		"api-testing:rest-api": "npm --prefix repo/rest-api run api-testing",
+		"api-testing:reuse": "mocha --timeout 0 --recursive repo/domains/reuse/tests/api-testing",
+		"cypress:install": "CYPRESS_CACHE_FOLDER=./cypress/.cache cypress install",
+		"cypress:open": "CYPRESS_CACHE_FOLDER=./cypress/.cache cypress open",
+		"cypress:parallel": "CYPRESS_CACHE_FOLDER=./cypress/.cache cypress-parallel -s cypress:run -t 5 -d './cypress/e2e/' -r 'cypress-multi-reporters' -p './cypress/reporter-config.json' -w './cypress/parallel-weights.json' -m 'false'",
+		"cypress:run": "CYPRESS_CACHE_FOLDER=./cypress/.cache cypress run",
+		"doc": "npm-run-all doc:*",
+		"disabled-T400036-doc:data-bridge-dist-size": "node build/dist-size/analyze docs/data-bridge-dist-size wikimedia mediawiki-extensions-Wikibase client/data-bridge/dist/data-bridge.init.js client/data-bridge/dist/data-bridge.common.js client/data-bridge/dist/data-bridge.app.js client/data-bridge/dist/data-bridge.app.modern.js client/data-bridge/dist/vendor-chunks.js client/data-bridge/dist/css/data-bridge.app.css client/data-bridge/dist/data-bridge.css",
+		"disabled-T400036-doc:tainted-ref-dist-size": "node build/dist-size/analyze docs/tainted-ref-dist-size wikimedia mediawiki-extensions-Wikibase view/lib/wikibase-tainted-ref/dist/tainted-ref.init.js view/lib/wikibase-tainted-ref/dist/tainted-ref.common.js view/lib/wikibase-tainted-ref/dist/tainted-ref.app.css",
+		"doc:rest-api": "npm --prefix repo/rest-api run build",
+		"doc:gql-explorer": "VITE_GQL_ENDPOINT_URL='https://www.wikidata.org/w/api.php?action=wbgraphql&format=json&origin=*' npm --prefix repo/domains/reuse/graphiql-explorer run build",
+		"install:bridge": "npm --prefix client/data-bridge ci",
+		"install:tainted-ref": "npm --prefix view/lib/wikibase-tainted-ref ci",
+		"install:rest-api": "npm --prefix repo/rest-api ci",
+		"install:reuse": "npm --prefix repo/domains/reuse ci",
+		"install:gql-explorer": "npm --prefix repo/domains/reuse/graphiql-explorer ci",
+		"install:legacy-ui-data-model": "npm --prefix view/packages/wikibase-data-model install",
+		"install:legacy-ui-data-values": "npm --prefix view/packages/wikibase-data-values install",
+		"install:legacy-ui-value-view": "npm --prefix view/packages/wikibase-data-values-value-view install",
+		"install:legacy-ui-serialization": "npm --prefix view/packages/wikibase-serialization install",
+		"install:legacy-ui-wikibase-api": "npm --prefix lib/resources/packages/wikibase-api install",
+		"postinstall": "npm-run-all -p install:*",
+		"selenium": "npm run selenium-test",
+		"selenium-daily": "MEDIAWIKI_USER='Selenium user' MW_SERVER=https://wikidata.beta.wmflabs.org:443 MW_SCRIPT_PATH=/w WIKIBASE_PROPERTY_STRING=P443 npm run selenium-test",
+		"@selenium-test": "npm run cypress:install && npm run cypress:parallel && npm-run-all --continue-on-error selenium-test:*",
+		"selenium-test:repo": "wdio repo/tests/selenium/wdio.conf.js",
+		"selenium-test:client": "wdio client/tests/selenium/wdio.conf.js",
+		"@selenium-test:bridge": "npm --prefix client/data-bridge run selenium-test # Disabled per T354841",
+		"test": "npm-run-all -p test-fast:*",
+		"test-fast:grunt": "grunt test",
+		"test-fast:bridge": "npm --prefix client/data-bridge test",
+		"test-fast:tainted-ref": "npm --prefix view/lib/wikibase-tainted-ref test",
+		"test-fast:rest-api": "npm --prefix repo/rest-api test",
+		"test-fast:reuse": "npm --prefix repo/domains/reuse run lint",
+		"test-fast:jest-repo": "jest -c repo/tests/jest/jest.config.js",
+		"test-fast:legacy-ui-data-model": "npm --prefix view/packages/wikibase-data-model test",
+		"test-fast:legacy-ui-data-values": "npm --prefix view/packages/wikibase-data-values test",
+		"test-fast:legacy-ui-value-view": "npm --prefix view/packages/wikibase-data-values-value-view test",
+		"test-fast:legacy-ui-serialization": "npm --prefix view/packages/wikibase-serialization test",
+		"test-fast:legacy-ui-wikibase-api": "npm --prefix lib/resources/packages/wikibase-api test",
+		"coverage": "npm --prefix client/data-bridge run-script test-unit-coverage",
+		"fix": "grunt fix"
+	},
+	"devDependencies": {
+		"@babel/preset-env": "^7.26.9",
+		"@pinia/testing": "^0.0.12",
+		"@vue/test-utils": "^2.4.6",
+		"@vue/vue3-jest": "^29.2.6",
+		"@wdio/cli": "^9.20.0",
+		"@wdio/local-runner": "^9.20.0",
+		"@wdio/mocha-framework": "^9.20.0",
+		"@wdio/spec-reporter": "^9.20.0",
+		"@wikimedia/codex": "2.3.1",
+		"api-testing": "1.7.2",
+		"apollo-boost": "^0.4.9",
+		"axe-core": "^4.10.3",
+		"cross-fetch": "^3.1.5",
+		"cypress": "^14.5.3",
+		"cypress-axe": "^1.6.0",
+		"cypress-parallel": "^0.15.0",
+		"cypress-wikibase-api": "^0.0.10",
+		"eslint-config-wikimedia": "0.31.0",
+		"grunt": "1.6.1",
+		"grunt-banana-checker": "0.13.0",
+		"grunt-eslint": "24.3.0",
+		"grunt-stylelint": "0.20.1",
+		"jest": "29.7.0",
+		"jest-environment-jsdom": "^29.7.0",
+		"lodash": "^4.17.21",
+		"mocha": "^10.2.0",
+		"npm-run-all": "^4.1.5",
+		"pinia": "^2.0.16",
+		"stylelint-config-wikimedia": "0.18.0",
+		"wdio-mediawiki": "^6.5.1",
+		"wdio-wikibase": "^7.1.0"
+	},
+	"eslintIgnore": [
+		"extensions/**",
+		"vendor/**",
+		"view/lib/**",
+		"client/data-bridge/"
+	],
+	"browserslist": [
+		"Safari 11.1"
+	]
+}
+
+## `docs/index.md`
+
+Welcome to the Wikibase.git documentation site.
+
+Take a look at the high level @subpage README.md.
+
+The lower level hand crafted documentation:
+* @subpage docs_adr_index
+* @subpage docs_components_index
+* @subpage docs_topics_index
+
+And the lower level generated documentation:
+* [**Javascript**](https://doc.wikimedia.org/Wikibase/master/js/)
+* [**PHP Namespaces**](namespaces.html)
+* [**PHP Classes**](annotated.html)
+* [**Files**](files.html)
+* @subpage deprecated
+* @subpage todo
+
+If you want to see the documentation for the docs, take a look at @subpage docs_documentation

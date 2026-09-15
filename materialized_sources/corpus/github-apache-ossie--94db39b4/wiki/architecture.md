@@ -1,0 +1,67 @@
+# Architecture evidence: apache/ossie
+
+- `README.md:20` — Apache Ossie (incubating)
+- `README.md:28` — What's in this repository
+- `README.md:36` — Get involved
+- `CONTRIBUTING.md:20` — Contributing to Apache Ossie (incubating)
+- `CONTRIBUTING.md:42` — Ways to Contribute
+- `CONTRIBUTING.md:50` — Communication
+- `CONTRIBUTING.md:74` — Getting Started
+- `CONTRIBUTING.md:82` — Contributor License Agreement (ICLA)
+- `CONTRIBUTING.md:100` — AI-Assisted Contributions
+- `CONTRIBUTING.md:105` — Contribution Workflow
+- `CONTRIBUTING.md:111` — Code, Documentation, and Tooling
+- `CONTRIBUTING.md:124` — Specification Changes
+- `CONTRIBUTING.md:138` — Decision Making and Voting
+- `CONTRIBUTING.md:164` — Releases
+- `CONTRIBUTING.md:176` — Community Values — The Apache Way
+- `CONTRIBUTING.md:199` — Roles and Responsibilities
+- `CONTRIBUTING.md:201` — Contributors
+- `CONTRIBUTING.md:207` — Committers
+- `CONTRIBUTING.md:214` — Podling Project Management Committee (PPMC)
+- `CONTRIBUTING.md:221` — Mentors
+- `CONTRIBUTING.md:227` — Incubator PMC (IPMC)
+- `CONTRIBUTING.md:233` — Becoming a Committer
+- `CONTRIBUTING.md:239` — What counts
+- `CONTRIBUTING.md:250` — The process
+- `CONTRIBUTING.md:268` — Code of Conduct
+- `CONTRIBUTING.md:277` — Trademarks
+- `CONTRIBUTING.md:284` — License
+- `docs/index.md:20` — Apache Ossie
+- `docs/index.md:22` — Overview
+- `docs/index.md:30` — The Problem: Semantic Fragmentation
+- `docs/index.md:39` — How Apache Ossie Solves It
+- `docs/index.md:48` — Specification at a Glance
+- `docs/index.md:66` — Participating Organizations
+- `docs/index.md:72` — Converters
+- `docs/index.md:80` — Project Governance
+- `docs/index.md:85` — The Apache Way
+- `docs/index.md:108` — Governing Bodies
+- `docs/index.md:124` — Roles
+- `docs/index.md:131` — Voting on Specification Changes
+- `docs/index.md:144` — Working Groups
+- `docs/index.md:150` — Community Meetings
+- `docs/index.md:163` — Architecture
+- `docs/index.md:165` — Hub-and-Spoke Model
+- `docs/index.md:185` — How It Flows
+- `docs/index.md:196` — Multi-Dialect Expression System
+- `docs/index.md:215` — Frequently Asked Questions
+- `docs/index.md:217` — General
+- `docs/index.md:228` — Adoption
+- `docs/index.md:242` — Technical
+- `docs/index.md:258` — Versioning and Compatibility Policy
+- `docs/index.md:260` — Specification Versioning
+- `docs/index.md:268` — Backward Compatibility
+- `docs/index.md:276` — Extension Compatibility
+- `docs/index.md:282` — Adoption Guide
+- `docs/index.md:286` — Phase 1: Evaluate
+- `docs/index.md:292` — Phase 2: Pilot
+- `docs/index.md:299` — Phase 3: Expand
+- `docs/index.md:305` — Phase 4: Govern
+- `docs/index.md:313` — Glossary
+- `docs/index.md:335` — Related Resources
+- `docs/index.md:349` — Contributing
+- `docs/index.md:353` — Ways to Contribute
+- `docs/index.md:361` — Getting Started
+- `docs/index.md:369` — Code of Conduct
+- `docs/index.md:375` — License

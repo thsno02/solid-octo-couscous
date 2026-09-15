@@ -1,0 +1,77 @@
+\input{fig_overview}
+\section{Task formulation}\label{sec:task}
+
+We propose the task of \textit{\taskName} as follows. As Figure~\ref{fig:api} shows, the input to the system is a text passage $x$ produced by a generation model. %
+The output is a revised text passage $y$ along with an \emph{attribution report} $A$, which contains \emph{evidence snippets} $e_1, \dots, e_M$ that support the content in $y$.
+Optionally, the attribution report can contain additional information such as the alignment between evidence snippets and relevant parts in $y$.
+
+We propose to measure the quality of the revised text $y$ and attribution report $A$ along two dimensions: (1) \textbf{attribution}: how much of the revised text $y$ can be attributed to the evidence in $A$,
+and (2) \textbf{preservation}: how much the revised text $y$ preserves aspects of the original text $x$.
+
+
+\subsection{Measuring attribution}
+
+Previously, \citet{Rashkin2021AIS} proposed \emph{Attributable to Identified Sources} (AIS), a human evaluation framework which considers a binary notion of attribution.
+Roughly speaking, a text passage $y$ is attributable to a set $A$ of evidence if a generic hearer would affirm the statement ``According to $A$, $y$'' under the context of $y$.
+A system either receives full credit (1.0) if \emph{all} content in $y$ can be attributed to $A$, and no credit (0.0) otherwise.
+
+We propose a more fine-grained, sentence-level extension of AIS.
+We ask annotators to give an AIS score for each sentence $s$ of $y$, and then report the average AIS score across all sentences:
+\begin{equation}
+\attrais(y, A) = \operatorname*{avg}_{s \in y} \text{AIS}(s, A).
+\end{equation}
+Since the AIS score is binary, this effectively measures the percentage of sentences in $y$ that are fully attributed to $A$. When judging each sentence, we also give annotators access to the surrounding sentences and other necessary context, such as the question that the text passage responded to.
+We also impose the maximum number of evidence snippets in the attribution report $A$
+to make it concise enough for both the annotator and downstream users.
+By manually inspecting 30 examples from our benchmarks,
+we found $M = 5$ snippets to be sufficient for full attribution.
+
+During model development, we define
+an automated metric, auto-AIS ($\attrauto{}$), that approximates human AIS judgments.
+We utilize the natural language inference (NLI) model from \citet{Honovich2022TRUERF}, which correlates well with AIS scores.
+For each sentence $s$ of $y$,
+and for each evidence snippet $e$ in $A$,
+let $\text{NLI}(e, s)$ be the model probability of $e$ entailing $s$. We then define
+\begin{equation}
+\attrauto(y, A) = \operatorname*{avg}_{s \in y} \, \max_{e \in A} \text{NLI}(e, s).
+\end{equation}
+To improve accuracy, we decontextualize~\cite{choi2021making} each sentence based on the entire context of $y$ %
+before computing the scores.
+See Appendix~\ref{sec:app-auto-eval} for implementation details.
+
+\subsection{Measuring preservation}\label{sec:preservation}
+
+To measure preservation, we first ask annotators to decide if the revision preserves the text's original intent (completely, somewhat, or not at all --- see Appendix~\ref{sec:app-human-eval} for exact rubrics).
+Like AIS evaluation, we give annotators the necessary surrounding context.
+We define the binary metric $\presintent(x, y)$ to be 1.0 if the revision completely preserves the original intent, and 0.0 otherwise.
+
+However, even if a revision preserves intent, it may still make superfluous modifications, such as reordering words, changing textual style, or including unnecessary additional information \cite{thorne2021evidence}. Different tasks have different requirements for what should be preserved. Here, we desire a simple metric that can be readily computed for many tasks and that generally penalizes unnecessary changes.
+We thus define a metric based on the character-level Levenshtein edit distance \cite{levenshtein1966binary} %
+between $x$ and $y$:
+\begin{equation}
+\preslev(x, y) = \max\left(1 - \frac{\text{{Lev}}(x, y)}{\text{{length}}(x)}, 0\right)
+\end{equation}
+This metric is 1.0 if $x$ and $y$ are the same, and 0.0 if $y$ completely overwrites all parts of $x$. $\preslev$ is generally sensitive to any kind of change, but certainly does not capture all notions of preservation (e.g., preserving rhyme schemes or puns).
+
+We want the revision to preserve the original intent while avoiding superfluous edits. To reflect this, we finally combine the two metrics as
+\begin{equation}
+\prescomb(x, y) = \presintent(x, y) \cdot \preslev(x, y).
+\end{equation}
+which is 0.0 if the revision changes the intent and equal to $\preslev(x, y)$ otherwise.
+Since $\presintent$ requires human annotation,
+we use $\preslev$ as an automated metric for model development.
+
+
+
+
+
+
+\subsection{Discussion}
+
+
+Optimizing for attribution alone cannot ensure a good revision: for example, an adversarial editor could ensure 100\% attribution by simply replacing the input $x$ with the text of any arbitrary retrieved document, which is trivially attributable to itself.
+Ideally, we want to maximize both attribution and preservation, while navigating any tradoffs between the two.
+In our experiments, we report both metrics, as well as their harmonic mean ($\HM{}$, analogous to how recall and precision are combined in F1).
+
+
+We emphasize that this evaluation scheme does not require any ``gold'' or ``reference'' edits (unlike many prior evaluations of text revision models), which are often only available for specialized domains. This enables us to broaden the scope to a much wider range of generation tasks.

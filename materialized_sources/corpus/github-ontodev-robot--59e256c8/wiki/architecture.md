@@ -1,0 +1,38 @@
+# Architecture evidence: ontodev/robot
+
+- `README.md:1` — ROBOT is an OBO Tool
+- `README.md:9` — Cite ROBOT
+- `README.md:14` — Installation and Usage
+- `README.md:19` — Build
+- `README.md:36` — Code Style
+- `README.md:41` — Design
+- `README.md:52` — Term Lists
+- `README.md:57` — Acknowledgments
+- `README.md:62` — Copyright
+- `CONTRIBUTING.md:1` — Contributing
+- `CONTRIBUTING.md:5` — Contents
+- `CONTRIBUTING.md:14` — Getting Started
+- `CONTRIBUTING.md:22` — Making Changes
+- `CONTRIBUTING.md:30` — Writing Code
+- `CONTRIBUTING.md:38` — Writing Unit Tests
+- `CONTRIBUTING.md:69` — Writing Integration Tests
+- `CONTRIBUTING.md:85` — Documenting Errors
+- `CONTRIBUTING.md:124` — Error Messages
+- `Dockerfile:1` — Stage 1: Build the application using Maven
+- `Dockerfile:4` — Create a working directory and set permissions
+- `Dockerfile:11` — Copy the POM and source code to the working directory
+- `Dockerfile:18` — Change ownership to robot user
+- `Dockerfile:21` — Use the robot user to run Maven
+- `Dockerfile:24` — Run the Maven build, skipping tests to speed up the process
+- `Dockerfile:27` — Stage 2: Create a smaller runtime container
+- `Dockerfile:30` — Create a non-root user and set up a working directory
+- `Dockerfile:35` — Copy the compiled JAR file from the build stage to the runtime stage
+- `Dockerfile:38` — Set robot as the user
+- `Dockerfile:41` — Set the entrypoint to run the robot.jar
+- `docs/index.md:6` — ROBOT is an OBO Tool
+- `docs/index.md:14` — Cite ROBOT
+- `docs/index.md:19` — 1. Getting Started
+- `docs/index.md:23` — Mac & Linux
+- `docs/index.md:37` — Windows
+- `docs/index.md:52` — Docker
+- `docs/index.md:76` — 2. Using the Library

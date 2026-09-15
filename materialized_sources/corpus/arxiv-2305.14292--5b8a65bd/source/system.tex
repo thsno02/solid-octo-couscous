@@ -1,0 +1,72 @@
+\section{Design of \system}
+
+Given the history of a conversation with a user, 
+\system generates its next utterance by 
+(1) curating information that is correct and relevant to the conversation context, and
+(2) using the gathered information to form the response. 
+Each stage of the pipeline in Figure~\ref{fig:pipeline}
+is implemented using in-context learning. All prompts are included in Appendix \ref{sec:pipeline-prompts}. 
+
+\subsection{Curating Information}
+LLMs have the ability to interpret the user utterance, formulate responses that are out of the reach of retrieval or require aggregating information from many sources or drawing conclusions, as shown by 
+the following example:
+\begin{quote}\small
+
+User: Do you think Apple will continue to be a big player in the technology industry? \\
+GPT-4: Yes, \ldots Apple has a strong track record of innovation, a loyal customer base, and a robust financial position. \ldots the most valuable company globally, with a market capitalization of over \$2 trillion. \ldots continues to explore new technologies such as augmented reality, artificial intelligence, and autonomous vehicles. This will help them to stay ahead of the competition.
+\end{quote}
+
+Unfortunately, LLMs cannot be trusted to be factual, thus we need to fact-check their outputs. Furthermore, LLMs are unaware of recent events.
+Thus, we use both LLM generation and IR.
+
+\subsubsection{Retrieval from Corpus}
+\label{sec:IR}
+During a conversation with a user, \system identifies when accessing external information is needed. This could be because the last user utterance contains a direct question (e.g. ``Who is Stephen Curry?'') or otherwise requires additional information for a comprehensive response (e.g. ``I really like Stephen Curry.''). 
+
+{\bf Stage 1}. \system generates a search query that captures the user's interest with a prompt (Table \ref{prompt:query-generation}).
+We discovered that existing systems especially struggle with the temporal context. \system generates the inferred time of the user's need alongside the query. The query time can be one of \emph{recent}, \emph{year=yyyy}, or \emph{none} for when the retrieved information should be as recent as possible, for a specific year, or the time is not important, respectively. 
+
+The query is sent to an information retrieval system to obtain relevant passages from the corpus, and the top results are re-ranked based on the temporal information to get
+$N_{\text{IR}}$ passages. 
+
+{\bf Stage 2}.
+Since these passages may contain a mixture of relevant and irrelevant sections, \system extracts relevant sections of the retrieved passages and summarizes them into bullet points while filtering out the irrelevant parts (Table \ref{prompt:summarization}).
+
+\subsubsection{LLM Generation and Fact-Checking}
+\label{sec:fact-checking}
+{\bf Stage 3}. We prompt the LLM to generate a response to the history of the conversation (Table~\ref{prompt:baseline}). This response often contains interesting and relevant knowledge, but is inherently unreliable.
+
+{\bf Stage 4}. The LLM response is broken down to multiple claims~\cite{chen-etal-2022-generating} (Table \ref{prompt:claim-splitting}). 
+This stage resolves co-references to reduce ambiguity, and resolves relative time information like ``current'' and ``last year'', to make all claims self-contained.
+
+We use IR to retrieve $N_{\text{evidence}}$ passages from the knowledge corpus for each claim to serve as evidence. We use the same time-based re-ranking as in Section \ref{sec:IR} to better handle time-sensitive topics. 
+
+{\bf Stage 5.} The verification prompt (Table \ref{prompt:verify}) uses chain-of-thought prompting~\cite{chain-of-thought} to assign each claim to one of three classes: whether the retrieved evidence supports the claim, refutes the claim, or if there is not enough information in the evidence to make this decision. Only claims that are supported by the evidence are kept.
+
+\subsection{Forming the Response}
+The next step is to use the curated information to form an appealing response. Our experiments show that writing the final response in one go while satisfying all conversationality criteria is challenging with in-context learning, especially that the limited context length makes it difficult to provide enough multi-turn conversations as few-shot examples to cover all the necessary aspects. Thus, we use a two-step approach:
+
+{\bf Stage 6}. \system generates a draft response from the given list of bullet points and the history of the conversation (Table \ref{prompt:draft-response}).
+
+{\bf Stage 7}. It then generates feedback and refines the response based on\label{sec:feedback_and_refine}
+{\em relevance}, {\em naturalness}, {\em non-repetitiveness}, and {\em temporal correctness} (Table \ref{prompt:refine}). 
+The feedback contains the model's reasoning on each criterion and a score between 0 and 100 for each. Refinement is conditioned on this feedback and the scores as a chain of thought.
+Concurrent to this work, \citet{madaan2023selfrefine} have explored the idea of prompting LLMs to refine their own generations in other settings.
+
+As discussed in Section~\ref{sec:overview}, 
+it is hard for LLMs to say ``I don't know''. In the special case where the curation stages return no relevant information, the \emph{draft} prompt is skipped and instead a ``Sorry, I'm not sure'' is sent to the refinement prompt, which dresses it up to match the conversation.
+
+
+\section{Model Distillation}
+To improve latency, cost and privacy, we distill \system based on a \emph{teacher} LLM into a smaller \emph{student} model.
+We use \system based on GPT-4 (i.e. \systemgf) as the teacher, and the publicly available LLaMA~\cite{touvron2023llama} model as the student to obtain \systeml.
+
+Each few-shot prompt consists of an instruction $I$  and several examples. 
+We use a user simulator (described in Section~\ref{sec:user_simulator}) to talk to the teacher \system about topics from Wikipedia, while recording the inputs the underlying teacher LLM sees, and the outputs it generates for those inputs. We use these input-output pairs and the instruction $I$ (but not the few-shot examples) to fine-tune the student LLM.
+We distill all 7 subtasks of \system into the same student model in a multi-task setting.
+The LLaMA-based \system calls LLaMA in each of the pipeline stages by specifying instruction $I$ and the input.
+
+Distillation lowers the latency because the student LLM is many times smaller than the teacher LLM, and has a shorter input length as it sees no few-shot examples, similar to context distillation~\cite{snell2022learning}. 
+
+Furthermore, 
+we remove chains of thought from the outputs of stages 5 and 7 (verification and refinement), and merge stages 6 and 7. No drop in our metrics of factuality and conversationality is observed, suggesting that chain-of-thought prompting and refinement may only be necessary for in-context learning. Fine-tuned models can learn these tasks from just inputs and outputs given a big enough training set.

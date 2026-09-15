@@ -1,0 +1,93 @@
+# Architecture evidence: VectifyAI/OpenKB
+
+- `README.md:14` — OpenKB: Open LLM Knowledge Base
+- `README.md:30` — 📑 What is OpenKB
+- `README.md:36` — Why not traditional RAG?
+- `README.md:42` — Features
+- `README.md:54` — 🚀 Getting Started
+- `README.md:56` — Install
+- `README.md:81` — Quick Start
+- `README.md:84` — 1. Create a directory for your knowledge base
+- `README.md:87` — 2. Initialize the knowledge base
+- `README.md:90` — 3. Add documents
+- `README.md:95` — 4. Ask a question
+- `README.md:98` — 5. Or chat interactively
+- `README.md:101` — (Optional) Turn the wiki into other outputs
+- `README.md:107` — Set up your LLM
+- `README.md:121` — Knowledge Workbench (Web UI)
+- `README.md:134` — 🧩 How OpenKB Works
+- `README.md:136` — Architecture
+- `README.md:142` — Short vs Long Document Handling
+- `README.md:153` — Knowledge Compilation
+- `README.md:165` — ⚙️ Usage
+- `README.md:169` — Layer 1: 🧱 Wiki Foundation — compile and maintain
+- `README.md:194` — Layer 2: 💡 Generators — turn the wiki into output
+- `README.md:206` — (i) 💬 Query & Chat — *ask the wiki*
+- `README.md:232` — (ii) 🛠 Skill Factory — *drop in a book; out comes a digital expert.*
+- `README.md:248` — 🔧 Configuration
+- `README.md:250` — Settings
+- `README.md:262` — PageIndex Setup
+- `README.md:284` — AGENTS.md
+- `README.md:290` — 🔌 Integrations
+- `README.md:292` — Using with Obsidian
+- `README.md:301` — Using with Claude Code / Codex / Gemini CLI
+- `README.md:342` — REST API
+- `README.md:348` — 🧭 Learn More
+- `README.md:350` — Compared to Karpathy's Approach
+- `README.md:362` — The Stack
+- `README.md:371` — Roadmap
+- `README.md:379` — Contributing
+- `README.md:383` — License
+- `README.md:387` — 🌐 Open-Source Ecosystem
+- `README.md:396` — Support Us
+- `AGENTS.md:1` — AGENTS.md — OpenKB map for coding agents
+- `AGENTS.md:7` — Read next
+- `AGENTS.md:12` — Dev commands
+- `AGENTS.md:18` — Module map (openkb/)
+- `AGENTS.md:40` — Hard invariants
+- `pyproject.toml:28` — All dependencies are pinned exactly (supply-chain caution — e.g. the
+- `pyproject.toml:29` — litellm package-poisoning incident). Bump deliberately after vetting
+- `pyproject.toml:30` — each release.
+- `pyproject.toml:31` — litellm 1.87.2 fixes the chatgpt/* (ChatGPT subscription) provider
+- `pyproject.toml:32` — returning empty Responses output (BerriAI/litellm#25429) and
+- `pyproject.toml:33` — auto-injects GitHub Copilot IDE-auth headers.
+- `pyproject.toml:63` — Backwards-compatible alias for the historical name; same entry point.
+- `pyproject.toml:78` — The Knowledge Workbench Web UI is served by this FastAPI server. `web` is the
+- `pyproject.toml:79` — canonical extra; `api` is a backwards-compatible alias so an existing
+- `pyproject.toml:80` — `pip install "openkb[api]"` keeps working.
+- `pyproject.toml:87` — The Workbench web bundle (openkb/web) is git-ignored but must ship in the
+- `pyproject.toml:88` — published package. `artifacts` force-includes it into both the sdist and the
+- `pyproject.toml:89` — wheel when present (built by `npm run build`, e.g. in release CI). When it is
+- `pyproject.toml:90` — absent the build still succeeds — the API server just serves no UI.
+- `pyproject.toml:97` — Bundle the built-in deck themes + html critic into the wheel so
+- `pyproject.toml:98` — `openkb deck new` / `--critique` / chat `/deck` work right after
+- `pyproject.toml:99` — `pip install` (scan_local_skills also looks under openkb/_skills/).
+- `pyproject.toml:110` — Start conservative (pyflakes + pycodestyle errors + isort); ratchet up later.
+- `pyproject.toml:114` — cli.py deliberately interleaves imports with side-effecting setup code
+- `pyproject.toml:115` — (warning filters that must apply before `markitdown`/`litellm` import,
+- `pyproject.toml:116` — `set_tracing_disabled()` before other agents-SDK usage, an
+- `pyproject.toml:117` — `os.environ.setdefault(...)` that must run before `import litellm`).
+- `pyproject.toml:118` — Reordering to satisfy E402/I001 would risk changing import-time behavior,
+- `pyproject.toml:119` — so both are ignored here rather than fixed.
+- `pyproject.toml:121` — E501 (line-too-long) is scoped to the files whose remaining violations are
+- `pyproject.toml:122` — long string literals (docstrings, CLI help text, prompt templates) that
+- `pyproject.toml:123` — reflowing would either fail to shorten or would alter user-facing text.
+- `pyproject.toml:124` — Everywhere else the 100-column limit is enforced. Shrink this list by
+- `pyproject.toml:125` — rewrapping the literals (or adding targeted `# noqa: E501`) over time.
+- `pyproject.toml:131` — Test fixtures asserting exact file contents (frontmatter/index literals);
+- `pyproject.toml:132` — rewrapping the strings would change the data under test.
+- `pyproject.toml:140` — Lenient to start (codebase not previously type-checked); ratchet up over time.
+- `pyproject.toml:142` — numpy's bundled stubs (reached transitively via litellm/openai-agents ->
+- `pyproject.toml:143` — pydantic, not imported by openkb directly) use `type X = ...` alias
+- `pyproject.toml:144` — statements requiring Python 3.12+ parser support — fatal to the whole run
+- `pyproject.toml:145` — (a [syntax] error, not a suppressible diagnostic) when they get parsed. A
+- `pyproject.toml:146` — per-module `follow_imports = "skip"` override was experimentally confirmed
+- `pyproject.toml:147` — NOT to prevent the parse; only the global default reliably avoids reaching
+- `pyproject.toml:148` — that stub, so it stays global rather than scoped narrower.
+- `pyproject.toml:151` — Pre-existing untyped-data debt is suppressed PER MODULE below (not
+- `pyproject.toml:152` — globally), so every other module gets full checking for these error codes.
+- `pyproject.toml:153` — Ratchet: fix a module's errors (mostly by giving LLM-JSON payloads proper
+- `pyproject.toml:154` — TypedDict/dataclass shapes), then delete its override block.
+- `pyproject.toml:157` — Loosely-shaped dict/list data parsed from LLM JSON output flows through
+- `pyproject.toml:158` — `Any`-typed helpers: union-attr on Any|None, unannotated accumulator lists,
+- `pyproject.toml:159` — argument/return mismatches against str-typed signatures.

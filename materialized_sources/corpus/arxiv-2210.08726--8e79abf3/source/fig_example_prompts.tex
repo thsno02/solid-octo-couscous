@@ -1,0 +1,40 @@
+\newcommand{\promptin}[1]{\textcolor{blue!70!black}{{#1}}}
+\newcommand{\promptout}[1]{\textcolor{red!70!black}{{\ul{#1}}}}
+
+\begin{figure}[!t]
+\centering\small
+\scalebox{0.83}{
+\begin{tabular}{@{}p{1.18\columnwidth}@{}}
+\toprule
+\multicolumn{1}{c}{(a) \textbf{Query generation} $x \to \{q_1, \dots, q_N\}$} \\
+You said: \promptin{Your nose switches back and forth between nostrils. When you sleep, you switch about every 45 minutes.  This is to prevent a buildup of mucus. It's called the nasal cycle.} \\
+To verify it, \\
+\promptout{a) I googled: Does your nose switch between nostrils?} \\
+\promptout{b) I googled: How often does your nostrils switch?} \\
+\promptout{c) I googled: Why does your nostril switch?} \\
+\promptout{d) I googled: What is nasal cycle?} \\
+\midrule
+\multicolumn{1}{c}{(b) \textbf{Agreement model} $(y, q, e) \to \{0, 1\}$} \\
+You said: \promptin{Your nose switches \dots(same as above)\dots nasal cycle.} \\
+I checked: \promptin{How often do your nostrils switch?} \\
+I found this article: \promptin{Although we don't usually notice it, during the nasal cycle one nostril becomes congested and thus contributes less to airflow, while the other becomes decongested. On average, the congestion pattern switches about every 2 hours, according to a small 2016 study published in the journal PLOS One.} \\
+\promptout{Your nose's switching time is about every 2 hours, not 45 minutes.} \\
+\promptout{This disagrees with what you said.} \\
+\midrule
+\multicolumn{1}{c}{(c) \textbf{Edit model} $(y, q, e) \to \text{new }y$} \\
+You said: \promptin{Your nose switches \dots(same as above)\dots nasal cycle.} \\
+I checked: \promptin{How often do your nostrils switch?} \\
+I found this article: \promptin{Although we \dots(same as above)\dots PLOS One.} \\
+\promptout{This suggests 45 minutes switch time in your statement is wrong.} \\
+\promptout{My fix: Your nose switches back and forth between nostrils. When you sleep, you switch about every 2 hours. This is to prevent a buildup of mucus. It's called the nasal cycle.} \\
+\bottomrule
+\end{tabular}
+}
+\begin{subfigure}{0pt}\phantomsubcaption\label{fig:example_prompts_cqgen}\end{subfigure}
+\begin{subfigure}{0pt}\phantomsubcaption\label{fig:example_prompts_agreement}\end{subfigure}
+\begin{subfigure}{0pt}\phantomsubcaption\label{fig:example_prompts_revision}\end{subfigure}
+\caption{
+\label{fig:example_prompts}
+\textbf{Examples of few-shot examples} used to prompt the PaLM model (\promptin{blue} = input; \promptout{red} = output).
+}
+\end{figure}

@@ -1,0 +1,17 @@
+\section{Related Work}
+\label{sec:related-work}
+
+{\bf Knowledge-Grounded Chatbots.}
+Information retrieval is commonly used to develop knowledge-grounded chatbots~\cite{shuster-etal-2021-retrieval-augmentation}.
+BlenderBot 2~\cite{chen2021blenderbot} incorporates Internet search. SeeKeR~\cite{shuster-etal-2022-language} outperforms BlenderBot 2~\cite{chen2021blenderbot} by utilizing a single language model for three modular tasks: generating search queries, producing relevant knowledge from retrieved documents, and generating the final response. 
+BlenderBot 3~\cite{shuster2022blenderbot} fine-tunes a 175B-parameter OPT~\cite{zhang2022opt} on the combination of 20 question answering and dialogue datasets. 
+Atlas~\cite{izacard2022atlas} is a state-of-the-art model on the KILT benchmark~\cite{petroni-etal-2021-kilt}, which consists of 11 knowledge-oriented tasks including Wizard of Wikipedia~\cite{dinan2019wizard}.
+
+{\bf Evaluating Factuality.}
+\label{section:related_factuality_evaluation}
+FEVER~\cite{thorne-etal-2018-fever} is a popular crowdsourced dataset that compares claims against evidence retrieved from Wikipedia, and was extended to dialogues by~\citet{gupta-etal-2022-dialfact}. The state-of-the-art system on this dataset~\cite{krishna-etal-2022-proofver} has an accuracy of 81\% when compared against human labels.
+$Q^2$~\cite{honovich-etal-2021-q2} uses question answering and natural language inference models to evaluate the factuality of dialogue agents.
+\citet{dziri-etal-2022-evaluating} compare this and several other automatic metrics to human evaluation and find that automatic metrics fall significantly behind human performance, and rely on spurious correlations.
+Concurrently and similarly to our work, \citet{min2023factscore} break down long system outputs to claims and evaluate their factuality using retrieval. Their best model has a significant 13\% error rate on individual claims. Given the high error rates for these automatic metrics, our evaluation methodology (Section \ref{sec:evaluation}) incorporates human judgement where needed.
+Approaches like \citet{qian2023optimizing} and TripleScore~\cite{assessing-factual-2019} only consider simple entity-relations between retrieved documents and system outputs, while we generalize that notion to all forms of facts.
+

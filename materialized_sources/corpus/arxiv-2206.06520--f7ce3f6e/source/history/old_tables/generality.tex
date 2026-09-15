@@ -1,0 +1,28 @@
+\begin{table*}[t]
+    \centering
+    \small
+    \begin{tabular}{clccccccc|ccc}
+        \toprule
+        & Metric & FT & MEND & MEND+ & ENN & ENN+ & KE & KE+ & {\name} & {\name}+ & MEM+ no $\rep$ \\
+        \midrule
+        \multirow{3}{*}{\shortstack{\textbf{T5-small (90M)} \\ zsRE}} & ES & & & & & & & & & \\
+        & ES-hard & & & & & & & & & \\
+        & DD & & & & & & & & & \\
+        \midrule
+        \multirow{3}{*}{\shortstack{\textbf{T5-large (770M)} \\ zsRE}} & ES & & & & & & & & & \\
+        & ES-hard & & & & & & & & & \\
+        & DD & & & & & & & & & \\
+        \midrule
+        \midrule
+        \multirow{3}{*}{\shortstack{\textbf{GPT-2-med. (330M)} \\ LeapOfThought}} & ES & & & & & & & & & \\
+        & ES-hard & & & & & & & & & \\
+        & DD & & & & & & & & & \\
+        \midrule
+        \multirow{3}{*}{\shortstack{\textbf{GPT-2 (1.4B)} \\ LeapOfThought}} & ES & & & & & & & & & \\
+        & ES-hard & & & & & & & & & \\
+        & DD & & & & & & & & & \\
+        \bottomrule
+    \end{tabular}
+    \caption{Evaluating the \textit{generality} of various model editors. ES shows overall edit success averaged over all positives (including hard positives as well as easier semantically-equivalent rephrases); ES-hard shows edit success on \textit{only} hard positives. {\name} is the only method to effectively produce edits that generalize; gradient-based editors (MEND, ENN, KE) significantly underfit the edit training distribution, which contains examples of hard positives.}
+    \label{tab:undergeneralization}
+\end{table*}

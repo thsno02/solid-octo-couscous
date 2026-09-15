@@ -1,0 +1,18 @@
+% \vspace{-5pt}
+\section{Related Work}
+% \vspace{-5pt}
+\subsection{Memory based methods}
+% \vspace{-5pt}
+Previous memory-based methods share certain similarities with \ours. Among these methods, some use an external encoder to inject knowledge into the memory pool, such as the Memory Network~\citep{MemoryNetwork}, which focuses on rectifying the forgetting problems in RNNs. Follow-up work \citet{E2EMN} computes the weighted sum of the entire memory pool as the representative vector of the memory. Others use the language model itself as the encoder to update the memory. Memory Transformer~\citep{memoryTransformer} and RMT~\citep{RMT} propose to add memory tokens when reading the contexts, where the memory pool is up to $20$ tokens. EMMA~\citep{Memory-Enhanced-Transformer} has a slightly larger memory pool, which is the size of the chunk when injecting the contexts into the memory. These fixed-sized memory pools show promising results, although performance is limited by the size of the memory pool. This also shows the challenges of expanding memory and incorporating information without disturbing the original capability of the model. 
+
+Other memory-based methods integrate the memory pool with unfixed size, where different forgetting mechanisms are adopted to handle the ever-growing problem. In this case, the memory pool would be in the form of (1) hidden states, such as \citep{GlobalMemoryTransformer} and MemoryBank~\citep{MemoryBank}; (2) key-value pairs, represented by KNN-LM~\citep{kNNLM}, LONGMEM~\citep{LongMEM}. (3) vectors in hidden space. This involves the image captioning task~\citep{MeshedTforIC} and Memformer~\citep{Memformer}. (4) raw texts. RET-LLM~\citep{ret-llm} proposes to save the knowledge with triplets into the memory and then use API query to retrieve related information in the memory given the context. 
+These methods have a more flexible memory pool. However, the memory pool might be redundant in terms of the stored knowledge.
+
+% \vspace{-5pt}
+\subsection{Downsteam Tasks}
+As \ours has a large memory pool that can be used to store knowledge, it could be used for downstream tasks such as model editing and long context tasks. 
+
+For model editing tasks~\citep{LLMEditing}, MEND~\citep{mend} and ROME~\citep{ROME} propose to modify the parameters of the LLM with the new given fact. During inference, MEND needs back-propagation and ROME requires the optimization for new MLP weights, while \ours, regarding the memory pool as part of the model parameters, could directly update the memory pool to store new facts. IKE~\citep{ike} proposes to simply put the new facts in context, which is straightforward and intuitively similar to \ours in terms of this task. However, IKE would encounter the same problem as long context methods, i.e., the ever-growing contexts. 
+
+For Long context tasks, representative methods can be categorized as follows: (1) Efficient Attention such as Longformer~\citep{longformer}, Linformer~\citep{linformer}, LongNet~\citep{longnet}, (2) Positional Encoding like Alibi~\citep{alibi}, Positional Interpolation~\citep{PositionalInterpolation} and Extrapolation~\citep{lextransformer}, (3) Finetuning with longer context~\citep{Llama2Long, fot}, (4) Memory-based methods~\citep{LongMEM, RMT, Memformer}. Among all these categories, \ours could fit into the fourth category where long contexts are absorbed into the memory, which is used for future prediction. 
+

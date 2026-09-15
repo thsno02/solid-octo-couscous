@@ -1,0 +1,25 @@
+# Architecture evidence: zou-group/textgrad
+
+- `README.md:23` — TextGrad: Automatic ''Differentiation'' via Text
+- `README.md:36` — Updates:
+- `README.md:60` — this also works with
+- `README.md:84` — QuickStart
+- `README.md:96` — Step 1: Get an initial response from an LLM.
+- `README.md:121` — Step 2: Define the loss function and the optimizer, just like in PyTorch!
+- `README.md:122` — Here, we don't have SGD, but we have TGD (Textual Gradient Descent)
+- `README.md:123` — that works with "textual gradients".
+- `README.md:131` — TextLoss is a natural-language specified loss function that describes
+- `README.md:132` — how we want to evaluate the reasoning.
+- `README.md:140` — Step 3: Do the loss computation, backward pass, and update the punchline.
+- `README.md:141` — Exact same syntax as PyTorch!
+- `README.md:153` — Tutorials
+- `README.md:173` — Installation
+- `README.md:205` — More detailed examples
+- `README.md:207` — Minimal Instance Optimization Example
+- `README.md:223` — Define the variable to optimize, let requires_grad=True to enable gradient computation
+- `README.md:228` — Define the optimizer, let the optimizer know which variables to optimize, and run the loss function
+- `README.md:265` — Minimal Prompt Optimization Example
+- `README.md:339` — Resources
+- `README.md:341` — Inspiration
+- `README.md:349` — Citation
+- `README.md:362` — Contributors

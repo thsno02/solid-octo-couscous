@@ -1,0 +1,32 @@
+# Architecture evidence: openai/frontier-evals
+
+- `README.md:1` — Frontier Evals
+- `README.md:9` — Usage
+- `README.md:11` — Requirements
+- `README.md:15` — Running Evals
+- `README.md:23` — Contributing
+- `README.md:25` — Layout
+- `README.md:39` — Development Workflow
+- `pyproject.toml:1` — =============================================================
+- `pyproject.toml:2` — Common configuration for ruff, etc
+- `pyproject.toml:3` — =============================================================
+- `pyproject.toml:13` — To customise ruff rules for your project, use the "extend", "extend-select" and "extend-ignore"
+- `pyproject.toml:14` — keys in your project configuration. This can let you inherit most of this configuration.
+- `pyproject.toml:70` — A quick reminder on the semantics of "unfixable":
+- `pyproject.toml:71` — Not all lint errors can be automatically fixed. Additionally, in practice, some lint
+- `pyproject.toml:72` — errors that ruff can automatically fix are better fixed manually and we mark the fix as
+- `pyproject.toml:73` — "unsafe" or "unfixable" to indicate that.
+- `pyproject.toml:75` — Our pre-commit hooks only perform safe automatic fixes and do not report errors that do
+- `pyproject.toml:76` — not have a safe fix.
+- `pyproject.toml:77` — It is expected that projects that want strict configuration should run ruff in CI to catch the
+- `pyproject.toml:78` — errors that can't be automatically fixed. To do this, add a lint step to your project's
+- `pyproject.toml:79` — pipeline.yml.
+- `pyproject.toml:81` — Ruff is a little overly conservative about marking rules as unsafe, so we override it here.
+- `pyproject.toml:82` — At this point, we've done this for a long time without any issues
+- `pyproject.toml:120` — TODO consider enable this, disabled to minimize changes when moving off isort to ruff
+- `pyproject.toml:126` — =============================================================
+- `pyproject.toml:127` — Black Configuration
+- `pyproject.toml:128` — =============================================================
+- `pyproject.toml:134` — This is a ruff configuration that only automatically fixes things that are
+- `pyproject.toml:135` — likely to be correct and unlikely to be controversial
+- `pyproject.toml:136` — Please do not change this without talking to @shantanu

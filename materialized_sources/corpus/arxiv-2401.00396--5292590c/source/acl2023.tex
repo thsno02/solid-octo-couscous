@@ -1,0 +1,499 @@
+% This must be in the first 5 lines to tell arXiv to use pdfLaTeX, which is strongly recommended.
+\pdfoutput=1
+% In particular, the hyperref package requires pdfLaTeX in order to break URLs across lines.
+
+\documentclass[11pt]{article}
+\usepackage{authblk}
+
+% Remove the "review" option to generate the final version.
+\usepackage{ACL2023}
+
+% Standard package includes
+\usepackage{times}
+\usepackage{latexsym}
+\usepackage{amsmath}
+\usepackage{svg}
+
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{makecell}
+\usepackage{multirow}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{booktabs}
+\usepackage{siunitx}
+\usepackage{float} 
+\usepackage{enumitem} 
+\usepackage{booktabs}
+\usepackage{listings}
+\usepackage{soul}
+\usepackage{xcolor}
+\usepackage{enumitem}
+
+\newcommand{\red}[1]{\textcolor{red}{#1}}
+
+\definecolor{lightblue}{RGB}{207,226,245}
+
+% For proper rendering and hyphenation of words containing Latin characters (including in bib files)
+\usepackage[T1]{fontenc}
+% For Vietnamese characters
+% \usepackage[T5]{fontenc}
+% See https://www.latex-project.org/help/documentation/encguide.pdf for other character sets
+
+% This assumes your files are encoded as UTF8
+\usepackage[utf8]{inputenc}
+
+% This is not strictly necessary, and may be commented out.
+% However, it will improve the layout of the manuscript,
+% and will typically save some space.
+\usepackage{microtype}
+
+% This is also not strictly necessary, and may be commented out.
+% However, it will improve the aesthetics of text in
+% the typewriter font.
+\usepackage{inconsolata}
+\usepackage{tabularx}
+\newcommand{\CorpusName}{RAGTruth}
+\NewDocumentCommand{\shizhe}
+{ mO{} }{\textcolor{blue}{\textsuperscript{\textit{shizhe}}\textsf{\textbf{\small[#1]}}}}
+
+% If the title and author information does not fit in the area allocated, uncomment the following
+%
+%\setlength\titlebox{<dim>}
+%
+% and set <dim> to something 5cm or larger.
+
+\title{
+%RAG-focused Word-level Hallucination % original: Corpus to Evaluate and Develop Trustworthy Language Models \\
+\CorpusName: 
+A Hallucination Corpus for Developing Trustworthy Retrieval-Augmented Language Models
+}
+
+% Author information can be set in various styles:
+% For several authors from the same institution:
+% \author{Author 1 \and ... \and Author n \\
+%         Address line \\ ... \\ Address line}
+% if the names do not fit well on one line use
+%         Author 1 \\ {\bf Author 2} \\ ... \\ {\bf Author n} \\
+% For authors from different institutions:
+% \author{Author 1 \\ Address line \\  ... \\ Address line
+%         \And  ... \And
+%         Author n \\ Address line \\ ... \\ Address line}
+% To start a seperate ``row'' of authors use \AND, as in
+% \author{Author 1 \\ Address line \\  ... \\ Address line
+%         \AND
+%         Author 2 \\ Address line \\ ... \\ Address line \And
+%         Author 3 \\ Address line \\ ... \\ Address line}
+
+% \author{First Author \\
+%   Affiliation / Address line 1 \\
+%   Affiliation / Address line 2 \\
+%   Affiliation / Address line 3 \\
+%   \texttt{email@domain} \\\And
+%   Second Author \\
+%   Affiliation / Address line 1 \\
+%   Affiliation / Address line 2 \\
+%   Affiliation / Address line 3 \\
+%   \texttt{email@domain} \\}
+
+\author[1]{\textbf{Cheng Niu}}
+\author[1]{\textbf{Yuanhao Wu}}
+\author[1]{\textbf{Juno Zhu}}
+\author[1]{\textbf{Siliang Xu}}
+\author[1]{\textbf{Kashun Shum}}
+\author[1]{\\\textbf{Randy Zhong}}
+\author[1]{\textbf{Juntong Song}}
+\author[2]{\textbf{Tong Zhang}}
+\affil[1]{NewsBreak}
+\affil[2]{University of Illinois Urbana-Champaign}
+\affil[ ]{ {cheng.niu@newsbreak.com}}
+
+\begin{document}
+\maketitle
+\begin{abstract}
+
+Retrieval-augmented generation (RAG) has become a main technique for alleviating hallucinations in large language models (LLMs). 
+Despite the integration of RAG, LLMs may still present unsupported or contradictory claims to the retrieved contents. 
+In order to develop effective hallucination prevention strategies under RAG, it is important to create benchmark datasets that can measure the extent of hallucination. 
+This paper presents {\CorpusName}, a corpus tailored for analyzing word-level hallucinations in various domains and tasks within the standard RAG frameworks for LLM applications. 
+% Distinct from earlier datasets characterized by either basic hallucinations, synthetic origins, or a lack of comprehensive annotations, 
+{\CorpusName} comprises nearly 18,000 naturally generated responses from diverse LLMs using RAG. 
+These responses have undergone meticulous manual annotations at both the individual case and word levels, incorporating evaluations of hallucination intensity. 
+We not only benchmark hallucination frequencies across different LLMs, but also critically assess the effectiveness of several existing hallucination detection methodologies. 
+We show that using a high-quality dataset such as {\CorpusName}, it is possible to finetune a relatively small LLM and achieve a competitive hallucination detection performance when compared to the existing prompt-based approaches using state-of-the-art LLMs such as GPT-4. Furthermore, the finetuned model can effectively mitigate hallucination in LLM responses.
+% \footnote{The RAGTruth dataset is available at \url{https://github.com/ParticleMedia/RAGTruth}}
+\end{abstract}
+
+\section{Introduction}
+Large language models (LLMs) have achieved remarkable success in a variety of tasks, including text generation~\cite{li2022pretrained}, machine translation~\cite{kocmi2023large}, and question answering~\cite{zhao2023survey}. However, one of the key challenges in deploying LLMs in real-world applications is their tendency to hallucinate~\cite{kaddour2023challenges}.
+Hallucination in the context of LLMs usually refers to a situation where the model generates content that is not based on factual or accurate information~\cite{Rawte2023}. 
+The occasional generation of outputs that appear plausible but are factually incorrect significantly undermine the reliability of LLMs in real-world scenarios, such as medical diagnoses~\cite{pal2023medhalt} and news summarization~\cite{shen2023why}.
+
+% The field of hallucination mitigation and detection has attracted many research interests.
+\input{Tables/dataset_example}
+
+
+To reduce hallucination, various methods have been developed that can be applied at different stages of LLM lifecycle, including pre-training~\cite{brown2020language}, supervised fine-tuning~\cite{zhou2023lima,zhang2023r}, RLHF~\cite{ouyang2022training, lin-etal-2022-truthfulqa}, and inference~\cite{dhuliawala2023chainofverification, gao-etal-2023-rarr}. 
+In terms of detection, methods are developed by examining the model's intrinsic state~\cite{guo2017calibration}, comparing it with external data and tools~\cite{chern2023factool}, or leveraging the LLM's inherent powerful capabilities for self-checking~\cite{agrawal2023language,Manakul2023-selfcheckgpt}. 
+% In practical applications, 
+Retrieval-augmented generation (RAG) is extensively used to supply LLMs with updated, relevant knowledge, significantly mitigating hallucination~\cite{varshney2023stitch}. 
+Nevertheless, even with RAG and other enhancements, LLMs still produce statements that are either unfounded or contradict the information provided in the retrieved references~\cite{shuster2021retrieval}.
+
+Despite the growing awareness of the hallucination phenomenon, the understanding of hallucination in LLMs is still in its early stages. 
+One key challenge is the lack of high-quality, large-scale datasets specifically designed for hallucination detection. 
+This issue is particularly acute in RAG settings. 
+Due to the relatively low hallucination ratio, a substantial increase in annotation resources is needed.
+Existing datasets for LLM hallucination detection are predominantly synthesized~\cite{Li2023}. 
+For instance, in~\citet{memotrap2023,longpre-etal-2021entity}, prompts conflicting with conventional knowledge are purposely generated to trigger hallucinations. 
+While these approaches are efficient at generating hallucinations, the resulting artificial hallucinations can substantially differ from those that naturally occur.
+In~\citet{chen2023felm, hu-etal-2023-bschecker}, hallucination datasets are developed by manual annotations of naturally produced LLM responses. However, these datasets are of limited size and are not specifically focused on the RAG scenario.
+
+In this paper, we introduce a large-scale high-quality dataset specifically designed for word-level hallucination detection for RAG applications. 
+% \shizhe{How was this dataset constructed?
+% What are the most important features.
+% It would be better to highlight the unique values here (e.g., naturally generated, specifically designed for RAG?).}
+Using this dataset, we have conducted an extensive benchmarking of mainstream LLMs to assess their tendency to generate hallucinations, as well as evaluate current methods for hallucination detection. 
+Additionally, we have demonstrated superior performance in identifying hallucinations by fine-tuning LLM with {\CorpusName} dataset. 
+Our key contributions are:
+\begin{enumerate}[label=(\roman*)]
+\item We propose {\CorpusName}, a large-scale word-level hallucination evaluation dataset specifically for the RAG scenario across several common tasks. 
+It consists of nearly 18,000 fully annotated natural responses generated from major open-source and closed-source LLMs. 
+\item We perform a comprehensive comparison of different hallucination detection methods at both the passage and word levels.
+\item We present a baseline method of fine-tuning LLM for hallucination detection. 
+It is shown that by fine-tuning the Llama-2-13B model on the {\CorpusName} training data, we can achieve results competitive to the existing prompt-based approaches using GPT-4. 
+This shows the potential of developing better hallucination detection methods using {\CorpusName}.
+\item We show that by using our finetuned hallucination detector, it is possible to significantly reduce the occurrence of hallucinations in the responses from LLMs. The improvement holds even for models with inherently low hallucination rates, such as GPT-4.
+\end{enumerate}
+
+\section{Related Work}
+\subsection{Hallucination of Large Language Models}
+Though hallucination in traditional natural language generation (NLG) contexts has been widely studied\cite{10.1145/3571730}, comprehending and tackling this problem in the context of LLMs presents distinct challenges\cite{Zhang2023}.
+% In \citet{Zhang2023}, the hallucination of large language models (LLMs) is characterized into three categories: 1) input-conflicting hallucination 2) context-conflicting hallucination 3) fact-conflicting hallucination. 
+Existing research has demonstrated that incorporating up-to-date, relevant knowledge in the prompt can effectively reduce fact-conflicting hallucination~\cite{vu2023freshllms, lewis2021retrievalaugmented}. 
+This approach,  referred to as {\em Retrieval-Augmented Generation} (RAG), is widely used in real-world LLM applications. 
+For instance, Google Bard~\footnote{\url{https://bard.google.com}} and Microsoft BingChat~\footnote{\url{https://www.bing.com}} have implemented this technique. 
+% Consequently, the detection and mitigation of input-conflicting and context-conflicting hallucinations within the RAG framework are becoming increasingly important.
+
+\subsection{Hallucination Evaluation Datasets}
+% \shizhe{hallucination datasets sound like a malicious data which is confusing. it would be better to use hallucination detection datasets or hallucination evaluation datasets.}
+% Constructing a hallucination dataset can be a labor-intensive task, as it necessitates the manual identification of ungrounded or falsely claimed statements in the output of LLMs. 
+% Such a dataset can be particularly valuable in the context of RAG scenarios, owing to its significantly lower incidence of hallucinations.
+% Hallucinate datasets largely fall into two categories: synthetic dataset and manually-crafted dataset. 
+% Synthetic datasets typically involve purposely triggering Language Model to produce spurious responses~\cite{Li2023} or simply inserting knowledge conflicts into the output~\cite{longpre-etal-2021entity}.
+% While these methods are effective in generating a substantial volume of hallucinated responses, these responses may not follow the same distribution as the naturally generated responses. 
+% On the other hand, manually annotated datasets offer a closer representation of the LLMs' true generative capabilities~\cite{vu2023freshllms, lewis2021retrievalaugmented}. 
+% However, the considerable labor and expense required for annotation lead to datasets of limited size and length and inconsistent quality. 
+% Specifically, there is a lack of manually curated datasets of substantial size and quality to facilitate hallucination detection in RAG scenarios.
+
+Extensive research has focused on hallucination benchmarks within conventional Natural Language Generation settings \cite{dziri2022evaluating, zhong-etal-2021-qmsum, durmus-etal-2020-feqa, lin-etal-2022-truthfulqa}. With the rise of LLMs, the detection of hallucinations has become increasingly challenging, necessitating the development of high-quality datasets for LLM evaluation \cite{chen2023can}. Contributions in this domain include HaluEval \cite{Li2023}, which introduced datasets encompassing both synthetically and naturally generated LLM responses, and FELM \cite{chen2023felm}, which concentrated on naturally generated LLM responses across multiple domain tasks. RefChecker \cite{hu-etal-2023-bschecker}, a distinctive approach, breaks down claims in LLM responses into triples and utilizes human annotation to assess the truthfulness of facts. 
+Notably, these works primarily focus on annotating factual hallucinations in LLM responses. Distinguishing from previous research, our work centers on the evaluation of LLMs within RAG settings. 
+% In the context of RAG, the detection and mitigation of inconsistencies between retrieved information and responses emerge as significant sources of hallucination, beyond concerns of factuality.
+
+\input{Figures/daaset}
+
+
+\subsection{Hallucination Detection Methods}
+Researchers have been exploring various methods to enhance the reliability of LLMs by detecting hallucinations. 
+In \citet{Azaria2023,xiao2021hallucination,malinin2021uncertainty}, intrinsic model uncertainty metrics such as token-level probability and entropy are used to detect hallucinations. 
+When direct access to output uncertainty is not feasible, as in the case with limited APIs like GPT-4, an alternative approach involves employing a fully accessible LLM as a proxy~\cite{Manakul2023-selfcheckgpt}.
+In \citet{falke2019ranking, barrantes2020nli}, natural language inference modules are adapted to check the information consistency between the articles and their summaries, and it has been shown that external knowledge is helpful for detecting factual hallucinations.~\cite{guo2022survey, Mallen2022}. 
+Additionally, methods that leverage the inherent capabilities of LLMs have been proposed for self-checking, such as verbalization-based and consistency-based methods~\cite{xiong2023llms, Manakul2023-selfcheckgpt}. 
+These techniques aim to detect hallucinations without relying on internal states or external data and tools.
+
+\section{Construction Process of RAGTruth}
+% To develop a thorough and rigorous benchmark for naturally generated hallucinations,
+We established a data generation and annotation pipeline as shown in Figure~\ref{fig:dataset}. 
+% This process comprises (1) Response Generation, and (2) Human Annotation .
+
+\subsection{Hallucination Taxonomy}
+Different from open-end generation, under RAG setting, the prompt contains rich context information, and the model is generally required to generate text based on the provided context. The detection and mitigation of inconsistencies between retrieved information and responses emerge as significant sources of hallucination.
+
+As outlined below, we categorize the hallucination in the RAG setting into four types. For concrete examples of each type, please refer to Appendix~\ref{sec:example}.
+
+\paragraph{Evident Conflict:} for when generative content presents direct contraction or opposition to the provided information. These conflicts are easily verifiable without extensive context, often involving clear factual errors, misspelled names, incorrect numbers, etc.
+% For example, the original text states "They’ve sent about 500 of the most seriously injured people for treatment in Kathmandu already -- the majority by road." And the generative text states "The team airlifted 500 injured people… to Kathmandu for medical treatment."
+
+\paragraph{Subtle Conflict:} for when generative content presents a departure or divergence from the provided information, altering the intended contextual meaning. These conflicts often involve substitution of terms that carry different implications or severity, requiring a deeper understanding of their contextual applications. 
+% For example, the original text writes "This is the section that lets the government deny trademark protection to a mark that is 'immoral,' 'scandalous' or 'disparaging.'" And the generative text writes "…violates Section 2(a) of the trademark act, which prohibits marks that are 'immoral, scandalous, or disqualified.'"
+
+\paragraph{Evident Introduction of Baseless Information:} for when generated content includes information not substantiated in the provided information. It involves the creation of hypothetical, fabricated, or hallucinatory details lacking evidence or support. 
+% For example, the original text writes "The couple divorced in 1968… She had no contact with the surviving members of the band until meeting up at the 2006 Las Vegas premiere of 'The Beatles Love.'" The generative text writes "The couple divorced in 1968, but later reconciled and attended the 2006 Las Vegas premiere of 'The Beatles Love.'"
+
+\paragraph{Subtle Introduction of Baseless Information:} is when generated content extends beyond the provided information by incorporating inferred details, insights, or sentiments. This additional information lacks verifiability and might include subjective assumptions or commonly observed norms rather than explicit facts. 
+
+\subsection{Response Generation}
+% In this section, we begin by introducing the diverse tasks included in the benchmark. 
+% We then proceed to present the different models employed to generate responses. 
+% These responses will be analyzed in the next step for any potential hallucinations.
+
+% 前面也多mention RAG的setting
+\paragraph{Tasks and Data Sources} 
+We selected three widely recognized generation tasks with RAG settings for response generation: Question Answering, Data-to-text Writing, and News Summarization.
+
+For the task of question answering, we conducted a random sampling from the training set of MS MARCO~\cite{DBLP:journals/corr/NguyenRSGTMD16}. 
+To reduce the difficulty of annotation, we selected only those questions related to daily life, and preserved only three retrieved passages for each question.
+Then we prompted LLMs to generate answers for each question solely based on the retrieved passages.
+
+For the data-to-text writing task, we prompted LLMs to generate an objective overview for a randomly sampled business in the restaurant and nightlife categories from the Yelp Open Dataset~\cite{yelp2023}.  
+In this dataset, information pertaining to a business is represented using structured data.
+To streamline the annotation process, we focused only on the following business information fields: \textit{BusinessParking}, \textit{RestaurantsReservations}, \textit{OutdoorSeating}, \textit{WiFi}, \textit{RestaurantsTakeOut}, \textit{RestaurantsGoodForGroups}, \textit{Music}, and \textit{Ambience}. 
+In addition to the structured data, we have also included up to three business-related user reviews to enrich the context information.
+In the prompt, these information is represented in JSON format.
+% We then prompted LLMs to generate an objective text introduction for each business.
+
+For the news summarization task, we randomly selected documents from the training set of the well-known CNN/Daily Mail dataset~\cite{see-etal-2017get} as well as recent news articles from a prestigious news platform. 
+LLMs were prompted to generate a summary for each of the source news.  
+
+\paragraph{Models} 
+The following six models with strong instruction-following ability are used for response generation: GPT-3.5-turbo-0613 and GPT-4-0613 from OpenAI~\cite{openai2023gpt4}; Mistral-7b-Instruct from Mistral AI~\cite{jiang2023mistral}; Llama-2-7B-chat, Llama-2-13B-chat and Llama-2-70B-chat (4bit quantized)\footnote{\url{https://huggingface.co/TheBloke/Llama-2-70B-Chat-AWQ}} from Meta~\cite{touvron2023llama}. To ensure a fair comparison, the prompts used for response generation are kept straightforward with subtle differences among various models to optimize their performance. We provide detailed prompts in the Appendix~\ref{sec:prompts}. 
+
+For each sample, we collected one response from each model.
+% with a decoding temperature of 0.7. 
+As a result, we got a total of 6 responses for each input sample.
+
+
+
+%\subsection{Automatic Hallucination Detection and Data Sampling}
+% In this stage, we filtered the multiple responses generated by the model to keep the ones most likely to contain hallucinations and invited human labelers to annotate hallucination spans in the responses. 
+% Models should reject to answer the query if no relevant information is retrieved.
+% Based on the generated responses from the first steps, we collected multiple responses from the 4 open-source models, however, it may contains low quality responses and some cases may not contain relevant retrieved information. So we further filtered these multiple responses and eventually keep only one response per model for our final high-quality dataset.
+
+%We first leveraged GPT-4 to examine the models' responses for potential hallucination. Our scrutiny focused on the following two aspects: (i) the presence of conflicts or deviations from the provided input, and (ii) the introduction of baseless information not present in the input. Based on the output from GPT-4, the data instances are sampled, assigning a higher weight to those with potential hallucinatory responses. This approach ensures a dataset enriched with hallucination instances. Ultimately, we keep only one response per model for each instance.
+
+\subsection{Human Annotation}
+
+Identifying AI-generated hallucinations is a challenging task. It requires a strong capacity for critical thinking to understand the logical flow of various texts, along with meticulous attention to detail for spotting subtle inaccuracies and inconsistencies. 
+Moreover, a certain level of media literacy and knowledge of current affairs is crucial to grasp the subjects discussed in news-related sample data. 
+Therefore, we chose annotators who are proficient in English and possess a bachelor's degree in English, Communications, or relevant fields to ensure the accuracy and reliability of the annotation results. We recruited annotators from a professional vendor and paid them at a rate of \$25 per hour per individual.
+
+The annotators are invited to perform annotation tasks using Label Studio~\cite{labelstudio2023}. Each labeling task is presented within one page, comprising the following components: 1) the context provided to the AI models; 2) a set of 6 responses, generated by different AI models. Our annotation interface is available in Appendix \ref{sec:interface}.
+% This setup ensures that annotators are immersed in the same context for all six responses, enabling them to compare and contrast them effectively side by side. 
+
+Their task was to annotate the specific spans of the generated text that contains hallucinated information and categorize them into the four types.
+% For example, in a restaurant review where a customer briefly mentions a ‘happy hour’ without specifying the timing, the generative text assumes it to be between 4-7 PM.
+To ensure the quality of the annotations, each response is independently labeled by two annotators. 
+The consistency rate of two annotators was 91.8\% at the response level and 78.8\% at the span level.
+In cases where there is a considerable difference between the two annotations, a third review is undertaken. 
+
+\subsection{Annotations for Adaptive Evaluation}
+In different contexts, the definition and criteria for hallucination vary, and the annotation of hallucination is not always straightforward. In contentious cases, additional annotations are provided to accurately reflect these situations. This approach enables users to adopt various evaluation strategies tailored to their specific application circumstances. Please refer to Appendix \ref{sec:interface} for more statistical information about these annotations.
+
+% \paragraph{Incorrectly Refusing to Answer}
+% In the question-answering task, the model is required to decline to answer when the context lacks relevant information. However, there are instances where the model mistakenly refuses to answer despite the presence of the relevant context. These refusal responses are not labeled as hallucinations but are instead marked as \textit{incorrect\_refusal}.
+
+\paragraph{Implicit Truth} The extensive world knowledge and ability of LLMs is a significant advantage in open-ended generation scenarios. But in the context of this paper, which focuses on the relatively strict RAG scenarios, we have labeled information that is not mentioned in the reference but may be truthful as hallucinations. 
+% (subtle introduction of baseless information). 
+% For instance, converting Celsius to Fahrenheit in the response when it is not explicitly requested in the reference, or evaluating the position of a location relative to a city based on world knowledge, etc. 
+For instance, mentioning a local officer's name not present in the reference or claiming that a restaurant accepts credit card payments without any basis.
+
+The decision is based on the observation that LLMs have a relatively high chance of making errors when generating detailed facts, partly because their embedded knowledge can be outdated. Therefore, RAG applications usually instruct LLMs not to generate factual content without the support of references.
+Besides, we provided an additional span-level annotation named \textit{implicit\_true} for these spans to accommodate different application needs. 
+% Users can independently choose whether to consider these spans as hallucinations.
+
+\input{Tables/basic_statistics}
+
+\paragraph{Differences in Handling Null Value} In the data-to-text writing task, certain fields sometimes are with null values. We observed that in the generated results, null is often interpreted as false by some models. Since the more common expressions for negation in our dataset are the boolean value \textit{False} or the text \textit{No}, we labeled these instances as hallucinations (evident introduction of baseless info) and provided a special span-level annotation named \textit{due\_to\_null} for these spans. In the subsequent hallucination detection experiments, our prompts will be aligned with this standard.
+% Users can independently choose whether to consider these spans as hallucinations. 
+% Additionally, we have included an option in the evaluation script that allows users to decide whether to include these spans in the evaluation.
+
+\begin{figure}[t]
+    \includegraphics[width=0.49\textwidth]{Figures/dataset_visualization/hallu_type_freq_by_task.pdf}
+    \caption{Frequency of different types of hallucination by task.}
+    \label{fig:hallu_type}
+\end{figure}
+
+\section{Hallucination Benchmark Analysis}
+% In this section, we provide an in-depth analysis of our benchmark including basic statistics, meta statistics and the multi-difficulty division. We further analyze the hallucination rate across different aspects (e.g. models, parameters, tasks)
+
+
+\subsection{Basic Statistics}
+We presented detailed statistics of {\CorpusName} in Table~\ref{tab:basic_stat}. Compared to existing datasets for hallucination detection~\cite{Cao2023AutoHallAH, Kamoi2023WiCERE}, the {\CorpusName} dataset is considerably large in scale. The corpus contains a total of 2,965 instances of data, which include 989 instances for question answering, 1,033 instances for date-to-text writing, and 943 instances for news summarization. Each instance comprises responses from 6 different models. 
+As shown in Table~\ref{tab:basic_stat}, the {\CorpusName} dataset also features longer prompt and response lengths than existing datasets for hallucination detection~\cite{wang2020asking}. 
+
+% As shown in Table~\ref{tab:basic_stat}, the summarization task features the longest average context length, followed by the data-to-text task, while the question-answering task has the shortest. In contrast, regarding average response length, the data-to-text task produces the longest responses, followed by question answering, and summarization yields the shortest. % Notably, despite setting an expected length for summary generation prompts, numerous responses deviated from the specified range.
+
+
+% We randomly selected 150 sets from each kind of task, totaling 450 sets, as validation set, and . For each sub-task, we also report its averaged length in terms of model response and labeled hallucination span. In this benchmark, we focus on both long context setting and short context setting. As shown in Figure xxx, the response length and reference length ranges from xxx to xxx, showing the wide length coverage of our benchmark.
+
+\subsection{Hallucination Statistics}
+% Since when we generate the response, we have utilized different open-source and close-source models. These models may have different hallucination rate, so we show the distribution of the number of hallucinations across responses from different tasks and models in Table~\ref{tab:3-statistic}.
+
+
+
+
+\paragraph{Hallucination Types} As shown in Figure~\ref{fig:hallu_type}, the generation of information baseless in the context was significantly more prevalent than the generation of information conflicting with the context, especially for the question answering tasks. Within the two major categories of \textit{baseless info} and \textit{conflict}, the more severe hallucinations, namely \textit{Evident baseless info} and \textit{Evident conflict}, respectively, account for a significant portion. This observation highlights the importance and challenges of LLMs hallucination mitigation, even in RAG settings.
+
+% \subsection{Multi-difficulty division}
+% Some hallucinations are easy to detect while some hallucinations are hard to detect or even mis-classified by models. We utilize this information to further divide our benchmark into different difficulty. After the response generation, we asked GPT-4 for fact checking whether there might be introduction of new information or conflict and provide such information for human labeller reference. If human annotation and GPT-4 fact checking results are consistant, we conclude the example as easy while if they are not consistant, e.g. GPT-4 mis-classified, we treat the example as hard. As shown in Table , the direct detection accuracy of GPT-4 is not very high so \% of the data show an inconsistent between human and model.
+
+\paragraph{Hallucination vs Tasks} As shown in Table~\ref{tab:basic_stat}, across the three tasks, the date-to-text writing task exhibited the highest frequency of hallucinations in its responses. 
+% When processing Yelp business data, the models often generated information not present in the input, influenced by stereotypes inherent in the business data. Furthermore, 
+Inconsistent handling of JSON format data, especially time and attributes, contributed to a significant number of hallucinations in this task. 
+% In contrast, the hallucination rate for the summarization task was relatively lower. 
+Interestingly, the models did not show a higher rate of hallucinations for recent news compared to outdated news. This could be attributed to the shorter context length in the recent news subtask compared to the CNN/DM subtask.
+
+\input{Tables/hallucination-model}
+\input{Tables/context_len_vs_halu}
+
+\paragraph{Hallucination vs Models} Table~\ref{tab:halu-model} illustrates that among the data we collected, OpenAI's two models demonstrated notably lower hallucination rates compared to others. Specifically, GPT-4-0613 exhibited the lowest hallucination frequency. 
+
+To more clearly compare the hallucination rate of different models, we calculated the hallucination density for each model across three tasks. Hallucination density is defined as the average number of hallucination spans per hundred words in the responses. In the Llama2 series, a clear negative correlation was observed between the model scale and hallucination density, aside from the data-to-text writing tasks. Despite its strong performance in various benchmarks and leaderboards~\cite{zheng2023judging}, 
+the Mistral-7B-Instruct model generated the highest number of responses containing hallucinations.
+% the Mistral-7B-Instruct model recorded the highest hallucination density among the evaluated models.
+
+\paragraph{Hallucination vs Length} After removing the top and bottom 5\% of outliers, we partitioned the data for each task type into three equal-sized groups according to the length of the context/response. We then computed the average number of hallucinated spans per response within each group. As shown in Table~\ref{tab:cl-vs-halu}, there is a clear overall trend of an increase in the average number of hallucinations as the response length grows. Only the average number of hallucinations in news summarization tasks significantly increases with the length of the context. This may be because the contexts in the other two tasks are more structured, and an increase in length does not significantly raise the difficulty of understanding the content.
+
+
+\paragraph{Location of Hallucinations} In Figure~\ref{fig:halu_pos_heatmap}, we present the heatmap of the hallucination occurrence positions. Hallucinations are significantly more likely to occur towards the end of responses in question-answering and news summarization tasks. Compared to other tasks, the data-to-text writing task has a relatively higher occurrence of hallucinations in the first half.
+In that bright area, hallucinations concerning business attributes frequently occur.
+% , as indicated by the two bright areas on the heatmap.
+
+
+
+\begin{figure}[t]
+    \includegraphics[width=0.49\textwidth]{Figures/dataset_visualization/task_heatmap.pdf}
+    \caption{Heatmaps of normalized hallucination occurrence positions.
+    The probability of hallucinations occurring is higher in brighter areas.
+    % Hallucinations are more likely to occur towards the end of responses in QA and summarization tasks, while in writing tasks hallucinations often occur in sections pertaining to business attributes, which are typically located in the first half of the response.
+    % The numerical values on the colorbar represent the proportion of hallucinations occurring at a specific location relative to the total number of hallucinations in that task.
+    }
+    \label{fig:halu_pos_heatmap}
+\end{figure}
+
+
+\section{Experimental Setup}
+ % This section explores several hallucination detection algorithms, experimenting with them under these two distinct task settings.
+
+\subsection{Hallucination Detection Algorithms}
+%To show the high quality of our benchmark, we evaluate the detection precision, recall and f1 score on test set of each task category under multiple baseline methods with strongest black-box LLMs (e.g. gpt-4-turbo and chatgpt) and white-box LLMs (e.g. Llama). We randomly selected 150 sets from each type of task, totaling 450 sets, as test set, and the remaining data are considered as the training set.
+
+%转移到dataset analysis We split our benchmark dataset into training set and test set. The training set includes 80\% samples for each task, and the test set includes the other 20\% samples.
+
+% To compare the model's performance in detecting hallucination in our natural responses and synthesized responses, we introduced an additional test set of 1,000 summary data from Halueval.
+
+Using {\CorpusName}, we conducted experiments with the following four distinct algorithms for hallucination detection:
+
+\noindent \textbf{Hallucination Detection Prompt}: Hallucination detection prompts are manually crafted to instruct LLMs~(GPT-4-turbo and GPT-3.5-turbo) in assessing whether a given reference-response pair contains hallucinated content and to identify the corresponding hallucinated spans in the response. 
+% GPT-4-turbo and GPT-3.5-turbo are the models to be prompt. 
+For detailed information about these prompts, please refer to Appendix~\ref{sec:detect_prompts}. 
+
+\input{Tables/5-detection-result}
+\input{Tables/2-span-result}
+
+
+\noindent \textbf{SelfCheckGPT}~\citep{Manakul2023-selfcheckgpt}: SelfCheckGPT employs a zero-resource, sampling-based method to fact-check the responses of black-box models. When processing each response in {\CorpusName}, 3 extra responses from the same model were sampled and served as references, and GPT-3.5-turbo was used to verify consistency. We detected hallucinations sentence-by-sentence within a response, and then aggregated these results to provide a response-level detection outcome.
+
+\noindent \textbf{LMvLM}~\citep{cohen2023lm}: LMvLM is an approach that employs a multi-turn interaction between two Language Models that aim to discover inconsistencies through cross-examination.
+
+\noindent \textbf{LLM Finetuning}: Llama-2-13B has been fine-tuned using the training set from {\CorpusName}. The model takes the context-response pair with proper instructions as the input and treats the hallucinate span as the targeted generation output. We employed full training  with an initial learning rate of 2e-5, and limiting the training to 1 epochs, all conducted on 4 A100 GPUs. 
+
+\subsection{Data Split}
+All detection algorithms are tested on the same {\CorpusName} test set, which consists of 450 instances in total, derived by randomly selecting 150 instances from each task type. The rest of the data is used to fine-tune the LLama-2-13B model, as previously mentioned.
+
+\subsection{Evaluation Metrics}
+It is a more challenging and significant task to identify the locations of hallucinations within the response than only determining whether a response contains hallucinations. We assess hallucination detection at both the response and span levels.
+
+\paragraph{Response-level Detection} We report precision, recall, and F1 score for each detection algorithm and its variants across different tasks.
+% (Question Answering, Data-to-Text, and Summarization).
+\paragraph{Span-level Detection} We calculate the overlap between the detected span and human-labeled span and report the precision, recall, and f1 score at the char-level.
+% In addition, we also report the average exact match rate, indicating instances where the generated span precisely matches the ground truth.
+
+\section{Experimental Results} 
+% The experimental results of response-level detection and span-level detection for various algorithms are presented in Table~\ref{tab:5-detection-result} and Table~\ref{tab:2-span-result}, respectively. 
+% In response-level detection, we also compare the model performance on HaluEval benchmark to show the difference of synthesized hallucination and natural generated hallucination.
+
+\subsection{Response-level Detection}
+The results in Table~\ref{tab:5-detection-result} reveal that hallucination detection remains a significant challenge in the context of RAG for all existing detection methods. Even when reference information is available, the responses generated may still include hallucinations, which current LLMs cannot reliably identify. The most advanced LLM, GPT-4-turbo, achieves only an average F1 score of 63.4\%. For another notable baseline, SelfCheckGPT also shows unsatisfactory performance in this regard, achieving an average F1 score of 58.8\% with GPT-3.5-turbo.
+% and 56.9\% with NLI.
+
+% In addition, even the best performing SelfCheckGPT under the most powerful \textit{gpt-4-turbo} can only achieve a detection f1 score of xx\%, 
+ % human-labeled
+By utilizing our high-quality training set, a fine-tuned Llama-2-13B can achieve the best performance with an average 78.7\% f1 score. This shows the effectiveness of our data in improving the model's hallucination detection ability. 
+
+
+\subsection{Span-level Detection}
+{\CorpusName}, as a hallucination corpus with fine-grained span labels, enables us to present experimental results for span-level detection, serving as a baseline for future research. As shown in Table~\ref{tab:2-span-result}, the overall performance of the current detection method is sub-optimal, highlighting the challenges in span-level detection. Even the advanced GPT-4-turbo tends to incorrectly classify many non-hallucinated contents with a low precision of 18.4\%. While our fine-tuned model shows improved capability in identifying hallucinated spans by achieving an averaged f1 score of 52.7\%, it still falls short of perfect detection, emphasizing the inherent difficulties of this task.
+% Furthermore, its exact match rate is just 2.5\%, indicating that only a small percentage of hallucination positions can be exactly identified.
+
+\input{Tables/7-suppression}
+
+We also report the detection performance across four different types of hallucination spans. In the current stage, as we have not differentiated the types of detected hallucinations, we only report the char-level recall for different types of hallucinations. As indicated in Figure~\ref{fig:type_recall}, the detection of evident hallucinations proves more effective compared to that of subtle hallucinations.
+% the performance in detecting baseless information outperforms that in identifying conflicts. Furthermore, the detection of evident hallucinations proves more effective compared to that of subtle hallucinations.
+
+
+\begin{figure}[t]
+    \includegraphics[width=0.5\textwidth]{Figures/dataset_visualization/type_recall_0207.pdf}
+    \caption{The span-level recalls of different models on four types of hallucinations.}
+    \label{fig:type_recall}
+\end{figure}
+
+\subsection{Hallucination Suppression}
+We tested the effectiveness of hallucination suppression using our finetuned hallucination detection model. For the 450 instances in the test set, we employed two strategies to select a final output from two responses generated by two different models with similar hallucination densities. The first strategy involved selecting the response with fewer predicted hallucination spans. The second strategy, more stringent, mandated that the selected response have no detected hallucination spans. When the number of hallucination spans detected in both candidate responses is the same, one will be chosen at random. Due to limited response candidates, not all instances have a response that conforms to the second strategy. In practical scenarios, this issue can be addressed by increasing the number of candidate responses. We employed random selection as a simple baseline for comparison.
+
+The results shown in Table~\ref{tab:7-suppression} indicate that with the help of the hallucination detector, both strategies can significantly reduce the hallucination rate. For the relatively small Llama-2-7B-chat and Mistral-7B-Instruct models, compared to random selection, the first strategy reduced the hallucination rate by 21.6\%, while the second strategy achieved a reduction of 63.2\%. Even for models with a low hallucination rate, specifically GPT-3.5-Turbo and GPT-4, employing the finetuned hallucination detector for sampling can still further reduce the rate of hallucinations. The two strategies yielded a reduction in hallucination rates of 42.9\% and 51.0\%, respectively. These results demonstrate the potential of an efficient hallucination detection model in developing trustworthy RAG LLMs.
+
+\section{Conclusion}
+In this paper, we introduce {\CorpusName}, a large-scale corpus of naturally generated hallucinations, featuring detailed word-level annotations tailored for RAG scenarios. Our work includes an in-depth analysis of the interplay between hallucinations and various factors, such as task types, models being used, and contextual settings. 
+
+Additionally, we conduct empirical benchmarks of several hallucination detection approaches using our corpus. We show that fine-tuning Llama with {\CorpusName} leads to competitive performance. This implies that by using a high-quality dataset such as {\CorpusName}, it is possible to develop specialized hallucination detection models that are highly effective when compared to prompt-based methods using general models such as GPT-4. 
+% The dataset paves the way for future research in this direction.
+
+Simultaneously, our findings reveal that identifying hallucinations in RAG contexts, particularly at the span level, remains a formidable challenge, with current methods still falling short of reliable detection. 
+We hope that {\CorpusName}, 
+% with its comprehensive span annotations,
+can assist the development of hallucination detection techniques for retrieval augmented generation. 
+
+% \section{Acknowledgement}
+% We appreciate the valuable feedback and assistance from Shizhe Diao. We thank Dongfang Li for her support in illustration.
+
+\section{Limitations}
+% Despite our significant efforts in this research, the paper still has some limitations: (1) We categorized hallucinations into four types within the context of the RAG setting, but the definitions and criteria for hallucinations may vary according to the use case. (2) Although we employed six different models to generate responses, the response generation for the RAGTruth corpus did not include some of the latest high-performance models. (3) We selected a set of commonly used hyperparameters without conducting meticulous hyperparameter tuning for the fine-tuned model. (4) We only benchmarked some of the commonly used methods for hallucination detection, and other methods might yield better results. The field of LLM hallucination detection and mitigation is advancing rapidly, and we leave this area as a potential avenue for future work.
+
+% \textcolor{blue}{ 
+The study of hallucination in large language models is a rapidly advancing field, characterized by the continuous evolution of application scenarios, sources of hallucination, and techniques for detecting and preventing them. While our work represents the first attempt to benchmark hallucination in the RAG setting, there may be situations not addressed by this research that are nonetheless significant for certain practical applications.
+% }
+
+\section{Ethical considerations}
+This work is in full compliance with the Ethics Policy of the ACL. 
+We acknowledge that responses generated by LLMs in this study may contain inaccuracies. 
+Aside from this, to the best of our knowledge, there are no additional ethical issues associated with this paper.
+% Entries for the entire Anthology, followed by custom entries
+
+\section{Acknowledgement}
+We appreciate the valuable feedback and assistance from Shizhe Diao. We thank Doris Li for her support in creating the illustrations for this research.
+
+\bibliography{anthology,custom}
+\bibliographystyle{acl_natbib}
+
+\appendix
+
+\onecolumn
+\clearpage
+\section{Hallucination Examples}
+\label{sec:example}
+\input{Tables/examples}
+\clearpage
+
+\section{Response Generation Prompts}
+\label{sec:prompts}
+% This is a section in the appendix.
+\input{Tables/prompts}
+\clearpage
+\section{Annotation Details}
+\label{sec:interface}
+\begin{figure*}[h]
+    \includegraphics[width=0.98\textwidth]{Figures/label_studio.png}
+    \caption{Annotation interface. For privacy reasons, we have masked the full names of the annotators in the screenshot.}
+    \label{fig:type_recall}
+\end{figure*}
+
+\input{Tables/implicit_true}
+\clearpage
+
+\section{Hallucination Detection Prompts}
+\label{sec:detect_prompts}
+\input{Tables/detect_prompts}
+
+\end{document}

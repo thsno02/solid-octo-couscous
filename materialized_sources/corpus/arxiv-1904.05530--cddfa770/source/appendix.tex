@@ -1,0 +1,432 @@
+% \begin{table*}[h]
+%     \centering
+%     % \small
+%     \caption{Dataset Statistics. }
+%     \scalebox{1}{
+%     \begin{tabular}{ccccccc}
+%          \hline
+%          Data & $N_{train}$ &$N_{valid}$ & $N_{test}$ & $N_{ent}$ & $N_{rel}$ & Time granularity\\
+%          \hline
+%          GDELT    & 1,734,399 &238,765 &305,241 &7,691   &240& 15 mins\\
+%          ICEWS18  & 373,018 &45,995 &49,545 & 23,033 & 256 & 24 hours\\
+%          ICEWS14  & 323,895 & - & 341,409 & 12,498 & 260 & 24 hours\\
+%          \hline
+%          WIKI     & 539,286 & 67,538& 63,110& 12,554&   24& 1 year\\
+%          YAGO     & 161,540 & 19,523& 20,026 &   10,623	&10 & 1 year\\
+%          \hline
+%     \end{tabular}}
+%     \label{tab:dataset}
+% \end{table*}
+
+
+\section{Recurrent Neural Network}
+
+\label{append:eventseq}
+We define a recurrent event encoder based on RNN as follows:
+\begin{equation*}
+	\small \bh_{t}(\bs,\br) = \textrm{RNN}(g(\teN_{t}(\bs)), \bH_t, \bh_{t-1}(\bs,\br)).
+\end{equation*}
+
+We use Gated Recurrent Units~\citep{Cho2014LearningPR} as RNN:
+
+\small
+\begin{align*}
+    \boldsymbol{a}_{t} &= [\es: \er: g(\teN_{t}(\bs)): \bH_t]\\
+    \boldsymbol{z}_t &= \sigma(\bW_z \boldsymbol{a}_{t} + \boldsymbol{U}_z \bh_{t-1})\\
+    \boldsymbol{r}_t &= \sigma(\bW_r \boldsymbol{a}_{t} + \boldsymbol{U}_r \bh_{t-1})\\
+    \bh_t &= (1-\boldsymbol{z}_t)\circ \bh_{t-1} + \boldsymbol{z}_t \circ \tanh(\bW_h \boldsymbol{a}_{t} + \boldsymbol{U}_h (\boldsymbol{r}_t \circ \bh_{t-1})),
+\end{align*}
+\normalsize
+where $:$ is concatenation, $\sigma(\cdot)$ is an activation function, and $\circ$ is a Hadamard operator.
+The input is a concatenation of four vectors: subject embedding, object embedding, aggregation of neighborhood representations, and global information vector ($\es, \er, g(\teN_{t}(\bs)), \bH_t$).
+$\bh_t(s)$ and $\bH_t$ are similarly defined. For $\bh_t(s)$, a concatenation of subject embedding, aggregation of neighborhood representations, and global information vector ($\es, g(\teN_t(s)), \bH_t$) is input. For $\bH_t$, aggregation of the whole graph representations $g(G_t)$ is input.
+
+\section{Details of RGCN Aggregator}
+\label{sec:rgcn}
+The RGCN aggregator is defined as follows:
+\begin{equation}
+\label{eq:rgcn}
+    \small g(\teN^{(\bs)}_t)= \bbh_s^{(l+1)} = \sigma\Big(\sum_{\br\in R}\sum_{\bo \in \teN_t^{(\bs,\br)}} \frac{1}{c_s} \bW_r^{(l)} \bbh_\bo^{(l)} + \bW_0^{(l)} \bbh_s^{(l)}\Big), 
+\end{equation}
+where initial hidden representations for each node ($\bbh_o^{(0)}$) are set to trainable embedding vectors ($\eo$) for each node and $c_s$ is a normalizing factor. Detailed
+
+Basically, each relation can derive a local graph structure between entities, which further yield a message on each entity by aggregating information from neighbors, i.e., {\small  $\sum_{\bo \in \teN_t^{(\bs,\br)}} \allowbreak \frac{1}{c_s} \bW_r^{(l)} \bbh_\bo^{(l)}$}. The overall message on each entity is further computed by aggregating all the relation-specific messages, i.e., {\small $\sum_{\br\in R}\sum_{\bo \in \teN_t^{(\bs,\br)}}\allowbreak \frac{1}{c_s} \bW_r^{(l)} \bbh_\bo^{(l)}$}. Finally, the aggregator {\small  $g(\teN^{(\bs)}_t)$} is defined by combining both the overall message and information from past steps, i.e., {\small $\bW_0^{(l)} \bbh_s^{(l)}$}.
+
+To distinguish weights between different relations, we adopt independent weight matrices $\{ \bW_\br^{(l)} \}$ for each relation $\br$. Furthermore, the aggregator collects representations of multi-hop neighbors by introducing multiple layers of the neural network with each layer indexed by $l$.
+The number of layers determines the depth to which the node reaches to aggregate information from its local neighborhood. 
+
+The major issue of this aggregator is that the number of parameters grows rapidly with the number of relations.
+In practice, this can easily lead to overfitting on rare relations and models of very large size.
+Thus, we adopt the block-diagonal decomposition~\citep{Schlichtkrull2018ModelingRD}, where each relation-specific weight matrix is decomposed into a block-diagonal by decomposing into low-dimensional matrices.
+$\bW_r^{(l)}$ in equation \eqref{eq:rgcn} is defined as a block diagonal matrix, $\text{diag}(\mathbf{A}_{1r}^{(l)},..., \mathbf{A}_{Br}^{(l)})$ where {\small $\mathbf{A}_{kr}^{(l)} \in \mathbb{R}^{(d^{(l+1)}/B) \times (d^{(l)}/B)}$} and $B$ is the number of basis matrices.
+The block decomposition reduces the number of parameters and helps prevent overfitting.
+
+\section{Computational Complexity Analysis.}
+\label{sec:complexity}
+We analyze the time complexity of the graph generation process in Algorithm~\ref{alg:renet}. Computing $\prob(\bs_{t}|\allowbreak\calE_{t-m:t-1})$ (equation \eqref{eq:prob3}) takes $O(|E|Lm)$, where $|E|$ is the maximum number of triples among $\{G_{t-m},...,G_{t-1}\}$, $L$ is the number of layers of aggregation, and $m$ is the number of the past time steps since we unroll $m$ time steps in RNN. From this probability, we sample $M$ number of subjects $\bs$. Computing $\prob(\bs_t,\br_t,\bo_t|\calE_{t-m:t-1})$ in equation \eqref{eq:prob_event_t} takes $O(D^L m)$, where $D$ is the maximum degree of entities. To get probabilities of all possible triples given sampled subjects, it requires $O(M|R||O|D^Lm)$ where $|R|$ is the total number of relations and $|O|$ is the total number of entities. Thus, the time complexity for generating one graph is $O(|E|Lm+M|R||O|(D^L m + \log k))$ where $k$ is the cutoff number for picking top-$k$ triples. The time complexity is linear to the number of entities and relations, and the number of sampled $\bs$.
+
+\begin{table*}[t]
+    \centering
+    % \small
+    \caption{\textbf{Dataset Statistics.}}
+    \scalebox{0.89}{
+    \begin{tabular}{ccccccc}
+         \hline
+         Data & $N_{train}$ &$N_{valid}$ & $N_{test}$ & $N_{ent}$ & $N_{rel}$ & Time gap\\
+         \hline
+         GDELT    & 1,734,399 &238,765 &305,241 &7,691   &240& 15 mins\\
+         ICEWS18  & 373,018 &45,995 &49,545 & 23,033 & 256 & 24 hours\\
+         ICEWS14  & 323,895 & - & 341,409 & 12,498 & 260 & 24 hours\\
+         \hline
+         WIKI     & 539,286 & 67,538& 63,110& 12,554&   24& 1 year\\
+         YAGO     & 161,540 & 19,523& 20,026 &   10,623	&10 & 1 year\\
+         \hline
+    \end{tabular}}
+    \label{tab:dataset}
+\end{table*}
+
+
+% \section{Datasets}
+% \label{append:dataset}
+% We use five datasets: 1) three event-based temporal knowledge graphs and 2) two knowledge graphs where temporally associated facts have meta-facts as $(\bs,\br,\bo, [t_s, t_e])$ where $t_s$ is the starting time point and $t_e$ is the ending time point. 
+% The first group of graphs includes Integrated Crisis Early Warning System (ICEWS18 ~\citep{boschee2015icews} and ICEWS14~\citep{Trivedi2017KnowEvolveDT}), and Global Database of Events, Language, and Tone (GDELT)~\citep{leetaru2013gdelt}.
+% % ICEWS is collected from 1/1/2018 to 10/31/2018, and GDELT is from 1/1/2018 to 1/31/2018.
+% % Both datasets include records of events that include two actors, action type and timestamp of the event.
+% The second group of graphs includes WIKI~\citep{leblay2018deriving} and YAGO~\citep{Mahdisoltani2014YAGO3AK}.
+% % WIKI and YAGO datasets have temporally associated facts $(\bs,\br,\bo, [t_s , t_e ])$. 
+% Dataset statistics are described on Table~\ref{tab:dataset}, where $N_{train}$, $N_{valid}$, and $N_{test}$ are the numbers of train set, valid set, and test set, respectively. $N_{ent}$ and $N_{rel}$ are the numbers of entities and relations. The time gap represents time granularity between adjacent events. 
+
+
+% % We use five datasets: 1) three event-based temporal knowledge graphs (ICEWS18, ICEWS14, and GDELT), and 2) two knowledge graphs (WIKI and YAGO). 
+% % The first group of graphs includes Integrated Crisis Early Warning System (ICEWS18)~\citep{boschee2015icews} and Global Database of Events, Language, and Tone (GDELT)~\citep{leetaru2013gdelt}.
+% ICEWS18 is collected from 1/1/2018 to 10/31/2018, ICEWS14 is from 1/1/2014 to 12/31/2014, and GDELT is from 1/1/2018 to 1/31/2018.
+% The ICEWS14 is from \citep{Trivedi2017KnowEvolveDT}. We didn't use their version of the GDELT dataset since they didn't release the dataset.
+% % Both datasets include records of events that include two actors, action type and timestamp of the event.
+% % The second group of graphs includes WIKI~\cite{leblay2018deriving} and YAGO~\cite{Mahdisoltani2014YAGO3AK}.
+
+
+
+% WIKI and YAGO datasets have temporally associated facts $(\bs,\br,\bo, \allowbreak [t_s, t_e])$.
+% We preprocess the datasets such that each fact is converted to $\{(\bs,\br,\bo, t_s), (\bs,\br,\bo,t_\bs+1_t),...,(\bs,\br,\bo,t_e)\}$ where $1_t$ is a unit time to ensure each fact has a sequence of events. Noisy events of early years are removed (before 1786 for WIKI and 1830 for YAGO). 
+% % We also noticed there are missing begin dates and end dates in YAGO. Some relationships lasting for a period are preprocessed as lasting for the rest of missing time. Other relationships which happen only once are preprocessed as one time events.
+
+% The difference between the first group and the second group is that facts happen multiple times (even periodically) on the first group (event-based knowledge graphs) while facts last long time but are not likely to occur multiple times in the second group.
+
+
+
+
+\section{Detailed Experimental Settings}
+\label{append:base}
+
+\para{Datasets.}
+\label{append:dataset}
+We use five datasets: 1) three event-based temporal knowledge graphs and 2) two knowledge graphs where temporally associated facts have meta-facts as $(\bs,\br,\bo, [t_s, t_e])$ where $t_s$ is the starting time point and $t_e$ is the ending time point. 
+The first group of graphs includes Integrated Crisis Early Warning System (ICEWS18 ~\citep{boschee2015icews} and ICEWS14~\citep{Trivedi2017KnowEvolveDT}), and Global Database of Events, Language, and Tone (GDELT)~\citep{leetaru2013gdelt}.
+% ICEWS is collected from 1/1/2018 to 10/31/2018, and GDELT is from 1/1/2018 to 1/31/2018.
+% Both datasets include records of events that include two actors, action type and timestamp of the event.
+The second group of graphs includes WIKI~\citep{leblay2018deriving} and YAGO~\citep{Mahdisoltani2014YAGO3AK}.
+% WIKI and YAGO datasets have temporally associated facts $(\bs,\br,\bo, [t_s , t_e ])$. 
+Dataset statistics are described on Table~\ref{tab:dataset}, where $N_{train}$, $N_{valid}$, and $N_{test}$ are the numbers of train set, valid set, and test set, respectively. $N_{ent}$ and $N_{rel}$ are the numbers of entities and relations. The time gap represents time granularity between adjacent events. 
+
+
+% We use five datasets: 1) three event-based temporal knowledge graphs (ICEWS18, ICEWS14, and GDELT), and 2) two knowledge graphs (WIKI and YAGO). 
+% The first group of graphs includes Integrated Crisis Early Warning System (ICEWS18)~\citep{boschee2015icews} and Global Database of Events, Language, and Tone (GDELT)~\citep{leetaru2013gdelt}.
+ICEWS18 is collected from 1/1/2018 to 10/31/2018, ICEWS14 is from 1/1/2014 to 12/31/2014, and GDELT is from 1/1/2018 to 1/31/2018.
+The ICEWS14 is from \citep{Trivedi2017KnowEvolveDT}. We didn't use their version of the GDELT dataset since they didn't release the dataset.
+% Both datasets include records of events that include two actors, action type and timestamp of the event.
+% The second group of graphs includes WIKI~\cite{leblay2018deriving} and YAGO~\cite{Mahdisoltani2014YAGO3AK}.
+
+
+
+WIKI and YAGO datasets have temporally associated facts $(\bs,\br,\bo, \allowbreak [t_s, t_e])$.
+We preprocess the datasets such that each fact is converted to $\{(\bs,\br,\bo, t_s), (\bs,\br,\bo,t_\bs+1_t),...,(\bs,\br,\bo,t_e)\}$ where $1_t$ is a unit time to ensure each fact has a sequence of events. Noisy events of early years are removed (before 1786 for WIKI and 1830 for YAGO). 
+% We also noticed there are missing begin dates and end dates in YAGO. Some relationships lasting for a period are preprocessed as lasting for the rest of missing time. Other relationships which happen only once are preprocessed as one time events.
+
+The difference between the first group and the second group is that facts happen multiple times (even periodically) on the first group (event-based knowledge graphs) while facts last long time but are not likely to occur multiple times in the second group.
+
+
+\para{Model details of \method.}
+We use Gated Recurrent Units \citep{Cho2014LearningPR} as our recurrent event encoder, where the length of history is set as $m = 10$ which means saving past 10 event sequences.
+If the events related to $\bs$ are sparse, we check the previous time steps until we get $m$ previous time steps related to the entity $\bs$.
+We pretrain the parameters related to equations \ref{eq:prob3} and \ref{eq:globalh} due to the large size of training graphs. 
+% We freeze the parameters during learning parameters for equations \ref{eq:prob} and \ref{eq:prob2}. 
+We use a multi-relational aggregator to compute $\bH_t$. The aggregator provides hidden representations for each node and we max-pool over all hidden representations to get $\bH_t$.
+% We use a multi-layer perceptron with one hidden layer followed by a softmax layer for $f$ in \eqref{eq:prob}.
+% Thus, 10-steps past observations (or predictions) are fed into them to predict next entities.
+% We preprocessed the dataset such that each subject has an 10-lengtth object history and an each object has a 10-length subject history.
+% During inference, we do not use ground truth history, but predicted history for a fair comparison.
+We apply teacher forcing for model training over historical data, i.e., we use the ground truth rather than the model's own prediction as the input of the next time step during training.
+At inference time, \method performs multi-step prediction across the time stamps in dev and test sets.
+In each time step, we sample 1000 $(=M)$ number of subjects and save top-1000 $(=k)$ triples to use them as a generated graph .
+% In other words, we predict future entities based on the previous predictions.
+We set the size of entity/relation embeddings to be 200 and embedding of unobserved embeddings are randomly initialized. 
+We use two-layer RGCN in the RGCN aggregator with block dimension $2 \times 2$.
+% We choose top-10 entities to save as history at each inference.
+The model is trained by the Adam optimizer~\citep{kingma2014adam}.
+We set $\lambda_1$ to 0.1, the learning rate to $0.001$ and the weight decay rate to 0.00001.
+All experiments were done on GeForce GTX 1080 Ti.
+
+
+% \begin{table}[tb!]
+% \caption{Performance comparison on the ICEWS14 dataset with the filtered setting. 
+% }
+% \label{result:icews14}
+% \centering
+% \resizebox{0.8\columnwidth}{!}{
+% \begin{tabular}{ll|ccc}
+% \cmidrule[1pt](){2-5}
+%     \multicolumn{2}{c}{\multirow{2}{*}{\vspace{-2.2mm}\hspace{-11mm}\textbf{Method}}} &\multicolumn{3}{c}{\textbf{ICEWS14}}\\ \cmidrule(lr){3-5} 
+%     &                   &MRR    &H@3    &H@10  \\ 
+% \cmidrule{2-5}
+% \multirow{4}{*}{\rotatebox{90}{\hspace*{-6pt}Static}} 
+% &DistMult&19.06  &22.00  &36.41  \\
+% &R-GCN&26.31  &30.43  &45.34 \\
+% &ConvE&40.73  &43.92  &54.35 \\
+% &RotatE&29.56  &32.92  &42.68 \\
+% \cmidrule[0.6pt](){2-5}
+% \multirow{12}{*}{\rotatebox{90}{\hspace*{-6pt}Temporal}}
+% &TA-DistMult&20.78  &22.80  &35.26 \\ 
+% &HyTE&11.48  &13.04  &22.51   \\ 
+% \cmidrule{2-5}
+% &dyngraph2vecAE &10.83  &12.70  &15.02    \\
+% &tNodeEmbed&17.84  &20.16  &32.88    \\
+% &EvolveRGCN&17.01  &18.97  &32.58   \\
+% &Know-Evolve*&1.42   &1.37   &1.43   \\ 
+% &Know-Evolve+MLP &22.89  &26.68  &38.57 \\ 
+% &DyRep+MLP &24.61  &28.87  &39.34  \\ 
+% &R-GCRN+MLP&36.77  &40.15  &52.33   \\ 
+% \cmidrule{2-5}
+% &\method w. mean agg.&43.79  &47.34  &57.47\\
+% &\method w. attn agg.&43.94  &47.85  &57.91 \\
+% &\method  &\textbf{45.71} &\textbf{49.06} &	\textbf{59.12}  \\
+% \cmidrule[1pt](){2-5}
+% \end{tabular}}
+% \end{table}
+
+\begin{table*}[tb!]
+\caption{\textbf{Performance comparisons with raw metrics.} We observe our method outperforms all other methods.
+}
+\label{result:raw}
+\resizebox{1\textwidth}{!}{
+\begin{tabular}{ll|ccc|ccc|ccc|ccc|ccc}
+\cmidrule[1pt](){2-17}
+    \multicolumn{2}{c}{\multirow{2}{*}{\vspace{-2.2mm}\hspace{-10mm}\textbf{Method}}} & \multicolumn{3}{c}{\textbf{ICEWS18}} & \multicolumn{3}{c}{\textbf{GDELT}} & \multicolumn{3}{c}{\textbf{ICEWS14}} &\multicolumn{3}{c}{\textbf{WIKI}}& \multicolumn{3}{c}{\textbf{YAGO}} \\ \cmidrule(lr){3-5} \cmidrule(lr){6-8} \cmidrule(lr){9-11} \cmidrule(lr){12-14} \cmidrule(lr){15-17}
+    &                   &MRR    &H@3    &H@10   &MRR    &H@3    &H@10   &MRR    &H@3    &H@10   &MRR    &H@3    &H@10   &MRR    &H@3    &H@10  \\ 
+\cmidrule{2-17}
+\multirow{4}{*}{\rotatebox{90}{\hspace*{-6pt}Static}} 
+&DistMult               &13.86  &15.22  &31.26  &8.61	&8.27   &17.04  &9.72   &10.09  &22.53  &27.96  &32.45  &39.51  &44.05  &49.70  &59.94   \\
+&R-GCN                  &15.05  &16.49  &29.00  &12.17  &12.37  &20.63  &15.03  &16.12  &31.47  &13.96  &15.75  &22.05  &27.43  &31.24  &44.75   \\
+&ConvE                  &22.56  &25.41  &41.67  &18.43  &19.57  &32.25  &21.64  &23.16  &38.37  &26.41  &30.36	&39.41  &41.31  &47.10	&59.67 \\
+&RotatE                 &11.63  &12.31  &28.03  &3.62   &2.26   &8.37   &9.79   &9.37   &22.24  &26.08  &31.63  &38.51  &42.08  &46.77  &59.39   \\
+\cmidrule[0.6pt](){2-17}
+\multirow{12}{*}{\rotatebox{90}{\hspace*{-6pt}Temporal}}
+&TA-DistMult            &15.62  &17.09  &32.21  &10.34  &10.44  &21.63  &11.29  &11.60  &23.71  &26.44  &31.36  &38.97  &44.98  &50.64  &61.11   \\
+&HyTE                   &7.41   &7.33   &16.01  &6.69   &7.57   &19.06  &7.72   &7.94   &20.16  &25.40  &29.16  &37.54  &14.42  &39.73  &46.98   \\ 
+\cmidrule{2-17}
+&dyngraph2vecAE         &1.36   &1.54   &1.61   &4.53   &1.87   &1.87   &6.95   &8.17   &12.18  &2.67   &2.75   &3.00   &0.81   &0.74   &0.76    \\
+% &DynTriad               &xxx    &xxx    &xxx    &xxx    &xxx    &xxx    &xxx    &xxx    &xxx    &xxx    &xxx    &xxx    &xxx    &xxx    &xxx    \\
+&tNodeEmbed             &7.21   &7.64   &15.75  &12.97  &12.61  &21.22  &13.36  &13.13  &24.31  &8.86   &10.11  &16.36  &3.82   &3.88   &8.07    \\
+&EvolveRGCN             &10.31  &10.52  &23.65  &6.54   &5.64   &15.22  &8.32   &7.64   &18.81  &27.19  &31.35  &38.13  &40.50  &45.78  &55.29    \\
+&Know-Evolve*           &0.11   &0.00   &0.47   &0.11   &0.02   &0.10   &0.05   &0.00   &0.10   &0.03   &0      &0.04   &0.02   &0	    &0.01    \\ 
+&Know-Evolve+MLP        &7.41   &7.87   &14.76  &15.88  &15.69  &22.28  &16.81  &18.63  &29.20  &10.54  &13.08	&20.21  &5.23   &5.63   &10.23   \\ 
+&DyRep+MLP              &7.82   &7.73   &16.33  &16.25  &16.45  &23.86  &17.54  &19.87  &30.34  &10.41  &12.06  &20.93  &4.98   &5.54   &10.19   \\ 
+&R-GCRN+MLP             &23.46  &26.62  &41.96  &18.63  &19.80  &32.42  &21.39  &23.60  &38.96  &28.68  &31.44  &38.58  &43.71  &48.53  &56.98   \\ 
+\cmidrule{2-17}
+&\method w. mean agg.   &25.45  &29.27  &44.31  &19.03  &20.20  &33.32  &22.73  &25.47  &41.48  &30.19  &32.94  &40.57  &46.33  &52.49  &61.21   \\
+&\method w. attn agg.   &25.76  &29.56  &44.86  &19.35  &20.42  &33.55  &23.18  &25.98  &41.95  &30.25  &30.12  &40.86  &46.56  &52.56  &61.35   \\
+&\method                &26.62  &30.27  &45.57  &19.60  &20.56  &33.89  &23.85  &14.63  &42.58  &30.87  &33.55  &41.27  &46.81  &52.71  &61.93 \\
+\cmidrule[1pt](){2-17}
+\end{tabular}}
+\end{table*}
+
+\para{Experimental Settings for Baseline Methods.}
+In this section, we provide detailed settings for baselines.
+We use implementations of DistMult\footnote{\scriptsize https://github.com/jimmywangheng/knowledge\_representation\_pytorch}.
+We implemented TA-DistMult based on the implementation of Distmult.
+% Results of TTransE, TA-TransE, DistMult and TA-DistMult were produced by adding model implementations using the same framework. 
+For TA-DistMult, We use temporal tokens with the vocabulary of year, month and day on the ICEWS dataset and the vocabulary of year, month, day, hour and minute on the GDELT dataset. 
+% The activation function of hidden states and cells in LSTM for time aware models were linear activation functions. 
+We use use a binary cross-entropy loss for DistMult and TA-DistMult.
+We validate the embedding size among 100 and 200. 
+We set the batch size to 1024, margin to 1.0, negative sampling ratio to 1, and use the Adam optimizer. 
+
+% We use the implementation of ComplEx\footnote{https://github.com/thunlp/OpenKE}~\cite{Han2018OpenKEAO}.
+% % Results of ComplEx and RESCAL were produced by Han's implementations\footnote{https://github.com/thunlp/OpenKE} (\cite{Han2018OpenKEAO}).
+% We validate the embedding size among 50, 100 and 200. 
+% The batch size is 100, the margin is 1.0, and the negative sampling ratio is 1.
+% % Other settings were default settings in the implementations. 
+% % The batch number was set to 100, the ratio of negative samples to 1, the margin to 1.0, the learning rate to 0.1.
+% We use the Adagrad optimizer.
+
+We use the implementation of HyTE\footnote{\scriptsize https://github.com/malllabiisc/HyTE}.
+% Results of HyTE were produced by the author's implementation\footnote{https://github.com/malllabiisc/HyTE}.
+% We added the raw setting when loading data. 
+% We adopted early stopping method which stops learning when the MRR values didn't improve.
+% We added validation part and stopped learning when the MRR values didn't improve. 
+% Since most timestamps of both ICEWS18 and GDELT have more than 300 events, 
+We use every timestamp as a hyperplane. 
+% We used the default setting -- 
+The embedding size is set to 128, the negative sampling ratio to 5, and margin to 1.0. 
+We use time agnostic negative sampling (TANS) for entity prediction, and the Adam optimizer.
+
+We use the codes for ConvE\footnote{\scriptsize https://github.com/TimDettmers/ConvE} and use implementation by Deep Graph Library\footnote{\scriptsize https://github.com/dmlc/dgl/tree/master/examples/pytorch/rgcn}. 
+Embedding sizes are 200 for both methods.
+We use 1 to all negative sampling for ConvE and use 10 negative sampling ratio for RGCN, and use the Adam optimizer for both methods.
+We use the codes for Know-Evolve\footnote{\scriptsize https://github.com/rstriv/Know-Evolve}.
+For Know-Evolve, we fix the issue in their codes. Issues are described in Section~\ref{supp:know}.
+We follow their default settings.
+
+We use the code for RotatE\footnote{\scriptsize https://github.com/DeepGraphLearning/KnowledgeGraphEmbedding}. The hidden layer/embedding size is set to 100, and batch size 256; other values follow the best values for the larger FB15K dataset configurations supplied by the author. The author reports filtered metrics only, so we added the implementation of the raw setting. 
+
+
+% \subsection{Comparisons with Dynamic Methods.}
+
+\para{Experimental Settings for Dynamic Methods.}
+We compare our method with dynamic methods on homogeneous graphs: dyngraph2vecAE~\citep{goyal2019dyngraph2vec}, tNodeEmbed~\citep{singer2019node}, and EvolveGCN-O~\citep{Pareja2019EvolveGCNEG}. 
+These methods were proposed to predict interactions at a future time on homogeneous graphs, while our proposed method is for predicting interactions on multi-relational graphs (or knowledge graphs). Furthermore, those methods predict links at one future time stamp, whereas our method seeks to predict interactions at multiple future time stamps.
+We modified some methods to apply them on multi-relational graphs as follows.
+We adopt R-GCN~\citep{Schlichtkrull2018ModelingRD} for EvolveGCN-O and call it EvolveRGCN. 
+We convert knowledge graphs into homogeneous graphs for dyngraph2vecAE. 
+% We remove relations and build an adjacency matrix for dyngraph2vecAE. 
+The idea of this method is to reconstruct an adjacency matrix using an auto-encoder and regard it as a future adjacency matrix.
+If we keep relations, relation-specific adjacency matrices will be extremely sparse; the method learns to reconstruct near-zero adjacency matrices.
+% We modified dyngraph2vecAE to use it on multi-relational graphs. We build relation-specific adjacency matrices $\boldsymbol{A}_\br$ so the method can predict $\boldsymbol{A}_\br^t$ from $\{\boldsymbol{A}_\br^1,...,\boldsymbol{A}_\br^{t-1}\}$. We share parameters of an auto-encoder across relations. 
+tNodeEmbed is a temporal method on homogeneous graphs. To use this on multi-relational graphs, we first train entity embeddings with DistMult and set these as initial embeddings for entities in tNodeEmbed. Also we give entity embeddings as input to LSTM of tNodeEmbed. We concatenate output of LSTM and relation embeddings to predict objects. 
+We did not modified other methods since it is not trivial to extend the methods.
+
+
+
+
+\begin{figure}[!tb]
+    \centering
+    {\includegraphics[width=0.8\columnwidth]{figures/legend.pdf}
+    % \vspace{-3mm}
+    }\\
+    \subfloat[WIKI]{\includegraphics[width=0.46\columnwidth]{figures/WIKI_h3.pdf}}
+    \quad
+    \subfloat[YAGO]{\includegraphics[width=0.46\columnwidth]{figures/YAGO_h3.pdf}}
+    \caption{\textbf{Performance of temporal link prediction over future timestamps with filtered Hits@3.} \method consistently outperforms the baselines.
+    }
+    \label{fig:timeh3_2}
+\end{figure}
+
+
+
+\section{Additional Experiments}
+\label{append:additional}
+% \subsection{Results on ICEWS14}
+% Table~\ref{result:icews14} shows the results on the ICEWS14 dataset with a filtered metric.
+
+\subsection{Results with Raw Metrics}
+Table~\ref{result:raw} shows the performance comparison on ICEWS18, GDELT, ICEWS14 with raw settings.
+Our proposed \method outperforms all other baselines. 
+% \textbf{Performance of Prediction over Time.}
+% Figs.~\ref{fig:timemrr} shows the performance comparisons over different time stamps on the ICEWS18, GDELT, WIKI and YAGO datasets with filtered MRR.
+% Our proposed \method consistently outperform baselines over time.
+
+
+
+\begin{figure}[!t]
+% \vspace{-0.4cm}
+    \centering
+        \subfloat[Length of past history]{\includegraphics[width=0.43\columnwidth]{figures/history.pdf} \label{fig:history}}
+        \quad
+        \subfloat[Cutoff position $k$]{\includegraphics[width=0.45\columnwidth]{figures/topk.pdf} 
+        \label{fig:topk}}
+        \quad
+        \subfloat[\# layers of RGCN]{\includegraphics[width=0.36\columnwidth]{figures/layers.pdf} \label{fig:layers}}
+        \qquad
+        \subfloat[Effect of global representations]{\includegraphics[width=0.35\columnwidth]{figures/global.pdf} \label{fig:global}}
+        % \\
+        % % \qquad
+        % \subfloat[\# layers of RGCN]{\includegraphics[width=0.4\columnwidth]{figures/layers.pdf} \label{fig:layers}}
+        % \vspace{-0.3cm}
+        \caption{\textbf{Parameter sensitivity on \method.}
+        We study the effects of (a) length of RNN history in event sequence encoder, and (b) cutoff position at inference time, (c) number of RGCN layers in neighborhood aggregation, and (d) effect of the global representation from a global graph structure.
+        }
+        \label{fig:variation2}
+\end{figure}
+
+
+\subsection{Sensitivity Analysis}
+\label{sec:sens}
+In this section, we study the parameter sensitivity of \method including the length of history for the event encoder, cutoff position k for events to generate a graph, the number of layers of the RGCN aggregator, and effect of the global representation from a global graph structure.
+We report the performance change of \method on the ICEWS18 dataset by varying the hyper-parameters (Figs.~\ref{fig:variation2} and \ref{fig:layers}).
+
+
+\para{Length of Past History in Recurrent Event Encoder.}
+The recurrent event encoder takes the sequence of past interactions up to $m$ graph sequences or previous histories. 
+Fig.~\ref{fig:history} shows the performance with various lengths of past histories.
+When \method uses longer histories, MRR is getting higher.
+However, the MRR is not likely to go higher when the length of history is 5 and over.
+% This implies that long history does not make big differences.
+
+\para{Cut-off Position $k$ at Inference.} 
+To generate a graph at each time, we cut off top-$k$ triples on ranking results.
+In Fig.~\ref{fig:topk},
+% shows the performance by choosing different cutoff position $k$. 
+when $k$ is 0, \method does not generate graphs for estimating $\prob(G_{t+\Delta t}|G_{:t})$, i.e., \method performs single-step predictions, and it shows the lowest result.
+When $k$ is larger, the performance is getting higher and it is saturated after 500.
+We notice that the conditional distribution $\prob(G_{t+\Delta t}|G_{:t})$ can be approximated by $\prob(G_{t+\Delta t}|\allowbreak \hat{G}_{t+1:t+\Delta t -1},G_{:t})$ by using a larger cutoff position.
+
+
+\para{Layers of RGCN Aggregator.}
+% We examine the number of layers in the RGCN aggregator. 
+The number of layers in the aggregator means the depth to which the node reaches.
+Fig.~\ref{fig:layers} shows the performance according to different numbers of layers of RGCN.
+2-layered RGCN improves the performance considerably compared to 1-layered RGCN since 2-layered RGCN aggregates more information.
+However, \method with 3-layered RGCN underperforms \method with 2-layered RGCN. 
+We conjecture that the bigger parameter space leads to overfitting.
+
+
+\para{Global Information.}
+We further observe that representations from global graph structures help the predictions. Fig.~\ref{fig:global} shows effectiveness of a representation of global graph structures. 
+The improvement is marginal, but we consider that global representations at different time steps give distinct information beyond local graph structures.
+
+\begin{figure*}[tb!]
+    \centering
+    \includegraphics[width=0.85\linewidth]{figures/case.pdf}
+    % \vspace{-0.3cm}
+    \caption{\textbf{Case study of \method's predictions.} \method's predictions depend on interaction histories. Interaction histories are categorized into three cases: (1) consistent interactions with an object, (2) a specific temporal pattern, and (3) irrelevant history. \method achieves good performances on the first two cases, and poor performances on the third case.
+    % \wj{add percentage.}
+    % \xiang{with some space left, can you expand and enrich the case study figure?}
+    }
+    \label{fig:case}
+\end{figure*}
+
+\section{Case Study}
+\label{supp:case}
+In this section, we study \method's predictions. Its predictions depend on interaction histories. We categorize histories into three cases: (1) consistent interactions with an object, (2) a specific temporal pattern, and (3) irrelevant history (Fig.~\ref{fig:case}).
+\method can learn (1) and (2) cases, so it achieves high performances.
+For the first case, \method can predict the answer because it consistently interacts with an object. However, static methods are prone to predicting different entities which are observed under relation "Accuse" in training set. 
+The second case shows specific temporal patterns on relations: ( Arrest, $o$ ) $\rightarrow$ ( Use force, $o$ ). Without knowing this pattern, one method might predict ``Businessman" instead of ``Men". \method is able to learn these temporal patterns so it can predict the second case. 
+Lastly, the third case shows irrelevant history to the answer and the history is not helpful to predictions. \method fails to predict the third case.
+
+\section{Implementation Issues of Know-Evolve}
+\label{supp:know}
+
+We found a problematic formulation in the Know-Evolve model and codes.
+The intensity function (equation 3 in \citep{Trivedi2017KnowEvolveDT}) is defined as 
+$\lambda_r^{s,r}(t|\bar{t})=f(g_r^{s,r}(\bar{t}))(t-\bar{t})$, where $g(\cdot)$ is a score function, $t$ is current time, and $\bar{t}$ is the most recent time point when either subject or object entity was involved in an event.
+This intensity function is used in inference to rank entity candidates.
+However, they don't consider concurrent event at the same time stamps, and thus $\bar{t}$ will become $t$ after one event.
+For example, we have events $e_1=(s,r,o_1, t_1), e_2=(s, r, o_2, t_1)$.
+After $e_1$, $\bar{t}$ will become $t$ (subject $s$'s most recent time point), and thus the value of intensity function for $e_2$ will be 0.
+This is problematic in inference since if $t=\bar{t}$, then the intensity function will always be 0 regardless of entity candidates. 
+In inference, all object candidates are ranked by the intensity function.
+% So we are given $(s,r)$ and $t=\bar{t}$.
+But all intensity scores for all candidates will be 0 since $t=\bar{t}$, which means all candidates have the same 0 score.
+In their code, they give the highest ranks (first rank) for all entities including the ground truth object in this case.
+Thus, we fixed their code for a fair comparison; we give an average rank to entities who have the same scores.
+
+% \section{Other Related Work}
+% \para{Recurrent Graph Neural Models.}
+% % \xiang{This paragraph needs to be rewritten: (1) what are the commonalities and distinction of these methods? (2) what insight do we get by drawing such connection?}
+% There have been some studies on recurrent graph neural models for sequential or temporal graph-structured data~\citep{SanchezGonzalez2018GraphNA,Battaglia2018RelationalIB,Palm2018RecurrentRN,Seo2017StructuredSM,Pareja2019EvolveGCNEG}.
+% These methods adopt a message-passing framework for aggregating nodes' neighborhood information (\textit{e.g.}, via graph convolutional operations).
+% GN~\citep{SanchezGonzalez2018GraphNA,Battaglia2018RelationalIB} and RRN~\citep{Palm2018RecurrentRN} update node representations by a message-passing scheme between time stamps.
+% Some prior methods adopt an RNN to memorize and update the states of node embeddings that are dynamically evolving \citep{Seo2017StructuredSM}, or memorize and update the model parameters for different time stamps \citep{Pareja2019EvolveGCNEG}.
+% % GCRN~\citep{Seo2017StructuredSM} and EvolveGCN~\citep{Pareja2019EvolveGCNEG} introduce an RNN to encode of evolution of node representations or parameters across different time stamps.
+% In contrast, our proposed method, \method, aims to leverage autoregressive modeling to parameterize the joint probability distributions of events with RNNs. 
+% % an RNN with message passing procedure between entity neighborhood to encode evolution of entity interactions over time.
+% % , instead of using the RNN to memorize historical information about the node representations.

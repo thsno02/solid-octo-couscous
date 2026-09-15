@@ -1,0 +1,32 @@
+\section{Sub-optimal \texorpdfstring{$\pwrNoDist$}{POWER}}\label{sec:suboptimal-power}
+In certain situations, $\pwrNoDist$ returns intuitively surprising verdicts. There exists a policy under which the reader chooses a winning lottery ticket, but it seems wrong to say that the reader has the power to win the lottery with high probability. For various reasons, humans and other bounded agents are generally incapable of computing optimal policies for arbitrary objectives. More formally, consider the rewardless {\mdp} of \cref{fig:subopt-power}.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics{main-tex/assets/tikz/main-appendix/suboptimal-power.pdf}
+    \caption{$\col{blue}{s_0}$ is the starting state, and $\abs{\A}=10^{10^{10}}$. At $\col{blue}{s_0}$, half of the actions lead to $s_\ell$, while the other half lead to $s_r$. Similarly, half of the actions at $s_\ell$ lead to $s_1$, while the other half lead to $s_2$. At $s_r$, one action leads to $s_3$, one action leads to $s_4$, and the remaining $10^{10^{10}}-2$ actions lead to $s_5$.  \label{fig:subopt-power}}
+\end{figure}  
+
+Consider a model-based RL agent with black-box simulator access to this environment. The agent has no prior information about the model, and so it acts randomly. Before long, the agent has probably learned how to navigate from $\col{blue}{s_0}$ to states $s_\ell$, $s_r$, $s_1$, $s_2$, and $s_5$. However, over any reasonable timescale, it is extremely improbable that the agent discovers the two actions respectively leading to $s_3$ and $s_4$.
+
+Even provided with a reward function $R$ and the discount rate $\gamma$, the agent has yet to learn the relevant environmental dynamics, and so many of its policies are far from optimal. Although  \cref{prop:more-opt} shows that $\forall \gamma \in[0,1]: \pwr[s_\ell,\gamma][\Dbd] \leqMost[][\DSetBd] \pwr[s_r,\gamma][\Dbd]$, there is a sense in which $s_\ell$ gives this agent more power. 
+
+We formalize a bounded agent's goal-achievement capabilities with a function $\pol[]$, which takes as input a reward function and a discount rate, and returns a policy. Informally, this is the best policy which the agent knows about. We can then calculate $\pwr$ with respect to $\pol[]$. 
+
+\begin{restatable}[Suboptimal $\pwrNoDist$]{definition}{powPolicy}\label{def:pow-pol} Let $\Pi_\Delta$ be the set of stationary stochastic policies, and let $\text{pol} : \rewardSpace \times [0,1] \to \Pi_\Delta$. For $\gamma \in [0,1]$,
+\begin{align}
+\pwrPol{s, \gamma}\defeq \E{\substack{R\sim\Dbd,\\a\sim \pol(s),\\s'\sim T\prn{s,a}}}{\lim_{\gamma^*\to \gamma} (1-\gamma^*)\Vf[\pol]{s',\gamma^*}}.
+\end{align}
+
+By \cref{lem:power-id}, $\pwr$ is the special case where $\forall R\in\rewardSpace,\gamma\in[0,1]: \pol\in \optPi$. We define $\pwrPol{}$-seeking similarly as in \cref{def:pow-seek}. 
+\end{restatable}
+
+$\pwrPol{\col{blue}{s_0},1}$ increases as the policies returned by $\pol[]$ are improved. We illustrate this by considering the $\Diid$ case.
+
+\begin{enumerate}
+\item[$\text{pol}_1$] The model is initially unknown, and so $\forall R,\gamma:\text{pol}_1(R,\gamma)$ is a uniformly random policy. Since $\text{pol}_1$ is constant on its inputs, $\pwrPol[\text{pol}_1][\Diid]{\col{blue}{s_0},1}=\EX$ by the linearity of expectation and the fact that $\Diid$ distributes reward independently and identically across states.
+\item[$\text{pol}_2$] The agent knows the dynamics, except that it does not know how to reach $s_3$ or $s_4$. At this point, $\text{pol}_2(R,1)$ navigates from $\col{blue}{s_0}$ to the average-optimal choice among three terminal states: $s_1$, $s_2$, and $s_5$. Therefore, $\pwrPol[\text{pol}_2]{\col{blue}{s_0},1}=\Edraws{3}$. 
+\item[$\text{pol}_3$] The agent knows the dynamics, the environment is small enough to solve explicitly, and so $\forall R,\gamma:\text{pol}_3(R,\gamma)$ is an optimal policy. $\text{pol}_3(R,1)$ navigates from $\col{blue}{s_0}$ to the average-optimal choice among all five terminal states. Therefore, $\pwrPol[\text{pol}_3]{\col{blue}{s_0},1}=\Edraws{5}$.
+\end{enumerate}
+
+As the agent learns more about the environment and improves $\pol[]$, the agent's $\pwrPol{}$ increases. The agent seeks $\pwrPol[\text{pol}_2]{}$ by navigating to $s_\ell$ instead of $s_r$, but seeks more $\pwr$ by navigating to $s_r$ instead of $s_\ell$. Intuitively, bounded agents gain power by improving $\pol[]$ and by formally seeking $\pwrPol{}$ within the environment.

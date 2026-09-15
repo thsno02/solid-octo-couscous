@@ -1,0 +1,45 @@
+% Please add the following required packages to your document preamble:
+% \begin{table*}[!ht]
+% \small
+% \centering
+% \begin{tabular}{cccccccccccc}
+% \toprule
+% \multirow{2}{*}{Model} & \multicolumn{2}{c}{Summarization} & \multicolumn{2}{c}{Question Answering} &\multicolumn{2}{c}{Data2text} &\multicolumn{2}{c}{Overall}\\
+%     & \# Resp. & \# Span & \# Resp.  & \# Span & \# Resp.  & \# Span  & \# Resp.  & \# Span\\
+% \midrule
+% GPT-3.5-turbo-0613  & 58 & 64   & 187 &   208  & 286 & 342 & 531  &   669    \\
+% GPT-4-0613  &  73 &  81  & 102 &  113  & 276 & 342 &  451  & 536    \\
+% Llama-2-7B-chat & 445 & 531  & 550 & 1104 & 897 & 1798 & 1892 &  3433   \\
+% Llama-2-13B-chat  & 323 & 381   & 438 & 724   & 991 & 2799 & 1752 &  3904   \\
+% Llama-2-70B-chat$^{\dagger}$  & 211 & 240  & 363 & 590 & 873 & 1854 & 1447 & 2684    \\
+% Mistral-7B-Instruct & 618 & 828 & 467 & 709 & 975 & 2191 & 2060 & 3728   \\
+% \bottomrule
+% \end{tabular}
+% \caption{Hallucination response and span count of models. $\dagger$: We used 4-bit quantized version of Llama-2-70B-chat.}
+% \label{tab:halu-model}
+% \end{table*}
+
+% Please add the following required packages to your document preamble:
+\begin{table*}[!ht]
+% \small
+\centering
+% \scalebox{0.9}{
+\scriptsize
+\begin{tabular}{l|ccccccccccc}
+\toprule
+\multirow{2}{*}{Model}  & \multicolumn{3}{c}{\textsc{Question Answering}} &\multicolumn{3}{c}{\textsc{Data-to-text Writing}} & \multicolumn{3}{c}{\textsc{Summarization}} &\multicolumn{2}{c}{\textsc{Overall}}\\
+\cmidrule(lr){2-4} \cmidrule(lr){5-7} \cmidrule(lr){8-10}  \cmidrule(lr){11-12}
+    & \# Resp. & \# Span & Density & \# Resp.  & \# Span & Density & \# Resp.  & \# Span & Density & \# Resp.  & \# Span\\
+\midrule
+GPT-3.5-turbo-0613    & 75 & 89 & 0.12 & 272 & 384 & 0.18 & 54 & 60 & 0.05 & 401  &   533    \\
+GPT-4-0613   & 48 &  51 & 0.06 & 290 & 354 &  0.27 &  74 &  80 & 0.08 & 406  & 485    \\
+Llama-2-7B-chat  & 510 & 1010 & 0.59 & 888 & 1775 & 1.27 & 434 & 517 & 0.58 & 1832 &  3302   \\
+Llama-2-13B-chat    & 399 & 654 & 0.48  & 983 & 2803 & 1.53 & 295 & 342 & 0.41 & 1677 &  3799   \\
+Llama-2-70B-chat$^{\dagger}$  & 320 & 529 & 0.40 & 863 & 1834 & 1.15 & 212 & 245 & 0.26  & 1395 & 2608    \\
+Mistral-7B-Instruct  & 378 & 594 & 0.59 & 958 & 2140 & 1.51 & 617 & 828 & 0.86 & 1953 & 3562   \\
+\bottomrule
+\end{tabular}
+\caption{Hallucination counts and density of models. 
+$\dagger$: We used 4-bit quantized version of Llama-2-70B-chat.}
+\label{tab:halu-model}
+\end{table*}

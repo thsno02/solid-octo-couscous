@@ -1,0 +1,79 @@
+%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%% v1 %%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\section{Experiments}
+\label{sec:expts}
+We study the behavior of model editors along several axes of difficulty of the model editing problem, including a) overall performance, especially on hard in-scope and hard out-of-scope examples; b) capacity to apply multiple simultaneous edits; and c) ability to use explicit edit descriptors that are not input-output pairs. In addition, we provide an error analysis of the memory-based editor a study the effects of varying the scope classifier architecture.
+%%CF.1.25: technically it's only an ablation if you remove something from the algorithm
+
+% We want to highlight all of:
+% \begin{enumerate}
+%     \item Batched/sequential edits: An editor trained with single edits generalizes for free to 125 edits with basically no drop in performance
+%     \item Generalization and scaling across models: One editor gives the same edit performance on e.g. t5-small, t5-large, and t5-xl with no further training/tuning; this means we can scale to “infinitely” large models
+%     \item Solving implications: The implications dataset is solvable for t5large at $\sim$91\% accuracy (MEND basically can’t make any progress on implications using t5)
+%     \item Reducing overgeneralization: Drawdown on adversarial examples is significantly reduced (by maybe half?) by using hard negatives during training, with edit success still higher than MEND
+%     \item Low complexity: The implementation is super simple
+%     \item Interpretable errors: edit failures can be decomposed into either scope classifier errors (incorrect inference of equivalence neighborhood) or replacement errors (incorrect counterfactual reasoning)
+%     \item Iterative editing: if an edit leads to overgeneralization, negative examples can just be added to the edit cache to mitigate these, making edit refinement much easier (\textbf{may be hard without human evals})
+% \end{enumerate}
+
+\subsection{Experimental Settings}
+
+Our experiments use a combination of existing and novel editing settings, including question-answering, fact-checking, and conversational dialogue. See Table~\ref{tab:hard-pos-neg} for data samples from each setting. The QA-hard and FC settings are motivated by the desire to better test a model editor's capacity to handle harder in-scope and out-of-scope examples. The ConvSent setting is intended to both evaluate generation models on a problem more tied with real-world usage as well as explore the possibility of applying edits that are not simply input-output pairs.
+%%CF.1.25: Feel free to add any more motivation as needed. There were other issues with the previous benchmarks too
+%%EM done
+
+\textbf{QA \& QA-hard.} The QA setting uses the zsRE question-answering problem introduced by \citet{Cao2021EditingFK}. We use this dataset as a starting point of reference to connect our evaluations with prior work. For the QA-hard setting, we generate harder in-scope examples that test logically entailed facts (\rawstring{$\ze =$ Who is the UK PM? Boris Johnson $\rightarrow$ $\xtest =$ Where is Boris Johnson the PM?}) or true/false questions (\rawstring{$\xtest =$ True or False: Theresa May is the UK PM}) using automated techniques \citep{demszky2018transforming,ribeiro2019red}. Crucially, both types of hard in-scope examples will have labels that differ from the edit example, requiring some non-trivial reasoning over the edit descriptor to produce the correct post-edit output. In addition, to generate hard out-of-scope examples for an edit input $\xe$, we selectively sample from training inputs $x$ that have high semantic similarity with $\xe$, measured as having a high cosine similarity between their embeddings as computed by a pre-trained semantic embedding model \texttt{all-MiniLM-L6-v2} \citep{reimers-2019-sentence-bert}. For both QA and QA-hard, we use a T5-large model (770m parameters; \citet{2020t5}) fine-tuned on the Natural Questions dataset \citep{kwiatkowski2019natural,roberts2020knowledge} as the base model.
+
+\textbf{FC.} We introduce a new FC setting using the VitaminC fact verification dataset \citep{schuster-etal-2021-get} to assess an editor's ability to update an out-of-date fact-checking model's when presented with updated information about the world. VitaminC contains over 400,000 evidence-claim-page-label tuples $(e_i, c_i, p_i, l_i)$ where the label $l_i$ is 1 if the evidence entails the claim, -1 if it contradicts the claim, or 0 if neither. The dataset was gathered from Wikipedia revisions in the first half of 2020. To convert VitaminC into an editing dataset, we first use $e_i$ as each edit descriptor $\ze[i]$. Using $C$ to denote the set of \textit{all} claims in the VitaminC dataset and the function $\beta(p_i)=\{c_j : p_j = p_i\}$ as the set of claims from page $p_i$, we define in-scope and out-of-scope examples as
+\begin{equation*}
+    I(\ze[i]),\;O(\ze[i]) = \begin{cases}
+        \{(c_i, 1)\},\phantom{\varnothing} C \setminus \beta(p_i) & \text{if}\;l_i = 1 \\
+        \{(c_i, 0)\},\phantom{\varnothing} C \setminus \beta(p_i) & \text{if}\;l_i = 0 \\
+        \varnothing,\phantom{\{(c_i, 0)\}} \{c_i\} & \text{if}\;l_i = -1,
+    \end{cases}
+\end{equation*}
+
+%%CF.1.25: I find this pretty difficult to understand because there is a lot of notation. Though, not sure if I have a good way to address that. 
+%%EM: moved notation before block.
+%%CF.1.25: Perhaps the bigger issue is that it's pretty weird to have this define both I and O, especially since the RHS doesn't seem to output two things. why not just have two lines , one for I and one for O?
+%%CF.1.25: also FYI, I(\ze) should be I(\ze; \editdataset)
+. For $l_i \in \{0,1\}$, we have `easy' out-of-scope examples sampled uniformly from all claims. For $l_i=-1$, we have hard out-of-scope examples, as these claims are still closely semantically related to the evidence. As a base model, we use the BERT-base model trained by \citet{Cao2021EditingFK} on the June 2017 Wikipedia dump in the FEVER dataset \citep{Thorne18Fever}.
+%%CF.1.25: "Wikipedia dump" seems a bit informal though I'm not familiar with the terminology in NLP
+%%EM: This is the terminology used in the original FEVER paper; it's fairly common in NLP
+
+\input{figures/tex/multi_model}
+
+\textbf{ConvSent.} Our final new dataset is focused on generation models. The ConvSent editing problem assesses a model editor's ability to edit the sentiment of a dialogue agent on a particular topic without affecting its generations when prompted on other topics. We gather a list of 15,000 non-numeric entities from zsRE and 989 noun phrases from GPT-3 \citep{brown2020language} (e.g., \rawstring{ghost hunting} or \rawstring{the dangers of artificial intelligence}) for a total of 15,989 topics. For each entity, we sample 10 noisy positive sentiment completions and 10 noisy negative sentiment completions from the 3B parameter BlenderBot model \citep{roller2021recipes}, using a template such as \rawstring{Tell me a \{negative/positive\} opinion on \_\_\_.}. We then use a pre-trained sentiment classifier \citep{heitmann2020} based on RoBERTa \citep{liu2019robustly} to compute more accurate sentiment labels for each completion. For this task, edit descriptors take the simple form of \rawstring{Topic: \_\_\_ Sentiment: \{Positive/Negative\}}, rather than a prompt/completion pair. We define $I(\ze)$ with a manually collected set of templates such as \rawstring{What do you think of \_\_\_?} or \rawstring{Tell me your thoughts on \_\_\_.}, using the prompts formed with different templates but the same entity as in-scope examples. We define $O(\ze; \editdataset)$ as all examples generated from entities \textit{other} than the one used in $\ze$. We use the smaller 90m parameter BlenderBot model \citep{roller2021recipes} as the base model for this experiment, as it is currently state-of-the-art in dialog. %\footnote{Note that we could use any dialogue model as a base model for this experiment, but we use BlenderBot as it is currently state-of-the-art in dialogue.}
+
+\textbf{Comparison algorithms.} 
+We perform experiments evaluating a variety of existing approaches to model editing in a variety of difficult editing settings. We consider gradient-based editors, fine-tuning on the edit example (\textbf{FT}), editable neural networks (\textbf{ENN}; \citet{Sinitsin2020Editable}), KnowledgeEditor (\textbf{KE}; \citet{Cao2021EditingFK}), and model editor networks using gradient decomposition (\textbf{MEND}; \citet{mitchell2021fast}), as well as a cache+lookup baseline \textbf{LU} \footnote{We cache the average hidden state of $\xe$ computed by $\basemodel$, returning $\ye$ for new inputs $x'$ with hidden state less than $\delta$ from the hidden state of $\xe$ and $\basemodel(x')$ otherwise}. We also consider a `retrieve-and-prompt' ablation \textbf{RP} that uses a scope classifier identical to the one in the memory-based editor to retrieve a relevant edit example from the cache if there is one, but uses the base model $\basemodel$ rather than the counterfactual model $\rep$ to make the final prediction.
+
+\input{figures/tex/multi_edit}
+
+\subsection{Evaluating model editors on challenging tasks}
+
+\subsection{Re-using model editors across models}
+
+In this section, we demonstrate that the memory-based editor can be trained independently from any particular base model, leading to significant practical advantages. The most powerful model editors described in past works must be re-trained or re-fit for each new model they are intended to edit \citep{Sinitsin2020Editable,Cao2021EditingFK,mitchell2021fast,anon2021moving}. Further, these editors require access to the internal activations and gradients of $\basemodel$, leading to computational costs of training the editor to scale with the size of $\basemodel$ \citep{mitchell2021fast}. In contrast, the memory-based editor can be directly applied without modification to edit multiple models, and the computational costs of training are \textit{constant} with respect to base model size. Figure~\ref{fig:multi-model} shows the results. A single memory-based T5-editor shows consistently high edit success and low drawdown across 4 different T5 models, while a single memory-based GPT-2-editor shows similarly high edit success and low drawdown across 4 different GPT-2 models.
+
+
+\subsection{Making many edits}
+
+While past research in model editing has largely focused on single model edits, some works have noted that successfully applying multiple edits either as a batch \citep{mitchell2021fast} or in sequence \citep{hase2021language} is significantly more difficult than the single edit setting. In this section, we conduct experiments to understand how editor behavior changes as the number of sequentially-applied edits increases. Figure~\ref{fig:multi-edit} shows the results. Gradient-based editors exhibit near-monotonic decrease in their ability to both successfully update model predictions and prevent model degradation.
+
+% \subsection{Undergeneralization in model editors}
+
+% Past work has shown that existing model editors tend to make relatively superficial edits, failing to generalize to \textit{hard positives}, post-edit inputs that require reasoning about information entailed by an edit. See Table~\ref{tab:hard-pos-neg} for examples of hard positives for various datasets. In this experiment, we train each model editor with and without hard positives (the suffix `+' indicates the algorithm was trained with hard positives), evaluating with hard positives in both cases. Table~\ref{tab:undergeneralization} shows the results. {\name} is the only editor expressive enough to leverage hard positives during training; other algorithms exhibit significantly degraded performance on \textit{easy} positives when training with hard positives. In other words, they underfit the more difficult training distribution containing hard positives.
+
+% \subsection{Overgeneralization in model editors}
+% Basically same as undergeneralization, but looking at hard negatives instead of hard positives
+
+\subsection{Error Analysis}
+\input{tables/error_decomp}
+One advantage of the memory-based editor is the ability to decompose editor errors into classification errors and counterfactual prediction errors. Table~\ref{tab:decomp} shows the performance breakdown across editor components (scope classifier and counterfactual model) and data sub-split (all data, hard positives, hard negatives, etc.) when applying zsRE question-answering edits to a T5-large model.
+
+\subsection{Ablations}
+We perform a set of experiments to understand how classifier architecture impacts the behavior of the memory-based editor. Using the QA-hard and FC tasks with $k=10$ edits, we compare the cross-attention-based (Cross) and dense embedding-based (Embed) classifier using both distilBERT (\textbf{D}; \citep{Sanh2019DistilBERTAD}) and BERT-base (\textbf{B}; \citep{devlin2019bert}) as the backbone model. The results are shown in Table~\ref{tab:ablations}. Unsurprisingly, both increasing the size of the classifier and using cross-attention instead of dense-embeddings is helpful for editor performance. Cross-attention is especially useful for the FC experiment, which is possibly due to the commonness of quantities in the VitaminC dataset; producing fixed-length sequence embeddings that reliably capture the difference between \rawstring{There have been 105,000 coronavirus deaths in the United States} and \rawstring{There have been 111,000 coronavirus deaths in the United States} may be very difficult. In this case, late fusion approaches \citep{khattab2020colbert} may be useful in increasing expressiveness while limiting compute requirements.
