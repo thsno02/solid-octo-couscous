@@ -4,8 +4,9 @@ title: Claim ecdd2719fa55751c
 slug: claims/claim-ecdd2719fa55751c
 page_type: evidence
 status: review
-summary: graphicx booktabs makecell subcaption hyperref url array xcolor tikz calc xcolor amssymb comment lipsum
-  enumitem multirow xcolor caption pifont xcolor longtable
+summary: LLM agents hold significant promise for advancing scientific research. To accelerate this progress, we
+  introduce ~(the AI Research Science Benchmark), a suite of 20 tasks sourced from state-of-the-art machine learning
+  pa
 aliases: []
 ontology_refs:
 - experiment:meta-kb-v0
@@ -39,21 +40,21 @@ sections:
   source_refs: *id001
   editorial_intent: Resolve to local selectors.
 temporal:
-  created_at: '2026-09-13T17:43:07Z'
-  updated_at: '2026-09-13T17:43:07Z'
+  created_at: '2026-09-13T17:38:21Z'
+  updated_at: '2026-09-13T17:38:21Z'
   valid_from: null
   valid_to: null
-  as_of: '2026-09-13T17:43:07Z'
+  as_of: '2026-09-13T17:38:21Z'
 provenance:
-  build_id: build:llm-wiki-v0:196d848b07caf422
+  build_id: build:llm-wiki-v0:d303e0f210b88f64
   generated_by_agent: pipeline/build_llm_wiki.py
   generated_by_model: null
   prompt_or_skill_version: deterministic-llm-wiki-v0.2
   compiled_from_revisions:
   - arxiv:2602.06855@sha256:ac1ba940f1bdc54e012cc384c428f78bd01d50d7a947f052117944c03e790d9a
-  created_at: '2026-09-13T17:43:07Z'
-  updated_at: '2026-09-13T17:43:07Z'
-  manual_edits_preserved: true
+  created_at: '2026-09-13T17:38:21Z'
+  updated_at: '2026-09-13T17:38:21Z'
+  manual_edits_preserved: false
 review:
   state: needs_human
   reviewers: []
@@ -63,7 +64,7 @@ review:
   - Scientific, semantic, neutrality, and due-weight review remain required before publication.
 freshness:
   status: fresh
-  checked_at: '2026-09-13T17:43:07Z'
+  checked_at: '2026-09-13T17:38:21Z'
   max_age_days: 30
   source_dependencies: *id001
   staleness_reasons: []
@@ -72,12 +73,14 @@ consumption:
   - human
   - agent
   summary_tiers:
-    one_line: graphicx booktabs makecell subcaption hyperref url array xcolor tikz calc xcolor amssymb comment lipsum
-      enumitem multirow xcolor caption pifont xcolor longtable
-    short: graphicx booktabs makecell subcaption hyperref url array xcolor tikz calc xcolor amssymb comment lipsum
-      enumitem multirow xcolor caption pifont xcolor longtable
+    one_line: LLM agents hold significant promise for advancing scientific research. To accelerate this progress,
+      we introduce ~(the AI Research Science Benchmark), a suite of 20 tasks sourced from state-of-the-art machine
+      learning pa
+    short: LLM agents hold significant promise for advancing scientific research. To accelerate this progress, we
+      introduce ~(the AI Research Science Benchmark), a suite of 20 tasks sourced from state-of-the-art machine
+      learning pa
     full: null
-  estimated_tokens: 131
+  estimated_tokens: 141
   machine_entry_points:
   - ../../04_claims/claims.jsonl
   - ../../03_evidence/evidence.jsonl
@@ -90,7 +93,7 @@ consumption:
 
 ## Candidate statement
 
-graphicx booktabs makecell subcaption hyperref url array xcolor tikz calc xcolor amssymb comment lipsum enumitem multirow xcolor caption pifont xcolor longtable
+LLM agents hold significant promise for advancing scientific research. To accelerate this progress, we introduce ~(the AI Research Science Benchmark), a suite of 20 tasks sourced from state-of-the-art machine learning papers.
 
 ## Scope
 
@@ -103,7 +106,7 @@ graphicx booktabs makecell subcaption hyperref url array xcolor tikz calc xcolor
 
 | Evidence | Selector | Local artifact | Tier |
 |---|---|---|---|
-| `evidence:3c0c7c9546c2ec15` | `local://materialized_sources/corpus/arxiv-2602.06855--0b517136/normalized/document.txt#L1-L4` | `materialized_sources/corpus/arxiv-2602.06855--0b517136/normalized/document.txt` | `full_text` |
+| `evidence:3c0c7c9546c2ec15` | `local://materialized_sources/corpus/arxiv-2602.06855--0b517136/normalized/document.txt#L621-L622` | `materialized_sources/corpus/arxiv-2602.06855--0b517136/normalized/document.txt` | `full_text` |
 
 ## Review requirements
 

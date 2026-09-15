@@ -28,26 +28,19 @@ jobs:
       - name: Install materialization dependencies
         run: python -m pip install --disable-pip-version-check -r requirements-materialization.txt
 
-      - name: Materialize every collected source into a local capsule
+      - name: Run offline unit tests
+        run: make test
+
+      - name: Materialize, build, and validate the complete v0 demo
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          python scripts/materialize_all_sources.py \
-            --config pipeline/materialization_all_260910.yaml
+        run: make materialize
 
-      - name: Validate corpus completeness, hashes, selectors, registry, and index
-        run: python scripts/validate_materialization_completeness.py
+      - name: Verify byte-identical offline replay
+        run: make reproducibility
 
-      - name: Build the v0 meta-KB experiment from local capsules
-        run: python experiments/v0_meta_kb_initialization_demo_260910/pipeline/build_demo.py
-
-      - name: Validate the v0 experiment
-        run: python experiments/v0_meta_kb_initialization_demo_260910/pipeline/validate_demo.py
-
-      - name: Run repository-level deterministic checks
-        run: |
-          python scripts/validate_raw_data.py
-          python scripts/validate_docs.py
+      - name: Gate public redistribution on explicit rights review
+        run: python scripts/validate_publication_rights.py
 
       - name: Commit the validated local corpus and demo
         shell: bash

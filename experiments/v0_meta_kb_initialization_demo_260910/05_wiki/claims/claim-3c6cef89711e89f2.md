@@ -40,21 +40,21 @@ sections:
   source_refs: *id001
   editorial_intent: Resolve to local selectors.
 temporal:
-  created_at: '2026-09-13T17:43:07Z'
-  updated_at: '2026-09-13T17:43:07Z'
+  created_at: '2026-09-13T17:38:21Z'
+  updated_at: '2026-09-13T17:38:21Z'
   valid_from: null
   valid_to: null
-  as_of: '2026-09-13T17:43:07Z'
+  as_of: '2026-09-13T17:38:21Z'
 provenance:
-  build_id: build:llm-wiki-v0:196d848b07caf422
+  build_id: build:llm-wiki-v0:d303e0f210b88f64
   generated_by_agent: pipeline/build_llm_wiki.py
   generated_by_model: null
   prompt_or_skill_version: deterministic-llm-wiki-v0.2
   compiled_from_revisions:
   - arxiv:2505.13400@sha256:1abd0b99271884b6f1a8fd9db0185e8042f079a61879ec0c9a7febae6a0c942c
-  created_at: '2026-09-13T17:43:07Z'
-  updated_at: '2026-09-13T17:43:07Z'
-  manual_edits_preserved: true
+  created_at: '2026-09-13T17:38:21Z'
+  updated_at: '2026-09-13T17:38:21Z'
+  manual_edits_preserved: false
 review:
   state: needs_human
   reviewers: []
@@ -64,7 +64,7 @@ review:
   - Scientific, semantic, neutrality, and due-weight review remain required before publication.
 freshness:
   status: fresh
-  checked_at: '2026-09-13T17:43:07Z'
+  checked_at: '2026-09-13T17:38:21Z'
   max_age_days: 30
   source_dependencies: *id001
   staleness_reasons: []

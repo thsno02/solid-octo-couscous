@@ -47,21 +47,21 @@ sections:
   - arxiv:2509.25651
   editorial_intent: Keep collector interpretation separate.
 temporal:
-  created_at: '2026-09-13T17:43:07Z'
-  updated_at: '2026-09-13T17:43:07Z'
+  created_at: '2026-09-13T17:38:21Z'
+  updated_at: '2026-09-13T17:38:21Z'
   valid_from: null
   valid_to: null
-  as_of: '2026-09-13T17:43:07Z'
+  as_of: '2026-09-13T17:38:21Z'
 provenance:
-  build_id: build:llm-wiki-v0:196d848b07caf422
+  build_id: build:llm-wiki-v0:d303e0f210b88f64
   generated_by_agent: pipeline/build_llm_wiki.py
   generated_by_model: null
   prompt_or_skill_version: deterministic-llm-wiki-v0.2
   compiled_from_revisions:
   - arxiv:2509.25651@sha256:14424738e0ad14b8fd5891102b89d9a3e4888beb22605f723e1cc044231eb803
-  created_at: '2026-09-13T17:43:07Z'
-  updated_at: '2026-09-13T17:43:07Z'
-  manual_edits_preserved: true
+  created_at: '2026-09-13T17:38:21Z'
+  updated_at: '2026-09-13T17:38:21Z'
+  manual_edits_preserved: false
 review:
   state: needs_human
   reviewers: []
@@ -71,7 +71,7 @@ review:
   - Scientific, semantic, neutrality, and due-weight review remain required before publication.
 freshness:
   status: fresh
-  checked_at: '2026-09-13T17:43:07Z'
+  checked_at: '2026-09-13T17:38:21Z'
   max_age_days: 30
   source_dependencies: *id002
   staleness_reasons: []
@@ -85,7 +85,7 @@ consumption:
     short: 'Source page for AutoLabs: Cognitive Multi-Agent Systems with Self-Correction for Autonomous Chemical
       Experimentation with claim/evidence expansion.'
     full: null
-  estimated_tokens: 175
+  estimated_tokens: 207
   machine_entry_points:
   - ../../04_claims/claims.jsonl
   - ../../03_evidence/evidence.jsonl
@@ -108,7 +108,7 @@ consumption:
 
 ## Source-reported candidate statements
 
-- graphicx multirow amsmath,amssymb,amsfonts amsthm mathrsfs appendix xcolor textcomp manyfoot booktabs algorithm algorithmicx algpseudocode listings geometry subcaption lipsum xcolor xcolor 〔[claim:32d4ab82e7394fa1](../claims/claim-32d4ab82e7394fa1.md)〕
+- The automation of chemical research through self-driving laboratories (SDLs) promises to accelerate scientific discovery, yet the reliability and granular performance of the underlying AI agents remain critical, under-examined challenges. In this work, we introduce AutoLabs, a self-correcting, multi-agent architecture designed to autonomously translate natural-language instructions into executable protocols for a hig 〔[claim:32d4ab82e7394fa1](../claims/claim-32d4ab82e7394fa1.md)〕
 
 ## Collection assessments
 
@@ -118,8 +118,8 @@ consumption:
 
 | Claim | Evidence | Selector | Tier |
 |---|---|---|---|
-| `claim:32d4ab82e7394fa1` | `evidence:8c2fdbc074dbf7d4` | `local://materialized_sources/corpus/arxiv-2509.25651--2ba7699b/normalized/document.txt#L1-L4` | `full_text` |
-| `claim:34aa536e34afa87c` | `evidence:51eb00707ccc813c` | `local://raw_data/arxiv/AutoLabs: Cognitive Multi-Agent Systems with Self-Correction for Autonomous Chemical Experimentation/metadata.yaml#collection-inclusion-reason` | `metadata_capsule` |
+| `claim:32d4ab82e7394fa1` | `evidence:8c2fdbc074dbf7d4` | `local://materialized_sources/corpus/arxiv-2509.25651--2ba7699b/normalized/document.txt#L55-L55` | `full_text` |
+| `claim:34aa536e34afa87c` | `evidence:51eb00707ccc813c` | `local://raw_data/arxiv/AutoLabs: Cognitive Multi-Agent Systems with Self-Correction for Autonomous Chemical Experimentation/metadata.yaml#collection.inclusion_reason` | `metadata_capsule` |
 
 ## Governance boundary
 

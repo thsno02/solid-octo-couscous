@@ -15,14 +15,14 @@ source_refs: &id001
 - arxiv:2503.18102
 page_refs:
 - wiki-page:source-81e58c8add4ce203
-- wiki-page:map-ontology-semantic-architecture
+- wiki-page:map-knowledge-memory
 outgoing_links:
 - target: wiki-page:source-81e58c8add4ce203
   relation: evidenced_by
   claim_refs:
   - claim:f5d2f5be4a498ca2
   notes: null
-- target: wiki-page:map-ontology-semantic-architecture
+- target: wiki-page:map-knowledge-memory
   relation: part_of
   claim_refs:
   - claim:f5d2f5be4a498ca2
@@ -39,21 +39,21 @@ sections:
   source_refs: *id001
   editorial_intent: Resolve to local selectors.
 temporal:
-  created_at: '2026-09-13T17:43:07Z'
-  updated_at: '2026-09-13T17:43:07Z'
+  created_at: '2026-09-13T17:38:21Z'
+  updated_at: '2026-09-13T17:38:21Z'
   valid_from: null
   valid_to: null
-  as_of: '2026-09-13T17:43:07Z'
+  as_of: '2026-09-13T17:38:21Z'
 provenance:
-  build_id: build:llm-wiki-v0:196d848b07caf422
+  build_id: build:llm-wiki-v0:d303e0f210b88f64
   generated_by_agent: pipeline/build_llm_wiki.py
   generated_by_model: null
   prompt_or_skill_version: deterministic-llm-wiki-v0.2
   compiled_from_revisions:
   - arxiv:2503.18102@sha256:f26720fb630b99a1ee6534baf2f49b4d8a89bdde3f6f4542b0d0c5ade40f67c0
-  created_at: '2026-09-13T17:43:07Z'
-  updated_at: '2026-09-13T17:43:07Z'
-  manual_edits_preserved: true
+  created_at: '2026-09-13T17:38:21Z'
+  updated_at: '2026-09-13T17:38:21Z'
+  manual_edits_preserved: false
 review:
   state: needs_human
   reviewers: []
@@ -63,7 +63,7 @@ review:
   - Scientific, semantic, neutrality, and due-weight review remain required before publication.
 freshness:
   status: fresh
-  checked_at: '2026-09-13T17:43:07Z'
+  checked_at: '2026-09-13T17:38:21Z'
   max_age_days: 30
   source_dependencies: *id001
   staleness_reasons: []
@@ -77,7 +77,7 @@ consumption:
     short: 'A direct bridge between autonomous research and knowledge self-evolution: agent laboratories upload,
       retrieve and build on each others research, creating cumulative improvement across generations of work.'
     full: null
-  estimated_tokens: 137
+  estimated_tokens: 136
   machine_entry_points:
   - ../../04_claims/claims.jsonl
   - ../../03_evidence/evidence.jsonl
@@ -96,14 +96,14 @@ A direct bridge between autonomous research and knowledge self-evolution: agent 
 
 - Claim ID: `claim:f5d2f5be4a498ca2`
 - Scope: `collector assessment, not source-authored scientific fact`
-- Domain: [ontology-semantic-architecture](../maps/ontology-semantic-architecture.md)
+- Domain: [knowledge-memory](../maps/knowledge-memory.md)
 - Promotion state: `candidate`
 
 ## Evidence bindings
 
 | Evidence | Selector | Local artifact | Tier |
 |---|---|---|---|
-| `evidence:4b7e0c84f5a212e4` | `local://raw_data/arxiv/AgentRxiv: Towards Collaborative Autonomous Research/metadata.yaml#collection-inclusion-reason` | `raw_data/arxiv/AgentRxiv: Towards Collaborative Autonomous Research/metadata.yaml` | `metadata_capsule` |
+| `evidence:4b7e0c84f5a212e4` | `local://raw_data/arxiv/AgentRxiv: Towards Collaborative Autonomous Research/metadata.yaml#collection.inclusion_reason` | `raw_data/arxiv/AgentRxiv: Towards Collaborative Autonomous Research/metadata.yaml` | `metadata_capsule` |
 
 ## Review requirements
 
@@ -112,4 +112,4 @@ Check entailment, selector precision, source quality, identity, scope, contradic
 ## Related pages
 
 - [AgentRxiv: Towards Collaborative Autonomous Research](../sources/arxiv-2503.18102.md) — `evidenced_by`
-- [Ontology Semantic Architecture](../maps/ontology-semantic-architecture.md) — `part_of`
+- [Knowledge Memory](../maps/knowledge-memory.md) — `part_of`

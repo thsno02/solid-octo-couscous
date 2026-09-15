@@ -4,9 +4,8 @@ title: Claim 2f8ebd974fc7b5fd
 slug: claims/claim-2f8ebd974fc7b5fd
 page_type: evidence
 status: review
-summary: 'Historically, scientific discovery has been a lengthy and costly process, demanding substantial time and
-  resources from initial conception to final results. To accelerate scientific discovery, reduce research costs,
-  and '
+summary: Historically, scientific discovery has been a lengthy and costly process, demanding substantial time and
+  resources from initial conception to final results.
 aliases: []
 ontology_refs:
 - experiment:meta-kb-v0
@@ -40,21 +39,21 @@ sections:
   source_refs: *id001
   editorial_intent: Resolve to local selectors.
 temporal:
-  created_at: '2026-09-13T17:43:07Z'
-  updated_at: '2026-09-13T17:43:07Z'
+  created_at: '2026-09-13T17:38:21Z'
+  updated_at: '2026-09-13T17:38:21Z'
   valid_from: null
   valid_to: null
-  as_of: '2026-09-13T17:43:07Z'
+  as_of: '2026-09-13T17:38:21Z'
 provenance:
-  build_id: build:llm-wiki-v0:196d848b07caf422
+  build_id: build:llm-wiki-v0:d303e0f210b88f64
   generated_by_agent: pipeline/build_llm_wiki.py
   generated_by_model: null
   prompt_or_skill_version: deterministic-llm-wiki-v0.2
   compiled_from_revisions:
   - arxiv:2501.04227@sha256:1b28bfd8ca8a9dcb1930f7fcd49164300a984bd1abf533d3d28b475fe7dd7f85
-  created_at: '2026-09-13T17:43:07Z'
-  updated_at: '2026-09-13T17:43:07Z'
-  manual_edits_preserved: true
+  created_at: '2026-09-13T17:38:21Z'
+  updated_at: '2026-09-13T17:38:21Z'
+  manual_edits_preserved: false
 review:
   state: needs_human
   reviewers: []
@@ -64,7 +63,7 @@ review:
   - Scientific, semantic, neutrality, and due-weight review remain required before publication.
 freshness:
   status: fresh
-  checked_at: '2026-09-13T17:43:07Z'
+  checked_at: '2026-09-13T17:38:21Z'
   max_age_days: 30
   source_dependencies: *id001
   staleness_reasons: []
@@ -73,14 +72,12 @@ consumption:
   - human
   - agent
   summary_tiers:
-    one_line: 'Historically, scientific discovery has been a lengthy and costly process, demanding substantial time
-      and resources from initial conception to final results. To accelerate scientific discovery, reduce research
-      costs, and '
-    short: 'Historically, scientific discovery has been a lengthy and costly process, demanding substantial time
-      and resources from initial conception to final results. To accelerate scientific discovery, reduce research
-      costs, and '
+    one_line: Historically, scientific discovery has been a lengthy and costly process, demanding substantial time
+      and resources from initial conception to final results.
+    short: Historically, scientific discovery has been a lengthy and costly process, demanding substantial time
+      and resources from initial conception to final results.
     full: null
-  estimated_tokens: 152
+  estimated_tokens: 125
   machine_entry_points:
   - ../../04_claims/claims.jsonl
   - ../../03_evidence/evidence.jsonl
@@ -93,7 +90,7 @@ consumption:
 
 ## Candidate statement
 
-Historically, scientific discovery has been a lengthy and costly process, demanding substantial time and resources from initial conception to final results. To accelerate scientific discovery, reduce research costs, and improve research quality, we introduce Agent Laboratory , an autonomous LLM-based framework capable of completing the entire research process.
+Historically, scientific discovery has been a lengthy and costly process, demanding substantial time and resources from initial conception to final results.
 
 ## Scope
 
@@ -106,7 +103,7 @@ Historically, scientific discovery has been a lengthy and costly process, demand
 
 | Evidence | Selector | Local artifact | Tier |
 |---|---|---|---|
-| `evidence:b085c8ded21a947a` | `local://materialized_sources/corpus/arxiv-2501.04227--a0515b2c/normalized/document.txt#L133-L155` | `materialized_sources/corpus/arxiv-2501.04227--a0515b2c/normalized/document.txt` | `full_text` |
+| `evidence:b085c8ded21a947a` | `local://materialized_sources/corpus/arxiv-2501.04227--a0515b2c/normalized/document.txt#L133-L133` | `materialized_sources/corpus/arxiv-2501.04227--a0515b2c/normalized/document.txt` | `full_text` |
 
 ## Review requirements
 

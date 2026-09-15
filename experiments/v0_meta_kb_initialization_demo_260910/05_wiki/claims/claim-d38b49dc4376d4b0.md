@@ -4,8 +4,9 @@ title: Claim d38b49dc4376d4b0
 slug: claims/claim-d38b49dc4376d4b0
 page_type: evidence
 status: review
-summary: '- Commit: `a565fd2d1dca504ef5104a7cc0f3bdc4ab9b4fd2` - Default branch: `main` - Description: jennyzzt/dgm
-  - Selected evidence files: 2 of 21 files observed - Interpretation: maintainer documentation and static repository'
+summary: Repository for **Darwin Gödel Machine (DGM)**, a novel self-improving system that iteratively modifies
+  its own code (thereby also improving its ability to modify its own codebase) and empirically validates each change
+  us
 aliases: []
 ontology_refs:
 - experiment:meta-kb-v0
@@ -39,21 +40,21 @@ sections:
   source_refs: *id001
   editorial_intent: Resolve to local selectors.
 temporal:
-  created_at: '2026-09-13T17:43:07Z'
-  updated_at: '2026-09-13T17:43:07Z'
+  created_at: '2026-09-13T17:38:21Z'
+  updated_at: '2026-09-13T17:38:21Z'
   valid_from: null
   valid_to: null
-  as_of: '2026-09-13T17:43:07Z'
+  as_of: '2026-09-13T17:38:21Z'
 provenance:
-  build_id: build:llm-wiki-v0:196d848b07caf422
+  build_id: build:llm-wiki-v0:d303e0f210b88f64
   generated_by_agent: pipeline/build_llm_wiki.py
   generated_by_model: null
   prompt_or_skill_version: deterministic-llm-wiki-v0.2
   compiled_from_revisions:
   - github:jennyzzt/dgm@a565fd2d1dca504ef5104a7cc0f3bdc4ab9b4fd2
-  created_at: '2026-09-13T17:43:07Z'
-  updated_at: '2026-09-13T17:43:07Z'
-  manual_edits_preserved: true
+  created_at: '2026-09-13T17:38:21Z'
+  updated_at: '2026-09-13T17:38:21Z'
+  manual_edits_preserved: false
 review:
   state: needs_human
   reviewers: []
@@ -63,7 +64,7 @@ review:
   - Scientific, semantic, neutrality, and due-weight review remain required before publication.
 freshness:
   status: fresh
-  checked_at: '2026-09-13T17:43:07Z'
+  checked_at: '2026-09-13T17:38:21Z'
   max_age_days: 30
   source_dependencies: *id001
   staleness_reasons: []
@@ -72,12 +73,14 @@ consumption:
   - human
   - agent
   summary_tiers:
-    one_line: '- Commit: `a565fd2d1dca504ef5104a7cc0f3bdc4ab9b4fd2` - Default branch: `main` - Description: jennyzzt/dgm
-      - Selected evidence files: 2 of 21 files observed - Interpretation: maintainer documentation and static repository'
-    short: '- Commit: `a565fd2d1dca504ef5104a7cc0f3bdc4ab9b4fd2` - Default branch: `main` - Description: jennyzzt/dgm
-      - Selected evidence files: 2 of 21 files observed - Interpretation: maintainer documentation and static repository'
+    one_line: Repository for **Darwin Gödel Machine (DGM)**, a novel self-improving system that iteratively modifies
+      its own code (thereby also improving its ability to modify its own codebase) and empirically validates each
+      change us
+    short: Repository for **Darwin Gödel Machine (DGM)**, a novel self-improving system that iteratively modifies
+      its own code (thereby also improving its ability to modify its own codebase) and empirically validates each
+      change us
     full: null
-  estimated_tokens: 123
+  estimated_tokens: 125
   machine_entry_points:
   - ../../04_claims/claims.jsonl
   - ../../03_evidence/evidence.jsonl
@@ -90,7 +93,7 @@ consumption:
 
 ## Candidate statement
 
-- Commit: `a565fd2d1dca504ef5104a7cc0f3bdc4ab9b4fd2` - Default branch: `main` - Description: jennyzzt/dgm - Selected evidence files: 2 of 21 files observed - Interpretation: maintainer documentation and static repository evidence; runtime behavior is not proven.
+Repository for **Darwin Gödel Machine (DGM)**, a novel self-improving system that iteratively modifies its own code (thereby also improving its ability to modify its own codebase) and empirically validates each change using coding benchmarks.
 
 ## Scope
 
@@ -103,7 +106,7 @@ consumption:
 
 | Evidence | Selector | Local artifact | Tier |
 |---|---|---|---|
-| `evidence:86f2cb90e58dd2e2` | `local://materialized_sources/corpus/github-jennyzzt-dgm--c8b75f99/document.md#L3-L6` | `materialized_sources/corpus/github-jennyzzt-dgm--c8b75f99/document.md` | `semantic_capsule` |
+| `evidence:86f2cb90e58dd2e2` | `local://materialized_sources/corpus/github-jennyzzt-dgm--c8b75f99/evidence/files/README.md#L14-L14` | `materialized_sources/corpus/github-jennyzzt-dgm--c8b75f99/evidence/files/README.md` | `semantic_capsule` |
 
 ## Review requirements
 

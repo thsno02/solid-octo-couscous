@@ -47,21 +47,21 @@ sections:
   - arxiv:2602.06855
   editorial_intent: Keep collector interpretation separate.
 temporal:
-  created_at: '2026-09-13T17:43:07Z'
-  updated_at: '2026-09-13T17:43:07Z'
+  created_at: '2026-09-13T17:38:21Z'
+  updated_at: '2026-09-13T17:38:21Z'
   valid_from: null
   valid_to: null
-  as_of: '2026-09-13T17:43:07Z'
+  as_of: '2026-09-13T17:38:21Z'
 provenance:
-  build_id: build:llm-wiki-v0:196d848b07caf422
+  build_id: build:llm-wiki-v0:d303e0f210b88f64
   generated_by_agent: pipeline/build_llm_wiki.py
   generated_by_model: null
   prompt_or_skill_version: deterministic-llm-wiki-v0.2
   compiled_from_revisions:
   - arxiv:2602.06855@sha256:ac1ba940f1bdc54e012cc384c428f78bd01d50d7a947f052117944c03e790d9a
-  created_at: '2026-09-13T17:43:07Z'
-  updated_at: '2026-09-13T17:43:07Z'
-  manual_edits_preserved: true
+  created_at: '2026-09-13T17:38:21Z'
+  updated_at: '2026-09-13T17:38:21Z'
+  manual_edits_preserved: false
 review:
   state: needs_human
   reviewers: []
@@ -71,7 +71,7 @@ review:
   - Scientific, semantic, neutrality, and due-weight review remain required before publication.
 freshness:
   status: fresh
-  checked_at: '2026-09-13T17:43:07Z'
+  checked_at: '2026-09-13T17:38:21Z'
   max_age_days: 30
   source_dependencies: *id002
   staleness_reasons: []
@@ -85,7 +85,7 @@ consumption:
     short: 'Source page for AIRS-Bench: a Suite of Tasks for Frontier AI Research Science Agents with claim/evidence
       expansion.'
     full: null
-  estimated_tokens: 182
+  estimated_tokens: 192
   machine_entry_points:
   - ../../04_claims/claims.jsonl
   - ../../03_evidence/evidence.jsonl
@@ -108,7 +108,7 @@ consumption:
 
 ## Source-reported candidate statements
 
-- graphicx booktabs makecell subcaption hyperref url array xcolor tikz calc xcolor amssymb comment lipsum enumitem multirow xcolor caption pifont xcolor longtable 〔[claim:ecdd2719fa55751c](../claims/claim-ecdd2719fa55751c.md)〕
+- LLM agents hold significant promise for advancing scientific research. To accelerate this progress, we introduce ~(the AI Research Science Benchmark), a suite of 20 tasks sourced from state-of-the-art machine learning papers. 〔[claim:ecdd2719fa55751c](../claims/claim-ecdd2719fa55751c.md)〕
 
 ## Collection assessments
 
@@ -118,8 +118,8 @@ consumption:
 
 | Claim | Evidence | Selector | Tier |
 |---|---|---|---|
-| `claim:17c715b34b0f0c68` | `evidence:9211528f477bfb59` | `local://raw_data/arxiv/AIRS-Bench: a Suite of Tasks for Frontier AI Research Science Agents/metadata.yaml#collection-inclusion-reason` | `metadata_capsule` |
-| `claim:ecdd2719fa55751c` | `evidence:3c0c7c9546c2ec15` | `local://materialized_sources/corpus/arxiv-2602.06855--0b517136/normalized/document.txt#L1-L4` | `full_text` |
+| `claim:17c715b34b0f0c68` | `evidence:9211528f477bfb59` | `local://raw_data/arxiv/AIRS-Bench: a Suite of Tasks for Frontier AI Research Science Agents/metadata.yaml#collection.inclusion_reason` | `metadata_capsule` |
+| `claim:ecdd2719fa55751c` | `evidence:3c0c7c9546c2ec15` | `local://materialized_sources/corpus/arxiv-2602.06855--0b517136/normalized/document.txt#L621-L622` | `full_text` |
 
 ## Governance boundary
 

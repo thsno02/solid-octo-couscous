@@ -2,6 +2,7 @@
 """Validate the v0 meta-KB experiment and its local evidence chain."""
 from __future__ import annotations
 
+import argparse
 import json
 import sys
 from collections import Counter
@@ -10,6 +11,8 @@ from typing import Any
 
 import yaml
 from jsonschema import Draft202012Validator, FormatChecker
+
+from evidence_validation import validate_evidence_chain
 
 EXPERIMENT_ROOT = Path(__file__).resolve().parents[1]
 ROOT = Path(__file__).resolve().parents[3]
@@ -62,7 +65,7 @@ def schema_errors(validator: Draft202012Validator, value: dict[str, Any], prefix
     return errors
 
 
-def main() -> int:
+def main(*, write_reports: bool = False) -> int:
     errors: list[str] = []
     warnings: list[str] = []
     required = [
@@ -114,7 +117,6 @@ def main() -> int:
 
     evidence_by_uid = {str(item["uid"]): item for item in evidence}
     claims_by_uid = {str(item["uid"]): item for item in claims}
-    trusted_claims = 0
     for claim in claims:
         uid = str(claim["uid"])
         refs = claim.get("epistemic", {}).get("evidence_refs", [])
@@ -123,18 +125,6 @@ def main() -> int:
         for ref in refs:
             if ref not in evidence_by_uid:
                 errors.append(f"CLAIM_BROKEN_EVIDENCE {uid} -> {ref}")
-        if claim.get("governance", {}).get("promotion_state") == "trusted":
-            trusted_claims += 1
-
-    for item in evidence:
-        uid = str(item["uid"])
-        properties = item.get("semantics", {}).get("property_assertions", {})
-        local_path = properties.get("local_path") if isinstance(properties, dict) else None
-        if not isinstance(local_path, str) or not (ROOT / local_path).exists():
-            errors.append(f"EVIDENCE_LOCAL_PATH {uid} -> {local_path}")
-        excerpt = properties.get("excerpt") if isinstance(properties, dict) else None
-        if not isinstance(excerpt, str) or not excerpt.strip():
-            errors.append(f"EVIDENCE_EMPTY_EXCERPT {uid}")
 
     registry = load_yaml(REGISTRY)
     source_uids = {
@@ -148,6 +138,17 @@ def main() -> int:
     missing_registry = sorted(selected_uids - source_uids)
     if missing_registry:
         errors.append(f"SELECTED_NOT_IN_REGISTRY {missing_registry}")
+
+    evidence_validation = validate_evidence_chain(
+        root=ROOT,
+        claims=claims,
+        evidence=evidence,
+        sources=[item for item in selected_sources if isinstance(item, dict)],
+    )
+    for error in evidence_validation["errors"]:
+        if error not in errors:
+            errors.append(error)
+    trusted_claims = int(evidence_validation["trusted_claims"])
 
     wiki_pages = sorted((EXPERIMENT_ROOT / "05_wiki").rglob("*.md"))
     page_ids: set[str] = set()
@@ -186,7 +187,8 @@ def main() -> int:
     release = load_yaml(EXPERIMENT_ROOT / "08_release" / "manifest.yaml")
     if not isinstance(release, dict) or release.get("release_state") != "candidate":
         errors.append("RELEASE_STATE_MUST_BE_CANDIDATE")
-    if trusted_claims != 0 or (isinstance(release, dict) and release.get("trusted_claims") != 0):
+    release_trusted_claims = release.get("trusted_claims") if isinstance(release, dict) else None
+    if trusted_claims != 0 or release_trusted_claims != 0:
         errors.append("V0_MUST_NOT_AUTO_PROMOTE_TRUSTED_CLAIMS")
 
     validation = {
@@ -205,31 +207,59 @@ def main() -> int:
         "checks": {
             "knowledge_object_schema": "pass" if not any(error.startswith("OBJECT ") for error in errors) else "fail",
             "wiki_page_schema": "pass" if not any(error.startswith("PAGE ") or error.startswith("WIKI_") for error in errors) else "fail",
-            "claim_to_evidence_integrity": "pass" if not any("EVIDENCE" in error for error in errors) else "fail",
-            "local_evidence_resolution": "pass" if not any(error.startswith("EVIDENCE_LOCAL_PATH") for error in errors) else "fail",
+            "claim_to_evidence_integrity": "pass" if not (
+                evidence_validation["evidence_errors"]
+                or evidence_validation["claim_errors"]
+                or any(
+                    error.startswith(("CLAIM_WITHOUT_EVIDENCE", "CLAIM_BROKEN_EVIDENCE"))
+                    for error in errors
+                )
+            ) else "fail",
+            "local_evidence_resolution": "pass" if not evidence_validation["evidence_errors"] else "fail",
+            "evidence_content_integrity": "pass" if not evidence_validation["evidence_errors"] else "fail",
+            "metadata_only_source_policy": "pass" if not any(
+                error.startswith("METADATA_ONLY_SOURCE_REPORTED_CLAIM")
+                for error in evidence_validation["policy_errors"]
+            ) else "fail",
             "source_registry_integrity": "pass" if not missing_registry else "fail",
             "review_queue_complete": "pass" if queued_claims == set(claims_by_uid) else "fail",
-            "no_automatic_trust_promotion": "pass" if trusted_claims == 0 else "fail",
+            "no_automatic_trust_promotion": "pass" if trusted_claims == 0 and release_trusted_claims == 0 else "fail",
         },
         "warnings": warnings,
         "errors": errors,
         "interpretation": "Passing proves structural and referential integrity, not scientific truth.",
     }
-    write_yaml(EXPERIMENT_ROOT / "06_evaluation" / "validation.yaml", validation)
+    if write_reports:
+        write_yaml(EXPERIMENT_ROOT / "06_evaluation" / "validation.yaml", validation)
 
-    report_path = EXPERIMENT_ROOT / "06_evaluation" / "report.yaml"
-    report = load_yaml(report_path)
-    if isinstance(report, dict) and isinstance(report.get("checks"), dict):
-        report["checks"].update(
-            {
-                "evidence_created_for_every_claim": validation["checks"]["claim_to_evidence_integrity"],
-                "claim_schema": validation["checks"]["knowledge_object_schema"],
-                "wiki_page_schema": validation["checks"]["wiki_page_schema"],
-                "local_evidence_resolution": validation["checks"]["local_evidence_resolution"],
-            }
-        )
-        report["validation_status"] = validation["status"]
-        write_yaml(report_path, report)
+        report_path = EXPERIMENT_ROOT / "06_evaluation" / "report.yaml"
+        report = load_yaml(report_path)
+        if isinstance(report, dict) and isinstance(report.get("checks"), dict):
+            report_counts = report.get("counts")
+            if isinstance(report_counts, dict):
+                report_counts.update(
+                    {
+                        "selected_sources": validation["counts"]["selected_sources"],
+                        "source_entities": validation["counts"]["source_entities"],
+                        "domain_entities": validation["counts"]["domain_entities"],
+                        "evidence_objects": validation["counts"]["evidence"],
+                        "claim_objects": validation["counts"]["claims"],
+                        "wiki_pages": validation["counts"]["wiki_pages"],
+                        "review_items": validation["counts"]["review_items"],
+                        "trusted_claims": validation["counts"]["trusted_claims"],
+                    }
+                )
+            report["checks"].update(
+                {
+                    "evidence_created_for_every_claim": validation["checks"]["claim_to_evidence_integrity"],
+                    "claim_schema": validation["checks"]["knowledge_object_schema"],
+                    "wiki_page_schema": validation["checks"]["wiki_page_schema"],
+                    "local_evidence_resolution": validation["checks"]["local_evidence_resolution"],
+                    "evidence_content_integrity": validation["checks"]["evidence_content_integrity"],
+                }
+            )
+            report["validation_status"] = validation["status"]
+            write_yaml(report_path, report)
 
     print(
         "demo_validation "
@@ -251,4 +281,10 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--write-report",
+        action="store_true",
+        help="write validation.yaml and update report.yaml (builders only)",
+    )
+    sys.exit(main(write_reports=parser.parse_args().write_report))

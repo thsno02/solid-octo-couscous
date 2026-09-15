@@ -39,21 +39,21 @@ sections:
   source_refs: *id001
   editorial_intent: Resolve to local selectors.
 temporal:
-  created_at: '2026-09-13T17:43:07Z'
-  updated_at: '2026-09-13T17:43:07Z'
+  created_at: '2026-09-13T17:38:21Z'
+  updated_at: '2026-09-13T17:38:21Z'
   valid_from: null
   valid_to: null
-  as_of: '2026-09-13T17:43:07Z'
+  as_of: '2026-09-13T17:38:21Z'
 provenance:
-  build_id: build:llm-wiki-v0:196d848b07caf422
+  build_id: build:llm-wiki-v0:d303e0f210b88f64
   generated_by_agent: pipeline/build_llm_wiki.py
   generated_by_model: null
   prompt_or_skill_version: deterministic-llm-wiki-v0.2
   compiled_from_revisions:
   - github:jennyzzt/dgm@a565fd2d1dca504ef5104a7cc0f3bdc4ab9b4fd2
-  created_at: '2026-09-13T17:43:07Z'
-  updated_at: '2026-09-13T17:43:07Z'
-  manual_edits_preserved: true
+  created_at: '2026-09-13T17:38:21Z'
+  updated_at: '2026-09-13T17:38:21Z'
+  manual_edits_preserved: false
 review:
   state: needs_human
   reviewers: []
@@ -63,7 +63,7 @@ review:
   - Scientific, semantic, neutrality, and due-weight review remain required before publication.
 freshness:
   status: fresh
-  checked_at: '2026-09-13T17:43:07Z'
+  checked_at: '2026-09-13T17:38:21Z'
   max_age_days: 30
   source_dependencies: *id001
   staleness_reasons: []
@@ -103,7 +103,7 @@ One of the clearest open implementations of a system that edits its own agent co
 
 | Evidence | Selector | Local artifact | Tier |
 |---|---|---|---|
-| `evidence:1f00e2f956a2afe4` | `local://raw_data/githubs/jennyzzt--dgm/metadata.yaml#collection-inclusion-reason` | `raw_data/githubs/jennyzzt--dgm/metadata.yaml` | `metadata_capsule` |
+| `evidence:1f00e2f956a2afe4` | `local://raw_data/githubs/jennyzzt--dgm/metadata.yaml#collection.inclusion_reason` | `raw_data/githubs/jennyzzt--dgm/metadata.yaml` | `metadata_capsule` |
 
 ## Review requirements
 

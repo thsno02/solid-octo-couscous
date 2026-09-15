@@ -25,16 +25,16 @@
 
 ## 构建
 
-在仓库根目录执行：
+在仓库根目录执行统一入口：
 
 ```bash
-python experiments/v0_meta_kb_initialization_demo_260910/pipeline/build_demo.py
-python experiments/v0_meta_kb_initialization_demo_260910/pipeline/build_llm_wiki.py
-python experiments/v0_meta_kb_initialization_demo_260910/pipeline/validate_llm_wiki.py
-python experiments/v0_meta_kb_initialization_demo_260910/pipeline/validate_demo.py
+make demo
+make validate
 ```
 
-`build_demo.py` 生成基础 claim/evidence layer；`build_llm_wiki.py` 从该层执行 pipeline Stage 8–16 的可确定部分。编译器不调用模型，因此同一组固定输入会得到相同 build key、页面集合、typed-link 图和索引。
+`make demo` 严格按 `build-demo → validate-demo → build-wiki → validate-wiki` 执行；这个顺序也适用于 `make -j demo`，避免基础构建清理 Wiki 输出或多个 validator 同时改写评估文件。需要重新物化全部来源时使用 `make materialize`，它会先完成网络物化，再执行同一 demo 构建和全仓验证。`build_demo.py` 生成基础 claim/evidence layer；`build_llm_wiki.py` 从该层执行 pipeline Stage 8–16 的可确定部分。编译器不调用模型，因此同一组固定输入会得到相同 build key、页面集合、typed-link 图和索引。
+
+单阶段排障可使用 `make build-demo`、`make validate-demo`、`make build-wiki` 和 `make validate-wiki`；这些低层入口不会隐式物化来源，完整重建应优先使用 `make demo`。
 
 ## 主要输出
 

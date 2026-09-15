@@ -9,42 +9,34 @@ aliases: []
 ontology_refs:
 - experiment:meta-kb-v0
 claim_refs:
-- claim:068d86487f332a77
-- claim:07439fdff0cc0aa3
-- claim:1f22b83092edba2b
+- claim:0edb741be0f31f6f
+- claim:27f7e77bbaa0d47f
 - claim:3adb88340e0eb2b6
-- claim:714e301e8b2162bc
-- claim:84c91602bd1dfb78
-- claim:bde139a533f9483a
-- claim:e7026275c099e7e2
-- claim:f5d2f5be4a498ca2
+- claim:3e6ec7f46b13c44f
+- claim:583280271287ef9c
 - claim:fc57f26307cefee3
 source_refs: &id001
-- standard:apache-ossie
-- arxiv:2503.18102
+- arxiv:2511.02824
+- methodology:linkml-schema-first
 - github:linkml/linkml
-- github:VectifyAI/OpenKB
-- arxiv:2406.06769
 page_refs:
-- wiki-page:source-fee7c775085eb729
-- wiki-page:source-81e58c8add4ce203
+- wiki-page:source-51ed59b1fc0ecd08
+- wiki-page:source-93365d53a252ec8d
 - wiki-page:source-8a8c72b9ad5bf51d
-- wiki-page:source-332922100755365f
-- wiki-page:source-18c791741aa4bcd7
 - wiki-page:claim-evidence-page-compilation
 - wiki-page:llm-wiki-reference-system
 outgoing_links:
-- target: wiki-page:source-fee7c775085eb729
+- target: wiki-page:source-51ed59b1fc0ecd08
   relation: explains
   claim_refs:
-  - claim:1f22b83092edba2b
-  - claim:068d86487f332a77
+  - claim:0edb741be0f31f6f
+  - claim:3e6ec7f46b13c44f
   notes: null
-- target: wiki-page:source-81e58c8add4ce203
+- target: wiki-page:source-93365d53a252ec8d
   relation: explains
   claim_refs:
-  - claim:07439fdff0cc0aa3
-  - claim:f5d2f5be4a498ca2
+  - claim:583280271287ef9c
+  - claim:27f7e77bbaa0d47f
   notes: null
 - target: wiki-page:source-8a8c72b9ad5bf51d
   relation: explains
@@ -52,37 +44,25 @@ outgoing_links:
   - claim:fc57f26307cefee3
   - claim:3adb88340e0eb2b6
   notes: null
-- target: wiki-page:source-332922100755365f
-  relation: explains
-  claim_refs:
-  - claim:e7026275c099e7e2
-  - claim:714e301e8b2162bc
-  notes: null
-- target: wiki-page:source-18c791741aa4bcd7
-  relation: explains
-  claim_refs:
-  - claim:84c91602bd1dfb78
-  - claim:bde139a533f9483a
-  notes: null
 - target: wiki-page:claim-evidence-page-compilation
   relation: related
   claim_refs:
-  - claim:068d86487f332a77
-  - claim:07439fdff0cc0aa3
-  - claim:1f22b83092edba2b
+  - claim:0edb741be0f31f6f
+  - claim:27f7e77bbaa0d47f
   - claim:3adb88340e0eb2b6
-  - claim:714e301e8b2162bc
-  - claim:84c91602bd1dfb78
+  - claim:3e6ec7f46b13c44f
+  - claim:583280271287ef9c
+  - claim:fc57f26307cefee3
   notes: null
 - target: wiki-page:llm-wiki-reference-system
   relation: related
   claim_refs:
-  - claim:068d86487f332a77
-  - claim:07439fdff0cc0aa3
-  - claim:1f22b83092edba2b
+  - claim:0edb741be0f31f6f
+  - claim:27f7e77bbaa0d47f
   - claim:3adb88340e0eb2b6
-  - claim:714e301e8b2162bc
-  - claim:84c91602bd1dfb78
+  - claim:3e6ec7f46b13c44f
+  - claim:583280271287ef9c
+  - claim:fc57f26307cefee3
   notes: null
 sections:
 - heading: Source coverage
@@ -91,52 +71,42 @@ sections:
   editorial_intent: Route by source family.
 - heading: Source-reported signals
   claim_refs:
-  - claim:07439fdff0cc0aa3
-  - claim:1f22b83092edba2b
-  - claim:84c91602bd1dfb78
-  - claim:e7026275c099e7e2
+  - claim:0edb741be0f31f6f
+  - claim:583280271287ef9c
   - claim:fc57f26307cefee3
   source_refs:
-  - arxiv:2503.18102
-  - standard:apache-ossie
-  - arxiv:2406.06769
-  - github:VectifyAI/OpenKB
+  - arxiv:2511.02824
+  - methodology:linkml-schema-first
   - github:linkml/linkml
   editorial_intent: Preserve source-authored scope.
 - heading: Collector assessments
   claim_refs:
-  - claim:068d86487f332a77
+  - claim:27f7e77bbaa0d47f
   - claim:3adb88340e0eb2b6
-  - claim:714e301e8b2162bc
-  - claim:bde139a533f9483a
-  - claim:f5d2f5be4a498ca2
+  - claim:3e6ec7f46b13c44f
   source_refs:
-  - standard:apache-ossie
+  - methodology:linkml-schema-first
   - github:linkml/linkml
-  - github:VectifyAI/OpenKB
-  - arxiv:2406.06769
-  - arxiv:2503.18102
+  - arxiv:2511.02824
   editorial_intent: Preserve collector scope.
 temporal:
-  created_at: '2026-09-13T17:43:07Z'
-  updated_at: '2026-09-13T17:43:07Z'
+  created_at: '2026-09-13T17:38:21Z'
+  updated_at: '2026-09-13T17:38:21Z'
   valid_from: null
   valid_to: null
-  as_of: '2026-09-13T17:43:07Z'
+  as_of: '2026-09-13T17:38:21Z'
 provenance:
-  build_id: build:llm-wiki-v0:196d848b07caf422
+  build_id: build:llm-wiki-v0:d303e0f210b88f64
   generated_by_agent: pipeline/build_llm_wiki.py
   generated_by_model: null
   prompt_or_skill_version: deterministic-llm-wiki-v0.2
   compiled_from_revisions:
-  - standard:apache-ossie@sha256:ee15e76e9196d569d57ad8b65a3865e333d1891ff04791e2b2772b1edbb32eb4
-  - arxiv:2503.18102@sha256:f26720fb630b99a1ee6534baf2f49b4d8a89bdde3f6f4542b0d0c5ade40f67c0
+  - arxiv:2511.02824@sha256:6c71312f8e88b313baf4eeb44a39fefa9f09ad5bd247e176e49824310cf5fb5e
+  - methodology:linkml-schema-first@sha256:93a9f00b0006695dab8f1bde801a40e36eed8c236c4c839aff645bec38b5dc6c
   - github:linkml/linkml@0e401cef2711b0f12f5a1870805c5cfa999b0858
-  - github:VectifyAI/OpenKB@ff54396e575ee6feb0113b631a34caa082b441cc
-  - arxiv:2406.06769@sha256:cb1d6ccc88eb66af69e71730a5c488234ff4fe8af04ba04081b5a445f4d39b3e
-  created_at: '2026-09-13T17:43:07Z'
-  updated_at: '2026-09-13T17:43:07Z'
-  manual_edits_preserved: true
+  created_at: '2026-09-13T17:38:21Z'
+  updated_at: '2026-09-13T17:38:21Z'
+  manual_edits_preserved: false
 review:
   state: needs_human
   reviewers: []
@@ -146,7 +116,7 @@ review:
   - Scientific, semantic, neutrality, and due-weight review remain required before publication.
 freshness:
   status: fresh
-  checked_at: '2026-09-13T17:43:07Z'
+  checked_at: '2026-09-13T17:38:21Z'
   max_age_days: 30
   source_dependencies: *id001
   staleness_reasons: []
@@ -158,7 +128,7 @@ consumption:
     one_line: Routing map for ontology semantic architecture sources, questions, and claims.
     short: Routing map for ontology semantic architecture sources, questions, and claims.
     full: null
-  estimated_tokens: 537
+  estimated_tokens: 334
   machine_entry_points:
   - ../../04_claims/claims.jsonl
   - ../../03_evidence/evidence.jsonl
@@ -179,27 +149,21 @@ Stable identity, schema, typed relations, provenance, and semantic change.
 
 | Source | Type | Tier | Claims |
 |---|---|---|---|
-| [Apache Ossie (incubating), formerly Open Semantic Interchange](../sources/standard-apache-ossie.md) | `standard` | `full_text` | 2 |
-| [AgentRxiv: Towards Collaborative Autonomous Research](../sources/arxiv-2503.18102.md) | `arxiv` | `full_text` | 2 |
+| [Kosmos: An AI Scientist for Autonomous Discovery](../sources/arxiv-2511.02824.md) | `arxiv` | `full_text` | 2 |
+| [LinkML schema-first knowledge modeling](../sources/methodology-linkml-schema-first.md) | `methodology` | `full_text` | 2 |
 | [linkml/linkml](../sources/github-linkml-linkml.md) | `github` | `semantic_capsule` | 2 |
-| [VectifyAI/OpenKB](../sources/github-vectifyai-openkb.md) | `github` | `semantic_capsule` | 2 |
-| [DISCOVERYWORLD: A Virtual Environment for Developing and Evaluating Automated Scientific Discovery Agents](../sources/arxiv-2406.06769.md) | `arxiv` | `full_text` | 2 |
 
 ## Source-reported signals
 
-- **AgentRxiv: Towards Collaborative Autonomous Research** (source assertion): Progress in scientific discovery is rarely the result of a single "Eureka" moment, but is rather the product of hundreds of scientists incrementally working together toward a common goal. While existing agent workflows are capable of producing research autonomously, they do so in isolation, without the ability to continuously improve upon prior research results. 〔[claim:07439fdff0cc0aa3](../claims/claim-07439fdff0cc0aa3.md)〕
-- **Apache Ossie (incubating), formerly Open Semantic Interchange** (source assertion): # Home 〔[claim:1f22b83092edba2b](../claims/claim-1f22b83092edba2b.md)〕
-- **DISCOVERYWORLD: A Virtual Environment for Developing and Evaluating Automated Scientific Discovery Agents** (source assertion): Automated scientific discovery promises to accelerate progress across scientific domains. However, developing and evaluating an AI agent's capacity for end-to-end scientific reasoning is challenging as running real-world experiments is often prohibitively expensive or infeasible. 〔[claim:84c91602bd1dfb78](../claims/claim-84c91602bd1dfb78.md)〕
-- **VectifyAI/OpenKB** (source assertion): - Commit: `ff54396e575ee6feb0113b631a34caa082b441cc` - Default branch: `main` - Description: VectifyAI/OpenKB - Selected evidence files: 4 of 21 files observed - Interpretation: maintainer documentation and static repository evidence; runtime behavior is not proven. 〔[claim:e7026275c099e7e2](../claims/claim-e7026275c099e7e2.md)〕
-- **linkml/linkml** (source assertion): - Commit: `0e401cef2711b0f12f5a1870805c5cfa999b0858` - Default branch: `main` - Description: linkml/linkml - Selected evidence files: 8 of 21 files observed - Interpretation: maintainer documentation and static repository evidence; runtime behavior is not proven. 〔[claim:fc57f26307cefee3](../claims/claim-fc57f26307cefee3.md)〕
+- **Kosmos: An AI Scientist for Autonomous Discovery** (source assertion): Data-driven scientific discovery requires iterative cycles of literature search, hypothesis generation, and data analysis. Substantial progress has been made towards AI agents that can automate scientific research, but all such agents remain limited in the number of actions they can take before losing coherence, thus limiting the depth of their findings. 〔[claim:0edb741be0f31f6f](../claims/claim-0edb741be0f31f6f.md)〕
+- **LinkML schema-first knowledge modeling** (source assertion): LinkML is a flexible modeling language that allows you to author schemas in YAML that describe the structure of your data. 〔[claim:583280271287ef9c](../claims/claim-583280271287ef9c.md)〕
+- **linkml/linkml** (source assertion): LinkML is a linked data modeling language following object-oriented and ontological principles. 〔[claim:fc57f26307cefee3](../claims/claim-fc57f26307cefee3.md)〕
 
 ## Collector assessments
 
-- **Apache Ossie (incubating), formerly Open Semantic Interchange** (collection assessment): A new vendor-neutral semantic-model interchange effort for analytics, BI and AI agents. 〔[claim:068d86487f332a77](../claims/claim-068d86487f332a77.md)〕
+- **LinkML schema-first knowledge modeling** (collection assessment): Modern developer-friendly source model that generates JSON Schema, OWL, SHACL, code, SQL and other artifacts. 〔[claim:27f7e77bbaa0d47f](../claims/claim-27f7e77bbaa0d47f.md)〕
 - **linkml/linkml** (collection assessment): Modern schema-first bridge between developer data models and linked-data/ontology artifacts. 〔[claim:3adb88340e0eb2b6](../claims/claim-3adb88340e0eb2b6.md)〕
-- **VectifyAI/OpenKB** (collection assessment): A CLI knowledge compiler with wiki foundation and downstream generators, hierarchical long-document retrieval, linting, source removal and skill compilation. 〔[claim:714e301e8b2162bc](../claims/claim-714e301e8b2162bc.md)〕
-- **DISCOVERYWORLD: A Virtual Environment for Developing and Evaluating Automated Scientific Discovery Agents** (collection assessment): A benchmark environment for complete novel scientific discovery cycles where agents must form hypotheses, run experiments, analyze results and discover explanatory knowledge. 〔[claim:bde139a533f9483a](../claims/claim-bde139a533f9483a.md)〕
-- **AgentRxiv: Towards Collaborative Autonomous Research** (collection assessment): A direct bridge between autonomous research and knowledge self-evolution: agent laboratories upload, retrieve and build on each others research, creating cumulative improvement across generations of work. 〔[claim:f5d2f5be4a498ca2](../claims/claim-f5d2f5be4a498ca2.md)〕
+- **Kosmos: An AI Scientist for Autonomous Discovery** (collection assessment): Long-horizon autonomous data-driven discovery. Kosmos repeatedly interleaves literature search, data analysis and hypothesis generation while maintaining a structured world model across hundreds of agent rollouts. 〔[claim:3e6ec7f46b13c44f](../claims/claim-3e6ec7f46b13c44f.md)〕
 
 ## Current synthesis boundary
 
@@ -207,10 +171,8 @@ The map routes candidate evidence; it does not flatten sources into consensus or
 
 ## Related pages
 
-- [Apache Ossie (incubating), formerly Open Semantic Interchange](../sources/standard-apache-ossie.md) — `explains`
-- [AgentRxiv: Towards Collaborative Autonomous Research](../sources/arxiv-2503.18102.md) — `explains`
+- [Kosmos: An AI Scientist for Autonomous Discovery](../sources/arxiv-2511.02824.md) — `explains`
+- [LinkML schema-first knowledge modeling](../sources/methodology-linkml-schema-first.md) — `explains`
 - [linkml/linkml](../sources/github-linkml-linkml.md) — `explains`
-- [VectifyAI/OpenKB](../sources/github-vectifyai-openkb.md) — `explains`
-- [DISCOVERYWORLD: A Virtual Environment for Developing and Evaluating Automated Scientific Discovery Agents](../sources/arxiv-2406.06769.md) — `explains`
 - [Claim–evidence–page compilation](../methods/claim-evidence-page.md) — `related`
 - [LLM Wiki reference system](../systems/reference-system.md) — `related`

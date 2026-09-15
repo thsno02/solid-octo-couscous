@@ -14,11 +14,11 @@ claim_refs: &id001
 source_refs: &id002
 - arxiv:2503.18102
 page_refs:
-- wiki-page:map-ontology-semantic-architecture
+- wiki-page:map-knowledge-memory
 - wiki-page:evidence-1b992220f722d044
 - wiki-page:evidence-1e3c274acc6e4c60
 outgoing_links:
-- target: wiki-page:map-ontology-semantic-architecture
+- target: wiki-page:map-knowledge-memory
   relation: part_of
   claim_refs: *id001
   notes: null
@@ -46,21 +46,21 @@ sections:
   - arxiv:2503.18102
   editorial_intent: Keep collector interpretation separate.
 temporal:
-  created_at: '2026-09-13T17:43:07Z'
-  updated_at: '2026-09-13T17:43:07Z'
+  created_at: '2026-09-13T17:38:21Z'
+  updated_at: '2026-09-13T17:38:21Z'
   valid_from: null
   valid_to: null
-  as_of: '2026-09-13T17:43:07Z'
+  as_of: '2026-09-13T17:38:21Z'
 provenance:
-  build_id: build:llm-wiki-v0:196d848b07caf422
+  build_id: build:llm-wiki-v0:d303e0f210b88f64
   generated_by_agent: pipeline/build_llm_wiki.py
   generated_by_model: null
   prompt_or_skill_version: deterministic-llm-wiki-v0.2
   compiled_from_revisions:
   - arxiv:2503.18102@sha256:f26720fb630b99a1ee6534baf2f49b4d8a89bdde3f6f4542b0d0c5ade40f67c0
-  created_at: '2026-09-13T17:43:07Z'
-  updated_at: '2026-09-13T17:43:07Z'
-  manual_edits_preserved: true
+  created_at: '2026-09-13T17:38:21Z'
+  updated_at: '2026-09-13T17:38:21Z'
+  manual_edits_preserved: false
 review:
   state: needs_human
   reviewers: []
@@ -70,7 +70,7 @@ review:
   - Scientific, semantic, neutrality, and due-weight review remain required before publication.
 freshness:
   status: fresh
-  checked_at: '2026-09-13T17:43:07Z'
+  checked_at: '2026-09-13T17:38:21Z'
   max_age_days: 30
   source_dependencies: *id002
   staleness_reasons: []
@@ -82,7 +82,7 @@ consumption:
     one_line: 'Source page for AgentRxiv: Towards Collaborative Autonomous Research with claim/evidence expansion.'
     short: 'Source page for AgentRxiv: Towards Collaborative Autonomous Research with claim/evidence expansion.'
     full: null
-  estimated_tokens: 209
+  estimated_tokens: 208
   machine_entry_points:
   - ../../04_claims/claims.jsonl
   - ../../03_evidence/evidence.jsonl
@@ -100,7 +100,7 @@ consumption:
 - Source type: `arxiv`
 - Content tier: `full_text`
 - Revision: `sha256:f26720fb630b99a1ee6534baf2f49b4d8a89bdde3f6f4542b0d0c5ade40f67c0`
-- Domain: [ontology-semantic-architecture](../maps/ontology-semantic-architecture.md)
+- Domain: [knowledge-memory](../maps/knowledge-memory.md)
 - Local document: `materialized_sources/corpus/arxiv-2503.18102--1133e9d5/normalized/document.txt`
 
 ## Source-reported candidate statements
@@ -115,8 +115,8 @@ consumption:
 
 | Claim | Evidence | Selector | Tier |
 |---|---|---|---|
-| `claim:07439fdff0cc0aa3` | `evidence:3eb5d79a34cdce67` | `local://materialized_sources/corpus/arxiv-2503.18102--1133e9d5/normalized/document.txt#L595-L610` | `full_text` |
-| `claim:f5d2f5be4a498ca2` | `evidence:4b7e0c84f5a212e4` | `local://raw_data/arxiv/AgentRxiv: Towards Collaborative Autonomous Research/metadata.yaml#collection-inclusion-reason` | `metadata_capsule` |
+| `claim:07439fdff0cc0aa3` | `evidence:3eb5d79a34cdce67` | `local://materialized_sources/corpus/arxiv-2503.18102--1133e9d5/normalized/document.txt#L595-L595` | `full_text` |
+| `claim:f5d2f5be4a498ca2` | `evidence:4b7e0c84f5a212e4` | `local://raw_data/arxiv/AgentRxiv: Towards Collaborative Autonomous Research/metadata.yaml#collection.inclusion_reason` | `metadata_capsule` |
 
 ## Governance boundary
 
@@ -124,6 +124,6 @@ Source statements remain unverified candidates. Collection assessments explain i
 
 ## Related pages
 
-- [Ontology Semantic Architecture](../maps/ontology-semantic-architecture.md) — `part_of`
+- [Knowledge Memory](../maps/knowledge-memory.md) — `part_of`
 - [Claim 07439fdff0cc0aa3](../claims/claim-07439fdff0cc0aa3.md) — `evidenced_by`
 - [Claim f5d2f5be4a498ca2](../claims/claim-f5d2f5be4a498ca2.md) — `evidenced_by`

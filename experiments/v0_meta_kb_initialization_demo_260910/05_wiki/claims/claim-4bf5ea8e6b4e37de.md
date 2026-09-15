@@ -4,7 +4,8 @@ title: Claim 4bf5ea8e6b4e37de
 slug: claims/claim-4bf5ea8e6b4e37de
 page_type: evidence
 status: review
-summary: amssymb amsmath adjustbox soul enumitem booktabs color xcolor bbding listings multicol xspace lmodern tablefootnote
+summary: We introduce Meta and -Bench, a new framework and benchmark for evaluating and developing LLM agents on
+  AI research tasks. This is the first Gym environment for machine learning (ML) tasks, enabling research on reinforce
 aliases: []
 ontology_refs:
 - experiment:meta-kb-v0
@@ -38,21 +39,21 @@ sections:
   source_refs: *id001
   editorial_intent: Resolve to local selectors.
 temporal:
-  created_at: '2026-09-13T17:43:07Z'
-  updated_at: '2026-09-13T17:43:07Z'
+  created_at: '2026-09-13T17:38:21Z'
+  updated_at: '2026-09-13T17:38:21Z'
   valid_from: null
   valid_to: null
-  as_of: '2026-09-13T17:43:07Z'
+  as_of: '2026-09-13T17:38:21Z'
 provenance:
-  build_id: build:llm-wiki-v0:196d848b07caf422
+  build_id: build:llm-wiki-v0:d303e0f210b88f64
   generated_by_agent: pipeline/build_llm_wiki.py
   generated_by_model: null
   prompt_or_skill_version: deterministic-llm-wiki-v0.2
   compiled_from_revisions:
   - arxiv:2502.14499@sha256:de8bc15be762914dd2f056f00efe2b83d51ce852a7035d65e866e6cdecbbb65a
-  created_at: '2026-09-13T17:43:07Z'
-  updated_at: '2026-09-13T17:43:07Z'
-  manual_edits_preserved: true
+  created_at: '2026-09-13T17:38:21Z'
+  updated_at: '2026-09-13T17:38:21Z'
+  manual_edits_preserved: false
 review:
   state: needs_human
   reviewers: []
@@ -62,7 +63,7 @@ review:
   - Scientific, semantic, neutrality, and due-weight review remain required before publication.
 freshness:
   status: fresh
-  checked_at: '2026-09-13T17:43:07Z'
+  checked_at: '2026-09-13T17:38:21Z'
   max_age_days: 30
   source_dependencies: *id001
   staleness_reasons: []
@@ -71,12 +72,14 @@ consumption:
   - human
   - agent
   summary_tiers:
-    one_line: amssymb amsmath adjustbox soul enumitem booktabs color xcolor bbding listings multicol xspace lmodern
-      tablefootnote
-    short: amssymb amsmath adjustbox soul enumitem booktabs color xcolor bbding listings multicol xspace lmodern
-      tablefootnote
+    one_line: We introduce Meta and -Bench, a new framework and benchmark for evaluating and developing LLM agents
+      on AI research tasks. This is the first Gym environment for machine learning (ML) tasks, enabling research
+      on reinforce
+    short: We introduce Meta and -Bench, a new framework and benchmark for evaluating and developing LLM agents
+      on AI research tasks. This is the first Gym environment for machine learning (ML) tasks, enabling research
+      on reinforce
     full: null
-  estimated_tokens: 124
+  estimated_tokens: 152
   machine_entry_points:
   - ../../04_claims/claims.jsonl
   - ../../03_evidence/evidence.jsonl
@@ -89,7 +92,7 @@ consumption:
 
 ## Candidate statement
 
-amssymb amsmath adjustbox soul enumitem booktabs color xcolor bbding listings multicol xspace lmodern tablefootnote
+We introduce Meta and -Bench, a new framework and benchmark for evaluating and developing LLM agents on AI research tasks. This is the first Gym environment for machine learning (ML) tasks, enabling research on reinforcement learning (RL) algorithms for training such agents.
 
 ## Scope
 
@@ -102,7 +105,7 @@ amssymb amsmath adjustbox soul enumitem booktabs color xcolor bbding listings mu
 
 | Evidence | Selector | Local artifact | Tier |
 |---|---|---|---|
-| `evidence:0b3ad94ceb672903` | `local://materialized_sources/corpus/arxiv-2502.14499--a7f1a2e8/normalized/document.txt#L1-L4` | `materialized_sources/corpus/arxiv-2502.14499--a7f1a2e8/normalized/document.txt` | `full_text` |
+| `evidence:0b3ad94ceb672903` | `local://materialized_sources/corpus/arxiv-2502.14499--a7f1a2e8/normalized/document.txt#L74-L74` | `materialized_sources/corpus/arxiv-2502.14499--a7f1a2e8/normalized/document.txt` | `full_text` |
 
 ## Review requirements
 

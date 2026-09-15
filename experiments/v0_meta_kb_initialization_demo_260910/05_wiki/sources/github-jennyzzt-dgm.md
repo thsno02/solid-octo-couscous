@@ -46,21 +46,21 @@ sections:
   - github:jennyzzt/dgm
   editorial_intent: Keep collector interpretation separate.
 temporal:
-  created_at: '2026-09-13T17:43:07Z'
-  updated_at: '2026-09-13T17:43:07Z'
+  created_at: '2026-09-13T17:38:21Z'
+  updated_at: '2026-09-13T17:38:21Z'
   valid_from: null
   valid_to: null
-  as_of: '2026-09-13T17:43:07Z'
+  as_of: '2026-09-13T17:38:21Z'
 provenance:
-  build_id: build:llm-wiki-v0:196d848b07caf422
+  build_id: build:llm-wiki-v0:d303e0f210b88f64
   generated_by_agent: pipeline/build_llm_wiki.py
   generated_by_model: null
   prompt_or_skill_version: deterministic-llm-wiki-v0.2
   compiled_from_revisions:
   - github:jennyzzt/dgm@a565fd2d1dca504ef5104a7cc0f3bdc4ab9b4fd2
-  created_at: '2026-09-13T17:43:07Z'
-  updated_at: '2026-09-13T17:43:07Z'
-  manual_edits_preserved: true
+  created_at: '2026-09-13T17:38:21Z'
+  updated_at: '2026-09-13T17:38:21Z'
+  manual_edits_preserved: false
 review:
   state: needs_human
   reviewers: []
@@ -70,7 +70,7 @@ review:
   - Scientific, semantic, neutrality, and due-weight review remain required before publication.
 freshness:
   status: fresh
-  checked_at: '2026-09-13T17:43:07Z'
+  checked_at: '2026-09-13T17:38:21Z'
   max_age_days: 30
   source_dependencies: *id002
   staleness_reasons: []
@@ -82,7 +82,7 @@ consumption:
     one_line: Source page for jennyzzt/dgm with claim/evidence expansion.
     short: Source page for jennyzzt/dgm with claim/evidence expansion.
     full: null
-  estimated_tokens: 180
+  estimated_tokens: 182
   machine_entry_points:
   - ../../04_claims/claims.jsonl
   - ../../03_evidence/evidence.jsonl
@@ -101,11 +101,11 @@ consumption:
 - Content tier: `semantic_capsule`
 - Revision: `a565fd2d1dca504ef5104a7cc0f3bdc4ab9b4fd2`
 - Domain: [recursive-self-improvement](../maps/recursive-self-improvement.md)
-- Local document: `materialized_sources/corpus/github-jennyzzt-dgm--c8b75f99/document.md`
+- Local document: `materialized_sources/corpus/github-jennyzzt-dgm--c8b75f99/evidence/files/README.md`
 
 ## Source-reported candidate statements
 
-- - Commit: `a565fd2d1dca504ef5104a7cc0f3bdc4ab9b4fd2` - Default branch: `main` - Description: jennyzzt/dgm - Selected evidence files: 2 of 21 files observed - Interpretation: maintainer documentation and static repository evidence; runtime behavior is not proven. 〔[claim:d38b49dc4376d4b0](../claims/claim-d38b49dc4376d4b0.md)〕
+- Repository for **Darwin Gödel Machine (DGM)**, a novel self-improving system that iteratively modifies its own code (thereby also improving its ability to modify its own codebase) and empirically validates each change using coding benchmarks. 〔[claim:d38b49dc4376d4b0](../claims/claim-d38b49dc4376d4b0.md)〕
 
 ## Collection assessments
 
@@ -115,8 +115,8 @@ consumption:
 
 | Claim | Evidence | Selector | Tier |
 |---|---|---|---|
-| `claim:1b6ae1229c17cacd` | `evidence:1f00e2f956a2afe4` | `local://raw_data/githubs/jennyzzt--dgm/metadata.yaml#collection-inclusion-reason` | `metadata_capsule` |
-| `claim:d38b49dc4376d4b0` | `evidence:86f2cb90e58dd2e2` | `local://materialized_sources/corpus/github-jennyzzt-dgm--c8b75f99/document.md#L3-L6` | `semantic_capsule` |
+| `claim:1b6ae1229c17cacd` | `evidence:1f00e2f956a2afe4` | `local://raw_data/githubs/jennyzzt--dgm/metadata.yaml#collection.inclusion_reason` | `metadata_capsule` |
+| `claim:d38b49dc4376d4b0` | `evidence:86f2cb90e58dd2e2` | `local://materialized_sources/corpus/github-jennyzzt-dgm--c8b75f99/evidence/files/README.md#L14-L14` | `semantic_capsule` |
 
 ## Governance boundary
 

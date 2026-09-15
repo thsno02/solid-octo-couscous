@@ -47,21 +47,21 @@ sections:
   - arxiv:2505.22954
   editorial_intent: Keep collector interpretation separate.
 temporal:
-  created_at: '2026-09-13T17:43:07Z'
-  updated_at: '2026-09-13T17:43:07Z'
+  created_at: '2026-09-13T17:38:21Z'
+  updated_at: '2026-09-13T17:38:21Z'
   valid_from: null
   valid_to: null
-  as_of: '2026-09-13T17:43:07Z'
+  as_of: '2026-09-13T17:38:21Z'
 provenance:
-  build_id: build:llm-wiki-v0:196d848b07caf422
+  build_id: build:llm-wiki-v0:d303e0f210b88f64
   generated_by_agent: pipeline/build_llm_wiki.py
   generated_by_model: null
   prompt_or_skill_version: deterministic-llm-wiki-v0.2
   compiled_from_revisions:
   - arxiv:2505.22954@sha256:9ce27273d9175badbb14d1181bc6166c7afd5e7989ac274d3d5187413e19b9ed
-  created_at: '2026-09-13T17:43:07Z'
-  updated_at: '2026-09-13T17:43:07Z'
-  manual_edits_preserved: true
+  created_at: '2026-09-13T17:38:21Z'
+  updated_at: '2026-09-13T17:38:21Z'
+  manual_edits_preserved: false
 review:
   state: needs_human
   reviewers: []
@@ -71,7 +71,7 @@ review:
   - Scientific, semantic, neutrality, and due-weight review remain required before publication.
 freshness:
   status: fresh
-  checked_at: '2026-09-13T17:43:07Z'
+  checked_at: '2026-09-13T17:38:21Z'
   max_age_days: 30
   source_dependencies: *id002
   staleness_reasons: []
@@ -118,8 +118,8 @@ consumption:
 
 | Claim | Evidence | Selector | Tier |
 |---|---|---|---|
-| `claim:90ae7352bb085ae8` | `evidence:e71040c37751e493` | `local://raw_data/arxiv/Darwin Godel Machine: Open-Ended Evolution of Self-Improving Agents/metadata.yaml#collection-inclusion-reason` | `metadata_capsule` |
-| `claim:ae45b8d667e29552` | `evidence:5693bd7ef23242bc` | `local://materialized_sources/corpus/arxiv-2505.22954--8a7041cb/normalized/document.txt#L88-L89` | `full_text` |
+| `claim:90ae7352bb085ae8` | `evidence:e71040c37751e493` | `local://raw_data/arxiv/Darwin Godel Machine: Open-Ended Evolution of Self-Improving Agents/metadata.yaml#collection.inclusion_reason` | `metadata_capsule` |
+| `claim:ae45b8d667e29552` | `evidence:5693bd7ef23242bc` | `local://materialized_sources/corpus/arxiv-2505.22954--8a7041cb/normalized/document.txt#L88-L88` | `full_text` |
 
 ## Governance boundary
 

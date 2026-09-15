@@ -46,21 +46,21 @@ sections:
   - arxiv:2404.14387
   editorial_intent: Keep collector interpretation separate.
 temporal:
-  created_at: '2026-09-13T17:43:07Z'
-  updated_at: '2026-09-13T17:43:07Z'
+  created_at: '2026-09-13T17:38:21Z'
+  updated_at: '2026-09-13T17:38:21Z'
   valid_from: null
   valid_to: null
-  as_of: '2026-09-13T17:43:07Z'
+  as_of: '2026-09-13T17:38:21Z'
 provenance:
-  build_id: build:llm-wiki-v0:196d848b07caf422
+  build_id: build:llm-wiki-v0:d303e0f210b88f64
   generated_by_agent: pipeline/build_llm_wiki.py
   generated_by_model: null
   prompt_or_skill_version: deterministic-llm-wiki-v0.2
   compiled_from_revisions:
   - arxiv:2404.14387@sha256:afd13bcb8ce6f553dec268c0fb17bfb6b8a1ba80a4881a5b46d54b927ca9a418
-  created_at: '2026-09-13T17:43:07Z'
-  updated_at: '2026-09-13T17:43:07Z'
-  manual_edits_preserved: true
+  created_at: '2026-09-13T17:38:21Z'
+  updated_at: '2026-09-13T17:38:21Z'
+  manual_edits_preserved: false
 review:
   state: needs_human
   reviewers: []
@@ -70,7 +70,7 @@ review:
   - Scientific, semantic, neutrality, and due-weight review remain required before publication.
 freshness:
   status: fresh
-  checked_at: '2026-09-13T17:43:07Z'
+  checked_at: '2026-09-13T17:38:21Z'
   max_age_days: 30
   source_dependencies: *id002
   staleness_reasons: []
@@ -82,7 +82,7 @@ consumption:
     one_line: Source page for A Survey on Self-Evolution of Large Language Models with claim/evidence expansion.
     short: Source page for A Survey on Self-Evolution of Large Language Models with claim/evidence expansion.
     full: null
-  estimated_tokens: 174
+  estimated_tokens: 198
   machine_entry_points:
   - ../../04_claims/claims.jsonl
   - ../../03_evidence/evidence.jsonl
@@ -105,7 +105,7 @@ consumption:
 
 ## Source-reported candidate statements
 
-- graphicx multirow amsmath,amssymb,amsfonts amsthm mathrsfs appendix xcolor textcomp manyfoot booktabs algorithm algorithmicx algpseudocode listings 〔[claim:df1b88d18276a319](../claims/claim-df1b88d18276a319.md)〕
+- Large language models (LLMs) have significantly advanced in various fields and intelligent agent applications. However, current LLMs that learn from human or external model supervision are costly and may face performance ceilings as task complexity and diversity increase. 〔[claim:df1b88d18276a319](../claims/claim-df1b88d18276a319.md)〕
 
 ## Collection assessments
 
@@ -115,8 +115,8 @@ consumption:
 
 | Claim | Evidence | Selector | Tier |
 |---|---|---|---|
-| `claim:2060aa1cdd09f8bd` | `evidence:13344d3141a1c2e3` | `local://raw_data/arxiv/A Survey on Self-Evolution of Large Language Models/metadata.yaml#collection-inclusion-reason` | `metadata_capsule` |
-| `claim:df1b88d18276a319` | `evidence:fe677dd4add0eef4` | `local://materialized_sources/corpus/arxiv-2404.14387--a0c7dbc0/normalized/document.txt#L1-L4` | `full_text` |
+| `claim:2060aa1cdd09f8bd` | `evidence:13344d3141a1c2e3` | `local://raw_data/arxiv/A Survey on Self-Evolution of Large Language Models/metadata.yaml#collection.inclusion_reason` | `metadata_capsule` |
+| `claim:df1b88d18276a319` | `evidence:fe677dd4add0eef4` | `local://materialized_sources/corpus/arxiv-2404.14387--a0c7dbc0/normalized/document.txt#L556-L556` | `full_text` |
 
 ## Governance boundary
 

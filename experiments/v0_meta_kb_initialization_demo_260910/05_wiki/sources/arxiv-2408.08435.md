@@ -46,21 +46,21 @@ sections:
   - arxiv:2408.08435
   editorial_intent: Keep collector interpretation separate.
 temporal:
-  created_at: '2026-09-13T17:43:07Z'
-  updated_at: '2026-09-13T17:43:07Z'
+  created_at: '2026-09-13T17:38:21Z'
+  updated_at: '2026-09-13T17:38:21Z'
   valid_from: null
   valid_to: null
-  as_of: '2026-09-13T17:43:07Z'
+  as_of: '2026-09-13T17:38:21Z'
 provenance:
-  build_id: build:llm-wiki-v0:196d848b07caf422
+  build_id: build:llm-wiki-v0:d303e0f210b88f64
   generated_by_agent: pipeline/build_llm_wiki.py
   generated_by_model: null
   prompt_or_skill_version: deterministic-llm-wiki-v0.2
   compiled_from_revisions:
   - arxiv:2408.08435@sha256:9e5b2a49f62b2d5218e018666a195c85fc5d186d3939e0070303fab4fb7622e2
-  created_at: '2026-09-13T17:43:07Z'
-  updated_at: '2026-09-13T17:43:07Z'
-  manual_edits_preserved: true
+  created_at: '2026-09-13T17:38:21Z'
+  updated_at: '2026-09-13T17:38:21Z'
+  manual_edits_preserved: false
 review:
   state: needs_human
   reviewers: []
@@ -70,7 +70,7 @@ review:
   - Scientific, semantic, neutrality, and due-weight review remain required before publication.
 freshness:
   status: fresh
-  checked_at: '2026-09-13T17:43:07Z'
+  checked_at: '2026-09-13T17:38:21Z'
   max_age_days: 30
   source_dependencies: *id002
   staleness_reasons: []
@@ -115,8 +115,8 @@ consumption:
 
 | Claim | Evidence | Selector | Tier |
 |---|---|---|---|
-| `claim:00e6310ce97dc279` | `evidence:4c23103dc864786c` | `local://raw_data/arxiv/Automated Design of Agentic Systems/metadata.yaml#collection-inclusion-reason` | `metadata_capsule` |
-| `claim:0d2b54965305cf83` | `evidence:33d6742cf3d38320` | `local://materialized_sources/corpus/arxiv-2408.08435--dc6e6730/normalized/document.txt#L115-L122` | `full_text` |
+| `claim:00e6310ce97dc279` | `evidence:4c23103dc864786c` | `local://raw_data/arxiv/Automated Design of Agentic Systems/metadata.yaml#collection.inclusion_reason` | `metadata_capsule` |
+| `claim:0d2b54965305cf83` | `evidence:33d6742cf3d38320` | `local://materialized_sources/corpus/arxiv-2408.08435--dc6e6730/normalized/document.txt#L115-L115` | `full_text` |
 
 ## Governance boundary
 

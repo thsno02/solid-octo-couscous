@@ -39,21 +39,21 @@ sections:
   source_refs: *id001
   editorial_intent: Resolve to local selectors.
 temporal:
-  created_at: '2026-09-13T17:43:07Z'
-  updated_at: '2026-09-13T17:43:07Z'
+  created_at: '2026-09-13T17:38:21Z'
+  updated_at: '2026-09-13T17:38:21Z'
   valid_from: null
   valid_to: null
-  as_of: '2026-09-13T17:43:07Z'
+  as_of: '2026-09-13T17:38:21Z'
 provenance:
-  build_id: build:llm-wiki-v0:196d848b07caf422
+  build_id: build:llm-wiki-v0:d303e0f210b88f64
   generated_by_agent: pipeline/build_llm_wiki.py
   generated_by_model: null
   prompt_or_skill_version: deterministic-llm-wiki-v0.2
   compiled_from_revisions:
   - arxiv:2402.14207@sha256:28b57e9821da798bf8ccfa3f144bfa37cd96ff3582c2211c83eff5ffcf0ccfc2
-  created_at: '2026-09-13T17:43:07Z'
-  updated_at: '2026-09-13T17:43:07Z'
-  manual_edits_preserved: true
+  created_at: '2026-09-13T17:38:21Z'
+  updated_at: '2026-09-13T17:38:21Z'
+  manual_edits_preserved: false
 review:
   state: needs_human
   reviewers: []
@@ -63,7 +63,7 @@ review:
   - Scientific, semantic, neutrality, and due-weight review remain required before publication.
 freshness:
   status: fresh
-  checked_at: '2026-09-13T17:43:07Z'
+  checked_at: '2026-09-13T17:38:21Z'
   max_age_days: 30
   source_dependencies: *id001
   staleness_reasons: []
@@ -105,7 +105,7 @@ We study how to apply large language models to write grounded and organized long
 
 | Evidence | Selector | Local artifact | Tier |
 |---|---|---|---|
-| `evidence:1fe97aa395c695a6` | `local://materialized_sources/corpus/arxiv-2402.14207--b99559f4/normalized/document.txt#L130-L140` | `materialized_sources/corpus/arxiv-2402.14207--b99559f4/normalized/document.txt` | `full_text` |
+| `evidence:1fe97aa395c695a6` | `local://materialized_sources/corpus/arxiv-2402.14207--b99559f4/normalized/document.txt#L130-L130` | `materialized_sources/corpus/arxiv-2402.14207--b99559f4/normalized/document.txt` | `full_text` |
 
 ## Review requirements
 

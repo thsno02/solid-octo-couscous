@@ -46,21 +46,21 @@ sections:
   - arxiv:2305.14627
   editorial_intent: Keep collector interpretation separate.
 temporal:
-  created_at: '2026-09-13T17:43:07Z'
-  updated_at: '2026-09-13T17:43:07Z'
+  created_at: '2026-09-13T17:38:21Z'
+  updated_at: '2026-09-13T17:38:21Z'
   valid_from: null
   valid_to: null
-  as_of: '2026-09-13T17:43:07Z'
+  as_of: '2026-09-13T17:38:21Z'
 provenance:
-  build_id: build:llm-wiki-v0:196d848b07caf422
+  build_id: build:llm-wiki-v0:d303e0f210b88f64
   generated_by_agent: pipeline/build_llm_wiki.py
   generated_by_model: null
   prompt_or_skill_version: deterministic-llm-wiki-v0.2
   compiled_from_revisions:
   - arxiv:2305.14627@sha256:6902aae852b39f761a60dc2cf36b7d2ed9e615755f413b7daa8b52f5c1eae3ea
-  created_at: '2026-09-13T17:43:07Z'
-  updated_at: '2026-09-13T17:43:07Z'
-  manual_edits_preserved: true
+  created_at: '2026-09-13T17:38:21Z'
+  updated_at: '2026-09-13T17:38:21Z'
+  manual_edits_preserved: false
 review:
   state: needs_human
   reviewers: []
@@ -70,7 +70,7 @@ review:
   - Scientific, semantic, neutrality, and due-weight review remain required before publication.
 freshness:
   status: fresh
-  checked_at: '2026-09-13T17:43:07Z'
+  checked_at: '2026-09-13T17:38:21Z'
   max_age_days: 30
   source_dependencies: *id002
   staleness_reasons: []
@@ -116,8 +116,8 @@ consumption:
 
 | Claim | Evidence | Selector | Tier |
 |---|---|---|---|
-| `claim:9a3b21da11a96956` | `evidence:cff53a88da30fbec` | `local://raw_data/arxiv/Enabling Large Language Models to Generate Text with Citations/metadata.yaml#collection-inclusion-reason` | `metadata_capsule` |
-| `claim:bed2f056ecd73c69` | `evidence:4527dd12000fe21f` | `local://materialized_sources/corpus/arxiv-2305.14627--6d5b37c6/normalized/document.txt#L140-L156` | `full_text` |
+| `claim:9a3b21da11a96956` | `evidence:cff53a88da30fbec` | `local://raw_data/arxiv/Enabling Large Language Models to Generate Text with Citations/metadata.yaml#collection.inclusion_reason` | `metadata_capsule` |
+| `claim:bed2f056ecd73c69` | `evidence:4527dd12000fe21f` | `local://materialized_sources/corpus/arxiv-2305.14627--6d5b37c6/normalized/document.txt#L140-L143` | `full_text` |
 
 ## Governance boundary
 

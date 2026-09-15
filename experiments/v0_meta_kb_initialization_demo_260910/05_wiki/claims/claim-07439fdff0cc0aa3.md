@@ -16,14 +16,14 @@ source_refs: &id001
 - arxiv:2503.18102
 page_refs:
 - wiki-page:source-81e58c8add4ce203
-- wiki-page:map-ontology-semantic-architecture
+- wiki-page:map-knowledge-memory
 outgoing_links:
 - target: wiki-page:source-81e58c8add4ce203
   relation: evidenced_by
   claim_refs:
   - claim:07439fdff0cc0aa3
   notes: null
-- target: wiki-page:map-ontology-semantic-architecture
+- target: wiki-page:map-knowledge-memory
   relation: part_of
   claim_refs:
   - claim:07439fdff0cc0aa3
@@ -40,21 +40,21 @@ sections:
   source_refs: *id001
   editorial_intent: Resolve to local selectors.
 temporal:
-  created_at: '2026-09-13T17:43:07Z'
-  updated_at: '2026-09-13T17:43:07Z'
+  created_at: '2026-09-13T17:38:21Z'
+  updated_at: '2026-09-13T17:38:21Z'
   valid_from: null
   valid_to: null
-  as_of: '2026-09-13T17:43:07Z'
+  as_of: '2026-09-13T17:38:21Z'
 provenance:
-  build_id: build:llm-wiki-v0:196d848b07caf422
+  build_id: build:llm-wiki-v0:d303e0f210b88f64
   generated_by_agent: pipeline/build_llm_wiki.py
   generated_by_model: null
   prompt_or_skill_version: deterministic-llm-wiki-v0.2
   compiled_from_revisions:
   - arxiv:2503.18102@sha256:f26720fb630b99a1ee6534baf2f49b4d8a89bdde3f6f4542b0d0c5ade40f67c0
-  created_at: '2026-09-13T17:43:07Z'
-  updated_at: '2026-09-13T17:43:07Z'
-  manual_edits_preserved: true
+  created_at: '2026-09-13T17:38:21Z'
+  updated_at: '2026-09-13T17:38:21Z'
+  manual_edits_preserved: false
 review:
   state: needs_human
   reviewers: []
@@ -64,7 +64,7 @@ review:
   - Scientific, semantic, neutrality, and due-weight review remain required before publication.
 freshness:
   status: fresh
-  checked_at: '2026-09-13T17:43:07Z'
+  checked_at: '2026-09-13T17:38:21Z'
   max_age_days: 30
   source_dependencies: *id001
   staleness_reasons: []
@@ -80,7 +80,7 @@ consumption:
       product of hundreds of scientists incrementally working together toward a common goal. While existing agent
       workflows a
     full: null
-  estimated_tokens: 153
+  estimated_tokens: 152
   machine_entry_points:
   - ../../04_claims/claims.jsonl
   - ../../03_evidence/evidence.jsonl
@@ -99,14 +99,14 @@ Progress in scientific discovery is rarely the result of a single "Eureka" momen
 
 - Claim ID: `claim:07439fdff0cc0aa3`
 - Scope: `source-reported assertion`
-- Domain: [ontology-semantic-architecture](../maps/ontology-semantic-architecture.md)
+- Domain: [knowledge-memory](../maps/knowledge-memory.md)
 - Promotion state: `candidate`
 
 ## Evidence bindings
 
 | Evidence | Selector | Local artifact | Tier |
 |---|---|---|---|
-| `evidence:3eb5d79a34cdce67` | `local://materialized_sources/corpus/arxiv-2503.18102--1133e9d5/normalized/document.txt#L595-L610` | `materialized_sources/corpus/arxiv-2503.18102--1133e9d5/normalized/document.txt` | `full_text` |
+| `evidence:3eb5d79a34cdce67` | `local://materialized_sources/corpus/arxiv-2503.18102--1133e9d5/normalized/document.txt#L595-L595` | `materialized_sources/corpus/arxiv-2503.18102--1133e9d5/normalized/document.txt` | `full_text` |
 
 ## Review requirements
 
@@ -115,4 +115,4 @@ Check entailment, selector precision, source quality, identity, scope, contradic
 ## Related pages
 
 - [AgentRxiv: Towards Collaborative Autonomous Research](../sources/arxiv-2503.18102.md) — `evidenced_by`
-- [Ontology Semantic Architecture](../maps/ontology-semantic-architecture.md) — `part_of`
+- [Knowledge Memory](../maps/knowledge-memory.md) — `part_of`

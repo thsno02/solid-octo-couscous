@@ -46,21 +46,21 @@ sections:
   - github:getzep/graphiti
   editorial_intent: Keep collector interpretation separate.
 temporal:
-  created_at: '2026-09-13T17:43:07Z'
-  updated_at: '2026-09-13T17:43:07Z'
+  created_at: '2026-09-13T17:38:21Z'
+  updated_at: '2026-09-13T17:38:21Z'
   valid_from: null
   valid_to: null
-  as_of: '2026-09-13T17:43:07Z'
+  as_of: '2026-09-13T17:38:21Z'
 provenance:
-  build_id: build:llm-wiki-v0:196d848b07caf422
+  build_id: build:llm-wiki-v0:d303e0f210b88f64
   generated_by_agent: pipeline/build_llm_wiki.py
   generated_by_model: null
   prompt_or_skill_version: deterministic-llm-wiki-v0.2
   compiled_from_revisions:
   - github:getzep/graphiti@c035afb7990b6077331a81e98b04efcfd9bf8184
-  created_at: '2026-09-13T17:43:07Z'
-  updated_at: '2026-09-13T17:43:07Z'
-  manual_edits_preserved: true
+  created_at: '2026-09-13T17:38:21Z'
+  updated_at: '2026-09-13T17:38:21Z'
+  manual_edits_preserved: false
 review:
   state: needs_human
   reviewers: []
@@ -70,7 +70,7 @@ review:
   - Scientific, semantic, neutrality, and due-weight review remain required before publication.
 freshness:
   status: fresh
-  checked_at: '2026-09-13T17:43:07Z'
+  checked_at: '2026-09-13T17:38:21Z'
   max_age_days: 30
   source_dependencies: *id002
   staleness_reasons: []
@@ -82,7 +82,7 @@ consumption:
     one_line: Source page for getzep/graphiti with claim/evidence expansion.
     short: Source page for getzep/graphiti with claim/evidence expansion.
     full: null
-  estimated_tokens: 168
+  estimated_tokens: 147
   machine_entry_points:
   - ../../04_claims/claims.jsonl
   - ../../03_evidence/evidence.jsonl
@@ -101,11 +101,11 @@ consumption:
 - Content tier: `semantic_capsule`
 - Revision: `c035afb7990b6077331a81e98b04efcfd9bf8184`
 - Domain: [knowledge-memory](../maps/knowledge-memory.md)
-- Local document: `materialized_sources/corpus/github-getzep-graphiti--e9af10ca/document.md`
+- Local document: `materialized_sources/corpus/github-getzep-graphiti--e9af10ca/evidence/files/README.md`
 
 ## Source-reported candidate statements
 
-- - Commit: `c035afb7990b6077331a81e98b04efcfd9bf8184` - Default branch: `main` - Description: getzep/graphiti - Selected evidence files: 8 of 21 files observed - Interpretation: maintainer documentation and static repository evidence; runtime behavior is not proven. 〔[claim:bc85c4d0c6801c3a](../claims/claim-bc85c4d0c6801c3a.md)〕
+- ⭐ *Help us reach more developers and grow the Graphiti community. 〔[claim:bc85c4d0c6801c3a](../claims/claim-bc85c4d0c6801c3a.md)〕
 
 ## Collection assessments
 
@@ -115,8 +115,8 @@ consumption:
 
 | Claim | Evidence | Selector | Tier |
 |---|---|---|---|
-| `claim:bc85c4d0c6801c3a` | `evidence:2d2d6e2c4b39b026` | `local://materialized_sources/corpus/github-getzep-graphiti--e9af10ca/document.md#L3-L6` | `semantic_capsule` |
-| `claim:d6556415105fc41e` | `evidence:d4d7cd076e23b0d2` | `local://raw_data/githubs/getzep--graphiti/metadata.yaml#collection-inclusion-reason` | `metadata_capsule` |
+| `claim:bc85c4d0c6801c3a` | `evidence:2d2d6e2c4b39b026` | `local://materialized_sources/corpus/github-getzep-graphiti--e9af10ca/evidence/files/README.md#L33-L33` | `semantic_capsule` |
+| `claim:d6556415105fc41e` | `evidence:d4d7cd076e23b0d2` | `local://raw_data/githubs/getzep--graphiti/metadata.yaml#collection.inclusion_reason` | `metadata_capsule` |
 
 ## Governance boundary
 

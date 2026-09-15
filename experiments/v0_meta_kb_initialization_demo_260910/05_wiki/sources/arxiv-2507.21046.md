@@ -47,21 +47,21 @@ sections:
   - arxiv:2507.21046
   editorial_intent: Keep collector interpretation separate.
 temporal:
-  created_at: '2026-09-13T17:43:07Z'
-  updated_at: '2026-09-13T17:43:07Z'
+  created_at: '2026-09-13T17:38:21Z'
+  updated_at: '2026-09-13T17:38:21Z'
   valid_from: null
   valid_to: null
-  as_of: '2026-09-13T17:43:07Z'
+  as_of: '2026-09-13T17:38:21Z'
 provenance:
-  build_id: build:llm-wiki-v0:196d848b07caf422
+  build_id: build:llm-wiki-v0:d303e0f210b88f64
   generated_by_agent: pipeline/build_llm_wiki.py
   generated_by_model: null
   prompt_or_skill_version: deterministic-llm-wiki-v0.2
   compiled_from_revisions:
   - arxiv:2507.21046@sha256:4bace9b0e6528f904932b2502264e47d4c5778660cd378f68e032e5588eae432
-  created_at: '2026-09-13T17:43:07Z'
-  updated_at: '2026-09-13T17:43:07Z'
-  manual_edits_preserved: true
+  created_at: '2026-09-13T17:38:21Z'
+  updated_at: '2026-09-13T17:38:21Z'
+  manual_edits_preserved: false
 review:
   state: needs_human
   reviewers: []
@@ -71,7 +71,7 @@ review:
   - Scientific, semantic, neutrality, and due-weight review remain required before publication.
 freshness:
   status: fresh
-  checked_at: '2026-09-13T17:43:07Z'
+  checked_at: '2026-09-13T17:38:21Z'
   max_age_days: 30
   source_dependencies: *id002
   staleness_reasons: []
@@ -118,8 +118,8 @@ consumption:
 
 | Claim | Evidence | Selector | Tier |
 |---|---|---|---|
-| `claim:c16ddfd2ab0e0feb` | `evidence:dc841ab6de42ecb3` | `local://raw_data/arxiv/A Survey of Self-Evolving Agents: On Path to Artificial Super Intelligence/metadata.yaml#collection-inclusion-reason` | `metadata_capsule` |
-| `claim:c776b87484aab5c2` | `evidence:ed04910f7e6cc17e` | `local://materialized_sources/corpus/arxiv-2507.21046--f477f5c3/normalized/document.txt#L548-L556` | `full_text` |
+| `claim:c16ddfd2ab0e0feb` | `evidence:dc841ab6de42ecb3` | `local://raw_data/arxiv/A Survey of Self-Evolving Agents: On Path to Artificial Super Intelligence/metadata.yaml#collection.inclusion_reason` | `metadata_capsule` |
+| `claim:c776b87484aab5c2` | `evidence:ed04910f7e6cc17e` | `local://materialized_sources/corpus/arxiv-2507.21046--f477f5c3/normalized/document.txt#L548-L548` | `full_text` |
 
 ## Governance boundary
 

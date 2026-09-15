@@ -4,8 +4,9 @@ title: Claim e7ac7da9ac39e47d
 slug: claims/claim-e7ac7da9ac39e47d
 page_type: evidence
 status: review
-summary: '- Commit: `ab36031ace701fb1e3c620323d138a90a450f48d` - Default branch: `main` - Description: xoai/sage-wiki
-  - Selected evidence files: 4 of 21 files observed - Interpretation: maintainer documentation and static reposito'
+summary: '**sage-wiki** is a graph memory and knowledge base that AI agents and humans build and query together.
+  Drop in documents; an LLM compiler turns them into an interlinked wiki with a knowledge graph — agents query it
+  throu'
 aliases: []
 ontology_refs:
 - experiment:meta-kb-v0
@@ -39,21 +40,21 @@ sections:
   source_refs: *id001
   editorial_intent: Resolve to local selectors.
 temporal:
-  created_at: '2026-09-13T17:43:07Z'
-  updated_at: '2026-09-13T17:43:07Z'
+  created_at: '2026-09-13T17:38:21Z'
+  updated_at: '2026-09-13T17:38:21Z'
   valid_from: null
   valid_to: null
-  as_of: '2026-09-13T17:43:07Z'
+  as_of: '2026-09-13T17:38:21Z'
 provenance:
-  build_id: build:llm-wiki-v0:196d848b07caf422
+  build_id: build:llm-wiki-v0:d303e0f210b88f64
   generated_by_agent: pipeline/build_llm_wiki.py
   generated_by_model: null
   prompt_or_skill_version: deterministic-llm-wiki-v0.2
   compiled_from_revisions:
   - github:xoai/sage-wiki@ab36031ace701fb1e3c620323d138a90a450f48d
-  created_at: '2026-09-13T17:43:07Z'
-  updated_at: '2026-09-13T17:43:07Z'
-  manual_edits_preserved: true
+  created_at: '2026-09-13T17:38:21Z'
+  updated_at: '2026-09-13T17:38:21Z'
+  manual_edits_preserved: false
 review:
   state: needs_human
   reviewers: []
@@ -63,7 +64,7 @@ review:
   - Scientific, semantic, neutrality, and due-weight review remain required before publication.
 freshness:
   status: fresh
-  checked_at: '2026-09-13T17:43:07Z'
+  checked_at: '2026-09-13T17:38:21Z'
   max_age_days: 30
   source_dependencies: *id001
   staleness_reasons: []
@@ -72,12 +73,14 @@ consumption:
   - human
   - agent
   summary_tiers:
-    one_line: '- Commit: `ab36031ace701fb1e3c620323d138a90a450f48d` - Default branch: `main` - Description: xoai/sage-wiki
-      - Selected evidence files: 4 of 21 files observed - Interpretation: maintainer documentation and static reposito'
-    short: '- Commit: `ab36031ace701fb1e3c620323d138a90a450f48d` - Default branch: `main` - Description: xoai/sage-wiki
-      - Selected evidence files: 4 of 21 files observed - Interpretation: maintainer documentation and static reposito'
+    one_line: '**sage-wiki** is a graph memory and knowledge base that AI agents and humans build and query together.
+      Drop in documents; an LLM compiler turns them into an interlinked wiki with a knowledge graph — agents query
+      it throu'
+    short: '**sage-wiki** is a graph memory and knowledge base that AI agents and humans build and query together.
+      Drop in documents; an LLM compiler turns them into an interlinked wiki with a knowledge graph — agents query
+      it throu'
     full: null
-  estimated_tokens: 122
+  estimated_tokens: 135
   machine_entry_points:
   - ../../04_claims/claims.jsonl
   - ../../03_evidence/evidence.jsonl
@@ -90,7 +93,7 @@ consumption:
 
 ## Candidate statement
 
-- Commit: `ab36031ace701fb1e3c620323d138a90a450f48d` - Default branch: `main` - Description: xoai/sage-wiki - Selected evidence files: 4 of 21 files observed - Interpretation: maintainer documentation and static repository evidence; runtime behavior is not proven.
+**sage-wiki** is a graph memory and knowledge base that AI agents and humans build and query together. Drop in documents; an LLM compiler turns them into an interlinked wiki with a knowledge graph — agents query it through MCP, humans browse it as plain markdown.
 
 ## Scope
 
@@ -103,7 +106,7 @@ consumption:
 
 | Evidence | Selector | Local artifact | Tier |
 |---|---|---|---|
-| `evidence:27bcae6d97e234f4` | `local://materialized_sources/corpus/github-xoai-sage-wiki--5289f5d0/document.md#L3-L6` | `materialized_sources/corpus/github-xoai-sage-wiki--5289f5d0/document.md` | `semantic_capsule` |
+| `evidence:27bcae6d97e234f4` | `local://materialized_sources/corpus/github-xoai-sage-wiki--5289f5d0/evidence/files/README.md#L5-L5` | `materialized_sources/corpus/github-xoai-sage-wiki--5289f5d0/evidence/files/README.md` | `semantic_capsule` |
 
 ## Review requirements
 

@@ -4,8 +4,8 @@ title: Claim 32d4ab82e7394fa1
 slug: claims/claim-32d4ab82e7394fa1
 page_type: evidence
 status: review
-summary: graphicx multirow amsmath,amssymb,amsfonts amsthm mathrsfs appendix xcolor textcomp manyfoot booktabs algorithm
-  algorithmicx algpseudocode listings geometry subcaption lipsum xcolor xcolor
+summary: The automation of chemical research through self-driving laboratories (SDLs) promises to accelerate scientific
+  discovery, yet the reliability and granular performance of the underlying AI agents remain critical, under-ex
 aliases: []
 ontology_refs:
 - experiment:meta-kb-v0
@@ -39,21 +39,21 @@ sections:
   source_refs: *id001
   editorial_intent: Resolve to local selectors.
 temporal:
-  created_at: '2026-09-13T17:43:07Z'
-  updated_at: '2026-09-13T17:43:07Z'
+  created_at: '2026-09-13T17:38:21Z'
+  updated_at: '2026-09-13T17:38:21Z'
   valid_from: null
   valid_to: null
-  as_of: '2026-09-13T17:43:07Z'
+  as_of: '2026-09-13T17:38:21Z'
 provenance:
-  build_id: build:llm-wiki-v0:196d848b07caf422
+  build_id: build:llm-wiki-v0:d303e0f210b88f64
   generated_by_agent: pipeline/build_llm_wiki.py
   generated_by_model: null
   prompt_or_skill_version: deterministic-llm-wiki-v0.2
   compiled_from_revisions:
   - arxiv:2509.25651@sha256:14424738e0ad14b8fd5891102b89d9a3e4888beb22605f723e1cc044231eb803
-  created_at: '2026-09-13T17:43:07Z'
-  updated_at: '2026-09-13T17:43:07Z'
-  manual_edits_preserved: true
+  created_at: '2026-09-13T17:38:21Z'
+  updated_at: '2026-09-13T17:38:21Z'
+  manual_edits_preserved: false
 review:
   state: needs_human
   reviewers: []
@@ -63,7 +63,7 @@ review:
   - Scientific, semantic, neutrality, and due-weight review remain required before publication.
 freshness:
   status: fresh
-  checked_at: '2026-09-13T17:43:07Z'
+  checked_at: '2026-09-13T17:38:21Z'
   max_age_days: 30
   source_dependencies: *id001
   staleness_reasons: []
@@ -72,12 +72,13 @@ consumption:
   - human
   - agent
   summary_tiers:
-    one_line: graphicx multirow amsmath,amssymb,amsfonts amsthm mathrsfs appendix xcolor textcomp manyfoot booktabs
-      algorithm algorithmicx algpseudocode listings geometry subcaption lipsum xcolor xcolor
-    short: graphicx multirow amsmath,amssymb,amsfonts amsthm mathrsfs appendix xcolor textcomp manyfoot booktabs
-      algorithm algorithmicx algpseudocode listings geometry subcaption lipsum xcolor xcolor
+    one_line: The automation of chemical research through self-driving laboratories (SDLs) promises to accelerate
+      scientific discovery, yet the reliability and granular performance of the underlying AI agents remain critical,
+      under-ex
+    short: The automation of chemical research through self-driving laboratories (SDLs) promises to accelerate scientific
+      discovery, yet the reliability and granular performance of the underlying AI agents remain critical, under-ex
     full: null
-  estimated_tokens: 127
+  estimated_tokens: 161
   machine_entry_points:
   - ../../04_claims/claims.jsonl
   - ../../03_evidence/evidence.jsonl
@@ -90,7 +91,7 @@ consumption:
 
 ## Candidate statement
 
-graphicx multirow amsmath,amssymb,amsfonts amsthm mathrsfs appendix xcolor textcomp manyfoot booktabs algorithm algorithmicx algpseudocode listings geometry subcaption lipsum xcolor xcolor
+The automation of chemical research through self-driving laboratories (SDLs) promises to accelerate scientific discovery, yet the reliability and granular performance of the underlying AI agents remain critical, under-examined challenges. In this work, we introduce AutoLabs, a self-correcting, multi-agent architecture designed to autonomously translate natural-language instructions into executable protocols for a high-throughput liquid handler.
 
 ## Scope
 
@@ -103,7 +104,7 @@ graphicx multirow amsmath,amssymb,amsfonts amsthm mathrsfs appendix xcolor textc
 
 | Evidence | Selector | Local artifact | Tier |
 |---|---|---|---|
-| `evidence:8c2fdbc074dbf7d4` | `local://materialized_sources/corpus/arxiv-2509.25651--2ba7699b/normalized/document.txt#L1-L4` | `materialized_sources/corpus/arxiv-2509.25651--2ba7699b/normalized/document.txt` | `full_text` |
+| `evidence:8c2fdbc074dbf7d4` | `local://materialized_sources/corpus/arxiv-2509.25651--2ba7699b/normalized/document.txt#L55-L55` | `materialized_sources/corpus/arxiv-2509.25651--2ba7699b/normalized/document.txt` | `full_text` |
 
 ## Review requirements
 

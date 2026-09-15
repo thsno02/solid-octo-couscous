@@ -40,21 +40,21 @@ sections:
   source_refs: *id001
   editorial_intent: Resolve to local selectors.
 temporal:
-  created_at: '2026-09-13T17:43:07Z'
-  updated_at: '2026-09-13T17:43:07Z'
+  created_at: '2026-09-13T17:38:21Z'
+  updated_at: '2026-09-13T17:38:21Z'
   valid_from: null
   valid_to: null
-  as_of: '2026-09-13T17:43:07Z'
+  as_of: '2026-09-13T17:38:21Z'
 provenance:
-  build_id: build:llm-wiki-v0:196d848b07caf422
+  build_id: build:llm-wiki-v0:d303e0f210b88f64
   generated_by_agent: pipeline/build_llm_wiki.py
   generated_by_model: null
   prompt_or_skill_version: deterministic-llm-wiki-v0.2
   compiled_from_revisions:
   - arxiv:cs/0309048@sha256:ab75c69deb1c4b41ae77f5f817735922ad52fc9a8d51ec5184f4978a88b4052e
-  created_at: '2026-09-13T17:43:07Z'
-  updated_at: '2026-09-13T17:43:07Z'
-  manual_edits_preserved: true
+  created_at: '2026-09-13T17:38:21Z'
+  updated_at: '2026-09-13T17:38:21Z'
+  manual_edits_preserved: false
 review:
   state: needs_human
   reviewers: []
@@ -64,7 +64,7 @@ review:
   - Scientific, semantic, neutrality, and due-weight review remain required before publication.
 freshness:
   status: fresh
-  checked_at: '2026-09-13T17:43:07Z'
+  checked_at: '2026-09-13T17:38:21Z'
   max_age_days: 30
   source_dependencies: *id001
   staleness_reasons: []
@@ -106,7 +106,7 @@ We present the first class of mathematically rigorous, general, fully self-refer
 
 | Evidence | Selector | Local artifact | Tier |
 |---|---|---|---|
-| `evidence:fa9cf34a7b9587ca` | `local://materialized_sources/corpus/arxiv-cs-0309048--34c0ca59/normalized/document.txt#L78-L115` | `materialized_sources/corpus/arxiv-cs-0309048--34c0ca59/normalized/document.txt` | `full_text` |
+| `evidence:fa9cf34a7b9587ca` | `local://materialized_sources/corpus/arxiv-cs-0309048--34c0ca59/normalized/document.txt#L78-L85` | `materialized_sources/corpus/arxiv-cs-0309048--34c0ca59/normalized/document.txt` | `full_text` |
 
 ## Review requirements
 

@@ -7,7 +7,6 @@ import json
 import re
 import shutil
 from collections import Counter, defaultdict
-from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Iterable
 
@@ -42,10 +41,6 @@ DOMAIN_RULES = [
     ("llm-wiki", ("llm wiki", "wiki", "wikigen", "mediawiki", "wikibase", "factuality", "citation")),
     ("governance-evaluation", ("governance", "evaluation", "benchmark", "verification", "policy", "rollback", "audit", "truth maintenance")),
 ]
-
-
-def now() -> str:
-    return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
 
 
 def load_yaml(path: Path) -> Any:
@@ -109,7 +104,13 @@ def domain_bucket(item: dict[str, Any], metadata: dict[str, Any]) -> str:
     text = " ".join(terms).lower()
     scores: list[tuple[int, str]] = []
     for name, keywords in DOMAIN_RULES:
-        score = sum(1 for keyword in keywords if keyword in text)
+        # Acronyms are words, not arbitrary substrings: RSI is not "version",
+        # OWL is not "knowledge", and RAG is not "paragraph".
+        score = sum(
+            1 for keyword in keywords
+            if re.search(r"\b" + re.escape(keyword) +
+                         ("" if keyword in {"self-improv", "self-modif"} else r"\b"), text)
+        )
         if score:
             scores.append((score, name))
     if not scores:
@@ -128,7 +129,9 @@ def source_priority(item: dict[str, Any], metadata: dict[str, Any]) -> tuple[int
 
 def select_sources(items: list[dict[str, Any]], config: dict[str, Any]) -> list[dict[str, Any]]:
     allowed = set(config.get("content_tiers_allowed") or [])
-    candidates = [item for item in items if item.get("content_tier") in allowed]
+    candidates = [item for item in items if item.get("content_tier") in allowed
+                  and item.get("content_tier") != "metadata_capsule"
+                  and item.get("status") != "metadata_only"]
     metadata_cache = {str(item["uid"]): metadata_for(item) for item in candidates}
     preferred = [str(value).lower() for value in config.get("preferred_sources") or []]
     selected: list[dict[str, Any]] = []
@@ -182,14 +185,18 @@ def choose_local_document(item: dict[str, Any], manifest: dict[str, Any]) -> Pat
         candidates.insert(0, capsule_root / document)
     evidence_list = capsule_root / "evidence" / "files.jsonl"
     if evidence_list.exists():
+        repository_documents = []
         for line in evidence_list.read_text(encoding="utf-8").splitlines():
             if not line.strip():
                 continue
             row = json.loads(line)
             local_path = row.get("local_path")
             if isinstance(local_path, str):
-                candidates.append(ROOT / local_path)
-                break
+                path = ROOT / local_path
+                if path.name.lower().startswith("readme"):
+                    repository_documents.append(path)
+        # Cite the pinned maintainer file, not our synthetic capsule header.
+        candidates = sorted(repository_documents, key=lambda p: (len(p.parts), str(p))) + candidates
     for candidate in candidates:
         if candidate.exists() and candidate.is_file() and candidate.stat().st_size > 0:
             return candidate
@@ -197,62 +204,61 @@ def choose_local_document(item: dict[str, Any], manifest: dict[str, Any]) -> Pat
 
 
 def meaningful_excerpt(text: str, title: str) -> tuple[str, int, int]:
-    lines = text.splitlines()
-    start = 1
-    end = min(len(lines), 20)
-    abstract_match = re.search(r"(?is)(?:^|\n)##?\s*abstract\s*\n+(.*?)(?=\n##?\s+|\Z)", text)
-    if abstract_match:
-        candidate = abstract_match.group(1).strip()
-        prefix = text[: abstract_match.start(1)]
-        start = prefix.count("\n") + 1
-        end = start + candidate.count("\n")
-    else:
-        blocks = [
-            block.strip()
-            for block in re.split(r"\n\s*\n", text)
-            if block.strip() and not block.lstrip().startswith(("---", "#", "- UID:", "- Source type:"))
-        ]
-        candidate = ""
-        for block in blocks:
-            cleaned = re.sub(r"\s+", " ", block).strip()
-            if len(cleaned) >= 80 and title.lower() not in cleaned.lower()[: len(title) + 20]:
-                candidate = cleaned
-                break
-        if not candidate:
-            candidate = re.sub(r"\s+", " ", text[:1200]).strip()
-        if candidate:
-            for index, line in enumerate(lines, 1):
-                if candidate[:40] in re.sub(r"\s+", " ", line):
-                    start = index
-                    break
-            end = min(len(lines), start + max(1, candidate.count("\n") + 3))
-    candidate = re.sub(r"\s+", " ", candidate).strip()
-    sentences = re.split(r"(?<=[.!?。！？])\s+", candidate)
-    chosen: list[str] = []
-    length = 0
-    for sentence in sentences:
-        sentence = sentence.strip()
-        if len(sentence) < 30:
+    """Return a contiguous source span and its exact original line interval.
+
+    Offsets are retained before whitespace normalization. No TeX/HTML cleanup
+    or noncontiguous sentence joining is allowed to masquerade as a quotation.
+    """
+    abstract = re.search(
+        r"(?im)^\s*(?:#{1,6}\s*)?abstract\s*\n", text
+    )
+    offset = abstract.end() if abstract else 0
+    region = text[offset:]
+    for block in re.finditer(r"\S[^\n]*(?:\n(?!\s*\n)[^\n]*)*", region):
+        raw = block.group()
+        candidate = " ".join(raw.split())
+        if raw.lstrip().startswith(("---", "#", "- ", ">", "<", "```", "!", "[", "\\")):
             continue
-        chosen.append(sentence)
-        length += len(sentence)
-        if length >= 260 or len(chosen) >= 2:
-            break
-    excerpt = " ".join(chosen) if chosen else candidate[:500]
-    return excerpt[:700].strip(), start, max(start, end)
+        if len(re.findall(r"[A-Za-z]{3,}", candidate)) < 12 or len(candidate) < 80:
+            continue
+        if not re.search(r"[.!?。！？](?:\s|$)", candidate):
+            continue
+        tokens = list(re.finditer(r"\S+", raw))
+        # Keep a prefix of at most two sentences, capped at 700 characters.
+        ends = list(re.finditer(r"(?<=[.!?。！？])\s+", candidate))
+        length = ends[min(1, len(ends) - 1)].start() if ends else len(candidate)
+        excerpt = candidate[:min(length, 700)].rstrip()
+        consumed = 0
+        last = tokens[0]
+        for token in tokens:
+            last = token
+            consumed += len(token.group())
+            if consumed >= len(excerpt):
+                break
+            consumed += 1
+        origin = offset + block.start()
+        start = text.count("\n", 0, origin + tokens[0].start()) + 1
+        end = text.count("\n", 0, origin + last.end()) + 1
+        return excerpt, start, end
+    # Absence of quotable prose is not evidence for a source assertion.
+    return "", 1, 1
 
 
 def inclusion_reason(metadata: dict[str, Any]) -> str:
+    return inclusion_reason_field(metadata)[1]
+
+
+def inclusion_reason_field(metadata: dict[str, Any]) -> tuple[str, str]:
     collection = metadata.get("collection") if isinstance(metadata.get("collection"), dict) else {}
-    for value in (
-        collection.get("inclusion_reason"),
-        metadata.get("why_collected"),
-        metadata.get("knowledge_evolution_link"),
-        metadata.get("summary"),
+    for field, value in (
+        ("collection.inclusion_reason", collection.get("inclusion_reason")),
+        ("why_collected", metadata.get("why_collected")),
+        ("knowledge_evolution_link", metadata.get("knowledge_evolution_link")),
+        ("summary", metadata.get("summary")),
     ):
         if isinstance(value, str) and value.strip():
-            return re.sub(r"\s+", " ", value).strip()[:700]
-    return "The source is retained as part of the 2026-09 knowledge self-evolution collection."
+            return field, re.sub(r"\s+", " ", value).strip()
+    raise ValueError("source metadata has no collection assessment field")
 
 
 def knowledge_object(
@@ -382,7 +388,7 @@ def wiki_frontmatter(
             "compiled_from_revisions": source_refs,
             "created_at": generated_at,
             "updated_at": generated_at,
-            "manual_edits_preserved": True,
+            "manual_edits_preserved": False,
         },
         "review": {
             "state": "needs_human",
@@ -421,10 +427,30 @@ def main() -> int:
     if not isinstance(items, list):
         raise SystemExit("materialized source index has no items")
 
-    reset_generated()
-    generated_at = now()
-    build_id = f"build:v0-meta-kb-260910:{short_hash(generated_at)}"
     selected = select_sources(items, config)
+    generated_at = str(index.get("generated_at") or "")
+    if not generated_at:
+        raise SystemExit("materialized source index has no pinned generated_at")
+    # The existing build identity is derived from inputs, not wall-clock time.
+    input_paths = {CONFIG_PATH, MATERIALIZED_INDEX, Path(__file__),
+                   Path(__file__).with_name("validate_demo.py"),
+                   Path(__file__).with_name("evidence_validation.py"),
+                   KNOWLEDGE_SCHEMA, WIKI_PAGE_SCHEMA}
+    for item in selected:
+        manifest_path = ROOT / str(item["manifest"])
+        source_manifest = load_yaml(manifest_path)
+        input_paths.update({manifest_path, ROOT / source_manifest["metadata_path"]})
+        document = choose_local_document(item, source_manifest)
+        if document:
+            input_paths.add(document)
+    digest = hashlib.sha256()
+    for path in sorted(input_paths):
+        digest.update(path.relative_to(ROOT).as_posix().encode())
+        digest.update(b"\0")
+        digest.update(path.read_bytes())
+        digest.update(b"\0")
+    build_id = f"build:v0-meta-kb-260910:{digest.hexdigest()[:16]}"
+    reset_generated()
 
     metadata_cache: dict[str, dict[str, Any]] = {}
     selected_rows: list[dict[str, Any]] = []
@@ -443,6 +469,9 @@ def main() -> int:
         if not isinstance(manifest, dict):
             continue
         domain = domain_bucket(item, metadata)
+        limited_evidence = item.get("status") == "partial" or item.get("content_tier") == "excerpt_capsule"
+        evidence_role = ("bounded-excerpt" if limited_evidence else
+                         "static-repository-evidence" if item.get("source_type") == "github" else "source-text")
         local_document = choose_local_document(item, manifest)
         excerpt = ""
         start_line = 1
@@ -505,6 +534,7 @@ def main() -> int:
                         "excerpt": excerpt,
                         "excerpt_sha256": hashlib.sha256(excerpt.encode("utf-8")).hexdigest(),
                         "content_tier": item.get("content_tier"),
+                        "evidence_role": evidence_role,
                     },
                     assertion_kind="observation",
                     method="deterministic-local-excerpt",
@@ -525,6 +555,7 @@ def main() -> int:
                     "claim_scope": "source-reported assertion",
                     "domain": domain,
                     "subject_ref": source_entity_uid,
+                    "limitations": ["Only the locally retained excerpt is evidence; omitted source content was not reviewed."] if limited_evidence else [],
                 },
                 assertion_kind="assertion",
                 evidence_refs=[evidence_uid],
@@ -536,10 +567,10 @@ def main() -> int:
             claims_by_domain[domain].append(claim)
             claim_refs.append(claim_uid)
 
-        assessment_text = inclusion_reason(metadata)
+        assessment_field, assessment_text = inclusion_reason_field(metadata)
         assessment_evidence_uid = f"evidence:{short_hash(uid + ':collection-metadata')}"
         assessment_claim_uid = f"claim:{short_hash(uid + ':collection-assessment')}"
-        assessment_selector = f"local://{manifest.get('metadata_path')}#collection-inclusion-reason"
+        assessment_selector = f"local://{manifest.get('metadata_path')}#{assessment_field}"
         evidence_objects.append(
             knowledge_object(
                 uid=assessment_evidence_uid,
@@ -955,7 +986,8 @@ A local file is necessary for reproducible consumption but is not sufficient for
         f"demo_built selected_sources={len(selected_rows)} claims={len(claim_objects)} "
         f"evidence={len(evidence_objects)} wiki_pages={len(list(wiki_root.rglob('*.md')))}"
     )
-    return 0
+    from validate_demo import main as validate_demo
+    return validate_demo(write_reports=True)
 
 
 if __name__ == "__main__":

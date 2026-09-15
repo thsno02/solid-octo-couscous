@@ -10,24 +10,28 @@ ontology_refs:
 - experiment:meta-kb-v0
 claim_refs:
 - claim:1929edca74fa3fa5
-- claim:5266ce3d7596f42a
 - claim:55eeb2a1683b8804
+- claim:6f5fa83ca484f664
+- claim:714e301e8b2162bc
 - claim:9a3b21da11a96956
 - claim:9f0a3dc6de4c7f84
 - claim:b281f7d7bc21b10d
+- claim:bc9a34bd8a9c7154
 - claim:bed2f056ecd73c69
 - claim:c4f2def09ea56d98
-- claim:d9cc223138eb5da3
+- claim:e7026275c099e7e2
 - claim:e7ac7da9ac39e47d
 source_refs: &id001
 - arxiv:2402.14207
-- arxiv:2408.15232
+- arxiv:2509.23233
+- github:VectifyAI/OpenKB
 - arxiv:2305.14627
 - arxiv:2305.14251
 - github:xoai/sage-wiki
 page_refs:
 - wiki-page:source-7fabb86557bf2f15
-- wiki-page:source-cdbf63332581b131
+- wiki-page:source-e27d5b13b062021d
+- wiki-page:source-332922100755365f
 - wiki-page:source-51388aa8e2e8587f
 - wiki-page:source-dd60addc5fe69a87
 - wiki-page:source-a41aba6e720b278f
@@ -40,11 +44,17 @@ outgoing_links:
   - claim:1929edca74fa3fa5
   - claim:55eeb2a1683b8804
   notes: null
-- target: wiki-page:source-cdbf63332581b131
+- target: wiki-page:source-e27d5b13b062021d
   relation: explains
   claim_refs:
-  - claim:d9cc223138eb5da3
-  - claim:5266ce3d7596f42a
+  - claim:bc9a34bd8a9c7154
+  - claim:6f5fa83ca484f664
+  notes: null
+- target: wiki-page:source-332922100755365f
+  relation: explains
+  claim_refs:
+  - claim:e7026275c099e7e2
+  - claim:714e301e8b2162bc
   notes: null
 - target: wiki-page:source-51388aa8e2e8587f
   relation: explains
@@ -68,21 +78,21 @@ outgoing_links:
   relation: related
   claim_refs:
   - claim:1929edca74fa3fa5
-  - claim:5266ce3d7596f42a
   - claim:55eeb2a1683b8804
+  - claim:6f5fa83ca484f664
+  - claim:714e301e8b2162bc
   - claim:9a3b21da11a96956
   - claim:9f0a3dc6de4c7f84
-  - claim:b281f7d7bc21b10d
   notes: null
 - target: wiki-page:grounded-long-form-synthesis
   relation: related
   claim_refs:
   - claim:1929edca74fa3fa5
-  - claim:5266ce3d7596f42a
   - claim:55eeb2a1683b8804
+  - claim:6f5fa83ca484f664
+  - claim:714e301e8b2162bc
   - claim:9a3b21da11a96956
   - claim:9f0a3dc6de4c7f84
-  - claim:b281f7d7bc21b10d
   notes: null
 sections:
 - heading: Source coverage
@@ -93,50 +103,55 @@ sections:
   claim_refs:
   - claim:1929edca74fa3fa5
   - claim:b281f7d7bc21b10d
+  - claim:bc9a34bd8a9c7154
   - claim:bed2f056ecd73c69
-  - claim:d9cc223138eb5da3
+  - claim:e7026275c099e7e2
   - claim:e7ac7da9ac39e47d
   source_refs:
   - arxiv:2402.14207
   - arxiv:2305.14251
+  - arxiv:2509.23233
   - arxiv:2305.14627
-  - arxiv:2408.15232
+  - github:VectifyAI/OpenKB
   - github:xoai/sage-wiki
   editorial_intent: Preserve source-authored scope.
 - heading: Collector assessments
   claim_refs:
-  - claim:5266ce3d7596f42a
   - claim:55eeb2a1683b8804
+  - claim:6f5fa83ca484f664
+  - claim:714e301e8b2162bc
   - claim:9a3b21da11a96956
   - claim:9f0a3dc6de4c7f84
   - claim:c4f2def09ea56d98
   source_refs:
-  - arxiv:2408.15232
   - arxiv:2402.14207
+  - arxiv:2509.23233
+  - github:VectifyAI/OpenKB
   - arxiv:2305.14627
   - arxiv:2305.14251
   - github:xoai/sage-wiki
   editorial_intent: Preserve collector scope.
 temporal:
-  created_at: '2026-09-13T17:43:07Z'
-  updated_at: '2026-09-13T17:43:07Z'
+  created_at: '2026-09-13T17:38:21Z'
+  updated_at: '2026-09-13T17:38:21Z'
   valid_from: null
   valid_to: null
-  as_of: '2026-09-13T17:43:07Z'
+  as_of: '2026-09-13T17:38:21Z'
 provenance:
-  build_id: build:llm-wiki-v0:196d848b07caf422
+  build_id: build:llm-wiki-v0:d303e0f210b88f64
   generated_by_agent: pipeline/build_llm_wiki.py
   generated_by_model: null
   prompt_or_skill_version: deterministic-llm-wiki-v0.2
   compiled_from_revisions:
   - arxiv:2402.14207@sha256:28b57e9821da798bf8ccfa3f144bfa37cd96ff3582c2211c83eff5ffcf0ccfc2
-  - arxiv:2408.15232@sha256:19f115dc7b47921012b68ca5b991bf5f63c5b5ca54f3faddf895ea8e963b54fa
+  - arxiv:2509.23233@sha256:8570de4224cfc829f7478411feca2ecec5f50d6e7ceb7cc62fd15fa07f20c921
+  - github:VectifyAI/OpenKB@ff54396e575ee6feb0113b631a34caa082b441cc
   - arxiv:2305.14627@sha256:6902aae852b39f761a60dc2cf36b7d2ed9e615755f413b7daa8b52f5c1eae3ea
   - arxiv:2305.14251@sha256:57414a8d80031dceed44fb17efa562cab7e1490390ce95d8753480fba9686795
   - github:xoai/sage-wiki@ab36031ace701fb1e3c620323d138a90a450f48d
-  created_at: '2026-09-13T17:43:07Z'
-  updated_at: '2026-09-13T17:43:07Z'
-  manual_edits_preserved: true
+  created_at: '2026-09-13T17:38:21Z'
+  updated_at: '2026-09-13T17:38:21Z'
+  manual_edits_preserved: false
 review:
   state: needs_human
   reviewers: []
@@ -146,7 +161,7 @@ review:
   - Scientific, semantic, neutrality, and due-weight review remain required before publication.
 freshness:
   status: fresh
-  checked_at: '2026-09-13T17:43:07Z'
+  checked_at: '2026-09-13T17:38:21Z'
   max_age_days: 30
   source_dependencies: *id001
   staleness_reasons: []
@@ -158,7 +173,7 @@ consumption:
     one_line: Routing map for llm wiki sources, questions, and claims.
     short: Routing map for llm wiki sources, questions, and claims.
     full: null
-  estimated_tokens: 687
+  estimated_tokens: 761
   machine_entry_points:
   - ../../04_claims/claims.jsonl
   - ../../03_evidence/evidence.jsonl
@@ -180,7 +195,8 @@ Grounded long-form compilation, citation-aware writing, and human-steerable expl
 | Source | Type | Tier | Claims |
 |---|---|---|---|
 | [Assisting in Writing Wikipedia-like Articles From Scratch with Large Language Models](../sources/arxiv-2402.14207.md) | `arxiv` | `full_text` | 2 |
-| [Into the Unknown Unknowns: Engaged Human Learning through Participation in Language Model Agent Conversations](../sources/arxiv-2408.15232.md) | `arxiv` | `full_text` | 2 |
+| [Detecting Corpus-Level Knowledge Inconsistencies in Wikipedia with Large Language Models](../sources/arxiv-2509.23233.md) | `arxiv` | `full_text` | 2 |
+| [VectifyAI/OpenKB](../sources/github-vectifyai-openkb.md) | `github` | `semantic_capsule` | 2 |
 | [Enabling Large Language Models to Generate Text with Citations](../sources/arxiv-2305.14627.md) | `arxiv` | `full_text` | 2 |
 | [FActScore: Fine-grained Atomic Evaluation of Factual Precision in Long Form Text Generation](../sources/arxiv-2305.14251.md) | `arxiv` | `full_text` | 2 |
 | [xoai/sage-wiki](../sources/github-xoai-sage-wiki.md) | `github` | `semantic_capsule` | 2 |
@@ -188,15 +204,17 @@ Grounded long-form compilation, citation-aware writing, and human-steerable expl
 ## Source-reported signals
 
 - **Assisting in Writing Wikipedia-like Articles From Scratch with Large Language Models** (source assertion): We study how to apply large language models to write grounded and organized long-form articles from scratch, with comparable breadth and depth to Wikipedia pages. This underexplored problem poses new challenges at the pre-writing stage, including how to research the topic and prepare an outline prior to writing. 〔[claim:1929edca74fa3fa5](../claims/claim-1929edca74fa3fa5.md)〕
-- **FActScore: Fine-grained Atomic Evaluation of Factual Precision in Long Form Text Generation** (source assertion): Evaluating the factuality of long-form text generated by large language models (LMs) is non-trivial because (1) generations often contain a mixture of supported and unsupported pieces of information, making binary judgments of quality inadequate, and (2) human evaluation is time-consuming and costly. 〔[claim:b281f7d7bc21b10d](../claims/claim-b281f7d7bc21b10d.md)〕
+- **FActScore: Fine-grained Atomic Evaluation of Factual Precision in Long Form Text Generation** (source assertion): Evaluating the factuality of long-form text generated by large language models (LMs) is non-trivial because (1) generations often contain a mixture of supported and unsupported pieces of information, making binary judgments of quality inadequate, and (2) human evaluation is time-consuming and costly. In this paper, we introduce , a new evaluation that breaks a generation into a series of atomic facts and computes the 〔[claim:b281f7d7bc21b10d](../claims/claim-b281f7d7bc21b10d.md)〕
+- **Detecting Corpus-Level Knowledge Inconsistencies in Wikipedia with Large Language Models** (source assertion): Wikipedia is the largest open knowledge corpus, widely used worldwide and serving as a key resource for training large language models (LLMs) and retrieval-augmented generation (RAG) systems. Ensuring its accuracy is therefore critical. 〔[claim:bc9a34bd8a9c7154](../claims/claim-bc9a34bd8a9c7154.md)〕
 - **Enabling Large Language Models to Generate Text with Citations** (source assertion): Large language models (LLMs) have emerged as a widely-used tool for information seeking, but their generated outputs are prone to hallucination. In this work, our aim is to allow LLMs to generate text with citations , improving their factual correctness and verifiability. 〔[claim:bed2f056ecd73c69](../claims/claim-bed2f056ecd73c69.md)〕
-- **Into the Unknown Unknowns: Engaged Human Learning through Participation in Language Model Agent Conversations** (source assertion): While language model (LM)-powered chatbots and generative search engines excel at answering concrete queries, discovering information in the terrain of unknown unknowns remains challenging for users. To emulate the common educational scenario where children/students learn by listening to and participating in conversations with their parents/teachers, we create Collaborative STORM ( ). 〔[claim:d9cc223138eb5da3](../claims/claim-d9cc223138eb5da3.md)〕
-- **xoai/sage-wiki** (source assertion): - Commit: `ab36031ace701fb1e3c620323d138a90a450f48d` - Default branch: `main` - Description: xoai/sage-wiki - Selected evidence files: 4 of 21 files observed - Interpretation: maintainer documentation and static repository evidence; runtime behavior is not proven. 〔[claim:e7ac7da9ac39e47d](../claims/claim-e7ac7da9ac39e47d.md)〕
+- **VectifyAI/OpenKB** (source assertion): **OpenKB (Open Knowledge Base)** is an open-source system (in CLI) that compiles raw documents into a structured, interlinked wiki-style knowledge base using LLMs, powered by [**PageIndex**](https://github.com/VectifyAI/PageIndex)'s vectorless, reasoning-based retrieval for long documents. 〔[claim:e7026275c099e7e2](../claims/claim-e7026275c099e7e2.md)〕
+- **xoai/sage-wiki** (source assertion): **sage-wiki** is a graph memory and knowledge base that AI agents and humans build and query together. Drop in documents; an LLM compiler turns them into an interlinked wiki with a knowledge graph — agents query it through MCP, humans browse it as plain markdown. 〔[claim:e7ac7da9ac39e47d](../claims/claim-e7ac7da9ac39e47d.md)〕
 
 ## Collector assessments
 
-- **Into the Unknown Unknowns: Engaged Human Learning through Participation in Language Model Agent Conversations** (collection assessment): Co-STORM extends wiki construction into a human-steerable multi-agent discourse with a dynamic mind map and report, useful for surfacing unknown unknowns. 〔[claim:5266ce3d7596f42a](../claims/claim-5266ce3d7596f42a.md)〕
 - **Assisting in Writing Wikipedia-like Articles From Scratch with Large Language Models** (collection assessment): STORM is a central academic reference for multi-perspective research, outline construction, grounded long-form synthesis, and editor-informed evaluation. 〔[claim:55eeb2a1683b8804](../claims/claim-55eeb2a1683b8804.md)〕
+- **Detecting Corpus-Level Knowledge Inconsistencies in Wikipedia with Large Language Models** (collection assessment): CLAIRE and WikiCollide make corpus-level inconsistency detection a first-class maintenance task and demonstrate human-editor review as part of the loop. 〔[claim:6f5fa83ca484f664](../claims/claim-6f5fa83ca484f664.md)〕
+- **VectifyAI/OpenKB** (collection assessment): A CLI knowledge compiler with wiki foundation and downstream generators, hierarchical long-document retrieval, linting, source removal and skill compilation. 〔[claim:714e301e8b2162bc](../claims/claim-714e301e8b2162bc.md)〕
 - **Enabling Large Language Models to Generate Text with Citations** (collection assessment): ALCE provides reproducible citation-quality metrics across correctness, completeness, and fluency, directly applicable to wiki admission gates. 〔[claim:9a3b21da11a96956](../claims/claim-9a3b21da11a96956.md)〕
 - **FActScore: Fine-grained Atomic Evaluation of Factual Precision in Long Form Text Generation** (collection assessment): Supplies an atomic-fact evaluation primitive needed to assess factual precision of long-form wiki pages rather than judging a page as one block. 〔[claim:9f0a3dc6de4c7f84](../claims/claim-9f0a3dc6de4c7f84.md)〕
 - **xoai/sage-wiki** (collection assessment): A graph-aware compiled wiki emphasizing evidenced relations, source spans, bi-temporal edges, review-gated entity resolution, output quarantine and agent access through MCP. 〔[claim:c4f2def09ea56d98](../claims/claim-c4f2def09ea56d98.md)〕
@@ -208,7 +226,8 @@ The map routes candidate evidence; it does not flatten sources into consensus or
 ## Related pages
 
 - [Assisting in Writing Wikipedia-like Articles From Scratch with Large Language Models](../sources/arxiv-2402.14207.md) — `explains`
-- [Into the Unknown Unknowns: Engaged Human Learning through Participation in Language Model Agent Conversations](../sources/arxiv-2408.15232.md) — `explains`
+- [Detecting Corpus-Level Knowledge Inconsistencies in Wikipedia with Large Language Models](../sources/arxiv-2509.23233.md) — `explains`
+- [VectifyAI/OpenKB](../sources/github-vectifyai-openkb.md) — `explains`
 - [Enabling Large Language Models to Generate Text with Citations](../sources/arxiv-2305.14627.md) — `explains`
 - [FActScore: Fine-grained Atomic Evaluation of Factual Precision in Long Form Text Generation](../sources/arxiv-2305.14251.md) — `explains`
 - [xoai/sage-wiki](../sources/github-xoai-sage-wiki.md) — `explains`

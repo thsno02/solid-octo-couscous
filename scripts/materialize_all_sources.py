@@ -41,8 +41,6 @@ from typing import Any, Iterable
 
 import requests
 import yaml
-from bs4 import BeautifulSoup
-from pypdf import PdfReader
 
 ROOT = Path(__file__).resolve().parents[1]
 RAW_ROOT = ROOT / "raw_data"
@@ -655,7 +653,16 @@ def materialize_arxiv(record: SourceRecord, config: dict[str, Any], generated_at
     if payload is None:
         manifest["errors"].append("arXiv source archive could not be acquired")
         # Preserve a bounded local copy of the abstract page when the source archive fails.
-        return materialize_generic(record, config, generated_at, existing_root=root, existing_manifest=manifest)
+        return materialize_generic(
+            record,
+            config,
+            generated_at,
+            existing_root=root,
+            existing_manifest=manifest,
+            force_excerpt_reason=(
+                "arXiv source archive was unavailable; the landing or abstract page is fallback evidence, not full text."
+            ),
+        )
 
     archive_hash = sha256_bytes(payload)
     manifest["revision"] = f"sha256:{archive_hash}"
@@ -1184,6 +1191,8 @@ def materialize_github(record: SourceRecord, config: dict[str, Any], generated_a
 
 
 def html_to_sections(payload: bytes, resolved_url: str) -> tuple[str, list[dict[str, Any]], str | None]:
+    from bs4 import BeautifulSoup
+
     soup = BeautifulSoup(payload, "html.parser")
     for tag in soup(["script", "style", "noscript", "svg", "canvas", "form", "nav", "footer"]):
         tag.decompose()
@@ -1215,6 +1224,8 @@ def html_to_sections(payload: bytes, resolved_url: str) -> tuple[str, list[dict[
 
 
 def extract_pdf_text(payload: bytes, max_pages: int | None = None) -> tuple[str, list[dict[str, Any]], int]:
+    from pypdf import PdfReader
+
     reader = PdfReader(io.BytesIO(payload))
     page_count = len(reader.pages)
     limit = page_count if max_pages is None else min(page_count, max_pages)
@@ -1237,6 +1248,79 @@ def extract_pdf_text(payload: bytes, max_pages: int | None = None) -> tuple[str,
     return "".join(text_parts).strip() + "\n", selectors, page_count
 
 
+def filter_selectors_for_document(
+    selectors: Iterable[dict[str, Any]],
+    document_text: str,
+) -> tuple[list[dict[str, Any]], int]:
+    """Keep only selectors whose cited evidence remains in ``document_text``.
+
+    Generic adapters create selectors from the downloaded representation before the
+    local character budget is applied.  A selector for a removed HTML block or PDF
+    page is not locally resolvable merely because its ``local_path`` still exists.
+    Preview evidence must occur in the stored text, and line selectors are clamped to
+    the actual stored file.
+    """
+
+    stored_lines = document_text.splitlines()
+    line_count = max(1, len(stored_lines))
+    stored_pages = {
+        int(match.group(1))
+        for match in re.finditer(r"(?m)^## Page (\d+)\s*$", document_text)
+    }
+    retained: list[dict[str, Any]] = []
+    omitted = 0
+
+    for original in selectors:
+        selector = dict(original)
+        start_line = selector.get("start_line")
+        end_line = selector.get("end_line")
+        if start_line is not None or end_line is not None:
+            if (
+                not isinstance(start_line, int)
+                or isinstance(start_line, bool)
+                or not isinstance(end_line, int)
+                or isinstance(end_line, bool)
+                or start_line < 1
+                or end_line < start_line
+                or start_line > line_count
+            ):
+                omitted += 1
+                continue
+            clamped_end = min(end_line, line_count)
+            selector["end_line"] = clamped_end
+            selector_id = selector.get("selector")
+            if isinstance(selector_id, str) and clamped_end != end_line:
+                selector["selector"] = re.sub(r"(#L\d+-L)\d+$", rf"\g<1>{clamped_end}", selector_id)
+
+        page = selector.get("page")
+        if page is not None and (
+            not isinstance(page, int)
+            or isinstance(page, bool)
+            or page < 1
+            or page not in stored_pages
+        ):
+            omitted += 1
+            continue
+
+        preview = selector.get("text_preview")
+        if isinstance(preview, str) and preview:
+            if preview not in document_text:
+                omitted += 1
+                continue
+
+        retained.append(selector)
+
+    return retained, omitted
+
+
+def has_substantive_document_text(document_text: str) -> bool:
+    """Reject navigation/title shells that contain no non-heading evidence."""
+
+    non_heading = re.sub(r"(?m)^\s{0,3}#{1,6}\s+.*$", "", document_text)
+    tokens = re.findall(r"[\w\u0080-\uffff]+", non_heading)
+    return len(non_heading.strip()) >= 20 and len(tokens) >= 3
+
+
 def materialize_generic(
     record: SourceRecord,
     config: dict[str, Any],
@@ -1244,6 +1328,7 @@ def materialize_generic(
     *,
     existing_root: Path | None = None,
     existing_manifest: dict[str, Any] | None = None,
+    force_excerpt_reason: str | None = None,
 ) -> dict[str, Any]:
     root = existing_root or prepare_capsule(record)
     manifest = existing_manifest or base_manifest(record, "generic_web_or_document_v2", generated_at)
@@ -1323,33 +1408,65 @@ def materialize_generic(
         manifest["errors"].append(f"content parsing failed: {exc}")
         return finalize_capsule(record, root, manifest)
 
-    if not full_text_allowed:
+    content_was_truncated = False
+    if not full_text_allowed or force_excerpt_reason:
         max_chars = int(config.get("restricted_excerpt_chars", 8_000))
-        document_text = document_text[:max_chars].rstrip() + "\n"
-        manifest["warnings"].append(
-            "Full-text redistribution was not established; stored content is a bounded evidence excerpt."
-        )
+        if len(document_text) > max_chars:
+            content_was_truncated = True
+            document_text = document_text[:max_chars].rstrip() + "\n"
+        if force_excerpt_reason:
+            manifest["warnings"].append(force_excerpt_reason)
+        else:
+            manifest["warnings"].append(
+                "Full-text redistribution was not established; stored content is a bounded evidence excerpt."
+            )
     else:
         max_chars = int(config.get("open_full_text_max_chars", 1_500_000))
         if len(document_text) > max_chars:
+            content_was_truncated = True
             document_text = document_text[:max_chars].rstrip() + "\n"
             manifest["warnings"].append("Open text exceeded the configured local character budget and was truncated.")
 
+    selectors, omitted_selector_count = filter_selectors_for_document(selectors, document_text)
+    if omitted_selector_count:
+        manifest["warnings"].append(
+            f"Omitted {omitted_selector_count} selectors whose evidence was outside the stored document boundary."
+        )
+
     if document_text.strip():
         (root / document_name).write_text(document_text, encoding="utf-8")
-        local_path = (root / document_name).relative_to(ROOT).as_posix()
-        for selector in selectors:
-            selector["local_path"] = local_path
-        write_jsonl(root / "selectors.jsonl", selectors)
-        manifest["status"] = "materialized" if full_text_allowed else "partial"
-        manifest["content_tier"] = "full_text" if full_text_allowed else "excerpt_capsule"
-        manifest["selectors"] = ["selectors.jsonl"]
+        substantive_text = has_substantive_document_text(document_text)
+        if substantive_text and selectors:
+            local_path = (root / document_name).relative_to(ROOT).as_posix()
+            for selector in selectors:
+                selector["local_path"] = local_path
+            write_jsonl(root / "selectors.jsonl", selectors)
+            complete_full_text = (
+                full_text_allowed and not content_was_truncated and not force_excerpt_reason
+            )
+            manifest["status"] = "materialized" if complete_full_text else "partial"
+            manifest["content_tier"] = "full_text" if complete_full_text else "excerpt_capsule"
+            manifest["selectors"] = ["selectors.jsonl"]
+        else:
+            selectors = []
+            if not substantive_text:
+                manifest["warnings"].append(
+                    "Retrieved document contained no substantive non-heading text; retained only as acquisition evidence."
+                )
+            else:
+                manifest["warnings"].append(
+                    "Retrieved document had no selector that resolved inside the stored boundary; retained only as acquisition evidence."
+                )
         manifest["materialization"] = {
             "document": document_name,
             "stored_characters": len(document_text),
             "selector_count": len(selectors),
             "pdf_page_count": page_count,
             "full_text_allowed": full_text_allowed,
+            "content_was_truncated": content_was_truncated,
+            "substantive_text": substantive_text,
+            "omitted_selector_count": omitted_selector_count,
+            "forced_excerpt_reason": force_excerpt_reason,
         }
     return finalize_capsule(record, root, manifest)
 
@@ -1360,6 +1477,16 @@ def adapter_name(source_type: str) -> str:
     if source_type == "github":
         return "github_repo_semantic_capsule_v2"
     return "generic_web_or_document_v2"
+
+
+def evidence_role_for(status: Any, content_tier: Any) -> str:
+    if status in {"metadata_only", "failed"} or content_tier == "metadata_capsule":
+        return "catalog-only"
+    if status == "partial" or content_tier == "excerpt_capsule":
+        return "bounded-excerpt"
+    if content_tier == "semantic_capsule":
+        return "static-repository-evidence"
+    return "source-text"
 
 
 def materialize_one(record: SourceRecord, config: dict[str, Any], generated_at: str) -> dict[str, Any]:
@@ -1409,6 +1536,9 @@ def rebuild_registry(records: list[SourceRecord], manifests: dict[str, dict[str,
                 "materialization": {
                     "state": manifest.get("status"),
                     "content_tier": manifest.get("content_tier"),
+                    "evidence_role": evidence_role_for(
+                        manifest.get("status"), manifest.get("content_tier")
+                    ),
                     "revision": manifest.get("revision"),
                     "root": record.capsule_root.relative_to(ROOT).as_posix(),
                     "manifest": manifest_path.relative_to(ROOT).as_posix(),

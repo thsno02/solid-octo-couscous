@@ -15,14 +15,14 @@ source_refs: &id001
 - arxiv:2406.06769
 page_refs:
 - wiki-page:source-18c791741aa4bcd7
-- wiki-page:map-ontology-semantic-architecture
+- wiki-page:map-governance-evaluation
 outgoing_links:
 - target: wiki-page:source-18c791741aa4bcd7
   relation: evidenced_by
   claim_refs:
   - claim:bde139a533f9483a
   notes: null
-- target: wiki-page:map-ontology-semantic-architecture
+- target: wiki-page:map-governance-evaluation
   relation: part_of
   claim_refs:
   - claim:bde139a533f9483a
@@ -39,21 +39,21 @@ sections:
   source_refs: *id001
   editorial_intent: Resolve to local selectors.
 temporal:
-  created_at: '2026-09-13T17:43:07Z'
-  updated_at: '2026-09-13T17:43:07Z'
+  created_at: '2026-09-13T17:38:21Z'
+  updated_at: '2026-09-13T17:38:21Z'
   valid_from: null
   valid_to: null
-  as_of: '2026-09-13T17:43:07Z'
+  as_of: '2026-09-13T17:38:21Z'
 provenance:
-  build_id: build:llm-wiki-v0:196d848b07caf422
+  build_id: build:llm-wiki-v0:d303e0f210b88f64
   generated_by_agent: pipeline/build_llm_wiki.py
   generated_by_model: null
   prompt_or_skill_version: deterministic-llm-wiki-v0.2
   compiled_from_revisions:
   - arxiv:2406.06769@sha256:cb1d6ccc88eb66af69e71730a5c488234ff4fe8af04ba04081b5a445f4d39b3e
-  created_at: '2026-09-13T17:43:07Z'
-  updated_at: '2026-09-13T17:43:07Z'
-  manual_edits_preserved: true
+  created_at: '2026-09-13T17:38:21Z'
+  updated_at: '2026-09-13T17:38:21Z'
+  manual_edits_preserved: false
 review:
   state: needs_human
   reviewers: []
@@ -63,7 +63,7 @@ review:
   - Scientific, semantic, neutrality, and due-weight review remain required before publication.
 freshness:
   status: fresh
-  checked_at: '2026-09-13T17:43:07Z'
+  checked_at: '2026-09-13T17:38:21Z'
   max_age_days: 30
   source_dependencies: *id001
   staleness_reasons: []
@@ -77,7 +77,7 @@ consumption:
     short: A benchmark environment for complete novel scientific discovery cycles where agents must form hypotheses,
       run experiments, analyze results and discover explanatory knowledge.
     full: null
-  estimated_tokens: 161
+  estimated_tokens: 160
   machine_entry_points:
   - ../../04_claims/claims.jsonl
   - ../../03_evidence/evidence.jsonl
@@ -96,14 +96,14 @@ A benchmark environment for complete novel scientific discovery cycles where age
 
 - Claim ID: `claim:bde139a533f9483a`
 - Scope: `collector assessment, not source-authored scientific fact`
-- Domain: [ontology-semantic-architecture](../maps/ontology-semantic-architecture.md)
+- Domain: [governance-evaluation](../maps/governance-evaluation.md)
 - Promotion state: `candidate`
 
 ## Evidence bindings
 
 | Evidence | Selector | Local artifact | Tier |
 |---|---|---|---|
-| `evidence:fdf8b5c29b9da39e` | `local://raw_data/arxiv/DISCOVERYWORLD: A Virtual Environment for Developing and Evaluating Automated Scientific Discovery Agents/metadata.yaml#collection-inclusion-reason` | `raw_data/arxiv/DISCOVERYWORLD: A Virtual Environment for Developing and Evaluating Automated Scientific Discovery Agents/metadata.yaml` | `metadata_capsule` |
+| `evidence:fdf8b5c29b9da39e` | `local://raw_data/arxiv/DISCOVERYWORLD: A Virtual Environment for Developing and Evaluating Automated Scientific Discovery Agents/metadata.yaml#collection.inclusion_reason` | `raw_data/arxiv/DISCOVERYWORLD: A Virtual Environment for Developing and Evaluating Automated Scientific Discovery Agents/metadata.yaml` | `metadata_capsule` |
 
 ## Review requirements
 
@@ -112,4 +112,4 @@ Check entailment, selector precision, source quality, identity, scope, contradic
 ## Related pages
 
 - [DISCOVERYWORLD: A Virtual Environment for Developing and Evaluating Automated Scientific Discovery Agents](../sources/arxiv-2406.06769.md) — `evidenced_by`
-- [Ontology Semantic Architecture](../maps/ontology-semantic-architecture.md) — `part_of`
+- [Governance Evaluation](../maps/governance-evaluation.md) — `part_of`

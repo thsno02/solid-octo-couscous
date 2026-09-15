@@ -15,11 +15,11 @@ claim_refs: &id001
 source_refs: &id002
 - arxiv:2406.06769
 page_refs:
-- wiki-page:map-ontology-semantic-architecture
+- wiki-page:map-governance-evaluation
 - wiki-page:evidence-7251138bb2057919
 - wiki-page:evidence-6e6d202159e49cd6
 outgoing_links:
-- target: wiki-page:map-ontology-semantic-architecture
+- target: wiki-page:map-governance-evaluation
   relation: part_of
   claim_refs: *id001
   notes: null
@@ -47,21 +47,21 @@ sections:
   - arxiv:2406.06769
   editorial_intent: Keep collector interpretation separate.
 temporal:
-  created_at: '2026-09-13T17:43:07Z'
-  updated_at: '2026-09-13T17:43:07Z'
+  created_at: '2026-09-13T17:38:21Z'
+  updated_at: '2026-09-13T17:38:21Z'
   valid_from: null
   valid_to: null
-  as_of: '2026-09-13T17:43:07Z'
+  as_of: '2026-09-13T17:38:21Z'
 provenance:
-  build_id: build:llm-wiki-v0:196d848b07caf422
+  build_id: build:llm-wiki-v0:d303e0f210b88f64
   generated_by_agent: pipeline/build_llm_wiki.py
   generated_by_model: null
   prompt_or_skill_version: deterministic-llm-wiki-v0.2
   compiled_from_revisions:
   - arxiv:2406.06769@sha256:cb1d6ccc88eb66af69e71730a5c488234ff4fe8af04ba04081b5a445f4d39b3e
-  created_at: '2026-09-13T17:43:07Z'
-  updated_at: '2026-09-13T17:43:07Z'
-  manual_edits_preserved: true
+  created_at: '2026-09-13T17:38:21Z'
+  updated_at: '2026-09-13T17:38:21Z'
+  manual_edits_preserved: false
 review:
   state: needs_human
   reviewers: []
@@ -71,7 +71,7 @@ review:
   - Scientific, semantic, neutrality, and due-weight review remain required before publication.
 freshness:
   status: fresh
-  checked_at: '2026-09-13T17:43:07Z'
+  checked_at: '2026-09-13T17:38:21Z'
   max_age_days: 30
   source_dependencies: *id002
   staleness_reasons: []
@@ -85,7 +85,7 @@ consumption:
     short: 'Source page for DISCOVERYWORLD: A Virtual Environment for Developing and Evaluating Automated Scientific
       Discovery Agents with claim/evidence expansion.'
     full: null
-  estimated_tokens: 199
+  estimated_tokens: 198
   machine_entry_points:
   - ../../04_claims/claims.jsonl
   - ../../03_evidence/evidence.jsonl
@@ -103,7 +103,7 @@ consumption:
 - Source type: `arxiv`
 - Content tier: `full_text`
 - Revision: `sha256:cb1d6ccc88eb66af69e71730a5c488234ff4fe8af04ba04081b5a445f4d39b3e`
-- Domain: [ontology-semantic-architecture](../maps/ontology-semantic-architecture.md)
+- Domain: [governance-evaluation](../maps/governance-evaluation.md)
 - Local document: `materialized_sources/corpus/arxiv-2406.06769--d1971e3b/normalized/document.txt`
 
 ## Source-reported candidate statements
@@ -118,8 +118,8 @@ consumption:
 
 | Claim | Evidence | Selector | Tier |
 |---|---|---|---|
-| `claim:84c91602bd1dfb78` | `evidence:69559f8937311f42` | `local://materialized_sources/corpus/arxiv-2406.06769--d1971e3b/normalized/document.txt#L89-L101` | `full_text` |
-| `claim:bde139a533f9483a` | `evidence:fdf8b5c29b9da39e` | `local://raw_data/arxiv/DISCOVERYWORLD: A Virtual Environment for Developing and Evaluating Automated Scientific Discovery Agents/metadata.yaml#collection-inclusion-reason` | `metadata_capsule` |
+| `claim:84c91602bd1dfb78` | `evidence:69559f8937311f42` | `local://materialized_sources/corpus/arxiv-2406.06769--d1971e3b/normalized/document.txt#L89-L90` | `full_text` |
+| `claim:bde139a533f9483a` | `evidence:fdf8b5c29b9da39e` | `local://raw_data/arxiv/DISCOVERYWORLD: A Virtual Environment for Developing and Evaluating Automated Scientific Discovery Agents/metadata.yaml#collection.inclusion_reason` | `metadata_capsule` |
 
 ## Governance boundary
 
@@ -127,6 +127,6 @@ Source statements remain unverified candidates. Collection assessments explain i
 
 ## Related pages
 
-- [Ontology Semantic Architecture](../maps/ontology-semantic-architecture.md) — `part_of`
+- [Governance Evaluation](../maps/governance-evaluation.md) — `part_of`
 - [Claim 84c91602bd1dfb78](../claims/claim-84c91602bd1dfb78.md) — `evidenced_by`
 - [Claim bde139a533f9483a](../claims/claim-bde139a533f9483a.md) — `evidenced_by`

@@ -35,52 +35,51 @@ claim_refs:
 - claim:714e301e8b2162bc
 - claim:2f8ebd974fc7b5fd
 - claim:3d07597b1776b0bd
-- claim:32d4ab82e7394fa1
-- claim:34aa536e34afa87c
+- claim:a7845ddab7913b4f
+- claim:87456c04d2f50e30
 - claim:ecdd2719fa55751c
 - claim:17c715b34b0f0c68
 - claim:4715a4ff3b1706fd
 - claim:69e9059578125358
+- claim:07439fdff0cc0aa3
+- claim:f5d2f5be4a498ca2
+- claim:bc9a34bd8a9c7154
+- claim:6f5fa83ca484f664
+- claim:0edb741be0f31f6f
+- claim:3e6ec7f46b13c44f
+- claim:c776b87484aab5c2
+- claim:c16ddfd2ab0e0feb
+- claim:f810d086e0a4a305
+- claim:f43359e01e4c4b0b
+- claim:3c6cef89711e89f2
+- claim:852bc42ef50e89c7
+- claim:32d4ab82e7394fa1
+- claim:34aa536e34afa87c
+- claim:84c91602bd1dfb78
+- claim:bde139a533f9483a
+- claim:ad198ecf5d0cad6b
+- claim:40178c8dde6cbf34
 - claim:12237a4df4847d59
 - claim:633b28ce5aca37bd
 - claim:bed2f056ecd73c69
 - claim:9a3b21da11a96956
-- claim:07439fdff0cc0aa3
-- claim:f5d2f5be4a498ca2
-- claim:c776b87484aab5c2
-- claim:c16ddfd2ab0e0feb
-- claim:f159011ee6ccddaf
-- claim:97fae8cc4d519755
-- claim:3c6cef89711e89f2
-- claim:852bc42ef50e89c7
+- claim:583280271287ef9c
+- claim:27f7e77bbaa0d47f
+- claim:df1b88d18276a319
+- claim:2060aa1cdd09f8bd
+- claim:822962fc261c9559
+- claim:9077f46d7f30e565
+- claim:8798b3dc1ae125ea
 - claim:0d2b54965305cf83
 - claim:00e6310ce97dc279
 - claim:4bf5ea8e6b4e37de
 - claim:4fd96c70e0c625fd
-- claim:37a1c59affa857e1
-- claim:4e12d22ef2e755b9
+- claim:d6b9ad7b6c2678cc
+- claim:65d2f5de5c0ecdfd
 - claim:a67432ee7afb1535
 - claim:d13d2fd07c92af58
 - claim:b281f7d7bc21b10d
 - claim:9f0a3dc6de4c7f84
-- claim:1f22b83092edba2b
-- claim:068d86487f332a77
-- claim:df1b88d18276a319
-- claim:2060aa1cdd09f8bd
-- claim:f810d086e0a4a305
-- claim:f43359e01e4c4b0b
-- claim:9077f46d7f30e565
-- claim:8798b3dc1ae125ea
-- claim:bc939bb7895ea88e
-- claim:1b726943a743060e
-- claim:dcf2fa8645f61032
-- claim:217f2f5a6220ec41
-- claim:3cc1779eadd83a8c
-- claim:998499c6fa41effe
-- claim:d9cc223138eb5da3
-- claim:5266ce3d7596f42a
-- claim:84c91602bd1dfb78
-- claim:bde139a533f9483a
 source_refs: &id001
 - arxiv:cs/0309048
 - arxiv:2505.22954
@@ -95,29 +94,29 @@ source_refs: &id001
 - github:linkml/linkml
 - github:VectifyAI/OpenKB
 - arxiv:2501.04227
-- arxiv:2509.25651
+- arxiv:1905.10985
 - arxiv:2602.06855
 - arxiv-2104.00405
+- arxiv:2503.18102
+- arxiv:2509.23233
+- arxiv:2511.02824
+- arxiv:2507.21046
+- arxiv:2410.04444
+- arxiv:2505.13400
+- arxiv:2509.25651
+- arxiv:2406.06769
+- arxiv-2110.11309
 - arxiv-1706.08840
 - arxiv:2305.14627
-- arxiv:2503.18102
-- arxiv:2507.21046
-- standard:w3c-dcat-3
-- arxiv:2505.13400
+- methodology:linkml-schema-first
+- arxiv:2404.14387
+- arxiv:2406.04268
+- arxiv:2504.08066
 - arxiv:2408.08435
 - arxiv:2502.14499
-- arxiv:2405.14768
+- arxiv:2310.16218
 - arxiv-2306.15626
 - arxiv:2305.14251
-- standard:apache-ossie
-- arxiv:2404.14387
-- arxiv:2410.04444
-- arxiv:2504.08066
-- arxiv:2304.05376
-- standard:w3c-odrl-2.2
-- arxiv:2410.05779
-- arxiv:2408.15232
-- arxiv:2406.06769
 page_refs:
 - wiki-page:llm-wiki-overview
 - wiki-page:v0-corpus
@@ -150,11 +149,11 @@ outgoing_links:
   relation: explains
   claim_refs:
   - claim:4bf5ea8e6b4e37de
-  - claim:dcf2fa8645f61032
+  - claim:84c91602bd1dfb78
   - claim:ecdd2719fa55751c
   - claim:1929edca74fa3fa5
   - claim:b281f7d7bc21b10d
-  - claim:bed2f056ecd73c69
+  - claim:bc9a34bd8a9c7154
   notes: null
 - target: wiki-page:v0-corpus
   relation: explains
@@ -170,10 +169,10 @@ outgoing_links:
   relation: explains
   claim_refs:
   - claim:4bf5ea8e6b4e37de
-  - claim:dcf2fa8645f61032
+  - claim:84c91602bd1dfb78
   - claim:ecdd2719fa55751c
+  - claim:07439fdff0cc0aa3
   - claim:12237a4df4847d59
-  - claim:3cc1779eadd83a8c
   - claim:a67432ee7afb1535
   notes: null
 - target: wiki-page:grounded-long-form-synthesis
@@ -181,26 +180,26 @@ outgoing_links:
   claim_refs:
   - claim:1929edca74fa3fa5
   - claim:b281f7d7bc21b10d
+  - claim:bc9a34bd8a9c7154
   - claim:bed2f056ecd73c69
-  - claim:d9cc223138eb5da3
+  - claim:e7026275c099e7e2
   - claim:e7ac7da9ac39e47d
-  - claim:5266ce3d7596f42a
   notes: null
 - target: wiki-page:claim-evidence-page-compilation
   relation: explains
   claim_refs:
   - claim:4bf5ea8e6b4e37de
-  - claim:dcf2fa8645f61032
+  - claim:84c91602bd1dfb78
   - claim:ecdd2719fa55751c
   - claim:1929edca74fa3fa5
   - claim:b281f7d7bc21b10d
-  - claim:bed2f056ecd73c69
+  - claim:bc9a34bd8a9c7154
   notes: null
 - target: wiki-page:context-pack-routing
   relation: explains
   claim_refs:
+  - claim:07439fdff0cc0aa3
   - claim:12237a4df4847d59
-  - claim:3cc1779eadd83a8c
   - claim:a67432ee7afb1535
   - claim:bc85c4d0c6801c3a
   - claim:ef04f2ebbd2da425
@@ -230,7 +229,7 @@ outgoing_links:
   relation: explains
   claim_refs:
   - claim:4bf5ea8e6b4e37de
-  - claim:dcf2fa8645f61032
+  - claim:84c91602bd1dfb78
   - claim:ecdd2719fa55751c
   - claim:c776b87484aab5c2
   - claim:df1b88d18276a319
@@ -240,17 +239,17 @@ outgoing_links:
   relation: explains
   claim_refs:
   - claim:4bf5ea8e6b4e37de
-  - claim:dcf2fa8645f61032
+  - claim:84c91602bd1dfb78
   - claim:ecdd2719fa55751c
+  - claim:07439fdff0cc0aa3
   - claim:12237a4df4847d59
-  - claim:3cc1779eadd83a8c
   - claim:a67432ee7afb1535
   notes: null
 - target: wiki-page:llm-wiki-vs-rag-vs-knowledge-graph
   relation: explains
   claim_refs:
+  - claim:07439fdff0cc0aa3
   - claim:12237a4df4847d59
-  - claim:3cc1779eadd83a8c
   - claim:a67432ee7afb1535
   - claim:bc85c4d0c6801c3a
   - claim:ef04f2ebbd2da425
@@ -274,27 +273,27 @@ outgoing_links:
   - claim:3c6cef89711e89f2
   - claim:9077f46d7f30e565
   - claim:4bf5ea8e6b4e37de
-  - claim:dcf2fa8645f61032
+  - claim:84c91602bd1dfb78
   notes: null
 - target: wiki-page:v0-quality-gates
   relation: explains
   claim_refs:
   - claim:4bf5ea8e6b4e37de
-  - claim:dcf2fa8645f61032
+  - claim:84c91602bd1dfb78
   - claim:ecdd2719fa55751c
   - claim:1929edca74fa3fa5
   - claim:b281f7d7bc21b10d
-  - claim:bed2f056ecd73c69
+  - claim:bc9a34bd8a9c7154
   notes: null
 - target: wiki-page:materialization-and-trust-gaps
   relation: explains
   claim_refs:
   - claim:4bf5ea8e6b4e37de
-  - claim:dcf2fa8645f61032
+  - claim:84c91602bd1dfb78
   - claim:ecdd2719fa55751c
   - claim:1929edca74fa3fa5
   - claim:b281f7d7bc21b10d
-  - claim:bed2f056ecd73c69
+  - claim:bc9a34bd8a9c7154
   notes: null
 - target: wiki-page:knowledge-frontier
   relation: explains
@@ -321,58 +320,60 @@ outgoing_links:
   claim_refs:
   - claim:00e6310ce97dc279
   - claim:0d2b54965305cf83
-  - claim:1b726943a743060e
   - claim:21bdaa7b130a7cc4
   - claim:32d4ab82e7394fa1
   - claim:334565c7ebb30cb5
+  - claim:34aa536e34afa87c
   notes: null
 - target: wiki-page:map-governance-evaluation
   relation: explains
   claim_refs:
   - claim:17c715b34b0f0c68
-  - claim:217f2f5a6220ec41
   - claim:4bf5ea8e6b4e37de
   - claim:4fd96c70e0c625fd
-  - claim:dcf2fa8645f61032
+  - claim:84c91602bd1dfb78
+  - claim:bde139a533f9483a
   - claim:ecdd2719fa55751c
   notes: null
 - target: wiki-page:map-knowledge-editing
   relation: explains
   claim_refs:
-  - claim:37a1c59affa857e1
+  - claim:40178c8dde6cbf34
   - claim:4715a4ff3b1706fd
-  - claim:4e12d22ef2e755b9
+  - claim:65d2f5de5c0ecdfd
   - claim:69e9059578125358
+  - claim:ad198ecf5d0cad6b
+  - claim:d6b9ad7b6c2678cc
   notes: null
 - target: wiki-page:map-knowledge-memory
   relation: explains
   claim_refs:
+  - claim:07439fdff0cc0aa3
   - claim:12237a4df4847d59
-  - claim:3cc1779eadd83a8c
   - claim:419c77c89a471f8e
   - claim:633b28ce5aca37bd
-  - claim:998499c6fa41effe
   - claim:a67432ee7afb1535
+  - claim:bc85c4d0c6801c3a
   notes: null
 - target: wiki-page:map-llm-wiki
   relation: explains
   claim_refs:
   - claim:1929edca74fa3fa5
-  - claim:5266ce3d7596f42a
   - claim:55eeb2a1683b8804
+  - claim:6f5fa83ca484f664
+  - claim:714e301e8b2162bc
   - claim:9a3b21da11a96956
   - claim:9f0a3dc6de4c7f84
-  - claim:b281f7d7bc21b10d
   notes: null
 - target: wiki-page:map-ontology-semantic-architecture
   relation: explains
   claim_refs:
-  - claim:068d86487f332a77
-  - claim:07439fdff0cc0aa3
-  - claim:1f22b83092edba2b
+  - claim:0edb741be0f31f6f
+  - claim:27f7e77bbaa0d47f
   - claim:3adb88340e0eb2b6
-  - claim:714e301e8b2162bc
-  - claim:84c91602bd1dfb78
+  - claim:3e6ec7f46b13c44f
+  - claim:583280271287ef9c
+  - claim:fc57f26307cefee3
   notes: null
 - target: wiki-page:map-open-ended-evolution
   relation: explains
@@ -399,9 +400,9 @@ outgoing_links:
   claim_refs:
   - claim:1b6ae1229c17cacd
   - claim:2a05950fe0a0b64d
+  - claim:822962fc261c9559
   - claim:90ae7352bb085ae8
   - claim:9243c79fad41f2cb
-  - claim:97fae8cc4d519755
   - claim:ae45b8d667e29552
   notes: null
 sections:
@@ -425,29 +426,29 @@ sections:
   - github:linkml/linkml
   - github:VectifyAI/OpenKB
   - arxiv:2501.04227
-  - arxiv:2509.25651
+  - arxiv:1905.10985
   - arxiv:2602.06855
   - arxiv-2104.00405
+  - arxiv:2503.18102
+  - arxiv:2509.23233
+  - arxiv:2511.02824
+  - arxiv:2507.21046
+  - arxiv:2410.04444
+  - arxiv:2505.13400
+  - arxiv:2509.25651
+  - arxiv:2406.06769
+  - arxiv-2110.11309
   - arxiv-1706.08840
   - arxiv:2305.14627
-  - arxiv:2503.18102
-  - arxiv:2507.21046
-  - standard:w3c-dcat-3
-  - arxiv:2505.13400
+  - methodology:linkml-schema-first
+  - arxiv:2404.14387
+  - arxiv:2406.04268
+  - arxiv:2504.08066
   - arxiv:2408.08435
   - arxiv:2502.14499
-  - arxiv:2405.14768
+  - arxiv:2310.16218
   - arxiv-2306.15626
   - arxiv:2305.14251
-  - standard:apache-ossie
-  - arxiv:2404.14387
-  - arxiv:2410.04444
-  - arxiv:2504.08066
-  - arxiv:2304.05376
-  - standard:w3c-odrl-2.2
-  - arxiv:2410.05779
-  - arxiv:2408.15232
-  - arxiv:2406.06769
   editorial_intent: Route by stable domain questions.
 - heading: Atomic expansion
   claim_refs: []
@@ -465,38 +466,38 @@ sections:
   - github:linkml/linkml
   - github:VectifyAI/OpenKB
   - arxiv:2501.04227
-  - arxiv:2509.25651
+  - arxiv:1905.10985
   - arxiv:2602.06855
   - arxiv-2104.00405
+  - arxiv:2503.18102
+  - arxiv:2509.23233
+  - arxiv:2511.02824
+  - arxiv:2507.21046
+  - arxiv:2410.04444
+  - arxiv:2505.13400
+  - arxiv:2509.25651
+  - arxiv:2406.06769
+  - arxiv-2110.11309
   - arxiv-1706.08840
   - arxiv:2305.14627
-  - arxiv:2503.18102
-  - arxiv:2507.21046
-  - standard:w3c-dcat-3
-  - arxiv:2505.13400
+  - methodology:linkml-schema-first
+  - arxiv:2404.14387
+  - arxiv:2406.04268
+  - arxiv:2504.08066
   - arxiv:2408.08435
   - arxiv:2502.14499
-  - arxiv:2405.14768
+  - arxiv:2310.16218
   - arxiv-2306.15626
   - arxiv:2305.14251
-  - standard:apache-ossie
-  - arxiv:2404.14387
-  - arxiv:2410.04444
-  - arxiv:2504.08066
-  - arxiv:2304.05376
-  - standard:w3c-odrl-2.2
-  - arxiv:2410.05779
-  - arxiv:2408.15232
-  - arxiv:2406.06769
   editorial_intent: Expose source and claim expansion surfaces.
 temporal:
-  created_at: '2026-09-13T17:43:07Z'
-  updated_at: '2026-09-13T17:43:07Z'
+  created_at: '2026-09-13T17:38:21Z'
+  updated_at: '2026-09-13T17:38:21Z'
   valid_from: null
   valid_to: null
-  as_of: '2026-09-13T17:43:07Z'
+  as_of: '2026-09-13T17:38:21Z'
 provenance:
-  build_id: build:llm-wiki-v0:196d848b07caf422
+  build_id: build:llm-wiki-v0:d303e0f210b88f64
   generated_by_agent: pipeline/build_llm_wiki.py
   generated_by_model: null
   prompt_or_skill_version: deterministic-llm-wiki-v0.2
@@ -514,32 +515,32 @@ provenance:
   - github:linkml/linkml@0e401cef2711b0f12f5a1870805c5cfa999b0858
   - github:VectifyAI/OpenKB@ff54396e575ee6feb0113b631a34caa082b441cc
   - arxiv:2501.04227@sha256:1b28bfd8ca8a9dcb1930f7fcd49164300a984bd1abf533d3d28b475fe7dd7f85
-  - arxiv:2509.25651@sha256:14424738e0ad14b8fd5891102b89d9a3e4888beb22605f723e1cc044231eb803
+  - arxiv:1905.10985@sha256:6afa7771c29f7a9a5659d73e62b83cfefb39516d30ae99172e2ad373dafd45e5
   - arxiv:2602.06855@sha256:ac1ba940f1bdc54e012cc384c428f78bd01d50d7a947f052117944c03e790d9a
   - arxiv-2104.00405@sha256:d9ca19652574908e954b524249d31a8b450830023739ee49797f58d52784dd03
+  - arxiv:2503.18102@sha256:f26720fb630b99a1ee6534baf2f49b4d8a89bdde3f6f4542b0d0c5ade40f67c0
+  - arxiv:2509.23233@sha256:8570de4224cfc829f7478411feca2ecec5f50d6e7ceb7cc62fd15fa07f20c921
+  - arxiv:2511.02824@sha256:6c71312f8e88b313baf4eeb44a39fefa9f09ad5bd247e176e49824310cf5fb5e
+  - arxiv:2507.21046@sha256:4bace9b0e6528f904932b2502264e47d4c5778660cd378f68e032e5588eae432
+  - arxiv:2410.04444@sha256:d33fb4b64b53231411e0d14e65e6a3fc4f3dbfbcfe3ab4b5113f8ffa8c16cd52
+  - arxiv:2505.13400@sha256:1abd0b99271884b6f1a8fd9db0185e8042f079a61879ec0c9a7febae6a0c942c
+  - arxiv:2509.25651@sha256:14424738e0ad14b8fd5891102b89d9a3e4888beb22605f723e1cc044231eb803
+  - arxiv:2406.06769@sha256:cb1d6ccc88eb66af69e71730a5c488234ff4fe8af04ba04081b5a445f4d39b3e
+  - arxiv-2110.11309@sha256:e838a729a34c09a9044b334ef91e3c1ea36030b9e9e35ba6d6f11747e2b4b570
   - arxiv-1706.08840@sha256:330858b30f0963297c9d772fc29aabc8dfcff7d687856d91a2f167847d0fca88
   - arxiv:2305.14627@sha256:6902aae852b39f761a60dc2cf36b7d2ed9e615755f413b7daa8b52f5c1eae3ea
-  - arxiv:2503.18102@sha256:f26720fb630b99a1ee6534baf2f49b4d8a89bdde3f6f4542b0d0c5ade40f67c0
-  - arxiv:2507.21046@sha256:4bace9b0e6528f904932b2502264e47d4c5778660cd378f68e032e5588eae432
-  - standard:w3c-dcat-3@sha256:068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb
-  - arxiv:2505.13400@sha256:1abd0b99271884b6f1a8fd9db0185e8042f079a61879ec0c9a7febae6a0c942c
+  - methodology:linkml-schema-first@sha256:93a9f00b0006695dab8f1bde801a40e36eed8c236c4c839aff645bec38b5dc6c
+  - arxiv:2404.14387@sha256:afd13bcb8ce6f553dec268c0fb17bfb6b8a1ba80a4881a5b46d54b927ca9a418
+  - arxiv:2406.04268@sha256:151c2d39de074a44985b681977a2a5383b91932b87eb734709948e9eb1607871
+  - arxiv:2504.08066@sha256:ea458b4c4212b9e61d909193504485986780026a962727da8669877f6f76740e
   - arxiv:2408.08435@sha256:9e5b2a49f62b2d5218e018666a195c85fc5d186d3939e0070303fab4fb7622e2
   - arxiv:2502.14499@sha256:de8bc15be762914dd2f056f00efe2b83d51ce852a7035d65e866e6cdecbbb65a
-  - arxiv:2405.14768@sha256:60420a5c24efe0a4ea70983fb86ae62aaa3342d538d30e020d73efcf6d105ea5
+  - arxiv:2310.16218@sha256:be80105279b0f4acf0e1817a727c0de41b57db523e6a7bc5369b0e062139f52f
   - arxiv-2306.15626@sha256:5893d0b64b077ec01bee907ead6d94ae8c810abf023c2b4f618250c4fb0b7680
   - arxiv:2305.14251@sha256:57414a8d80031dceed44fb17efa562cab7e1490390ce95d8753480fba9686795
-  - standard:apache-ossie@sha256:ee15e76e9196d569d57ad8b65a3865e333d1891ff04791e2b2772b1edbb32eb4
-  - arxiv:2404.14387@sha256:afd13bcb8ce6f553dec268c0fb17bfb6b8a1ba80a4881a5b46d54b927ca9a418
-  - arxiv:2410.04444@sha256:d33fb4b64b53231411e0d14e65e6a3fc4f3dbfbcfe3ab4b5113f8ffa8c16cd52
-  - arxiv:2504.08066@sha256:ea458b4c4212b9e61d909193504485986780026a962727da8669877f6f76740e
-  - arxiv:2304.05376@sha256:21c607b0c71631e362d318e2424cac73dacb38fd528e463f02a9f030bef5ed23
-  - standard:w3c-odrl-2.2@sha256:af187a2c26b2429a579039403f34d9a5d5f29a1e01019662043068fa1ca2beaa
-  - arxiv:2410.05779@sha256:6f60088ffe7b1735ac670bfd67e7230ccfb2724bbabb7471db9854feac4733a7
-  - arxiv:2408.15232@sha256:19f115dc7b47921012b68ca5b991bf5f63c5b5ca54f3faddf895ea8e963b54fa
-  - arxiv:2406.06769@sha256:cb1d6ccc88eb66af69e71730a5c488234ff4fe8af04ba04081b5a445f4d39b3e
-  created_at: '2026-09-13T17:43:07Z'
-  updated_at: '2026-09-13T17:43:07Z'
-  manual_edits_preserved: true
+  created_at: '2026-09-13T17:38:21Z'
+  updated_at: '2026-09-13T17:38:21Z'
+  manual_edits_preserved: false
 review:
   state: needs_human
   reviewers: []
@@ -549,7 +550,7 @@ review:
   - Scientific, semantic, neutrality, and due-weight review remain required before publication.
 freshness:
   status: fresh
-  checked_at: '2026-09-13T17:43:07Z'
+  checked_at: '2026-09-13T17:38:21Z'
   max_age_days: 30
   source_dependencies: *id001
   staleness_reasons: []
@@ -619,5 +620,5 @@ consumption:
 ## Atomic expansion
 
 - **36** source pages
-- **72** claim/evidence pages
+- **71** claim/evidence pages
 - Machine catalogs, graph, lexical index, context packs, change proposal, and review queues

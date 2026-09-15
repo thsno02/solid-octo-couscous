@@ -46,21 +46,21 @@ sections:
   - arxiv-1706.08840
   editorial_intent: Keep collector interpretation separate.
 temporal:
-  created_at: '2026-09-13T17:43:07Z'
-  updated_at: '2026-09-13T17:43:07Z'
+  created_at: '2026-09-13T17:38:21Z'
+  updated_at: '2026-09-13T17:38:21Z'
   valid_from: null
   valid_to: null
-  as_of: '2026-09-13T17:43:07Z'
+  as_of: '2026-09-13T17:38:21Z'
 provenance:
-  build_id: build:llm-wiki-v0:196d848b07caf422
+  build_id: build:llm-wiki-v0:d303e0f210b88f64
   generated_by_agent: pipeline/build_llm_wiki.py
   generated_by_model: null
   prompt_or_skill_version: deterministic-llm-wiki-v0.2
   compiled_from_revisions:
   - arxiv-1706.08840@sha256:330858b30f0963297c9d772fc29aabc8dfcff7d687856d91a2f167847d0fca88
-  created_at: '2026-09-13T17:43:07Z'
-  updated_at: '2026-09-13T17:43:07Z'
-  manual_edits_preserved: true
+  created_at: '2026-09-13T17:38:21Z'
+  updated_at: '2026-09-13T17:38:21Z'
+  manual_edits_preserved: false
 review:
   state: needs_human
   reviewers: []
@@ -70,7 +70,7 @@ review:
   - Scientific, semantic, neutrality, and due-weight review remain required before publication.
 freshness:
   status: fresh
-  checked_at: '2026-09-13T17:43:07Z'
+  checked_at: '2026-09-13T17:38:21Z'
   max_age_days: 30
   source_dependencies: *id002
   staleness_reasons: []
@@ -115,8 +115,8 @@ consumption:
 
 | Claim | Evidence | Selector | Tier |
 |---|---|---|---|
-| `claim:12237a4df4847d59` | `evidence:cd3d871f39cb6ece` | `local://materialized_sources/corpus/arxiv-1706.08840--acb7e7ed/normalized/document.txt#L45-L56` | `full_text` |
-| `claim:633b28ce5aca37bd` | `evidence:68121f105d3012a3` | `local://raw_data/arxiv/Gradient Episodic Memory for Continual Learning/metadata.yaml#collection-inclusion-reason` | `metadata_capsule` |
+| `claim:12237a4df4847d59` | `evidence:cd3d871f39cb6ece` | `local://materialized_sources/corpus/arxiv-1706.08840--acb7e7ed/normalized/document.txt#L45-L49` | `full_text` |
+| `claim:633b28ce5aca37bd` | `evidence:68121f105d3012a3` | `local://raw_data/arxiv/Gradient Episodic Memory for Continual Learning/metadata.yaml#collection.inclusion_reason` | `metadata_capsule` |
 
 ## Governance boundary
 
