@@ -356,6 +356,267 @@ class MaterializerBoundaryTests(unittest.TestCase):
                     self.assertEqual(manifest["content_tier"], "full_text")
                     self.assertEqual((capsule / "source/main.tex").read_bytes(), tex)
 
+    def test_tex_root_selection_uses_document_structure_not_name_or_size(self) -> None:
+        document = "\\documentclass{article}\n\\begin{document}\nReal body.\n\\end{document}\n"
+        for suffix in ("tex", "ltx", "txt"):
+            with self.subTest(suffix=suffix):
+                files = {
+                    "main.tex": "\\section{Oversized fragment}\n" * 100,
+                    f"draft/unusual-root.{suffix}": document,
+                    "readme.txt": "An ordinary text file, not a TeX document.\n",
+                    "layout.cls": document,
+                }
+                self.assertEqual(materializer.choose_main_tex(files), f"draft/unusual-root.{suffix}")
+
+    def test_tex_root_selection_rejects_fragments_comments_and_ambiguity(self) -> None:
+        document = "\\documentclass{article}\n\\begin{document}\nReal body.\n\\end{document}\n"
+        for files in (
+            {"main.tex": "\\section{Fragment}\n"},
+            {"notes.txt": "\\begin{document}\nA fragment.\n\\end{document}\n"},
+            {"notes.txt": "% \\documentclass{article}\n% \\begin{document}\n% \\end{document}\n"},
+            {"main.tex": "\\documentclass{article}\n\\begin{document}\nTruncated.\n"},
+            {"paper.tex": document, "larger.txt": document + "Unrelated trailing text.\n" * 100},
+        ):
+            with self.subTest(files=list(files)):
+                self.assertIsNone(materializer.choose_main_tex(files))
+
+    def test_tex_root_selection_excludes_only_explicit_non_target_roles(self) -> None:
+        document = "\\documentclass{article}\n\\title{Research findings}\n\\begin{document}\nEvidence.\n\\end{document}\n"
+        files = {
+            "unusual.txt": document,
+            "assets/drawing.tex": document.replace("{article}", "{standalone}"),
+            "sample.tex": document.replace("Research findings", "Formatting Instructions for Example Conference Submissions"),
+            "guide.ltx": document.replace("Research findings", "\\LaTeX\\ Author Guidelines for Example Proceedings"),
+            "style.tex": document.replace("Research findings", "A new style for Example papers"),
+            "revision-history/dated.tex": document,
+            "history/whole-paper-pre_final_revision.tex": document,
+        }
+        exclusions: list[dict[str, str]] = []
+        self.assertEqual(materializer.tex_root_candidates(files, exclusions=exclusions), ["unusual.txt"])
+        self.assertEqual(len(exclusions), 6)
+        self.assertTrue(all(item["evidence"] for item in exclusions))
+        for companion in ("si.tex", "neurips_2022.tex", "template.tex", "history/research.tex"):
+            with self.subTest(companion=companion):
+                # A suggestive name, different research title, or genuine supplement is not a template.
+                candidates = {"main.tex": document, companion: document.replace("Research findings", "Supporting Information - Research findings")}
+                self.assertIsNone(materializer.choose_main_tex(candidates))
+                self.assertEqual(len(materializer.tex_root_candidates(candidates)), 2)
+
+    def test_tex_comment_parity_is_shared_by_roots_includes_and_plain_text(self) -> None:
+        for slash_count in range(5):
+            with self.subTest(backslashes=slash_count):
+                line = "Line end" + "\\" * slash_count + "% \\input{not-body}\n"
+                is_comment = slash_count % 2 == 0
+                stripped = materializer.tex_without_comments(line)
+                self.assertEqual("\\input{not-body}" not in stripped, is_comment)
+                graph: list[dict[str, str]] = []
+                errors: list[dict[str, str]] = []
+                flattened = materializer.flatten_tex("paper.tex", {
+                    "paper.tex": line, "not-body.tex": "INCLUDED EVIDENCE.\n",
+                }, diagnostics=errors, include_graph=graph)
+                self.assertEqual(errors, [])
+                self.assertEqual(bool(graph), not is_comment)
+                self.assertEqual("INCLUDED EVIDENCE." in materializer.tex_to_plain(flattened), not is_comment)
+                fake_root = line.replace("\\input{not-body}", "\\begin{document} Fake. \\end{document}")
+                self.assertEqual(bool(materializer.tex_root_candidates({"paper.tex": fake_root})), not is_comment)
+        self.assertEqual(materializer.tex_without_comments("escaped \\% retained % omitted\r\nnext\n"), "escaped \\% retained \r\nnext\n")
+
+    def test_tex_include_expansion_handles_nested_relative_paths_and_comments(self) -> None:
+        files = {
+            "draft/paper.txt": (
+                "\\documentclass{article}\n\\begin{document}\n"
+                "% \\input{not-body}\n\\input{../body}\n\\include{sections/appendix}\n\\end{document}\n"
+            ),
+            "body.tex": "\\section{Introduction}\nBody evidence.\n\\input{sections/detail.ltx}\n",
+            "sections/detail.ltx": "Detailed evidence.\n",
+            "draft/sections/appendix.tex": "\\appendix\n\\section{Appendix}\nAppendix evidence.\n",
+            "not-body.tex": "COMMENTED CONTENT MUST NOT ENTER THE BODY.\n",
+        }
+        diagnostics: list[dict[str, str]] = []
+        graph: list[dict[str, str]] = []
+        flattened = materializer.flatten_tex("draft/paper.txt", files, diagnostics=diagnostics, include_graph=graph)
+        self.assertEqual(diagnostics, [])
+        self.assertEqual(graph, [
+            {"from": "draft/paper.txt", "to": "body.tex"},
+            {"from": "body.tex", "to": "sections/detail.ltx"},
+            {"from": "draft/paper.txt", "to": "draft/sections/appendix.tex"},
+        ])
+        self.assertLess(flattened.index("Body evidence."), flattened.index("Detailed evidence."))
+        self.assertLess(flattened.index("Detailed evidence."), flattened.index("Appendix evidence."))
+        self.assertNotIn("COMMENTED CONTENT", flattened)
+        self.assertIsNone(materializer.resolve_tex_include("draft/paper.txt", "../../not-body.tex", files))
+        self.assertIsNone(materializer.resolve_tex_include("paper.txt", "/not-body.tex", files))
+
+    def test_tex_include_diagnostics_keep_missing_cycles_and_depth_visible(self) -> None:
+        for files, depth, expected in (
+            ({"main.txt": "\\input{missing}"}, 20, "missing_include"),
+            ({"main.txt": "\\input{body}", "body.tex": "\\input{main.txt}"}, 20, "cycle"),
+            ({"main.txt": "\\input{body}", "body.tex": "Evidence."}, 1, "depth_limit"),
+        ):
+            with self.subTest(kind=expected):
+                diagnostics: list[dict[str, str]] = []
+                flattened = materializer.flatten_tex("main.txt", files, max_depth=depth, diagnostics=diagnostics)
+                self.assertEqual([item["kind"] for item in diagnostics], [expected])
+                if expected == "missing_include":
+                    self.assertIn("\\input{missing}", flattened)
+                else:
+                    self.assertIn("omitted" if expected == "cycle" else "depth exceeded", flattened)
+
+    def test_tex_plain_normalization_excludes_preamble_and_trailing_material(self) -> None:
+        tex = (
+            "\\documentclass{article}\n\\newcommand{\\layout}{PREAMBLE MUST NOT ENTER BODY}\n"
+            "% \\begin{document}\n\\begin {document}\n"
+            "\\begin{abstract}\nAbstract evidence.\n\\end{abstract}\n"
+            "\\section{Introduction}\\label{sec:introduction}\nBody evidence.\n\\appendix\n"
+            "\\section{Appendix}\nAppendix evidence.\n\\end {document}\n"
+            "TRAILING BUILD MATERIAL\n"
+        )
+        plain = materializer.tex_to_plain(tex)
+        self.assertNotIn("PREAMBLE", plain)
+        self.assertNotIn("TRAILING", plain)
+        self.assertNotIn("sec:introduction", plain)
+        self.assertIn("## Abstract\n", plain)
+        self.assertIn("## Introduction\n", plain)
+        self.assertIn("Appendix evidence.", plain)
+
+    def test_tex_plain_reports_semantic_abstract_omitted_from_preamble(self) -> None:
+        for abstract in ("\\abstract{Preamble abstract evidence.}\n", "\\begin{abstract}Preamble abstract evidence.\\end{abstract}\n"):
+            with self.subTest(abstract=abstract):
+                diagnostics: list[dict[str, str]] = []
+                tex = "\\documentclass{article}\n" + abstract + "\\begin{document}\nBody evidence.\n\\end{document}\n"
+                plain = materializer.tex_to_plain(tex, diagnostics=diagnostics, path="unusual.tex")
+                self.assertNotIn("Preamble abstract evidence", plain)
+                self.assertEqual(diagnostics, [{"kind": "preamble_semantic_abstract_omitted", "path": "unusual.tex"}])
+                temporary, _, capsule, manifest, _ = self._run_arxiv(tex.encode(), "application/x-tex")
+                with temporary:
+                    self.assertEqual(manifest["status"], "partial")
+                    self.assertEqual(manifest["materialization"]["tex_normalization_diagnostics"], [
+                        {"kind": "preamble_semantic_abstract_omitted", "path": "main.tex"},
+                    ])
+                    self.assertIn("Preamble abstract evidence.", (capsule / "normalized/document.tex").read_text())
+                    self.assertTrue(any("not a full TeX parser" in item for item in manifest["limitations"]))
+
+    def test_arxiv_new_payload_ambiguity_preserves_retained_capsule_and_raises(self) -> None:
+        document = b"\\documentclass{article}\n\\begin{document}\nOriginal evidence.\n\\end{document}\n"
+        temporary, root, capsule, _, _ = self._run_arxiv(document, "application/x-tex")
+        with temporary:
+            metadata_path = root / "raw_data/arxiv/example/metadata.yaml"
+            record = materializer.SourceRecord(
+                uid="arxiv:1234.5678", source_type="arxiv", canonical_id="1234.5678", title="Example",
+                canonical_url="https://arxiv.org/abs/1234.5678", metadata_path=metadata_path,
+                metadata=yaml.safe_load(metadata_path.read_text()), priority="P0", rights_access="unknown",
+            )
+            before = {path.relative_to(capsule).as_posix(): path.read_bytes() for path in capsule.rglob("*") if path.is_file()}
+            archive_buffer = io.BytesIO()
+            with tarfile.open(fileobj=archive_buffer, mode="w") as archive:
+                for path in ("new-target.tex", "real-supplement.tex"):
+                    member = tarfile.TarInfo(path)
+                    member.size = len(document)
+                    archive.addfile(member, io.BytesIO(document))
+            with mock.patch.multiple(materializer, ROOT=root, CORPUS_ROOT=root / "materialized_sources/corpus"), mock.patch.object(
+                materializer, "fetch_bytes", return_value=(archive_buffer.getvalue(), record.canonical_url, {"content-type": "application/x-tar"}),
+            ), mock.patch.object(materializer, "prepare_capsule", side_effect=AssertionError("preflight must preserve old capsule")), mock.patch.object(
+                materializer, "finalize_capsule", side_effect=AssertionError("preflight must not rewrite old manifest"),
+            ), mock.patch.object(materializer.time, "sleep"):
+                with self.assertRaisesRegex(materializer.ArxivPreflightError, "new-target.tex"):
+                    materializer.materialize_one(record, {}, "2026-09-16T00:00:00Z")
+                # The executor must also propagate a preflight failure rather than prepare a fallback capsule.
+                with mock.patch.object(sys, "argv", ["materializer", "--workers", "1"]), mock.patch.object(
+                    materializer, "load_yaml", return_value={"workers": 1},
+                ), mock.patch.object(materializer, "discover_records", return_value=[record]):
+                    with self.assertRaises(materializer.ArxivPreflightError):
+                        materializer.main()
+            after = {path.relative_to(capsule).as_posix(): path.read_bytes() for path in capsule.rglob("*") if path.is_file()}
+            self.assertEqual(before, after)
+
+    def test_arxiv_txt_root_derivatives_preserve_source_and_finalize_offline(self) -> None:
+        files = {
+            "unusual-root.txt": (
+                "\\documentclass{article}\n\\newcommand{\\layout}{PREAMBLE NOT BODY}\n"
+                "\\begin{document}\n\\begin{abstract}\nAbstract evidence.\n\\end{abstract}\n"
+                "\\input{sections/body}\n\\include{appendix}\n\\end{document}\n"
+            ),
+            "sections/body.tex": "\\section{Introduction}\nBody evidence.\n",
+            "appendix.tex": "\\appendix\n\\section{Appendix}\nAppendix evidence.\n",
+        }
+        archive_buffer = io.BytesIO()
+        with tarfile.open(fileobj=archive_buffer, mode="w") as archive:
+            for path, text in files.items():
+                payload = text.encode()
+                member = tarfile.TarInfo(path)
+                member.size = len(payload)
+                archive.addfile(member, io.BytesIO(payload))
+        temporary, root, capsule, manifest, _ = self._run_arxiv(archive_buffer.getvalue(), "application/x-tar")
+        with temporary:
+            before_manifest = yaml.safe_load((capsule / "manifest.yaml").read_text())
+            original = {path: (capsule / "source" / path).read_bytes() for path in files}
+            original["files.jsonl"] = (capsule / "files.jsonl").read_bytes()
+            metadata_path = root / "raw_data/arxiv/example/metadata.yaml"
+            record = materializer.SourceRecord(
+                uid="arxiv:1234.5678", source_type="arxiv", canonical_id="1234.5678", title="Example",
+                canonical_url="https://arxiv.org/abs/1234.5678", metadata_path=metadata_path,
+                metadata=yaml.safe_load(metadata_path.read_text()), priority="P0", rights_access="unknown",
+            )
+            with mock.patch.multiple(materializer, ROOT=root, CORPUS_ROOT=root / "materialized_sources/corpus"), mock.patch.object(
+                materializer, "fetch_bytes", side_effect=AssertionError("offline derivatives must not fetch"),
+            ), mock.patch.object(materializer, "prepare_capsule", side_effect=AssertionError("retain the capsule")):
+                derivatives = materializer.write_arxiv_tex_derivatives(record, capsule, files, revision=manifest["revision"])
+                manifest["materialization"].update(derivatives)
+                manifest["status"] = "partial"
+                manifest["warnings"].append("Fixture original assets/version remain unresolved.")
+                materializer.finalize_capsule(record, capsule, manifest)
+                first = {path.relative_to(capsule).as_posix(): path.read_bytes() for path in capsule.rglob("*") if path.is_file()}
+                materializer.finalize_capsule(record, capsule, manifest)
+                second = {path.relative_to(capsule).as_posix(): path.read_bytes() for path in capsule.rglob("*") if path.is_file()}
+            self.assertEqual(first, second)
+            self.assertEqual(derivatives["main_tex"], "unusual-root.txt")
+            self.assertEqual(derivatives["tex_include_errors"], [])
+            self.assertEqual(manifest["status"], "partial")
+            for field in ("retrievals", "revision", "rights"):
+                self.assertEqual(manifest[field], before_manifest[field])
+            for path, expected in original.items():
+                target = capsule / path if path == "files.jsonl" else capsule / "source" / path
+                self.assertEqual(target.read_bytes(), expected)
+            plain = (capsule / "normalized/document.txt").read_text()
+            self.assertNotIn("PREAMBLE", plain)
+            self.assertIn("Body evidence.", plain)
+            self.assertIn("Appendix evidence.", plain)
+            selectors = [json.loads(line) for line in (capsule / "selectors.jsonl").read_text().splitlines()]
+            self.assertEqual(len(selectors), derivatives["selector_count"])
+            for selector in selectors:
+                lines = (root / selector["local_path"]).read_text().splitlines()
+                self.assertLessEqual(selector["end_line"], len(lines))
+                if "derived_from" in selector:
+                    span = "\n".join(lines[selector["start_line"] - 1:selector["end_line"]])
+                    self.assertIn(selector["text_preview"], span)
+
+    def test_arxiv_missing_and_unsupported_include_syntax_remain_partial(self) -> None:
+        for include, expected in (("\\input{missing}", "missing_include"), ("\\input body.tex", "unsupported_include_syntax")):
+            with self.subTest(kind=expected):
+                tex = ("\\documentclass{article}\n\\begin{document}\n" + include + "\n\\end{document}\n").encode()
+                temporary, _, capsule, manifest, _ = self._run_arxiv(tex, "application/x-tex")
+                with temporary:
+                    self.assertEqual(manifest["status"], "partial")
+                    self.assertEqual(manifest["materialization"]["tex_include_errors"][0]["kind"], expected)
+                    self.assertIn(include, (capsule / "normalized/document.tex").read_text())
+                    self.assertTrue(any("include expansion is incomplete" in warning for warning in manifest["warnings"]))
+
+    def test_arxiv_multiple_documents_are_not_resolved_by_file_size(self) -> None:
+        document = b"\\documentclass{article}\n\\begin{document}\nEvidence.\n\\end{document}\n"
+        archive_buffer = io.BytesIO()
+        with tarfile.open(fileobj=archive_buffer, mode="w") as archive:
+            for path, payload in (("main.tex", document), ("larger.txt", document + b"Trailing text.\n" * 100)):
+                member = tarfile.TarInfo(path)
+                member.size = len(payload)
+                archive.addfile(member, io.BytesIO(payload))
+        temporary, _, capsule, manifest, _ = self._run_arxiv(archive_buffer.getvalue(), "application/x-tar")
+        with temporary:
+            self.assertIsNone(manifest["materialization"]["main_tex"])
+            self.assertIsNone(manifest["materialization"]["normalized_document"])
+            self.assertEqual(manifest["status"], "partial")
+            self.assertFalse((capsule / "normalized/document.txt").exists())
+            self.assertTrue(any("Multiple TeX document roots" in warning for warning in manifest["warnings"]))
+
     def test_arxiv_tex_package_links_nested_notice_idempotently(self) -> None:
         tex = b"\\documentclass{article}\n\\begin{document}\nSource text.\n\\end{document}\n"
         package = {
@@ -697,6 +958,71 @@ class ValidatorIntegrityTests(unittest.TestCase):
         self._write_yaml(self.registry, registry)
         return selectors
 
+    def _configure_arxiv_image_transcription_fixture(self, *, extra_image_page: bool = False) -> Path:
+        selectors = self._configure_arxiv_pdf_fixture()
+        manifest_path = self.capsule / "manifest.yaml"
+        manifest = yaml.safe_load(manifest_path.read_text())
+        (self.capsule / "document.txt").write_text(
+            "## Page 1\n\nEvidence that belongs only to the first PDF page.\n\n## Page 2\n\n" + ("## Page 3\n\n" if extra_image_page else ""),
+            encoding="utf-8",
+        )
+        source_pdf = self.capsule / "source/document.pdf"
+        source_pdf.write_bytes(minimal_pdf_pages(["First PDF page", ""] + ([""] if extra_image_page else [])))
+        pdf_hash = hashlib.sha256(source_pdf.read_bytes()).hexdigest()
+        derived = self.capsule / "derived/image-pages-transcription.md"
+        derived.parent.mkdir()
+        derived.write_text(
+            "## Image page 2\n\nVisible diagram labels.\n\n" + ("Visible page 3 labels.\n" if extra_image_page else "Other page 2 labels.\n"),
+            encoding="utf-8",
+        )
+        rows = [json.loads(line) for line in selectors.read_text().splitlines()][:1]
+        rows[0]["selector"] = f"pdf://sha256-{pdf_hash[:16]}#page=1"
+        rows.append({
+            "selector": "derived://example/image-pages#L1-L3",
+            "local_path": derived.relative_to(self.root).as_posix(),
+            "kind": "line_range", "source_page": 2, "start_line": 1, "end_line": 3,
+            "text_preview": "Visible diagram labels.", "extraction_method": "agent_visual_transcription",
+        })
+        if extra_image_page:
+            rows.append({
+                "selector": "derived://example/image-pages#L5-L5", "local_path": derived.relative_to(self.root).as_posix(),
+                "kind": "line_range", "source_page": 3, "start_line": 5, "end_line": 5,
+                "text_preview": "Visible page 3 labels.", "extraction_method": "agent_visual_transcription",
+            })
+        selectors.write_text("\n".join(json.dumps(row) for row in rows) + "\n", encoding="utf-8")
+        self._write_consistent_artifacts()
+        inventory = yaml.safe_load(manifest_path.read_text())
+        manifest.update({
+            "status": "partial", "revision": f"sha256:{pdf_hash}", "retrievals": [{"sha256": pdf_hash}],
+            "local_files": inventory["local_files"], "local_bytes": inventory["local_bytes"],
+            "warnings": ["Page 2 has no native text; visual transcription is an incomplete derived representation."],
+        })
+        manifest["materialization"].update({
+            "source_pdf_sha256": pdf_hash, "pdf_text_page_count": 1,
+            "pdf_page_count": 3 if extra_image_page else 2, "selector_count": len(rows),
+            "pdf_pages_without_extractable_text": [2, 3] if extra_image_page else [2],
+            "image_page_transcription": {
+                "document": "derived/image-pages-transcription.md", "source_pages": [2, 3] if extra_image_page else [2],
+                "method": "agent_visual_transcription", "renderer": "Poppler pdftoppm test fixture",
+                "render_dpi": {2: 180, 3: 180} if extra_image_page else {2: 180}, "model_revision": "not_exposed",
+                "native_text_extraction_changed": False, "conventional_ocr_performed": False,
+                "complete_image_representation": False, "scope": "Visible diagram text only; not layout or plotted values.",
+            },
+        })
+        self._write_yaml(manifest_path, manifest)
+        index = yaml.safe_load(self.index.read_text())
+        index["items"][0].update({"status": "partial", "revision": manifest["revision"], "local_bytes": manifest["local_bytes"]})
+        self._write_yaml(self.index, index)
+        registry = yaml.safe_load(self.registry.read_text())
+        registry["entries"][0]["materialization"].update({
+            "state": "partial", "evidence_role": "bounded-excerpt", "revision": manifest["revision"], "local_bytes": manifest["local_bytes"],
+        })
+        self._write_yaml(self.registry, registry)
+        audit = yaml.safe_load(self.audit.read_text())
+        audit.update({"status_counts": {"partial": 1}, "partial_count": 1})
+        self._write_yaml(self.audit, audit)
+        return selectors
+
     def test_valid_fixture_passes(self) -> None:
         result, output = self._run_validator()
         self.assertEqual(result, 0, output)
@@ -707,6 +1033,109 @@ class ValidatorIntegrityTests(unittest.TestCase):
         result, output = self._run_validator()
 
         self.assertEqual(result, 0, output)
+
+    def test_declared_pdf_image_transcription_passes_without_changing_native_coverage(self) -> None:
+        self._configure_arxiv_image_transcription_fixture()
+        result, output = self._run_validator()
+        self.assertEqual(result, 0, output)
+
+    def test_declared_multi_page_image_transcription_passes(self) -> None:
+        self._configure_arxiv_image_transcription_fixture(extra_image_page=True)
+        result, output = self._run_validator()
+        self.assertEqual(result, 0, output)
+
+    def test_pdf_derived_selectors_require_an_explicit_complete_declaration(self) -> None:
+        self._configure_arxiv_image_transcription_fixture()
+        manifest_path = self.capsule / "manifest.yaml"
+        original = yaml.safe_load(manifest_path.read_text())
+        for field in (None, "renderer", "model_revision", "scope", "render_dpi", "native_text_extraction_changed", "conventional_ocr_performed", "complete_image_representation"):
+            with self.subTest(missing_field=field):
+                manifest = yaml.safe_load(yaml.safe_dump(original))
+                if field is None:
+                    del manifest["materialization"]["image_page_transcription"]
+                else:
+                    del manifest["materialization"]["image_page_transcription"][field]
+                self._write_yaml(manifest_path, manifest)
+                result, output = self._run_validator()
+                self.assertEqual(result, 1)
+                self.assertIn("ARXIV_PDF_NON_PAGE_SELECTOR", output)
+                if field is not None:
+                    self.assertIn("ARXIV_PDF_TRANSCRIPTION_PROVENANCE", output)
+
+    def test_pdf_transcription_declared_source_pages_and_document_are_scoped(self) -> None:
+        self._configure_arxiv_image_transcription_fixture()
+        manifest_path = self.capsule / "manifest.yaml"
+        original = yaml.safe_load(manifest_path.read_text())
+        for field, value in (("source_pages", [1]), ("source_pages", [3]), ("source_pages", [True]), ("source_pages", [2, 2]), ("document", "document.txt"), ("document", "../outside.md"), ("document", "derived/missing.md"), ("method", "native_pdf_text"), ("render_dpi", {2: True}), ("conventional_ocr_performed", True)):
+            with self.subTest(field=field, value=value):
+                manifest = yaml.safe_load(yaml.safe_dump(original))
+                manifest["materialization"]["image_page_transcription"][field] = value
+                self._write_yaml(manifest_path, manifest)
+                result, output = self._run_validator()
+                self.assertEqual(result, 1)
+                self.assertIn("ARXIV_PDF_TRANSCRIPTION_PROVENANCE", output)
+
+    def test_pdf_transcription_selectors_require_legal_ranges_and_matching_provenance(self) -> None:
+        selectors = self._configure_arxiv_image_transcription_fixture()
+        original = [json.loads(line) for line in selectors.read_text().splitlines()]
+        for field, value in (("source_page", 1), ("source_page", True), ("source_page", 3), ("kind", "file"), ("page", None), ("extraction_method", "native_pdf_text"), ("start_line", None), ("end_line", 100), ("selector", "derived://example/image-pages#L1-L5"), ("local_path", original[0]["local_path"])):
+            with self.subTest(field=field, value=value):
+                rows = [dict(row) for row in original]
+                rows[1][field] = value
+                selectors.write_text("\n".join(json.dumps(row) for row in rows) + "\n")
+                result, output = self._run_validator()
+                self.assertEqual(result, 1)
+                self.assertIn("ARXIV_PDF_TRANSCRIPTION_SELECTOR", output)
+                self.assertIn("ARXIV_PDF_NON_PAGE_SELECTOR", output)
+
+    def test_pdf_transcription_preview_must_resolve_inside_its_declared_range(self) -> None:
+        selectors = self._configure_arxiv_image_transcription_fixture()
+        rows = [json.loads(line) for line in selectors.read_text().splitlines()]
+        rows[1]["text_preview"] = "Other page 2 labels."
+        selectors.write_text("\n".join(json.dumps(row) for row in rows) + "\n")
+        result, output = self._run_validator()
+        self.assertEqual(result, 1)
+        self.assertIn("ARXIV_PDF_TRANSCRIPTION_PREVIEW_RANGE", output)
+
+    def test_pdf_transcription_declaration_requires_each_declared_source_page_to_have_selectors(self) -> None:
+        selectors = self._configure_arxiv_image_transcription_fixture()
+        selectors.write_text(selectors.read_text().splitlines()[0] + "\n")
+        manifest_path = self.capsule / "manifest.yaml"
+        manifest = yaml.safe_load(manifest_path.read_text())
+        manifest["materialization"]["selector_count"] = 1
+        self._write_yaml(manifest_path, manifest)
+        result, output = self._run_validator()
+        self.assertEqual(result, 1)
+        self.assertIn("ARXIV_PDF_TRANSCRIPTION_PAGE_COVERAGE", output)
+
+    def test_pdf_transcription_cannot_drop_one_of_multiple_declared_image_pages(self) -> None:
+        selectors = self._configure_arxiv_image_transcription_fixture(extra_image_page=True)
+        selectors.write_text("\n".join(selectors.read_text().splitlines()[:2]) + "\n")
+        manifest_path = self.capsule / "manifest.yaml"
+        manifest = yaml.safe_load(manifest_path.read_text())
+        manifest["materialization"]["selector_count"] = 2
+        self._write_yaml(manifest_path, manifest)
+        result, output = self._run_validator()
+        self.assertEqual(result, 1)
+        self.assertIn("ARXIV_PDF_TRANSCRIPTION_PAGE_COVERAGE", output)
+        self.assertIn("declared=[2, 3] actual=[2]", output)
+
+    def test_pdf_transcription_does_not_replace_native_page_coverage_or_gap_honesty(self) -> None:
+        selectors = self._configure_arxiv_image_transcription_fixture()
+        selectors.write_text(selectors.read_text().splitlines()[1] + "\n")
+        manifest_path = self.capsule / "manifest.yaml"
+        manifest = yaml.safe_load(manifest_path.read_text())
+        manifest["materialization"]["selector_count"] = 1
+        self._write_yaml(manifest_path, manifest)
+        result, output = self._run_validator()
+        self.assertEqual(result, 1)
+        self.assertIn("ARXIV_PDF_PAGE_COVERAGE", output)
+        self.assertIn("ARXIV_PDF_TEXT_PAGE_COUNT", output)
+        manifest["status"] = "materialized"
+        self._write_yaml(manifest_path, manifest)
+        result, output = self._run_validator()
+        self.assertEqual(result, 1)
+        self.assertIn("ARXIV_PDF_UNACKNOWLEDGED_TEXT_GAPS", output)
 
     def test_arxiv_pdf_selector_uri_page_must_match_page_field(self) -> None:
         selectors = self._configure_arxiv_pdf_fixture()

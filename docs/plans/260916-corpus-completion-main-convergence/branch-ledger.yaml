@@ -9,7 +9,7 @@ final_target:
   protected: false
 integration_branch:
   branch: work/v0-meta-kb-initialization-demo-260910
-  sha: 5458fbdffc95444cc26d5e9346fc2f9ab96e09c5
+  sha: 474992c2664fb2af06765abdb4dfb23b6db40fb8
   role: temporary_integration_for_pr_1
   pull_request: 1
   pr_base: main
@@ -24,6 +24,17 @@ incorporated_pull_requests:
     merge_commit: 37ccf4e86d106866273c147280fe1d0efe1ba6fb
     already_in_integration_branch: true
     cherry_pick_again: forbidden
+  - number: 6
+    title: 'P1: 建立 131 条非 repo 正文覆盖离线台账'
+    state: merged
+    merged_into: work/v0-meta-kb-initialization-demo-260910
+    merge_commit: 474992c2664fb2af06765abdb4dfb23b6db40fb8
+    evaluated_head: b7cc8abddb8fb97ad0652ce313b43c75bc0dd2a0
+    evaluated_base: 5458fbdffc95444cc26d5e9346fc2f9ab96e09c5
+    independent_evaluation: PASS
+    ci_run: 35102694456
+    already_in_integration_branch: true
+    final_destination: main_via_pr_1
 planning_pull_request:
   number: 5
   state: merged
@@ -42,15 +53,16 @@ planning_pull_request:
   implementation_authorized: false
   subsequent_user_decision: execute_serial_phases_after_planning_merge
 active_implementation:
-  phase: P1
-  branch: codex/p1-nonrepo-coverage-260916
-  base_sha: 5458fbdffc95444cc26d5e9346fc2f9ab96e09c5
+  phase: P2
+  branch: codex/p2-known-parser-gaps-260916
+  base_sha: 474992c2664fb2af06765abdb4dfb23b6db40fb8
   target: work/v0-meta-kb-initialization-demo-260910
-  pull_request: 6
-  state: awaiting_independent_review
-  source_scope: exactly_131_nonrepo_uids_from_base_index
+  pull_request: 7
+  state: implemented_pending_exact_head_evaluation_and_ci
+  source_uids: [arxiv:2406.04268, arxiv:2502.18864]
   network_source_acquisition: false
-  source_bytes_mutation: false
+  original_source_bytes_mutation: false
+  derived_text_changes: true
   final_destination: main_via_pr_1
 next_work_items:
   - order: 1

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Read-only P1 facts and ledger checks; never infer body completeness from a tier."""
+"""Read-only coverage checks with a fixed P1 collection anchor and phase-specific execution metadata."""
 from __future__ import annotations
 
 import argparse
@@ -14,16 +14,37 @@ from materialize_all_sources import discover_records, filter_selectors_for_docum
 from validate_materialization_completeness import load_yaml, pdf_page_sections, scoped_path
 
 ROOT = Path(__file__).resolve().parents[1]
-BASE = "5458fbdffc95444cc26d5e9346fc2f9ab96e09c5"
+COLLECTION_BASE = "5458fbdffc95444cc26d5e9346fc2f9ab96e09c5"
 PLAN = ROOT / "docs/plans/260916-corpus-completion-main-convergence/plan.yaml"
 LEDGER = ROOT / "raw_data/audits/non_repo_materialization_coverage_2026-09-16.yaml"
-REPORT = ROOT / "docs/plans/260916-corpus-completion-main-convergence/coverage-baseline.md"
+P1_REPORT = ROOT / "docs/plans/260916-corpus-completion-main-convergence/coverage-baseline.md"
 RIGHTS = "raw_data/audits/materialization_rights_review.yaml"
 CLAIMS = "experiments/v0_meta_kb_initialization_demo_260910/04_claims/claims.jsonl"
 
 
 def git(*args: str) -> str:
-    return subprocess.check_output(["git", *args], cwd=ROOT, text=True)
+    return subprocess.check_output(["git", *args], cwd=ROOT, text=True, stderr=subprocess.PIPE)
+
+
+def execution_report(ledger: dict) -> Path:
+    execution = ledger["execution"]
+    base = execution.get("base_sha")
+    if not isinstance(base, str) or not base:
+        raise ValueError("Missing execution.base_sha")
+    try:
+        commit = git("rev-parse", "--verify", "--end-of-options", f"{base}^{{commit}}").strip()
+        git("merge-base", "--is-ancestor", commit, "HEAD")
+    except subprocess.CalledProcessError:
+        raise ValueError("Execution base must be a local commit and an ancestor of HEAD") from None
+    report_path = execution.get("report_path")
+    if report_path is None and ledger.get("phase") == "P1":
+        report_path = P1_REPORT.relative_to(ROOT).as_posix()
+    if not isinstance(report_path, str) or not report_path or Path(report_path).is_absolute():
+        raise ValueError("Missing or non-relative execution.report_path")
+    report = (ROOT / report_path).resolve()
+    if not report.is_relative_to(ROOT) or report.suffix.lower() != ".md" or not report.is_file():
+        raise ValueError("Execution report must be an existing Markdown file inside the repository")
+    return report
 
 
 def read_jsonl(path: Path) -> list[dict]:
@@ -31,7 +52,7 @@ def read_jsonl(path: Path) -> list[dict]:
 
 
 def collect_facts() -> dict:
-    baseline = yaml.safe_load(git("show", f"{BASE}:materialized_sources/index.yaml"))["items"]
+    baseline = yaml.safe_load(git("show", f"{COLLECTION_BASE}:materialized_sources/index.yaml"))["items"]
     current = load_yaml(ROOT / "materialized_sources/index.yaml")["items"]
     registry = load_yaml(ROOT / "source_registry/registry.yaml")["entries"]
     records = discover_records()
@@ -123,7 +144,7 @@ def collect_facts() -> dict:
         facts.append({"uid": uid, "source_type": record.source_type, "manifest": item["manifest"],
                       "metadata_path": record.relative_metadata_path, "title": record.title,
                       "canonical_id": record.canonical_id, "canonical_url": record.canonical_url, "observed": observed})
-    return {"base_sha": BASE, "github_repo_excluded": sum(x["source_type"] == "github" for x in baseline), "items": facts}
+    return {"collection_anchor_sha": COLLECTION_BASE, "github_repo_excluded": sum(x["source_type"] == "github" for x in baseline), "items": facts}
 
 
 def summarize(items: list[dict], excluded: int) -> dict:
@@ -148,13 +169,18 @@ def summarize(items: list[dict], excluded: int) -> dict:
 def check(facts: dict) -> int:
     ledger = load_yaml(LEDGER)
     plan = load_yaml(PLAN)["controlled_values"]
+    try:
+        report_path = execution_report(ledger)
+    except ValueError as error:
+        print(error)
+        return 1
     expected = {x["uid"]: x for x in facts["items"]}
     items = ledger["items"]
     errors = []
     def require(condition: bool, message: str) -> None:
         if not condition:
             errors.append(message)
-    require(ledger["execution"]["base_sha"] == BASE, "Wrong P1 base")
+    require(facts["collection_anchor_sha"] == COLLECTION_BASE, "Wrong P1 collection anchor")
     require(len(items) == 131 and len(expected) == 131 and facts["github_repo_excluded"] == 84, "Wrong denominator")
     require(len({x["uid"] for x in items}) == len(items) and {x["uid"] for x in items} == set(expected), "UID coverage mismatch")
     for item in items:
@@ -198,7 +224,7 @@ def check(facts: dict) -> int:
             require(item["action_bucket"] == "needs_boundary_verification", f"{uid}: unchecked full_text")
     summary = summarize(items, facts["github_repo_excluded"])
     require(ledger["summary"] == summary, "Ledger summary mismatch")
-    report = REPORT.read_text()
+    report = report_path.read_text()
     frontmatter = yaml.safe_load(report.split("---", 2)[1])
     require(frontmatter["coverage_summary"] == summary, "Report summary mismatch")
     require(summary["content_inspected_full_text"] >= 10, "Fewer than 10 full_text content inspections")

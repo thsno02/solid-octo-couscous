@@ -15,6 +15,7 @@ claim_refs:
 - claim:90ae7352bb085ae8
 - claim:9243c79fad41f2cb
 - claim:ae45b8d667e29552
+- claim:b0434511c0c174ad
 - claim:d38b49dc4376d4b0
 - claim:f43359e01e4c4b0b
 - claim:f810d086e0a4a305
@@ -48,6 +49,7 @@ outgoing_links:
 - target: wiki-page:source-13964b2db9a9f793
   relation: explains
   claim_refs:
+  - claim:b0434511c0c174ad
   - claim:822962fc261c9559
   notes: null
 - target: wiki-page:source-c29f716871f80314
@@ -91,11 +93,13 @@ sections:
   claim_refs:
   - claim:2a05950fe0a0b64d
   - claim:ae45b8d667e29552
+  - claim:b0434511c0c174ad
   - claim:d38b49dc4376d4b0
   - claim:f810d086e0a4a305
   source_refs:
   - arxiv:cs/0309048
   - arxiv:2505.22954
+  - arxiv:2406.04268
   - github:jennyzzt/dgm
   - arxiv:2410.04444
   editorial_intent: Preserve source-authored scope.
@@ -120,7 +124,7 @@ temporal:
   valid_to: null
   as_of: '2026-09-16T04:30:26Z'
 provenance:
-  build_id: build:llm-wiki-v0:59348b6351fcf392
+  build_id: build:llm-wiki-v0:bfe1ec178597b638
   generated_by_agent: pipeline/build_llm_wiki.py
   generated_by_model: null
   prompt_or_skill_version: deterministic-llm-wiki-v0.2
@@ -154,7 +158,7 @@ consumption:
     one_line: Routing map for recursive self improvement sources, questions, and claims.
     short: Routing map for recursive self improvement sources, questions, and claims.
     full: null
-  estimated_tokens: 1026
+  estimated_tokens: 1128
   machine_entry_points:
   - ../../04_claims/claims.jsonl
   - ../../03_evidence/evidence.jsonl
@@ -166,6 +170,7 @@ rendered_claim_refs:
 - claim:90ae7352bb085ae8
 - claim:9243c79fad41f2cb
 - claim:ae45b8d667e29552
+- claim:b0434511c0c174ad
 - claim:d38b49dc4376d4b0
 - claim:f43359e01e4c4b0b
 - claim:f810d086e0a4a305
@@ -182,6 +187,7 @@ rights_refs:
   claim_refs:
   - claim:ae45b8d667e29552
 rights_unavailable_source_refs:
+- arxiv:2406.04268
 - arxiv:2410.04444
 - arxiv:cs/0309048
 - github:jennyzzt/dgm
@@ -203,7 +209,7 @@ Systems that modify agents, programs, prompts, or search processes under evaluat
 |---|---|---|---|
 | [jennyzzt/dgm](../sources/github-jennyzzt-dgm.md) | `github` | `semantic_capsule` | 2 |
 | [Goedel Machines: Self-Referential Universal Problem Solvers Making Provably Optimal Self-Improvements](../sources/arxiv-cs-0309048.md) | `arxiv` | `full_text` | 2 |
-| [Position: Open-Endedness is Essential for Artificial Superhuman Intelligence](../sources/arxiv-2406.04268.md) | `arxiv` | `full_text` | 1 |
+| [Position: Open-Endedness is Essential for Artificial Superhuman Intelligence](../sources/arxiv-2406.04268.md) | `arxiv` | `full_text` | 2 |
 | [Darwin Godel Machine: Open-Ended Evolution of Self-Improving Agents](../sources/arxiv-2505.22954.md) | `arxiv` | `full_text` | 2 |
 | [Goedel Agent: A Self-Referential Agent Framework for Recursive Self-Improvement](../sources/arxiv-2410.04444.md) | `arxiv` | `full_text` | 2 |
 
@@ -211,6 +217,7 @@ Systems that modify agents, programs, prompts, or search processes under evaluat
 
 - **Goedel Machines: Self-Referential Universal Problem Solvers Making Provably Optimal Self-Improvements** (source assertion): We present the first class of mathematically rigorous, general, fully self-referential, self-improving, optimally efficient problem solvers. Inspired by Kurt G\" o del's celebrated self-referential formulas (1931), such a problem solver rewrites any part of its own code as soon as it has found a proof that the rewrite is useful, where the problem-dependent utility function and the hardware and the entire initial code 〔[claim:2a05950fe0a0b64d](../claims/claim-2a05950fe0a0b64d.md)〕
 - **Darwin Godel Machine: Open-Ended Evolution of Self-Improving Agents** (source assertion): Most of today's AI systems are constrained by human-designed, fixed architectures and cannot autonomously and continuously improve themselves. The scientific method, on the other hand, is a cumulative and open-ended system, where each innovation builds upon previous artifacts, enabling future discoveries. 〔[claim:ae45b8d667e29552](../claims/claim-ae45b8d667e29552.md)〕
+- **Position: Open-Endedness is Essential for Artificial Superhuman Intelligence** (source assertion): In recent years there has been a tremendous surge in the general capabilities of AI systems, mainly fuelled by training foundation models on internet-scale data. Nevertheless, the creation of open-ended, ever self-improving AI remains elusive. 〔[claim:b0434511c0c174ad](../claims/claim-b0434511c0c174ad.md)〕
 - **jennyzzt/dgm** (source assertion): Repository for **Darwin Gödel Machine (DGM)**, a novel self-improving system that iteratively modifies its own code (thereby also improving its ability to modify its own codebase) and empirically validates each change using coding benchmarks. 〔[claim:d38b49dc4376d4b0](../claims/claim-d38b49dc4376d4b0.md)〕
 - **Goedel Agent: A Self-Referential Agent Framework for Recursive Self-Improvement** (source assertion): The rapid advancement of large language models (LLMs) has significantly enhanced the capabilities of agents across various tasks. However, existing agentic systems, whether based on fixed pipeline algorithms or pre-defined meta-learning frameworks, cannot search the whole agent design space due to the restriction of human-designed components, and thus might miss the more optimal agent design. 〔[claim:f810d086e0a4a305](../claims/claim-f810d086e0a4a305.md)〕
 
@@ -250,6 +257,11 @@ The terms below apply only to the listed source-authored claim components. They 
 - Attribution: Jenny Zhang, Shengran Hu, Cong Lu, Robert Lange, Jeff Clune, Darwin Godel Machine: Open-Ended Evolution of Self-Improving Agents, arXiv:2505.22954v3 (2026-03-12), https://arxiv.org/abs/2505.22954v3, CC BY 4.0: https://creativecommons.org/licenses/by/4.0/. ICLR, Template for ICLR 2025 Conference Submission, CC BY 4.0, https://www.overleaf.com/latex/templates/template-for-iclr-2025-conference-submission/gqzkdyycxtvt; retain Hugo Larochelle's NIPS-style adaptation credit. Official ICLR2026 copy at https://github.com/ICLR/Master-Template/commit/067b60c3985bd549c8b1afabb426a007905cea46 changes two year labels; local STY additionally centers the author table (l→c), modifier unknown. BST: Copyright 2010 Hal Daum\'e III, J. Fürnkranz label modifications, Copyright 1993-2007 Patrick W Daly; fancyhdr 3.2: Piet van Oostrum; natbib 8.31: Copyright 1993-2009 Patrick W Daly, 2009/07/16 original source. Components retain independent LPPL version 1 or later, selecting LPPL 1.3c: https://www.latex-project.org/lppl/lppl-1-3c.txt. 完整原 natbib.dtx 随 NOTICE.md 及 raw_data/licenses/components/natbib-8.31/natbib.dtx 提供； 00README.json 是 arXiv 自动编译元数据，按 https://info.arxiv.org/help/policies/submission_agreement.html#metadata-license 的CC0范围单列。
 - Excerpt/page transformation: The listed source-authored claim excerpts are rendered inside a mixed, compiler-generated page. 34份源文本及原版权、归属和历史修改不改；复用现有 TeX 合并与纯文本转换， normalized/document.tex 和77个定位器不改，normalized/document.txt 仅在文末追加唯一署名、 修改/范围说明及 NOTICE.md 链接。ICLR模板的两处年份变化和作者表格l→c是已披露既存差异， 不虚构修改者或本仓库实施历史；完整法律文本及原 natbib.dtx 伴随保存，不声称维护者支持本仓库修改。
 - Scope: 仅34份实存 source 文本（390140 bytes）、normalized/document.tex（227665 bytes）、 附注前190099-byte normalized/document.txt 正文和77个定位器。论文作者发布的正文、附录、 Agent代码/提示/差异与模型样例及其转换按论文BY4；ICLR模板表达和已披露改编按原2025模板BY4； BST、fancyhdr、natbib与伴随原dtx独立按LPPL条件，选择1.3c；arXiv编译元数据单列CC0。 main.bib只保留书目字段，没有额外abstract/copyright字段，不授权被引作品全文； 不包括原已省略10份PDF图像、未保存的math_commands/gdm_format组件、整个归档、外链代码/数据或外部依赖。
+
+### Position: Open-Endedness is Essential for Artificial Superhuman Intelligence (`arxiv:2406.04268`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.
 
 ### Goedel Agent: A Self-Referential Agent Framework for Recursive Self-Improvement (`arxiv:2410.04444`)
 

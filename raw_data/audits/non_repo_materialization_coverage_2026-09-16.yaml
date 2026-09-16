@@ -1,32 +1,48 @@
-# P1 只读盘点：observed 自动复算；coverage/content_inspection 为逐UID手写判断。
+# P1集合/历史证据继承；P2仅2已知parser UID本地派生更新，不升级129历史判断。
 audit_id: "non-repo-materialization-coverage-2026-09-16"
 schema_version: 1
 language: "zh-CN"
-phase: "P1"
+phase: "P2"
 execution:
-  base_sha: "5458fbdffc95444cc26d5e9346fc2f9ab96e09c5"
-  corpus_reference_sha: "568d31de26c918a9251fadf9488a47ae3405c034"
-  p0_pr: 5
-  p0_independent_evaluation: "PASS"
-  p0_evaluated_head: "9b52e939388d33c0240f94ad05acc52c30d0200a"
-  p0_ci_run: 35098034713
-  p0_merge_commit: "5458fbdffc95444cc26d5e9346fc2f9ab96e09c5"
-  branch: "codex/p1-nonrepo-coverage-260916"
-  p1_pr: 6
+  base_sha: "474992c2664fb2af06765abdb4dfb23b6db40fb8"
+  collection_anchor_sha: "5458fbdffc95444cc26d5e9346fc2f9ab96e09c5"
+  source_snapshot_merge_commit: "474992c2664fb2af06765abdb4dfb23b6db40fb8"
+  branch: "codex/p2-known-parser-gaps-260916"
+  p2_pr: 7
+  report_path: "docs/plans/260916-corpus-completion-main-convergence/p2-parser-results.md"
   network_source_requests: 0
-  source_files_changed: false
-  manifest_registry_index_changed: false
+  original_source_bytes_changed: false
+  derived_materialization_changed: true
+  manifest_registry_index_changed: true
   new_license_conclusions: false
   fresh_checkout_performed: false
+  manual_judgment_updated_uids:
+    - "arxiv:2406.04268"
+    - "arxiv:2502.18864"
+  historical_p1_execution:
+    base_sha: "5458fbdffc95444cc26d5e9346fc2f9ab96e09c5"
+    corpus_reference_sha: "568d31de26c918a9251fadf9488a47ae3405c034"
+    p0_pr: 5
+    p0_independent_evaluation: "PASS"
+    p0_evaluated_head: "9b52e939388d33c0240f94ad05acc52c30d0200a"
+    p0_ci_run: 35098034713
+    p0_merge_commit: "5458fbdffc95444cc26d5e9346fc2f9ab96e09c5"
+    branch: "codex/p1-nonrepo-coverage-260916"
+    p1_pr: 6
+    network_source_requests: 0
+    source_files_changed: false
+    manifest_registry_index_changed: false
+    new_license_conclusions: false
+    fresh_checkout_performed: false
 scope:
-  denominator: "P1 base materialized_sources/index.yaml 全部 source_type!=github UID；仅盘点，不完成正文"
+  denominator: "固定P1 collection anchor5458fbd index中的全部source_type!=github UID；P2仅修复/重读2已知parser例，不扩集合。"
   non_repo_uid_count: 131
   github_repo_excluded: 84
   known_parser_uids:
     - "arxiv:2406.04268"
     - "arxiv:2502.18864"
   parser_cases_are_within_full_text: true
-  minimum_checks: "131结构；全部14 metadata/27 excerpt；2 parser；至少10 full_text 实际内容开中尾（本次26含parser）"
+  minimum_checks: "P1历史已盘点131结构/14metadata/27excerpt/2parser，26full_text有局部内容证据；这些累计数字不写成P2新抽检。P2只重读2parser UID，其余129项手读判断继承来源snapshot P1 merge474。"
 interpretation:
   separate_axes: "原件（original artifact）、文本提取（text extraction）、本地持久化（persistence）、selector结构、既有公共发布门控、知识准入各自独立；标签不升级为完成结论。"
   unknown: "unknown 是证据不足，不是 null、无正文或不可得；partial_check 不等于全body verified。"
@@ -39,8 +55,10 @@ interpretation:
   original_html: "全部131当前 inventory 原HTML留存为0；17个非arxiv full_text仅派生document，须原件比对，不能默认HTML提取无缺失。"
   html_parser_risk: "现有 html_to_sections 只直接选 h1-h4/p/li/pre；dt/dd/td/tr/h5/h6/裸文本等可能遗漏，空References heading与figure notices仅为风险/具体观察，不自动推出全部body缺失。"
   arxiv_assets: "68个 arxiv manifest 有 omitted 候选；只有6个实际引用已omitted资产的已读案例判 original partial，不把 normalized 完整当 archive artifact 完整。"
-  auditor_contract: "scripts/audit_non_repo_coverage.py 是固定5458fbd基线的P1只读审计器，不自动成为P2/P3动态账本合同；后续phase显式升级execution/base及校验契约，不复用本次手读判断冒充新核验。"
+  auditor_contract: "集合anchor固定5458fbd，执行base与report_path从ledger.execution读取；P2继承P1 merge474，仅2UID本地parser派生更新。历史coverage-baseline.md不改，新phase不把129历史判断升级为新body核验。"
   arxiv_title_only_scan: "主线程只读73 arxiv本地root标题/文档开头，唯一明确错作品为DyRep→QCD；其余仅候选标题对齐/宏标题，不能当完整body核验。RE-Net副标题差异已记录且版本按当前null。Kosmos source/main.tex L75标题对齐。title-only scan不加入其他UID的content_inspection。"
+  phase_inheritance: "其他129items语义保持P1 snapshot merge474原样；其无phase标记的coverage/content_inspection等证据为P1历史。2更新UID旧证据标observed_in_phase=P1，新派生文本审读证据标P2；PDF旧pypdf6.10字符探测也是P1历史。"
+  p2_remaining_boundaries: "TeX root/text可消费的局部归一已完成但图资产/vN/有损文本仍缺；PDF图文字已部分转录，但native4/20仍为空、图形/数字/版式未重建。两例均needs_boundary_verification，仍partial，不为凑状态安装OCR或晋级trusted。"
 verification:
   structural_probe: "python3 -B scripts/audit_non_repo_coverage.py --probe；复用discover_records/filter_selectors_for_document/pdf_page_sections/scoped_path，本地只读"
   prior_make_validate:
@@ -66,12 +84,27 @@ verification:
       demo_pages: 134
     wiki_build: "59348b6351fcf392"
     scope_note: "主线程已运行；证明结构/已有哈希/selector解析，不证明正文或许可完整，P1未新增hash框架。"
+    observed_in_phase: "P1"
+    snapshot_merge_commit: "474992c2664fb2af06765abdb4dfb23b6db40fb8"
   content_checks:
     metadata_or_excerpt_uids: 41
     nonparser_full_text_uids: 24
     parser_full_text_uids: 2
     structure_only_full_text_uids: 64
-    method: "human-authored content_inspection/coverage judgments；observed 仅自动结构数据，算法不替代逐source手读。"
+    method: "human-authored content_inspection/coverage judgments；observed 仅自动结构数据，算法不替代逐source手读。 数字为累计P1历史检查覆盖，不代表P2又逐个检查；P2仅2UID新派生审读。"
+  p2_local_checks:
+    content_checked_uids:
+      - "arxiv:2406.04268"
+      - "arxiv:2502.18864"
+    other_129_observed_drift: 0
+    original_tex_source_and_files_inventory_diff: 0
+    normalized_tex_equals_retained_root: true
+    real_tex_include_edges: 0
+    original_pdf_bytes_equal_p1_snapshot: true
+    native_pdf_text_before_notice_equal_p1_snapshot: true
+    conventional_ocr_performed: false
+    new_license_conclusions: false
+    scope: "本地结构复算/直接字节或文本前缀对比及派生文本审读；正式default auditor/test/validate由主线程P2报告记录，不冒充全bodyverified。"
 summary:
   collection_records: 215
   non_repo_total: 131
@@ -104,10 +137,8 @@ summary:
     canonical_repair: 8
     html_article_snapshot: 14
     identity_or_version_ambiguous: 2
-    needs_boundary_verification: 88
-    ocr_assessment: 1
+    needs_boundary_verification: 90
     open_fulltext_fetch: 6
-    parser_only: 1
     standard_spec_fetch: 2
   public_redistribution_counts:
     allow: 26
@@ -4757,25 +4788,25 @@ items:
       version_status: "not_recorded"
       version_reason: "metadata.versioning.source_version=null；没有上游固定版本证据。"
       source_kind: "tex"
-      boundary: "由 arXiv:2406.04268 所指论文主文、引用的附录与图表；以 metadata 已记录版本（若有）为候选，实际版本和全文边界仍待比对。"
+      boundary: "P2针对source/main_clean_arxiv.txt的完整retained TeX root及正文/附录（源L49-345）做离线归一；normalized/document.tex覆盖整root，normalized/document.txt只覆盖body。tex_include_graph=[]、0真实include边。此本地边界不包括omitted图资产或新核验的上游vN，selected_version仍null。"
       boundary_verification_state: "partial_check"
     observed:
       reported_status: "partial"
       reported_content_tier: "full_text"
       source_version_recorded: null
       local_revision: "sha256:151c2d39de074a44985b681977a2a5383b91932b87eb734709948e9eb1607871"
-      document_path: null
-      document_lines: 0
-      document_characters: 0
-      main_tex_path: null
-      normalized_document: null
+      document_path: "materialized_sources/corpus/arxiv-2406.04268--ce5afac4/normalized/document.txt"
+      document_lines: 272
+      document_characters: 70713
+      main_tex_path: "materialized_sources/corpus/arxiv-2406.04268--ce5afac4/source/main_clean_arxiv.txt"
+      normalized_document: "normalized/document.txt"
       source_pdf: null
       retained_original_html_paths: []
-      inventory_file_count: 11
+      inventory_file_count: 13
       all_declared_files_present: true
       all_declared_files_tracked: true
       selector_path: "materialized_sources/corpus/arxiv-2406.04268--ce5afac4/selectors.jsonl"
-      selector_count: 32
+      selector_count: 60
       invalid_selector_count: 0
       pdf_page_count_reported: null
       pdf_text_page_headings: []
@@ -4785,8 +4816,11 @@ items:
       omitted_member_count: 6
       errors: []
       warnings:
-        - "TeX files were stored but a root document was not identified"
-      limitations: []
+        - "The retained TeX root is normalized offline; the selected upstream arXiv version remains unrecorded."
+        - "Referenced figure assets are absent from retained source: assets/Figure_1.pdf, assets/OE_AIS_Final.png, assets/rate_distortion_final.png."
+      limitations:
+        - "Normalized TeX/text covers the retained root document and its body/appendices, not the omitted figure assets or a newly verified upstream version."
+        - "Plain-text normalization is a lossy TeX-derived representation; the retained source and normalized TeX remain authoritative for mathematical syntax and figure references."
       requested_urls:
         - "https://export.arxiv.org/e-print/2406.04268"
         - "https://arxiv.org/e-print/2406.04268"
@@ -4796,7 +4830,7 @@ items:
       public_gate: "block"
       public_gate_revision_matches: true
       knowledge_claim_state_counts:
-        candidate: 1
+        candidate: 2
     original_artifact_coverage:
       state: "partial"
       verification_state: "partial_check"
@@ -4805,10 +4839,19 @@ items:
           path: "materialized_sources/corpus/arxiv-2406.04268--ce5afac4/source/main_clean_arxiv.txt"
           locator: "L100/L218/L325"
           result: "真实 TeX 分别引用 assets/Figure_1.pdf、assets/OE_AIS_Final.png、assets/rate_distortion_final.png；三者在 manifest.omitted 未持久化。"
+          observed_in_phase: "P1"
+          snapshot_merge_commit: "474992c2664fb2af06765abdb4dfb23b6db40fb8"
         -
           path: "materialized_sources/corpus/arxiv-2406.04268--ce5afac4/manifest.yaml"
           locator: "omitted"
           result: "已引用图资产缺口成立；仅修 normalized 不能证明原件 complete。"
+          observed_in_phase: "P1"
+          snapshot_merge_commit: "474992c2664fb2af06765abdb4dfb23b6db40fb8"
+        -
+          path: "materialized_sources/corpus/arxiv-2406.04268--ce5afac4/manifest.yaml"
+          locator: "materialization.normalization.missing_assets/omitted"
+          result: "P2 root已识别且source7文件/files.jsonl相对P1 merge无diff，但三处实际引用图资产仍缺失；original仍partial，不因normalized文本存在晋级complete。"
+          observed_in_phase: "P2"
       missing_assets:
         - "assets/Figure_1.pdf"
         - "assets/OE_AIS_Final.png"
@@ -4821,15 +4864,46 @@ items:
           path: "materialized_sources/corpus/arxiv-2406.04268--ce5afac4/manifest.yaml"
           locator: "warnings/materialization.main_tex/materialization.normalized_document"
           result: "main_tex=null、normalized_document=null，且警告 root 未识别；不是没有 TeX 主文。"
+          observed_in_phase: "P1"
+          snapshot_merge_commit: "474992c2664fb2af06765abdb4dfb23b6db40fb8"
         -
           path: "materialized_sources/corpus/arxiv-2406.04268--ce5afac4/source/main_clean_arxiv.txt"
           locator: "L2-L79"
           start_line: 2
           end_line: 79
           result: "开头：.txt 实为 TeX，L2 documentclass、L48 begin document、L52 icmltitle、L79 Abstract；根识别因扩展名未拾取。"
+          observed_in_phase: "P1"
+          snapshot_merge_commit: "474992c2664fb2af06765abdb4dfb23b6db40fb8"
+        -
+          path: "materialized_sources/corpus/arxiv-2406.04268--ce5afac4/manifest.yaml"
+          locator: "materialization.main_tex/normalized_tex/normalization/tex_include_graph"
+          result: "P2 main_tex=main_clean_arxiv.txt，normalized TeX与retained root字节相等；0真实include边，normalized text有272行/70713字符。只固定retained body边界，不证明图文或上游版本完整。"
+          observed_in_phase: "P2"
+        -
+          path: "materialized_sources/corpus/arxiv-2406.04268--ce5afac4/normalized/document.txt"
+          locator: "L1-L15"
+          start_line: 1
+          end_line: 15
+          result: "新派生文本开头：Abstract与Introduction可读，已排除源preamble；与retained root正文相符，不能证明上游版本或缺失图像完整。"
+          observed_in_phase: "P2"
+        -
+          path: "materialized_sources/corpus/arxiv-2406.04268--ce5afac4/normalized/document.txt"
+          locator: "L135-L145"
+          start_line: 135
+          end_line: 145
+          result: "中部：AI Creation and Agency风险论述、assets/OE_AIS_Final.png引用和caption仍存在；图资产本身未持久化。"
+          observed_in_phase: "P2"
+        -
+          path: "materialized_sources/corpus/arxiv-2406.04268--ce5afac4/normalized/document.txt"
+          locator: "L258-L272"
+          start_line: 258
+          end_line: 272
+          result: "结尾：Further Related Work含novelty/curiosity/AIGA/continual-RL正文，retained root附录尾部已归一；plain text仍是有损表示。"
+          observed_in_phase: "P2"
       missing_pages: []
       missing_sections:
-        - "本地原TeX主文尚未归一为 document；完整 normalized 边界需 P2 修复后验证"
+        - "实际引用的三张图资产对应的完整图文表示未保存；归一文本保留路径/caption并不等于图像完整。"
+        - "TeX数学语法/结构在plain text转换中有损，normalized/document.tex与原source为语法依据；不把retained root归一完成当上游完整全文已证。"
       parser_errors: []
       ocr_state: "not_applicable"
     local_persistence:
@@ -4837,15 +4911,16 @@ items:
       all_declared_files_tracked: true
       retained_original_html_paths: []
       retained_original_pdf_path: null
-      readable_document_path: null
-      source_root_path: null
+      readable_document_path: "materialized_sources/corpus/arxiv-2406.04268--ce5afac4/normalized/document.txt"
+      source_root_path: "materialized_sources/corpus/arxiv-2406.04268--ce5afac4/source/main_clean_arxiv.txt"
       fresh_checkout_verified_this_phase: false
       complete_target_consumable: false
+      normalized_tex_path: "materialized_sources/corpus/arxiv-2406.04268--ce5afac4/normalized/document.tex"
     selectors:
       resolution_state: "resolved"
-      count: 32
+      count: 60
       evidence_path: "materialized_sources/corpus/arxiv-2406.04268--ce5afac4/selectors.jsonl"
-      locator: "全量 local_path 与 line 范围经既有 filter_selectors_for_document 复算，无删改/越界"
+      locator: "全60条selector的local_path/line范围经既有filter_selectors_for_document复算，0删改/越界；覆盖源/新normalized结构，不证明三图或上游版本完整。"
       semantic_boundary_verified: false
     public_redistribution:
       state: "block"
@@ -4859,7 +4934,7 @@ items:
       state: "candidate"
       observed_claims_exist: true
       claim_state_counts:
-        candidate: 1
+        candidate: 2
       scope: "仅所选 demo 的现有 claim.source_refs；不是全库知识晋级状态"
       evidence_path: "experiments/v0_meta_kb_initialization_demo_260910/04_claims/claims.jsonl"
       locator: "provenance.source_refs contains arxiv:2406.04268; governance.promotion_state"
@@ -4871,23 +4946,50 @@ items:
         start_line: 2
         end_line: 79
         result: "开头：.txt 实为 TeX，L2 documentclass、L48 begin document、L52 icmltitle、L79 Abstract；根识别因扩展名未拾取。"
+        observed_in_phase: "P1"
+        snapshot_merge_commit: "474992c2664fb2af06765abdb4dfb23b6db40fb8"
       -
         path: "materialized_sources/corpus/arxiv-2406.04268--ce5afac4/source/main_clean_arxiv.txt"
         locator: "L187-L193"
         start_line: 187
         end_line: 193
         result: "中部：Self-Improvement 与发现式学习正文存在。"
+        observed_in_phase: "P1"
+        snapshot_merge_commit: "474992c2664fb2af06765abdb4dfb23b6db40fb8"
       -
         path: "materialized_sources/corpus/arxiv-2406.04268--ce5afac4/source/main_clean_arxiv.txt"
         locator: "L335-L346"
         start_line: 335
         end_line: 346
         result: "结尾：related work/appendix 与 end document；本地源正文存在，未生成 normalized。"
+        observed_in_phase: "P1"
+        snapshot_merge_commit: "474992c2664fb2af06765abdb4dfb23b6db40fb8"
+      -
+        path: "materialized_sources/corpus/arxiv-2406.04268--ce5afac4/normalized/document.txt"
+        locator: "L1-L15"
+        start_line: 1
+        end_line: 15
+        result: "新派生文本开头：Abstract与Introduction可读，已排除源preamble；与retained root正文相符，不能证明上游版本或缺失图像完整。"
+        observed_in_phase: "P2"
+      -
+        path: "materialized_sources/corpus/arxiv-2406.04268--ce5afac4/normalized/document.txt"
+        locator: "L135-L145"
+        start_line: 135
+        end_line: 145
+        result: "中部：AI Creation and Agency风险论述、assets/OE_AIS_Final.png引用和caption仍存在；图资产本身未持久化。"
+        observed_in_phase: "P2"
+      -
+        path: "materialized_sources/corpus/arxiv-2406.04268--ce5afac4/normalized/document.txt"
+        locator: "L258-L272"
+        start_line: 258
+        end_line: 272
+        result: "结尾：Further Related Work含novelty/curiosity/AIGA/continual-RL正文，retained root附录尾部已归一；plain text仍是有损表示。"
+        observed_in_phase: "P2"
     inspection_method: "agent_read_local_content_or_confirmed_absence"
     known_parser_issue: true
-    exact_limitation: "真实 root 为 source/main_clean_arxiv.txt；choose_main_tex 仅识别 .tex/.ltx，故 main_tex 和 normalized_document 均 null，但源 TeX 开中尾正文可读。三处引用图资产已 omitted，原件 partial；未记录上游版本，selected_version=null。P1 未修 parser。"
-    action_bucket: "parser_only"
-    next_action: "P2 只在本地修复 .txt TeX root 识别与 normalized 输出，验证抽样及引用；另保留图资产缺口和版本未固定待办，不新 fetch。"
+    exact_limitation: "P2已修复 .txt TeX root识别：main_clean_arxiv.txt为root，生成normalized/document.tex与document.txt；源7文本文件及files.jsonl相对P1 merge474未改，normalized TeX与root字节相等，0真实include边。body/附录可读，272行/70713字符、60 selectors结构可解析。仍缺实际引用assets/Figure_1.pdf、assets/OE_AIS_Final.png、assets/rate_distortion_final.png；plain text有损、source_version仍null。原件与提取均partial/partial_check，不claimed complete，不trusted，public block继承不变。P1根未识别证据已注明历史。"
+    action_bucket: "needs_boundary_verification"
+    next_action: "后续固定正确上游vN与论文/附录边界，核对三张缺失图及plain-text数学语义是否满足完整消费；本轮root归一已完成，不继续作为parser_only，不新增fetch或默认补许可。"
     resolution: "unresolved"
   -
     uid: "arxiv:2406.06769"
@@ -6615,9 +6717,9 @@ items:
       canonical_url: "https://arxiv.org/abs/2502.18864"
       selected_version: "v2"
       version_status: "fixed_v2_existing_provenance"
-      version_reason: "已有 metadata 与 manifest.rights.redistribution_package.source_version_url 固定 arXiv:2502.18864v2；P1 本地 PdfReader 核对157页与开中尾，不新 fetch 或新许可调查。"
+      version_reason: "已有 metadata 与 manifest.rights.redistribution_package.source_version_url 固定 arXiv:2502.18864v2；P1 本地 PdfReader 核对157页与开中尾，不新 fetch 或新许可调查。 P2与来源snapshot P1 merge474直接比较原PDF字节与native文本notice前缀均相等；不新查证版本或许可。"
       source_kind: "pdf"
-      boundary: "已固定 arXiv:2502.18864v2 的 source/document.pdf 原件及其逐页文本；引用外部作品/代码/数据不外推为该包全文范围。 此 verified 只适用于固定 PDF artifact 的157页边界；文本提取独立仍为 partial。"
+      boundary: "固定arXiv:2502.18864v2的157页source/document.pdf原件、native逐页文本及物理4/20页单独派生图文字。verified只对应固定PDF artifact的157页边界；native页缺[4,20]、派生文字局部存在但非完整图像语义表示，text extraction仍partial。外链作品/代码/数据不外推。"
       boundary_verification_state: "verified"
     observed:
       reported_status: "partial"
@@ -6626,16 +6728,16 @@ items:
       local_revision: "sha256:e603a77c9d2bdfb528313e4cf35405b72261e018a70da724fcebca94c96e4716"
       document_path: "materialized_sources/corpus/arxiv-2502.18864--014b4710/document.txt"
       document_lines: 6310
-      document_characters: 378641
+      document_characters: 378917
       main_tex_path: null
       normalized_document: "document.txt"
       source_pdf: "materialized_sources/corpus/arxiv-2502.18864--014b4710/source/document.pdf"
       retained_original_html_paths: []
-      inventory_file_count: 6
+      inventory_file_count: 7
       all_declared_files_present: true
       all_declared_files_tracked: true
       selector_path: "materialized_sources/corpus/arxiv-2502.18864--014b4710/selectors.jsonl"
-      selector_count: 155
+      selector_count: 159
       invalid_selector_count: 0
       pdf_page_count_reported: 157
       pdf_text_page_headings:
@@ -6807,6 +6909,7 @@ items:
         - "PDF pages without extractable text: 4, 20; the original PDF is preserved and no OCR was performed."
       limitations:
         - "PDF pages without extractable text: 4, 20; the original PDF is preserved and no OCR was performed."
+        - "P2 visually transcribed page 4 figure text and page 20 plot labels into a separate derivative. Native page text is unchanged; layout, ticks and plotted values are not reconstructed, so extraction remains partial."
       requested_urls:
         - "https://export.arxiv.org/e-print/2502.18864v2"
         - "https://arxiv.org/e-print/2502.18864v2"
@@ -6824,10 +6927,19 @@ items:
           path: "materialized_sources/corpus/arxiv-2502.18864--014b4710/manifest.yaml"
           locator: "rights.redistribution_package/retrievals/local_files/materialization.source_pdf"
           result: "已有 provenance 固定 v2，source/document.pdf 原件5885207bytes 保留且全部声明文件已跟踪；原件完整不等于文本提取完整。"
+          observed_in_phase: "P1"
+          snapshot_merge_commit: "474992c2664fb2af06765abdb4dfb23b6db40fb8"
         -
           path: "materialized_sources/corpus/arxiv-2502.18864--014b4710/source/document.pdf"
           locator: "PDF pages 1/79/157 and page_count"
           result: "本次本地 PdfReader 确認157页，可读开中尾；第4、20页图像仍保留于原 PDF。完整仅针对已固定 PDF artifact，不表示所有引用外部材料。"
+          observed_in_phase: "P1"
+          snapshot_merge_commit: "474992c2664fb2af06765abdb4dfb23b6db40fb8"
+        -
+          path: "materialized_sources/corpus/arxiv-2502.18864--014b4710/source/document.pdf"
+          locator: "P2 direct byte comparison to P1 merge474; 5885207 bytes"
+          result: "固定v2原PDF与P1 merge474字节完全相等，图像仍在原件；派生转录不修改original artifact，complete/verified仅对此固定PDF。"
+          observed_in_phase: "P2"
       missing_assets: []
     text_extraction_coverage:
       state: "partial"
@@ -6837,17 +6949,70 @@ items:
           path: "materialized_sources/corpus/arxiv-2502.18864--014b4710/document.txt"
           locator: "L125/L693"
           result: "Page4(L125) 与 Page20(L693) 无可提取正文；本地 PdfReader 各确认1张图像、0提取字符。必要正文/表格/公式是否存在待 P2 判断，不声称这两页不含正文。"
+          observed_in_phase: "P1"
+          snapshot_merge_commit: "474992c2664fb2af06765abdb4dfb23b6db40fb8"
         -
           path: "materialized_sources/corpus/arxiv-2502.18864--014b4710/manifest.yaml"
           locator: "materialization.pdf_page_count/pdf_text_page_count/pdf_pages_without_extractable_text"
           result: "原157页、文本155页、缺少提取文本页[4,20]；没有 OCR 或 extraction exception。"
+          observed_in_phase: "P1"
+          snapshot_merge_commit: "474992c2664fb2af06765abdb4dfb23b6db40fb8"
+        -
+          path: "materialized_sources/corpus/arxiv-2502.18864--014b4710/derived/image-pages-transcription.md"
+          locator: "L3-L9"
+          start_line: 3
+          end_line: 9
+          result: "派生说明明确固定v2、物理页4/20、agent_visual_transcription与Poppler来源；非native text/传统OCR，布局/箭头/颜色/刻度/散点数值未重建。本执行者审读文本，视觉核对沿用独立evaluator子PASS。"
+          observed_in_phase: "P2"
+        -
+          path: "materialized_sources/corpus/arxiv-2502.18864--014b4710/derived/image-pages-transcription.md"
+          locator: "L11-L56"
+          start_line: 11
+          end_line: 56
+          result: "物理页4面板(a)：Scientist/研究目标、multi-agent system与各agent/tool/memory文字已分组转录；不是完整系统图关系/布局重建。"
+          observed_in_phase: "P2"
+        -
+          path: "materialized_sources/corpus/arxiv-2502.18864--014b4710/derived/image-pages-transcription.md"
+          locator: "L57-L78"
+          start_line: 57
+          end_line: 78
+          result: "物理页4面板(b)：Supervisor/worker、各agent、Context Memory及architecture标签已转录；图形连接/方向仍以原PDF为依据。"
+          observed_in_phase: "P2"
+        -
+          path: "materialized_sources/corpus/arxiv-2502.18864--014b4710/derived/image-pages-transcription.md"
+          locator: "L79-L133"
+          start_line: 79
+          end_line: 133
+          result: "物理页4面板(c)：AML、肝纤维化、AMR三组research goal/实验说明/图标签可读；不由转录重建曲线或数值。"
+          observed_in_phase: "P2"
+        -
+          path: "materialized_sources/corpus/arxiv-2502.18864--014b4710/derived/image-pages-transcription.md"
+          locator: "L134-L143"
+          start_line: 134
+          end_line: 143
+          result: "物理页20：八幅药物组合散点图标题及Fraction affected (Fa)/Combination Index (CI)轴名已转录；刻度、轴尺度、散点坐标/数值与版式未重建。"
+          observed_in_phase: "P2"
+        -
+          path: "materialized_sources/corpus/arxiv-2502.18864--014b4710/manifest.yaml"
+          locator: "materialization.image_page_transcription/pdf_pages_without_extractable_text/selector_count"
+          result: "P2新增agent_visual_transcription派生物，native155页及PDF157页不变；159selectors=155原native页+4derived line ranges，physical4/20仍缺native文本。完整图形/数字/版式未重建，仍partial。"
+          observed_in_phase: "P2"
+        -
+          path: "materialized_sources/corpus/arxiv-2502.18864--014b4710/document.txt"
+          locator: "L6301-L6310"
+          start_line: 6301
+          end_line: 6310
+          result: "只同步attribution/footer修改说明与scope，明确新visual derivative非native text/传统OCR；notice之前native文本与P1 merge474完全相等，无新license结论。"
+          observed_in_phase: "P2"
       missing_pages:
         - 4
         - 20
       missing_sections:
-        - "第4、20页图像内容是否含必要正文/表格/公式尚未核验"
+        - "物理页4的布局、箭头、颜色和图形关系几何未重建；图中文字局部转录不能当完整系统图可消费表示。"
+        - "物理页20的坐标刻度/轴尺度、散点位置/数值及版式未重建；八图标题/轴名已保存，不代表实验数据完整。"
       parser_errors: []
-      ocr_state: "not_performed; substantive_image_text_assessment_pending_P2"
+      ocr_state: "conventional_OCR_not_performed; agent_visual_transcription_present; native_text_unchanged; semantic_figure_boundary_pending"
+      missing_pages_scope: "native_text_extraction_only; physical_pages_present_in_original_PDF_and_partial_derived_text_present"
     local_persistence:
       all_declared_files_present: true
       all_declared_files_tracked: true
@@ -6857,12 +7022,15 @@ items:
       source_root_path: null
       fresh_checkout_verified_this_phase: false
       complete_target_consumable: false
+      derived_document_path: "materialized_sources/corpus/arxiv-2502.18864--014b4710/derived/image-pages-transcription.md"
     selectors:
       resolution_state: "resolved"
-      count: 155
+      count: 159
       evidence_path: "materialized_sources/corpus/arxiv-2502.18864--014b4710/selectors.jsonl"
-      locator: "全量 local_path 与 line 范围经既有 filter_selectors_for_document 复算，无删改/越界"
+      locator: "全159条selector复算0删改/越界；155原native页selector保留，4新增derived line ranges以source_page=4/20归属，不伪装原生page text。"
       semantic_boundary_verified: false
+      native_page_selector_count: 155
+      derived_line_range_selector_count: 4
     public_redistribution:
       state: "allow"
       reported_gate: "allow"
@@ -6886,23 +7054,64 @@ items:
         start_line: 1
         end_line: 14
         result: "开头：Page1 与 Accelerating scientific discovery with Co-Scientist 标题/摘要；原 PDF 第1页可提取2149字符。"
+        observed_in_phase: "P1"
+        snapshot_merge_commit: "474992c2664fb2af06765abdb4dfb23b6db40fb8"
       -
         path: "materialized_sources/corpus/arxiv-2502.18864--014b4710/document.txt"
         locator: "L2946-L2960"
         start_line: 2946
         end_line: 2960
         result: "中部：Page79 的 AML/KMT2A 数据表/实验描述；原 PDF 第79页可提取3196字符。"
+        observed_in_phase: "P1"
+        snapshot_merge_commit: "474992c2664fb2af06765abdb4dfb23b6db40fb8"
       -
         path: "materialized_sources/corpus/arxiv-2502.18864--014b4710/document.txt"
         locator: "L6264-L6279"
         start_line: 6264
         end_line: 6279
         result: "结尾：Page157 references；原 PDF 第157页可提取1341字符，随后的 NOTICE 为派生附记而非论文正文。"
+        observed_in_phase: "P1"
+        snapshot_merge_commit: "474992c2664fb2af06765abdb4dfb23b6db40fb8"
+      -
+        path: "materialized_sources/corpus/arxiv-2502.18864--014b4710/derived/image-pages-transcription.md"
+        locator: "L3-L9"
+        start_line: 3
+        end_line: 9
+        result: "派生说明明确固定v2、物理页4/20、agent_visual_transcription与Poppler来源；非native text/传统OCR，布局/箭头/颜色/刻度/散点数值未重建。本执行者审读文本，视觉核对沿用独立evaluator子PASS。"
+        observed_in_phase: "P2"
+      -
+        path: "materialized_sources/corpus/arxiv-2502.18864--014b4710/derived/image-pages-transcription.md"
+        locator: "L11-L56"
+        start_line: 11
+        end_line: 56
+        result: "物理页4面板(a)：Scientist/研究目标、multi-agent system与各agent/tool/memory文字已分组转录；不是完整系统图关系/布局重建。"
+        observed_in_phase: "P2"
+      -
+        path: "materialized_sources/corpus/arxiv-2502.18864--014b4710/derived/image-pages-transcription.md"
+        locator: "L57-L78"
+        start_line: 57
+        end_line: 78
+        result: "物理页4面板(b)：Supervisor/worker、各agent、Context Memory及architecture标签已转录；图形连接/方向仍以原PDF为依据。"
+        observed_in_phase: "P2"
+      -
+        path: "materialized_sources/corpus/arxiv-2502.18864--014b4710/derived/image-pages-transcription.md"
+        locator: "L79-L133"
+        start_line: 79
+        end_line: 133
+        result: "物理页4面板(c)：AML、肝纤维化、AMR三组research goal/实验说明/图标签可读；不由转录重建曲线或数值。"
+        observed_in_phase: "P2"
+      -
+        path: "materialized_sources/corpus/arxiv-2502.18864--014b4710/derived/image-pages-transcription.md"
+        locator: "L134-L143"
+        start_line: 134
+        end_line: 143
+        result: "物理页20：八幅药物组合散点图标题及Fraction affected (Fa)/Combination Index (CI)轴名已转录；刻度、轴尺度、散点坐标/数值与版式未重建。"
+        observed_in_phase: "P2"
     inspection_method: "agent_read_local_content_or_confirmed_absence"
     known_parser_issue: true
-    exact_limitation: "固定 v2 原 PDF157页已保留且本地开中尾可读，original artifact complete；仅155页有提取文本，第4、20页各1张图像且0提取字符，必要图像文本未评估、未OCR。不能把原件完整冒充 extraction complete。"
-    action_bucket: "ocr_assessment"
-    next_action: "P2 评估 PDF 第4、20页图像是否含必要正文/表格/公式，必要时在本地 OCR 并核验；不因零提取字符断言无正文，也不改原 PDF。"
+    exact_limitation: "P2新增物理页4图文字与物理页20八图标题/轴名的独立派生转录，并由独立视觉evaluator子PASS；原PDF字节与native155页文本notice前缀对P1 merge474不变，footer仅同步派生说明，159selectors=155native+4derived。physical4/20仍missing native text，现已部分图像转录，不是这些页消失。没有传统OCR，图形/刻度/散点数值/版式未重建，不宣称完整无损图像表示。原件complete/verified、提取partial/partial_check；不trusted、不改public allow、不新license。P1 pypdf6.10/strip字符探测保留为历史，不冒充本次新抽检。"
+    action_bucket: "needs_boundary_verification"
+    next_action: "后续按目标论文/figure语义完整消费需求核对物理页4的关系图与物理页20的刻度/尺度/散点数值是否需要更完整派生表示；需要时人工补表示并对原PDF校核。局部文字视觉转录已完成，不机械安装OCR或因已有derived就称native完整；原PDF不改。"
     resolution: "unresolved"
     pdf_content_probe:
       method: "Python 3.12.14 / pypdf 6.10.0，PdfReader.extract_text(extraction_mode='plain') 本地只读，无 render/OCR/网络；extractable_characters=len((text or '').strip())。该空白相关长度不作为跨版本不变量；pypdf 6.18.1 复核同样确认第4/20页为0非空白正文。"
@@ -6927,6 +7136,26 @@ items:
           extractable_characters: 0
           image_count: 1
       image_substantive_text_assessment: "pending_P2"
+      observed_in_phase: "P1"
+      snapshot_merge_commit: "474992c2664fb2af06765abdb4dfb23b6db40fb8"
+    derived_image_page_probe:
+      observed_in_phase: "P2"
+      document_path: "materialized_sources/corpus/arxiv-2502.18864--014b4710/derived/image-pages-transcription.md"
+      source_pages:
+        - 4
+        - 20
+      method: "agent_visual_transcription"
+      renderer: "Poppler pdftoppm 26.05.0"
+      render_dpi:
+        page_4: 240
+        page_20: 180
+      model_revision: "not_exposed"
+      independent_visual_evaluation: "PASS (parent-reported independent evaluator subtask; ledger executor did not repeat visual review)"
+      native_text_extraction_changed: false
+      conventional_ocr_performed: false
+      complete_image_representation: false
+      source_pdf_bytes_equal_p1_snapshot: true
+      native_text_before_notice_equal_p1_snapshot: true
   -
     uid: "arxiv:2503.18102"
     source_type: "arxiv"

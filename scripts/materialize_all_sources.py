@@ -27,6 +27,7 @@ import hashlib
 import io
 import json
 import os
+import posixpath
 import re
 import shutil
 import subprocess
@@ -474,6 +475,10 @@ class RedistributionPackageError(ValueError):
     """A declared publication condition failed; never downgrade it to metadata-only."""
 
 
+class ArxivPreflightError(RuntimeError):
+    """An arXiv rebuild cannot safely replace the retained capsule."""
+
+
 def redistribution_notice_href(root: Path, document: Path) -> str:
     """Return the safe relative link from a materialized document to its notice."""
     resolved_root = root.resolve()
@@ -699,26 +704,85 @@ def arxiv_eprint_id(record: SourceRecord) -> str:
     return f"{record.canonical_id}{source_version.strip()}"
 
 
-def choose_main_tex(files: dict[str, str]) -> str | None:
-    scored: list[tuple[int, int, str]] = []
-    for path, text in files.items():
-        if not path.lower().endswith((".tex", ".ltx")):
+def tex_comment_start(line: str) -> int | None:
+    """A percent sign is escaped only after an odd run of backslashes."""
+    for index, character in enumerate(line):
+        if character != "%":
             continue
-        score = 0
-        name = PurePosixPath(path).name.lower()
-        if name in {"main.tex", "paper.tex", "article.tex", "manuscript.tex", "ms.tex"}:
-            score += 30
-        if "\\documentclass" in text:
-            score += 20
-        if "\\begin{document}" in text:
-            score += 20
-        if "\\title" in text:
-            score += 5
-        scored.append((score, len(text), path))
-    if not scored:
-        return None
-    scored.sort(reverse=True)
-    return scored[0][2]
+        previous = index - 1
+        while previous >= 0 and line[previous] == "\\":
+            previous -= 1
+        if (index - previous - 1) % 2 == 0:
+            return index
+    return None
+
+
+def tex_without_comments(text: str) -> str:
+    lines: list[str] = []
+    for line in text.splitlines(keepends=True):
+        start = tex_comment_start(line)
+        if start is not None:
+            ending = "\r\n" if line.endswith("\r\n") else "\n" if line.endswith("\n") else "\r" if line.endswith("\r") else ""
+            line = line[:start] + ending
+        lines.append(line)
+    return "".join(lines)
+
+
+def tex_root_candidates(
+    files: dict[str, str], *, exclusions: list[dict[str, str]] | None = None,
+) -> list[str]:
+    """Find document roots by structure, including TeX saved with a .txt suffix."""
+    candidates: list[str] = []
+    for path, text in sorted(files.items()):
+        suffix = PurePosixPath(path).suffix.lower()
+        if suffix not in {".tex", ".ltx", ".txt"}:
+            continue
+        body = tex_without_comments(text)
+        begin = re.search(r"\\begin\s*\{document\}", body)
+        if begin is None or re.search(r"\\end\s*\{document\}", body[begin.end():]) is None:
+            continue
+        # An ordinary .txt containing a TeX fragment is not a source document.
+        if suffix == ".txt" and re.search(
+            r"\\(?:documentclass|documentstyle)\b", body[:begin.start()]
+        ) is None:
+            continue
+        document_class = re.search(
+            r"\\documentclass\s*(?:\[[^\]]*\]\s*)?\{\s*([^{}]+?)\s*\}", body[:begin.start()]
+        )
+        reason: str | None = None
+        evidence = ""
+        if document_class is not None and document_class.group(1).strip().lower() == "standalone":
+            reason, evidence = "standalone_document", document_class.group(0)
+        title_match = re.search(r"\\title\s*(?:\[[^\]]*\]\s*)?\{([^{}]*)\}", body)
+        if reason is None and title_match is not None:
+            title = re.sub(r"\\[A-Za-z@]+|\\\\", " ", title_match.group(1))
+            title = " ".join(title.replace("\\", " ").split())
+            if re.search(
+                r"^(?:formatting instructions\b.*\b(?:submissions|proceedings)|"
+                r"author guidelines\b.*\bproceedings|a new style for\b.*\bpapers)\s*$",
+                title, re.IGNORECASE,
+            ):
+                reason, evidence = "formatting_template_document", title
+        parts = PurePosixPath(path).parts
+        historical_directory = any(re.fullmatch(r"revision[-_]history", part, re.IGNORECASE) for part in parts[:-1])
+        historical_copy = (
+            any(part.lower() == "history" for part in parts[:-1])
+            and re.search(r"\bpre-final-revision\b", PurePosixPath(path).stem.replace("_", "-"), re.IGNORECASE)
+        )
+        if reason is None and (historical_directory or historical_copy):
+            reason, evidence = "explicit_historical_document", path
+        if reason is not None:
+            if exclusions is not None:
+                exclusions.append({"kind": reason, "path": path, "evidence": evidence})
+            continue
+        candidates.append(path)
+    return candidates
+
+
+def choose_main_tex(files: dict[str, str]) -> str | None:
+    candidates = tex_root_candidates(files)
+    # Multiple real documents require a boundary decision, not a size tie-break.
+    return candidates[0] if len(candidates) == 1 else None
 
 
 def resolve_tex_include(current_path: str, target: str, files: dict[str, str]) -> str | None:
@@ -733,26 +797,46 @@ def resolve_tex_include(current_path: str, target: str, files: dict[str, str]) -
         if not candidate.suffix:
             expanded.append(candidate.with_suffix(".tex"))
     for candidate in expanded:
-        normalized = candidate.as_posix().lstrip("./")
+        normalized = posixpath.normpath(candidate.as_posix())
+        if normalized.startswith(("/", "../")) or normalized in {".", ".."}:
+            continue
         if normalized in files:
             return normalized
     return None
 
 
-def flatten_tex(main_path: str, files: dict[str, str], *, max_depth: int = 20) -> str:
+def flatten_tex(
+    main_path: str,
+    files: dict[str, str],
+    *,
+    max_depth: int = 20,
+    diagnostics: list[dict[str, str]] | None = None,
+    include_graph: list[dict[str, str]] | None = None,
+) -> str:
     include_pattern = re.compile(r"\\(?:input|include)\s*\{([^{}]+)\}")
 
     def visit(path: str, stack: tuple[str, ...]) -> str:
         if path in stack:
+            if diagnostics is not None:
+                diagnostics.append({"kind": "cycle", "path": path})
             return f"\n% [cycle omitted: {path}]\n"
         if len(stack) >= max_depth:
+            if diagnostics is not None:
+                diagnostics.append({"kind": "depth_limit", "path": path})
             return f"\n% [include depth exceeded: {path}]\n"
         text = files.get(path, "")
 
         def replace(match: re.Match[str]) -> str:
+            line_prefix = text[text.rfind("\n", 0, match.start()) + 1:match.start()]
+            if tex_comment_start(line_prefix) is not None:
+                return match.group(0)
             resolved = resolve_tex_include(path, match.group(1), files)
             if resolved is None:
+                if diagnostics is not None:
+                    diagnostics.append({"kind": "missing_include", "path": path, "target": match.group(1)})
                 return match.group(0)
+            if include_graph is not None:
+                include_graph.append({"from": path, "to": resolved})
             return (
                 f"\n% --- begin included file: {resolved} ---\n"
                 + visit(resolved, stack + (path,))
@@ -764,13 +848,24 @@ def flatten_tex(main_path: str, files: dict[str, str], *, max_depth: int = 20) -
     return visit(main_path, tuple())
 
 
-def tex_to_plain(text: str) -> str:
+def tex_to_plain(
+    text: str, *, diagnostics: list[dict[str, str]] | None = None, path: str = "document.tex",
+) -> str:
     # Preserve section labels and arguments while removing the most disruptive TeX syntax.
-    text = re.sub(r"(?m)(?<!\\)%.*$", "", text)
+    text = tex_without_comments(text)
+    begin = re.search(r"\\begin\s*\{document\}", text)
+    if begin is not None:
+        if diagnostics is not None and re.search(r"\\abstract\b|\\begin\s*\{abstract\}", text[:begin.start()]):
+            diagnostics.append({"kind": "preamble_semantic_abstract_omitted", "path": path})
+        text = text[begin.end():]
+        end = re.search(r"\\end\s*\{document\}", text)
+        if end is not None:
+            text = text[:end.start()]
     text = re.sub(r"\\(?:sub)*section\*?\{([^{}]+)\}", r"\n\n## \1\n", text)
     text = re.sub(r"\\paragraph\*?\{([^{}]+)\}", r"\n\n### \1\n", text)
     text = re.sub(r"\\begin\{abstract\}", "\n\n## Abstract\n", text)
     text = re.sub(r"\\end\{abstract\}", "\n", text)
+    text = re.sub(r"\\label\{[^{}]*\}", "", text)
     text = re.sub(r"\\(?:cite|citep|citet|ref|eqref|label|url|href)\*?(?:\[[^\]]*\])?\{([^{}]*)\}", r" \1 ", text)
     text = re.sub(r"\\(?:textbf|textit|emph|mathrm|mathbf|mathit|operatorname)\{([^{}]*)\}", r"\1", text)
     text = re.sub(r"\\[A-Za-z@]+\*?(?:\[[^\]]*\])?", " ", text)
@@ -782,17 +877,109 @@ def tex_to_plain(text: str) -> str:
     return text.strip() + "\n"
 
 
+def write_arxiv_tex_derivatives(
+    record: SourceRecord,
+    root: Path,
+    stored: dict[str, str],
+    *,
+    revision: str,
+) -> dict[str, Any]:
+    """Reuse retained source text; write only normalized files and selectors."""
+    source_root = root / "source"
+    root_exclusions: list[dict[str, str]] = []
+    candidates = tex_root_candidates(stored, exclusions=root_exclusions)
+    main_tex = candidates[0] if len(candidates) == 1 else None
+    diagnostics: list[dict[str, str]] = []
+    normalization_diagnostics: list[dict[str, str]] = []
+    include_graph: list[dict[str, str]] = []
+    normalized: dict[str, str] = {}
+    if main_tex:
+        flattened = flatten_tex(main_tex, stored, diagnostics=diagnostics, include_graph=include_graph)
+        for match in re.finditer(r"\\(?:input|include)\b(?!\s*\{)[^\n]*", tex_without_comments(flattened)):
+            diagnostics.append({"kind": "unsupported_include_syntax", "path": main_tex, "target": match.group(0)})
+        normalized = {
+            "normalized/document.tex": flattened,
+            "normalized/document.txt": tex_to_plain(flattened, diagnostics=normalization_diagnostics, path=main_tex),
+        }
+        for path, text in normalized.items():
+            destination = root / path
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            destination.write_text(text, encoding="utf-8")
+
+    selectors: list[dict[str, Any]] = []
+    revision_selector = revision.split(":", 1)[-1][:16]
+    for path, text in sorted(stored.items()):
+        lines = text.splitlines()
+        selector_base = f"arxiv://{record.canonical_id}@sha256-{revision_selector}/{path}"
+        selectors.append({
+            "selector": f"{selector_base}#L1-L{max(1, len(lines))}",
+            "local_path": (source_root / path).relative_to(ROOT).as_posix(),
+            "kind": "file", "start_line": 1, "end_line": max(1, len(lines)),
+        })
+        for line_number, line in enumerate(lines, 1):
+            match = re.search(r"\\(section|subsection|subsubsection|paragraph)\*?\{([^{}]+)\}", line)
+            if match:
+                selectors.append({
+                    "selector": f"{selector_base}#L{line_number}",
+                    "local_path": (source_root / path).relative_to(ROOT).as_posix(),
+                    "kind": match.group(1), "heading": match.group(2).strip(),
+                    "start_line": line_number, "end_line": line_number,
+                })
+    for path, text in sorted(normalized.items()):
+        lines = text.splitlines()
+        selector_base = f"arxiv://{record.canonical_id}@sha256-{revision_selector}/{path}"
+        provenance = {"derived_from": f"source/{main_tex}", "transformation": "TeX include expansion"}
+        if path.endswith(".txt"):
+            provenance["transformation"] += " and lossy plain-text normalization; preamble excluded"
+        selectors.append({
+            "selector": f"{selector_base}#L1-L{max(1, len(lines))}",
+            "local_path": (root / path).relative_to(ROOT).as_posix(),
+            "kind": "file", "start_line": 1, "end_line": max(1, len(lines)),
+            **({"text_preview": next(line for line in lines if line.strip())} if text.strip() else {}),
+            **provenance,
+        })
+        if path.endswith(".txt"):
+            headings = [(number, re.match(r"^(#{2,3})\s+(.+)$", line)) for number, line in enumerate(lines, 1)]
+            headings = [(number, match) for number, match in headings if match is not None]
+            for index, (start, match) in enumerate(headings):
+                end = headings[index + 1][0] - 1 if index + 1 < len(headings) else len(lines)
+                selectors.append({
+                    "selector": f"{selector_base}#L{start}-L{end}",
+                    "local_path": (root / path).relative_to(ROOT).as_posix(),
+                    "kind": "section", "heading": match.group(2),
+                    "start_line": start, "end_line": end,
+                    "text_preview": next((line for line in lines[start:end] if line.strip()), lines[start - 1])[:700],
+                    **provenance,
+                })
+    write_jsonl(root / "selectors.jsonl", selectors)
+    return {
+        "main_tex": main_tex, "tex_root_candidates": candidates, "tex_root_exclusions": root_exclusions,
+        "document": "normalized/document.txt" if main_tex else None,
+        "normalized_document": "normalized/document.txt" if main_tex else None,
+        "normalized_tex": "normalized/document.tex" if main_tex else None,
+        "tex_include_graph": include_graph, "tex_include_errors": diagnostics,
+        "tex_normalization_diagnostics": normalization_diagnostics,
+        "selector_count": len(selectors),
+    }
+
+
 def materialize_arxiv(record: SourceRecord, config: dict[str, Any], generated_at: str) -> dict[str, Any]:
-    root = prepare_capsule(record)
+    root = record.capsule_root
     manifest = base_manifest(record, "arxiv_latex_v2", generated_at)
     arxiv_id = record.canonical_id
     if not arxiv_id:
+        if root.exists():
+            raise ArxivPreflightError(f"{record.uid}: missing arXiv identifier; retained capsule unchanged")
+        root = prepare_capsule(record)
         manifest["errors"].append("missing arXiv identifier")
         return finalize_capsule(record, root, manifest)
 
     try:
         requested_arxiv_id = arxiv_eprint_id(record)
     except ValueError as exc:
+        if root.exists():
+            raise ArxivPreflightError(f"{record.uid}: {exc}; retained capsule unchanged") from exc
+        root = prepare_capsule(record)
         manifest["errors"].append(str(exc))
         return finalize_capsule(record, root, manifest)
     quoted_id = urllib.parse.quote(requested_arxiv_id, safe="/")
@@ -829,6 +1016,9 @@ def materialize_arxiv(record: SourceRecord, config: dict[str, Any], generated_at
         except Exception as exc:
             manifest["warnings"].append(str(exc))
     if payload is None:
+        if root.exists():
+            raise ArxivPreflightError(f"{record.uid}: arXiv source archive could not be acquired; retained capsule unchanged")
+        root = prepare_capsule(record)
         manifest["errors"].append("arXiv source archive could not be acquired")
         # Preserve a bounded local copy of the abstract page when the source archive fails.
         manifest["adapter"] = "generic_web_or_document_v2"
@@ -856,6 +1046,7 @@ def materialize_arxiv(record: SourceRecord, config: dict[str, Any], generated_at
     )
     pdf_payload, pdf_container = arxiv_pdf_payload(payload)
     if pdf_payload is not None and pdf_container is not None:
+        root = prepare_capsule(record)
         manifest["adapter"] = "arxiv_pdf_v1"
         manifest["archive_container"] = pdf_container
         manifest["media_type"] = "application/pdf"
@@ -967,9 +1158,6 @@ def materialize_arxiv(record: SourceRecord, config: dict[str, Any], generated_at
     max_total = int(config.get("arxiv_max_stored_text_bytes", 30_000_000))
     max_files = int(config.get("arxiv_max_files", 2500))
     max_file = int(config.get("arxiv_max_single_file_bytes", 6_000_000))
-    source_root = root / "source"
-    source_root.mkdir(parents=True, exist_ok=True)
-
     for original_name, raw in bundle:
         if len(stored) >= max_files:
             omitted.append({"path": original_name, "reason": "file-count-budget"})
@@ -989,53 +1177,24 @@ def materialize_arxiv(record: SourceRecord, config: dict[str, Any], generated_at
             omitted.append({"path": original_name, "reason": "size-budget"})
             continue
         text = raw.decode("utf-8", errors="replace")
-        destination = source_root / pure.as_posix()
+        stored[pure.as_posix()] = text
+        total_bytes += len(text.encode("utf-8"))
+
+    candidates = tex_root_candidates(stored)
+    if (root / "normalized").is_dir() and len(candidates) != 1:
+        raise ArxivPreflightError(
+            f"{record.uid}: new payload has no unique TeX root ({candidates!r}); retained capsule unchanged"
+        )
+    root = prepare_capsule(record)
+    source_root = root / "source"
+    source_root.mkdir(parents=True, exist_ok=True)
+    for path, text in stored.items():
+        destination = source_root / path
         destination.parent.mkdir(parents=True, exist_ok=True)
         destination.write_text(text, encoding="utf-8")
-        stored[pure.as_posix()] = text
-        total_bytes += destination.stat().st_size
 
-    main_tex = choose_main_tex(stored)
-    if main_tex:
-        flattened = flatten_tex(main_tex, stored)
-        normalized_root = root / "normalized"
-        normalized_root.mkdir(parents=True, exist_ok=True)
-        (normalized_root / "document.tex").write_text(flattened, encoding="utf-8")
-        (normalized_root / "document.txt").write_text(tex_to_plain(flattened), encoding="utf-8")
-
-    normalized_document = root / "normalized" / "document.txt"
-    normalized_document_name = (
-        "normalized/document.txt" if main_tex and normalized_document.is_file() else None
-    )
-
-    selectors: list[dict[str, Any]] = []
-    revision_selector = archive_hash[:16]
-    for path, text in sorted(stored.items()):
-        lines = text.splitlines()
-        selector_base = f"arxiv://{arxiv_id}@sha256-{revision_selector}/{path}"
-        selectors.append(
-            {
-                "selector": f"{selector_base}#L1-L{max(1, len(lines))}",
-                "local_path": (source_root / path).relative_to(ROOT).as_posix(),
-                "kind": "file",
-                "start_line": 1,
-                "end_line": max(1, len(lines)),
-            }
-        )
-        for line_number, line in enumerate(lines, 1):
-            match = re.search(r"\\(section|subsection|subsubsection|paragraph)\*?\{([^{}]+)\}", line)
-            if match:
-                selectors.append(
-                    {
-                        "selector": f"{selector_base}#L{line_number}",
-                        "local_path": (source_root / path).relative_to(ROOT).as_posix(),
-                        "kind": match.group(1),
-                        "heading": match.group(2).strip(),
-                        "start_line": line_number,
-                        "end_line": line_number,
-                    }
-                )
-    write_jsonl(root / "selectors.jsonl", selectors)
+    derivatives = write_arxiv_tex_derivatives(record, root, stored, revision=manifest["revision"])
+    main_tex = derivatives["main_tex"]
     write_jsonl(
         root / "files.jsonl",
         (
@@ -1061,10 +1220,7 @@ def materialize_arxiv(record: SourceRecord, config: dict[str, Any], generated_at
             "materialization": {
                 "stored_text_files": len(stored),
                 "stored_text_bytes": total_bytes,
-                "main_tex": main_tex,
-                "document": normalized_document_name,
-                "normalized_document": normalized_document_name,
-                "selector_count": len(selectors),
+                **derivatives,
                 "omitted_member_count": len(omitted),
             },
             "selectors": ["selectors.jsonl"],
@@ -1074,6 +1230,19 @@ def materialize_arxiv(record: SourceRecord, config: dict[str, Any], generated_at
     if not main_tex and stored:
         manifest["status"] = "partial"
         manifest["warnings"].append("TeX files were stored but a root document was not identified")
+        if len(derivatives["tex_root_candidates"]) > 1:
+            manifest["warnings"].append("Multiple TeX document roots require an explicit target boundary decision.")
+    if derivatives["tex_include_errors"]:
+        manifest["status"] = "partial"
+        manifest["warnings"].append("TeX include expansion is incomplete; see materialization.tex_include_errors.")
+    if derivatives["tex_normalization_diagnostics"]:
+        manifest["status"] = "partial"
+        limitation = (
+            "Plain-text normalization excludes semantic abstracts declared in the preamble; "
+            "retained source and normalized TeX remain authoritative. This is not a full TeX parser."
+        )
+        manifest["warnings"].append(limitation)
+        manifest.setdefault("limitations", []).append(limitation)
     return finalize_capsule(record, root, manifest)
 
 
@@ -1792,10 +1961,12 @@ def materialize_one(record: SourceRecord, config: dict[str, Any], generated_at: 
                 return materialize_github(record, config, generated_at)
         with _generic_semaphore:
             return materialize_generic(record, config, generated_at)
-    except RedistributionPackageError:
+    except (RedistributionPackageError, ArxivPreflightError):
         raise
     except Exception as exc:
         root = record.capsule_root
+        if record.source_type == "arxiv" and root.exists():
+            raise
         if not root.exists():
             root = prepare_capsule(record)
         manifest = base_manifest(record, adapter_name(record.source_type), generated_at)
@@ -2017,9 +2188,11 @@ def main() -> int:
             record = future_map[future]
             try:
                 manifest = future.result()
-            except RedistributionPackageError:
+            except (RedistributionPackageError, ArxivPreflightError):
                 raise
             except Exception as exc:
+                if record.source_type == "arxiv" and record.capsule_root.exists():
+                    raise
                 root = prepare_capsule(record)
                 manifest = base_manifest(record, adapter_name(record.source_type), generated_at)
                 manifest["errors"].append(f"executor failure: {type(exc).__name__}: {exc}")
