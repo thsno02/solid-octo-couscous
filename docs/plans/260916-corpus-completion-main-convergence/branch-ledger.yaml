@@ -9,7 +9,7 @@ final_target:
   protected: false
 integration_branch:
   branch: work/v0-meta-kb-initialization-demo-260910
-  sha: 3a69c2f2550ed2159d365605b3f4df96cc30dc01
+  sha: 8d954a2f969475bb606229d5eae57427f47030a9
   role: temporary_integration_for_pr_1
   pull_request: 1
   pr_base: main
@@ -131,6 +131,18 @@ incorporated_pull_requests:
     ci_run: 35136212132
     already_in_integration_branch: true
     final_destination: main_via_pr_1
+  - number: 15
+    title: 'P3-PDF-02: 补齐七篇固定版本论文的官方 PDF 表示'
+    state: merged
+    merged_into: work/v0-meta-kb-initialization-demo-260910
+    merge_commit: 8d954a2f969475bb606229d5eae57427f47030a9
+    evaluated_head: 3c19166199cb2ae623305b43f01b2f87872e09f6
+    evaluated_base: 3a69c2f2550ed2159d365605b3f4df96cc30dc01
+    independent_evaluation: PASS
+    evaluation_review: 5227586812
+    ci_run: 35141704040
+    already_in_integration_branch: true
+    final_destination: main_via_pr_1
 planning_pull_request:
   number: 5
   state: merged
@@ -149,18 +161,18 @@ planning_pull_request:
   implementation_authorized: false
   subsequent_user_decision: execute_serial_phases_after_planning_merge
 active_implementation:
-  phase: P3-PDF-02
-  branch: codex/p3-pdf-supplement-02-260917
-  base_sha: 3a69c2f2550ed2159d365605b3f4df96cc30dc01
+  phase: P3-JOURNAL-01
+  branch: codex/p3-journal-pdf-01-260917
+  base_sha: 8d954a2f969475bb606229d5eae57427f47030a9
   target: work/v0-meta-kb-initialization-demo-260910
-  pull_request: 15
-  state: implemented_pending_exact_head_evaluation_and_ci
-  source_uids: ['arxiv:2305.14292', 'arxiv:2310.11511', 'arxiv:2406.06769', 'arxiv:2409.13740', 'arxiv:2411.14199', 'arxiv:2507.21046', 'arxiv:2607.07663']
-  adapter_family: arxiv_latex_v2
+  pull_request: null
+  state: startup_contract_pending_publisher_preflight
+  source_uids: ['doi:10.1038/sdata.2016.18', 'journal-doi-10.1038-s41586-022-05172-4', 'journal-doi-10.1038-s41586-023-06004-9', 'journal-doi-10.1038-s41586-023-06734-w', 'journal-doi-10.1038-s41586-023-06924-6', 'journal:10.1038/s41586-023-06792-0']
+  adapter_family: generic_web_or_document_v2
   action_bucket: open_fulltext_fetch
-  network_source_acquisition: fixed_version_official_pdf_only
+  network_source_acquisition: publisher_version_of_record_pdf_after_identity_and_rights_preflight
   original_source_bytes_mutation: false
-  derived_text_changes: additive_pdf_supplement_preserve_legacy_tex_and_txt
+  derived_text_changes: additive_pdf_supplement_preserve_legacy_excerpt_and_retrieval
   final_destination: main_via_pr_1
 next_work_items:
   - order: 1
