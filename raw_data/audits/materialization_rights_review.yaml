@@ -6814,6 +6814,7 @@ items:
   capsule_root: materialized_sources/corpus/arxiv-2606.09877--80ac4aba
   stored_full_text_paths:
   - materialized_sources/corpus/arxiv-2606.09877--80ac4aba/normalized/document.txt
+  - materialized_sources/corpus/arxiv-2606.09877--80ac4aba/normalized/reading.md
   baseline_content_tier: full_text
   baseline_status: materialized
   source_revision: sha256:fc3f32bbffb155ce657dbcbf0049b3d9611f43e921050faaafb6ff5f26b31550
@@ -6840,18 +6841,24 @@ items:
           checked on 2026-09-16. source/00README.json is arXiv-generated compilation metadata under arXiv''s
           CC0 1.0 metadata terms: https://info.arxiv.org/help/policies/submission_agreement.html#metadata-license.
           None of these attributions implies endorsement of this repository.'
-        modifications: The fixed v1 source archive is unpacked and all four text members are retained
-          unchanged; no archive members are omitted. main.tex is copied to normalized/document.tex and
-          converted to normalized/document.txt; 98 selectors are generated. Only normalized/document.txt
-          receives the attribution, scope, changes statement and NOTICE link at its end. Compared with
-          the currently reviewed official template, the retained neurips_2026.sty lacks the six-line education-option
-          block; the existing difference is preserved, not introduced or repaired by this repository.
-          Its origin and modifier are not asserted. No historical template download or byte-identical
-          correspondence to the current complete style file is claimed.
-        scope: 本包仅覆盖固定 arXiv v1 的四个 source 文字成员、normalized/document.tex、 normalized/document.txt 与 98
-          个定位器（selectors）。论文作者表达及其文本转换适用 CC BY 4.0；source/neurips_2026.sty 作为独立模板按其官方 CC BY 4.0 声明分别署名，
-          不将模板著作权归给论文作者。source/00README.json 是 arXiv 自动生成的事实性编译元数据， 按其 metadata CC0 条款处理。references.bib
-          是没有摘要字段的书目记录，不授权所引作品； 未保存的新闻、Wikipedia 原文、外部模型和代码不属于许可包。定位器不改变其所定位组件的许可。
+        modifications: >-
+          固定 arXiv v1 archive 的四个 source 文字成员均保留原字节，未省略成员。 旧 normalized/document.tex、normalized/document.txt 及旧 98 个
+          source 定位器（selectors）保持原字节， 旧 TXT 末注仅记录历史表示（historical representation），不是本次重新包装或当前默认末注。 本次追加
+          normalized/reading.md 作为显式选择的派生阅读视图（derived reading view）， 仅做有限、静态可证明的展开（bounded static
+          expansion）；数学、表格、literal 与未知 TeX 保留原表达并作保真回退（faithful fallback），不执行 TeX，也不声称支持完整语法或文字提取已完整。 书目仅使用现存
+          references.bib 作有界装配（bounded assembly），不递归获取所引作品。 旧定位保留，追加的派生定位（derived selectors）数量和范围以当前 manifest/inventory
+          声明为准， 不预写新增数量。当前默认正文及其唯一末注绑定 normalized/reading.md，末注披露署名、范围、派生修改和 NOTICE 链接； 旧两种 normalized 表示仍可访问，不改写其历史声明。
+          Compared with the currently reviewed official template, the retained neurips_2026.sty lacks the six-line
+          education-option block; the existing difference is preserved, not introduced or repaired by this repository.
+          Its origin and modifier are not asserted. No historical template download or byte-identical correspondence to
+          the current complete style file is claimed.
+        scope: >-
+          本包仅覆盖固定 arXiv v1 的四个 source 文字成员、旧 normalized/document.tex 与 normalized/document.txt、 旧 98 个 source 定位器，以及新增
+          normalized/reading.md 与 manifest/inventory 明确声明的追加派生定位。 reading 是有限静态派生消费者，不执行 TeX；保真回退不等于完整语法支持或 text
+          extraction complete。 旧 TXT 保留含原末注的全部历史字节，当前默认正文与末注以 reading 为准，不将历史末注冒充当前包装。 论文作者表达及其文本转换适用 CC BY
+          4.0；source/neurips_2026.sty 作为独立模板按其官方 CC BY 4.0 声明分别署名， 不将模板著作权归给论文作者。source/00README.json 是 arXiv
+          自动生成的事实性编译元数据， 按其 metadata CC0 条款处理。references.bib 是没有摘要字段的书目记录，不授权所引作品； 未保存的新闻、Wikipedia
+          原文、外部模型和代码不属于许可包。定位器不改变其所定位组件的许可。
       assessment: 固定 v1 主论文与独立模板 BY4 分别署名，00README 元数据单独按 CC0 标识；不是人工批准。
     source_metadata:
       license_spdx: CC-BY-4.0
@@ -6920,13 +6927,20 @@ items:
     finding: 最终唯一 fixed v1 canonical URL 两次真实物化，12 个胶囊文件逐字节一致。source 四文件、normalized TeX、98 selectors 相对
       HEAD 不变；正文精确为原字节加唯一完整末尾署名块，NOTICE 复用已有完整 CC BY4。独立 evaluator 发现并修复重复 YAML 旧 URL 覆盖问题后再次验证通过。
     supports_public_redistribution: true
+  - kind: derived_reading_offline_replay
+    path: materialized_sources/corpus/arxiv-2606.09877--80ac4aba/normalized/reading.md
+    finding: PR14 仅使用既有固定 v1 原件，禁止网络、prepare 与 legacy writer 的两次离线回放得到 13 个胶囊文件逐字节相同；四个 source 共 146294 bytes、files.jsonl、旧 TeX/TXT 含历史末注及旧 98 selectors 均保持。新增 reading 133557 bytes、2645 行与 100 条明确派生定位；当前唯一末注使用同步的 modifications/scope 和既有完整 NOTICE。manifest 时间固定保留 2026-09-13T17:19:33Z，不冒称该时间新抓取或本轮重新核验许可。原 fixed_url_materialization_replay 证据是历史网络物化，与本次离线派生分开。
+    supports_public_redistribution: true
   missing: []
   classification: documented_permission
   license_id: CC-BY-4.0
   license_url: https://creativecommons.org/licenses/by/4.0/
-  license_scope: 本包仅覆盖固定 arXiv v1 的四个 source 文字成员、normalized/document.tex、 normalized/document.txt 与 98
-    个定位器（selectors）。论文作者表达及其文本转换适用 CC BY 4.0；source/neurips_2026.sty 作为独立模板按其官方 CC BY 4.0 声明分别署名， 不将模板著作权归给论文作者。source/00README.json
-    是 arXiv 自动生成的事实性编译元数据， 按其 metadata CC0 条款处理。references.bib 是没有摘要字段的书目记录，不授权所引作品； 未保存的新闻、Wikipedia
+  license_scope: >-
+    本包仅覆盖固定 arXiv v1 的四个 source 文字成员、旧 normalized/document.tex 与 normalized/document.txt、 旧 98 个 source 定位器，以及新增
+    normalized/reading.md 与 manifest/inventory 明确声明的追加派生定位。 reading 是有限静态派生消费者，不执行 TeX；保真回退不等于完整语法支持或 text
+    extraction complete。 旧 TXT 保留含原末注的全部历史字节，当前默认正文与末注以 reading 为准，不将历史末注冒充当前包装。 论文作者表达及其文本转换适用 CC BY
+    4.0；source/neurips_2026.sty 作为独立模板按其官方 CC BY 4.0 声明分别署名， 不将模板著作权归给论文作者。source/00README.json 是 arXiv
+    自动生成的事实性编译元数据， 按其 metadata CC0 条款处理。references.bib 是没有摘要字段的书目记录，不授权所引作品； 未保存的新闻、Wikipedia
     原文、外部模型和代码不属于许可包。定位器不改变其所定位组件的许可。
   license_restrictions: []
   evidence_confidence: high
@@ -6955,26 +6969,33 @@ items:
       checked on 2026-09-16. source/00README.json is arXiv-generated compilation metadata under arXiv''s
       CC0 1.0 metadata terms: https://info.arxiv.org/help/policies/submission_agreement.html#metadata-license.
       None of these attributions implies endorsement of this repository.'
-    modifications: The fixed v1 source archive is unpacked and all four text members are retained unchanged;
-      no archive members are omitted. main.tex is copied to normalized/document.tex and converted to normalized/document.txt;
-      98 selectors are generated. Only normalized/document.txt receives the attribution, scope, changes
-      statement and NOTICE link at its end. Compared with the currently reviewed official template, the
-      retained neurips_2026.sty lacks the six-line education-option block; the existing difference is
-      preserved, not introduced or repaired by this repository. Its origin and modifier are not asserted.
-      No historical template download or byte-identical correspondence to the current complete style file
-      is claimed.
-    scope: 本包仅覆盖固定 arXiv v1 的四个 source 文字成员、normalized/document.tex、 normalized/document.txt 与 98 个定位器（selectors）。论文作者表达及其文本转换适用
-      CC BY 4.0；source/neurips_2026.sty 作为独立模板按其官方 CC BY 4.0 声明分别署名， 不将模板著作权归给论文作者。source/00README.json
-      是 arXiv 自动生成的事实性编译元数据， 按其 metadata CC0 条款处理。references.bib 是没有摘要字段的书目记录，不授权所引作品； 未保存的新闻、Wikipedia
+    modifications: >-
+      固定 arXiv v1 archive 的四个 source 文字成员均保留原字节，未省略成员。 旧 normalized/document.tex、normalized/document.txt 及旧 98 个
+      source 定位器（selectors）保持原字节， 旧 TXT 末注仅记录历史表示（historical representation），不是本次重新包装或当前默认末注。 本次追加
+      normalized/reading.md 作为显式选择的派生阅读视图（derived reading view）， 仅做有限、静态可证明的展开（bounded static
+      expansion）；数学、表格、literal 与未知 TeX 保留原表达并作保真回退（faithful fallback），不执行 TeX，也不声称支持完整语法或文字提取已完整。 书目仅使用现存
+      references.bib 作有界装配（bounded assembly），不递归获取所引作品。 旧定位保留，追加的派生定位（derived selectors）数量和范围以当前 manifest/inventory
+      声明为准， 不预写新增数量。当前默认正文及其唯一末注绑定 normalized/reading.md，末注披露署名、范围、派生修改和 NOTICE 链接； 旧两种 normalized 表示仍可访问，不改写其历史声明。
+      Compared with the currently reviewed official template, the retained neurips_2026.sty lacks the six-line
+      education-option block; the existing difference is preserved, not introduced or repaired by this repository.
+      Its origin and modifier are not asserted. No historical template download or byte-identical correspondence to
+      the current complete style file is claimed.
+    scope: >-
+      本包仅覆盖固定 arXiv v1 的四个 source 文字成员、旧 normalized/document.tex 与 normalized/document.txt、 旧 98 个 source 定位器，以及新增
+      normalized/reading.md 与 manifest/inventory 明确声明的追加派生定位。 reading 是有限静态派生消费者，不执行 TeX；保真回退不等于完整语法支持或 text
+      extraction complete。 旧 TXT 保留含原末注的全部历史字节，当前默认正文与末注以 reading 为准，不将历史末注冒充当前包装。 论文作者表达及其文本转换适用 CC BY
+      4.0；source/neurips_2026.sty 作为独立模板按其官方 CC BY 4.0 声明分别署名， 不将模板著作权归给论文作者。source/00README.json 是 arXiv
+      自动生成的事实性编译元数据， 按其 metadata CC0 条款处理。references.bib 是没有摘要字段的书目记录，不授权所引作品； 未保存的新闻、Wikipedia
       原文、外部模型和代码不属于许可包。定位器不改变其所定位组件的许可。
   clearance_review:
     kind: agent_evidence_and_packaging_review
     human_approval_claimed: false
-    scope: 四个 source 文字成员、normalized 文件与 98 selectors；不是整体 PR 合并或 trusted 发布批准。
+    scope: 固定 v1 四个 source 文字成员与旧两种 normalized 表示／98 selectors 保持；PR14 新增保守派生 reading 和 100 条 derived selectors，当前包装仅更新真实 modifications/scope，许可依据与历史网络证据不变。该审查不是整体 PR 合并、文本完整或 trusted 发布批准。
   conditions_fulfilled:
   - 固定 v1 输入与既有 revision/全部成员对应。
   - 作者、模板归属、差异、转换范围和完整 BY4 随包保存。
   - 两次最终真实物化一致；原 source/TeX/selectors 和正文前缀保持。
+  - PR14 两次独立于历史网络物化的禁网派生回放一致；新 reading 包装准确，旧 TXT 全部历史字节保留。
 - sequence: 72
   uid: arxiv:2607.07663
   source_type: arxiv

@@ -470,6 +470,12 @@ def write_capsule_readme(record: SourceRecord, root: Path, manifest: dict[str, A
     if manifest.get("rights", {}).get("redistribution_package"):
         lines.extend(["", "Redistribution notice and attribution: [NOTICE.md](NOTICE.md)."])
     materialization = manifest.get("materialization") or {}
+    if materialization.get("tex_reading_view", {}).get("enabled") is True:
+        view = materialization["tex_reading_view"]
+        lines.extend(["", "Local retained representations:", f"- [Chosen consumer: collector-derived TeX reading view]({view['document']})"])
+        for name in view.get("legacy_documents", []):
+            lines.append(f"- [Historical normalized representation (unchanged): {Path(name).name}]({name})")
+        lines.append("The reading view is derived, not a raw-source quotation. Math/code/table expressions and local macro/citation support are retained without TeX execution; limitations remain explicit in the manifest.")
     if materialization.get("retained_markdown_source"):
         lines.extend(["", "Local retained representations:"])
         for label, field in (("Consumer Markdown", "document"), ("Original Markdown", "retained_markdown_source"), ("Original HTML", "retained_html_source")):
@@ -837,6 +843,7 @@ def flatten_tex(
     max_depth: int = 20,
     diagnostics: list[dict[str, str]] | None = None,
     include_graph: list[dict[str, str]] | None = None,
+    reading_view: bool = False,
 ) -> str:
     """Expand literal braced calls, not macros, conditionals, or a full TeX engine.
 
@@ -861,8 +868,18 @@ def flatten_tex(
                 diagnostics.append({"kind": "depth_limit", "path": path})
             return f"\n% [include depth exceeded: {path}]\n"
         text = files.get(path, "")
-        supported_starts = {match.start() for match in include_pattern.finditer(text)}
-        for match in re.finditer(r"\\(?:input|include|import|subimport)\b", text):
+        if reading_view:
+            literals = tex_reading_regions(text)
+            for url in re.finditer(r"\\url\s*\{", text):
+                prefix = text[text.rfind("\n", 0, url.start()) + 1:url.start()]
+                if tex_comment_start(prefix) is not None or any(first <= url.start() < last for first, last in literals):
+                    continue
+                group = tex_group(text, url.end() - 1)
+                if group and any(tex_comment_start(line) is not None for line in group[0].splitlines()):
+                    raise ValueError("literal percent in TeX url is outside the reading profile; retained inputs unchanged")
+        searchable = tex_reading_mask(text, definitions=True) if reading_view else text
+        supported_starts = {match.start() for match in include_pattern.finditer(searchable)}
+        for match in re.finditer(r"\\(?:input|include|import|subimport)\b", searchable):
             line_prefix = text[text.rfind("\n", 0, match.start()) + 1:match.start()]
             if match.start() not in supported_starts and tex_comment_start(line_prefix) is None:
                 if diagnostics is not None:
@@ -873,6 +890,8 @@ def flatten_tex(
                     })
 
         def replace(match: re.Match[str]) -> str:
+            if reading_view and searchable[match.start():match.end()] != match.group(0):
+                return match.group(0)
             line_prefix = text[text.rfind("\n", 0, match.start()) + 1:match.start()]
             if tex_comment_start(line_prefix) is not None:
                 return match.group(0)
@@ -936,6 +955,584 @@ def tex_to_plain(
     text = re.sub(r"[ \t]+", " ", text)
     text = re.sub(r"\n{3,}", "\n\n", text)
     return text.strip() + "\n"
+
+
+TEX_READING_PROFILE = "conservative-v1"
+TEX_READING_TRANSFORMATION = "Conservative TeX reading view: literal includes, proven static prose macros; original math/code/table expressions retained; not a raw-source quotation"
+TEX_LITERAL_ENVIRONMENTS = {"verbatim", "verbatim*", "Verbatim", "lstlisting", "minted"}
+TEX_PROSE_ENVIRONMENTS = {"abstract", "enumerate", "itemize", "description", "document"}
+
+
+def tex_group(text: str, start: int) -> tuple[str, int] | None:
+    """Read one balanced literal group, without evaluating its contents."""
+    while start < len(text) and text[start].isspace():
+        start += 1
+    if start >= len(text) or text[start] != "{":
+        return None
+    depth, index = 1, start + 1
+    while index < len(text):
+        if text[index] == "\\":
+            index += 2
+            continue
+        if text[index] == "{":
+            depth += 1
+        elif text[index] == "}":
+            depth -= 1
+            if depth == 0:
+                return text[start + 1:index], index + 1
+        index += 1
+    return None
+
+
+def tex_reading_regions(text: str, *, structured: bool = False) -> list[tuple[int, int]]:
+    """Protect literal examples first; optional non-prose environments/math stay raw."""
+    regions: list[tuple[int, int]] = []
+    token = re.compile(r"%|\\verb\*?(?![A-Za-z@])|\\begin\s*\{([^{}]+)\}|\$\$?|\\[\[(]")
+    index = 0
+    while match := token.search(text, index):
+        first, last = match.span()
+        index = last
+        prefix = text[text.rfind("\n", 0, first) + 1:first]
+        if match.group() == "%":
+            if tex_comment_start(prefix + "%") is not None:
+                ending = text.find("\n", last)
+                index = ending + 1 if ending >= 0 else len(text)
+            continue
+        # Escaped dollars and command-like examples preceded by an odd slash run.
+        previous = first - 1
+        while previous >= 0 and text[previous] == "\\":
+            previous -= 1
+        if (first - previous - 1) % 2:
+            continue
+        environment = match.group(1)
+        if match.group().startswith("\\verb"):
+            if last >= len(text) or text[last].isspace():
+                raise ValueError("unsupported or unterminated inline verbatim")
+            ending = text.find(text[last], last + 1)
+            if ending < 0:
+                raise ValueError("unterminated inline verbatim")
+            last = ending + 1
+        elif environment:
+            if environment not in TEX_LITERAL_ENVIRONMENTS and (not structured or environment in TEX_PROSE_ENVIRONMENTS):
+                continue
+            edge = re.compile(r"\\(begin|end)\s*\{" + re.escape(environment) + r"\}")
+            depth = 1
+            edge_text = text if environment in TEX_LITERAL_ENVIRONMENTS else tex_reading_mask(text)
+            for closing in edge.finditer(edge_text, last):
+                depth += 1 if closing.group(1) == "begin" else -1
+                if depth == 0:
+                    last = closing.end()
+                    break
+            else:
+                raise ValueError(f"unterminated retained environment: {environment}")
+        elif structured:
+            closing = {"\\[": "\\]", "\\(": "\\)"}.get(match.group(), match.group())
+            ending = re.compile(r"(?<!\\)" + re.escape(closing)).search(text, last)
+            if ending is None:
+                raise ValueError("unterminated retained math expression")
+            last = ending.end()
+        else:
+            continue
+        regions.append((first, last))
+        index = last
+    if structured:
+        # Use the same-length mask for locations; comments must not shift offsets.
+        searchable = tex_reading_mask(text)
+        stack: list[int] = []
+        for match in re.finditer(r"\\(?:if[A-Za-z@]*|fi)\b", searchable):
+            if match.group() == "\\fi":
+                if not stack:
+                    raise ValueError("unmatched conditional closing expression")
+                first = stack.pop()
+                if not stack:
+                    regions.append((first, match.end()))
+            else:
+                stack.append(match.start())
+        if stack:
+            raise ValueError("unterminated conditional expression")
+        for declaration in tex_reading_definitions(searchable):
+            regions.append((declaration["start"], declaration["end"]))
+        merged: list[tuple[int, int]] = []
+        for first, last in sorted(regions):
+            if merged and first < merged[-1][1]:
+                merged[-1] = (merged[-1][0], max(last, merged[-1][1]))
+            else:
+                merged.append((first, last))
+        return merged
+    return regions
+
+
+def tex_reading_definitions(text: str) -> list[dict[str, Any]]:
+    """Recognize a finite declaration shape, not arbitrary TeX definitions."""
+    result: list[dict[str, Any]] = []
+    pattern = re.compile(r"\\(newcommand|renewcommand|providecommand|DeclareRobustCommand)\*?\s*(?:\{\s*(\\[A-Za-z@]+)\s*\}|(\\[A-Za-z@]+))|\\(def|gdef|edef|xdef|let)\s*(\\[A-Za-z@]+)")
+    index = 0
+    while match := pattern.search(text, index):
+        command, name = match.group(1) or match.group(4), match.group(2) or match.group(3) or match.group(5)
+        last, count = match.end(), 0
+        option = re.match(r"\s*\[([0-9]+)\]", text[last:])
+        if option:
+            count, last = int(option.group(1)), last + option.end()
+        if command in {"def", "gdef", "edef", "xdef"}:
+            arguments = re.match(r"((?:#[1-9])*)\s*", text[last:])
+            count, last = len(arguments.group(1)) // 2, last + arguments.end()
+        group = tex_group(text, last)
+        if group is not None:
+            body, last = group
+        else:
+            ending = text.find("\n", last)
+            body, last = None, ending if ending >= 0 else len(text)
+        result.append({"start": match.start(), "end": last, "name": name[1:], "command": command, "count": count, "body": body, "raw": text[match.start():last]})
+        index = max(last, match.end())
+    return result
+
+
+def tex_reading_mask(text: str, *, definitions: bool = False) -> str:
+    """Same-length lexical mask: examples/comments/conditional branches are not body."""
+    regions = tex_reading_regions(text)
+    masked = list(text)
+    def hide(first: int, last: int) -> None:
+        masked[first:last] = ["\n" if char == "\n" else " " for char in text[first:last]]
+    for first, last in regions:
+        hide(first, last)
+    searchable = "".join(masked)
+    for match in re.finditer(r"(?m)^.*$", searchable):
+        comment = tex_comment_start(match.group())
+        if comment is not None:
+            hide(match.start() + comment, match.end())
+    if definitions:
+        searchable = "".join(masked)
+        for declaration in tex_reading_definitions(searchable):
+            hide(declaration["start"], declaration["end"])
+        searchable = "".join(masked)
+        stack: list[int] = []
+        for match in re.finditer(r"\\(?:if[A-Za-z@]*|fi)\b", searchable):
+            if match.group() == "\\fi":
+                if stack:
+                    first = stack.pop()
+                    if not stack:
+                        hide(first, match.end())
+            else:
+                stack.append(match.start())
+        if stack:
+            raise ValueError("unterminated conditional expression")
+    return "".join(masked)
+
+
+def tex_reading_body(text: str) -> tuple[int, int]:
+    searchable = tex_reading_mask(text, definitions=True)
+    begins = list(re.finditer(r"\\begin\s*\{document\}", searchable))
+    ends = list(re.finditer(r"\\end\s*\{document\}", searchable))
+    if len(begins) != 1 or len(ends) != 1 or ends[0].start() < begins[0].end():
+        raise ValueError("reading view needs one explicit, unambiguous document boundary")
+    return begins[0].end(), ends[0].start()
+
+
+def tex_reading_macros(text: str, diagnostics: list[dict[str, str]]) -> tuple[dict[str, dict[str, Any]], list[dict[str, Any]]]:
+    # Read definitions with literals/comments masked, but include conditional defs in
+    # the count: they cannot accidentally make a same-named static macro admissible.
+    searchable = tex_reading_mask(text)
+    declarations = tex_reading_definitions(searchable)
+    counts = Counter(item["name"] for item in declarations)
+    macros: dict[str, dict[str, Any]] = {}
+    has_conditions = bool(re.search(r"\\if[A-Za-z@]*\b", searchable))
+    begin = re.search(r"\\begin\s*\{document\}", tex_reading_mask(text, definitions=True))
+    preamble_end = begin.start() if begin else 0
+    has_explicit_groups = bool(re.search(r"\\(?:begingroup|bgroup|catcode|csname|expandafter)\b", searchable[:preamble_end]))
+    for item in declarations:
+        original = text[item["start"]:item["end"]]
+        prefix = re.sub(r"\\.", "", searchable[:item["start"]])
+        top_level = prefix.count("{") == prefix.count("}")
+        safe_shape = (original == item["raw"] and item["body"] is not None and item["command"] == "newcommand"
+                      and item["start"] < preamble_end and top_level and counts[item["name"]] == 1
+                      and not has_conditions and not has_explicit_groups)
+        item["raw"] = original
+        if safe_shape and (item["count"] == 0 or item["count"] == 1 and not item["body"].strip()):
+            macros[item["name"]] = item
+        else:
+            macros[item["name"]] = {**item, "count": -1}
+            diagnostics.append({"kind": "unexpanded_macro_definition", "macro": item["name"]})
+    return macros, declarations
+
+
+def tex_reading_inline(text: str, macros: dict[str, dict[str, Any]], *, stack: tuple[str, ...] = ()) -> tuple[str, bool]:
+    """Only static prose, nested formatting, explicit ref keys; no numbered guesses."""
+    parts: list[str] = []
+    safe, index = True, 0
+    wrappers = {"emph", "textbf", "textit", "texttt", "textsc", "textrm", "textnormal", "underline"}
+    references = {"ref", "eqref", "autoref", "cref", "Cref", "cite", "citep", "citet", "citealp", "citeauthor", "citeyear"}
+    while index < len(text):
+        if text[index] != "\\":
+            if text[index] in "${}#^_&":
+                safe = False
+            parts.append(" " if text[index] == "~" else text[index])
+            index += 1
+            continue
+        match = re.match(r"\\([A-Za-z@]+)\*?|\\(.)", text[index:], re.DOTALL)
+        if match is None:
+            return text, False
+        name, symbol = match.groups()
+        last = index + match.end()
+        if name is not None and match.group().endswith("*"):
+            return text, False
+        if symbol is not None:
+            if symbol in "%&_#${}":
+                parts.append(symbol)
+            elif symbol == " ":
+                parts.append(" ")
+            else:
+                parts.append(match.group())
+                safe = False
+        elif name in macros:
+            if name in stack or len(stack) >= 20:
+                return text, False
+            macro = macros[name]
+            if macro["count"] not in {0, 1}:
+                return text, False
+            if macro["count"] == 1:
+                group = tex_group(text, last)
+                if group is None:
+                    return text, False
+                last = group[1]
+            else:
+                value, admissible = tex_reading_inline(macro["body"], macros, stack=stack + (name,))
+                if not admissible:
+                    return text, False
+                parts.append(value)
+                # Empty delimiter groups after zero-argument commands are layout.
+                group = tex_group(text, last)
+                if group is not None and not group[0]:
+                    last = group[1]
+        elif name in wrappers | references | {"label", "url", "href"}:
+            option = re.match(r"\s*(?:\[[^\]\n]*\]\s*)*", text[last:])
+            if "[" in option.group():
+                return text, False  # Optional notes may qualify the assertion.
+            last += option.end()
+            group = tex_group(text, last)
+            if group is None:
+                return text, False
+            value, last = group
+            if name in wrappers:
+                value, admissible = tex_reading_inline(value, macros, stack=stack)
+                safe = safe and admissible
+                parts.append(value)
+            elif name == "href":
+                return text, False  # Do not silently discard a link target.
+            elif name != "label":
+                if name in references and ("\n" in value or "\r" in value or not re.fullmatch(r"[A-Za-z0-9_.:/+\-]+(?:[ \t]*,[ \t]*[A-Za-z0-9_.:/+\-]+)*", value.strip())):
+                    return text, False
+                if name == "url" and not re.fullmatch(r"[A-Za-z][A-Za-z0-9+.\-]*:[^\s\\{}<>]+", value):
+                    return text, False
+                parts.append(f"[{('cite' if name.startswith('cite') else 'ref')}: {value}]" if name in references else value)
+        elif name == "S":
+            parts.append("§")
+        else:
+            parts.append(match.group())
+            safe = False
+        index = last
+    return "".join(parts), safe
+
+
+def tex_reading_fence(text: str, language: str = "latex") -> str:
+    fence = "`" * max(3, max((len(run) + 1 for run in re.findall(r"`+", text)), default=3))
+    ending = "" if text.endswith("\n") else "\n"
+    return f"\n\n{fence}{language}\n{text}{ending}{fence}\n\n"
+
+
+def derive_tex_reading(main_path: str, files: dict[str, str], citation_support: list[str]) -> tuple[str, dict[str, Any]]:
+    """Conservative opt-in view; all uncertain expressions remain local raw TeX."""
+    diagnostics: list[dict[str, str]] = []
+    graph: list[dict[str, str]] = []
+    source_begin, source_end = tex_reading_body(files[main_path])
+    flattened = flatten_tex(main_path, files, reading_view=True, diagnostics=diagnostics, include_graph=graph)
+    if diagnostics:
+        raise ValueError("reading include preflight failed: " + json.dumps(diagnostics, ensure_ascii=False))
+    begin, end = tex_reading_body(flattened)
+    macros, declarations = tex_reading_macros(flattened, diagnostics)
+    if {"begin", "end"}.intersection(macros):
+        raise ValueError("redefined document/environment control is outside the reading profile")
+    if re.search(r"\\abstract\b|\\begin\s*\{abstract\}", tex_reading_mask(flattened[:begin], definitions=True)):
+        diagnostics.append({"kind": "preamble_semantic_abstract_omitted", "path": main_path})
+    body = flattened[begin:end]
+    regions = tex_reading_regions(body, structured=True)
+    # Comments outside retained expressions only. Inline verbatim/code percent and
+    # structural math/table comments remain byte-faithful within their fences.
+    cleaned: list[str] = []
+    position = 0
+    for start, stop in regions:
+        cleaned.extend([tex_without_comments(body[position:start]), body[start:stop]])
+        position = stop
+    cleaned.append(tex_without_comments(body[position:]))
+    body = "".join(cleaned)
+    regions = dict(tex_reading_regions(body, structured=True))
+    parts = ["# Conservative TeX reading view\n\n> Collector-derived reading representation, not a raw-source quotation. Static prose transformations are limited; LaTeX math, algorithms, tables and uncertain expressions are retained without execution. Reference keys are not inferred citation numbers.\n"]
+    paragraph: list[str] = []
+    index = 0
+    def flush() -> None:
+        if not paragraph:
+            return
+        original = "".join(paragraph).strip()
+        paragraph.clear()
+        if not original:
+            return
+        value, admissible = tex_reading_inline(original, macros)
+        if admissible:
+            if value.strip():
+                parts.append("\n\n" + value.strip() + "\n")
+        else:
+            parts.append(tex_reading_fence(original))
+            diagnostics.append({"kind": "retained_tex_fallback", "expression": original[:160]})
+    while index < len(body):
+        # Proven no-op consumes its entire group before nested old abstracts or
+        # structured expressions are considered active content.
+        command = re.match(r"\\([A-Za-z@]+)\*?", body[index:])
+        if command and not command.group().endswith("*") and command.group(1) in macros and macros[command.group(1)]["count"] == 1:
+            group = tex_group(body, index + command.end())
+            if group is None:
+                raise ValueError("proven no-op invocation has no balanced argument")
+            index = group[1]
+            continue
+        if index in regions:
+            stop = regions[index]
+            retained = body[index:stop]
+            environment_name = re.match(r"\\begin\s*\{([^{}]+)\}", retained)
+            math_environment = environment_name and environment_name.group(1) in {"equation", "equation*", "align", "align*", "gather", "gather*", "displaymath", "math"}
+            if retained.startswith(("$", "\\[", "\\(")) or math_environment:
+                # Keep all qualifiers in the same original paragraph. Splitting at
+                # inline math can turn a conditional source statement into a claim
+                # with its assumptions removed.
+                paragraph.append(retained)
+                index = stop
+                continue
+            flush()
+            parts.append(tex_reading_fence(retained))
+            known = TEX_LITERAL_ENVIRONMENTS | {"equation", "equation*", "align", "align*", "gather", "gather*", "displaymath", "math", "table", "table*", "tabular", "tabular*", "longtable", "algorithm", "algorithmic", "figure", "figure*", "tikzpicture", "proof", "theorem", "proposition"}
+            if retained.startswith("\\if") or environment_name and environment_name.group(1) not in known:
+                diagnostics.append({"kind": "retained_uncertain_expression", "expression": retained[:160]})
+            index = stop
+            continue
+        heading = re.match(r"\\((?:sub){0,2}section|paragraph)\*?\s*", body[index:])
+        if heading and heading.group(1) not in macros:
+            group = tex_group(body, index + heading.end())
+            if group is None:
+                raise ValueError("unsupported or unbalanced section title")
+            flush()
+            value, admissible = tex_reading_inline(group[0], macros)
+            if admissible:
+                parts.append("\n\n" + "#" * (2 if heading.group(1) == "section" else 3 if heading.group(1) == "subsection" else 4) + " " + value + "\n")
+            else:
+                expression = body[index:group[1]]
+                parts.append(tex_reading_fence(expression))
+                diagnostics.append({"kind": "retained_unsafe_heading", "expression": expression[:160]})
+            index = group[1]
+            continue
+        environment = re.match(r"\\(begin|end)\s*\{(abstract|enumerate|itemize|description)\}", body[index:])
+        if environment:
+            flush()
+            if environment.group(2) == "abstract" and environment.group(1) == "begin":
+                parts.append("\n\n## Abstract\n")
+            index += environment.end()
+            continue
+        layout = re.match(r"\\(?:maketitle|appendix|bibliographystyle\s*\{[^{}]*\}|bibliography\s*\{[^{}]*\}|label\s*\{[^{}]*\})(?![A-Za-z@])", body[index:])
+        if layout and (command is None or command.group(1) not in macros):
+            index += layout.end()
+            continue
+        item = re.match(r"\\item\b", body[index:])
+        if item and "item" not in macros:
+            flush()
+            paragraph.append("- ")
+            index += item.end()
+            continue
+        if command:
+            last = index + command.end()
+            option = re.match(r"\s*(?:\[[^\]\n]*\]\s*)*", body[last:])
+            last += option.end()
+            group = tex_group(body, last)
+            if group:
+                last = group[1]
+                while following := tex_group(body, last):
+                    last = following[1]
+                expression = body[index:last]
+                # Atomic argument consumption: nested environments, headings and
+                # blank lines in an unproven macro never leak into active prose.
+                # Keep surrounding prose too, since optional notes may qualify it.
+                paragraph.append(expression)
+                index = last
+                continue
+        if body[index] == "\\" and index + 1 < len(body) and not re.match(r"[A-Za-z@]", body[index + 1]):
+            paragraph.append(body[index:index + 2])
+            index += 2
+            continue
+        if body[index] == "{":
+            group = tex_group(body, index)
+            if group is None:
+                raise ValueError("unbalanced literal body group")
+            paragraph.append(body[index:group[1]])
+            index = group[1]
+            continue
+        if body.startswith("\n\n", index):
+            flush()
+            index += 2
+            continue
+        paragraph.append(body[index])
+        index += 1
+    flush()
+    if declarations:
+        parts.append("\n\n## Local macro definitions (not executed)\n" + tex_reading_fence("\n".join(item["raw"] for item in declarations)))
+    for name in citation_support:
+        if name not in files or PurePosixPath(name).suffix.lower() not in {".bib", ".bbl"}:
+            raise ValueError("citation support must be a retained local .bib/.bbl file")
+        parts.append(f"\n\n## Citation support: {name}\n\n> Collector-provided local citation support, not the author's typeset References; may include uncited entries. No cited works were fetched.\n" + tex_reading_fence(files[name], "bibtex" if name.endswith(".bib") else "latex"))
+    return "".join(parts).strip() + "\n", {
+        "body_start_line": files[main_path].count("\n", 0, source_begin) + 1,
+        "body_end_line": files[main_path].count("\n", 0, source_end) + 1,
+        "include_graph": graph, "diagnostics": diagnostics,
+    }
+
+
+def tex_reading_selectors(document: Path, text: str, source_paths: list[str], files: dict[str, str]) -> list[dict[str, Any]]:
+    local_path = document.relative_to(ROOT).as_posix()
+    lines = text.splitlines()
+    provenance = {"derived_from": source_paths[0], "source_paths": source_paths, "transformation": TEX_READING_TRANSFORMATION, "reading_profile": TEX_READING_PROFILE}
+    headings = extract_markdown_headings(text, local_path, structured=True)
+    rows = [{"selector": f"derived://{local_path}#L1-L{len(lines)}", "local_path": local_path,
+             "kind": "file", "start_line": 1, "end_line": len(lines), "text_preview": lines[0], **provenance}]
+    # Locate nested titles in original files with the same balanced-group parser.
+    original_headings: dict[str, list[tuple[str, int]]] = defaultdict(list)
+    for source_path, original in files.items():
+        if Path(source_path).suffix.lower() not in {".tex", ".ltx", ".txt"}:
+            continue
+        macros, _ = tex_reading_macros(original, [])
+        searchable = tex_reading_mask(original, definitions=True)
+        for match in re.finditer(r"\\(?:section|subsection|subsubsection|paragraph)\*?\s*", searchable):
+            group = tex_group(original, match.end())
+            if group:
+                heading, admissible = tex_reading_inline(group[0], macros)
+                original_headings[heading if admissible else group[0]].append((source_path, original.count("\n", 0, match.start()) + 1))
+    for number, heading in enumerate(headings):
+        if heading["level"] == 1:
+            continue
+        start = heading["line"]
+        end = headings[number + 1]["line"] - 1 if number + 1 < len(headings) else len(lines)
+        row = {"selector": f"derived://{local_path}#L{start}-L{end}", "local_path": local_path,
+               "kind": "section", "heading": heading["heading"], "start_line": start, "end_line": end,
+               "text_preview": lines[start - 1], **provenance}
+        locations = original_headings.get(heading["heading"], [])
+        if len(locations) == 1:
+            row["source_heading_path"], row["source_heading_line"] = locations[0]
+        rows.append(row)
+    return rows
+
+
+def replay_arxiv_tex_reading(
+    record: SourceRecord, manifest: dict[str, Any] | None = None, generated_at: str | None = None,
+) -> dict[str, Any]:
+    """Opt-in offline replay. Preflight everything before writing only owned derivatives."""
+    root = record.capsule_root
+    try:
+        manifest = load_yaml(root / "manifest.yaml") if manifest is None else manifest
+        materialization = manifest["materialization"]
+        view = materialization["tex_reading_view"]
+        if view.get("enabled") is not True or view.get("profile") != TEX_READING_PROFILE:
+            raise ValueError("reading replay needs explicit enabled conservative-v1 opt-in")
+        if manifest.get("adapter") != "arxiv_latex_v2" or manifest.get("uid") != record.uid or manifest.get("canonical_id") != record.canonical_id:
+            raise ValueError("reading replay identity/adapter differs from retained capsule")
+        source_metadata = load_yaml(root / "source-metadata.yaml")
+        version = (record.metadata.get("versioning") or {}).get("source_version")
+        if not isinstance(version, str) or not re.fullmatch(r"v[1-9]\d*", version) or (source_metadata.get("versioning") or {}).get("source_version") != version:
+            raise ValueError("reading replay needs the retained selected arXiv version")
+        source_rows = [json.loads(line) for line in (root / "files.jsonl").read_text(encoding="utf-8").splitlines() if line.strip()]
+        inventory = {item["path"]: item for item in manifest["local_files"]}
+        stored: dict[str, str] = {}
+        def check_file(path: Path) -> str:
+            path.resolve().relative_to(root.resolve())
+            relative = path.relative_to(ROOT).as_posix()
+            item = inventory.get(relative)
+            if not item or item.get("bytes") != path.stat().st_size or item.get("sha256") != sha256_file(path):
+                raise ValueError(f"retained reading input differs from inventory: {relative}")
+            return relative
+        check_file(root / "files.jsonl")
+        for item in source_rows:
+            path = (ROOT / item["path"]).resolve()
+            path.relative_to((root / "source").resolve())
+            check_file(path)
+            if item.get("bytes") != path.stat().st_size or item.get("sha256") != sha256_file(path):
+                raise ValueError("retained source differs from files.jsonl")
+            name = path.relative_to(root / "source").as_posix()
+            stored[name] = path.read_bytes().decode("utf-8")
+        declared = sanitize_relative_path(view["source_root"])
+        if declared is None or declared.parts[0] != "source":
+            raise ValueError("reading root must be a retained source path")
+        main_path = PurePosixPath(*declared.parts[1:]).as_posix()
+        candidates = tex_root_candidates({
+            name: tex_reading_mask(text, definitions=True)
+            for name, text in stored.items()
+            if PurePosixPath(name).suffix.lower() in {".tex", ".ltx", ".txt"}
+        })
+        if candidates != [main_path]:
+            raise ValueError("declared reading root is absent or ambiguous in retained originals")
+        if view.get("document") != "normalized/reading.md":
+            raise ValueError("reading view writes only normalized/reading.md")
+        legacy = view.get("legacy_documents", ["normalized/document.tex", "normalized/document.txt"])
+        if legacy != ["normalized/document.tex", "normalized/document.txt"]:
+            raise ValueError("reading view must retain both legacy normalized documents")
+        for name in legacy:
+            check_file(root / name)
+        selector_file = root / "selectors.jsonl"
+        check_file(selector_file)
+        original_lines = selector_file.read_bytes().splitlines(keepends=True)
+        if original_lines and not original_lines[-1].endswith(b"\n"):
+            raise ValueError("retained selector prefix needs its existing newline boundary")
+        selector_rows = [json.loads(line) for line in original_lines]
+        legacy_count = view.get("legacy_selector_count", len(selector_rows))
+        if not isinstance(legacy_count, int) or isinstance(legacy_count, bool) or not 0 <= legacy_count <= len(selector_rows):
+            raise ValueError("invalid legacy selector count")
+        document = root / view["document"]
+        if document.is_symlink():
+            raise ValueError("reading derivative cannot alias a retained original")
+        document_relative = document.relative_to(ROOT).as_posix()
+        if any(row.get("local_path") != document_relative or row.get("reading_profile") != TEX_READING_PROFILE for row in selector_rows[legacy_count:]):
+            raise ValueError("reading replay cannot replace unrelated appended selectors")
+        if any(row.get("local_path") == document_relative for row in selector_rows[:legacy_count]):
+            raise ValueError("reading selectors cannot be part of the legacy prefix")
+        support = view.get("citation_support", [])
+        if not isinstance(support, list) or len(set(support)) != len(support):
+            raise ValueError("citation support must be a finite unique retained path list")
+        support_names: list[str] = []
+        for name in support:
+            safe_path = sanitize_relative_path(name)
+            if safe_path is None or safe_path.parts[0] != "source":
+                raise ValueError("citation support must stay in retained source")
+            support_names.append(PurePosixPath(*safe_path.parts[1:]).as_posix())
+        text, assessment = derive_tex_reading(main_path, stored, support_names)
+        paths = [main_path, *[item["to"] for item in assessment["include_graph"]], *support_names]
+        paths = list(dict.fromkeys(paths))
+        source_paths = [(root / "source" / name).relative_to(ROOT).as_posix() for name in paths]
+        selectors = tex_reading_selectors(document, text, source_paths, {source_paths[paths.index(name)]: stored[name] for name in paths})
+        package = (record.metadata.get("rights") or {}).get("redistribution_package")
+        if package:
+            if package.get("source_revision") != manifest.get("revision"):
+                raise ValueError("redistribution package does not cover retained revision")
+            for field in ("source_revision", "source_version_url", "notice_path", "attribution", "modifications", "scope"):
+                if not isinstance(package.get(field), str) or not package[field].strip():
+                    raise ValueError(f"redistribution package is missing {field}")
+            notice = (ROOT / package["notice_path"]).resolve()
+            notice.relative_to(ROOT.resolve())
+            if not notice.read_text(encoding="utf-8").strip():
+                raise ValueError("redistribution notice is empty")
+        # All checks/derivation are complete: no prepare, fetch, original write or
+        # legacy normalization. The finalizer touches only the chosen new consumer.
+        document.parent.mkdir(parents=True, exist_ok=True)
+        document.write_text(text, encoding="utf-8")
+        suffix = b"".join((json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n").encode("utf-8") for row in selectors)
+        selector_file.write_bytes(b"".join(original_lines[:legacy_count]) + suffix)
+        materialization.update({"document": view["document"], "normalized_document": view["document"], "stored_characters": len(text), "selector_count": legacy_count + len(selectors)})
+        view.update({"legacy_documents": legacy, "legacy_selector_count": legacy_count, "source_paths": source_paths, **assessment})
+        if generated_at is not None:
+            manifest["generated_at"] = generated_at
+        return finalize_capsule(record, root, manifest)
+    except (KeyError, TypeError, AttributeError, ValueError, OSError, UnicodeError, yaml.YAMLError) as exc:
+        raise ArxivPreflightError(f"{record.uid}: {exc}; retained originals and legacy representations preserved") from exc
 
 
 def write_arxiv_tex_derivatives(
@@ -1024,6 +1621,11 @@ def write_arxiv_tex_derivatives(
 
 def materialize_arxiv(record: SourceRecord, config: dict[str, Any], generated_at: str) -> dict[str, Any]:
     root = record.capsule_root
+    if (root / "manifest.yaml").is_file():
+        retained = load_yaml(root / "manifest.yaml")
+        retained_materialization = retained.get("materialization") if isinstance(retained, dict) else None
+        if isinstance(retained_materialization, dict) and isinstance(retained_materialization.get("tex_reading_view"), dict) and retained_materialization["tex_reading_view"].get("enabled") is True:
+            return replay_arxiv_tex_reading(record, retained)
     manifest = base_manifest(record, "arxiv_latex_v2", generated_at)
     arxiv_id = record.canonical_id
     if not arxiv_id:

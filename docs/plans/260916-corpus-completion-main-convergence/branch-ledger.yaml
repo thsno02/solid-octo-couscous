@@ -9,7 +9,7 @@ final_target:
   protected: false
 integration_branch:
   branch: work/v0-meta-kb-initialization-demo-260910
-  sha: f717a9922333c7b7960570dcd2f31fb79bf8e14f
+  sha: e36e117a9199f3e57a27f02a5cec93ae61507e92
   role: temporary_integration_for_pr_1
   pull_request: 1
   pr_base: main
@@ -107,6 +107,18 @@ incorporated_pull_requests:
     ci_run: 35126963225
     already_in_integration_branch: true
     final_destination: main_via_pr_1
+  - number: 13
+    title: 'P3-BOUNDARY-01: 核验十篇既有 TeX 材料的正文与消费边界'
+    state: merged
+    merged_into: work/v0-meta-kb-initialization-demo-260910
+    merge_commit: e36e117a9199f3e57a27f02a5cec93ae61507e92
+    evaluated_head: ef152d0b6801e64a56d58f72f010ddce94420022
+    evaluated_base: f717a9922333c7b7960570dcd2f31fb79bf8e14f
+    independent_evaluation: PASS
+    evaluation_review: 5226364239
+    ci_run: 35130748893
+    already_in_integration_branch: true
+    final_destination: main_via_pr_1
 planning_pull_request:
   number: 5
   state: merged
@@ -125,18 +137,18 @@ planning_pull_request:
   implementation_authorized: false
   subsequent_user_decision: execute_serial_phases_after_planning_merge
 active_implementation:
-  phase: P3-BOUNDARY-01
-  branch: codex/p3-tex-boundary-01-260917
-  base_sha: f717a9922333c7b7960570dcd2f31fb79bf8e14f
+  phase: P3-TEX-02
+  branch: codex/p3-tex-reading-02-260917
+  base_sha: e36e117a9199f3e57a27f02a5cec93ae61507e92
   target: work/v0-meta-kb-initialization-demo-260910
-  pull_request: 13
-  state: boundary_inspected_pending_independent_evaluation
-  source_uids: ['arxiv:2210.08726', 'arxiv:2305.14292', 'arxiv:2310.11511', 'arxiv:2406.06769', 'arxiv:2409.13740', 'arxiv:2411.14199', 'arxiv:2507.21046', 'arxiv:2606.09877', 'arxiv:2607.07663', 'arxiv:2501.13956']
+  pull_request: 14
+  state: implemented_pending_exact_head_independent_evaluation
+  source_uids: ['arxiv:2606.09877']
   adapter_family: arxiv_latex_v2
-  action_bucket: needs_boundary_verification
+  action_bucket: parser_only
   network_source_acquisition: false
   original_source_bytes_mutation: false
-  derived_text_changes: false
+  derived_text_changes: opt_in_reading_view_only_preserve_legacy_tex_and_txt
   final_destination: main_via_pr_1
 next_work_items:
   - order: 1

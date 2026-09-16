@@ -232,6 +232,14 @@ def choose_local_document(item: dict[str, Any], manifest: dict[str, Any]) -> Pat
         capsule_root / "wiki" / "overview.md",
     ]
     materialization = manifest.get("materialization") if isinstance(manifest.get("materialization"), dict) else {}
+    view = materialization.get("tex_reading_view")
+    if isinstance(view, dict) and view.get("enabled") is True:
+        if view.get("profile") != "conservative-v1" or view.get("document") != "normalized/reading.md" or materialization.get("document") != view["document"]:
+            raise ValueError("invalid explicitly chosen TeX reading consumer")
+        chosen = capsule_root / view["document"]
+        if not chosen.is_file() or chosen.stat().st_size == 0:
+            raise ValueError("explicit TeX reading consumer is absent; do not fall back to legacy text")
+        return chosen
     document = materialization.get("document")
     if isinstance(document, str):
         candidates.insert(0, capsule_root / document)
@@ -255,17 +263,32 @@ def choose_local_document(item: dict[str, Any], manifest: dict[str, Any]) -> Pat
     return None
 
 
-def meaningful_excerpt(text: str, title: str) -> tuple[str, int, int]:
+def meaningful_excerpt(text: str, title: str, *, reading_view: bool = False) -> tuple[str, int, int]:
     """Return a contiguous source span and its exact original line interval.
 
     Offsets are retained before whitespace normalization. No TeX/HTML cleanup
     or noncontiguous sentence joining is allowed to masquerade as a quotation.
     """
+    working = text
+    if reading_view:
+        # Same-length masking keeps evidence offsets exact. Blank lines inside
+        # fences never re-admit code/math/conditional/fallback prose as assertions.
+        masked: list[str] = []
+        opened: tuple[str, int] | None = None
+        for line in text.splitlines(keepends=True):
+            fence = re.match(r"^ {0,3}(`{3,}|~{3,})(.*)$", line.rstrip("\r\n"))
+            hidden = opened is not None or fence is not None
+            if opened is None and fence:
+                opened = (fence.group(1)[0], len(fence.group(1)))
+            elif opened and fence and fence.group(1)[0] == opened[0] and len(fence.group(1)) >= opened[1] and not fence.group(2).strip():
+                opened = None
+            masked.append("".join(char if char in "\r\n" else " " for char in line) if hidden else line)
+        working = "".join(masked)
     abstract = re.search(
-        r"(?im)^\s*(?:#{1,6}\s*)?abstract\s*\n", text
+        r"(?im)^\s*(?:#{1,6}\s*)?abstract\s*\n", working
     )
     offset = abstract.end() if abstract else 0
-    region = text[offset:]
+    region = working[offset:]
     for block in re.finditer(r"\S[^\n]*(?:\n(?!\s*\n)[^\n]*)*", region):
         raw = block.group()
         candidate = " ".join(raw.split())
@@ -298,10 +321,11 @@ def meaningful_excerpt(text: str, title: str) -> tuple[str, int, int]:
 
 def source_excerpt(
     text: str, title: str, pdf_supplement: dict[str, Any] | None = None,
+    *, reading_view: bool = False,
 ) -> tuple[str, int, int]:
     """Preserve the old quotation logic, with a parent-paper boundary for new PDFs."""
     if pdf_supplement is None:
-        return meaningful_excerpt(text, title)
+        return meaningful_excerpt(text, title, reading_view=reading_view)
     start, end = pdf_primary_excerpt_range(pdf_supplement, text)
     excerpt, local_start, local_end = meaningful_excerpt("\n".join(text.splitlines()[start - 1:end]), title)
     return excerpt, start - 1 + local_start, start - 1 + local_end
@@ -547,6 +571,10 @@ def main() -> int:
         consumed_item = {**item, "revision": representation.get("revision")} if use_pdf else item
         if use_pdf:
             consumed_item["source_representation"] = "pdf_supplement"
+        reading_view = (not use_pdf and isinstance(manifest.get("materialization", {}).get("tex_reading_view"), dict)
+                        and manifest["materialization"]["tex_reading_view"].get("enabled") is True)
+        if reading_view:
+            consumed_item = {**consumed_item, "source_representation": "tex_reading_view"}
         declared_rights = rights_snapshot(representation.get("rights"))
         source_for_rights = {
             **consumed_item,
@@ -565,6 +593,7 @@ def main() -> int:
             text = local_document.read_text(encoding="utf-8", errors="replace")
             excerpt, start_line, end_line = source_excerpt(
                 text, str(item.get("title") or uid), representation if use_pdf else None,
+                reading_view=reading_view,
             )
             local_path = local_document.relative_to(ROOT).as_posix()
 
@@ -634,10 +663,11 @@ def main() -> int:
                         "excerpt_sha256": hashlib.sha256(excerpt.encode("utf-8")).hexdigest(),
                         "content_tier": item.get("content_tier"),
                         "evidence_role": evidence_role,
+                        **({"source_representation": "tex_reading_view", "transformation": "Collector-derived static TeX reading view; excerpt is not a raw-source quotation."} if reading_view else {}),
                         **evidence_rights,
                     },
                     assertion_kind="observation",
-                    method="deterministic-local-excerpt",
+                    method="deterministic-derived-reading-excerpt" if reading_view else "deterministic-local-excerpt",
                     source_version=str(consumed_item.get("revision") or "unknown"),
                     source_hash=source_hash,
                     status="active",
@@ -655,7 +685,7 @@ def main() -> int:
                     "claim_scope": "source-reported assertion",
                     "domain": domain,
                     "subject_ref": source_entity_uid,
-                    "limitations": (["Only the locally retained excerpt is evidence; omitted source content was not reviewed."] if limited_evidence else []) + (representation.get("limitations", []) if use_pdf else []),
+                    "limitations": (["Only the locally retained excerpt is evidence; omitted source content was not reviewed."] if limited_evidence else []) + (representation.get("limitations", []) if use_pdf else []) + (["Excerpt comes from a collector-derived conservative TeX reading view, not a raw-source quotation; uncertain TeX expressions are excluded from automatic excerpts."] if reading_view else []),
                     **(
                         {
                             "rights_refs": [
