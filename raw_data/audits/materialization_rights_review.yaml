@@ -22,12 +22,12 @@ summary:
     documented_permission: 50
     permission_unverified: 41
   recommendation_counts:
-    allow_after_conditions_met: 43
-    allow_with_packaged_notice: 7
+    allow_after_conditions_met: 42
+    allow_with_packaged_notice: 8
     do_not_redistribute_full_text: 41
   publication_gate_counts:
-    block: 84
-    allow: 7
+    block: 83
+    allow: 8
   license_evidence_counts:
     CC-BY-4.0: 24
     none: 41
@@ -45,7 +45,7 @@ summary:
   - 73 篇 arXiv 中 32 篇有 CC article license，41 篇只有授予 arXiv 的 nonexclusive/assumed license。
   - 14 份 W3C 文档都有许可；7 份旧式许可对 HTML→Markdown 仍需衍生权审查。
   - LinkML、Apache Ossie、ODCS 有 Apache-2.0 证据；Schema.org supporting documentation 有 CC BY-SA 3.0 证据。
-  - 基线91项中6项W3C及arXiv 2502.18864v2已完成固定版本与NOTICE包装，7项allow；其余84项仍block（当前活跃全文83项block）。
+  - 基线91项中6项W3C、ODCS 3.2.0定义首页及arXiv 2502.18864v2已完成固定版本与NOTICE包装，8项allow；其余83项仍block（当前活跃全文82项block）。
 review_completion:
   evidence_review_complete_for_baseline: true
   legal_clearance_complete: false
@@ -5525,14 +5525,31 @@ items:
   observed_rights:
     manifest:
       declared_access: open
-      full_text_redistribution_assumed: true
-      basis: null
-      assessment: 物化器声明/假设，不是权利人授权。
+      full_text_redistribution_assumed: false
+      license_spdx: Apache-2.0
+      license_url: https://www.apache.org/licenses/LICENSE-2.0
+      license_verified_at: '2026-09-16'
+      redistribution_package:
+        source_revision: sha256:60b6b097fdf6aea2b202305d4111f04b0df34a8f772d57a73f78a19b90db3dec
+        source_version_url: https://bitol-io.github.io/open-data-contract-standard/v3.2.0/
+        notice_path: raw_data/licenses/apache-2.0.md
+        attribution: 'This document includes material copied from or derived from "Open Data Contract Standard 3.2.0",
+          https://bitol-io.github.io/open-data-contract-standard/v3.2.0/. Copyright 2026 The Bitol Contributors.
+          SPDX-License-Identifier: Apache-2.0. Licensed under the Apache License, Version 2.0, https://www.apache.org/licenses/LICENSE-2.0.'
+        modifications: Converted from the versioned ODCS HTML definition page to Markdown; navigation, hyperlinks,
+          styling, embedded SVG icons, fonts, and image assets were omitted or normalized; selector excerpts were
+          generated. The upstream copyright and SPDX license statement are restored in this attribution block.
+        scope: 仅覆盖从固定 v3.2.0 定义页实际提取的 1,454-byte 原始 Markdown 正文及其 27 个 selector 摘录；不声称存储或覆盖链接的多页标准、示例、schema、Bitol
+          标识、Font Awesome SVG/图标/字体、外链作品、商标或权利人无权许可的第三方材料。
+      assessment: 当前固定定义页已附完整Apache-2.0与版权/SPDX及修改声明；不代表整站清权或人工批准。
     source_metadata:
       access: open
       license_spdx: Apache-2.0
-      license_verified_at: '2026-09-09'
-      notes: null
+      license_url: https://www.apache.org/licenses/LICENSE-2.0
+      license_verified_at: '2026-09-16'
+      notes: The fixed v3.2.0 documentation source is licensed under Apache-2.0. The upstream tag has no NOTICE
+        file; the packaged NOTICE.md is this repository's carrier for the complete license, while item-specific
+        attribution is in the document footer. It is not an upstream NOTICE.
     capsule_source_metadata:
       path: materialized_sources/corpus/standard-odcs-3.2.0--affacf92/source-metadata.yaml
       assessment: rights 与 canonical metadata 一致，不是额外独立证据。
@@ -5542,16 +5559,19 @@ items:
     locator: rights
     finding: declared_access=open; full_text_redistribution_assumed=True; basis=None
     supports_public_redistribution: false
+    baseline_observation: true
   - kind: source_metadata
     path: raw_data/standard/Open Data Contract Standard 3.2.0/metadata.yaml
     locator: rights
     finding: access=open; license_spdx=Apache-2.0; license_verified_at=2026-09-09; notes=None
     supports_public_redistribution: true
+    baseline_observation: true
   - kind: local_content_rights_scan
     path: materialized_sources/corpus/standard-odcs-3.2.0--affacf92/document.md
     locator: entire file
     finding: 无许可正文；抽取遗漏上游 docs/README 的 SPDX。
     supports_public_redistribution: false
+    baseline_observation: true
   - kind: official_repository_license
     url: https://github.com/bitol-io/open-data-contract-standard/blob/v3.2.0/LICENSE
     checked_at: '2026-09-16'
@@ -5560,28 +5580,67 @@ items:
     related_urls:
     - https://github.com/bitol-io/open-data-contract-standard/tree/v3.2.0
     - https://github.com/bitol-io/open-data-contract-standard/blob/main/docs/README.md
-  missing:
-  - latest URL 未绑定 v3.2.0 commit。
-  - Markdown 缺 SPDX、许可证和修改声明。
-  - 站点资产未逐件核验。
+  - kind: fixed_version_and_document_source_license
+    url: https://bitol-io.github.io/open-data-contract-standard/v3.2.0/
+    checked_at: '2026-09-16'
+    source_revision: sha256:60b6b097fdf6aea2b202305d4111f04b0df34a8f772d57a73f78a19b90db3dec
+    release_or_tag: v3.2.0
+    snapshot_commit: f0bdad95346905d500be5ef4b2c2d9b1d95223b7
+    related_urls:
+    - https://github.com/bitol-io/open-data-contract-standard/blob/f0bdad95346905d500be5ef4b2c2d9b1d95223b7/docs/README.md
+    - https://github.com/bitol-io/open-data-contract-standard/blob/f0bdad95346905d500be5ef4b2c2d9b1d95223b7/LICENSE
+    finding: '固定v3.2.0发布页63735 bytes与既有revision一致；tag指向所列commit，目标docs/README.md本身含Copyright 2026 The Bitol Contributors和SPDX-License-Identifier:
+      Apache-2.0，正文逐段对应发布页，不仅依赖根LICENSE。'
+    supports_public_redistribution: true
+  - kind: stored_material_scope_and_notice_review
+    path: materialized_sources/corpus/standard-odcs-3.2.0--affacf92/document.md
+    checked_at: '2026-09-16'
+    finding: 实际保存定义首页1454-byte原正文及27 selectors，不含15个外链章节、完整示例、JSON Schema或HTML内的Bitol logo/Material主题/Font Awesome图标字体。原商标提示保留；完整tag树无NOTICE路径。完整Apache许可11357
+      bytes逐字节对应固定commit LICENSE，本地NOTICE是许可载体，不冒充上游文件；版权/SPDX和修改声明在正文末尾恢复。
+    supports_public_redistribution: true
+  - kind: fixed_url_materialization_replay
+    url: https://bitol-io.github.io/open-data-contract-standard/v3.2.0/
+    checked_at: '2026-09-16'
+    finding: full_text_url、许可包版本URL与实际requested/resolved均固定v3.2.0；两次真实重建完整胶囊逐字节一致；正文只追加许可块，27 selectors仅URL派生前缀变化，其他字段不变。
+    supports_public_redistribution: true
+  missing: []
   classification: documented_permission
   license_id: Apache-2.0
-  license_url: https://github.com/bitol-io/open-data-contract-standard/blob/v3.2.0/LICENSE
-  license_scope: 官方 v3.2.0 仓库和文档源为 Apache-2.0；站点资产另审。
+  license_url: https://www.apache.org/licenses/LICENSE-2.0
+  license_scope: 仅当前固定v3.2.0定义首页文字及其selector派生；不是整个多页标准、上游仓库或站点资产的清权。
   license_restrictions: []
-  evidence_confidence: moderate
-  public_redistribution_recommendation: allow_after_conditions_met
+  evidence_confidence: high
+  public_redistribution_recommendation: allow_with_packaged_notice
   conditions:
-  - 附 Apache-2.0 并保留 SPDX/NOTICE。
-  - 标明转换。
-  - 绑定 v3.2.0 tag/commit而非 latest。
-  current_capsule_compliance: pending_license_compliance_and_revision_binding
+  - 附完整Apache-2.0并保留版权、SPDX及商标声明；上游无NOTICE，不虚构。
+  - 显著标明HTML到Markdown转换与未保存资产边界。
+  - 实际抓取固定v3.2.0版本并保留tag/commit和revision证据。
+  current_capsule_compliance: verified_revision_and_notice_packaged
   publication_gate:
-    decision: block
-    reason: 存在公众许可证据，但当前胶囊尚未机器证明版本绑定、许可条件和第三方范围均满足。
-  human_follow_up:
-  - 映射 retrieval hash 到 v3.2.0 commit。
-  - 补齐 Apache 履约材料后审批。
+    decision: allow
+    reason: 仅允许固定v3.2.0定义首页、当前revision和已附完整Apache-2.0/版权/SPDX/修改说明的文字包；不扩展到外链多页标准或站点资产。
+  human_follow_up: []
+  redistribution_package:
+    source_revision: sha256:60b6b097fdf6aea2b202305d4111f04b0df34a8f772d57a73f78a19b90db3dec
+    source_version_url: https://bitol-io.github.io/open-data-contract-standard/v3.2.0/
+    notice_path: raw_data/licenses/apache-2.0.md
+    attribution: 'This document includes material copied from or derived from "Open Data Contract Standard 3.2.0",
+      https://bitol-io.github.io/open-data-contract-standard/v3.2.0/. Copyright 2026 The Bitol Contributors. SPDX-License-Identifier:
+      Apache-2.0. Licensed under the Apache License, Version 2.0, https://www.apache.org/licenses/LICENSE-2.0.'
+    modifications: Converted from the versioned ODCS HTML definition page to Markdown; navigation, hyperlinks, styling,
+      embedded SVG icons, fonts, and image assets were omitted or normalized; selector excerpts were generated.
+      The upstream copyright and SPDX license statement are restored in this attribution block.
+    scope: 仅覆盖从固定 v3.2.0 定义页实际提取的 1,454-byte 原始 Markdown 正文及其 27 个 selector 摘录；不声称存储或覆盖链接的多页标准、示例、schema、Bitol 标识、Font
+      Awesome SVG/图标/字体、外链作品、商标或权利人无权许可的第三方材料。
+  clearance_review:
+    kind: agent_evidence_and_packaging_review
+    human_approval_claimed: false
+    scope: 当前单页定义文字包与27个selectors；未宣称完整标准或站点已物化。
+    upstream_notice: 固定tag完整树无NOTICE，本地NOTICE.md为本仓库许可载体。
+  conditions_fulfilled:
+  - 目标文档源直接声明Apache-2.0及Bitol Contributors版权，固定发布页正文与源对应。
+  - 完整LICENSE随包入库，版权/SPDX、来源及修改声明显著保留，原商标提示不变。
+  - 固定URL真实重建且精确revision一致；selectors只重绑URL前缀，定位字段不变。
 - sequence: 78
   uid: standard:w3c-dcat-3
   source_type: standard

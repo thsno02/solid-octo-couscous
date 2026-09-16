@@ -6,10 +6,10 @@
 
 - 50 条找到明确公众复制/再分发许可，分类为 <code>documented_permission</code>；这不表示当前胶囊已经履约。
 - 41 条未找到面向公众/本仓库的适用许可，分类为 <code>permission_unverified</code>；不应公开再分发全文。
-- 基线审计的 91 项中，DCAT 3、VC Data Model 2.0、ODRL 2.2、JSON-LD 1.1、DID Core 1.0、OWL-Time 与 arXiv:2502.18864v2 已完成固定版本及许可包装，7 项为 <code>allow</code>；其余 84 项仍为 <code>block</code>。
+- 基线审计的 91 项中，DCAT 3、VC Data Model 2.0、ODRL 2.2、JSON-LD 1.1、DID Core 1.0、OWL-Time、ODCS 3.2.0 定义首页与 arXiv:2502.18864v2 已完成固定版本及许可包装，8 项为 <code>allow</code>；其余 83 项仍为 <code>block</code>。
 - Apache Ossie 基线胶囊只有 7 bytes（# Home），不是实质标准全文；后续降级不删除其基线审计行。
 
-当前 `full_text` 为 90 条，公开发布门检查结果为 `active_full_text=90 audited=91 blocked=83 errors=0`；整体仍未放行。审计覆盖数 91 与当前全文数 90 使用不同基线，不应混用。全文继续保存在本 GitHub repo；前次已将误解码的 PDF 衍生文件替换为原始 PDF 和可读文本，本次只补充许可包装，未移除作品、迁移存储或改写 Git 历史。
+当前 `full_text` 为 90 条，公开发布门检查结果为 `active_full_text=90 audited=91 blocked=82 errors=0`；整体仍未放行。审计覆盖数 91 与当前全文数 90 使用不同基线，不应混用。全文继续保存在本 GitHub repo；前次已将误解码的 PDF 衍生文件替换为原始 PDF 和可读文本，本次只补充许可包装，未移除作品、迁移存储或改写 Git 历史。
 
 机器可读逐条记录：<code>raw_data/audits/materialization_rights_review.yaml</code>。本报告记录许可证据与已落实的包装条件，不是法律意见或人工批准。
 
@@ -24,11 +24,11 @@
 | 基线 full_text | 91 |
 | documented_permission | 50 |
 | permission_unverified | 41 |
-| allow_after_conditions_met | 43 |
-| allow_with_packaged_notice | 7 |
+| allow_after_conditions_met | 42 |
+| allow_with_packaged_notice | 8 |
 | do_not_redistribute_full_text | 41 |
-| publication gate: allow | 7 |
-| publication gate: block（基线项） | 84 |
+| publication gate: allow | 8 |
+| publication gate: block（基线项） | 83 |
 
 ## 已落实的六项 W3C 许可包装（Packaged clearance）
 
@@ -52,16 +52,24 @@
 
 门控对包含 `source_pdf` 的胶囊始终检查完整原件许可，即使文本提取失败导致其文本层级降为 metadata/excerpt，也不能绕过检查。版本、NOTICE、署名及审计与其他已许可包采用同一套一致性验证，不新增针对该 UID 的例外。
 
+## 已落实的 ODCS 固定定义页许可包装
+
+[ODCS v3.2.0 定义页](https://bitol-io.github.io/open-data-contract-standard/v3.2.0/) 的 63,735-byte HTML 与现存 revision 一致。官方 tag 对应 commit `f0bdad95346905d500be5ef4b2c2d9b1d95223b7`；[该版本的文档源文件](https://github.com/bitol-io/open-data-contract-standard/blob/f0bdad95346905d500be5ef4b2c2d9b1d95223b7/docs/README.md) 自身标注 Bitol Contributors 版权和 `SPDX-License-Identifier: Apache-2.0`，不只是仓库根目录有许可证。完整 Apache-2.0 文本随包保存，恢复版权/SPDX、来源及修改说明；上游 tag 没有 NOTICE，本地 `NOTICE.md` 是本仓库的许可载体，不冒充上游文件。
+
+本项只清理实际保存的定义首页文字（包装前 1,454 bytes）及 27 个 selectors，不宣称已物化或许可审核了整套多页标准。15 个外链章节、完整示例、JSON Schema、Bitol logo、Material 主题、Font Awesome 图标/字体均未进入当前包；原商标提示保留。`full_text` 表示当前单页来源的文字层级，不等同于整个网站的覆盖率。
+
+顶层 `full_text_url`、许可包版本 URL 与 manifest requested/resolved URL 均固定到 `/v3.2.0/`。两次真实固定 URL 重新物化逐字节一致；原正文保留，仅追加许可块，selectors 除 URL 派生前缀外的定位字段不变。复用现有包装机制，没有新增 pipeline 代码或 workflow。
+
 ## 来源族发现（Source-family Findings）
 
 - arXiv：32 篇官方文章页链接 CC；40 篇只有授予 arXiv.org 的 non-exclusive license，1 篇只有历史 assumed license。后两者不是公众许可。
 - W3C：7 份页面采用可修改的 Software and Document License；7 份旧页面采用限制一般衍生的 Document License。
-- Apache/LinkML/ODCS：许可证据存在，但本地转换物未带齐许可证、NOTICE、版权和修改说明，部署版本仍需绑定。
+- Apache/LinkML/ODCS：ODCS 固定定义首页已完成 Apache-2.0 包装；LinkML 的部署版本绑定和其他本地转换物的许可条件仍未完成，不能相互代替。
 - Schema.org：Terms 与 FAQ 将 schema 及 supporting documentation 纳入 CC BY-SA 3.0；当前抽取丢失 footer/terms。
 
 ## 人工审核与权利确认（Human Review and Clearance）
 
-逐条证据审核已经完成，许可履约仍未全量完成。50 条有公众许可证据的记录中，七项已按官方许可完成当前包的版本绑定与包装，其余 43 项继续核实条件；41 条未核实记录仍需适用授权或与确切作品版本绑定的新权威许可证据。不得以用户希望上传或 Agent 自我批准代替证据；整体自动上传继续失败关闭（fail closed）。
+逐条证据审核已经完成，许可履约仍未全量完成。50 条有公众许可证据的记录中，八项已按官方许可完成当前包的版本绑定与包装，其余 42 项继续核实条件；41 条未核实记录仍需适用授权或与确切作品版本绑定的新权威许可证据。不得以用户希望上传或 Agent 自我批准代替证据；整体自动上传继续失败关闭（fail closed）。
 
 ## 逐条审计（91 items）
 
@@ -143,7 +151,7 @@
 | 74 | <code>methodology:linkml-schema-first</code> | <code>materialized_sources/corpus/methodology-linkml-schema-first--182a2b38/manifest.yaml</code><br><code>raw_data/methodology/LinkML Schema First Knowledge Modeling/metadata.yaml</code> | <code>Apache-2.0</code>；官方 docs 源对应页面，根 LICENSE 明列文档源与生成文档并授权复制、修改、分发。；本地 access=<code>unknown</code>，assumed=true | 本地 rights 仍为 unknown。；网页 hash 未绑定精确部署 commit/tag。 | <code>documented_permission</code> | 满足条件后才可考虑发布；当前 gate=block |
 | 75 | <code>standard-w3c-prov-o</code> | <code>materialized_sources/corpus/standard-w3c-prov-o--6f83f2d8/manifest.yaml</code><br><code>raw_data/standard/PROV-O The PROV Ontology/metadata.yaml</code> | <code>W3C-Document-License-2002</code>；允许复制和分发，但一般不授予修改/衍生权。；本地 access=<code>open</code>，assumed=true | metadata 未记录确切 W3C 许可版本。；Markdown 未附完整许可/NOTICE，原许可链接已丢失。 | <code>documented_permission</code> | 满足条件后才可考虑发布；当前 gate=block |
 | 76 | <code>standard:apache-ossie</code> | <code>materialized_sources/corpus/standard-apache-ossie--ae9e548a/manifest.yaml</code><br><code>raw_data/standard/Apache Ossie Open Semantic Interchange/metadata.yaml</code> | <code>Apache-2.0</code>；官网页脚和 ossie-website README/首页源明确 Apache-2.0，NOTICE 标注 ASF。；本地 access=<code>open</code>，assumed=true | document.md 只有 7 bytes 且没有权利文本。；retrieval hash 未映射网站 commit。 | <code>documented_permission</code> | 满足条件后才可考虑发布；当前 gate=block |
-| 77 | <code>standard:odcs-3.2.0</code> | <code>materialized_sources/corpus/standard-odcs-3.2.0--affacf92/manifest.yaml</code><br><code>raw_data/standard/Open Data Contract Standard 3.2.0/metadata.yaml</code> | <code>Apache-2.0</code>；官方 README、v3.2.0 LICENSE 和 docs/README 明确 Apache-2.0。；本地 access=<code>open</code>，assumed=true | latest URL 未绑定 v3.2.0 commit。；Markdown 缺 SPDX、许可证和修改声明。 | <code>documented_permission</code> | 满足条件后才可考虑发布；当前 gate=block |
+| 77 | <code>standard:odcs-3.2.0</code> | <code>materialized_sources/corpus/standard-odcs-3.2.0--affacf92/manifest.yaml</code><br><code>raw_data/standard/Open Data Contract Standard 3.2.0/metadata.yaml</code> | 固定v3.2.0目标文档源直接声明Apache-2.0；完整许可、版权/SPDX与转换说明已包装，实际获取URL固定 | 无；仅当前定义首页，不代表多页标准或站点资产已清权 | <code>documented_permission</code> | 当前固定单页包 gate=allow；不扩展到外链章节或资产 |
 | 78 | <code>standard:w3c-dcat-3</code> | <code>materialized_sources/corpus/standard-w3c-dcat-3--fe7850d7/manifest.yaml</code><br><code>raw_data/standard/Data Catalog Vocabulary DCAT 3/metadata.yaml</code> | <code>W3C-Software-and-Document-License-2023</code>；固定版本响应与source revision匹配；完整NOTICE及署名/修改声明已随文本入库 | 当前文字包条件已落实；不覆盖外链作品、商标或专利 | <code>documented_permission</code> | 当前固定版本与包装条件下 gate=allow；丢失NOTICE或署名仍失败 |
 | 79 | <code>standard:w3c-did-core</code> | <code>materialized_sources/corpus/standard-w3c-did-core--0d0c2de8/manifest.yaml</code><br><code>raw_data/standard/Decentralized Identifiers DID Core/metadata.yaml</code> | 固定 DID Core 1.0 Recommendation；2015 NOTICE、原版权、来源和转换声明已完整包装 | 无；仅覆盖已核验的固定版本文字包 | <code>documented_permission</code> | 当前固定版本 gate=allow；不外推未来版本或外链资产 |
 | 80 | <code>standard:w3c-json-ld-1.1</code> | <code>materialized_sources/corpus/standard-w3c-json-ld-1.1--673c0833/manifest.yaml</code><br><code>raw_data/standard/JSON-LD 1.1/metadata.yaml</code> | <code>W3C-Software-and-Document-License-2015</code>；固定Recommendation响应与revision一致；完整NOTICE、署名与修改说明已入库；原Community Group来源保留为沿革证据 | 当前文字包条件已落实；外链媒体未保存，不扩展商标或专利 | <code>documented_permission</code> | 当前固定版本许可包 gate=allow；不等于人工批准 |

@@ -132,7 +132,7 @@ publication lane
   repository proposal branch (text + manifests + derived artifacts) → PR → independent CI → review → merge
 ```
 
-剩余 83 项受阻的全文使生产流程无法上传新批次；六项固定版本 W3C 文字包与一项 arXiv PDF 包已完成声明与署名条件，但不代表端到端上传成功。许可失败不会退回 artifact 发布或直接推送分支。已提交正文留存在 GitHub，远程任务检出相应 commit 继续工作，无需依赖上一个 runner。默认分支启用、Actions 创建 PR 权限及自动化 PR 的 CI 批准要求见[当前操作说明](ci-workflow.md)。
+剩余 82 项受阻的全文使生产流程无法上传新批次；六项固定版本 W3C 文字包、一项 ODCS 固定定义页与一项 arXiv PDF 包已完成声明与署名条件，但不代表端到端上传成功或整个 ODCS 多页站点已物化。许可失败不会退回 artifact 发布或直接推送分支。已提交正文留存在 GitHub，远程任务检出相应 commit 继续工作，无需依赖上一个 runner。默认分支启用、Actions 创建 PR 权限及自动化 PR 的 CI 批准要求见[当前操作说明](ci-workflow.md)。
 
 ### A-06 — Reproducibility is same-environment, not yet supply-chain reproducibility
 
