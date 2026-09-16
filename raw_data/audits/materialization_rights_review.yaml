@@ -3053,22 +3053,58 @@ items:
   - kind: official_template_distribution_review
     url: https://media.icml.cc/Conferences/ICML2024/Styles/icml2024.zip
     checked_at: '2026-09-16'
-    finding: 官方 author kit 完整成员未见 LICENSE/COPYING/README；主样式、示例和官方作者说明未给出明确模板公众再分发授权。论文版权页脚及审稿模式 Do not distribute 条件输出不是模板许可或禁令；不借论文 BY4/PMLR 许可覆盖该组件。
+    finding: 官方 author kit 完整成员未见 LICENSE/COPYING/README；主样式、示例和官方作者说明未给出明确模板公众再分发授权。论文版权页脚及审稿模式 Do not distribute
+      条件输出不是模板许可或禁令；不借论文 BY4/PMLR 许可覆盖该组件。
     supports_public_redistribution: false
   - kind: separate_component_license_review
     path: materialized_sources/corpus/arxiv-2402.04624--c3e9e366/source
-    finding: 保留的 ICML bst 与 fancyhdr 头注明 LPPL1-or-later，可独立履约但不覆盖主 sty。若保存 algorithm/algorithmic：旧件是 Peter Williams 1994（文件发布于1996） 版权、部分 Alex Smola 修改；CTAN algorithms 当前为 LGPL2.1，不是 LPPL，须先做具体对应而非按文件名外推。
+    finding: 保留的 ICML bst 与 fancyhdr 头注明 LPPL1-or-later，可独立履约但不覆盖主 sty。若保存 algorithm/algorithmic：旧件是 Peter Williams
+      1994（文件发布于1996） 版权、部分 Alex Smola 修改；CTAN algorithms 当前为 LGPL2.1，不是 LPPL，须先做具体对应而非按文件名外推。
     supports_public_redistribution: false
   - kind: bounded_retained_component_inventory
     checked_at: '2026-09-16'
     path: materialized_sources/corpus/arxiv-2402.04624--c3e9e366
-    finding: 实存17个source、60个selectors；两个bib均无abstract/copyright字段，不添加第三方摘要门槛。保存ICML2024主样式及LPPL BST/fancyhdr，algorithm/algorithmic头为Peter Williams1994版权，需按实际组件分别核查。未在本轮完成固定vN响应绑定，不假称已获整包放行。
+    finding: 实存17个source、60个selectors；两个bib均无abstract/copyright字段，不添加第三方摘要门槛。保存ICML2024主样式及LPPL BST/fancyhdr，algorithm/algorithmic头为Peter
+      Williams1994版权，需按实际组件分别核查。此前有界检查尚未完成固定vN响应绑定，本轮已由下列固定v2证据补齐；版本对应不等于整包放行。
     supports_public_redistribution: false
+  - kind: fixed_v2_response_and_retained_text_correspondence
+    url: https://arxiv.org/abs/2402.04624v2
+    related_urls:
+    - https://export.arxiv.org/e-print/2402.04624v2
+    - https://creativecommons.org/licenses/by/4.0/
+    checked_at: '2026-09-16'
+    finding: 官方固定v2（2024-05-26）文章许可为BY4。本轮一次实际固定响应解析至https://export.arxiv.org/src/2402.04624v2，application/gzip，1,977,697
+      bytes，与现存revision一致。39个归档文件中全部17个实存source逐字节相同，共182,080 bytes；现有选择/展开/提取API在内存重算main.tex，60,280-byte规范化TeX与47,757-byte正文均逐字节相同，60个selectors保持。22个原省略成员未新增或删除。仅核验，不新写canonical/capsule或伪造历史retrieval。文章BY4不覆盖所有独立组件。
+    supports_public_redistribution: true
+    evidence_applicability: author_licensable_paper_expression_and_exact_retained_version
+  - kind: bounded_current_template_expression_and_authority_review
+    url: https://www.overleaf.com/latex/templates/icml2025-template/dhxrkcgkvnkt
+    related_urls:
+    - https://media.icml.cc/Conferences/ICML2024/Styles/icml2024.zip
+    - https://media.icml.cc/Conferences/ICML2025/Styles/icml2025.zip
+    - https://icml.cc/Conferences/2025/AuthorInstructions
+    - https://icml.cc/Conferences/2025/CallForPapers
+    checked_at: '2026-09-16'
+    finding: 实存icml2024.sty为28,048 bytes/805行，与2024官方ZIP副本全字节相同。2025官方主样式28,139 bytes/807行，完整差异只有包名/年份/会议地/卷等事实标识及新增Tegan
+      Maharaj、Felix Berkenkamp两行credit；长排版、节标题、版权浮动、NIPS/CVPR行号表达仍对应。main.tex前140行通用导言/归属/keywords/notice注释亦对应2025示例，论文自定义插入不冒称模板原件。Overleaf作者仅IT，自述Official并列BY4、单向指向官方CFP；2025/2026官方说明和发行包未见模板整体许可或该上传者身份关系。此为具体候选声明，尚未确认其有权覆盖ICML实际模板，不虚构IT为会议负责人，也不把所有许可一概要求双向链接。不是因发现旧件独立长表达而阻断。
+    supports_public_redistribution: false
+    evidence_applicability: expression_correspondence_verified_but_license_authority_unresolved
+  - kind: retained_lppl_and_algorithms_component_correspondence
+    url: https://ctan.org/pkg/algorithms
+    related_urls:
+    - https://ctan.org/ctan-ann/id/200407191542.i6JFgdM29869@alan.smcvt.edu
+    - https://ctan.math.illinois.edu/macros/latex/contrib/algorithms/algorithms.dtx
+    - https://ctan.math.illinois.edu/macros/latex/contrib/algorithms/COPYING
+    checked_at: '2026-09-16'
+    finding: 实存icml2024.bst 27,147 bytes与2024官方副本全字节相同，保留Hal Daumé III、Patrick W Daly、J. Fürnkranz、Iain Murray归属及LPPL1-or-later。fancyhdr
+      v3.2为20,521 bytes，官方21,006 bytes；splitlines后逐行一致，不宣称字节相同，保留Piet van Oostrum及LPPL1-or-later。algorithm.sty 2,223
+      bytes与CTAN当前algorithm模块去注释/空行后均65代码行，仅最低LaTeX日期及typeout/version元信息不同；浮动实现对应。algorithmic.sty 7,414 bytes含已记录Alex
+      Smola 2000-08修改；旧163/当前188代码行，差异为标准伪代码词映射、ALC@g直接复用、FUNCTION/MAIN及SHORTIF/SHORTFORALL常规包装，未发现独立旧长实现。CTAN dtx/ins明确LGPL2-or-later，COPYING为LGPL2.1，不是LPPL；不冒称当前CTAN包含全部旧变体或Smola独立授权。现存sty是可编辑源码，不把当前dtx强称旧件缺失生成源，不额外加入未保存依赖。该对应路径需完整条款、归属及真实差异包装；本轮未实施包装或据此放行整包。
+    supports_public_redistribution: false
+    evidence_applicability: component_license_and_correspondence_evidence_not_completed_package
   missing:
-  - 本地三处 rights 未记录该文章许可及核验日期。
-  - retrieval hash 尚未与确切 arXiv vN 建立可审计映射。
-  - 未形成第三方组件例外清单和许可履约包。
-  - 独立 icml2024 主样式未见明确再分发依据；已有 LPPL 的 bst/fancyhdr 不自动覆盖它。
+  - ICML主模板及保留指南注释的适用许可主体关系仍未确认；IT作者栏的Overleaf BY4声明保留为候选，不冒称已由会议权利主体授予。
+  - 将已核固定v2论文、LPPL组件及LGPL对应表达的独立归属、完整条款和实际差异落实到canonical、capsule、NOTICE与唯一正文附注；不能只修改审计为allow。
   classification: documented_permission
   license_id: CC-BY-4.0
   license_url: https://creativecommons.org/licenses/by/4.0/
@@ -3077,17 +3113,16 @@ items:
   evidence_confidence: high
   public_redistribution_recommendation: allow_after_conditions_met
   conditions:
-  - 署名作者并保留标题、来源和许可链接。
-  - 标明修改且不得附加限制。
-  - 逐件排除或清理第三方组件/材料。
-  - 将许可与当前 retrieval hash 和确切 arXiv vN 绑定。
-  current_capsule_compliance: pending_license_compliance_and_revision_binding
+  - 保留完整论文作者、标题、固定v2来源和BY4许可链接，标明文本转换且不得附加限制。
+  - 分别落实模板、LPPL与LGPL组件的实际适用许可、归属及差异；未保存依赖与纯书目不新增门槛。
+  - 许可包装继续绑定本轮已核的固定v2与现存revision，不把历史retrieval改写成新抓取。
+  current_capsule_compliance: pending_template_license_authority_and_component_packaging
   publication_gate:
     decision: block
-    reason: 实存17个source、60个selectors；两个bib均无abstract/copyright字段，不添加第三方摘要门槛。保存ICML2024主样式及LPPL BST/fancyhdr，algorithm/algorithmic头为Peter Williams1994版权，需按实际组件分别核查。未在本轮完成固定vN响应绑定，不假称已获整包放行。
+    reason: 固定v2响应及全部17个source/规范化TeX/正文已对应，论文BY4和独立LPPL/LGPL路径已有具体证据，不再以版本未绑定或泛称组件无许可作为原因。ICML主模板的Overleaf BY4候选声明尚未闭合上传者与权利主体关系，完整分组件声明包也尚未落实，因此保持block；没有删改源文件、把短宏一概视为需独立授权或假称整包已获许可。
   human_follow_up:
-  - 人工核对本地 source archive 的 arXiv 版本。
-  - 补齐归属、许可链接/声明与第三方组件审计后再审批。
+  - 确认ICML模板候选许可声明的适用权利主体或提供其他明确覆盖实际表达的依据；不推断作者栏IT身份。
+  - 在相应范围已闭合后完成分组件包装与独立复核，不重复要求已完成的固定版本核对。
 - sequence: 35
   uid: arxiv:2402.14207
   source_type: arxiv

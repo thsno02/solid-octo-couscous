@@ -90,6 +90,14 @@ GraphRAG 的 `system_prompts.tex:37` 保存约 59 words 的 Fed 报道输入，�
 
 包装只补归属、许可、范围与转换说明，不删改原 source、TeX、正文或 selectors；未保存媒体和仅被调用的外部依赖不新增为已分发组件。DiscoveryWorld 的论文文本转换及其摘录保留 ShareAlike，独立模板仍单列 BY4，不将整个 repo 重新许可。此项范围判断须随原文和派生引用一起传递，不将包内一份法条误读成所有组件同一许可。
 
+### MEMORYLLM：版本对应已闭合，模板许可主体仍待确认
+
+[固定 v2](https://arxiv.org/abs/2402.04624v2) 的 1,977,697-byte 响应与既有 revision 及全部 17 个 source 成员对应；现有管线在内存重算得到相同的 60,280-byte TeX、47,757-byte 正文，60 个 selectors 保持。论文 BY4 已明确，不再把版本未知作为阻塞原因。本轮只更新证据审计，没有改变正文、源件、metadata、manifest 或生成物。
+
+实存主样式与 [2024 官方包](https://media.icml.cc/Conferences/ICML2024/Styles/icml2024.zip)全字节相同；与 2025 主样式的差异仅为会议事实、标识和两行新 credit，长排版表达及保留的通用导言注释对应。BST 原件同字节，fancyhdr 逐行相同但换行字节不同，二者独立适用 LPPL。两个算法组件另有 [CTAN LGPL 路径](https://ctan.org/pkg/algorithms)，旧变体的常规宏包装与真实差异须说明，不冒称当前 CTAN 原件或新增未保存依赖。
+
+[Overleaf 候选页](https://www.overleaf.com/latex/templates/icml2025-template/dhxrkcgkvnkt)列 BY4，但作者仅为 IT；目前还不能将该声明合理归属于 ICML 模板发布／维护主体。[官方 CFP](https://icml.cc/Conferences/2025/CallForPapers)确认模板来源，却未确认这份许可声明。独立复核同意保持此具体缺口：内容对应不等于授权主体已确认，但也不是证明不存在许可，更不要求所有许可都有双向链接或逐作者授权函。任一可信的官方许可说明、项目确认或维护者声明均可推进；本项仍为 `block`，分类与全局计数不变。
+
 ### Progressive Neural Networks：旧模板按实际对应表达履约
 
 [固定 v4](https://arxiv.org/abs/1606.04671v4) 的文章许可为 CC BY 4.0；本轮固定源响应为 7,974,202 bytes，与现存 revision 及全部 20 个 source 文字成员逐字节对应。主文件为 `nips_2016.tex`，`progressive.tex` 是其中的章节；原规范化 TeX 为 49,876 bytes，原正文为 41,918 bytes，41 个 selectors 保持不变。保留全部既存文字成员；130 个原已省略的成员不冒称本包所有，也不将其中的 Makefile 等统称为非文字文件。
