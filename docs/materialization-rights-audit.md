@@ -4,12 +4,12 @@
 
 本审计逐条覆盖基线提交 <code>ee43cb37856bd40274bedda289a70dab03aaf3cc</code> 中 91 个 full_text 胶囊：73 篇 arXiv、17 份标准/词汇表、1 份方法文档。证据审计（evidence review）已完成，但权利清理（rights clearance）未完成。
 
-- 54 条找到明确公众复制/再分发许可，分类为 <code>documented_permission</code>；其中 23 条已完成可放行的当前包包装，31 条仍待全部适用条件落实，不能仅凭分类放行。
+- 54 条找到明确公众复制/再分发许可，分类为 <code>documented_permission</code>；其中 25 条已完成可放行的当前包包装，29 条仍待全部适用条件落实，不能仅凭分类放行。
 - 37 条未找到面向公众/本仓库的适用许可，分类为 <code>permission_unverified</code>；不应公开再分发全文。
-- 基线审计的 91 项中，七项 W3C、ODCS 3.2.0 定义首页、十三项 arXiv、LinkML 文档首页及 Schema.org 文档快照已完成当前内容版本的许可包装，23 项为 <code>allow</code>；其余 68 项仍为 <code>block</code>。
+- 基线审计的 91 项中，七项 W3C、ODCS 3.2.0 定义首页、十五项 arXiv、LinkML 文档首页及 Schema.org 文档快照已完成当前内容版本的许可包装，25 项为 <code>allow</code>；其余 66 项仍为 <code>block</code>。
 - Apache Ossie 基线胶囊只有 7 bytes（# Home），不是实质标准全文；后续降级不删除其基线审计行。
 
-当前 `full_text` 为 90 条，公开发布门检查结果为 `active_full_text=90 audited=91 blocked=67 errors=0`；整体仍未放行。67 项分为 37 项尚无适用公众许可证据、30 项已有许可证据但尚待履约，不应统称为缺少授权。基线 documented_permission 的 31 项待办还包括已非 active full_text 的 Apache Ossie。审计覆盖数 91 与当前全文数 90 使用不同基线，不应混用。当前集成 build 为 `096e2cb4557cf60c`，结构验证为 0 errors；这不等于权利门或整体发布放行。全文继续保存在本 GitHub repo；本次保留既有正文与快照，只补齐许可条件和传播信息，未移除作品、迁移存储或改写 Git 历史。
+当前 `full_text` 为 90 条，公开发布门检查结果为 `active_full_text=90 audited=91 blocked=65 errors=0`；整体仍未放行。65 项分为 37 项尚无适用公众许可证据、28 项已有许可证据但尚待履约，不应统称为缺少授权。基线 documented_permission 的 29 项待办还包括已非 active full_text 的 Apache Ossie。审计覆盖数 91 与当前全文数 90 使用不同基线，不应混用。当前集成 build 为 `640f5f05531b8dbe`，结构验证为 0 errors；这不等于权利门或整体发布放行。全文继续保存在本 GitHub repo；本次保留既有正文与快照，只补齐许可条件和传播信息，未移除作品、迁移存储或改写 Git 历史。
 
 机器可读逐条记录：<code>raw_data/audits/materialization_rights_review.yaml</code>。本报告记录许可证据与已落实的包装条件，不是法律意见或人工批准。
 
@@ -36,13 +36,13 @@
 | 基线 full_text | 91 |
 | documented_permission | 54 |
 | permission_unverified | 37 |
-| allow_after_conditions_met | 31 |
-| allow_with_packaged_notice | 23 |
+| allow_after_conditions_met | 29 |
+| allow_with_packaged_notice | 25 |
 | do_not_redistribute_full_text | 37 |
 | license evidence: CC-BY-4.0 | 28 |
 | license evidence: none | 37 |
-| publication gate: allow | 23 |
-| publication gate: block（基线项） | 68 |
+| publication gate: allow | 25 |
+| publication gate: block（基线项） | 66 |
 
 ### Robin / Kosmos：论文正文与额外收录的摘要分别判断
 
@@ -79,6 +79,16 @@ ADAS 的[固定 arXiv v2](https://arxiv.org/abs/2408.08435v2)源响应为 241,56
 三个包的 BST、fancyhdr、natbib 分别保留原 LPPL1-or-later、本包选择1.3c；完整法律文本和匹配原 natbib.dtx 随 NOTICE 与 repo 保存。Self-RAG 的 notation 另保留原作者自由使用声明，不套论文 BY4 或虚构 SPDX。Self-RAG 实存三份 ACL 摘要分别对应 [E-BERT](https://aclanthology.org/2020.findings-emnlp.71/)、[Open-Domain Question Answering](https://aclanthology.org/2020.acl-tutorials.8/)和 [ELI5](https://aclanthology.org/P19-1346/)；OpenScholar 的五份包括这三份及 [The Dawn After the Dark](https://aclanthology.org/2024.acl-long.586/)、[Improving Text Embeddings](https://aclanthology.org/2024.acl-long.642/)。它们按[ACL作品级 BY4 政策](https://aclanthology.org/faq/copyright/)分别保留完整作者、作品、年份和来源，不作为论文作者原创或 metadata CC0，不外推所引作品全文、模型或数据。DGM 编译元数据单列 arXiv CC0。
 
 三项各完成两次真实固定版本重建和两次 finalize 幂等验证，全胶囊字节一致；分别保留 34／15／16 份 source 和 77／69／110 个 selectors，规范化 TeX 与原正文完整前缀不变，只加唯一末注，没有删除正文、摘要或组件。许可沿现有通用路径传播，未添加来源特例或放宽门控；23 项局部放行仍不等于整库或 PR 发布批准。
+
+### GraphRAG 与 DiscoveryWorld：模板对应表达与独立短引边界
+
+GraphRAG 固定 v2 的论文许可为 CC BY 4.0，DiscoveryWorld 固定 v2 为 CC BY-SA 4.0；两者均已由固定源响应对应到实际保存的文字成员。当前 [NeurIPS 官方模板](https://www.overleaf.com/latex/templates/formatting-instructions-for-neurips-2026/bjdwqfdkyftc) 明确列 NeurIPS 2026 Program Chairs、CC BY 4.0；[官方 ZIP](https://media.neurips.cc/Conferences/NeurIPS2026/Formatting_Instructions_For_NeurIPS_2026.zip) 为 20,259 bytes，含 13,704-byte STY、模板 TeX 和 checklist。
+
+本轮核对的是获许可表达（licensed expression），不是从文件名推定历史许可。两个旧 STY 中页面几何、字体、标题、列表、摘要及行号兼容代码的对应表达已逐块核对；年号、会议事实、短页脚、匿名开关和回答宏等既存差异分别披露。DiscoveryWorld 保留 Lora Aroyo 与 Roman Garnett 等原始归属；GraphRAG 的 15 项 checklist 与当前指南对应，作者填写的回答独立归入论文范围。当前模板新增的 track、workshop、education 等功能不冒称旧件所有。此路径不宣称原文件来自 2026，也不虚构历史 BY4 或未知修改者。
+
+GraphRAG 的 `system_prompts.tex:37` 保存约 59 words 的 Fed 报道输入，与 [MCT 2023-09-18 报告](https://mortcap.com/wp-content/uploads/2023/09/mcmpdf09182023.pdf)近字对应，存在星期表达与等值时区等差异；该报告也援引其他新闻来源，不能据此断定 MCT 是最初作者。此段不被重新许可为论文 BY4。当前用途是保存研究论文中演示实体抽取的短篇事实性输入，不作为独立新闻全文或替代报道。依据 [17 USC §107](https://www.copyright.gov/title17/92chap1.html#107)按用途、作品性质、使用量与市场影响作有限情境判断；“研究”或短字数本身不构成自动豁免，也不授予下游任意用途的普遍许可。AFaCTA 的定义短引另保留对应 ACL 作品的归属和 BY4 链接。
+
+包装只补归属、许可、范围与转换说明，不删改原 source、TeX、正文或 selectors；未保存媒体和仅被调用的外部依赖不新增为已分发组件。DiscoveryWorld 的论文文本转换及其摘录保留 ShareAlike，独立模板仍单列 BY4，不将整个 repo 重新许可。此项范围判断须随原文和派生引用一起传递，不将包内一份法条误读成所有组件同一许可。
 
 ## 已落实的六项 W3C 许可包装（Packaged clearance）
 
@@ -182,7 +192,7 @@ RFC6874 的三条规则 `IP-literal`、`ZoneID`、`IPv6addrz` 按出版时生效
 
 - ICML 家族的 2022/2024/2025 官方 author kit 已做有界检查：主 `.sty` 尚未见明确公众再分发授权，独立 `.bst` 和 `fancyhdr` 的 LPPL 不能覆盖它。`algorithm/algorithmic` 的官方当前包是 LGPL 2.1，不是 LPPL，旧件仍须对应后分别履约。投稿模式的“Do not distribute”是条件输出，不被当作模板禁令；PaperBench 的同名 `arxiv.sty` 是 ICML 派生件，不能误套 George Kour 模板的 MIT。这四项没有据此放行，也没有删减正文。
 - OWL 2、R2RML 与 SHACL 的 dated TR HTML 已与现存 revision 对齐。W3C [2015 General Document License](https://www.w3.org/copyright/document-license-2015/)及[FAQ](https://www.w3.org/Consortium/Legal/IPR-FAQ-20000620-new.html#2015published)提供旧 TR 的有限派生使用路径，但没有普遍开放重格式化。当前知识消化语料是否符合软件实现支持用途，以及表格/链接结构丢失是否保留含义，仍缺充分依据；不能靠附上“非规范”标签或给代码示例套软件许可来放行整个规范主体。这三项保持 `block`，不删除正文。
-- GraphRAG 的固定 arXiv v2 与现存包已对齐，但实际保存的 `neurips_2024.sty` 尚缺明确再分发依据。匿名投稿页脚中的 “Do not distribute” 不是样式文件自身的禁止分发条款；我们既不错误认定它禁止，也不把可下载当作授权。
+- GraphRAG 的固定 v2 先前待核模板条件已按上节对应表达路径和实际差异完成包装，当前固定文字包为 `allow`；Fed 短引保持独立情境边界。匿名投稿页脚中的 “Do not distribute” 从未被当作样式本身禁止分发的条款。
 - Robin 与 Kosmos 的 `references.bib` 分别含 88、80 个摘要字段及 15、31 个版权字段，不是纯书目。需按实际保存的第三方摘要逐项核清许可，不能只用论文作者的 CC BY 覆盖；这不表示所有摘要都不可分发，当前证据仍不足。
 
 FActScore、ALCE、RAGTruth、STORM 与 WikiContradict 的替代出版路径尚未形成适用于现存包全部表达的充分公众许可链；相同标题或代码/数据许可证都不单独补足这个缺口。WikiChat 的论文、历史模板与 Wikipedia 范围则分别按下节证据处理，不把论文许可覆盖到所有附带组件。
@@ -207,7 +217,7 @@ Wikipedia 范围包括 appendix 中的地震、Matt Willis、两次 Mauna Loa �
 
 ## 论文按实际组件分组与履约状态（Component-family triage）
 
-本轮实读九个起初待办的包，将通用“条件尚待证明”拆成具体差异；其中 ADAS 固定 v2、Self-RAG 与 OpenScholar 各固定 v1 已完成包装并放行，其余项目不自动继承。未保存的依赖或图片不新增清权要求，论文自身摘要不与书目中复制的第三方摘要混算。
+前期实读九个起初待办的包，将通用“条件尚待证明”拆成具体差异；其中 ADAS 固定 v2、Self-RAG 与 OpenScholar 各固定 v1，以及本轮 DiscoveryWorld 固定 v2 已完成包装并放行，其余项目不自动继承。未保存的依赖或图片不新增清权要求，论文自身摘要不与书目中复制的第三方摘要混算。
 
 | 来源组 | 已查明的具体范围 | 下一步边界 |
 |---|---|---|
@@ -217,7 +227,7 @@ Wikipedia 范围包括 appendix 中的地震、Matt Willis、两次 Mauna Loa �
 | MLE-bench | 22个摘要含论文及博客；额外arxiv.sty是旧ICLR派生，不是George Kour MIT模板 | 不能作为纯ICLR2025四组件包直接放行 |
 | WikiGenBench | 两份不同STY，其中acl2023内部标ACL2020；另存DOI10.1121/1.2016299完整摘要 | 文件名不证明许可；两模板与该具体摘要分别对应 |
 | AgentRxiv | GDM自身BY-SA4；唯一额外摘要LUMI-lab的固定bioRxiv v1为BY-NC-ND4 | 本论文BY4不能覆盖摘要，实际用途与转换条件仍须核实 |
-| DiscoveryWorld | 固定v2原响应、9个文字成员及正文对应；11416-byte样式与官方2024 Data包相同；没有实存书目摘要 | 官方包只有STY/TEX/PDF，未找到该2024改编的明确再分发声明；不能用更新为2026的模板页外推 |
+| DiscoveryWorld | 固定v2原响应、9个文字成员及正文对应；论文BYSA4，11416-byte样式的对应表达与当前官方BY4模板逐块核对 | 当前固定包已包装 gate=allow；披露既存短适配，不声称历史2024整件BY4，不将两组件许可扩张到整库 |
 
 [ICLR2025 专用官方模板](https://www.overleaf.com/latex/templates/template-for-iclr-2025-conference-submission/gqzkdyycxtvt)明确署名 ICLR、CC BY4 及官方源码目录；ADAS 的 9,025-byte STY 与[新增2025模板的固定文件](https://github.com/ICLR/Master-Template/blob/05833d63fe48bbf250b144741ea77691018bb328/iclr2025/iclr2025_conference.sty)完全相同。[DiscoveryWorld 使用的官方赛道样式包](https://media.neurips.cc/Conferences/NeurIPS2024/NeurIPS-Dataset-Styles.zip)对应证据只解决组件身份，不能单独替代缺少的许可依据。
 
@@ -229,9 +239,9 @@ arXiv 的 nonexclusive 只说明该平台得到的托管权，不足以排除同
 - RARR：[固定 v3 源包](https://export.arxiv.org/e-print/2210.08726v3)为 988,552 bytes，33 个实存 source 共 214,711 bytes 全同字节，115,974-byte 正文及 101 selectors 已绑定。[ACL 2023 正式作品](https://aclanthology.org/2023.acl-long.910/)为 32 页；主文、附录 A–E（`7a_human_eval` 对应附录 C）及 `fig_prompts` 的 28 个实质 evidence 行均对应。剩余条件集中在已定位 Wikipedia、新闻及旅游等独立摘录的有限集合，以及 STY 两处 EMNLP→ACL 标签差异和 BST LPPL 包装；科学研究引用需按具体表达判断，不一概要求普通事实句或短引另行授权。
 - ResearchAgent：[固定 v2 源包](https://arxiv.org/src/2404.07738v2)为 8,125,839 bytes，33 个实存 source 共 282,197 bytes 全同字节。[NAACL 2025 正式作品](https://aclanthology.org/2025.naacl-long.342/)为 30 页，主文、附录 A/B 及 16 个表对应，未见额外未出版主体。剩余具体条件是 [Vamathevan 2019](https://www.nature.com/articles/s41573-019-0024-5)额外完整摘要和 FlyWire 固定预印本输入摘要尚缺适用依据，两份 ACL 输入摘要已有独立 BY4 路径但尚待包装；STY 与当前官方模板有真实差异，不能称同字节，Goodfeli 使用声明及 BST LPPL 也分别履约。Nature 的 permissions 入口不等于禁止复制，后出版改写摘要的许可也不能自动追溯旧表达。
 
-[ACL 版权政策](https://aclanthology.org/faq/copyright/)对 2016 年后的本机构材料提供公众 BY4。按既有判定模型，三项均为 `documented_permission`、`CC-BY-4.0`、`allow_after_conditions_met`，但当前 gate 仍为 `block`：作者出版许可不等于全部 tar、未出版旧稿或独立摘录/模板获得重新授权。本轮只更新审计及汇总，未改正文、source、metadata 或派生产物，也未自动删除或整理已识别材料；许可未核实不等于禁止，不新增作者另函或人工 approval 门槛。
+[ACL 版权政策](https://aclanthology.org/faq/copyright/)对 2016 年后的本机构材料提供公众 BY4。按既有判定模型，三项均为 `documented_permission`、`CC-BY-4.0`、`allow_after_conditions_met`，但当前 gate 仍为 `block`：作者出版许可不等于全部 tar、未出版旧稿或独立摘录/模板获得重新授权。该轮只更新三项审计及汇总，未改这三项的正文、source、metadata 或派生产物，也未自动删除或整理已识别材料；许可未核实不等于禁止，不新增作者另函或人工 approval 门槛。
 
-另完成四项有界清单核查：MEMORYLLM 的两个书目文件没有摘要；PaperBench 的 26 个 abstract 字段实际含 2 个空值、4 个短描述/截断占位和 20 个较长摘要，不一概称完整作品。GraphRAG 固定 v2 的 6,473,933-byte 响应与既有 revision、19 个保留源成员一致；其 NeurIPS2024 样式及 checklist 仍需适用范围判断，不能以已更新到 2026 的模板入口 URL 单独证明历史许可。Open-Endedness 实存 DeepMind 模板独立 BY-SA4，不能由主论文 BY4 覆盖所有组件。具体文件事实保存在机器审计；本轮不删除正文、模板或书目表达。
+另完成四项有界清单核查：MEMORYLLM 的两个书目文件没有摘要；PaperBench 的 26 个 abstract 字段实际含 2 个空值、4 个短描述/截断占位和 20 个较长摘要，不一概称完整作品。GraphRAG 固定 v2 的 6,473,933-byte 响应与既有 revision、19 个保留源成员一致；其 NeurIPS2024 样式及 checklist 已按当前授权表达的实质对应及既存差异完成包装，不以已更新到 2026 的模板入口 URL 单独证明历史许可。Open-Endedness 实存 DeepMind 模板独立 BY-SA4，不能由主论文 BY4 覆盖所有组件。具体文件事实保存在机器审计；本轮不删除正文、模板或书目表达。
 
 ## 来源族发现（Source-family Findings）
 
@@ -286,11 +296,11 @@ arXiv 的 nonexclusive 只说明该平台得到的托管权，不足以排除同
 | 36 | <code>arxiv:2402.18264</code> | <code>materialized_sources/corpus/arxiv-2402.18264--ebc0e524/manifest.yaml</code><br><code>raw_data/arxiv/WIKIGENBENCH: Exploring Full-length Wikipedia Generation under Real-World Scenario/metadata.yaml</code> | <code>CC-BY-4.0</code>；arXiv 官方文章页的 Rights to this article 链接指向 CC-BY-4.0。；本地 access=<code>metadata_only</code>，assumed=true | 本地三处 rights 未记录该文章许可及核验日期。；retrieval hash 尚未与确切 arXiv vN 建立可审计映射。 | <code>documented_permission</code> | 满足条件后才可考虑发布；当前 gate=block |
 | 37 | <code>arxiv:2404.07738</code> | <code>materialized_sources/corpus/arxiv-2404.07738--3e68f613/manifest.yaml</code><br><code>raw_data/arxiv/ResearchAgent: Iterative Research Idea Generation over Scientific Literature with Large Language Models/metadata.yaml</code> | 固定 v2 与 33 个 source 同字节；NAACL2025 作者主文、附录及 16 表表达 BY4 路径已对应 | Vamathevan/FlyWire 独立摘要依据、两份 ACL 摘要包装、STY 真实差异及其他独立条件/NOTICE 尚待落实 | <code>documented_permission</code> | 满足具体剩余条件后再发布；当前 gate=block，unknown 不等于禁止 |
 | 38 | <code>arxiv:2404.14387</code> | <code>materialized_sources/corpus/arxiv-2404.14387--a0c7dbc0/manifest.yaml</code><br><code>raw_data/arxiv/A Survey on Self-Evolution of Large Language Models/metadata.yaml</code> | 官方许可只授予 arXiv.org 非独占分发权，不授予公众或本仓库。；本地 access=<code>unknown</code>，assumed=true | 面向公众的论文全文复制/再分发许可。；许可版本、权利人和精确作品版本绑定。 | <code>permission_unverified</code> | 不公开全文，仅元数据/链接；当前 gate=block |
-| 39 | <code>arxiv:2404.16130</code> | <code>materialized_sources/corpus/arxiv-2404.16130--fe9ed9e5/manifest.yaml</code><br><code>raw_data/arxiv/From Local to Global: A Graph RAG Approach to Query-Focused Summarization/metadata.yaml</code> | <code>CC-BY-4.0</code>；arXiv 官方文章页的 Rights to this article 链接指向 CC-BY-4.0。；本地 access=<code>unknown</code>，assumed=true | 本地三处 rights 未记录该文章许可及核验日期。；retrieval hash 尚未与确切 arXiv vN 建立可审计映射。 | <code>documented_permission</code> | 满足条件后才可考虑发布；当前 gate=block |
+| 39 | <code>arxiv:2404.16130</code> | <code>materialized_sources/corpus/arxiv-2404.16130--fe9ed9e5/manifest.yaml</code><br><code>raw_data/arxiv/From Local to Global: A Graph RAG Approach to Query-Focused Summarization/metadata.yaml</code> | 固定v2论文BY4、当前模板对应表达BY4、AFaCTA独立归属；Fed有界研究引用不重许可为BY4 | 当前固定包已包装；19source/TeX/61selectors及正文原前缀保持，只附唯一说明 | <code>documented_permission</code> | 当前 gate=allow；限定当前科学方法演示，不授予新闻库或所有未来用途权利 |
 | 40 | <code>arxiv:2405.14768</code> | <code>materialized_sources/corpus/arxiv-2405.14768--80dba2af/manifest.yaml</code><br><code>raw_data/arxiv/WISE: Rethinking the Knowledge Memory for Lifelong Model Editing of Large Language Models/metadata.yaml</code> | 官方许可只授予 arXiv.org 非独占分发权，不授予公众或本仓库。；本地 access=<code>unknown</code>，assumed=true | 面向公众的论文全文复制/再分发许可。；许可版本、权利人和精确作品版本绑定。 | <code>permission_unverified</code> | 不公开全文，仅元数据/链接；当前 gate=block |
 | 41 | <code>arxiv:2405.14831</code> | <code>materialized_sources/corpus/arxiv-2405.14831--e17ccf48/manifest.yaml</code><br><code>raw_data/arxiv/HippoRAG: Neurobiologically Inspired Long-Term Memory for Large Language Models/metadata.yaml</code> | 官方许可只授予 arXiv.org 非独占分发权，不授予公众或本仓库。；本地 access=<code>unknown</code>，assumed=true | 面向公众的论文全文复制/再分发许可。；许可版本、权利人和精确作品版本绑定。 | <code>permission_unverified</code> | 不公开全文，仅元数据/链接；当前 gate=block |
 | 42 | <code>arxiv:2406.04268</code> | <code>materialized_sources/corpus/arxiv-2406.04268--ce5afac4/manifest.yaml</code><br><code>raw_data/arxiv/Position: Open-Endedness is Essential for Artificial Superhuman Intelligence/metadata.yaml</code> | <code>CC-BY-4.0</code>；arXiv 官方文章页的 Rights to this article 链接指向 CC-BY-4.0。；本地 access=<code>unknown</code>，assumed=true | 本地三处 rights 未记录该文章许可及核验日期。；retrieval hash 尚未与确切 arXiv vN 建立可审计映射。 | <code>documented_permission</code> | 满足条件后才可考虑发布；当前 gate=block |
-| 43 | <code>arxiv:2406.06769</code> | <code>materialized_sources/corpus/arxiv-2406.06769--d1971e3b/manifest.yaml</code><br><code>raw_data/arxiv/DISCOVERYWORLD: A Virtual Environment for Developing and Evaluating Automated Scientific Discovery Agents/metadata.yaml</code> | <code>CC-BY-SA-4.0</code>；arXiv 官方文章页的 Rights to this article 链接指向 CC-BY-SA-4.0。；本地 access=<code>unknown</code>，assumed=true | 本地三处 rights 未记录该文章许可及核验日期。；retrieval hash 尚未与确切 arXiv vN 建立可审计映射。 | <code>documented_permission</code> | 满足条件后才可考虑发布；当前 gate=block |
+| 43 | <code>arxiv:2406.06769</code> | <code>materialized_sources/corpus/arxiv-2406.06769--d1971e3b/manifest.yaml</code><br><code>raw_data/arxiv/DISCOVERYWORLD: A Virtual Environment for Developing and Evaluating Automated Scientific Discovery Agents/metadata.yaml</code> | 固定v2论文BYSA4、当前模板对应表达BY4分别署名；完整两法条随包 | 当前固定包已包装；9source/TeX/74selectors及正文原前缀保持，既存差异披露 | <code>documented_permission</code> | 当前 gate=allow；ShareAlike不扩张到独立模板或整仓库 |
 | 44 | <code>arxiv:2406.13805</code> | <code>materialized_sources/corpus/arxiv-2406.13805--21c7c163/manifest.yaml</code><br><code>raw_data/arxiv/WikiContradict: A Benchmark for Evaluating LLMs on Real-World Knowledge Conflicts from Wikipedia/metadata.yaml</code> | 官方许可只授予 arXiv.org 非独占分发权，不授予公众或本仓库。；本地 access=<code>metadata_only</code>，assumed=true | 面向公众的论文全文复制/再分发许可。；许可版本、权利人和精确作品版本绑定。 | <code>permission_unverified</code> | 不公开全文，仅元数据/链接；当前 gate=block |
 | 45 | <code>arxiv:2408.06292</code> | <code>materialized_sources/corpus/arxiv-2408.06292--522d359c/manifest.yaml</code><br><code>raw_data/arxiv/The AI Scientist: Towards Fully Automated Open-Ended Scientific Discovery/metadata.yaml</code> | 固定 v3 与既有源包对应；论文 BY4、GDM BY-SA4、组件 LPPL 分别履约，完整 natbib 8.31 原 dtx 随 NOTICE 和 repo 保存 | 无；26源文件、60selectors、TeX与原正文前缀不变，仅追加唯一末注 | <code>documented_permission</code> | 当前固定文本包已包装 gate=allow；不等于人工批准或整体 PR 完成 |
 | 46 | <code>arxiv:2408.08435</code> | <code>materialized_sources/corpus/arxiv-2408.08435--dc6e6730/manifest.yaml</code><br><code>raw_data/arxiv/Automated Design of Agentic Systems/metadata.yaml</code> | 固定 v2；论文与官方 ICLR2025 STY BY4，notation原作者使用说明、独立 LPPL及完整 natbib 原 dtx 分别保存 | 无；9源文件、33selectors、TeX与原93591-byte正文前缀不变，仅追加唯一末注 | <code>documented_permission</code> | 当前固定文本包已包装 gate=allow；不外推整个归档、图像或外链代码 |

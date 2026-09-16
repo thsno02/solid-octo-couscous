@@ -22,12 +22,12 @@ summary:
     documented_permission: 54
     permission_unverified: 37
   recommendation_counts:
-    allow_after_conditions_met: 31
+    allow_after_conditions_met: 29
     do_not_redistribute_full_text: 37
-    allow_with_packaged_notice: 23
+    allow_with_packaged_notice: 25
   publication_gate_counts:
-    block: 68
-    allow: 23
+    block: 66
+    allow: 25
   license_evidence_counts:
     CC-BY-4.0: 28
     none: 37
@@ -42,14 +42,15 @@ summary:
     CC-BY-SA-3.0: 1
   key_findings:
   - 91/91 manifest 在基线均写 full_text_redistribution_assumed=true；该字段从不作为授权。
-  - 73 篇 arXiv 中32篇官方文章页提供CC许可；WikiChat另由作者exact v2 camera-ready声明与ACL许可形成作者正文授权链，RE-Net、RARR及ResearchAgent另由固定payload与正式ACL出版表达对应形成作者正文BY4路径，其余37篇仍缺适用公众许可证据。arXiv nonexclusive/assumed本身不转授公众权利，正文许可不自动覆盖源包旧稿、第三方摘录或模板。
+  - 73 篇 arXiv 中32篇官方文章页提供CC许可；WikiChat另由作者exact v2 camera-ready声明与ACL许可形成作者正文授权链，RE-Net、RARR及ResearchAgent另由固定payload与正式ACL出版表达对应形成作者正文BY4路径，其余37篇仍缺适用公众许可证据。arXiv
+    nonexclusive/assumed本身不转授公众权利，正文许可不自动覆盖源包旧稿、第三方摘录或模板。
   - 14 份 W3C 文档都有许可；7 份旧式许可对 HTML→Markdown 仍需衍生权审查。
   - LinkML、Apache Ossie、ODCS 有 Apache-2.0 证据；Schema.org supporting documentation 有 CC BY-SA 3.0 证据。
-  - 基线91项中7项W3C、ODCS 3.2.0定义首页、13项arXiv、LinkML单页及Schema.org既有文档快照已完成当前revision与NOTICE包装，23项allow；其余68项仍block（当前活跃全文67项block，其中37项缺许可、30项待履约）。
+  - 基线91项中7项W3C、ODCS 3.2.0定义首页、15项arXiv、LinkML单页及Schema.org既有文档快照已完成当前revision与NOTICE包装，25项allow；其余66项仍block（当前活跃全文65项block，其中37项缺许可、28项待履约）。
 review_completion:
   evidence_review_complete_for_baseline: true
   legal_clearance_complete: false
-  can_human_review_be_completed: 证据审计已完成；54条有公众许可证据，其中23条完成当前包装，31条仍待履约；另37条须取得适用许可或新的权威许可证据。客观许可履约不默认要求另行人工批准，Agent也不代替权利人授予新许可；未核实不表示不存在其他现有授权，替代出版路径也可通过实际表达对应建立。
+  can_human_review_be_completed: 证据审计已完成；54条有公众许可证据，其中25条完成当前包装，29条仍待履约；另37条须取得适用许可或新的权威许可证据。客观许可履约不默认要求另行人工批准，Agent也不代替权利人授予新许可；已定位短引按具体目的、性质、使用量与市场影响判断，不把法定例外误写成普遍许可或自动豁免。
   not_legal_advice: true
 shared_component_findings:
 - component: natbib
@@ -3245,15 +3246,19 @@ items:
   canonical_url: https://arxiv.org/abs/2404.16130
   observed_rights:
     manifest:
-      declared_access: unknown
-      full_text_redistribution_assumed: true
+      declared_access: open
+      full_text_redistribution_assumed: false
       basis: arXiv source archive
-      assessment: 物化器声明/假设，不是权利人授权。
+      assessment: 当前固定包已按canonical声明包装；旧assumed断言不是许可依据。
     source_metadata:
-      access: unknown
-      license_spdx: null
-      license_verified_at: null
-      notes: Requires canonical rights verification.
+      access: open
+      license_spdx: CC-BY-4.0
+      license_verified_at: '2026-09-16'
+      notes: 论文作者表达、独立 NeurIPS 模板对应表达与 AFaCTA 作品短引分别有 BY4 依据和归属， 不将论文许可套到整个 tar 或新闻报道。source/system_prompts.tex
+        第 37 行约 59 个英文词 的 Fed 事实报道与 https://mortcap.com/wp-content/uploads/2023/09/mcmpdf09182023.pdf 中所载报道近字对应，存在
+        tomorrow → on Tuesday、11 am PT → 2:00 p.m. ET 等差异；该 PDF 仅作可核对来源， 不声称 MCT、MortCap 或本论文作者是报道最初作者，也不声称新闻段获
+        BY4 再许可。 当前引用目的为科学论文说明实体/关系抽取，具有方法演示和分析性质；所引是已发表的 时间、人物、会议与利率事实短段，量限于该约 59 词输入样例，未保存整篇报道或新闻库。 当前呈现不提供完整新闻/投资资讯产品，亦不替代原报道的通常市场用途。合理使用
+        （fair use）是对当前目的、性质、引用量与市场影响的情境判断，不是自动豁免、普遍许可， 也不声称非商业用途已经核实。扩大新闻提取/分发或改变用途须重新评估适用权利。 本包保留全部 source 字节、模板头注、论文正文、书目与定位器，不删除附带内容。
     capsule_source_metadata:
       path: materialized_sources/corpus/arxiv-2404.16130--fe9ed9e5/source-metadata.yaml
       assessment: rights 与 canonical metadata 一致，不是额外独立证据。
@@ -3261,17 +3266,19 @@ items:
   - kind: manifest_assertion
     path: materialized_sources/corpus/arxiv-2404.16130--fe9ed9e5/manifest.yaml
     locator: rights
-    finding: declared_access=unknown; full_text_redistribution_assumed=True; basis=arXiv source archive
+    finding: 前次核验记录（包装前；当前状态见后续证据）：declared_access=unknown; full_text_redistribution_assumed=True; basis=arXiv source
+      archive
     supports_public_redistribution: false
   - kind: source_metadata
     path: 'raw_data/arxiv/From Local to Global: A Graph RAG Approach to Query-Focused Summarization/metadata.yaml'
     locator: rights
-    finding: access=unknown; license_spdx=None; license_verified_at=None; notes=Requires canonical rights verification.
+    finding: 前次核验记录（包装前；当前状态见后续证据）：access=unknown; license_spdx=None; license_verified_at=None; notes=Requires canonical
+      rights verification.
     supports_public_redistribution: false
   - kind: local_content_rights_scan
     path: materialized_sources/corpus/arxiv-2404.16130--fe9ed9e5
     locator: source/** and normalized/**
-    finding: 未发现独立 LICENSE/COPYING/NOTICE 或文章级本地许可；命中项（如有）仅属模板、组件、引用或研究对象。
+    finding: 前次核验记录（包装前；当前状态见后续证据）：未发现独立 LICENSE/COPYING/NOTICE 或文章级本地许可；命中项（如有）仅属模板、组件、引用或研究对象。
     supports_public_redistribution: false
   - kind: official_article_license_record
     url: https://arxiv.org/abs/2404.16130
@@ -3285,41 +3292,87 @@ items:
     - https://arxiv.org/abs/2404.16130v2
     - https://export.arxiv.org/e-print/2404.16130v2
     - https://media.neurips.cc/Conferences/NeurIPS2024/Styles.zip
-    finding: 固定v2源包6473933 bytes与既有revision一致，官方v2为CC BY 4.0；19个source文本、61 selectors与2个省略JPG。实际保存的neurips_2024.sty与官方Styles.zip对应文件一致，尚未找到该样式的明确再分发许可。匿名投稿模式中的Do not distribute是生成论文页脚字符串，不应误读为样式文件禁止分发条款，但也不提供再分发授权。
+    finding: 前次核验记录（包装前；当前状态见后续证据）：固定v2源包6473933 bytes与既有revision一致，官方v2为CC BY 4.0；19个source文本、61 selectors与2个省略JPG。实际保存的neurips_2024.sty与官方Styles.zip对应文件一致，尚未找到该样式的明确再分发许可。匿名投稿模式中的Do
+      not distribute是生成论文页脚字符串，不应误读为样式文件禁止分发条款，但也不提供再分发授权。
     supports_public_redistribution: false
   - kind: bounded_retained_component_inventory
     checked_at: '2026-09-16'
     path: materialized_sources/corpus/arxiv-2404.16130--fe9ed9e5
-    finding: 已获取固定arxiv2404.16130v2真实响应6473933bytes，revision与既有aab5aeef01f6e03ef402c28fcea0c3041337c201af216c1e41f825c59ae7c628一致，21个archive成员中19个实存source逐字节对应，61个selectors保留。官方固定v2论文BY4；实际还保存neurips_2024.sty及checklist.tex中的模板问卷，需组件适用依据与NOTICE。当前名为neurips-2024的官方Overleaf入口已更新为2026，不能仅凭URL年份证明旧件许可；可按实际共享表达及改编链继续核查，未认定永久无许可。
+    finding: 前次核验记录（包装前；当前状态见后续证据）：已获取固定arxiv2404.16130v2真实响应6473933bytes，revision与既有aab5aeef01f6e03ef402c28fcea0c3041337c201af216c1e41f825c59ae7c628一致，21个archive成员中19个实存source逐字节对应，61个selectors保留。官方固定v2论文BY4；实际还保存neurips_2024.sty及checklist.tex中的模板问卷，需组件适用依据与NOTICE。当前名为neurips-2024的官方Overleaf入口已更新为2026，不能仅凭URL年份证明旧件许可；可按实际共享表达及改编链继续核查，未认定永久无许可。
     supports_public_redistribution: false
     related_urls:
     - https://arxiv.org/abs/2404.16130v2
     - https://arxiv.org/src/2404.16130v2
     - https://www.overleaf.com/latex/templates/neurips-2024/tpsbbrdqcmsh
-  missing:
-  - 本地三处 rights 未记录该文章许可及核验日期。
-  - retrieval hash 尚未与确切 arXiv vN 建立可审计映射。
-  - 未形成第三方组件例外清单和许可履约包。
-  - 实际保留的NeurIPS 2024样式文件需明确的再分发依据；不能以论文CC BY或投稿下载入口自动覆盖。
+  - kind: current_licensed_template_expression_and_packaging
+    checked_at: '2026-09-16'
+    path: materialized_sources/corpus/arxiv-2404.16130--fe9ed9e5
+    related_urls:
+    - https://www.overleaf.com/latex/templates/formatting-instructions-for-neurips-2026/bjdwqfdkyftc
+    - https://media.neurips.cc/Conferences/NeurIPS2026/Formatting_Instructions_For_NeurIPS_2026.zip
+    finding: 当前官方NeurIPS2026 Program Chairs模板明确BY4；20,259-byte官方ZIP含13,704-byte STY和checklist。与实际保留样式逐块对应，并明确旧年号/会议事实、短页脚、匿名/submission开关、回答宏等既存差异；不虚构历史2024授权、旧件来自2026或未知修改者。GraphRAG原15项checklist与当前指南对应，回答归论文；19source、原TeX、61selectors与原正文精确前缀保持，只附唯一说明，完整BY4随NOTICE保存。
+    supports_public_redistribution: true
+  - kind: bounded_research_quotation_and_independent_acl_attribution
+    checked_at: '2026-09-16'
+    path: materialized_sources/corpus/arxiv-2404.16130--fe9ed9e5/source
+    locator: system_prompts.tex:37; graph_rag.tex:378
+    related_urls:
+    - https://mortcap.com/wp-content/uploads/2023/09/mcmpdf09182023.pdf
+    - https://www.copyright.gov/title17/92chap1.html#107
+    - https://aclanthology.org/2024.acl-long.104/
+    finding: Fed约59word事实报道与MCT报告近字对应，MCT同时引用其他来源，不能据此认定其为最初作者或称该段获论文BY4再许可。只在当前论文实体抽取方法演示及对应短摘录范围，按已发表事实性内容、有界使用量、方法分析目的和不替代完整报道市场作情境性合理使用判断；研究/字数不是自动豁免，不声明NC用途已核，扩大用途须再评估。AFaCTA定义短引及示例另列六作者、ACL作品URL/DOI/BY4；其他LLM输出与mock样例不要求模型合同或逐句原创证明。
+    supports_public_redistribution: true
+    evidence_applicability: current_research_quotation_context_not_a_public_license_for_news
+  missing: []
   classification: documented_permission
   license_id: CC-BY-4.0
   license_url: https://creativecommons.org/licenses/by/4.0/
-  license_scope: 覆盖该 arXiv article 中权利人有权许可的内容，不自动覆盖第三方组件、代码或数据。
+  license_scope: 本包仅覆盖固定 arXiv 2404.16130v2 实存的 19 个 source 文本（160,932 bytes）、 normalized/document.tex、附注前的 39,390-byte
+    正文及 61 个定位器（selectors）。 论文作者可许可的正文、图表文字、研究提示词、模型输出与 checklist 回答/justification 适用论文 CC BY 4.0；neurips_2024.sty、checklist.tex
+    的独立模板对应表达按当前官方 NeurIPS BY4 授权路径分别署名，不把其著作权归给论文作者，不虚构历史 2024 许可。 graph_rag.tex 第 378 行的 AFaCTA 定义短引及示例独立按其 ACL
+    2024 作品 BY4 归属。 source/system_prompts.tex 第 37 行约 59 词 Fed 报道输入仅在当前科学研究论文实体抽取 演示及其文本/定位器摘录范围内，依据已发表事实短段的方法演示目的、性质、有界引用量
+    及不替代原报道市场的情境性合理使用（fair use）判断保留；不受本论文/模板 BY4 再许可， 不构成新闻库分发许可、自动豁免或所有未来用途的授权，改变用途或扩大引用须重新评估。 graph_rag.bbl 是书目引用记录，不许可所引完整作品。原已省略两个
+    JPG、未保存的 新闻/访谈语料、外链媒体、软件依赖（包括仅加载而未保存的 natbib）、模型、数据、 商标及专利不属于本包；定位器不改变其所定位表达的适用权利。
   license_restrictions: []
   evidence_confidence: high
-  public_redistribution_recommendation: allow_after_conditions_met
+  public_redistribution_recommendation: allow_with_packaged_notice
   conditions:
-  - 署名作者并保留标题、来源和许可链接。
-  - 标明修改且不得附加限制。
-  - 逐件排除或清理第三方组件/材料。
-  - 将许可与当前 retrieval hash 和确切 arXiv vN 绑定。
-  current_capsule_compliance: pending_license_compliance_and_revision_binding
+  - 继续保留固定版本、完整归属、许可、修改说明及NOTICE；由现有生成器从canonical声明复现。
+  - 保持独立组件许可范围及当前用途边界；未保存媒体、外部依赖和引用作品不被整体授权。
+  - Fed短段不是BY4材料；扩大新闻引用或改变科学研究演示情境须重新评估适用权利。
+  current_capsule_compliance: packaged_notice_and_scoped_conditions_met
   publication_gate:
-    decision: block
-    reason: 已获取固定arxiv2404.16130v2真实响应6473933bytes，revision与既有aab5aeef01f6e03ef402c28fcea0c3041337c201af216c1e41f825c59ae7c628一致，21个archive成员中19个实存source逐字节对应，61个selectors保留。官方固定v2论文BY4；实际还保存neurips_2024.sty及checklist.tex中的模板问卷，需组件适用依据与NOTICE。当前名为neurips-2024的官方Overleaf入口已更新为2026，不能仅凭URL年份证明旧件许可；可按实际共享表达及改编链继续核查，未认定永久无许可。
-  human_follow_up:
-  - 人工核对本地 source archive 的 arXiv 版本。
-  - 补齐归属、许可链接/声明与第三方组件审计后再审批。
+    decision: allow
+    reason: 固定v2及实际保留表达已绑定；论文BY4、独立模板当前BY4对应表达/既存差异、AFaCTA独立BY4及Fed有限研究引用情境分别记录。原source、TeX、selectors和正文保持；canonical/capsule
+      metadata、manifest和audit的许可包一致，完整NOTICE与唯一末注已包装；仅放行当前固定文字包，不代表知识可信晋升或全库发布。
+  human_follow_up: []
+  redistribution_package:
+    source_revision: sha256:aab5aeef01f6e03ef402c28fcea0c3041337c201af216c1e41f825c59ae7c628
+    source_version_url: https://arxiv.org/abs/2404.16130v2
+    notice_path: raw_data/licenses/cc-by-4.0.md
+    attribution: '"From Local to Global: A Graph RAG Approach to Query-Focused Summarization", arXiv:2404.16130v2,
+      by Darren Edge, Ha Trinh, Newman Cheng, Joshua Bradley, Alex Chao, Apurva Mody, Steven Truitt, Dasha Metropolitansky,
+      Robert Osazuwa Ness and Jonathan Larson, https://arxiv.org/abs/2404.16130v2, CC BY 4.0: https://creativecommons.org/licenses/by/4.0/.
+      模板独立归属：NeurIPS 2026 Program Chairs, "Formatting Instructions For NeurIPS 2026", https://www.overleaf.com/latex/templates/formatting-instructions-for-neurips-2026/bjdwqfdkyftc,
+      官方明确 CC BY 4.0；对应官方源包为 https://media.neurips.cc/Conferences/NeurIPS2026/Formatting_Instructions_For_NeurIPS_2026.zip，
+      核对日期 2026-09-16。实际保留的是 neurips_2024.sty 与 checklist.tex 的对应模板表达， 不冒称整件同字节或历史出处；保留 Roman Garnett (garnett@wustl.edu)
+      and the many authors of nips15submit_e.sty, including MK and drstrip@sandia 的原归属。 AFaCTA 定义短引与其引用示例独立归属 Jingwei
+      Ni, Minjing Shi, Dominik Stammbach, Mrinmaya Sachan, Elliott Ash and Markus Leippold, "AFaCTA: Assisting the
+      Annotation of Factual Claim Detection with Reliable LLM Annotators", ACL 2024, https://aclanthology.org/2024.acl-long.104/,
+      DOI 10.18653/v1/2024.acl-long.104， CC BY 4.0: https://creativecommons.org/licenses/by/4.0/。 Fed 报道演示短段的可核对转载来源为
+      https://mortcap.com/wp-content/uploads/2023/09/mcmpdf09182023.pdf，非最初作者认定， 非论文 BY4 再许可；仅依本包 scope 中限定的研究引用判断保留。以上归属不暗示背书。'
+    modifications: 固定 v2 的 19 个 source 文本原样保留；两个 JPG 是既有物化器原已省略的成员， 本次不新删正文或组件。既有 graph_rag.tex、normalized/document.tex、正文前缀及
+      61 个定位器不改；仅 normalized/document.txt 末尾追加唯一归属、范围、修改附注 及 NOTICE.md 链接，NOTICE.md 复制完整 BY4 法律资产，README 和 manifest
+      同步包装记录。 相对于现行 2026 授权模板，实存 2024 样式保留旧 submission 判定、2024/38th/Vancouver 标识、旧 preprint/conference 页脚和回答宏空格/NA
+      格式；不含 2026 新增的 track、 anonymous、workshop、education 功能和字号下限。既有 checklist 保留 15 项问卷、 论文作者自己的回答及 justification、comment/newpage
+      包装；与现行模板差异还包括 宏/大小写/标点、少量措辞、supplemental 相对位置和 nips.cc/neurips.cc 链接主机。 现行第 16 项 LLM 声明不在旧件。其对应模板表达已逐件核对，原差异保留且不虚构修改者；
+      不声称 2024 历史许可或旧件原件来自 2026。Fed 样例既有 tomorrow → on Tuesday 及 11 am PT → 2:00 p.m. ET 等差异保留， 本次不修改该 source 或声称重新取得新闻授权。
+    scope: 本包仅覆盖固定 arXiv 2404.16130v2 实存的 19 个 source 文本（160,932 bytes）、 normalized/document.tex、附注前的 39,390-byte
+      正文及 61 个定位器（selectors）。 论文作者可许可的正文、图表文字、研究提示词、模型输出与 checklist 回答/justification 适用论文 CC BY 4.0；neurips_2024.sty、checklist.tex
+      的独立模板对应表达按当前官方 NeurIPS BY4 授权路径分别署名，不把其著作权归给论文作者，不虚构历史 2024 许可。 graph_rag.tex 第 378 行的 AFaCTA 定义短引及示例独立按其
+      ACL 2024 作品 BY4 归属。 source/system_prompts.tex 第 37 行约 59 词 Fed 报道输入仅在当前科学研究论文实体抽取 演示及其文本/定位器摘录范围内，依据已发表事实短段的方法演示目的、性质、有界引用量
+      及不替代原报道市场的情境性合理使用（fair use）判断保留；不受本论文/模板 BY4 再许可， 不构成新闻库分发许可、自动豁免或所有未来用途的授权，改变用途或扩大引用须重新评估。 graph_rag.bbl
+      是书目引用记录，不许可所引完整作品。原已省略两个 JPG、未保存的 新闻/访谈语料、外链媒体、软件依赖（包括仅加载而未保存的 natbib）、模型、数据、 商标及专利不属于本包；定位器不改变其所定位表达的适用权利。
 - sequence: 40
   uid: arxiv:2405.14768
   source_type: arxiv
@@ -3561,15 +3614,17 @@ items:
   canonical_url: https://arxiv.org/abs/2406.06769
   observed_rights:
     manifest:
-      declared_access: unknown
-      full_text_redistribution_assumed: true
+      declared_access: open
+      full_text_redistribution_assumed: false
       basis: arXiv source archive
-      assessment: 物化器声明/假设，不是权利人授权。
+      assessment: 当前固定包已按canonical声明包装；旧assumed断言不是许可依据。
     source_metadata:
-      access: unknown
-      license_spdx: null
-      license_verified_at: null
-      notes: Requires canonical rights verification.
+      access: open
+      license_spdx: CC-BY-SA-4.0
+      license_verified_at: '2026-09-16'
+      notes: 固定2406.06769v2的论文源表达与转换适用CC BY-SA4；独立NeurIPS Data2024样式 以当前官方BY4对应表达及复制/改编路径分别履约，保留原Lora Aroyo/Garnett等归属与
+        全部既存版本/功能差异，不声称历史2024 ZIP整体BY4或推断改编者身份。 所有九个source（含旧稿）、原规范化TeX、74 selectors和原正文保持； 不把代码repo的Apache2外推论文，不将两许可合并为整仓库重新许可。
+        未保存媒体、外链代码/模型/数据、商标和专利不在包内。
     capsule_source_metadata:
       path: materialized_sources/corpus/arxiv-2406.06769--d1971e3b/source-metadata.yaml
       assessment: rights 与 canonical metadata 一致，不是额外独立证据。
@@ -3577,18 +3632,20 @@ items:
   - kind: manifest_assertion
     path: materialized_sources/corpus/arxiv-2406.06769--d1971e3b/manifest.yaml
     locator: rights
-    finding: declared_access=unknown; full_text_redistribution_assumed=True; basis=arXiv source archive
+    finding: 前次核验记录（包装前；当前状态见后续证据）：declared_access=unknown; full_text_redistribution_assumed=True; basis=arXiv source
+      archive
     supports_public_redistribution: false
   - kind: source_metadata
     path: 'raw_data/arxiv/DISCOVERYWORLD: A Virtual Environment for Developing and Evaluating Automated Scientific
       Discovery Agents/metadata.yaml'
     locator: rights
-    finding: access=unknown; license_spdx=None; license_verified_at=None; notes=Requires canonical rights verification.
+    finding: 前次核验记录（包装前；当前状态见后续证据）：access=unknown; license_spdx=None; license_verified_at=None; notes=Requires canonical
+      rights verification.
     supports_public_redistribution: false
   - kind: local_content_rights_scan
     path: materialized_sources/corpus/arxiv-2406.06769--d1971e3b
     locator: source/** and normalized/**
-    finding: Apache-2.0 明确指 GitHub 代码，不是论文。
+    finding: 前次核验记录（包装前；当前状态见后续证据）：Apache-2.0 明确指 GitHub 代码，不是论文。
     supports_public_redistribution: false
   - kind: official_article_license_record
     url: https://arxiv.org/abs/2406.06769
@@ -3599,7 +3656,7 @@ items:
   - kind: bounded_retained_component_family_review
     checked_at: '2026-09-16'
     path: materialized_sources/corpus/arxiv-2406.06769--d1971e3b
-    finding: 实存9个source、74个selectors；固定2406.06769v2官方BYSA4源响应2725671bytes对应既有revision，14成员中9个文本成员全字节相同，116382-byte规范化TeX及94506-byte正文用现有抽取函数在内存重算亦相同。5个非文本成员原已省略，不以未保存CuteRPG图片增加阻碍。唯一实存第三方样式neurips_data_2024.sty为11416bytes，与官方Data2024
+    finding: 前次核验记录（包装前；当前状态见后续证据）：实存9个source、74个selectors；固定2406.06769v2官方BYSA4源响应2725671bytes对应既有revision，14成员中9个文本成员全字节相同，116382-byte规范化TeX及94506-byte正文用现有抽取函数在内存重算亦相同。5个非文本成员原已省略，不以未保存CuteRPG图片增加阻碍。唯一实存第三方样式neurips_data_2024.sty为11416bytes，与官方Data2024
       ZIP（182044bytes）的成员相同；该ZIP只有STY/TEX/PDF，无独立许可声明。2026通用Overleaf许可不能未经对应外推2024 Lora Aroyo改编。
     supports_public_redistribution: false
     related_urls:
@@ -3607,31 +3664,75 @@ items:
     - https://export.arxiv.org/e-print/2406.06769v2
     - https://media.neurips.cc/Conferences/NeurIPS2024/NeurIPS-Dataset-Styles.zip
     - https://neurips.cc/Conferences/2024/CallForDatasetsBenchmarks
-  missing:
-  - 本地三处 rights 未记录该文章许可及核验日期。
-  - retrieval hash 尚未与确切 arXiv vN 建立可审计映射。
-  - 未形成第三方组件例外清单和许可履约包。
+  - kind: current_licensed_template_expression_and_packaging
+    checked_at: '2026-09-16'
+    path: materialized_sources/corpus/arxiv-2406.06769--d1971e3b
+    related_urls:
+    - https://www.overleaf.com/latex/templates/formatting-instructions-for-neurips-2026/bjdwqfdkyftc
+    - https://media.neurips.cc/Conferences/NeurIPS2026/Formatting_Instructions_For_NeurIPS_2026.zip
+    finding: 当前官方NeurIPS2026 Program Chairs模板明确BY4；20,259-byte官方ZIP含13,704-byte STY和checklist。与实际保留样式逐块对应，并明确旧年号/会议事实、短页脚、匿名/submission开关、回答宏等既存差异；不虚构历史2024授权、旧件来自2026或未知修改者。DiscoveryWorld独立Data样式保留Lora
+      Aroyo、Roman Garnett等归属；18条未字面重合的非空代码属包标识、会议事实和短常规适配，无独立旧长段表达。论文及其转换保持BYSA4，模板对应表达单列BY4，完整两法条随NOTICE保存；9source、TeX、74selectors和原正文保持。
+    supports_public_redistribution: true
+  missing: []
   classification: documented_permission
   license_id: CC-BY-SA-4.0
   license_url: https://creativecommons.org/licenses/by-sa/4.0/
-  license_scope: 覆盖该 arXiv article 中权利人有权许可的内容，不自动覆盖第三方组件、代码或数据。
+  license_scope: 本包仅覆盖固定 arXiv 2406.06769v2 的九个 source 文字成员、normalized/document.tex、normalized/document.txt 与 74
+    个定位器（selectors）。作者/提交者有权许可的论文源表达及其文本转换，包括保留的旧稿，按 CC BY-SA 4.0 共享；改编材料继续按该许可同方式共享。source/neurips_data_2024.sty
+    是独立第三方模板，按当前官方模板的对应授权表达及 CC BY 4.0 复制/改编路径分别署名，保留其既存短常规功能适配，不将历史 2024 ZIP 宣称为整体 BY4，也不将模板著作权归论文作者。两许可按组件分别适用，不将整仓库重新许可为
+    BY-SA4 或 BY4；定位器不改变所定位组件的许可。DiscoveryWorld.bbl 是书目记录，不授权所引作品；未保存的五个非文本媒体、外链代码/模型/数据、商标及专利不在本许可包范围。没有删除任何已保存源文字以回避许可条件，不施加额外限制或暗示上游支持。
   license_restrictions:
   - share_alike
   evidence_confidence: high
-  public_redistribution_recommendation: allow_after_conditions_met
+  public_redistribution_recommendation: allow_with_packaged_notice
   conditions:
-  - 署名、来源、许可链接与修改说明。
-  - 改编材料以 CC BY-SA 4.0 相同方式共享。
-  - 逐件排除或清理第三方材料。
-  - 将许可与当前 retrieval hash 和确切 arXiv vN 绑定。
-  current_capsule_compliance: pending_license_compliance_and_revision_binding
+  - 继续保留固定版本、完整归属、许可、修改说明及NOTICE；由现有生成器从canonical声明复现。
+  - 保持独立组件许可范围及当前用途边界；未保存媒体、外部依赖和引用作品不被整体授权。
+  - 论文文本改编及摘录保持CC BY-SA4.0相同方式共享，独立模板BY4不扩张到全仓库。
+  current_capsule_compliance: packaged_notice_and_scoped_conditions_met
   publication_gate:
-    decision: block
-    reason: 本轮按实际保留范围核验：实存9个source、74个selectors；固定2406.06769v2官方BYSA4源响应2725671bytes对应既有revision，14成员中9个文本成员全字节相同，116382-byte规范化TeX及94506-byte正文用现有抽取函数在内存重算亦相同。5个非文本成员原已省略，不以未保存CuteRPG图片增加阻碍。唯一实存第三方样式neurips_data_2024.sty为11416bytes，与官方Data2024
-      ZIP（182044bytes）的成员相同；该ZIP只有STY/TEX/PDF，无独立许可声明。2026通用Overleaf许可不能未经对应外推2024 Lora Aroyo改编。 当前整包版本/归属声明尚未全部闭合，保持block和原文。
-  human_follow_up:
-  - 人工核对本地 source archive 的 arXiv 版本。
-  - 补齐归属、许可链接/声明与第三方组件审计后再审批。
+    decision: allow
+    reason: 固定v2及实际保留表达已绑定；论文BYSA4与独立模板当前BY4对应表达/既存短适配分别履约，完整法条和修改说明随包。原source、TeX、selectors和正文保持；canonical/capsule
+      metadata、manifest和audit的许可包一致，完整NOTICE与唯一末注已包装；仅放行当前固定文字包，不代表知识可信晋升或全库发布。
+  human_follow_up: []
+  redistribution_package:
+    source_revision: sha256:cb1d6ccc88eb66af69e71730a5c488234ff4fe8af04ba04081b5a445f4d39b3e
+    source_version_url: https://arxiv.org/abs/2406.06769v2
+    notice_path: raw_data/licenses/discoveryworld-v2-cc-by-sa-4.0-neurips-corresponding-expression-cc-by-4.0.md
+    attribution: '"DISCOVERYWORLD: A Virtual Environment for Developing and Evaluating Automated Scientific Discovery
+      Agents", arXiv:2406.06769v2, by Peter Jansen, Marc-Alexandre Côté, Tushar Khot, Erin Bransom, Bhavana Dalvi
+      Mishra, Bodhisattwa Prasad Majumder, Oyvind Tafjord and Peter Clark, https://arxiv.org/abs/2406.06769v2, licensed
+      under CC BY-SA 4.0: https://creativecommons.org/licenses/by-sa/4.0/. source/neurips_data_2024.sty is an independent
+      NeurIPS Data 2024 template component with its original Lora Aroyo credit and attribution to Roman Garnett
+      and the many authors of nips15submit_e.sty, including MK and drstrip@sandia, retained. Its corresponding licensed
+      original template expression is identified in the NeurIPS 2026 Program Chairs'' official "Formatting Instructions
+      For NeurIPS 2026", https://www.overleaf.com/latex/templates/formatting-instructions-for-neurips-2026/bjdwqfdkyftc,
+      explicitly declared CC BY 4.0: https://creativecommons.org/licenses/by/4.0/. The corresponding official current
+      source is https://media.neurips.cc/Conferences/NeurIPS2026/Formatting_Instructions_For_NeurIPS_2026.zip, checked
+      on 2026-09-16. The retained 2024 Data variant is packaged using this corresponding-expression/adaptation path,
+      not a claim that the historical 2024 ZIP declared an overall CC BY 4.0 license. The retained member is also
+      identified by the official 2024 Data bundle, https://media.neurips.cc/Conferences/NeurIPS2024/NeurIPS-Dataset-Styles.zip,
+      linked from https://neurips.cc/Conferences/2024/CallForDatasetsBenchmarks. None of these attributions implies
+      endorsement of this repository.'
+    modifications: All nine text source members of the fixed v2 archive are retained unchanged, including related_work-v1-old.tex.
+      The existing normalized/document.tex and all 74 selectors are preserved byte-for-byte. The original 94,506-byte
+      normalized/document.txt is preserved as an exact prefix; only the complete attribution, changes, scope and
+      NOTICE link are appended to its end. Compared with the currently reviewed official NeurIPS 2026 style, the
+      retained Data 2024 style has the Lora Aroyo header, its 2024/04/30 package identifier, the anonymous default/option
+      and @submission boolean mapping, and the @submission test in the title block; its meeting identifiers are
+      38th/2024 and its existing location string is "Vancouver, USA". It retains "Preprint. Under review." and the
+      Datasets and Benchmarks track footer. The lineno/amsmath compatibility block appears earlier in the retained
+      style rather than at the current style's end; its closing-brace layout differs. The retained style uses the
+      2024 package warning identifier and a space between each checklist answer label and its argument. It lacks
+      the current multi-track, position/eandd/creativeai/education/workshop/nonanonymous options, minimum font-size
+      overrides, acknowledgement-hiding block and justificationTODO command. Long formatting and compatibility expressions
+      correspond to the currently licensed original; version labels, short footer text and routine functional adaptations
+      are separately disclosed. These differences are pre-existing and are not introduced, repaired or attributed
+      to a newly asserted modifier by this repository. No historical template download identity, historical 2024
+      BY4 declaration or byte-identical correspondence to the complete current style is claimed.
+    scope: 本包仅覆盖固定 arXiv 2406.06769v2 的九个 source 文字成员、normalized/document.tex、normalized/document.txt 与 74 个定位器（selectors）。作者/提交者有权许可的论文源表达及其文本转换，包括保留的旧稿，按
+      CC BY-SA 4.0 共享；改编材料继续按该许可同方式共享。source/neurips_data_2024.sty 是独立第三方模板，按当前官方模板的对应授权表达及 CC BY 4.0 复制/改编路径分别署名，保留其既存短常规功能适配，不将历史
+      2024 ZIP 宣称为整体 BY4，也不将模板著作权归论文作者。两许可按组件分别适用，不将整仓库重新许可为 BY-SA4 或 BY4；定位器不改变所定位组件的许可。DiscoveryWorld.bbl 是书目记录，不授权所引作品；未保存的五个非文本媒体、外链代码/模型/数据、商标及专利不在本许可包范围。没有删除任何已保存源文字以回避许可条件，不施加额外限制或暗示上游支持。
 - sequence: 44
   uid: arxiv:2406.13805
   source_type: arxiv
