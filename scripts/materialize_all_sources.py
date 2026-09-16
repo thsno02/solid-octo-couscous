@@ -24,6 +24,7 @@ import concurrent.futures
 import dataclasses
 import gzip
 import hashlib
+import html
 import io
 import json
 import os
@@ -476,11 +477,12 @@ def write_capsule_readme(record: SourceRecord, root: Path, manifest: dict[str, A
                 lines.append(f"- [{label}]({materialization[field]})")
     elif materialization.get("retained_text_sources"):
         lines.extend(["", "Local retained representations:", f"- [Consumer Markdown (collector assembly)]({materialization['document']})"])
+        source_names = {item["source"] for item in materialization["retained_text_sources"]}
         for item in materialization["retained_text_sources"]:
             lines.append(f"- [Original {item['format'].upper()}: {Path(item['source']).name}]({item['source']})")
         for item in manifest.get("retrievals", []):
             name = item.get("local_path", "")
-            if isinstance(name, str) and name.endswith(".html"):
+            if isinstance(name, str) and name.endswith(".html") and name not in source_names:
                 lines.append(f"- [Retained HTML evidence: {Path(name).name}]({name})")
     (root / "README.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
@@ -1497,14 +1499,170 @@ def rewrite_markdown_hrefs(text: str, rewrites: dict[str, str]) -> str:
     return "".join(parts) + rewrite_prose("".join(prose))
 
 
+def retained_html_reference(
+    source: Path, reference: str, document: Path,
+    html_sources: dict[Path, tuple[Any, str, set[str]]], rewrites: dict[str, str],
+    source_url: str = "", *, asset: bool = False,
+) -> str:
+    """Resolve only explicit routes and already retained local originals."""
+    if asset and not reference:
+        raise ValueError("retained HTML image has no src")
+    parsed = urllib.parse.urlsplit(reference)
+    if not asset and not parsed.path and not parsed.scheme and not parsed.netloc:
+        _, stem, ids = html_sources[source]
+        if parsed.fragment in ids:
+            return f"#{stem}-{parsed.fragment}"
+    if reference in rewrites:
+        return rewrites[reference]
+    if parsed.scheme or parsed.netloc:
+        return reference
+    path = (source.parent / urllib.parse.unquote(parsed.path)).resolve() if parsed.path else source
+    if not asset and path not in html_sources and not path.suffix:
+        path = path.with_suffix(".html")
+    if not asset and path in html_sources:
+        _, stem, ids = html_sources[path]
+        if not parsed.fragment:
+            return f"#{stem}-L1"
+        if parsed.fragment in ids:
+            return f"#{stem}-{parsed.fragment}"
+    try:
+        path.relative_to(document.parent.parent.resolve())
+        local = path.is_file()
+    except ValueError:
+        local = False
+    if asset and not local:
+        raise ValueError(f"retained HTML image is missing: {reference}")
+    if local:
+        href = Path(os.path.relpath(path, start=document.parent)).as_posix()
+        return href + (f"#{parsed.fragment}" if parsed.fragment else "")
+    return urllib.parse.urljoin(source_url, reference) if source_url else reference
+
+
+def retained_html_sections(
+    source: Path, document: Path, html_sources: dict[Path, tuple[Any, str, set[str]]],
+    rewrites: dict[str, str], source_url: str,
+) -> list[dict[str, Any]]:
+    """Render structural atoms, then visit every remaining body text node once."""
+    from bs4 import Comment, NavigableString
+    body, stem, _ = html_sources[source]
+    sections: list[dict[str, Any]] = []
+    parts: list[str] = []
+    source_start = body.sourceline or 1
+    heading: dict[str, Any] = {}
+    def anchor(node: Any) -> str:
+        return f'\n<a id="{html.escape(stem + "-" + str(node["id"]), quote=True)}"></a>\n' if node.get("id") else ""
+
+    def code_block(node: Any) -> str:
+        value = node.get_text("", strip=False)
+        fence = "`" * max(3, max((len(run) + 1 for run in re.findall(r"`+", value)), default=3))
+        return f"\n\n{fence}\n" + value + ("" if value.endswith("\n") else "\n") + fence + "\n\n"
+
+    def inline(node: Any) -> str:
+        if isinstance(node, Comment):
+            return ""
+        if isinstance(node, NavigableString):
+            return re.sub(r"[ \t\r\n]+", " ", str(node))
+        prefix = anchor(node)
+        if node.name in {"script", "style", "template"}:
+            return ""
+        if node.name == "pre":
+            return prefix + code_block(node)
+        if node.name == "code":
+            value = node.get_text("", strip=False)
+            fence = "`" * max(1, max((len(run) + 1 for run in re.findall(r"`+", value)), default=1))
+            return prefix + fence + value + fence
+        if node.name == "img":
+            src = retained_html_reference(source, node.get("src", ""), document, html_sources, rewrites, source_url, asset=True)
+            return prefix + f"![{node.get('alt', '')}]({src})"
+        value = "".join(inline(child) for child in node.children)
+        if node.name == "a" and node.get("href"):
+            href = retained_html_reference(source, node["href"], document, html_sources, rewrites, source_url)
+            value = f"[{value.strip()}]({href})"
+        elif node.name == "br":
+            value = "\n"
+        return prefix + value
+
+    def finish(end: int) -> bool:
+        value = "".join(parts).strip()
+        if any(line.strip() and not line.startswith("<a ") for line in value.splitlines()):
+            sections.append({"text": value + "\n", "source_start_line": source_start, "source_end_line": max(source_start, end), **heading})
+            return True
+        return False
+
+    def walk(node: Any) -> None:
+        nonlocal source_start, heading, parts
+        if isinstance(node, (Comment, NavigableString)):
+            parts.append(inline(node))
+            return
+        if node.name in {"script", "style", "template"}:
+            return
+        if re.fullmatch(r"h[1-6]", node.name or ""):
+            line = node.sourceline
+            if not isinstance(line, int):
+                raise ValueError("retained HTML heading has no native source line")
+            recorded = finish(line - 1)
+            prefix = "".join(parts) if not recorded else ""
+            if recorded:
+                source_start = line
+            heading = {"heading": node.get_text(" ", strip=True), "level": int(node.name[1]), "heading_line": line}
+            parts = [prefix, anchor(node), "#" * heading["level"] + " " + "".join(inline(child) for child in node.children).strip() + "\n"]
+            return
+        if node.name == "pre":
+            parts.append(anchor(node) + code_block(node))
+            return
+        if node.name == "table":
+            rows: list[tuple[Any, list[str]]] = []
+            def table_content(child: Any) -> None:
+                if isinstance(child, Comment):
+                    return
+                if isinstance(child, NavigableString):
+                    if child.strip():
+                        rows.append((child, [inline(child).strip()]))
+                    return
+                if child.name in {"script", "style", "template"}:
+                    return
+                if child.name in {"th", "td", "pre", "code", "a", "img", "br"}:
+                    row = child.find_parent("tr") or child
+                    if not rows or rows[-1][0] is not row:
+                        rows.append((row, []))
+                    rows[-1][1].append(inline(child).strip())
+                    return  # Includes nested cell text exactly once, including orphan td.
+                if child.get("id"):
+                    rows.append((child, [anchor(child)]))
+                for descendant in child.children:
+                    table_content(descendant)
+            for child in node.children:
+                table_content(child)
+            parts.append(anchor(node) + "\n\n" + "\n".join("- " + " | ".join(cells) for _, cells in rows if any(cells)) + "\n\n")
+            return
+        if node.name in {"a", "img", "code", "br"}:
+            parts.append(inline(node))
+            return
+        block = node.name in {"p", "div", "section", "article", "figure", "figcaption", "ul", "ol", "li", "blockquote"} or "concept-item" in node.get("class", [])
+        parts.append(anchor(node) + ("\n\n" if block else ""))
+        if node.name == "li":
+            depth = max(0, len(node.find_parents(["ul", "ol"])) - 1)
+            marker = f"{len(node.find_previous_siblings('li')) + 1}. " if node.parent.name == "ol" else "- "
+            parts.append("  " * depth + marker)
+        for child in node.children:
+            walk(child)
+        if block:
+            parts.append("\n\n")
+    walk(body)
+    finish(len(source.read_bytes().decode("utf-8").splitlines()))
+    return sections
+
+
 def derive_retained_text_sources(
     sources: list[tuple[Path, str]], document: Path, link_rewrites: dict[str, str],
+    *, source_options: dict[Path, dict[str, Any]] | None = None,
 ) -> list[dict[str, Any]]:
-    """Assemble only declared native MD/YAML, with exact single-source line ranges."""
+    """Assemble declared MD/YAML/HTML, with real single-source line ranges."""
+    has_html = any(format_name == "html" for _, format_name in sources)
     if not sources or not isinstance(link_rewrites, dict) or any(
         not isinstance(old, str) or not old or not isinstance(new, str) or not new
         or "\n" in old or "\r" in old or "\n" in new or "\r" in new
-        or urllib.parse.urlsplit(old).scheme or urllib.parse.urlsplit(old).netloc
+        or not has_html and (urllib.parse.urlsplit(old).scheme or urllib.parse.urlsplit(old).netloc)
         or urllib.parse.urlsplit(new).scheme or urllib.parse.urlsplit(new).netloc
         for old, new in link_rewrites.items()
     ):
@@ -1513,9 +1671,10 @@ def derive_retained_text_sources(
     prepared: list[tuple[str, str, str, str, list[dict[str, Any]]]] = []
     stems: set[str] = set()
     known_anchors: set[str] = set()
+    html_sources: dict[Path, tuple[Any, str, set[str]]] = {}
     for source, format_name in sources:
-        if format_name not in {"md", "yaml"} or source.resolve() == document.resolve():
-            raise ValueError("retained text format must be md/yaml and cannot overwrite its original")
+        if format_name not in {"md", "yaml", "html"} or source.resolve() == document.resolve():
+            raise ValueError("retained text format must be md/yaml/html and cannot overwrite its original")
         source_path = source.resolve().relative_to(ROOT.resolve()).as_posix()
         stem = re.sub(r"[^A-Za-z0-9_-]", "-", source.stem)
         if stem in stems:
@@ -1529,6 +1688,16 @@ def derive_retained_text_sources(
         known_anchors.update(f"{stem}-L{line}" for line in {1, *(heading["line"] for heading in headings)})
         if format_name == "md":
             known_anchors.update(re.findall(r'<a\b[^>]*\bid=["\']([^"\']+)["\']', original))
+        elif format_name == "html":
+            from bs4 import BeautifulSoup
+            soup = BeautifulSoup(original, "html.parser")
+            body = soup.body or soup
+            ids = {str(node["id"]) for node in body.find_all(id=True) if node.name not in {"script", "style", "template"} and not node.find_parent(["pre", "code", "script", "style", "template"])}
+            if body.get("id"):
+                ids.add(str(body["id"]))
+            html_sources[source.resolve()] = (body, stem, ids)
+            known_anchors.update(f"{stem}-{name}" for name in ids)
+            known_anchors.update(f"{stem}-L{node.sourceline}" for node in body.find_all(re.compile(r"^h[1-6]$")) if not node.find_parent(["pre", "code"]))
         prepared.append((source_path, stem, format_name, text, headings))
     if any(target.startswith("#") and target[1:] not in known_anchors for target in link_rewrites.values()):
         raise ValueError("retained href rewrite does not target a real source anchor")
@@ -1543,11 +1712,43 @@ def derive_retained_text_sources(
         parts.append(value)
         next_line += len(value.splitlines())
 
-    emit("# Retained specification text (collector assembly)\n\nThis consumer Markdown assembles the explicitly retained originals in declared order. Source labels, line anchors and local href rewrites are collector additions; YAML below is an unmodified native schema displayed in a code fence.\n")
+    emit("# Retained specification text (collector assembly)\n\nThis consumer Markdown assembles the explicitly retained originals in declared order. Source labels, line anchors and local href rewrites are collector additions; " + ("HTML is represented as structural text with ordered table cells and preserved code, without running source scripts.\n" if has_html else "YAML below is an unmodified native schema displayed in a code fence.\n"))
     for source_path, stem, format_name, text, headings in prepared:
         lines = text.splitlines(keepends=True)
         href = Path(os.path.relpath(ROOT.resolve() / source_path, start=document.parent.resolve())).as_posix()
         emit(f"\nOriginal {format_name.upper()}: [{Path(source_path).name}]({href}#L1-L{len(lines)}).\n")
+        if format_name == "html":
+            source = ROOT.resolve() / source_path
+            options = (source_options or {}).get(source, {})
+            emit(f'\n<a id="{stem}-L1"></a>\n')
+            for section in retained_html_sections(source, document.resolve(), html_sources, link_rewrites, options.get("source_url", "")):
+                if section.get("heading_line"):
+                    emit(f'\n<a id="{stem}-L{section["heading_line"]}"></a>\n')
+                start_line = next_line
+                emit(section["text"])
+                preview = next(line for line in section["text"].splitlines() if line.strip() and not line.startswith("<a "))[:700]
+                selectors.append({
+                    "selector": f"derived://{local_path}#L{start_line}-L{next_line - 1}", "local_path": local_path,
+                    "kind": "section" if section.get("heading") else "file", "start_line": start_line, "end_line": next_line - 1,
+                    "text_preview": preview, "derived_from": source_path, "source_format": "html",
+                    **({"source_heading_line": section["heading_line"]} if section.get("heading_line") else {}),
+                    **{key: value for key, value in section.items() if key in {"source_start_line", "source_end_line", "heading", "level"}},
+                })
+            if "config_range" in options:
+                bounds = options["config_range"]
+                start, end = bounds["start_line"], bounds["end_line"]
+                if any(not isinstance(value, int) or isinstance(value, bool) for value in (start, end)) or not 1 <= start <= end <= len(lines):
+                    raise ValueError("retained HTML config_range must identify real original lines")
+                preview = next((line.rstrip("\r\n") for line in lines[start - 1:end] if line.strip()), "")[:700]
+                if not preview:
+                    raise ValueError("retained HTML config_range contains no source text")
+                emit(f"\nReSpec configuration provenance (not executed): [original HTML lines {start}–{end}]({href}#L{start}-L{end}).\n")
+                selectors.append({
+                    "selector": f"source://{source_path}#L{start}-L{end}", "local_path": source_path, "kind": "configuration",
+                    "start_line": start, "end_line": end, "text_preview": preview, "derived_from": source_path,
+                    "source_format": "html", "source_start_line": start, "source_end_line": end,
+                })
+            continue
         if format_name == "yaml":
             emit(f'\n<a id="{stem}-L1"></a>\n\n## Native YAML schema (collector display, not upstream Markdown)\n\n```yaml\n')
         starts = [(1, headings[0] if headings else None)] + [(heading["line"], heading) for heading in headings[1:]]
@@ -2185,25 +2386,51 @@ def replay_retained_text_sources(
     rewrites = materialization.get("link_rewrites", {})
     if not isinstance(rewrites, dict):
         raise ValueError("retained link_rewrites must be an explicit href mapping")
+    def check_original(path: Path, *, require_commit: bool = False) -> None:
+        path.relative_to(root.resolve())
+        if not path.is_file():
+            raise ValueError("retained href rewrite target or image is not a local original")
+        actual_hash = sha256_file(path)
+        inventory = [item for item in manifest.get("local_files", []) if item.get("path") == path.relative_to(ROOT.resolve()).as_posix()]
+        retrievals = [item for item in manifest.get("retrievals", []) if item.get("local_path") == path.relative_to(root.resolve()).as_posix()]
+        if len(inventory) != 1 or inventory[0].get("sha256") != actual_hash or inventory[0].get("bytes") != path.stat().st_size or len(retrievals) != 1 or retrievals[0].get("sha256") != actual_hash or retrievals[0].get("bytes") != path.stat().st_size or require_commit and retrievals[0].get("commit") != commit:
+            raise ValueError("retained href rewrite original differs from inventory or retrieval")
+
     for target in rewrites.values():
         if not isinstance(target, str):
             raise ValueError("retained link_rewrites must map local hrefs")
         parsed = urllib.parse.urlsplit(target)
         if parsed.path:
             path = (document.parent / urllib.parse.unquote(parsed.path)).resolve()
-            path.relative_to(root.resolve())
-            if not path.is_file():
-                raise ValueError("retained href rewrite target is not a local original")
-            actual_hash = sha256_file(path)
-            inventory = [item for item in manifest.get("local_files", []) if item.get("path") == path.relative_to(ROOT.resolve()).as_posix()]
-            retrievals = [item for item in manifest.get("retrievals", []) if item.get("local_path") == path.relative_to(root.resolve()).as_posix()]
-            if len(inventory) != 1 or inventory[0].get("sha256") != actual_hash or len(retrievals) != 1 or retrievals[0].get("sha256") != actual_hash or retrievals[0].get("bytes") != path.stat().st_size:
-                raise ValueError("retained href rewrite original differs from inventory or retrieval")
+            check_original(path)
             if parsed.fragment.startswith("L"):
                 match = re.fullmatch(r"L([1-9]\d*)-L([1-9]\d*)", parsed.fragment)
                 if not match or not int(match.group(1)) <= int(match.group(2)) <= len(path.read_bytes().decode("utf-8").splitlines()):
                     raise ValueError("retained href rewrite source line range is invalid")
-    selectors = derive_retained_text_sources(paths, document, rewrites)
+    options: dict[Path, dict[str, Any]] = {}
+    for item, (source, format_name) in zip(sources, paths):
+        if format_name != "html":
+            continue
+        from bs4 import BeautifulSoup
+        retrieval = next(row for row in manifest["retrievals"] if row.get("local_path") == item["source"])
+        options[source] = {"source_url": retrieval.get("document_url") or retrieval.get("resolved_url") or retrieval.get("requested_url") or ""}
+        if "config_range" in item:
+            options[source]["config_range"] = item["config_range"]
+        soup = BeautifulSoup(source.read_bytes(), "html.parser")
+        for image in (soup.body or soup).find_all("img"):
+            src = image.get("src", "")
+            parsed = urllib.parse.urlsplit(src)
+            if parsed.scheme or parsed.netloc:
+                if src in rewrites:
+                    check_original((document.parent / urllib.parse.unquote(urllib.parse.urlsplit(rewrites[src]).path)).resolve(), require_commit=True)
+                continue  # External images stay external unless explicitly routed above.
+            if not parsed.path:
+                raise ValueError("retained HTML image has no local src path")
+            asset = (source.parent / urllib.parse.unquote(parsed.path)).resolve()
+            check_original(asset, require_commit=True)
+            if src in rewrites and (document.parent / urllib.parse.unquote(urllib.parse.urlsplit(rewrites[src]).path)).resolve() != asset:
+                raise ValueError("retained HTML src rewrite does not resolve to the same original")
+    selectors = derive_retained_text_sources(paths, document, rewrites, source_options=options)
     write_jsonl(root / "selectors.jsonl", selectors)
     manifest.update({"generated_at": generated_at, "selectors": ["selectors.jsonl"]})
     materialization.update({

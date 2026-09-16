@@ -403,6 +403,156 @@ class RetainedMarkdownTests(unittest.TestCase):
             for row in rows:
                 self.assertIn(row["text_preview"], "\n".join(text.splitlines()[row["start_line"] - 1:row["end_line"]]))
 
+    @contextlib.contextmanager
+    def _retained_html_capsule(self):
+        with self._retained_text_capsule() as (root, record, _, _, document):
+            sources: list[Path] = []
+            originals: dict[Path, bytes] = {}
+            for stem in ("dpv", "risk", "rights"):
+                relative = f"source/2.3/dpv/{stem}.html" if stem == "dpv" else f"source/2.3/dpv/modules/{stem}.html"
+                source = record.capsule_root / relative
+                source.parent.mkdir(parents=True, exist_ok=True)
+                cross = "modules/risk#same" if stem == "dpv" else ("rights#same" if stem == "risk" else "risk#same")
+                src = "../diagrams/diagram.svg" if stem == "dpv" else "../../diagrams/diagram.svg"
+                body = "\n".join([
+                    "<!DOCTYPE html>", "<html><head>", '<script>var respecConfig = {localBiblio: "CONFIG_NOT_ASSEMBLED"};</script>', "</head>", "<body>",
+                    f'BARE_{stem}<span class="concept-item" id="same">CONCEPT_{stem}<span class="definition"> DEFINITION_{stem} [[REF]] [=term=]</span></span>',
+                    f'<h4 id="chapter">Chapter {stem}</h4>',
+                    f'<p><a href="#same">Self {stem}</a> <a href="{cross}">Cross {stem}</a> <a href="outside.html#X">Outside</a></p>',
+                    '<p><a href="https://external.test/#same">External</a> <a href="https://official.test/concept">Explicit route</a></p>',
+                    '<p><code>[fake](modules/risk#same)\tX</code></p>',
+                    '<pre><span>A\tB</span>\n<span>C\tD</span>\n<span># fake heading</span></pre>',
+                    f'<table><caption>CAPTION_{stem}</caption>TABLE_OUTSIDE_{stem}<tr><th>Usage Note</th><td>FIRST_{stem}</td></tr><tr><th>Usage Note</th><td>SECOND_{stem}</td></tr><th>Examples</th><td>ORPHAN_{stem}</td></table>',
+                    f'<ul><li>OUTER_{stem}<p>NESTED_{stem}</p><ul><li>INNER_{stem}</li></ul></li></ul>',
+                    f'<img src="{src}">', "</body></html>",
+                ]).encode("utf-8")
+                source.write_bytes(body)
+                sources.append(source)
+                originals[source] = body
+            asset = record.capsule_root / "source/2.3/diagrams/diagram.svg"
+            asset.parent.mkdir(parents=True)
+            asset.write_bytes(b'<svg><text>Retained diagram text</text><path d="M0 0"/></svg>\n')
+            originals[asset] = asset.read_bytes()
+            manifest = materializer.load_yaml(record.capsule_root / "manifest.yaml")
+            manifest["materialization"] = {
+                "document": "normalized/document.md",
+                "retained_text_sources": [{"source": source.relative_to(record.capsule_root).as_posix(), "format": "html", "config_range": {"start_line": 3, "end_line": 3}} for source in sources],
+                "link_rewrites": {
+                    "../diagrams/diagram.svg": "../source/2.3/diagrams/diagram.svg",
+                    "https://official.test/concept": "#dpv-same",
+                },
+            }
+            manifest["retrievals"] = [{
+                "local_path": path.relative_to(record.capsule_root).as_posix(), "sha256": materializer.sha256_file(path),
+                "bytes": path.stat().st_size, "commit": "a" * 40,
+                "resolved_url": "https://example.test/frozen/" + path.relative_to(record.capsule_root / "source/2.3").as_posix(),
+            } for path in originals]
+            manifest["local_files"] = materializer.local_file_inventory(record.capsule_root)
+            manifest["local_bytes"] = sum(item["bytes"] for item in manifest["local_files"])
+            materializer.write_yaml(record.capsule_root / "manifest.yaml", manifest)
+            yield root, record, sources, originals, document, asset
+
+    def test_html_replay_preserves_every_structural_atom_and_source_context(self) -> None:
+        from bs4 import BeautifulSoup
+        with self._retained_html_capsule() as (root, record, sources, originals, document, _), mock.patch.object(
+            materializer, "fetch_bytes", side_effect=AssertionError("HTML replay must stay offline"),
+        ), mock.patch.object(materializer, "prepare_capsule", side_effect=AssertionError("HTML replay must retain originals")):
+            previous = None
+            for _ in range(2):
+                manifest = materializer.materialize_one(record, {}, "fixed-time")
+                text = document.read_bytes().decode("utf-8")
+                selectors = [json.loads(line) for line in (record.capsule_root / "selectors.jsonl").read_text().splitlines()]
+                self.assertNotIn("CONFIG_NOT_ASSEMBLED", text)
+                self.assertEqual(text.count("```\nA\tB\nC\tD\n# fake heading\n```"), 3)
+                self.assertEqual(text.count("`[fake](modules/risk#same)\tX`"), 3)
+                self.assertEqual(text.count("[[REF]] [=term=]"), 3)
+                for source in sources:
+                    stem = source.stem
+                    for label in ("BARE", "CONCEPT", "DEFINITION", "FIRST", "SECOND", "ORPHAN", "OUTER", "NESTED", "INNER", "CAPTION", "TABLE_OUTSIDE"):
+                        self.assertEqual(text.count(f"{label}_{stem}"), 1)
+                    self.assertIn(f"[Self {stem}](#{stem}-same)", text)
+                    self.assertIn(f'- Usage Note | FIRST_{stem}', text)
+                    self.assertIn(f'- Usage Note | SECOND_{stem}', text)
+                    self.assertIn(f'id="{stem}-chapter"', text)
+                    rows = [row for row in selectors if root / row["derived_from"] == source]
+                    self.assertEqual(len([row for row in rows if row["kind"] == "configuration"]), 1)
+                    soup = BeautifulSoup(originals[source], "html.parser")
+                    for row in rows:
+                        self.assertEqual(row["source_format"], "html")
+                        self.assertTrue(1 <= row["source_start_line"] <= row["source_end_line"] <= len(originals[source].splitlines()))
+                        target = (root / row["local_path"]).read_bytes().decode()
+                        self.assertIn(row["text_preview"], "\n".join(target.splitlines()[row["start_line"] - 1:row["end_line"]]))
+                        if row.get("source_heading_line"):
+                            self.assertEqual(row["source_heading_line"], soup.h4.sourceline)
+                            self.assertIn(f'id="{stem}-L{soup.h4.sourceline}"', text)
+                self.assertIn("[Cross dpv](#risk-same)", text)
+                self.assertIn("[Cross risk](#rights-same)", text)
+                self.assertIn("[Cross rights](#risk-same)", text)
+                self.assertIn("[Outside](https://example.test/frozen/dpv/modules/outside.html#X)", text)
+                self.assertIn("[External](https://external.test/#same)", text)
+                self.assertIn("[Explicit route](#dpv-same)", text)
+                self.assertEqual(text.count("![](../source/2.3/diagrams/diagram.svg)"), 3)
+                self.assertEqual({path: path.read_bytes() for path in originals}, originals)
+                errors: list[str] = []
+                validator.validate_retained_markdown_binding(manifest, record.capsule_root, {path.relative_to(root).as_posix(): materializer.sha256_file(path) for path in originals}, errors, repository_root=root)
+                self.assertEqual(errors, [])
+                current = (document.read_bytes(), (record.capsule_root / "selectors.jsonl").read_bytes())
+                if previous is not None:
+                    self.assertEqual(current, previous)
+                previous = current
+
+    def test_html_replay_uses_document_url_instead_of_api_download_url_for_unretained_links(self) -> None:
+        with self._retained_html_capsule() as (_, record, sources, originals, document, _), mock.patch.object(
+            materializer, "fetch_bytes", side_effect=AssertionError("HTML replay must stay offline"),
+        ), mock.patch.object(materializer, "prepare_capsule", side_effect=AssertionError("HTML replay must retain originals")):
+            manifest_path = record.capsule_root / "manifest.yaml"
+            manifest = materializer.load_yaml(manifest_path)
+            for retrieval in manifest["retrievals"]:
+                local_path = retrieval["local_path"]
+                endpoint = "https://api.github.com/repos/w3c-cg/dpv/contents/" + local_path.removeprefix("source/") + "?ref=" + "a" * 40
+                retrieval.update({"requested_url": endpoint, "resolved_url": endpoint})
+                if local_path.endswith(".html"):
+                    retrieval["document_url"] = "https://w3c-cg.github.io/dpv/" + local_path.removeprefix("source/")
+            manifest["retrievals"][1]["document_url"] = "https://w3c-cg.github.io/dpv/2.3/dpv/modules/purposes.html"
+            materializer.write_yaml(manifest_path, manifest)
+            materializer.materialize_one(record, {}, "fixed-time")
+            text = document.read_bytes().decode("utf-8")
+            self.assertIn("[Outside](https://w3c-cg.github.io/dpv/2.3/dpv/modules/outside.html#X)", text)
+            self.assertNotIn("api.github.com", text)
+            for source in sources:
+                self.assertIn(f"[Self {source.stem}](#{source.stem}-same)", text)
+            self.assertIn("[Cross dpv](#risk-same)", text)
+            self.assertEqual({path: path.read_bytes() for path in originals}, originals)
+
+    def test_html_preflight_rejects_missing_original_or_asset_before_writing_consumer(self) -> None:
+        for change in ("missing-original", "missing-asset", "asset-drift", "asset-commit", "config-range", "namespace"):
+            with self.subTest(change=change), self._retained_html_capsule() as (_, record, sources, _, _, asset), mock.patch.object(
+                materializer, "fetch_bytes", side_effect=AssertionError("failed HTML replay must stay offline"),
+            ), mock.patch.object(materializer, "prepare_capsule", side_effect=AssertionError("failed HTML replay must retain originals")):
+                manifest_path = record.capsule_root / "manifest.yaml"
+                if change in {"missing-original", "missing-asset"}:
+                    (sources[-1] if change == "missing-original" else asset).unlink()
+                elif change == "asset-drift":
+                    asset.write_bytes(asset.read_bytes() + b"External source drift.\n")
+                else:
+                    manifest = materializer.load_yaml(manifest_path)
+                    if change == "asset-commit":
+                        manifest["retrievals"][-1]["commit"] = "b" * 40
+                    elif change == "config-range":
+                        manifest["materialization"]["retained_text_sources"][0]["config_range"]["end_line"] = 999
+                    else:
+                        manifest["materialization"]["link_rewrites"]["https://official.test/concept"] = "#risk-missing"
+                    materializer.write_yaml(manifest_path, manifest)
+                before = {path: path.read_bytes() for path in record.capsule_root.rglob("*") if path.is_file()}
+                with self.assertRaises(materializer.RetainedMarkdownPreflightError):
+                    materializer.materialize_one(record, {}, "fixed-time")
+                self.assertEqual({path: path.read_bytes() for path in before}, before)
+
+    def test_default_html_to_sections_keeps_legacy_output(self) -> None:
+        text, selectors, title = materializer.html_to_sections(b"<html><title>Legacy</title><body><h1>Root</h1><span>omitted</span><pre><span>A</span>\n<span>B</span></pre></body></html>", "https://example.test/legacy")
+        self.assertEqual((text, title), ("# Root\n\nA B\n", "Legacy"))
+        self.assertEqual([row["text_preview"] for row in selectors], ["Root", "A B"])
+
 
 class MaterializerBoundaryTests(unittest.TestCase):
     def _run_arxiv(
