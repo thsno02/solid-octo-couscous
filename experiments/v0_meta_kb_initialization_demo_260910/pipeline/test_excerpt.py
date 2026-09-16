@@ -77,6 +77,48 @@ class ExcerptTests(unittest.TestCase):
         self.assertTrue(result[0].startswith("This dated specification"))
         self.assert_located(text, result)
 
+    def test_git_text_consumer_uses_sidecar_and_excludes_yaml_example_and_anchors(self):
+        actual = "This fixed specification defines an explicit native contract boundary with stable source evidence and retained original attribution for readers."
+        hidden = "This hidden YAML example describes an impossible unconditional result with enough prose to resemble automatically quoted source evidence."
+        text = ("# Retained specification text (collector assembly)\n\n> Collector assembly labels are not source prose.\n\n"
+                "```yaml\n\n# Fake heading\n\n" + hidden + "\n```\n\n"
+                '<a id="chapter-L1"></a>\n\n## Native chapter\n\n' + actual + "\n")
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            capsule = root / "materialized_sources/corpus/example"
+            (capsule / "normalized").mkdir(parents=True)
+            legacy = capsule / "document.md"
+            legacy.write_bytes(b"Historical excerpt and footer remain unchanged.\r\n")
+            (capsule / "selectors.jsonl").write_bytes(b'{"selector":"historical"}\n')
+            document = capsule / "normalized/document.md"
+            document.write_text(text)
+            selectors = capsule / "normalized/selectors.jsonl"
+            selectors.write_text('{"selector":"derived"}\n')
+            item = {"manifest": "materialized_sources/corpus/example/manifest.yaml"}
+            manifest = {"selectors": ["selectors.jsonl", "normalized/selectors.jsonl"], "materialization": {
+                "retained_text_binding": "git_snapshot", "document": "normalized/document.md", "normalized_document": "normalized/document.md",
+                "retained_text_selectors": "normalized/selectors.jsonl",
+                "retained_text_sources": [{"source": "source/docs/chapter.md", "format": "md"},
+                    {"source": "source/docs/full-example.contract.yaml", "format": "yaml", "role": "example"}],
+            }}
+            with mock.patch.object(build_demo, "ROOT", root):
+                self.assertEqual(choose_local_document(item, manifest), document)
+                self.assertEqual(choose_local_selectors(item, manifest), selectors)
+                result = source_excerpt(document.read_text(), "Native contract", reading_view=True)
+                self.assertEqual(result[0], actual)
+                self.assert_located(text, result)
+                for name in ("retained_text_binding", "retained_text_selectors"):
+                    original = manifest["materialization"].pop(name)
+                    for chooser in (choose_local_document, choose_local_selectors):
+                        with self.subTest(missing=name, chooser=chooser.__name__), self.assertRaises(ValueError):
+                            chooser(item, manifest)
+                    manifest["materialization"][name] = original
+                selectors.unlink()
+                for chooser in (choose_local_document, choose_local_selectors):
+                    with self.subTest(chooser=chooser.__name__), self.assertRaises(ValueError):
+                        chooser(item, manifest)
+            self.assertEqual(legacy.read_bytes(), b"Historical excerpt and footer remain unchanged.\r\n")
+
     def test_reading_view_skips_whole_anchor_contaminated_candidate_without_cleaning(self):
         anchored = (
             "This anchored source paragraph provides enough contiguous prose to satisfy the existing excerpt length and word criteria.\n"
