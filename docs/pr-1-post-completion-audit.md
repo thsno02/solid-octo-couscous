@@ -76,18 +76,13 @@ Generation remains a developer or proposal-branch responsibility; CI becomes an 
 ### A-03 — Full-text publication rights remain unresolved
 
 **Severity:** merge-blocking governance and legal risk  
-**Status:** unresolved; requires an explicit repository decision
+**Status:** 全文留存于当前 GitHub repo 的方向已确定；逐项许可履约尚未完成
 
 The rights audit reports an active full-text set for which public redistribution is blocked. The fail-closed validator is correct: it returns failure unless every active full-text capsule has an explicit audited `allow` decision.
 
-However, the affected files already exist on a public GitHub work branch. A later deletion commit does not remove them from Git history. Therefore the safe options must be decided **before merging PR #1**:
+用户已明确：正文与预处理产物必须持久保存在当前 GitHub repo，以便远程继续工作（remote continuation）。因此执行路径是为保留的每项全文版本取得并记录适用许可，落实署名、原声明、修改说明及第三方材料条件；不能用删除正文、改写历史、替换为链接或迁移存储作为替代交付。
 
-1. rewrite the work branch so rights-blocked source bodies never enter the merge history;
-2. replace PR #1 with a sanitized branch that keeps metadata, hashes, selectors and permitted excerpts only;
-3. obtain and record explicit redistribution permission for each retained full-text revision;
-4. move restricted bodies to a controlled object store and keep only stable references in Git.
-
-Merging first and deleting later is not an equivalent remediation.
+这些文件已存在公开工作分支，并不意味着许可问题自动消失。尚未核实的项目保持阻塞，在逐项完成许可履约之前不合并 PR #1；也不把用户的存储选择解释为第三方授权。
 
 Relevant records:
 
@@ -137,7 +132,7 @@ publication lane
   repository proposal branch (text + manifests + derived artifacts) → PR → independent CI → review → merge
 ```
 
-The remaining 88 blocked full-text capsules prevent the producer from uploading a new batch; two fixed-version W3C text packages have met their notice and attribution conditions, but this is not a successful end-to-end upload. Failed rights checks never fall back to publishing an artifact or pushing a branch. Already committed text remains in GitHub, and remote continuation reads the selected commit rather than depending on a previous runner. See [the current operating guide](ci-workflow.md) for default-branch activation, Actions PR-creation permissions and the approval-required CI behavior of automation-created PRs.
+剩余 86 项受阻的全文使生产流程无法上传新批次；四项固定版本 W3C 文字包已完成声明与署名条件，但不代表端到端上传成功。许可失败不会退回 artifact 发布或直接推送分支。已提交正文留存在 GitHub，远程任务检出相应 commit 继续工作，无需依赖上一个 runner。默认分支启用、Actions 创建 PR 权限及自动化 PR 的 CI 批准要求见[当前操作说明](ci-workflow.md)。
 
 ### A-06 — Reproducibility is same-environment, not yet supply-chain reproducibility
 
@@ -164,6 +159,15 @@ The first admission batch should remain small and should use independent reviewe
 
 **准入范围澄清（Admission scope）：** 原始[准入矩阵](llm-wiki/07-admission-governance-and-evolution.md)将 Page 的 schema/citations 列为 candidate gate，将 review/policy/evaluation/freshness 列为 trusted/published gate。因此，人工编辑审核是可信晋升或正式发布前的门槛，不应被本审计扩大为候选 pipeline 代码 PR 的必需人工批准。当前 review/not_started、candidate、trusted=0 与 rollout=none 均保持不变。Source 的 rights 本来就属于 candidate gate，不能用候选状态豁免公开全文许可。
 
+### A-08 — arXiv 的 PDF 响应被当成 TeX（待修复）
+
+**严重性：** 物化内容完整性缺陷，不能由结构 CI 绿灯豁免
+**状态：** 2026-09-16 许可批次复核时发现，尚未修复
+
+`arxiv:2502.18864` 的 manifest 记录响应为 `application/pdf`、5,885,207 bytes，却由 `arxiv_latex_v2` 标为 `archive_container: single`、`materialized/full_text`。保存的 `source/main.tex` 被本机 `file` 识别为 PDF 1.4，文件大小已变成 10,164,708 bytes；它不是可信的 TeX 原稿。`unpack_arxiv` 的单文件回退与后续文本解码没有区分 PDF，现有清单/重放检查也不验证这种媒体类型错配。
+
+后续须先识别实际响应类型，沿现有 PDF 文本提取路径恢复可消费正文和有效定位器，并加入最小回归测试；不能只更改扩展名或把错误产物重新加上许可声明。恢复仍需绑定许可与原始版本，不删除全文来隐藏问题。本项未在当前许可包装批次中冒充已解决。
+
 ## Positive controls confirmed
 
 The audit found the following controls to be materially useful:
@@ -180,13 +184,13 @@ The audit found the following controls to be materially useful:
 
 ## Merge recommendation
 
-PR #1 is technically suitable as a **candidate pipeline implementation**, subject to the fixes in the follow-up audit PR. It should not be merged with rights-blocked full-text bodies still present in its merge history.
+PR #1 的候选 pipeline 已有结构验证基础，但仍须完成许可履约及 A-08 的物化类型修复；不能以现有 CI 绿灯证明全部正文已正确物化。存在许可阻塞或该已知完整性缺陷时，不合并 main。
 
 Recommended decision sequence:
 
 1. merge the follow-up audit PR into the PR #1 work branch;
 2. confirm the single `CI` / `Quality gate` passes on the new parent PR head, including committed-tree replay;
-3. choose and execute the full-text storage/rights remediation;
+3. 按已确定的 repo 全文留存要求逐项完成许可履约（rights clearance）；
 4. enable branch protection and required checks;
 5. review the candidate implementation as a code PR without claiming editorial admission, then mark ready and merge only after its applicable gates are met.
 

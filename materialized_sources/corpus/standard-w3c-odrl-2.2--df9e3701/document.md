@@ -1176,3 +1176,15 @@ No significant changes.
 
 
 ### E.2 Informative references
+
+
+<!-- materialization-redistribution-notice -->
+## Redistribution notice
+
+This document includes material copied from or derived from "ODRL Information Model 2.2", https://www.w3.org/TR/2018/REC-odrl-model-20180215/. Copyright © 2018 W3C® (MIT, ERCIM, Keio, Beihang). https://www.w3.org/copyright/software-license-2015/
+
+Changes: Converted from W3C HTML to Markdown; navigation, hyperlinks, styling, and figures may be omitted or normalized; selector excerpts were generated.
+
+Scope: 仅覆盖该固定 Recommendation 的规范文字及由其生成的 selector 摘录；原页面 PNG/SVG 图、外链材料、W3C 商标和专利不在授权范围。
+
+Full license and original rights links: [NOTICE.md](NOTICE.md).

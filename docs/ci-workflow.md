@@ -11,7 +11,7 @@
 
 物化流水线执行：现有许可预检 → 测试 → 获取/预处理/构建/结构校验 → 重放 → 生成版本的许可检查 → 提案分支 commit/push → Draft PR → 独立 CI 与审查。只有这条人工触发的生产流程申请 `contents: write` 和 `pull-requests: write`；它不直接更新 base/main，不强推，不自动合并。每次运行使用新的 `codex/materialize-<run_id>-<attempt>` 分支，避免覆盖人的工作；无变化时不创建空 PR。普通 CI 仍只读。
 
-公开仓库中的提案分支也公开，因此许可检查必须在 push **之前**执行。当前全文检查为 `active=90 / blocked=88 / errors=0`：两项 W3C 文字包已落实许可条件，整体生产流程仍会在预检停止；不能把这个预期阻断称为成功上传。新 revision 若不匹配已有许可审计或声明的许可包，生产流程会失败，不会自动改写审计为 allow。来源的 metadata-only、partial 等状态仍需阅读报告，运行成功不保证所有 URL 已获取全文。
+公开仓库中的提案分支也公开，因此许可检查必须在 push **之前**执行。当前全文检查为 `active=90 / blocked=86 / errors=0`：四项 W3C 文字包已落实许可条件，整体生产流程仍会在预检停止；不能把这个预期阻断称为成功上传。新 revision 若不匹配已有许可审计或声明的许可包，生产流程会失败，不会自动改写审计为 allow。来源的 metadata-only、partial 等状态仍需阅读报告，运行成功不保证所有 URL 已获取全文。
 
 **CI green 仅表示代码、结构与确定性重放通过；不表示公开分发许可（publication rights）、人工编辑准入（human editorial admission）或发布批准（release approval）已通过。** 许可检查器 `scripts/validate_publication_rights.py` 保持 fail-closed；文本入库的产品要求不等于自动授予第三方全文许可。
 
