@@ -6,10 +6,10 @@
 
 - 51 条找到明确公众复制/再分发许可，分类为 <code>documented_permission</code>；这不表示当前胶囊已经履约。
 - 40 条未找到面向公众/本仓库的适用许可，分类为 <code>permission_unverified</code>；不应公开再分发全文。
-- 基线审计的 91 项中，七项 W3C、ODCS 3.2.0 定义首页、五项 arXiv、LinkML 文档首页及 Schema.org 文档快照已完成当前内容版本的许可包装，15 项为 <code>allow</code>；其余 76 项仍为 <code>block</code>。
+- 基线审计的 91 项中，七项 W3C、ODCS 3.2.0 定义首页、六项 arXiv、LinkML 文档首页及 Schema.org 文档快照已完成当前内容版本的许可包装，16 项为 <code>allow</code>；其余 75 项仍为 <code>block</code>。
 - Apache Ossie 基线胶囊只有 7 bytes（# Home），不是实质标准全文；后续降级不删除其基线审计行。
 
-当前 `full_text` 为 90 条，公开发布门检查结果为 `active_full_text=90 audited=91 blocked=75 errors=0`；整体仍未放行。75 项分为 40 项尚无适用公众许可证据、35 项已有许可证据但尚待履约，不应统称为缺少授权。审计覆盖数 91 与当前全文数 90 使用不同基线，不应混用。全文继续保存在本 GitHub repo；本次保留既有正文与快照，只补齐许可条件和传播信息，未移除作品、迁移存储或改写 Git 历史。
+当前 `full_text` 为 90 条，公开发布门检查结果为 `active_full_text=90 audited=91 blocked=74 errors=0`；整体仍未放行。74 项分为 40 项尚无适用公众许可证据、34 项已有许可证据但尚待履约，不应统称为缺少授权。审计覆盖数 91 与当前全文数 90 使用不同基线，不应混用。全文继续保存在本 GitHub repo；本次保留既有正文与快照，只补齐许可条件和传播信息，未移除作品、迁移存储或改写 Git 历史。
 
 机器可读逐条记录：<code>raw_data/audits/materialization_rights_review.yaml</code>。本报告记录许可证据与已落实的包装条件，不是法律意见或人工批准。
 
@@ -36,11 +36,11 @@
 | 基线 full_text | 91 |
 | documented_permission | 51 |
 | permission_unverified | 40 |
-| allow_after_conditions_met | 36 |
-| allow_with_packaged_notice | 15 |
+| allow_after_conditions_met | 35 |
+| allow_with_packaged_notice | 16 |
 | do_not_redistribute_full_text | 40 |
-| publication gate: allow | 15 |
-| publication gate: block（基线项） | 76 |
+| publication gate: allow | 16 |
+| publication gate: block（基线项） | 75 |
 
 ### Robin / Kosmos：论文正文与额外收录的摘要分别判断
 
@@ -165,13 +165,25 @@ RFC6874 的三条规则 `IP-literal`、`ZoneID`、`IPv6addrz` 按出版时生效
 - GraphRAG 的固定 arXiv v2 与现存包已对齐，但实际保存的 `neurips_2024.sty` 尚缺明确再分发依据。匿名投稿页脚中的 “Do not distribute” 不是样式文件自身的禁止分发条款；我们既不错误认定它禁止，也不把可下载当作授权。
 - Robin 与 Kosmos 的 `references.bib` 分别含 88、80 个摘要字段及 15、31 个版权字段，不是纯书目。需按实际保存的第三方摘要逐项核清许可，不能只用论文作者的 CC BY 覆盖；这不表示所有摘要都不可分发，当前证据仍不足。
 
-WikiChat 新找到[作者官方公告](https://github.com/stanford-oval/WikiChat)与 [arXiv v2](https://arxiv.org/abs/2305.14292v2)的同日 camera-ready 版本绑定，连同 [ACL 出版记录](https://aclanthology.org/2023.findings-emnlp.157/)和[版权政策](https://aclanthology.org/faq/copyright/)，支持将作者论文正文记为 `documented_permission / CC-BY-4.0`。这不是整个 archive 的放行：`emnlp2023.sty`、`acl_natbib.bst` 等第三方组件及 NOTICE 仍需核清，门控保持 `block`。FActScore、ALCE、RAGTruth、STORM 与 WikiContradict 的替代出版路径尚未形成适用于现存版本的充分公众许可链；相似文本、相同标题或代码/数据许可证都不单独补足这个缺口。
+FActScore、ALCE、RAGTruth、STORM 与 WikiContradict 的替代出版路径尚未形成适用于现存包全部表达的充分公众许可链；相同标题或代码/数据许可证都不单独补足这个缺口。WikiChat 的论文、历史模板与 Wikipedia 范围则分别按下节证据处理，不把论文许可覆盖到所有附带组件。
 
 本次对上述待办作了进一步有界核验和纠错：
 
 - ALCE 的[正式 ACL 出版内容](https://aclanthology.org/2023.emnlp-main.398/)有 BY4 路径，主体及附录主干与本地对应；阻碍不再笼统表述为缺少作者精确版本声明。本地附录额外三段 Open-source Models 及 Stable Beluga 2 结果行，未出现在正式出版 PDF 或作者仓库论文副本中，需继续核对这些具体表达的适用许可。两份额外摘要分别有 ACL 作品级许可入口，模板也有官方 Overleaf BY4 线索，但实际组件对应与包装未完成；整包仍为 block。
 - Progressive Neural Networks 实存 March 2016 模板尚缺覆盖实际版本的公众许可依据；Darwin Gödel Machine 包含 ICLR2026 模板及有原源码随附条件的 natbib 8.31。这些是有界组件发现，未冒称已经核对整包固定版本，也不将投稿页脚的 Do not distribute 当作模板禁令。
 - GEM 的一条替代出版商证据曾错配另一篇作品。已在机器审计中明确排除该条对 GEM 的证明作用并保留纠错历史；官方 GEM 题名、作者、NIPS2017 出版信息和版本史与原错配记录不同。此次纠错不新增或否定 GEM 的公众许可，不改变其门控。
+
+## WikiChat：论文、历史模板与 Wikipedia 摘录分别履约
+
+[作者 camera-ready 公告](https://github.com/stanford-oval/WikiChat/blob/cc8a1677e4fe3a13f97f5e4034d7ee7117cb717c/README.md)、[固定 arXiv v2](https://arxiv.org/abs/2305.14292v2)、[ACL 出版记录](https://aclanthology.org/2023.findings-emnlp.157/)及[版权政策](https://aclanthology.org/faq/copyright/)共同支持论文自身表达的 CC BY4 路径，不将 arXiv 的 non-exclusive 托管许可误当公众再分发授权。
+
+历史模板有独立依据：[EMNLP 2023 官方样式页](https://2023.emnlp.org/calls/style-and-formatting/)同时指向该年 ZIP 和 [2023 专用 Overleaf 模板](https://www.overleaf.com/latex/templates/instructions-for-emnlp-2023-proceedings/scyjxmtnrskr)。后者列 Houda Bouamor、Juan Pino、Kalika Bali 及 CC BY4，且明确包内 STY/BST；现存两文件分别为 11,225 和 47,709 bytes，与官方 ZIP 对应成员相同。BST 的 Patrick W. Daly 原许可及改编记录另行保留，采用其允许的 LPPL 后续版本 1.3c；[Norman Gray 官方说明](https://ctan.org/tex-archive/biblio/bibtex/contrib/urlbst)将 2002–23 年 urlbst 生成修改授予 LPPL，脚本自身的 GPL 不混套至生成修改。此处没有声称取得 urlbst 0.7 原始发行包或把实际组件改称 0.9.1。
+
+Wikipedia 范围包括 appendix 中的地震、Matt Willis、两次 Mauna Loa 喷发，以及 sample_outputs 中的澳网和 Tsitsipas 介绍/打法。六页分别署名 Wikipedia contributors 并提供文章链接；实际截取、分解、改写、旧统计及 Unicode 转义保留并说明，不能把这些段落套进论文 BY4。依据[现行使用条款 §7](https://foundation.wikimedia.org/wiki/Policy:Terms_of_Use#7._Licensing_of_Content)及[官方 3→4 升级说明](https://meta.wikimedia.org/wiki/Terms_of_use/Creative_Commons_4.0/Legal_note)，采用与现行页面对应的 BY-SA4 路径；文章 URL 及其 history 可以提供作者归属，不普遍要求精确 oldid 或额外作者许可函。论文所述 dump 日期不被冒充各段实际采集日期，现行页面也不被声称与旧段落全部逐字相同。该范围不自动将独立论文或整个仓库改为 BY-SA。
+
+六页当前正文、页脚和讨论页做了有界检查，不冒称审计了全部编辑历史。1984 喷发页明确包含 USGS 公有领域材料，包装保留 U.S. Geological Survey 来源说明；BY-SA 不给公有领域材料新增限制。Matt Willis 和 Tsitsipas 讨论页中的图片版权问题对应未保存的图像，不外推为当前文字的阻塞。
+
+固定 v2 的两次真实重建中，25 个胶囊文件逐字节一致；17 个 source 文件、规范化 TeX 和 59 个 selectors 与包装前相同，原 81,949-byte 正文完整保留，仅追加一次归属和许可末注。完整 BY4、BY-SA4、LPPL1.3c 随 NOTICE 入库，六字段声明进入 registry，后续消费继续使用现有通用传播机制，没有新增 WikiChat 特例。WikiChat 未进入本轮 demo 选中的 36 个来源，不能声称已生成其 Wiki 派生摘录；既有 71 条 claim 正文和 71 条 evidence 摘录保持不变。组合资产与 NOTICE 各保留 LPPL 官方原文的 24 处行尾空白，不将其描述为 diff-check 全量无警告。
 
 ## 来源族发现（Source-family Findings）
 
@@ -214,7 +226,7 @@ WikiChat 新找到[作者官方公告](https://github.com/stanford-oval/WikiChat
 | 24 | <code>arxiv:2210.11610</code> | <code>materialized_sources/corpus/arxiv-2210.11610--122d6152/manifest.yaml</code><br><code>raw_data/arxiv/Large Language Models Can Self-Improve/metadata.yaml</code> | 官方许可只授予 arXiv.org 非独占分发权，不授予公众或本仓库。；本地 access=<code>unknown</code>，assumed=true | 面向公众的论文全文复制/再分发许可。；许可版本、权利人和精确作品版本绑定。 | <code>permission_unverified</code> | 不公开全文，仅元数据/链接；当前 gate=block |
 | 25 | <code>arxiv:2304.05376</code> | <code>materialized_sources/corpus/arxiv-2304.05376--4e0dcba3/manifest.yaml</code><br><code>raw_data/arxiv/ChemCrow: Augmenting large-language models with chemistry tools/metadata.yaml</code> | 官方许可只授予 arXiv.org 非独占分发权，不授予公众或本仓库。；本地 access=<code>unknown</code>，assumed=true | 面向公众的论文全文复制/再分发许可。；许可版本、权利人和精确作品版本绑定。 | <code>permission_unverified</code> | 不公开全文，仅元数据/链接；当前 gate=block |
 | 26 | <code>arxiv:2305.14251</code> | <code>materialized_sources/corpus/arxiv-2305.14251--582edc7d/manifest.yaml</code><br><code>raw_data/arxiv/FActScore: Fine-grained Atomic Evaluation of Factual Precision in Long Form Text Generation/metadata.yaml</code> | 官方许可只授予 arXiv.org 非独占分发权，不授予公众或本仓库。；本地 access=<code>metadata_only</code>，assumed=true | 面向公众的论文全文复制/再分发许可。；许可版本、权利人和精确作品版本绑定。 | <code>permission_unverified</code> | 不公开全文，仅元数据/链接；当前 gate=block |
-| 27 | <code>arxiv:2305.14292</code> | <code>materialized_sources/corpus/arxiv-2305.14292--5b8a65bd/manifest.yaml</code><br><code>raw_data/arxiv/WikiChat: Stopping the Hallucination of Large Language Model Chatbots by Few-Shot Grounding on Wikipedia/metadata.yaml</code> | CC-BY-4.0；作者2023-10-27 camera-ready公告、固定arXiv v2与ACL DOI/许可对应；仅作者论文表达 | 第三方TeX组件范围及NOTICE履约尚未完成 | <code>documented_permission</code> | 满足条件后才可考虑发布；当前 gate=block |
+| 27 | <code>arxiv:2305.14292</code> | <code>materialized_sources/corpus/arxiv-2305.14292--5b8a65bd/manifest.yaml</code><br><code>raw_data/arxiv/WikiChat: Stopping the Hallucination of Large Language Model Chatbots by Few-Shot Grounding on Wikipedia/metadata.yaml</code> | 固定 v2；论文与2023模板 BY4、BST LPPL1.3c、六页 Wikipedia BY-SA4 分别署名和界定范围，USGS来源保留 | 组合 NOTICE 与实际正文末注已包装；17源文件及既有表达不变 | <code>documented_permission</code> | 当前已存固定文本包 gate=allow；不外推未保存媒体或人工批准 |
 | 28 | <code>arxiv:2305.14627</code> | <code>materialized_sources/corpus/arxiv-2305.14627--6d5b37c6/manifest.yaml</code><br><code>raw_data/arxiv/Enabling Large Language Models to Generate Text with Citations/metadata.yaml</code> | 官方许可只授予 arXiv.org 非独占分发权，不授予公众或本仓库。；本地 access=<code>metadata_only</code>，assumed=true | 面向公众的论文全文复制/再分发许可。；许可版本、权利人和精确作品版本绑定。 | <code>permission_unverified</code> | 不公开全文，仅元数据/链接；当前 gate=block |
 | 29 | <code>arxiv:2310.02304</code> | <code>materialized_sources/corpus/arxiv-2310.02304--0938f3f9/manifest.yaml</code><br><code>raw_data/arxiv/Self-Taught Optimizer (STOP): Recursively Self-Improving Code Generation/metadata.yaml</code> | 官方许可只授予 arXiv.org 非独占分发权，不授予公众或本仓库。；本地 access=<code>unknown</code>，assumed=true | 面向公众的论文全文复制/再分发许可。；许可版本、权利人和精确作品版本绑定。 | <code>permission_unverified</code> | 不公开全文，仅元数据/链接；当前 gate=block |
 | 30 | <code>arxiv:2310.11511</code> | <code>materialized_sources/corpus/arxiv-2310.11511--2a23ab40/manifest.yaml</code><br><code>raw_data/arxiv/Self-RAG: Learning to Retrieve, Generate, and Critique through Self-Reflection/metadata.yaml</code> | <code>CC-BY-4.0</code>；arXiv 官方文章页的 Rights to this article 链接指向 CC-BY-4.0。；本地 access=<code>unknown</code>，assumed=true | 本地三处 rights 未记录该文章许可及核验日期。；retrieval hash 尚未与确切 arXiv vN 建立可审计映射。 | <code>documented_permission</code> | 满足条件后才可考虑发布；当前 gate=block |

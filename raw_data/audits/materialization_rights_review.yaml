@@ -22,12 +22,12 @@ summary:
     documented_permission: 51
     permission_unverified: 40
   recommendation_counts:
-    allow_after_conditions_met: 36
-    allow_with_packaged_notice: 15
+    allow_after_conditions_met: 35
+    allow_with_packaged_notice: 16
     do_not_redistribute_full_text: 40
   publication_gate_counts:
-    block: 76
-    allow: 15
+    block: 75
+    allow: 16
   license_evidence_counts:
     CC-BY-4.0: 25
     none: 40
@@ -45,11 +45,11 @@ summary:
   - 73 篇 arXiv 中32篇官方文章页提供CC许可；WikiChat另由作者exact v2 camera-ready声明与ACL许可形成作者正文授权链，其余40篇仍缺适用公众许可证据。arXiv nonexclusive/assumed本身不转授公众权利。
   - 14 份 W3C 文档都有许可；7 份旧式许可对 HTML→Markdown 仍需衍生权审查。
   - LinkML、Apache Ossie、ODCS 有 Apache-2.0 证据；Schema.org supporting documentation 有 CC BY-SA 3.0 证据。
-  - 基线91项中7项W3C、ODCS 3.2.0定义首页、5项arXiv、LinkML单页及Schema.org既有文档快照已完成当前revision与NOTICE包装，15项allow；其余76项仍block（当前活跃全文75项block，其中40项缺许可、35项待履约）。
+  - 基线91项中7项W3C、ODCS 3.2.0定义首页、6项arXiv、LinkML单页及Schema.org既有文档快照已完成当前revision与NOTICE包装，16项allow；其余75项仍block（当前活跃全文74项block，其中40项缺许可、34项待履约）。
 review_completion:
   evidence_review_complete_for_baseline: true
   legal_clearance_complete: false
-  can_human_review_be_completed: 证据审计已完成；51条有公众许可证据，其中15条完成当前包装，36条仍待履约；另40条须取得适用许可或新的权威许可证据。客观许可履约不默认要求另行人工批准，Agent也不代替权利人授予新许可；未核实不表示不存在其他现有授权，替代出版路径也可通过实际表达对应建立。
+  can_human_review_be_completed: 证据审计已完成；51条有公众许可证据，其中16条完成当前包装，35条仍待履约；另40条须取得适用许可或新的权威许可证据。客观许可履约不默认要求另行人工批准，Agent也不代替权利人授予新许可；未核实不表示不存在其他现有授权，替代出版路径也可通过实际表达对应建立。
   not_legal_advice: true
 items:
 - sequence: 1
@@ -1938,6 +1938,7 @@ items:
   source_revision: sha256:e9cb4c7d3bfb5db6538627bdae386fc015f7f1aabb7dbf39a8bc9b4f6d76005f
   canonical_url: https://arxiv.org/abs/2305.14292
   observed_rights:
+    observation_context: 基线观察（baseline observation），保留原 metadata_only/assumed 状态用于审计，不代表本轮包装后的当前状态；当前四方 package 与实物验证见下方证据和 current_capsule_compliance。
     manifest:
       declared_access: metadata_only
       full_text_redistribution_assumed: true
@@ -1954,11 +1955,13 @@ items:
   evidence:
   - kind: manifest_assertion
     path: materialized_sources/corpus/arxiv-2305.14292--5b8a65bd/manifest.yaml
+    observation_context: baseline_observation
     locator: rights
     finding: declared_access=metadata_only; full_text_redistribution_assumed=True; basis=arXiv source archive
     supports_public_redistribution: false
   - kind: source_metadata
     path: 'raw_data/arxiv/WikiChat: Stopping the Hallucination of Large Language Model Chatbots by Few-Shot Grounding on Wikipedia/metadata.yaml'
+    observation_context: baseline_observation
     locator: rights
     finding: access=metadata_only; license_spdx=None; license_verified_at=None; notes=The repository stores metadata and source links;
       paper licensing must be checked during materialization.
@@ -2007,29 +2010,154 @@ items:
     finding: emnlp2023.sty与官方模板ZIP成员一致，未在该文件/ZIP找到独立再分发许可；正文main.tex还保留模板说明。acl_natbib.bst内有Patrick W Daly版权及LPPL version1-or-later，官方urlbst说明其生成修改部分沿用LPPL，可通过保留头注和适用许可履约。appendix.tex:325-336、431-435及normalized正文实际含四组Wikipedia文章摘录，需要页面归属、许可与修改说明，不能全部归入作者论文CC
       BY。纯书目事实不要求逐条另取许可；未因缺少研究参与者原始同意书或历史模型服务合同而自行新增门槛。
     supports_public_redistribution: false
-  missing:
-  - source/emnlp2023.sty、source/acl_natbib.bst 等第三方组件尚未逐件确认再分发范围；acl_natbib.bst 含 Patrick W Daly 版权与 LPPL 声明，不能按论文 CC BY 4.0 自动覆盖。
-  - 示例输出、引用材料及其他第三方内容尚未逐件划定许可边界。
-  - 尚未形成覆盖作者、标题、来源、许可链接及修改说明的 NOTICE/署名履约包。
-  - 四组实际保存的Wikipedia摘录尚未补齐来源页面/历史归属、适用CC BY-SA与转换说明；不是未保存外链的抽象风险。
+  - kind: official_emnlp2023_template_license_and_exact_zip_members
+    url: https://2023.emnlp.org/calls/style-and-formatting/
+    related_urls:
+    - https://2023.emnlp.org/downloads/emnlp2023-latex.zip
+    - https://www.overleaf.com/latex/templates/instructions-for-emnlp-2023-proceedings/scyjxmtnrskr
+    license_url: https://creativecommons.org/licenses/by/4.0/
+    checked_at: '2026-09-16'
+    finding: 官方2023会议页面同时链接当年ZIP与Instructions for EMNLP 2023 Proceedings的Overleaf模板；模板署名Houda Bouamor/Juan Pino/Kalika Bali，明确CC BY4，View Source列明模板包含sty和acl_natbib.bst。executor真实获取官方ZIP，emnlp2023.sty11225bytes与acl_natbib.bst47709bytes逐字节匹配当前保留组件。模板及main.tex既有模板说明按此归属，BST自身LPPL不被模板BY4取代。
+    supports_public_redistribution: true
+  - kind: retained_bst_lppl_and_urlbst_generated_modifications
+    path: materialized_sources/corpus/arxiv-2305.14292--5b8a65bd/source/acl_natbib.bst
+    related_urls:
+    - https://github.com/acl-org/acl-style-files/blob/4c318538c99ce2d91201a3b43cfc12ef513e374b/acl_natbib.bst
+    - https://ctan.org/tex-archive/biblio/bibtex/contrib/urlbst
+    - https://www.latex-project.org/lppl/lppl-1-3c.txt
+    checked_at: '2026-09-16'
+    finding: 原文件保留Copyright1994-2002 Patrick W Daly与LPPL version1-or-later；保留Ron Artstein创建compling.bst于2005-08-22、Dan Gildea2017/2019与Shay Cohen2018修改记录及urlbst0.7标记。官方CTAN声明生成修改Copyright2002-2023 Norman Gray并按LPPL许可，GPL仅作用于未保存的urlbst脚本。本包选择完整LPPL1.3c并逐字复制现有完整法条，不修改47709bytes原BST，不声称Current Maintainer或作者提供支持。
+    supports_public_redistribution: true
+  - kind: six_retained_wikipedia_expression_scopes_and_upgrade_path
+    path: materialized_sources/corpus/arxiv-2305.14292--5b8a65bd/source
+    locators:
+    - appendix.tex L325/L328-L331/L336/L432/L435
+    - sample_outputs.tex L7/L35/L44/L47
+    urls:
+    - https://en.wikipedia.org/wiki/1934_Nepal%E2%80%93India_earthquake
+    - https://en.wikipedia.org/wiki/Matt_Willis
+    - https://en.wikipedia.org/wiki/2022_eruption_of_Mauna_Loa
+    - https://en.wikipedia.org/wiki/1984_eruption_of_Mauna_Loa
+    - https://en.wikipedia.org/wiki/2023_Australian_Open_%E2%80%93_Men%27s_singles
+    - https://en.wikipedia.org/wiki/Stefanos_Tsitsipas
+    - https://meta.wikimedia.org/wiki/Terms_of_use/Creative_Commons_4.0/Legal_note
+    - https://foundation.wikimedia.org/wiki/Policy:Terms_of_Use
+    license_url: https://creativecommons.org/licenses/by-sa/4.0/
+    checked_at: '2026-09-16'
+    finding: planner/evaluator核对现行表达与当前可见正文/footer/talk，executor独立查看六页BYSA4 footer；实际保存六页摘录/近似复用与既有改写，尤其tennis两个样例含Australian Open开篇及Tsitsipas职业/No64/Playing style表达，不只是事实主题。六页各自Wikipedia contributors+原URL归属、BYSA4分享改编和selector摘录说明均进入实际正文末注、package与NOTICE。官方Wikimedia法务说明3→4适配与情境URL归属路径；不要求虚构exactoldid/采集日期或全部作者名单，不声称完整历史逐版核查。旧稿的地震距离遗漏、Unicode转义、分解改写与旧统计如实保留且不归因未知人；BYSA范围不外推独立论文/整repo，未保存照片的fair-use争议不影响本次文字包。
+    supports_public_redistribution: true
+  - kind: retained_wikipedia_usgs_public_domain_credit
+    url: https://en.wikipedia.org/wiki/1984_eruption_of_Mauna_Loa
+    related_urls:
+    - https://www.usgs.gov/information-policies-and-instructions/copyrights-and-credits
+    checked_at: '2026-09-16'
+    finding: 1984火山页正文References声明incorporates public domain material from USGS，隐藏分类亦注明USGS text。本包保留Wikipedia页的来源声明与Credit U.S. Geological Survey及官方版权/归属URL；USGS自有美国公有领域材料本身不加BYSA限制，未冒充WikiChat作者原创。
+    supports_public_redistribution: true
+  - kind: complete_component_notices_and_two_real_fixed_v2_rebuilds
+    path: materialized_sources/corpus/arxiv-2305.14292--5b8a65bd/normalized/document.txt
+    notice_path: raw_data/licenses/wikichat-v2-cc-by-4.0-wikipedia-cc-by-sa-4.0-lppl-1.3c.md
+    checked_at: '2026-09-16'
+    generated_at: '2026-09-16T04:30:26Z'
+    finding: 最终metadata状态下调用既有materialize_one两次真实固定v2完整重建，官方gzip响应8611233bytes与既有source_revision精确一致，均materialized/full_text且warnings/errors为空；25个胶囊文件逐字节一致。17个source文字文件、normalized/document.tex及59selectors内容/定位完整保留，原81949bytes normalized/document.txt为新正文精确前缀，仅末尾追加恰1次归属/范围/修改声明，嵌套正文NOTICE链接为../NOTICE.md。BY4/BYSA4/LPPL1.3c三个完整法条fenced块与现有完整资产逐字一致，无截断；组合NOTICE66288bytes与胶囊副本精确一致。六字段package在canonical/capsule metadata/manifest/audit一致，未晋升evidence/governance状态，未删改第三方内容或以元数据代替正文。
+    supports_public_redistribution: true
+  missing: []
   classification: documented_permission
   license_id: CC-BY-4.0
   license_url: https://creativecommons.org/licenses/by/4.0/
-  license_scope: 覆盖当前 source_revision 对应的 arXiv 2305.14292v2 论文正文中权利人有权许可的表达；不自动覆盖 emnlp2023.sty、acl_natbib.bst、代码、模型、数据、示例输出或其他第三方材料。
-  license_restrictions: []
+  license_scope: 当前精确v2论文作者/ACL有权许可表达与EMNLP2023模板BY4；acl_natbib.bst及urlbst生成修改LPPL1.3c；六页Wikipedia已存表达/既有改写与其selector独立BYSA4，USGS自有美国公有领域材料不附加BYSA限制。各来源许可不互相替代，不覆盖未保存外链媒体/程序/模型/数据包、商标或专利，也不将SA扩张到整篇论文或整仓库。
+  license_restrictions:
+  - 作者/标题/固定版本/ACL来源/许可URL与转换说明随包保留，不附加额外限制。
+  - Wikipedia表达及既有改写/selector保留逐页contributors+来源与BYSA4分享改编范围；USGS公有领域来源保留归属但不限制公有领域本身。
+  - BST保留原版权/LPPL头注、历史修改标记和完整法条；当前仓库不修改组件、不声称维护者或作者支持。
   evidence_confidence: high
-  public_redistribution_recommendation: allow_after_conditions_met
+  public_redistribution_recommendation: allow_with_packaged_notice
   conditions:
-  - 署名全部作者，保留论文标题、arXiv/ACL 来源、CC BY 4.0 许可链接，并标明规范化/转换修改。
-  - 对 emnlp2023.sty、acl_natbib.bst（含 Patrick W Daly 版权/LPPL 声明）及其他第三方内容逐件保留其许可/版权或排除。
-  - 生成并随包保存作者/标题/来源/许可（TASL）与修改说明的 NOTICE 履约记录，且不附加限制。
-  current_capsule_compliance: pending_license_compliance_and_transformation_review
+  - 当前source_revision的作者/模板/Wikipedia/BST分层归属与完整组合NOTICE随原文保留，未来revision不继承当前allow。
+  - 17个源文字文件和既有正文/selector不得因清权删除或替换；继续分享Wikipedia改编须保留其独立BYSA条件。
+  current_capsule_compliance: verified_revision_and_notice_packaged
   publication_gate:
-    decision: block
-    reason: 精确 arXiv v2 与 camera-ready/CC BY 4.0 的映射已确认，但第三方 TeX/内容范围及 NOTICE/署名履约尚未完成。
-  human_follow_up:
-  - 审核或排除 emnlp2023.sty、acl_natbib.bst 及其他第三方内容，并保留各自适用的许可/版权声明。
-  - 补齐作者、标题、来源、许可链接与修改说明的 NOTICE 后再审批。
+    decision: allow
+    reason: 仅允许当前已绑定精确v2的文字包：ACL论文与EMNLP2023模板BY4、原BST及生成修改LPPL、六页Wikipedia表达BYSA4分别有权威依据并已随含相关表达的正文完整署名/分层声明；USGS公有领域信用保留且不限制其本身。原17源文件/正文/59selector不删改，真实两次重建25文件一致、四方六字段package一致；不以arXiv非独占分发许可或用户上传意愿推导授权。
+  human_follow_up: []
+  redistribution_package:
+    source_revision: sha256:e9cb4c7d3bfb5db6538627bdae386fc015f7f1aabb7dbf39a8bc9b4f6d76005f
+    source_version_url: https://arxiv.org/abs/2305.14292v2
+    notice_path: raw_data/licenses/wikichat-v2-cc-by-4.0-wikipedia-cc-by-sa-4.0-lppl-1.3c.md
+    attribution: 'Paper attribution: Sina J. Semnani, Violet Z. Yao, Heidi C. Zhang and Monica S. Lam, "WikiChat:
+      Stopping the Hallucination of Large Language Model Chatbots by Few-Shot Grounding on Wikipedia" (2023), fixed
+      arXiv v2 https://arxiv.org/abs/2305.14292v2, ACL publication https://aclanthology.org/2023.findings-emnlp.157/,
+      DOI https://doi.org/10.18653/v1/2023.findings-emnlp.157. The ACL-published paper material is available under
+      Creative Commons Attribution 4.0 International, https://creativecommons.org/licenses/by/4.0/; publisher policy
+      https://aclanthology.org/faq/copyright/. This applies to the paper material the licensor may license, not independently
+      licensed third-party components. Author-maintained camera-ready mapping: https://github.com/stanford-oval/WikiChat/blob/cc8a1677e4fe3a13f97f5e4034d7ee7117cb717c/README.md#L47-L50.
+
+
+      EMNLP template attribution: Houda Bouamor, Juan Pino and Kalika Bali, "Instructions for EMNLP 2023 Proceedings",
+      https://www.overleaf.com/latex/templates/instructions-for-emnlp-2023-proceedings/scyjxmtnrskr, Creative Commons
+      Attribution 4.0 International, https://creativecommons.org/licenses/by/4.0/. The official EMNLP 2023 page https://2023.emnlp.org/calls/style-and-formatting/
+      links this template and https://2023.emnlp.org/downloads/emnlp2023-latex.zip. The retained emnlp2023.sty (11225
+      bytes) and acl_natbib.bst (47709 bytes) are byte-identical to the ZIP members; template-derived instructions
+      retained in main.tex are attributed to this template. The BST''s own LPPL terms below remain applicable, not
+      replaced by the template''s CC BY license.
+
+
+      BST attribution and original notice: acl_natbib.bst is retained unchanged, including its full original header
+      and modifications marked "% urlbst". Copyright 1994-2002 Patrick W Daly; compling.bst created by Ron Artstein
+      on 2005-08-22; ACL changes credited in the retained header to Dan Gildea (2017-06-08, 2019-04-12) and Shay Cohen
+      (2018-02-16). The original notice states: "This generated file can be redistributed and/or modified under the
+      terms of the LaTeX Project Public License Distributed from CTAN archives in directory macros/latex/base/lppl.txt;
+      either version 1 of the License, or any later version." This package elects LPPL 1.3c, https://www.latex-project.org/lppl/lppl-1-3c.txt.
+      Source correspondence: https://2023.emnlp.org/downloads/emnlp2023-latex.zip and https://github.com/acl-org/acl-style-files/blob/4c318538c99ce2d91201a3b43cfc12ef513e374b/acl_natbib.bst.
+      The generated urlbst modifications are Copyright 2002-2023 Norman Gray and distributed under LPPL, https://ctan.org/tex-archive/biblio/bibtex/contrib/urlbst.
+      This is not the GPL-licensed urlbst script, which is not retained here. The repository makes no edits to the
+      BST and does not claim to be its Current Maintainer or imply support from these authors.
+
+
+      Wikipedia attribution: the following retained quotations, closely reused expressions and their existing adaptations
+      are credited separately to Wikipedia contributors, and are shared under Creative Commons Attribution-ShareAlike
+      4.0 International, https://creativecommons.org/licenses/by-sa/4.0/, including corresponding selector excerpts:
+
+      - Wikipedia contributors, "1934 Nepal–India earthquake", https://en.wikipedia.org/wiki/1934_Nepal%E2%80%93India_earthquake
+      — appendix.tex lines 325 and 328-331.
+
+      - Wikipedia contributors, "Matt Willis", https://en.wikipedia.org/wiki/Matt_Willis — appendix.tex line 336.
+
+      - Wikipedia contributors, "2022 eruption of Mauna Loa", https://en.wikipedia.org/wiki/2022_eruption_of_Mauna_Loa
+      — appendix.tex line 432.
+
+      - Wikipedia contributors, "1984 eruption of Mauna Loa", https://en.wikipedia.org/wiki/1984_eruption_of_Mauna_Loa
+      — appendix.tex line 435. The Wikipedia page states that it incorporates public-domain material from the U.S.
+      Geological Survey. Credit: U.S. Geological Survey, https://www.usgs.gov/information-policies-and-instructions/copyrights-and-credits.
+      USGS-owned material that is public domain in the United States is not restricted by this CC BY-SA notice.
+
+      - Wikipedia contributors, "2023 Australian Open – Men''s singles", https://en.wikipedia.org/wiki/2023_Australian_Open_%E2%80%93_Men%27s_singles
+      — sample_outputs.tex lines 7 and 35 and corresponding retained prompt/sample text.
+
+      - Wikipedia contributors, "Stefanos Tsitsipas", https://en.wikipedia.org/wiki/Stefanos_Tsitsipas — sample_outputs.tex
+      lines 44 and 47, including the career introduction, historical doubles ranking and playing-style expressions.
+
+
+      The manuscript already excerpted, omitted earthquake distances, used Unicode escape sequences, decomposed/paraphrased
+      passages and preserved historical statistics. Those existing changes are retained; this notice does not invent
+      who made them, a Wikipedia collection date or an exact historical page revision, and does not claim that the
+      retained passages are byte-identical to current whole articles. The CC BY-SA 4.0 scope is these Wikipedia expressions/adaptations
+      and their selector excerpts, not the entire paper or repository. Wikimedia''s official explanation of the 3.0-to-4.0
+      adaptation path and contextual URL attribution is https://meta.wikimedia.org/wiki/Terms_of_use/Creative_Commons_4.0/Legal_note;
+      applicable reuse/attribution terms are https://foundation.wikimedia.org/wiki/Policy:Terms_of_Use. No additional
+      restrictions or technical measures are applied to these licensed materials; no endorsement by any credited person
+      or organization is implied.
+
+      '
+    modifications: The existing TeX-to-plain-text extractor flattened included manuscript files and reduced TeX macros,
+      comments and formatting. All 17 retained source text files, normalized/document.tex and the original normalized/document.txt
+      body remain unchanged by this packaging. The manuscript's existing Wikipedia excerpting, omissions, Unicode
+      escaping, decomposition/paraphrasing and historical statistics are retained as described above, without attributing
+      these changes to an unknown person or inventing a collection date. Only this attribution, component-license
+      scope and change notice are appended; selectors retain their original cited text and locations.
+    scope: 仅覆盖固定 arXiv 2305.14292v2 当前保留的论文文字及 selector，作者/ACL 可许可的论文表达与 EMNLP2023 模板材料适用 CC BY 4.0；原样 acl_natbib.bst（含
+      Daly/Artstein/Gildea/Cohen/urlbst 归属与头注）及其生成修改适用所选 LPPL1.3c。六页 Wikipedia 已存引用、近似复用表达和既有改写及对应 selector 摘录独立按
+      CC BY-SA4.0 共享，不归入论文 BY4、不扩张到整篇论文或整个 repo。全部17个 source 文字文件和既有正文保留，不排除实际保存的第三方表达；不授权未保存的外链媒体、程序/模型/数据包、商标、专利或其他未入库资源。
+      1984火山页所声明的USGS来源保留Credit与官方版权/归属链接；USGS自有美国公有领域材料不受本BYSA声明限制。
 - sequence: 28
   uid: arxiv:2305.14627
   source_type: arxiv
