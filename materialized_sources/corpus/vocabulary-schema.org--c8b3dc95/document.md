@@ -79,3 +79,15 @@ The schema.org steering group does not officially approve external extensions - 
 GS1 Web Vocabulary ( blog post )
 
 Croissant is an open community-built standardized metadata vocabulary for ML datasets.
+
+
+<!-- materialization-redistribution-notice -->
+## Redistribution notice
+
+This document includes material copied from or derived from "Schemas", published by Schema.org at https://schema.org/docs/schemas.html. The Schema.org Terms identify Google, Inc., Yahoo, Inc., Microsoft Corporation, and Yandex collectively as the "Sponsors" and license the Sponsors' copyrights under Creative Commons Attribution-ShareAlike 3.0 Unported; FAQ #18 applies those terms to supporting documentation. Licensed under CC BY-SA 3.0, https://creativecommons.org/licenses/by-sa/3.0/. This Markdown adaptation and its selector excerpts are distributed under CC BY-SA 3.0. No endorsement by Schema.org, the Sponsors, GS1, or MLCommons is implied.
+
+Changes: Converted the retained 12,007-byte HTML response into a 2,982-byte pre-notice Markdown adaptation by selecting h1-h4, p, li, and pre blocks; navigation, scripts, styles, forms, SVG/canvas, the footer/version/Terms link, hyperlink targets, raw markup, and some unwrapped page text were omitted or normalized; 34 selector excerpts were generated. The redistribution notice and attribution footer were added after conversion.
+
+Scope: 仅覆盖 source_revision 所指固定快照中、许可附注前的 2,982-byte Markdown 改编及其 34 个 selector 摘录，二者均按 CC BY-SA 3.0 分发。原页面仅以名称和简短说明提及 GS1 Web Vocabulary 与 Croissant；胶囊未保存其外链页面、规范、代码、媒体或标识。Schema.org 网站软件（另按 Apache-2.0 提供）、商标、专利、隐私/形象权及权利人无权许可的第三方材料不在此包装的授权范围。 将本作品纳入仓库集合（Collection）并不重新许可集合中的其他独立作品；后续引用、摘录、转换或派生 内容仍须按实际使用方式分别核验，构成改编（Adaptation）时须满足 CC BY-SA 3.0 的 ShareAlike（SA）义务。
+
+Full license and original rights links: [NOTICE.md](NOTICE.md).

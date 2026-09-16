@@ -19,18 +19,18 @@ decision_model:
   scope_rule: 代码、数据、模板、引用作品或相邻仓库的许可不得外推至目标全文。
 summary:
   classification_counts:
-    documented_permission: 50
-    permission_unverified: 41
+    documented_permission: 51
+    permission_unverified: 40
   recommendation_counts:
-    allow_after_conditions_met: 41
-    allow_with_packaged_notice: 9
-    do_not_redistribute_full_text: 41
+    allow_after_conditions_met: 40
+    allow_with_packaged_notice: 11
+    do_not_redistribute_full_text: 40
   publication_gate_counts:
-    block: 82
-    allow: 9
+    block: 80
+    allow: 11
   license_evidence_counts:
-    CC-BY-4.0: 24
-    none: 41
+    CC-BY-4.0: 25
+    none: 40
     CC-BY-SA-4.0: 2
     CC-BY-NC-SA-4.0: 4
     CC-BY-NC-ND-4.0: 2
@@ -42,14 +42,14 @@ summary:
     CC-BY-SA-3.0: 1
   key_findings:
   - 91/91 manifest 在基线均写 full_text_redistribution_assumed=true；该字段从不作为授权。
-  - 73 篇 arXiv 中 32 篇有 CC article license，41 篇只有授予 arXiv 的 nonexclusive/assumed license。
+  - 73 篇 arXiv 中32篇官方文章页提供CC许可；WikiChat另由作者exact v2 camera-ready声明与ACL许可形成作者正文授权链，其余40篇仍缺适用公众许可证据。arXiv nonexclusive/assumed本身不转授公众权利。
   - 14 份 W3C 文档都有许可；7 份旧式许可对 HTML→Markdown 仍需衍生权审查。
   - LinkML、Apache Ossie、ODCS 有 Apache-2.0 证据；Schema.org supporting documentation 有 CC BY-SA 3.0 证据。
-  - 基线91项中6项W3C、ODCS 3.2.0定义首页及arXiv 2502.18864v2、2607.07663v2已完成固定版本与NOTICE包装，9项allow；其余82项仍block（当前活跃全文81项block）。
+  - 基线91项中6项W3C、ODCS 3.2.0定义首页、arXiv 2502.18864v2与2607.07663v2、LinkML单页及Schema.org既有文档快照已完成当前revision与NOTICE包装，11项allow；其余80项仍block（当前活跃全文79项block，其中40项缺许可、39项待履约）。
 review_completion:
   evidence_review_complete_for_baseline: true
   legal_clearance_complete: false
-  can_human_review_be_completed: 证据审计已完成；50 条可依公开许可继续完成人工履约审核，41 条须取得权利人许可或新的权威许可证据。
+  can_human_review_be_completed: 证据审计已完成；51条有公众许可证据，其中11条完成当前包装，40条仍待履约；另40条须取得适用许可或新的权威许可证据。客观许可履约不默认要求另行人工批准，Agent也不代替权利人授予新许可。
   not_legal_advice: true
 items:
 - sequence: 1
@@ -1842,6 +1842,19 @@ items:
     checked_at: '2026-09-16'
     finding: 官方许可只授予 arXiv.org 非独占分发权，不授予公众或本仓库。
     supports_public_redistribution: false
+  - kind: alternate_publisher_version_review
+    url: https://aclanthology.org/2023.emnlp-main.741/
+    doi: https://doi.org/10.18653/v1/2023.emnlp-main.741
+    related_urls:
+    - https://aclanthology.org/faq/copyright/
+    - https://github.com/shmsw25/FActScore
+    - https://arxiv.org/abs/2305.14251v2
+    source_url: https://export.arxiv.org/e-print/2305.14251v2
+    source_revision: sha256:57414a8d80031dceed44fb17efa562cab7e1490390ce95d8753480fba9686795
+    checked_at: '2026-09-16'
+    finding: 当前本地 source_revision 与固定 arXiv v2 e-print 字节一致。ACL Anthology 官方记录及版权 FAQ 表明其 2016 年后出版材料采用
+      CC BY 4.0，但作者仓库与官方页面均未将该许可明确绑定到外部托管的 arXiv v2；出版商版本不足以单独放行当前源包。
+    supports_public_redistribution: false
   missing:
   - 面向公众的论文全文复制/再分发许可。
   - 许可版本、权利人和精确作品版本绑定。
@@ -1912,26 +1925,51 @@ items:
     checked_at: '2026-09-16'
     finding: 官方许可只授予 arXiv.org 非独占分发权，不授予公众或本仓库。
     supports_public_redistribution: false
+  - kind: exact_arxiv_revision_binding
+    url: https://arxiv.org/abs/2305.14292v2
+    source_url: https://export.arxiv.org/e-print/2305.14292v2
+    source_revision: sha256:e9cb4c7d3bfb5db6538627bdae386fc015f7f1aabb7dbf39a8bc9b4f6d76005f
+    checked_at: '2026-09-16'
+    finding: arXiv v2 的修订日期为 2023-10-27；固定 v2 e-print 的字节校验值与当前本地 source_revision 一致。
+    supports_public_redistribution: false
+  - kind: author_camera_ready_mapping
+    url: https://github.com/stanford-oval/WikiChat/blob/cc8a1677e4fe3a13f97f5e4034d7ee7117cb717c/README.md#L47-L50
+    revision: cc8a1677e4fe3a13f97f5e4034d7ee7117cb717c
+    locator: README.md > Announcements > 2023-10-27
+    checked_at: '2026-09-16'
+    finding: 作者维护的官方仓库明确公告“2023-10-27 camera-ready version 已在 arXiv 上线”；该日期与 arXiv v2 修订日期一致，为当前精确 v2 与 camera-ready 的作者级映射证据。
+    supports_public_redistribution: false
+  - kind: official_publisher_license_record
+    url: https://aclanthology.org/2023.findings-emnlp.157/
+    doi: https://doi.org/10.18653/v1/2023.findings-emnlp.157
+    license_url: https://creativecommons.org/licenses/by/4.0/
+    related_urls:
+    - https://aclanthology.org/faq/copyright/
+    checked_at: '2026-09-16'
+    finding: ACL Anthology 官方记录以 DOI 标识 WikiChat camera-ready；ACL 版权 FAQ 说明 2016 年后出版材料按 CC BY 4.0 许可。结合作者公告与精确 v2 校验，该许可可绑定到当前论文正文版本。
+    supports_public_redistribution: true
   missing:
-  - 面向公众的论文全文复制/再分发许可。
-  - 许可版本、权利人和精确作品版本绑定。
-  - 第三方素材和 TeX 组件权利边界。
-  classification: permission_unverified
-  license_id: null
-  license_url: https://arxiv.org/licenses/nonexclusive-distrib/1.0/
-  license_scope: 未证实公众许可。
+  - source/emnlp2023.sty、source/acl_natbib.bst 等第三方组件尚未逐件确认再分发范围；acl_natbib.bst 含 Patrick W Daly 版权与 LPPL 声明，不能按论文 CC BY 4.0 自动覆盖。
+  - 示例输出、引用材料及其他第三方内容尚未逐件划定许可边界。
+  - 尚未形成覆盖作者、标题、来源、许可链接及修改说明的 NOTICE/署名履约包。
+  classification: documented_permission
+  license_id: CC-BY-4.0
+  license_url: https://creativecommons.org/licenses/by/4.0/
+  license_scope: 覆盖当前 source_revision 对应的 arXiv 2305.14292v2 论文正文中权利人有权许可的表达；不自动覆盖 emnlp2023.sty、acl_natbib.bst、代码、模型、数据、示例输出或其他第三方材料。
   license_restrictions: []
   evidence_confidence: high
-  public_redistribution_recommendation: do_not_redistribute_full_text
+  public_redistribution_recommendation: allow_after_conditions_met
   conditions:
-  - 不得把可下载、公开托管或 source archive 可访问性当作授权。
-  current_capsule_compliance: blocked_no_public_permission
+  - 署名全部作者，保留论文标题、arXiv/ACL 来源、CC BY 4.0 许可链接，并标明规范化/转换修改。
+  - 对 emnlp2023.sty、acl_natbib.bst（含 Patrick W Daly 版权/LPPL 声明）及其他第三方内容逐件保留其许可/版权或排除。
+  - 生成并随包保存作者/标题/来源/许可（TASL）与修改说明的 NOTICE 履约记录，且不附加限制。
+  current_capsule_compliance: pending_license_compliance_and_transformation_review
   publication_gate:
     decision: block
-    reason: 未找到授予公众或本仓库复制并再分发该全文的适用许可。
+    reason: 精确 arXiv v2 与 camera-ready/CC BY 4.0 的映射已确认，但第三方 TeX/内容范围及 NOTICE/署名履约尚未完成。
   human_follow_up:
-  - 取得权利人书面许可或与确切版本绑定的权威公开许可。
-  - 在此之前仅公开元数据、引用、官方链接及合法短引。
+  - 审核或排除 emnlp2023.sty、acl_natbib.bst 及其他第三方内容，并保留各自适用的许可/版权声明。
+  - 补齐作者、标题、来源、许可链接与修改说明的 NOTICE 后再审批。
 - sequence: 28
   uid: arxiv:2305.14627
   source_type: arxiv
@@ -1981,6 +2019,18 @@ items:
     license_url: https://arxiv.org/licenses/nonexclusive-distrib/1.0/
     checked_at: '2026-09-16'
     finding: 官方许可只授予 arXiv.org 非独占分发权，不授予公众或本仓库。
+    supports_public_redistribution: false
+  - kind: alternate_publisher_version_review
+    url: https://aclanthology.org/2023.emnlp-main.398/
+    doi: https://doi.org/10.18653/v1/2023.emnlp-main.398
+    related_urls:
+    - https://aclanthology.org/faq/copyright/
+    - https://github.com/princeton-nlp/ALCE
+    - https://arxiv.org/abs/2305.14627v2
+    source_url: https://export.arxiv.org/e-print/2305.14627v2
+    source_revision: sha256:6902aae852b39f761a60dc2cf36b7d2ed9e615755f413b7daa8b52f5c1eae3ea
+    checked_at: '2026-09-16'
+    finding: 当前本地 source_revision 与固定 arXiv v2 e-print 字节一致。ACL Anthology 出版材料有 CC BY 4.0 政策，作者 ALCE 仓库也将其标识为同一 EMNLP 论文；但未找到权威声明确认外部 arXiv v2 就是获该许可的 camera-ready 确切版本。
     supports_public_redistribution: false
   missing:
   - 面向公众的论文全文复制/再分发许可。
@@ -2264,6 +2314,18 @@ items:
     checked_at: '2026-09-16'
     finding: 官方许可只授予 arXiv.org 非独占分发权，不授予公众或本仓库。
     supports_public_redistribution: false
+  - kind: alternate_publisher_version_review
+    url: https://aclanthology.org/2024.acl-long.585/
+    doi: https://doi.org/10.18653/v1/2024.acl-long.585
+    related_urls:
+    - https://aclanthology.org/faq/copyright/
+    - https://github.com/ParticleMedia/RAGTruth
+    - https://arxiv.org/abs/2401.00396v2
+    source_url: https://export.arxiv.org/e-print/2401.00396v2
+    source_revision: sha256:34e4bd49e06e8ad14ef3f97ad36deacf671124f071984592d539c0ab87a6170b
+    checked_at: '2026-09-16'
+    finding: 当前本地 source_revision 与固定 arXiv v2 e-print 字节一致。ACL Anthology camera-ready 为 17 页，arXiv v2 为 16 页且内容存在实质差异，未找到精确版本映射；作者仓库的 MIT 许可适用于仓库代码/数据，不是论文许可。
+    supports_public_redistribution: false
   missing:
   - 面向公众的论文全文复制/再分发许可。
   - 许可版本、权利人和精确作品版本绑定。
@@ -2474,6 +2536,18 @@ items:
     license_url: https://arxiv.org/licenses/nonexclusive-distrib/1.0/
     checked_at: '2026-09-16'
     finding: 官方许可只授予 arXiv.org 非独占分发权，不授予公众或本仓库。
+    supports_public_redistribution: false
+  - kind: alternate_publisher_version_review
+    url: https://aclanthology.org/2024.naacl-long.347/
+    doi: https://doi.org/10.18653/v1/2024.naacl-long.347
+    related_urls:
+    - https://aclanthology.org/faq/copyright/
+    - https://github.com/stanford-oval/storm
+    - https://arxiv.org/abs/2402.14207v2
+    source_url: https://export.arxiv.org/e-print/2402.14207v2
+    source_revision: sha256:28b57e9821da798bf8ccfa3f144bfa37cd96ff3582c2211c83eff5ffcf0ccfc2
+    checked_at: '2026-09-16'
+    finding: 当前本地 source_revision 与固定 arXiv v2 e-print 字节一致。ACL Anthology camera-ready 按其版权 FAQ 采用 CC BY 4.0，作者 STORM 仓库同时链接论文与项目；但未找到作者或出版商声明将该许可绑定到外部托管的精确 arXiv v2。
     supports_public_redistribution: false
   missing:
   - 面向公众的论文全文复制/再分发许可。
@@ -2711,7 +2785,8 @@ items:
   source_type: arxiv
   title: 'From Local to Global: A Graph RAG Approach to Query-Focused Summarization'
   manifest_path: materialized_sources/corpus/arxiv-2404.16130--fe9ed9e5/manifest.yaml
-  metadata_path: 'raw_data/arxiv/From Local to Global: A Graph RAG Approach to Query-Focused Summarization/metadata.yaml'
+  metadata_path: 'raw_data/arxiv/From Local to Global: A Graph RAG Approach to Query-Focused
+    Summarization/metadata.yaml'
   capsule_root: materialized_sources/corpus/arxiv-2404.16130--fe9ed9e5
   stored_full_text_paths:
   - materialized_sources/corpus/arxiv-2404.16130--fe9ed9e5/normalized/document.txt
@@ -2737,12 +2812,15 @@ items:
   - kind: manifest_assertion
     path: materialized_sources/corpus/arxiv-2404.16130--fe9ed9e5/manifest.yaml
     locator: rights
-    finding: declared_access=unknown; full_text_redistribution_assumed=True; basis=arXiv source archive
+    finding: declared_access=unknown; full_text_redistribution_assumed=True; basis=arXiv
+      source archive
     supports_public_redistribution: false
   - kind: source_metadata
-    path: 'raw_data/arxiv/From Local to Global: A Graph RAG Approach to Query-Focused Summarization/metadata.yaml'
+    path: 'raw_data/arxiv/From Local to Global: A Graph RAG Approach to Query-Focused
+      Summarization/metadata.yaml'
     locator: rights
-    finding: access=unknown; license_spdx=None; license_verified_at=None; notes=Requires canonical rights verification.
+    finding: access=unknown; license_spdx=None; license_verified_at=None; notes=Requires
+      canonical rights verification.
     supports_public_redistribution: false
   - kind: local_content_rights_scan
     path: materialized_sources/corpus/arxiv-2404.16130--fe9ed9e5
@@ -2755,10 +2833,20 @@ items:
     checked_at: '2026-09-16'
     finding: arXiv 官方文章页的 Rights to this article 链接指向 CC-BY-4.0。
     supports_public_redistribution: true
+  - kind: fixed_version_and_embedded_style_review
+    checked_at: '2026-09-16'
+    urls:
+    - https://arxiv.org/abs/2404.16130v2
+    - https://export.arxiv.org/e-print/2404.16130v2
+    - https://media.neurips.cc/Conferences/NeurIPS2024/Styles.zip
+    finding: 固定v2源包6473933 bytes与既有revision一致，官方v2为CC BY 4.0；19个source文本、61 selectors与2个省略JPG。实际保存的neurips_2024.sty与官方Styles.zip对应文件一致，尚未找到该样式的明确再分发许可。匿名投稿模式中的Do
+      not distribute是生成论文页脚字符串，不应误读为样式文件禁止分发条款，但也不提供再分发授权。
+    supports_public_redistribution: false
   missing:
   - 本地三处 rights 未记录该文章许可及核验日期。
   - retrieval hash 尚未与确切 arXiv vN 建立可审计映射。
   - 未形成第三方组件例外清单和许可履约包。
+  - 实际保留的NeurIPS 2024样式文件需明确的再分发依据；不能以论文CC BY或投稿下载入口自动覆盖。
   classification: documented_permission
   license_id: CC-BY-4.0
   license_url: https://creativecommons.org/licenses/by/4.0/
@@ -3109,6 +3197,18 @@ items:
     license_url: https://arxiv.org/licenses/nonexclusive-distrib/1.0/
     checked_at: '2026-09-16'
     finding: 官方许可只授予 arXiv.org 非独占分发权，不授予公众或本仓库。
+    supports_public_redistribution: false
+  - kind: alternate_publisher_version_review
+    url: https://papers.nips.cc/paper_files/paper/2024/hash/c63819755591ea972f8570beffca6b1b-Abstract-Datasets_and_Benchmarks_Track.html
+    doi: https://doi.org/10.52202/079017-3481
+    related_urls:
+    - https://neurips.cc/FAQ/Copyright
+    - https://huggingface.co/datasets/ibm-research/Wikipedia_contradict_benchmark
+    - https://arxiv.org/abs/2406.13805v1
+    source_url: https://export.arxiv.org/e-print/2406.13805v1
+    source_revision: sha256:52bd5972052479549ee75c99bce72140c2cb8aff2fab974bfa81494682d915ea
+    checked_at: '2026-09-16'
+    finding: 当前本地 source_revision 与固定 arXiv v1 e-print 字节一致。NeurIPS 版权 FAQ 只说明作者保留版权并授予 NeurIPS 非独占出版权，未授予公众再分发权；官方 camera-ready 与 arXiv v1 有实质内容差异，而数据集页面的 MIT 许可也不适用于论文。
     supports_public_redistribution: false
   missing:
   - 面向公众的论文全文复制/再分发许可。
@@ -4498,7 +4598,8 @@ items:
   source_type: arxiv
   title: 'Robin: A multi-agent system for automating scientific discovery'
   manifest_path: materialized_sources/corpus/arxiv-2505.13400--6cb0cfb6/manifest.yaml
-  metadata_path: 'raw_data/arxiv/Robin: A multi-agent system for automating scientific discovery/metadata.yaml'
+  metadata_path: 'raw_data/arxiv/Robin: A multi-agent system for automating scientific
+    discovery/metadata.yaml'
   capsule_root: materialized_sources/corpus/arxiv-2505.13400--6cb0cfb6
   stored_full_text_paths:
   - materialized_sources/corpus/arxiv-2505.13400--6cb0cfb6/normalized/document.txt
@@ -4524,12 +4625,14 @@ items:
   - kind: manifest_assertion
     path: materialized_sources/corpus/arxiv-2505.13400--6cb0cfb6/manifest.yaml
     locator: rights
-    finding: declared_access=unknown; full_text_redistribution_assumed=True; basis=arXiv source archive
+    finding: declared_access=unknown; full_text_redistribution_assumed=True; basis=arXiv
+      source archive
     supports_public_redistribution: false
   - kind: source_metadata
     path: 'raw_data/arxiv/Robin: A multi-agent system for automating scientific discovery/metadata.yaml'
     locator: rights
-    finding: access=unknown; license_spdx=None; license_verified_at=None; notes=Requires canonical rights verification.
+    finding: access=unknown; license_spdx=None; license_verified_at=None; notes=Requires
+      canonical rights verification.
     supports_public_redistribution: false
   - kind: local_content_rights_scan
     path: materialized_sources/corpus/arxiv-2505.13400--6cb0cfb6
@@ -4542,10 +4645,17 @@ items:
     checked_at: '2026-09-16'
     finding: arXiv 官方文章页的 Rights to this article 链接指向 CC-BY-4.0。
     supports_public_redistribution: true
+  - kind: retained_bibliography_content_review
+    path: materialized_sources/corpus/arxiv-2505.13400--6cb0cfb6/source/references.bib
+    checked_at: '2026-09-16'
+    finding: 实际保留的references.bib含88个abstract字段、15个copyright字段，不是仅标题/作者/DOI的纯书目。文章CC
+      BY不能自动覆盖所收第三方摘要；需逐项确认所存摘要的许可依据。此观察不认定每条摘要均禁止再分发，也不删除已有文本。
+    supports_public_redistribution: false
   missing:
   - 本地三处 rights 未记录该文章许可及核验日期。
   - retrieval hash 尚未与确切 arXiv vN 建立可审计映射。
   - 未形成第三方组件例外清单和许可履约包。
+  - 所存references.bib中88个第三方摘要及15个版权字段需逐条核实适用许可，不能按纯书目清权。
   classification: documented_permission
   license_id: CC-BY-4.0
   license_url: https://creativecommons.org/licenses/by/4.0/
@@ -4960,12 +5070,14 @@ items:
   - kind: manifest_assertion
     path: materialized_sources/corpus/arxiv-2511.02824--1c218a8e/manifest.yaml
     locator: rights
-    finding: declared_access=unknown; full_text_redistribution_assumed=True; basis=arXiv source archive
+    finding: declared_access=unknown; full_text_redistribution_assumed=True; basis=arXiv
+      source archive
     supports_public_redistribution: false
   - kind: source_metadata
     path: 'raw_data/arxiv/Kosmos: An AI Scientist for Autonomous Discovery/metadata.yaml'
     locator: rights
-    finding: access=unknown; license_spdx=None; license_verified_at=None; notes=Requires canonical rights verification.
+    finding: access=unknown; license_spdx=None; license_verified_at=None; notes=Requires
+      canonical rights verification.
     supports_public_redistribution: false
   - kind: local_content_rights_scan
     path: materialized_sources/corpus/arxiv-2511.02824--1c218a8e
@@ -4978,10 +5090,17 @@ items:
     checked_at: '2026-09-16'
     finding: arXiv 官方文章页的 Rights to this article 链接指向 CC-BY-4.0。
     supports_public_redistribution: true
+  - kind: retained_bibliography_content_review
+    path: materialized_sources/corpus/arxiv-2511.02824--1c218a8e/source/references.bib
+    checked_at: '2026-09-16'
+    finding: 实际保留的references.bib含80个abstract字段、31个copyright字段，不是仅标题/作者/DOI的纯书目。文章CC
+      BY不能自动覆盖所收第三方摘要；需逐项确认所存摘要的许可依据。此观察不认定每条摘要均禁止再分发，也不删除已有文本。
+    supports_public_redistribution: false
   missing:
   - 本地三处 rights 未记录该文章许可及核验日期。
   - retrieval hash 尚未与确切 arXiv vN 建立可审计映射。
   - 未形成第三方组件例外清单和许可履约包。
+  - 所存references.bib中80个第三方摘要及31个版权字段需逐条核实适用许可，不能按纯书目清权。
   classification: documented_permission
   license_id: CC-BY-4.0
   license_url: https://creativecommons.org/licenses/by/4.0/
@@ -5405,15 +5524,45 @@ items:
   canonical_url: https://linkml.io/linkml/
   observed_rights:
     manifest:
-      declared_access: unknown
-      full_text_redistribution_assumed: true
-      basis: null
-      assessment: 物化器声明/假设，不是权利人授权。
+      declared_access: open
+      full_text_redistribution_assumed: false
+      license_spdx: Apache-2.0
+      license_url: https://www.apache.org/licenses/LICENSE-2.0
+      license_verified_at: '2026-09-16'
+      redistribution_package:
+        source_revision: sha256:93a9f00b0006695dab8f1bde801a40e36eed8c236c4c839aff645bec38b5dc6c
+        source_version_url: https://linkml.io/linkml/
+        notice_path: raw_data/licenses/apache-2.0.md
+        attribution: 'This document includes material copied from or derived from
+          "LinkML Documentation", https://linkml.io/linkml/. Copyright 2021-2026 LinkML
+          Authors. SPDX-License-Identifier: Apache-2.0. Licensed under the Apache
+          License, Version 2.0, https://www.apache.org/licenses/LICENSE-2.0.'
+        modifications: Converted the captured LinkML HTML landing page to Markdown;
+          navigation, headings, hyperlinks, whitespace, and footnote markers were
+          omitted or normalized, while CSS, JavaScript, theme files, and media were
+          not stored; 164 selector excerpts were generated. The upstream copyright
+          and Apache-2.0 statement are restored in this attribution block.
+        scope: 仅覆盖当前 https://linkml.io/linkml/ 单页经转换后、许可附注前的 7,340-byte 既有 Markdown
+          正文及其 164 个 selector 摘录；不声称存储或覆盖 LinkML 整个文档站、其他页面正文、主题、JavaScript、CSS、媒体、外链作品、商标或权利人无权许可的第三方材料。
+      assessment: 当前revision文字包已附Apache许可、来源版权和转换说明；不是整站或部署commit声明。
     source_metadata:
-      access: unknown
-      license_spdx: null
-      license_verified_at: null
-      notes: Requires canonical rights verification.
+      license_spdx: Apache-2.0
+      license_url: https://www.apache.org/licenses/LICENSE-2.0
+      license_verified_at: '2026-09-16'
+      access: open
+      notes: The deployed page itself states that LinkML is open source under Apache-2.0;
+        its 2,493-byte Sphinx source-view file is byte-identical to the official repository's
+        corresponding docs/index.rst, and that repository applies its root Apache-2.0
+        LICENSE without a documentation exception. The rendered page's authored prose
+        and navigation derive from that source, but neither the 55,141-byte HTML nor
+        the extracted Markdown is asserted to be byte-identical to the RST file. The
+        complete upstream tree at the evidence commit contains no NOTICE file; this
+        repository's generated NOTICE.md is a carrier for the complete license and
+        item-specific attribution remains in the document footer, not an invented
+        upstream NOTICE. This finding is limited to the captured single-page text
+        and does not assert an exact deployment commit or extend to other documentation
+        pages, themes, scripts, stylesheets, media, external works, trademarks, or
+        material the licensors were not authorized to license.
     capsule_source_metadata:
       path: materialized_sources/corpus/methodology-linkml-schema-first--182a2b38/source-metadata.yaml
       assessment: rights 与 canonical metadata 一致，不是额外独立证据。
@@ -5423,46 +5572,86 @@ items:
     locator: rights
     finding: declared_access=unknown; full_text_redistribution_assumed=True; basis=None
     supports_public_redistribution: false
+    baseline_observation: true
   - kind: source_metadata
     path: raw_data/methodology/LinkML Schema First Knowledge Modeling/metadata.yaml
     locator: rights
-    finding: access=unknown; license_spdx=None; license_verified_at=None; notes=Requires canonical rights verification.
+    finding: access=unknown; license_spdx=None; license_verified_at=None; notes=Requires
+      canonical rights verification.
     supports_public_redistribution: false
+    baseline_observation: true
   - kind: local_content_rights_scan
     path: materialized_sources/corpus/methodology-linkml-schema-first--182a2b38/document.md
     locator: L11
     finding: 仅称 LinkML 代码 Apache-2.0；单看该句不能证明文档许可。
     supports_public_redistribution: false
+    baseline_observation: true
   - kind: official_repository_scope
     url: https://raw.githubusercontent.com/linkml/linkml/0e401cef2711b0f12f5a1870805c5cfa999b0858/LICENSE
     checked_at: '2026-09-16'
-    finding: 官方 docs 源对应页面，根 LICENSE 明列文档源与生成文档并授权复制、修改、分发。
+    finding: 官方对应docs源受仓库根Apache-2.0许可且未列文档例外；须结合页面声明与实际source-view对应关系，不能仅凭Apache许可对Source/Object的通用定义推定任意网页授权。
     supports_public_redistribution: true
     related_urls:
     - https://raw.githubusercontent.com/linkml/linkml/0e401cef2711b0f12f5a1870805c5cfa999b0858/docs/index.rst
     - https://raw.githubusercontent.com/linkml/linkml/0e401cef2711b0f12f5a1870805c5cfa999b0858/docs/README.md
-  missing:
-  - 本地 rights 仍为 unknown。
-  - 网页 hash 未绑定精确部署 commit/tag。
-  - document.md 遗漏版权、许可副本和修改声明。
+  - kind: deployed_source_content_and_license_correspondence
+    url: https://linkml.io/linkml/
+    checked_at: '2026-09-16'
+    source_revision: sha256:93a9f00b0006695dab8f1bde801a40e36eed8c236c4c839aff645bec38b5dc6c
+    related_urls:
+    - https://linkml.io/linkml/_sources/index.rst.txt
+    - https://github.com/linkml/linkml/blob/2ed83cabd15294ef1fa406007ce12e850a151b81/docs/index.rst
+    - https://github.com/linkml/linkml/blob/2ed83cabd15294ef1fa406007ce12e850a151b81/LICENSE
+    - https://github.com/linkml/linkml/blob/2ed83cabd15294ef1fa406007ce12e850a151b81/docs/conf.py
+    finding: 55141-byte实际HTML与既有revision一致；同部署View source的2493-byte RST与所列commit docs/index.rst逐字相同。页面Apache声明、官方repo对应docs源与root
+      LICENSE无文档例外共同支持该文字的Apache许可；docs/conf.py版权2021-2026 LinkML Authors与页面footer一致。仅声明source-content
+      correspondence，不把RST、HTML、Markdown称为彼此byte-identical，不虚构整个deployment commit。
+    supports_public_redistribution: true
+  - kind: actual_scope_and_packaging_review
+    path: materialized_sources/corpus/methodology-linkml-schema-first--182a2b38
+    checked_at: '2026-09-16'
+    finding: 许可附注前既有Markdown正文7340bytes及164 selectors保留；未保存其他页面、主题JS/CSS/媒体或外链作品。固定许可证据commit完整tree无NOTICE；共享Apache完整法律文本与11357-byte上游LICENSE一致，本地NOTICE是许可载体。两次最终实际URL重新物化逐字节一致，正文仅附完整署名/转换块，selectors未变，四方包一致。
+    supports_public_redistribution: true
+  missing: []
   classification: documented_permission
   license_id: Apache-2.0
   license_url: https://raw.githubusercontent.com/linkml/linkml/0e401cef2711b0f12f5a1870805c5cfa999b0858/LICENSE
-  license_scope: 官方仓库 LICENSE 明确覆盖 documentation source 与 generated documentation；不覆盖外链、商标或 linkml-model。
+  license_scope: 仅当前所记录payload revision对应的LinkML单页文字及164个selector派生物；不扩展到其他页面、主题/脚本/样式/媒体或外链。
   license_restrictions: []
   evidence_confidence: moderate
-  public_redistribution_recommendation: allow_after_conditions_met
+  public_redistribution_recommendation: allow_with_packaged_notice
   conditions:
-  - 附 Apache-2.0。
-  - 恢复 LinkML Authors 版权归属并显著标明转换。
-  - 如固定版本有 NOTICE 则随附；第三方内容另审。
-  current_capsule_compliance: pending_license_compliance_and_revision_binding
+  - 附完整Apache-2.0、LinkML Authors原版权、来源和显著转换声明。
+  - 以实际payload revision绑定许可包；对应的source commit不冒充exact deployment commit。
+  - 保留全文并限定当前已存单页范围，外链与未保存站点资产不外推。
+  current_capsule_compliance: verified_revision_and_notice_packaged
   publication_gate:
-    decision: block
-    reason: 存在公众许可证据，但当前胶囊尚未机器证明版本绑定、许可条件和第三方范围均满足。
-  human_follow_up:
-  - 核对部署版本与上游 commit。
-  - 补齐许可证、归属、NOTICE 和修改声明后再审批。
+    decision: allow
+    reason: 当前已存HTML revision的文字许可依据明确；完整Apache NOTICE与原版权、来源和转换说明已落实，source-view与固定官方源码对应；不要求无必要的整个站点部署commit证明。
+  human_follow_up: []
+  redistribution_package:
+    source_revision: sha256:93a9f00b0006695dab8f1bde801a40e36eed8c236c4c839aff645bec38b5dc6c
+    source_version_url: https://linkml.io/linkml/
+    notice_path: raw_data/licenses/apache-2.0.md
+    attribution: 'This document includes material copied from or derived from "LinkML
+      Documentation", https://linkml.io/linkml/. Copyright 2021-2026 LinkML Authors.
+      SPDX-License-Identifier: Apache-2.0. Licensed under the Apache License, Version
+      2.0, https://www.apache.org/licenses/LICENSE-2.0.'
+    modifications: Converted the captured LinkML HTML landing page to Markdown; navigation,
+      headings, hyperlinks, whitespace, and footnote markers were omitted or normalized,
+      while CSS, JavaScript, theme files, and media were not stored; 164 selector
+      excerpts were generated. The upstream copyright and Apache-2.0 statement are
+      restored in this attribution block.
+    scope: 仅覆盖当前 https://linkml.io/linkml/ 单页经转换后、许可附注前的 7,340-byte 既有 Markdown 正文及其
+      164 个 selector 摘录；不声称存储或覆盖 LinkML 整个文档站、其他页面正文、主题、JavaScript、CSS、媒体、外链作品、商标或权利人无权许可的第三方材料。
+  clearance_review:
+    kind: agent_evidence_and_packaging_review
+    human_approval_claimed: false
+    scope: 仅当前单页文本快照；source-content correspondence，不声称exact deployment commit。
+  conditions_fulfilled:
+  - 对应官方文档源与Apache许可及版权证据一致。
+  - 原正文前缀和164selectors不变，完整许可与唯一EOF署名块随repo保存。
+  - 两次真实重建相同；未来不同payload revision不自动继承allow。
 - sequence: 75
   uid: standard-w3c-prov-o
   source_type: standard
@@ -6340,7 +6529,8 @@ items:
   - kind: source_metadata
     path: raw_data/standard/OWL 2 Web Ontology Language/metadata.yaml
     locator: rights
-    finding: access=unknown; license_spdx=None; license_verified_at=None; notes=Requires canonical rights verification.
+    finding: access=unknown; license_spdx=None; license_verified_at=None; notes=Requires
+      canonical rights verification.
     supports_public_redistribution: false
   - kind: local_document_notice
     path: materialized_sources/corpus/standard-w3c-owl2--602129ed/document.md
@@ -6353,10 +6543,23 @@ items:
     checked_at: '2026-09-16'
     finding: 允许复制和分发，但一般不授予修改/衍生权。
     supports_public_redistribution: true
+  - kind: fixed_tr_and_limited_derivative_permission_review
+    url: https://www.w3.org/TR/2012/REC-owl2-overview-20121211/
+    source_revision: sha256:d5d22b811eb348c845c5aa5aaa5c05448e61b63e3a8ee24b129075916d6115a5
+    checked_at: '2026-09-16'
+    related_urls:
+    - https://www.w3.org/copyright/document-license-2015/
+    - https://www.w3.org/Consortium/Legal/IPR-FAQ-20000620-new.html#2015published
+    - https://www.w3.org/Consortium/Legal/IPR-FAQ-20000620-new.html#format
+    finding: 固定TR的HTML与既有revision相同，现document.md逐字等于当前提取器对该HTML的输出。旧TR可使用2015 General
+      Document License，但非普遍衍生授权：例外限为技术实现提供软件/配套材料/软件文档，禁止派生物作为technical specification。当前知识消化语料的用途是否适用例外、以及链接/表结构丢失是否保留含义尚未充分证明；不能仅添加non-normative附注即放行。该结论不把所有格式转换一概判为禁止，也不外推Software
+      License至规范主体。
+    supports_public_redistribution: false
   missing:
   - metadata 未记录确切 W3C 许可版本。
   - Markdown 未附完整许可/NOTICE，原许可链接已丢失。
   - 第三方与联合权利材料无逐件清单。
+  - 2015 General Document License有限衍生例外的实际用途与语义保真依据，或针对当前固定有损转换物的明确授权；免责声明不能代替适用条件。
   classification: documented_permission
   license_id: W3C-Document-License-2002
   license_url: https://www.w3.org/copyright/document-license-2002/
@@ -6371,7 +6574,7 @@ items:
   current_capsule_compliance: pending_license_compliance_and_transformation_review
   publication_gate:
     decision: block
-    reason: 存在公众许可证据，但当前胶囊尚未机器证明版本绑定、许可条件和第三方范围均满足。
+    reason: 固定TR与revision已核实，但有损Markdown的实际用途和转换尚未证明符合General Document License有限例外；保持全文和block，不以软件组件许可或非规范标签豁免主体条件。
   human_follow_up:
   - 复核官方页面实际链接的许可与当前 revision。
   - 补齐 NOTICE/状态/修改说明；旧许可另审转换性质。
@@ -6411,7 +6614,8 @@ items:
   - kind: source_metadata
     path: raw_data/standard/R2RML RDB to RDF Mapping Language/metadata.yaml
     locator: rights
-    finding: access=unknown; license_spdx=None; license_verified_at=None; notes=Requires canonical rights verification.
+    finding: access=unknown; license_spdx=None; license_verified_at=None; notes=Requires
+      canonical rights verification.
     supports_public_redistribution: false
   - kind: local_document_notice
     path: materialized_sources/corpus/standard-w3c-r2rml--b9b6cc67/document.md
@@ -6424,10 +6628,23 @@ items:
     checked_at: '2026-09-16'
     finding: 允许复制和分发，但一般不授予修改/衍生权。
     supports_public_redistribution: true
+  - kind: fixed_tr_and_limited_derivative_permission_review
+    url: https://www.w3.org/TR/2012/REC-r2rml-20120927/
+    source_revision: sha256:87e68cedf2fce34cd4173dd6cb7bfd5addc924534f8479733374a75465130794
+    checked_at: '2026-09-16'
+    related_urls:
+    - https://www.w3.org/copyright/document-license-2015/
+    - https://www.w3.org/Consortium/Legal/IPR-FAQ-20000620-new.html#2015published
+    - https://www.w3.org/Consortium/Legal/IPR-FAQ-20000620-new.html#format
+    finding: 固定TR的HTML与既有revision相同，现document.md逐字等于当前提取器对该HTML的输出。旧TR可使用2015 General
+      Document License，但非普遍衍生授权：例外限为技术实现提供软件/配套材料/软件文档，禁止派生物作为technical specification。当前知识消化语料的用途是否适用例外、以及链接/表结构丢失是否保留含义尚未充分证明；不能仅添加non-normative附注即放行。该结论不把所有格式转换一概判为禁止，也不外推Software
+      License至规范主体。
+    supports_public_redistribution: false
   missing:
   - metadata 未记录确切 W3C 许可版本。
   - Markdown 未附完整许可/NOTICE，原许可链接已丢失。
   - 第三方与联合权利材料无逐件清单。
+  - 2015 General Document License有限衍生例外的实际用途与语义保真依据，或针对当前固定有损转换物的明确授权；免责声明不能代替适用条件。
   classification: documented_permission
   license_id: W3C-Document-License-2002
   license_url: https://www.w3.org/copyright/document-license-2002/
@@ -6442,7 +6659,7 @@ items:
   current_capsule_compliance: pending_license_compliance_and_transformation_review
   publication_gate:
     decision: block
-    reason: 存在公众许可证据，但当前胶囊尚未机器证明版本绑定、许可条件和第三方范围均满足。
+    reason: 固定TR与revision已核实，但有损Markdown的实际用途和转换尚未证明符合General Document License有限例外；保持全文和block，不以软件组件许可或非规范标签豁免主体条件。
   human_follow_up:
   - 复核官方页面实际链接的许可与当前 revision。
   - 补齐 NOTICE/状态/修改说明；旧许可另审转换性质。
@@ -6568,7 +6785,8 @@ items:
   - kind: source_metadata
     path: raw_data/standard/Shapes Constraint Language SHACL/metadata.yaml
     locator: rights
-    finding: access=unknown; license_spdx=None; license_verified_at=None; notes=Requires canonical rights verification.
+    finding: access=unknown; license_spdx=None; license_verified_at=None; notes=Requires
+      canonical rights verification.
     supports_public_redistribution: false
   - kind: local_document_notice
     path: materialized_sources/corpus/standard-w3c-shacl--63e18f6d/document.md
@@ -6581,10 +6799,23 @@ items:
     checked_at: '2026-09-16'
     finding: 允许复制和分发；修改/衍生仅有有限实现例外。
     supports_public_redistribution: true
+  - kind: fixed_tr_and_limited_derivative_permission_review
+    url: https://www.w3.org/TR/2017/REC-shacl-20170720/
+    source_revision: sha256:ccca77caed771f42ea649c03d190b9c7ea0b82286c22c457b9edc8087c9ad0f8
+    checked_at: '2026-09-16'
+    related_urls:
+    - https://www.w3.org/copyright/document-license-2015/
+    - https://www.w3.org/Consortium/Legal/IPR-FAQ-20000620-new.html#2015published
+    - https://www.w3.org/Consortium/Legal/IPR-FAQ-20000620-new.html#format
+    finding: 固定TR的HTML与既有revision相同，现document.md逐字等于当前提取器对该HTML的输出。旧TR可使用2015 General
+      Document License，但非普遍衍生授权：例外限为技术实现提供软件/配套材料/软件文档，禁止派生物作为technical specification。当前知识消化语料的用途是否适用例外、以及链接/表结构丢失是否保留含义尚未充分证明；不能仅添加non-normative附注即放行。该结论不把所有格式转换一概判为禁止，也不外推Software
+      License至规范主体。
+    supports_public_redistribution: false
   missing:
   - metadata 未记录确切 W3C 许可版本。
   - Markdown 未附完整许可/NOTICE，原许可链接已丢失。
   - 第三方与联合权利材料无逐件清单。
+  - 2015 General Document License有限衍生例外的实际用途与语义保真依据，或针对当前固定有损转换物的明确授权；免责声明不能代替适用条件。
   classification: documented_permission
   license_id: W3C-Document-License-2015
   license_url: https://www.w3.org/copyright/document-license-2015/
@@ -6599,7 +6830,7 @@ items:
   current_capsule_compliance: pending_license_compliance_and_transformation_review
   publication_gate:
     decision: block
-    reason: 存在公众许可证据，但当前胶囊尚未机器证明版本绑定、许可条件和第三方范围均满足。
+    reason: 固定TR与revision已核实，但有损Markdown的实际用途和转换尚未证明符合General Document License有限例外；保持全文和block，不以软件组件许可或非规范标签豁免主体条件。
   human_follow_up:
   - 复核官方页面实际链接的许可与当前 revision。
   - 补齐 NOTICE/状态/修改说明；旧许可另审转换性质。
@@ -6932,15 +7163,52 @@ items:
   canonical_url: https://schema.org/docs/schemas.html
   observed_rights:
     manifest:
-      declared_access: unknown
-      full_text_redistribution_assumed: true
-      basis: null
-      assessment: 物化器声明/假设，不是权利人授权。
+      declared_access: open
+      full_text_redistribution_assumed: false
+      license_spdx: CC-BY-SA-3.0
+      license_url: https://creativecommons.org/licenses/by-sa/3.0/
+      license_verified_at: '2026-09-16'
+      redistribution_package:
+        source_revision: sha256:f62a658dd54f9185572242dd6e97df94b201c73132e744d4f078c66b2f51e0d3
+        source_version_url: https://schema.org/docs/schemas.html
+        notice_path: raw_data/licenses/cc-by-sa-3.0.md
+        attribution: 'This document includes material copied from or derived from
+          "Schemas", published by Schema.org at https://schema.org/docs/schemas.html.
+          The Schema.org Terms identify Google, Inc., Yahoo, Inc., Microsoft Corporation,
+          and Yandex collectively as the "Sponsors" and license the Sponsors'' copyrights
+          under Creative Commons Attribution-ShareAlike 3.0 Unported; FAQ #18 applies
+          those terms to supporting documentation. Licensed under CC BY-SA 3.0, https://creativecommons.org/licenses/by-sa/3.0/.
+          This Markdown adaptation and its selector excerpts are distributed under
+          CC BY-SA 3.0. No endorsement by Schema.org, the Sponsors, GS1, or MLCommons
+          is implied.'
+        modifications: Converted the retained 12,007-byte HTML response into a 2,982-byte
+          pre-notice Markdown adaptation by selecting h1-h4, p, li, and pre blocks;
+          navigation, scripts, styles, forms, SVG/canvas, the footer/version/Terms
+          link, hyperlink targets, raw markup, and some unwrapped page text were omitted
+          or normalized; 34 selector excerpts were generated. The redistribution notice
+          and attribution footer were added after conversion.
+        scope: 仅覆盖 source_revision 所指固定快照中、许可附注前的 2,982-byte Markdown 改编及其 34 个 selector
+          摘录，二者均按 CC BY-SA 3.0 分发。原页面仅以名称和简短说明提及 GS1 Web Vocabulary 与 Croissant；胶囊未保存其外链页面、规范、代码、媒体或标识。Schema.org
+          网站软件（另按 Apache-2.0 提供）、商标、专利、隐私/形象权及权利人无权许可的第三方材料不在此包装的授权范围。 将本作品纳入仓库集合（Collection）并不重新许可集合中的其他独立作品；后续引用、摘录、转换或派生
+          内容仍须按实际使用方式分别核验，构成改编（Adaptation）时须满足 CC BY-SA 3.0 的 ShareAlike（SA）义务。
+      assessment: 已存内容revision经离线许可包装；不将moving URL冒充固定release，不把generated_at称作获取时间。
     source_metadata:
-      access: unknown
-      license_spdx: null
-      license_verified_at: null
-      notes: Requires canonical rights verification.
+      license_spdx: CC-BY-SA-3.0
+      license_url: https://creativecommons.org/licenses/by-sa/3.0/
+      license_verified_at: '2026-09-16'
+      access: open
+      notes: 'Schema.org Terms identify Google, Inc., Yahoo, Inc., Microsoft Corporation,
+        and Yandex as the Sponsors and license the Sponsors'' copyrights in the schema
+        under CC BY-SA 3.0. FAQ #18 expressly extends those terms to supporting documentation,
+        blog material, and markup examples; site software is separately offered under
+        Apache-2.0. The Terms also state that later changes do not terminate or modify
+        the earlier grant for prior uses. This finding covers only the fixed content-addressed
+        page snapshot and its existing Markdown/selector derivation. The page names
+        and briefly describes the GS1 Web Vocabulary and Croissant, but the capsule
+        stores no linked GS1 or MLCommons pages, specifications, code, media, or marks.
+        It does not extend to site software, external works, trademarks, patent rights,
+        privacy/publicity rights, or third-party material the licensors were not authorized
+        to license.'
     capsule_source_metadata:
       path: materialized_sources/corpus/vocabulary-schema.org--c8b3dc95/source-metadata.yaml
       assessment: rights 与 canonical metadata 一致，不是额外独立证据。
@@ -6950,16 +7218,20 @@ items:
     locator: rights
     finding: declared_access=unknown; full_text_redistribution_assumed=True; basis=None
     supports_public_redistribution: false
+    baseline_observation: true
   - kind: source_metadata
     path: raw_data/standard/Schema.org Vocabulary/metadata.yaml
     locator: rights
-    finding: access=unknown; license_spdx=None; license_verified_at=None; notes=Requires canonical rights verification.
+    finding: access=unknown; license_spdx=None; license_verified_at=None; notes=Requires
+      canonical rights verification.
     supports_public_redistribution: false
+    baseline_observation: true
   - kind: local_content_rights_scan
     path: materialized_sources/corpus/vocabulary-schema.org--c8b3dc95/document.md
     locator: entire file
     finding: 未保留 footer、terms 或许可文本。
     supports_public_redistribution: false
+    baseline_observation: true
   - kind: official_terms
     url: https://schema.org/docs/terms.html
     license_url: https://creativecommons.org/licenses/by-sa/3.0/
@@ -6968,26 +7240,73 @@ items:
     supports_public_redistribution: true
     related_urls:
     - https://schema.org/docs/faq.html#18
-  missing:
-  - metadata 未登记 CC BY-SA 3.0。
-  - 抽取未保留 footer/terms、归属和 ShareAlike 标记。
-  - 版本与 collection/adaptation 边界未记录。
+  - kind: historical_supporting_documentation_license
+    url: https://schema.org/docs/faq.html#18
+    related_urls:
+    - https://github.com/schemaorg/schemaorg/blob/794f7838ef7f3b9b37fec5a76b005c0d7ab4f7e4/docs/faq.html
+    - https://github.com/schemaorg/schemaorg/blob/588cd46354c635bd8f5a168206ac2baff4d49178/docs/terms.html
+    - https://schema.org/docs/terms.html
+    checked_at: '2026-09-16'
+    finding: 官方历史FAQ明确supporting documentation适用CC BY-SA 3.0，Terms列出Sponsors并保留既有授权不被后续条款修改撤回。历史commit仅证明许可链，不声称其为现存网页部署commit。
+    supports_public_redistribution: true
+  - kind: existing_snapshot_offline_packaging
+    path: materialized_sources/corpus/vocabulary-schema.org--c8b3dc95
+    checked_at: '2026-09-16'
+    source_revision: sha256:f62a658dd54f9185572242dd6e97df94b201c73132e744d4f078c66b2f51e0d3
+    finding: 保留既有12007-byte响应的revision/retrieval及2982-byte Markdown正文前缀、34 selectors；当前moving
+      URL内容已变，不重新抓取替换旧正文。manifest generated_at为2026-09-13T17:08:29Z，只是build timestamp，不是独立获取日志；metadata收集日期另为2026-09-09。两次离线finalize逐字节一致，未来不同revision
+      mock失败关闭。完整CC BY-SA 3.0法律文本22240bytes与官方一致；NOTICE、Schema.org/Sponsors归属、修改说明和Markdown/selector的SA声明均入库。
+    supports_public_redistribution: true
+  missing: []
   classification: documented_permission
   license_id: CC-BY-SA-3.0
   license_url: https://creativecommons.org/licenses/by-sa/3.0/
-  license_scope: Terms 将 schema 以 CC BY-SA 3.0 授权，FAQ 明确同样覆盖 supporting documentation；站点软件另为 Apache-2.0。
+  license_scope: 仅覆盖 source_revision 所指固定快照中、许可附注前的 2,982-byte Markdown 改编及其 34 个
+    selector 摘录，二者均按 CC BY-SA 3.0 分发。原页面仅以名称和简短说明提及 GS1 Web Vocabulary 与 Croissant；胶囊未保存其外链页面、规范、代码、媒体或标识。Schema.org
+    网站软件（另按 Apache-2.0 提供）、商标、专利、隐私/形象权及权利人无权许可的第三方材料不在此包装的授权范围。 将本作品纳入仓库集合（Collection）并不重新许可集合中的其他独立作品；后续引用、摘录、转换或派生
+    内容仍须按实际使用方式分别核验，构成改编（Adaptation）时须满足 CC BY-SA 3.0 的 ShareAlike（SA）义务。
   license_restrictions:
   - share_alike
   evidence_confidence: moderate
-  public_redistribution_recommendation: allow_after_conditions_met
+  public_redistribution_recommendation: allow_with_packaged_notice
   conditions:
   - 署名并保留来源与许可链接。
   - 标明转换且改编部分相同方式共享。
   - 固定版本；站点软件、logo 和第三方扩展分开。
-  current_capsule_compliance: pending_license_compliance_and_sharealike_review
+  current_capsule_compliance: verified_revision_and_notice_packaged
   publication_gate:
-    decision: block
-    reason: 存在公众许可证据，但当前胶囊尚未机器证明版本绑定、许可条件和第三方范围均满足。
-  human_follow_up:
-  - 确定集合或改编的 ShareAlike 边界。
-  - 固定版本并补齐归属/许可标记后审批。
+    decision: allow
+    reason: 官方历史条款覆盖现存文档快照，完整许可、署名、修改说明及Markdown/selector同许可共享均落实；四方包绑定既有revision，moving
+      URL更新不继承此allow。
+  human_follow_up: []
+  redistribution_package:
+    source_revision: sha256:f62a658dd54f9185572242dd6e97df94b201c73132e744d4f078c66b2f51e0d3
+    source_version_url: https://schema.org/docs/schemas.html
+    notice_path: raw_data/licenses/cc-by-sa-3.0.md
+    attribution: 'This document includes material copied from or derived from "Schemas",
+      published by Schema.org at https://schema.org/docs/schemas.html. The Schema.org
+      Terms identify Google, Inc., Yahoo, Inc., Microsoft Corporation, and Yandex
+      collectively as the "Sponsors" and license the Sponsors'' copyrights under Creative
+      Commons Attribution-ShareAlike 3.0 Unported; FAQ #18 applies those terms to
+      supporting documentation. Licensed under CC BY-SA 3.0, https://creativecommons.org/licenses/by-sa/3.0/.
+      This Markdown adaptation and its selector excerpts are distributed under CC
+      BY-SA 3.0. No endorsement by Schema.org, the Sponsors, GS1, or MLCommons is
+      implied.'
+    modifications: Converted the retained 12,007-byte HTML response into a 2,982-byte
+      pre-notice Markdown adaptation by selecting h1-h4, p, li, and pre blocks; navigation,
+      scripts, styles, forms, SVG/canvas, the footer/version/Terms link, hyperlink
+      targets, raw markup, and some unwrapped page text were omitted or normalized;
+      34 selector excerpts were generated. The redistribution notice and attribution
+      footer were added after conversion.
+    scope: 仅覆盖 source_revision 所指固定快照中、许可附注前的 2,982-byte Markdown 改编及其 34 个 selector
+      摘录，二者均按 CC BY-SA 3.0 分发。原页面仅以名称和简短说明提及 GS1 Web Vocabulary 与 Croissant；胶囊未保存其外链页面、规范、代码、媒体或标识。Schema.org
+      网站软件（另按 Apache-2.0 提供）、商标、专利、隐私/形象权及权利人无权许可的第三方材料不在此包装的授权范围。 将本作品纳入仓库集合（Collection）并不重新许可集合中的其他独立作品；后续引用、摘录、转换或派生
+      内容仍须按实际使用方式分别核验，构成改编（Adaptation）时须满足 CC BY-SA 3.0 的 ShareAlike（SA）义务。
+  clearance_review:
+    kind: agent_evidence_and_packaging_review
+    human_approval_claimed: false
+    scope: 既有单页快照离线包装；不声称named release/exact deployment或确切网络获取日期。
+  conditions_fulfilled:
+  - 完整许可、原来源/Sponsors署名及转换说明保存于repo。
+  - Markdown改编与同源selector按CC BY-SA 3.0分发；集合中独立作品不被重新许可，后续派生分别核验。
+  - 正文前缀、34selectors、retrieval和revision不变；两次离线包装幂等，未来revision不同失败关闭。

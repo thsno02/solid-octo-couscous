@@ -93,14 +93,15 @@ Relevant records:
 ### A-04 — `main` does not enforce the checks represented by this repository
 
 **Severity:** high governance risk  
-**Status:** unresolved; repository-setting change required
+**Status:** 建议性治理加固尚未配置；不是本次候选代码 PR 新增的合并硬门槛
 
 At audit time, `main` is not protected and required status checks are disabled. This means:
 
-- a failing rights check does not technically prevent a merge;
-- deterministic validation is advisory rather than enforced;
-- direct pushes can bypass the proposal/review path;
-- self-committing workflows can modify the branch without an independent approval boundary.
+- deterministic validation is advisory rather than enforced by branch settings;
+- direct pushes are not prevented by branch protection;
+- future actors could bypass the intended proposal/review path unless settings enforce it.
+
+当前只读 CI 与提案式生产流程不直接写 main、不自动合并；没有证据把“可被其他人绕过”写成“当前 workflow 正在绕过”。普通 `Quality gate` 不运行整库实际许可放行检查，所以启用 required check 本身也不能解决正文的许可阻塞。2026-09-16 的 `branches/main` 查询再次显示 `protected: false`；此状态是建议加固的依据，不是擅自修改管理员设置的授权。
 
 Recommended repository settings:
 
@@ -109,11 +110,11 @@ require pull request before merging
 require Quality gate (workflow: CI; select the actual emitted check)
 require branch to be up to date
 block force pushes
-block direct pushes except narrowly scoped automation
+block direct pushes and do not add an automation bypass
 require review for workflow and governance changes
 ```
 
-This cannot be fully solved by a repository file alone.
+这些设置需要管理员权限，不能仅由仓库文件强制生效。原始规则要求 proposal/review 路径，但未将这些具体 GitHub 设置规定为本次候选 PR 的必要内容门槛；此前把设置落地列为必须先完成的合并步骤，是审计的过度归类。保留建议，不降低实际 rights gate，也不声称设置已完成。
 
 ### A-05 — Scheduled acquisition and public publication are still coupled
 
@@ -132,7 +133,7 @@ publication lane
   repository proposal branch (text + manifests + derived artifacts) → PR → independent CI → review → merge
 ```
 
-剩余 81 项受阻的全文使生产流程无法上传新批次；六项固定版本 W3C 文字包、一项 ODCS 固定定义页与两项 arXiv 包（PDF 与 TeX 各一项）已完成声明与署名条件，但不代表端到端上传成功或整个 ODCS 多页站点已物化。许可失败不会退回 artifact 发布或直接推送分支。已提交正文留存在 GitHub，远程任务检出相应 commit 继续工作，无需依赖上一个 runner。默认分支启用、Actions 创建 PR 权限及自动化 PR 的 CI 批准要求见[当前操作说明](ci-workflow.md)。
+剩余 79 项受阻的全文使生产流程无法上传新批次，其中 40 项缺适用公众许可证据、39 项已有许可待履约。六项 W3C 文字包、一项 ODCS 固定定义页、两项 arXiv 包（PDF 与 TeX 各一项）、LinkML 首页与 Schema.org 已存文档快照已完成当前内容版本的声明条件，但不代表端到端上传成功或各来源整个站点已物化。许可失败不会退回 artifact 发布或直接推送分支。已提交正文留存在 GitHub，远程任务检出相应 commit 继续工作，无需依赖上一个 runner。默认分支启用、Actions 创建 PR 权限及自动化 PR 的 CI 批准要求见[当前操作说明](ci-workflow.md)。
 
 ### A-06 — Reproducibility is same-environment, not yet supply-chain reproducibility
 
@@ -197,8 +198,9 @@ Recommended decision sequence:
 1. merge the follow-up audit PR into the PR #1 work branch;
 2. confirm the single `CI` / `Quality gate` passes on the new parent PR head, including committed-tree replay;
 3. 按已确定的 repo 全文留存要求逐项完成许可履约（rights clearance）；
-4. enable branch protection and required checks;
-5. review the candidate implementation as a code PR without claiming editorial admission, then mark ready and merge only after its applicable gates are met.
+4. review the candidate implementation as a code PR without claiming editorial admission, then mark ready and merge only after its applicable gates are met.
+
+建议由管理员在合并前或随后启用 branch protection 和 required checks；除非用户明确将设置本身列为前置要求，否则不把未授权的管理员操作升格为本次 PR 的新硬门槛。手动物化入口进入默认分支、Actions 创建 PR 权限与自动化 PR 的 CI 批准，属于后续生产启用条件，不作为当前 PR 自我部署的循环前置审批。
 
 在候选代码合并之后、任何可信晋升或正式知识发布之前，仍须完成相应的独立证据/编辑审核并记录准入决定。此前把 representative human review 放入候选 PR 必需合并顺序，是本审计的过度归类，不是原始仓库规则；此处仅纠正说明，不授予批准，也不更改准入策略或产物状态。
 
