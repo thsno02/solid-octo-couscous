@@ -282,7 +282,7 @@ context.md L91链接外部RFC-0038以说明完整cascading规范；本批保留�
 | --- | --- | --- |
 | 目标身份与原件（original） | 固定3.2.0，但只有旧首页派生；original unknown/partial_check | 同commit README+15章+完整例子+LICENSE+Fig1共19原件336,418 bytes；original complete/verified |
 | 文本提取（text） | unknown/partial_check；根文档2536 bytes不足以代表规范 | 新collector Markdown3739行/204,495 bytes；text partial/verified，具体图义限制仍在 |
-| 持久化（persistence） | 5件inventory/25,850 bytes；无目标原稿集合 | 26件inventory/696,674 bytes，已纳入Git索引；旧根文档、旧27定位、完整历史字典/NOTICE前缀保全；严格全目标线性文本完整标志仍false |
+| 持久化（persistence） | 5件inventory/25,850 bytes；无目标原稿集合 | 26件inventory/696,875 bytes，已纳入Git索引；旧根文档、旧27定位、完整历史字典/NOTICE前缀保全；严格全目标线性文本完整标志仍false |
 | 定位与消费（selectors） | 27个旧首页定位；未核规范语义 | 新181定位连续覆盖17原稿、preview和实际正文/metadata语义已核；加旧27共208，真实consumer显式用新pair |
 | 公开再分发（public） | 旧首页范围allow，不能移作新全文许可 | 仅19列定原件与有限派生的新package allow；四方一致、完整Apache与原署名/修改说明保留；外链和商标不扩大 |
 | 知识准入（knowledge） | null，无本UID demo claims | 不变；未新增选集/claims/evidence/collector assessment，未晋升trusted |
@@ -318,3 +318,7 @@ context.md L91链接外部RFC-0038以说明完整cascading规范；本批保留�
 既有PDF检查仍提示可选fontTools的CFF编码warning；未因此改依赖、原稿或提取结果。完整验证保留所有错误与退出码；显示层只过滤重复的该条warning前缀，并启用pipefail，不把过滤当作修复或略过门控。原件及其派生保留上游空白，diff --check仅对手写代码/计划等可控文本执行，不对原稿做格式清洗。
 
 台账机械比较确认其余130项原始块/对象、131知识状态与完整旧execution不变。主线另将顶层scope/interpretation中PR17专属说明显式保留为historical_p3_w3c_html_01字段，并补当前ODCS说明，避免旧“本批七W3C”被误当作当前范围；未改其他UID判断或历史字符串。最终review/CI/merge事实由PR记录锚定准确提交，不能为把结果写进本提交而预填自指SHA或伪造完成。
+
+## 独立最终审查的状态一致性修正（review correction）
+
+对候选389fb26的独立审查发现：累计NOTICE本批末段仍保留采集准入时的“false／等待审读”措辞，与已审读的manifest true矛盾。主线将该段明确分为采集时历史false、17份正文实读及frontmatter修正复核后的当前true；这不冒称最终PR审核、线性文本complete或人工审批。同步专用许可资产与胶囊NOTICE，不改变完整旧NOTICE前缀、19原件、正文／定位、许可范围或知识状态。最初仅修许可资产时，严格重放如预期拒绝NOTICE副本不一致且未写胶囊；同步两处后默认严格generic→one重放27文件逐字节稳定，禁网／禁prepare成立。新的inventory为696,875 bytes；聚合与必要演示身份随现有pipeline重建。389fb26的独立183测试、validate、覆盖与四阶段重放结果为旧候选证据；新提交仍需独立增量审查与其精确HEAD/BASE CI，不沿用旧候选放行。

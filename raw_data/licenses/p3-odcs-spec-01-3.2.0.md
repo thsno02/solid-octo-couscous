@@ -296,4 +296,4 @@ README、15个章与完整 YAML 示例的实际原稿均有上述版权及 SPDX�
 
 消费正文为 `normalized/document.md`，配对 sidecar 为 `normalized/selectors.jsonl`。LICENSE/PNG 不混入17正文 sources，而由有限本地 rewrite、inventory 与 retrieval.commit 明确核验。本地正文保留 Fig1 图像链接，但图内如 Orders/OrderLines 的标签及关系并未全部转成线性文字；这不是无损纯文本或 text complete 的声明。Context 原链接指向的 RFC-0038 完整 cascading 规范、其他外部 RFC/引用均未取得，不声称外部全文已持久化。YAML 中 example contract `version: 1.1.0` 不替代 ODCS 的 `apiVersion: v3.2.0`，原产品例子、上游拼写/Required差异和SQL/变量均不擅修、不执行。
 
-本次表示准入及许可履约不证明规范断言为真，不表示知识（knowledge）已获准或 trusted 晋升；自动摘录仍有启发式质量限制。正文质量状态暂为 `body_quality_verified: false`，等待真实生成物审读；不把原件齐备/重放稳定解释为线性文本 complete、法律清关或人工审批。
+本次表示准入及许可履约不证明规范断言为真，不表示知识（knowledge）已获准或 trusted 晋升；自动摘录仍有启发式质量限制。采集准入时的历史状态为 `body_quality_verified: false`；完成17份真实正文审读、修复 frontmatter 伪标题并经独立复核后，当前状态为 `body_quality_verified: true`。该状态仅表示本批正文已审读验收，不把原件齐备、重放稳定或正文验收解释为线性文本 complete、法律清关、最终 PR 审核通过或人工审批。
