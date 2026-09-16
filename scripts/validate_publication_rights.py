@@ -153,8 +153,11 @@ def validate_publication_rights(
         )
         retained_source_markdown = (
             isinstance(materialization, dict)
-            and isinstance(materialization.get("retained_markdown_source"), str)
-            and bool(materialization["retained_markdown_source"])
+            and (
+                isinstance(materialization.get("retained_markdown_source"), str)
+                and bool(materialization["retained_markdown_source"])
+                or "retained_text_sources" in materialization
+            )
         )
         if not isinstance(manifest, dict) or (
             manifest.get("content_tier") != "full_text" and not retained_source_pdf

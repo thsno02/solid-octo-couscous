@@ -147,6 +147,19 @@ class PublicationRightsTests(unittest.TestCase):
                 self.assertEqual(errors, [])
                 self.assertEqual((len(blocked), active, audited), (1, 1, 1))
 
+    def test_ordered_retained_text_is_gated_even_with_metadata_tier_or_bad_declaration(self):
+        for sources in ([{"source": "source/spec.md", "format": "md"}, {"source": "source/schema.yaml", "format": "yaml"}], [], None):
+            with self.subTest(sources=sources):
+                temporary, root, audit = self.fixture(decision="block")
+                with temporary:
+                    manifest_path = root / "materialized_sources/corpus/item/manifest.yaml"
+                    manifest = yaml.safe_load(manifest_path.read_text())
+                    manifest.update({"content_tier": "metadata_capsule", "materialization": {"retained_text_sources": sources}})
+                    manifest_path.write_text(yaml.safe_dump(manifest))
+                    errors, blocked, active, audited = validate_publication_rights(audit, root / "materialized_sources/corpus")
+                self.assertEqual(errors, [])
+                self.assertEqual((len(blocked), active, audited), (1, 1, 1))
+
     def test_undeclared_supplement_pdf_is_not_hidden_by_metadata_tier(self):
         temporary, root, audit = self.fixture()
         with temporary:
