@@ -1,0 +1,98 @@
+ledger_id: branch-ledger-260916
+as_of: '2026-09-16'
+repository: thsno02/solid-octo-couscous
+final_target:
+  branch: main
+  sha: 99ce4670be91637209d67792de0962404fa96488
+  role: final_shared_baseline
+  contains_pr_1: false
+  protected: false
+integration_branch:
+  branch: work/v0-meta-kb-initialization-demo-260910
+  sha: 568d31de26c918a9251fadf9488a47ae3405c034
+  role: temporary_integration_for_pr_1
+  pull_request: 1
+  pr_base: main
+  pr_state: open_draft
+  final_destination: main
+  deletion_authorized: false
+incorporated_pull_requests:
+  - number: 2
+    title: 'CI: 通用只读门控、提交产物重放与手动物化分离'
+    state: merged
+    merged_into: work/v0-meta-kb-initialization-demo-260910
+    merge_commit: 37ccf4e86d106866273c147280fe1d0efe1ba6fb
+    already_in_integration_branch: true
+    cherry_pick_again: forbidden
+planning_pull_request:
+  branch: plan/issues-3-4-corpus-main-convergence-260916
+  base: work/v0-meta-kb-initialization-demo-260910
+  destination: work/v0-meta-kb-initialization-demo-260910
+  role: planning_only
+  allowed_changes:
+    - docs/README.md
+    - docs/plans/260916-corpus-completion-main-convergence/**
+  implementation_authorized: false
+next_work_items:
+  - order: 1
+    phase: P1
+    suggested_branch: fix/nonrepo-coverage-ledger-260916
+    base: latest_work_head_after_planning_merge
+    target: work/v0-meta-kb-initialization-demo-260910
+    purpose: enumerate_and_classify_exactly_131_nonrepo_sources
+    network_access: false
+  - order: 2
+    phase: P2
+    suggested_branch: fix/nonrepo-known-parser-gaps-260916
+    base: latest_work_head_after_P1
+    target: work/v0-meta-kb-initialization-demo-260910
+    purpose: repair_arxiv_2406_04268_and_assess_arxiv_2502_18864_pages
+  - order: 3
+    phase: P3
+    suggested_branch_pattern: materialize/nonrepo-<batch>-<action-bucket>
+    base: latest_work_head_after_previous_batch
+    target: work/v0-meta-kb-initialization-demo-260910
+    purpose: acquire_and_preprocess_at_most_10_explicit_uids
+    concurrency: one_active_batch
+  - order: 4
+    phase: P4
+    suggested_branch: integrate/nonrepo-reconcile-pr1-260916
+    base: latest_work_head_after_all_batches
+    target: work/v0-meta-kb-initialization-demo-260910
+    purpose: final_coverage_reconciliation_derived_rebuild_and_pr1_scope_correction
+  - order: 5
+    phase: P5
+    pull_request: 1
+    base: main
+    head: work/v0-meta-kb-initialization-demo-260910
+    purpose: final_main_integration
+    recommended_merge_method: squash
+    automatic_execution_authorized: false
+merge_order:
+  - planning_pull_request_into_work
+  - P1_into_work
+  - P2_into_work
+  - sequential_P3_batches_into_work
+  - P4_into_work
+  - final_validation_on_exact_pr1_head_and_actual_main_base
+  - explicit_ready_and_merge_decision
+  - squash_pr1_into_main
+  - fresh_main_checkout_validation
+status_vocabulary:
+  pushed: change_exists_on_a_remote_branch
+  merged_to_parent: child_pr_is_present_in_work_branch
+  landed_in_main: final_tree_is_present_in_main
+rules:
+  - never_report_pushed_as_landed_in_main
+  - never_report_merged_to_parent_as_landed_in_main
+  - do_not_create_another_long_lived_integration_branch
+  - do_not_delete_or_force_push_shared_branches_without_explicit_authorization
+  - after_squash_verify_absorption_by_tree_and_manifests_not_ancestry_only
+  - update_this_ledger_when_any_branch_base_head_pr_or_merge_state_changes
+cleanup:
+  default: retain
+  prerequisites:
+    - target_changes_confirmed_in_main
+    - no_unique_work_on_branch
+    - no_active_dependency
+    - explicit_authorization
