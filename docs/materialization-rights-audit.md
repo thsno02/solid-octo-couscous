@@ -6,10 +6,10 @@
 
 - 51 条找到明确公众复制/再分发许可，分类为 <code>documented_permission</code>；这不表示当前胶囊已经履约。
 - 40 条未找到面向公众/本仓库的适用许可，分类为 <code>permission_unverified</code>；不应公开再分发全文。
-- 基线审计的 91 项中，六项 W3C、ODCS 3.2.0 定义首页、三项 arXiv、LinkML 文档首页及 Schema.org 文档快照已完成当前内容版本的许可包装，12 项为 <code>allow</code>；其余 79 项仍为 <code>block</code>。
+- 基线审计的 91 项中，六项 W3C、ODCS 3.2.0 定义首页、五项 arXiv、LinkML 文档首页及 Schema.org 文档快照已完成当前内容版本的许可包装，14 项为 <code>allow</code>；其余 77 项仍为 <code>block</code>。
 - Apache Ossie 基线胶囊只有 7 bytes（# Home），不是实质标准全文；后续降级不删除其基线审计行。
 
-当前 `full_text` 为 90 条，公开发布门检查结果为 `active_full_text=90 audited=91 blocked=78 errors=0`；整体仍未放行。78 项分为 40 项尚无适用公众许可证据、38 项已有许可证据但尚待履约，不应统称为缺少授权。审计覆盖数 91 与当前全文数 90 使用不同基线，不应混用。全文继续保存在本 GitHub repo；本次保留既有正文与快照，只补齐许可条件和传播信息，未移除作品、迁移存储或改写 Git 历史。
+当前 `full_text` 为 90 条，公开发布门检查结果为 `active_full_text=90 audited=91 blocked=76 errors=0`；整体仍未放行。76 项分为 40 项尚无适用公众许可证据、36 项已有许可证据但尚待履约，不应统称为缺少授权。审计覆盖数 91 与当前全文数 90 使用不同基线，不应混用。全文继续保存在本 GitHub repo；本次保留既有正文与快照，只补齐许可条件和传播信息，未移除作品、迁移存储或改写 Git 历史。
 
 机器可读逐条记录：<code>raw_data/audits/materialization_rights_review.yaml</code>。本报告记录许可证据与已落实的包装条件，不是法律意见或人工批准。
 
@@ -34,11 +34,11 @@
 | 基线 full_text | 91 |
 | documented_permission | 51 |
 | permission_unverified | 40 |
-| allow_after_conditions_met | 39 |
-| allow_with_packaged_notice | 12 |
+| allow_after_conditions_met | 37 |
+| allow_with_packaged_notice | 14 |
 | do_not_redistribute_full_text | 40 |
-| publication gate: allow | 12 |
-| publication gate: block（基线项） | 79 |
+| publication gate: allow | 14 |
+| publication gate: block（基线项） | 77 |
 
 ### Robin / Kosmos：论文正文与额外收录的摘要分别判断
 
@@ -108,11 +108,29 @@ AI Scientist-v2 七份匿名评审意见已独立核对：[OpenReview 条款](ht
 
 派生管线复用通用许可传播模块（Rights propagation），将来源的声明包与版本化引用传递到 evidence、claim、Wiki 页面及机器视图。来源表达与收集者评述分开，缺包显式 `unavailable`，混合页面不把某一组件的许可套到整库独立作品。结构校验不代替此处逐来源的使用与发布判断。
 
+## 自演化 Agent 综述：论文、模板与三份摘要分别履约
+
+[arXiv:2507.21046v4](https://arxiv.org/abs/2507.21046v4) 的固定源响应为 3,856,523 bytes，与既有 revision 一致；canonical 更新为该版本的完整题名及 27 位作者。当前保存 19 个 source 文字成员、135 个定位器，八个非文本成员原已省略。论文作者材料按 CC BY4，不能据此覆盖附带模板或第三方摘要。
+
+[TMLR 官方作者指南](https://jmlr.org/tmlr/author-guide.html)链接的[固定模板仓库](https://github.com/JmlrOrg/tmlr-style-file/tree/7bf90efe3a0debbba703c05c43f3ff7e4d4a2992)与实存三个组件逐字对应：`tmlr.sty` 依 Apache 2.0，`tmlr.bst` 和 `fancyhdr.sty` 各保留原 LPPL 授予、署名与身份，本包选择 LPPL 1.3c。仓库 Apache 不覆盖组件内另列的 LPPL；本包没有保存 `natbib.sty`，外部依赖声明不构成复制该组件。完整三份法条随组合 NOTICE 保存，不暗示上游为此胶囊提供支持。
+
+`main.bib` 实际有三份额外摘要。[AppBench](https://aclanthology.org/2024.emnlp-main.856/) 与 [ARIA](https://aclanthology.org/2025.emnlp-industry.115/)对应 ACL 官方摘要，按其 BY4 分别署名；[ACM tool-learning tutorial](https://doi.org/10.1145/3626772.3661381)的 DOI、题名、五作者和页码对应 [ACM 提交的 Crossref 作品记录](https://api.crossref.org/works/10.1145/3626772.3661381)，该记录明确 VOR 的 CC BY4，自 2024-07-10 起生效。它不是 metadata CC0 或“可免费阅读”推断；记录没有摘要正文，未声称完成 ACM PDF/摘要逐字核验。在确切作品对应且无相反声明的情况下，可合理依赖正式许可记录，不额外要求取得 PDF 页眉。
+
+全部 source、规范化 TeX 和定位器保持，正文只增加署名附注。集成时发现修改说明中的相对 Markdown 链接传播到 Wiki 后失效；将该描述改为纯文本后，胶囊生成器仍产生正确的真实 NOTICE 链接，无需新增链接重写器或放宽校验。
+
+## Streaming Knowledge Compilation：正文与官方模板分别署名
+
+[arXiv:2606.09877v1](https://arxiv.org/abs/2606.09877v1) 的固定 48,158-byte 源响应与既有 revision 和全部四个 source 成员对应。Juan M. Huerta 的论文采用 CC BY4；没有省略成员，72 条书目无额外摘要字段。正文的新闻提示为占位符，具体新闻标题明确标为合成示例；没有保存底层新闻或 Wikipedia 长篇文本。
+
+模板另有独立依据：[NeurIPS 2026 Program Chairs 官方模板页](https://www.overleaf.com/latex/templates/formatting-instructions-for-neurips-2026/bjdwqfdkyftc)明确 CC BY4。对比[会议官网模板 ZIP](https://media.neurips.cc/Conferences/NeurIPS2026/Formatting_Instructions_For_NeurIPS_2026.zip)，现存 `neurips_2026.sty` 仅少六行 education-option 块，其他表达和版本标识对应。包装保留 Program Chairs、Roman Garnett 及原作者线索，披露这一既存差异，不虚构修改者或历史下载版本；当前许可不自动外推其他年份模板。
+
+本项复用已有完整 CC BY4 NOTICE，主文和模板分别归属，arXiv 事实编译元数据单列 CC0。独立复核发现 canonical metadata 的重复旧 URL 会覆盖新固定 URL，删除重复项后重新执行两次真实 v1 物化，12 个胶囊文件一致。原四份 source、规范化 TeX 和 98 个定位器不变，正文精确为原内容加唯一末尾许可附注；本仓库未改模板或论文表达。
+
 ## 已包装但未放行：Zep 的非商业用途条件
 
 [Zep arXiv:2501.13956v1](https://arxiv.org/abs/2501.13956v1) 的 22,911-byte 固定源包已与现存 revision 对应。论文的 CC BY-NC-SA 4.0、Moulay PRIME 改编的 CC BY 4.0 与 George Kour 基础模板的 MIT 分别保存。Zep 与 PaperQA2 模板仅页码开关一行不同，未将该变体归为 Zep 作者原创；五位论文作者、来源及修改说明已补齐。两次固定 v1 物化一致，四个 source 文件、规范化 TeX 与 29 个 selectors 不变，规范化正文仅追加许可附注。
 
-这项仍为 `block`，不计入十二项已放行来源：实际使用是否满足非商业（NonCommercial）条件尚待确认。其判断标准是该使用是否主要旨在或指向商业利益或金钱报酬，不是简单判断仓库是否公开、使用者是否营利或是否标成研究项目。派生内容保留归属、许可与适用的相同方式共享（ShareAlike）条件；通用传播已实现，但不替代实际用途的确认，也不把某一来源的 SA 条件自动套到整个仓库的独立作品。
+这项仍为 `block`，不计入已放行来源：实际使用是否满足非商业（NonCommercial）条件尚待确认。其判断标准是该使用是否主要旨在或指向商业利益或金钱报酬，不是简单判断仓库是否公开、使用者是否营利或是否标成研究项目。派生内容保留归属、许可与适用的相同方式共享（ShareAlike）条件；通用传播已实现，但不替代实际用途的确认，也不把某一来源的 SA 条件自动套到整个仓库的独立作品。
 
 ## LinkML 单页许可包装与必要证据边界
 
@@ -132,6 +150,7 @@ AI Scientist-v2 七份匿名评审意见已独立核对：[OpenReview 条款](ht
 
 ## 本轮未放行的具体边界
 
+- ICML 家族的 2022/2024/2025 官方 author kit 已做有界检查：主 `.sty` 尚未见明确公众再分发授权，独立 `.bst` 和 `fancyhdr` 的 LPPL 不能覆盖它。`algorithm/algorithmic` 的官方当前包是 LGPL 2.1，不是 LPPL，旧件仍须对应后分别履约。投稿模式的“Do not distribute”是条件输出，不被当作模板禁令；PaperBench 的同名 `arxiv.sty` 是 ICML 派生件，不能误套 George Kour 模板的 MIT。这四项没有据此放行，也没有删减正文。
 - OWL 2、R2RML 与 SHACL 的 dated TR HTML 已与现存 revision 对齐。W3C [2015 General Document License](https://www.w3.org/copyright/document-license-2015/)及[FAQ](https://www.w3.org/Consortium/Legal/IPR-FAQ-20000620-new.html#2015published)提供旧 TR 的有限派生使用路径，但没有普遍开放重格式化。当前知识消化语料是否符合软件实现支持用途，以及表格/链接结构丢失是否保留含义，仍缺充分依据；不能靠附上“非规范”标签或给代码示例套软件许可来放行整个规范主体。这三项保持 `block`，不删除正文。
 - GraphRAG 的固定 arXiv v2 与现存包已对齐，但实际保存的 `neurips_2024.sty` 尚缺明确再分发依据。匿名投稿页脚中的 “Do not distribute” 不是样式文件自身的禁止分发条款；我们既不错误认定它禁止，也不把可下载当作授权。
 - Robin 与 Kosmos 的 `references.bib` 分别含 88、80 个摘要字段及 15、31 个版权字段，不是纯书目。需按实际保存的第三方摘要逐项核清许可，不能只用论文作者的 CC BY 覆盖；这不表示所有摘要都不可分发，当前证据仍不足。
@@ -218,12 +237,12 @@ WikiChat 新找到[作者官方公告](https://github.com/stanford-oval/WikiChat
 | 63 | <code>arxiv:2505.13400</code> | <code>materialized_sources/corpus/arxiv-2505.13400--6cb0cfb6/manifest.yaml</code><br><code>raw_data/arxiv/Robin: A multi-agent system for automating scientific discovery/metadata.yaml</code> | 固定 v1 与既有源成员对应；主论文 BY4、基础模板 MIT | 附带完整摘要存在具体许可依据缺口及 NC 条件；正文不删 | <code>documented_permission</code> | 满足条件后才可考虑发布；当前 gate=block |
 | 64 | <code>arxiv:2505.22954</code> | <code>materialized_sources/corpus/arxiv-2505.22954--8a7041cb/manifest.yaml</code><br><code>raw_data/arxiv/Darwin Godel Machine: Open-Ended Evolution of Self-Improving Agents/metadata.yaml</code> | <code>CC-BY-4.0</code>；arXiv 官方文章页的 Rights to this article 链接指向 CC-BY-4.0。；本地 access=<code>unknown</code>，assumed=true | 本地三处 rights 未记录该文章许可及核验日期。；retrieval hash 尚未与确切 arXiv vN 建立可审计映射。 | <code>documented_permission</code> | 满足条件后才可考虑发布；当前 gate=block |
 | 65 | <code>arxiv:2506.13131</code> | <code>materialized_sources/corpus/arxiv-2506.13131--83bbeb67/manifest.yaml</code><br><code>raw_data/arxiv/AlphaEvolve: A coding agent for scientific and algorithmic discovery/metadata.yaml</code> | <code>CC-BY-NC-ND-4.0</code>；arXiv 官方文章页的 Rights to this article 链接指向 CC-BY-NC-ND-4.0。；本地 access=<code>unknown</code>，assumed=true | 本地三处 rights 未记录该文章许可及核验日期。；retrieval hash 尚未与确切 arXiv vN 建立可审计映射。 | <code>documented_permission</code> | 满足条件后才可考虑发布；当前 gate=block |
-| 66 | <code>arxiv:2507.21046</code> | <code>materialized_sources/corpus/arxiv-2507.21046--f477f5c3/manifest.yaml</code><br><code>raw_data/arxiv/A Survey of Self-Evolving Agents: On Path to Artificial Super Intelligence/metadata.yaml</code> | <code>CC-BY-4.0</code>；arXiv 官方文章页的 Rights to this article 链接指向 CC-BY-4.0。；本地 access=<code>unknown</code>，assumed=true | 本地三处 rights 未记录该文章许可及核验日期。；retrieval hash 尚未与确切 arXiv vN 建立可审计映射。 | <code>documented_permission</code> | 满足条件后才可考虑发布；当前 gate=block |
+| 66 | <code>arxiv:2507.21046</code> | <code>materialized_sources/corpus/arxiv-2507.21046--f477f5c3/manifest.yaml</code><br><code>raw_data/arxiv/A Survey of Self-Evolving Agents: On Path to Artificial Super Intelligence/metadata.yaml</code> | 固定 v4、27 作者与源包对应；主文 BY4、模板 Apache/LPPL、三摘要 BY4 分别完成包装 | 无；限当前19个source文字成员，不覆盖八个省略媒体 | <code>documented_permission</code> | 当前固定文本包 gate=allow；不等于人工批准或整体 PR 完成 |
 | 67 | <code>arxiv:2509.23233</code> | <code>materialized_sources/corpus/arxiv-2509.23233--b148460b/manifest.yaml</code><br><code>raw_data/arxiv/Detecting Corpus-Level Knowledge Inconsistencies in Wikipedia with Large Language Models/metadata.yaml</code> | 官方许可只授予 arXiv.org 非独占分发权，不授予公众或本仓库。；本地 access=<code>metadata_only</code>，assumed=true | 面向公众的论文全文复制/再分发许可。；许可版本、权利人和精确作品版本绑定。 | <code>permission_unverified</code> | 不公开全文，仅元数据/链接；当前 gate=block |
 | 68 | <code>arxiv:2509.25651</code> | <code>materialized_sources/corpus/arxiv-2509.25651--2ba7699b/manifest.yaml</code><br><code>raw_data/arxiv/AutoLabs: Cognitive Multi-Agent Systems with Self-Correction for Autonomous Chemical Experimentation/metadata.yaml</code> | <code>CC-BY-NC-ND-4.0</code>；arXiv 官方文章页的 Rights to this article 链接指向 CC-BY-NC-ND-4.0。；本地 access=<code>unknown</code>，assumed=true | 本地三处 rights 未记录该文章许可及核验日期。；retrieval hash 尚未与确切 arXiv vN 建立可审计映射。 | <code>documented_permission</code> | 满足条件后才可考虑发布；当前 gate=block |
 | 69 | <code>arxiv:2511.02824</code> | <code>materialized_sources/corpus/arxiv-2511.02824--1c218a8e/manifest.yaml</code><br><code>raw_data/arxiv/Kosmos: An AI Scientist for Autonomous Discovery/metadata.yaml</code> | 固定 v2 与既有源成员对应；主论文 BY4 | 附带摘要有明确无再分发许可与 NC 条件；未保存图像不是障碍 | <code>documented_permission</code> | 满足条件后才可考虑发布；当前 gate=block |
 | 70 | <code>arxiv:2602.06855</code> | <code>materialized_sources/corpus/arxiv-2602.06855--0b517136/manifest.yaml</code><br><code>raw_data/arxiv/AIRS-Bench: a Suite of Tasks for Frontier AI Research Science Agents/metadata.yaml</code> | <code>CC-BY-NC-SA-4.0</code>；arXiv 官方文章页的 Rights to this article 链接指向 CC-BY-NC-SA-4.0。；本地 access=<code>unknown</code>，assumed=true | 本地三处 rights 未记录该文章许可及核验日期。；retrieval hash 尚未与确切 arXiv vN 建立可审计映射。 | <code>documented_permission</code> | 满足条件后才可考虑发布；当前 gate=block |
-| 71 | <code>arxiv:2606.09877</code> | <code>materialized_sources/corpus/arxiv-2606.09877--80ac4aba/manifest.yaml</code><br><code>raw_data/arxiv/Streaming Knowledge Compilation: Proactive Materiality-Scored Pinning for Time-Evolving LLM Wikis/metadata.yaml</code> | <code>CC-BY-4.0</code>；arXiv 官方文章页的 Rights to this article 链接指向 CC-BY-4.0。；本地 access=<code>metadata_only</code>，assumed=true | 本地三处 rights 未记录该文章许可及核验日期。；retrieval hash 尚未与确切 arXiv vN 建立可审计映射。 | <code>documented_permission</code> | 满足条件后才可考虑发布；当前 gate=block |
+| 71 | <code>arxiv:2606.09877</code> | <code>materialized_sources/corpus/arxiv-2606.09877--80ac4aba/manifest.yaml</code><br><code>raw_data/arxiv/Streaming Knowledge Compilation: Proactive Materiality-Scored Pinning for Time-Evolving LLM Wikis/metadata.yaml</code> | 固定 v1；主文与官方 NeurIPS2026 模板各 BY4，既存六行差异披露；完整 NOTICE 入库 | 无；四个source/98selectors保留，不虚构模板历史版本 | <code>documented_permission</code> | 当前固定文本包 gate=allow；不等于人工批准或整体 PR 完成 |
 | 72 | <code>arxiv:2607.07663</code> | <code>materialized_sources/corpus/arxiv-2607.07663--e2b770de/manifest.yaml</code><br><code>raw_data/arxiv/Recursive Self-Improvement in AI: From Bounded Self-Refinement to Autonomous Research Loops/metadata.yaml</code> | 固定 v2 archive 与 revision 一致；论文 CC BY、Pandoc 模板 BSD 及 arXiv 编译元数据 CC0 分别标记；完整组合 NOTICE 入库 | 无；仅覆盖当前保存的文本成员与派生物，六张 PNG 未保存 | <code>documented_permission</code> | 当前固定版本文本包 gate=allow；不等于整个 archive 或人工批准 |
 | 73 | <code>arxiv:cs/0309048</code> | <code>materialized_sources/corpus/arxiv-cs-0309048--34c0ca59/manifest.yaml</code><br><code>raw_data/arxiv/Goedel Machines: Self-Referential Universal Problem Solvers Making Provably Optimal Self-Improvements/metadata.yaml</code> | 官方记录仅假定 arXiv 自己具有历史非独占分发权；没有面向公众的明示许可。；本地 access=<code>unknown</code>，assumed=true | 面向公众的论文全文复制/再分发许可。；许可版本、权利人和精确作品版本绑定。 | <code>permission_unverified</code> | 不公开全文，仅元数据/链接；当前 gate=block |
 | 74 | <code>methodology:linkml-schema-first</code> | <code>materialized_sources/corpus/methodology-linkml-schema-first--182a2b38/manifest.yaml</code><br><code>raw_data/methodology/LinkML Schema First Knowledge Modeling/metadata.yaml</code> | Apache-2.0；部署source-view与固定官方docs源对应，原版权与完整许可已包装 | 无（仅当前单页revision；不声称exact deployment commit） | <code>documented_permission</code> | 已完成当前revision许可包装；当前 gate=allow |

@@ -45,7 +45,7 @@ temporal:
   valid_to: null
   as_of: '2026-09-16T04:30:26Z'
 provenance:
-  build_id: build:llm-wiki-v0:bf1b13c8baaa32ad
+  build_id: build:llm-wiki-v0:05e882fced13f0e1
   generated_by_agent: pipeline/build_llm_wiki.py
   generated_by_model: null
   prompt_or_skill_version: deterministic-llm-wiki-v0.2
@@ -77,7 +77,7 @@ consumption:
     short: A broad taxonomy of self-evolving agents organized around what, when, how, and where to evolve, spanning
       model, memory, tool, and architecture changes.
     full: null
-  estimated_tokens: 157
+  estimated_tokens: 173
   machine_entry_points:
   - ../../04_claims/claims.jsonl
   - ../../03_evidence/evidence.jsonl
@@ -88,7 +88,7 @@ rights_refs: []
 rights_unavailable_source_refs: []
 ---
 
-# Collection assessment for A Survey of Self-Evolving Agents: On Path to Artificial Super Intelligence
+# Collection assessment for A Survey of Self-Evolving Agents: What, When, How, and Where to Evolve on the Path to Artificial Super Intelligence
 
 > **Candidate only.** This page exposes one atomic claim and its evidence bindings.
 
@@ -115,5 +115,5 @@ Check entailment, selector precision, source quality, identity, scope, contradic
 
 ## Related pages
 
-- [A Survey of Self-Evolving Agents: On Path to Artificial Super Intelligence](../sources/arxiv-2507.21046.md) — `evidenced_by`
+- [A Survey of Self-Evolving Agents: What, When, How, and Where to Evolve on the Path to Artificial Super Intelligence](../sources/arxiv-2507.21046.md) — `evidenced_by`
 - [Open Ended Evolution](../maps/open-ended-evolution.md) — `part_of`

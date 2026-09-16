@@ -133,7 +133,7 @@ publication lane
   repository proposal branch (text + manifests + derived artifacts) → PR → independent CI → review → merge
 ```
 
-剩余 79 项受阻的全文使生产流程无法上传新批次，其中 40 项缺适用公众许可证据、39 项已有许可待履约。六项 W3C 文字包、一项 ODCS 固定定义页、两项 arXiv 包（PDF 与 TeX 各一项）、LinkML 首页与 Schema.org 已存文档快照已完成当前内容版本的声明条件，但不代表端到端上传成功或各来源整个站点已物化。许可失败不会退回 artifact 发布或直接推送分支。已提交正文留存在 GitHub，远程任务检出相应 commit 继续工作，无需依赖上一个 runner。默认分支启用、Actions 创建 PR 权限及自动化 PR 的 CI 批准要求见[当前操作说明](ci-workflow.md)。
+整库全文许可门仍有未闭合条件，生产流程尚不能上传新批次；逐来源的最新数量、证据与履约结果以[当前许可审计](materialization-rights-audit.md)为准，不沿用本报告早期的计数快照。部分 W3C、ODCS、arXiv、LinkML 与 Schema.org 文字包已经完成对应版本的声明条件，但不代表端到端上传成功或各来源整个站点已物化。许可失败不会退回 artifact 发布或直接推送分支。已提交正文留存在 GitHub，远程任务检出相应 commit 继续工作，无需依赖上一个 runner。默认分支启用、Actions 创建 PR 权限及自动化 PR 的 CI 批准要求见[当前操作说明](ci-workflow.md)。
 
 ### A-06 — Reproducibility is same-environment, not yet supply-chain reproducibility
 

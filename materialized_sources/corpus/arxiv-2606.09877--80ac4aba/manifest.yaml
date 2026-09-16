@@ -12,23 +12,52 @@ status: materialized
 content_tier: full_text
 revision: sha256:fc3f32bbffb155ce657dbcbf0049b3d9611f43e921050faaafb6ff5f26b31550
 rights:
-  declared_access: metadata_only
-  full_text_redistribution_assumed: true
+  declared_access: open
+  full_text_redistribution_assumed: false
   basis: arXiv source archive
+  license_spdx: CC-BY-4.0
+  license_url: https://creativecommons.org/licenses/by/4.0/
+  license_verified_at: '2026-09-16'
+  redistribution_package:
+    source_revision: sha256:fc3f32bbffb155ce657dbcbf0049b3d9611f43e921050faaafb6ff5f26b31550
+    source_version_url: https://arxiv.org/abs/2606.09877v1
+    notice_path: raw_data/licenses/cc-by-4.0.md
+    attribution: '"Streaming Knowledge Compilation: Proactive Materiality-Scored Pinning for Time-Evolving LLM Wikis",
+      arXiv:2606.09877v1, by Juan M. Huerta, https://arxiv.org/abs/2606.09877v1, licensed under CC BY 4.0: https://creativecommons.org/licenses/by/4.0/.
+      source/neurips_2026.sty is independently attributed to the NeurIPS 2026 Program Chairs'' official template,
+      "Formatting Instructions For NeurIPS 2026", https://www.overleaf.com/latex/templates/formatting-instructions-for-neurips-2026/bjdwqfdkyftc,
+      also declared CC BY 4.0. Its original attribution to Roman Garnett and the many authors of nips15submit_e.sty,
+      including MK and drstrip@sandia, is retained. The corresponding official source is https://media.neurips.cc/Conferences/NeurIPS2026/Formatting_Instructions_For_NeurIPS_2026.zip,
+      checked on 2026-09-16. source/00README.json is arXiv-generated compilation metadata under arXiv''s CC0 1.0
+      metadata terms: https://info.arxiv.org/help/policies/submission_agreement.html#metadata-license. None of these
+      attributions implies endorsement of this repository.'
+    modifications: The fixed v1 source archive is unpacked and all four text members are retained unchanged; no
+      archive members are omitted. main.tex is copied to normalized/document.tex and converted to normalized/document.txt;
+      98 selectors are generated. Only normalized/document.txt receives the attribution, scope, changes statement
+      and NOTICE link at its end. Compared with the currently reviewed official template, the retained neurips_2026.sty
+      lacks the six-line education-option block; the existing difference is preserved, not introduced or repaired
+      by this repository. Its origin and modifier are not asserted. No historical template download or byte-identical
+      correspondence to the current complete style file is claimed.
+    scope: 本包仅覆盖固定 arXiv v1 的四个 source 文字成员、normalized/document.tex、 normalized/document.txt 与 98 个定位器（selectors）。论文作者表达及其文本转换适用
+      CC BY 4.0；source/neurips_2026.sty 作为独立模板按其官方 CC BY 4.0 声明分别署名， 不将模板著作权归给论文作者。source/00README.json 是 arXiv
+      自动生成的事实性编译元数据， 按其 metadata CC0 条款处理。references.bib 是没有摘要字段的书目记录，不授权所引作品； 未保存的新闻、Wikipedia 原文、外部模型和代码不属于许可包。定位器不改变其所定位组件的许可。
 retrievals:
 - requested_urls:
-  - https://export.arxiv.org/e-print/2606.09877
-  - https://arxiv.org/e-print/2606.09877
-  resolved_url: https://export.arxiv.org/src/2606.09877
+  - https://export.arxiv.org/e-print/2606.09877v1
+  - https://arxiv.org/e-print/2606.09877v1
+  resolved_url: https://export.arxiv.org/src/2606.09877v1
   content_type: application/gzip
   bytes: 48158
   sha256: fc3f32bbffb155ce657dbcbf0049b3d9611f43e921050faaafb6ff5f26b31550
 selectors:
 - selectors.jsonl
 local_files:
+- path: materialized_sources/corpus/arxiv-2606.09877--80ac4aba/NOTICE.md
+  bytes: 20118
+  sha256: 20e9338d52e07563d1d2d4744b97bacbc0884d8ce9b49075612c989e6ad2abd0
 - path: materialized_sources/corpus/arxiv-2606.09877--80ac4aba/README.md
-  bytes: 396
-  sha256: 42b45e80983862d16cafa8d57d56e687e3d7c35bd26bdc63a3796a7dcfb8d87a
+  bytes: 460
+  sha256: e96afe34b0d0f3ff91cfe4734a661a5420b9665b831ef4a9a5a143614b02a06e
 - path: materialized_sources/corpus/arxiv-2606.09877--80ac4aba/files.jsonl
   bytes: 782
   sha256: a5abf3f3380fd67a0477821fb3e5aabee96a6a21bc154dcf96992edc0664b553
@@ -36,8 +65,8 @@ local_files:
   bytes: 111249
   sha256: 5743d382c07d9b50316678afdc35afcd2347a8242d34ae79b965c94a257bf33f
 - path: materialized_sources/corpus/arxiv-2606.09877--80ac4aba/normalized/document.txt
-  bytes: 96127
-  sha256: 1b21f892d34b40a5ba167c6e21901b4503134c347ec93092bbc94b45616c00ea
+  bytes: 98710
+  sha256: 8efd7b58886ede22d5b86fe6fb7704c7d0fd95dd21d1601d246d12a6cbf5ac87
 - path: materialized_sources/corpus/arxiv-2606.09877--80ac4aba/selectors.jsonl
   bytes: 25058
   sha256: a45c9afe6eed404eb20c097a7b6d70feb1bb77093f98538fa4b209ad246809dd
@@ -54,8 +83,8 @@ local_files:
   bytes: 21370
   sha256: 79786cf4ad7e088e699c75c6afdc9ff8db2c24e8bf8c85a19386ae2f8001a3f0
 - path: materialized_sources/corpus/arxiv-2606.09877--80ac4aba/source-metadata.yaml
-  bytes: 2500
-  sha256: c6b8be03756c13fbc834e8457ee1662ba59f511ec6b872f26fed21a828ef691c
+  bytes: 6510
+  sha256: f0025205b207642b4ed06825ffa8c77dc907f71774c4520405b246916c41d8c8
 warnings: []
 errors: []
 archive_container: tar
@@ -63,8 +92,10 @@ materialization:
   stored_text_files: 4
   stored_text_bytes: 146294
   main_tex: main.tex
+  document: normalized/document.txt
   normalized_document: normalized/document.txt
   selector_count: 98
   omitted_member_count: 0
+  stored_characters: 98401
 omitted: []
-local_bytes: 382406
+local_bytes: 409181

@@ -22,12 +22,12 @@ summary:
     documented_permission: 51
     permission_unverified: 40
   recommendation_counts:
-    allow_after_conditions_met: 39
-    allow_with_packaged_notice: 12
+    allow_after_conditions_met: 37
+    allow_with_packaged_notice: 14
     do_not_redistribute_full_text: 40
   publication_gate_counts:
-    block: 79
-    allow: 12
+    block: 77
+    allow: 14
   license_evidence_counts:
     CC-BY-4.0: 25
     none: 40
@@ -45,11 +45,11 @@ summary:
   - 73 篇 arXiv 中32篇官方文章页提供CC许可；WikiChat另由作者exact v2 camera-ready声明与ACL许可形成作者正文授权链，其余40篇仍缺适用公众许可证据。arXiv nonexclusive/assumed本身不转授公众权利。
   - 14 份 W3C 文档都有许可；7 份旧式许可对 HTML→Markdown 仍需衍生权审查。
   - LinkML、Apache Ossie、ODCS 有 Apache-2.0 证据；Schema.org supporting documentation 有 CC BY-SA 3.0 证据。
-  - 基线91项中6项W3C、ODCS 3.2.0定义首页、arXiv 2502.18864v2、2607.07663v2与2409.13740v2、LinkML单页及Schema.org既有文档快照已完成当前revision与NOTICE包装，12项allow；其余79项仍block（当前活跃全文78项block，其中40项缺许可、38项待履约）。
+  - 基线91项中6项W3C、ODCS 3.2.0定义首页、5项arXiv、LinkML单页及Schema.org既有文档快照已完成当前revision与NOTICE包装，14项allow；其余77项仍block（当前活跃全文76项block，其中40项缺许可、36项待履约）。
 review_completion:
   evidence_review_complete_for_baseline: true
   legal_clearance_complete: false
-  can_human_review_be_completed: 证据审计已完成；51条有公众许可证据，其中12条完成当前包装，39条仍待履约；另40条须取得适用许可或新的权威许可证据。客观许可履约不默认要求另行人工批准，Agent也不代替权利人授予新许可。
+  can_human_review_be_completed: 证据审计已完成；51条有公众许可证据，其中14条完成当前包装，37条仍待履约；另40条须取得适用许可或新的权威许可证据。客观许可履约不默认要求另行人工批准，Agent也不代替权利人授予新许可。
   not_legal_advice: true
 items:
 - sequence: 1
@@ -657,7 +657,8 @@ items:
   - kind: manifest_assertion
     path: materialized_sources/corpus/arxiv-2206.06520--f7ce3f6e/manifest.yaml
     locator: rights
-    finding: declared_access=metadata_only; full_text_redistribution_assumed=True; basis=arXiv source archive
+    finding: declared_access=metadata_only; full_text_redistribution_assumed=True; basis=arXiv source
+      archive
     supports_public_redistribution: false
   - kind: source_metadata
     path: raw_data/arxiv/Memory-Based Model Editing at Scale/metadata.yaml
@@ -675,10 +676,22 @@ items:
     checked_at: '2026-09-16'
     finding: arXiv 官方文章页的 Rights to this article 链接指向 CC-BY-4.0。
     supports_public_redistribution: true
+  - kind: official_template_distribution_review
+    url: https://media.icml.cc/Conferences/ICML2022/Styles/icml2022.zip
+    checked_at: '2026-09-16'
+    finding: 官方 author kit 完整成员未见 LICENSE/COPYING/README；主样式、示例和官方作者说明未给出明确模板公众再分发授权。论文版权页脚及审稿模式 Do not
+      distribute 条件输出不是模板许可或禁令；不借论文 BY4/PMLR 许可覆盖该组件。
+    supports_public_redistribution: false
+  - kind: separate_component_license_review
+    path: materialized_sources/corpus/arxiv-2206.06520--f7ce3f6e/source
+    finding: 保留的 ICML bst 与 fancyhdr 头注明 LPPL1-or-later，可独立履约但不覆盖主 sty。若保存 algorithm/algorithmic：旧件是 Peter
+      Williams 1996 版权、部分 Alex Smola 修改；CTAN algorithms 当前为 LGPL2.1，不是 LPPL，须先做具体对应而非按文件名外推。
+    supports_public_redistribution: false
   missing:
   - 本地三处 rights 未记录该文章许可及核验日期。
   - retrieval hash 尚未与确切 arXiv vN 建立可审计映射。
   - 未形成第三方组件例外清单和许可履约包。
+  - 独立 icml2022 主样式未见明确再分发依据；已有 LPPL 的 bst/fancyhdr 不自动覆盖它。
   classification: documented_permission
   license_id: CC-BY-4.0
   license_url: https://creativecommons.org/licenses/by/4.0/
@@ -2497,7 +2510,8 @@ items:
   - kind: source_metadata
     path: 'raw_data/arxiv/MEMORYLLM: Towards Self-Updatable Large Language Models/metadata.yaml'
     locator: rights
-    finding: access=unknown; license_spdx=None; license_verified_at=None; notes=Requires canonical rights verification.
+    finding: access=unknown; license_spdx=None; license_verified_at=None; notes=Requires canonical rights
+      verification.
     supports_public_redistribution: false
   - kind: local_content_rights_scan
     path: materialized_sources/corpus/arxiv-2402.04624--c3e9e366
@@ -2510,10 +2524,22 @@ items:
     checked_at: '2026-09-16'
     finding: arXiv 官方文章页的 Rights to this article 链接指向 CC-BY-4.0。
     supports_public_redistribution: true
+  - kind: official_template_distribution_review
+    url: https://media.icml.cc/Conferences/ICML2024/Styles/icml2024.zip
+    checked_at: '2026-09-16'
+    finding: 官方 author kit 完整成员未见 LICENSE/COPYING/README；主样式、示例和官方作者说明未给出明确模板公众再分发授权。论文版权页脚及审稿模式 Do not
+      distribute 条件输出不是模板许可或禁令；不借论文 BY4/PMLR 许可覆盖该组件。
+    supports_public_redistribution: false
+  - kind: separate_component_license_review
+    path: materialized_sources/corpus/arxiv-2402.04624--c3e9e366/source
+    finding: 保留的 ICML bst 与 fancyhdr 头注明 LPPL1-or-later，可独立履约但不覆盖主 sty。若保存 algorithm/algorithmic：旧件是 Peter
+      Williams 1996 版权、部分 Alex Smola 修改；CTAN algorithms 当前为 LGPL2.1，不是 LPPL，须先做具体对应而非按文件名外推。
+    supports_public_redistribution: false
   missing:
   - 本地三处 rights 未记录该文章许可及核验日期。
   - retrieval hash 尚未与确切 arXiv vN 建立可审计映射。
   - 未形成第三方组件例外清单和许可履约包。
+  - 独立 icml2024 主样式未见明确再分发依据；已有 LPPL 的 bst/fancyhdr 不自动覆盖它。
   classification: documented_permission
   license_id: CC-BY-4.0
   license_url: https://creativecommons.org/licenses/by/4.0/
@@ -3085,7 +3111,8 @@ items:
   - kind: source_metadata
     path: 'raw_data/arxiv/Position: Open-Endedness is Essential for Artificial Superhuman Intelligence/metadata.yaml'
     locator: rights
-    finding: access=unknown; license_spdx=None; license_verified_at=None; notes=Requires canonical rights verification.
+    finding: access=unknown; license_spdx=None; license_verified_at=None; notes=Requires canonical rights
+      verification.
     supports_public_redistribution: false
   - kind: local_content_rights_scan
     path: materialized_sources/corpus/arxiv-2406.04268--ce5afac4
@@ -3098,10 +3125,23 @@ items:
     checked_at: '2026-09-16'
     finding: arXiv 官方文章页的 Rights to this article 链接指向 CC-BY-4.0。
     supports_public_redistribution: true
+  - kind: official_template_distribution_review
+    url: https://media.icml.cc/Conferences/ICML2024/Styles/icml2024.zip
+    checked_at: '2026-09-16'
+    finding: 官方 author kit 完整成员未见 LICENSE/COPYING/README；主样式、示例和官方作者说明未给出明确模板公众再分发授权。论文版权页脚及审稿模式 Do not
+      distribute 条件输出不是模板许可或禁令；不借论文 BY4/PMLR 许可覆盖该组件。
+    supports_public_redistribution: false
+  - kind: separate_component_license_review
+    path: materialized_sources/corpus/arxiv-2406.04268--ce5afac4/source
+    finding: 保留的 ICML bst 与 fancyhdr 头注明 LPPL1-or-later，可独立履约但不覆盖主 sty。若保存 algorithm/algorithmic：旧件是 Peter
+      Williams 1996 版权、部分 Alex Smola 修改；CTAN algorithms 当前为 LGPL2.1，不是 LPPL，须先做具体对应而非按文件名外推。
+    supports_public_redistribution: false
   missing:
   - 本地三处 rights 未记录该文章许可及核验日期。
   - retrieval hash 尚未与确切 arXiv vN 建立可审计映射。
   - 未形成第三方组件例外清单和许可履约包。
+  - 独立 icml2024 主样式未见明确再分发依据；已有 LPPL 的 bst/fancyhdr 不自动覆盖它。
+  - 额外 Google DeepMind class 的 BY-SA4 与未声明许可的颜色样式须分别履约，不合并为论文许可。
   classification: documented_permission
   license_id: CC-BY-4.0
   license_url: https://creativecommons.org/licenses/by/4.0/
@@ -4754,7 +4794,8 @@ items:
   - kind: source_metadata
     path: 'raw_data/arxiv/PaperBench: Evaluating AI''s Ability to Replicate AI Research/metadata.yaml'
     locator: rights
-    finding: access=unknown; license_spdx=None; license_verified_at=None; notes=Requires canonical rights verification.
+    finding: access=unknown; license_spdx=None; license_verified_at=None; notes=Requires canonical rights
+      verification.
     supports_public_redistribution: false
   - kind: local_content_rights_scan
     path: materialized_sources/corpus/arxiv-2504.01848--006ccffe
@@ -4767,10 +4808,23 @@ items:
     checked_at: '2026-09-16'
     finding: arXiv 官方文章页的 Rights to this article 链接指向 CC-BY-4.0。
     supports_public_redistribution: true
+  - kind: official_template_distribution_review
+    url: https://media.icml.cc/Conferences/ICML2025/Styles/icml2025.zip
+    checked_at: '2026-09-16'
+    finding: 官方 author kit 完整成员未见 LICENSE/COPYING/README；主样式、示例和官方作者说明未给出明确模板公众再分发授权。论文版权页脚及审稿模式 Do not
+      distribute 条件输出不是模板许可或禁令；不借论文 BY4/PMLR 许可覆盖该组件。
+    supports_public_redistribution: false
+  - kind: separate_component_license_review
+    path: materialized_sources/corpus/arxiv-2504.01848--006ccffe/source
+    finding: 保留的 ICML bst 与 fancyhdr 头注明 LPPL1-or-later，可独立履约但不覆盖主 sty。若保存 algorithm/algorithmic：旧件是 Peter
+      Williams 1996 版权、部分 Alex Smola 修改；CTAN algorithms 当前为 LGPL2.1，不是 LPPL，须先做具体对应而非按文件名外推。
+    supports_public_redistribution: false
   missing:
   - 本地三处 rights 未记录该文章许可及核验日期。
   - retrieval hash 尚未与确切 arXiv vN 建立可审计映射。
   - 未形成第三方组件例外清单和许可履约包。
+  - 独立 icml2025 主样式未见明确再分发依据；已有 LPPL 的 bst/fancyhdr 不自动覆盖它。
+  - 实际 arxiv.sty 是 ICML 派生组件，不是 George Kour 同名 MIT 模板。
   classification: documented_permission
   license_id: CC-BY-4.0
   license_url: https://creativecommons.org/licenses/by/4.0/
@@ -5228,7 +5282,8 @@ items:
 - sequence: 66
   uid: arxiv:2507.21046
   source_type: arxiv
-  title: 'A Survey of Self-Evolving Agents: On Path to Artificial Super Intelligence'
+  title: 'A Survey of Self-Evolving Agents: What, When, How, and Where to Evolve on the Path to Artificial
+    Super Intelligence'
   manifest_path: materialized_sources/corpus/arxiv-2507.21046--f477f5c3/manifest.yaml
   metadata_path: 'raw_data/arxiv/A Survey of Self-Evolving Agents: On Path to Artificial Super Intelligence/metadata.yaml'
   capsule_root: materialized_sources/corpus/arxiv-2507.21046--f477f5c3
@@ -5240,15 +5295,62 @@ items:
   canonical_url: https://arxiv.org/abs/2507.21046
   observed_rights:
     manifest:
-      declared_access: unknown
-      full_text_redistribution_assumed: true
+      declared_access: open
+      full_text_redistribution_assumed: false
       basis: arXiv source archive
-      assessment: 物化器声明/假设，不是权利人授权。
+      license_spdx: CC-BY-4.0
+      license_url: https://creativecommons.org/licenses/by/4.0/
+      license_verified_at: '2026-09-16'
+      redistribution_package:
+        source_revision: sha256:4bace9b0e6528f904932b2502264e47d4c5778660cd378f68e032e5588eae432
+        source_version_url: https://arxiv.org/abs/2507.21046v4
+        notice_path: raw_data/licenses/arxiv-cc-by-4.0-tmlr-apache-2.0-lppl-1.3c.md
+        attribution: '"A Survey of Self-Evolving Agents: What, When, How, and Where to Evolve on the Path
+          to Artificial Super Intelligence", arXiv:2507.21046v4，作者为 Huan-ang Gao; Jiayi Geng; Wenyue Hua;
+          Mengkang Hu; Xinzhe Juan; Hongzhang Liu; Shilong Liu; Jiahao Qiu; Xuan Qi; Yiran Wu; Hongru
+          Wang; Han Xiao; Yuhang Zhou; Shaokun Zhang; Jiayi Zhang; Jinyu Xiang; Yixiong Fang; Qiwen Zhao;
+          Dongrui Liu; Qihan Ren; Cheng Qian; Zhenhailong Wang; Minda Hu; Huazheng Wang; Qingyun Wu; Heng
+          Ji; Mengdi Wang。 来源：https://arxiv.org/abs/2507.21046v4，论文作者材料采用 CC BY 4.0：https://creativecommons.org/licenses/by/4.0/。
+          source/tmlr.sty 来自 TMLR 官方模板 https://github.com/JmlrOrg/tmlr-style-file/tree/7bf90efe3a0debbba703c05c43f3ff7e4d4a2992，
+          保留 Hugo Larochelle、Fabian Pedregosa 的改编与 Chris J. Maddison January 2021 的字体修改署名， 采用 Apache 2.0：https://www.apache.org/licenses/LICENSE-2.0。
+          source/tmlr.bst 保留 Copyright 2010 Hal Daum\''e III、J. Fürnkranz 的标签修改与 Copyright 1993-2007 Patrick
+          W Daly；source/fancyhdr.sty 保留 Copyright (C) 1994-2021 Pieter van Oostrum 及 v4.0.1 身份； 两组件分别保留原
+          LPPL 授予，本包选择 LPPL 1.3c：https://www.latex-project.org/lppl/lppl-1-3c/。 main.bib 的 tool_tut 摘要来自
+          "Empowering Large Language Models: Tool Learning for Real-World Interaction"， Hongru Wang; Yujia
+          Qin; Yankai Lin; Jeff Z. Pan; Kam-Fai Wong，SIGIR 2024, pp. 2983-2986， https://doi.org/10.1145/3626772.3661381；ACM
+          提交的作品记录声明 VOR 按 CC BY 4.0 授权，始于 2024-07-10。 AppBench 摘要来自 "AppBench: Planning of Multiple APIs
+          from Various APPs for Complex User Instruction"， Hongru Wang; Rui Wang; Boyang Xue; Heming Xia;
+          Jingtao Cao; Zeming Liu; Jeff Z. Pan; Kam-Fai Wong， Copyright © 2024 ACL，https://aclanthology.org/2024.emnlp-main.856/，按
+          CC BY 4.0 授权。 ARIA 摘要来自 "Enabling Self-Improving Agents to Learn at Test Time With Human-In-The-Loop
+          Guidance"， Yufei He; Ruoyu Li; Alex Chen; Yue Liu; Yulin Chen; Yuan Sui; Cheng Chen; Yi Zhu;
+          Luca Luo; Frank Yang; Bryan Hooi，Copyright © 2025 ACL，https://aclanthology.org/2025.emnlp-industry.115/，按
+          CC BY 4.0 授权。 三段摘要的许可链接同为 https://creativecommons.org/licenses/by/4.0/，不代表授权其描述的代码、数据或其他引用作品。
+          source/00README.json 为 arXiv 自动处理/编译元数据，其适用 CC0 来源为 https://info.arxiv.org/help/policies/submission_agreement.html#metadata-license。'
+        modifications: 固定 v4 源包解包后，原有 19 个 source 文字成员逐字保留；不删除或改写论文、附录、三段额外摘要、 模板代码或组件身份。现有生成器展开主 TeX
+          的 include/input 至 normalized/document.tex，并转换为 normalized/document.txt、生成 135 个 selector；TeX
+          命令、结构和数学排版按既有流程归一为纯文本， 图像/PDF 不转换为可读正文。此次仅向 normalized/document.txt 末尾追加唯一分隔标记、论文与组件署名、 修改/范围说明及
+          NOTICE.md 链接，README 增加 NOTICE 链接，manifest 记录已应用的 package； source、normalized/document.tex 和既有
+          selector 不改。三段摘要在 main.bib 内保留其原文与引用字段， 未据最新题名改写其内部 "MetaBench" 用语，也不冒称 ACM PDF 或摘要逐字复核。
+        scope: 本包只覆盖固定 arXiv v4 胶囊实际保存的 19 个 source 文字成员（484,027 bytes）、 normalized/document.tex、附注前的既有
+          normalized/document.txt 与 135 个 selector。 论文作者主文/附录及其文本转换按 CC BY 4.0；source/tmlr.sty 单独按 Apache
+          2.0； source/tmlr.bst 与 source/fancyhdr.sty 分别按原 LPPL 许可授予、本包选择 LPPL 1.3c 履约。 source/main.bib
+          只有 tool_tut、AppBench 和 ARIA 三段额外摘要按各自作品级 CC BY 4.0 履约， 其余书目事实与排版引用不授权引用作品；source/00README.json
+          仅作为适用 CC0 的事实编译元数据。 独立组件仍各自保留原许可，不把整篇论文或整个 Bib 重许可为 Apache/LPPL；本包不是整个 archive 的镜像， 不覆盖原已省略的八个非文本成员、其他外链论文、代码、数据、商标、专利或权利人无权许可的材料。
+      assessment: 固定 v4 主文 BY4、模板 Apache/LPPL、三段摘要各 BY4 分别包装；不是人工批准。
     source_metadata:
-      access: unknown
-      license_spdx: null
-      license_verified_at: null
-      notes: Requires canonical rights verification.
+      license_spdx: CC-BY-4.0
+      license_url: https://creativecommons.org/licenses/by/4.0/
+      license_verified_at: '2026-09-16'
+      access: open
+      notes: CC BY 4.0 适用于官方固定 arXiv v4 的论文作者材料及其文本转换，不覆盖独立第三方组件。 source/tmlr.sty 对应 TMLR 官方模板仓库的 Apache
+        2.0，并保留 Hugo Larochelle、Fabian Pedregosa 和 Chris J. Maddison 的模板归属。source/tmlr.bst 的原头保留 Copyright
+        2010 Hal Daum\'e III、 J. Fürnkranz 的标签修改和 Copyright 1993-2007 Patrick W Daly；它声明 LPPL version
+        1 or later， 本包选择 LPPL 1.3c。source/fancyhdr.sty 是原样 2021/01/28 v4.0.1 生成文件，保留 Copyright (C) 1994-2021
+        Pieter van Oostrum 及 LPPL version 1.3 or later，本包选择 LPPL 1.3c；其头没有 natbib 8.31 的额外 dtx 陪同条件。本包没有实存
+        natbib.sty，RequirePackage/usepackage 只引用外部依赖。 三个模板组件均与官方固定 commit 同字节，本仓库不修改其代码、身份或原版权，不暗示上游支持。
+        main.bib 三段额外摘要分别为 ACM SIGIR 2024 tool-learning tutorial、ACL 2024 AppBench 和 ACL 2025 ARIA，按各自作品级
+        CC BY 4.0 履约，不以元数据 CC0 或代码仓库许可替代。 00README.json 是 arXiv 自动编译处理元数据，其 CC0 依据仅覆盖 arXiv/提交者有权许可的元数据。
+        本包保留完整许可、署名和转换说明；不授权引用或外链作品、已省略媒体或权利人无权许可的材料。
     capsule_source_metadata:
       path: materialized_sources/corpus/arxiv-2507.21046--f477f5c3/source-metadata.yaml
       assessment: rights 与 canonical metadata 一致，不是额外独立证据。
@@ -5258,45 +5360,126 @@ items:
     locator: rights
     finding: declared_access=unknown; full_text_redistribution_assumed=True; basis=arXiv source archive
     supports_public_redistribution: false
+    baseline_observation: true
   - kind: source_metadata
     path: 'raw_data/arxiv/A Survey of Self-Evolving Agents: On Path to Artificial Super Intelligence/metadata.yaml'
     locator: rights
-    finding: access=unknown; license_spdx=None; license_verified_at=None; notes=Requires canonical rights verification.
+    finding: access=unknown; license_spdx=None; license_verified_at=None; notes=Requires canonical rights
+      verification.
     supports_public_redistribution: false
+    baseline_observation: true
   - kind: local_content_rights_scan
     path: materialized_sources/corpus/arxiv-2507.21046--f477f5c3
     locator: source/** and normalized/**
     finding: 未发现独立 LICENSE/COPYING/NOTICE 或文章级本地许可；命中项（如有）仅属模板、组件、引用或研究对象。
     supports_public_redistribution: false
+    baseline_observation: true
   - kind: official_article_license_record
     url: https://arxiv.org/abs/2507.21046
     license_url: https://creativecommons.org/licenses/by/4.0/
     checked_at: '2026-09-16'
     finding: arXiv 官方文章页的 Rights to this article 链接指向 CC-BY-4.0。
     supports_public_redistribution: true
-  missing:
-  - 本地三处 rights 未记录该文章许可及核验日期。
-  - retrieval hash 尚未与确切 arXiv vN 建立可审计映射。
-  - 未形成第三方组件例外清单和许可履约包。
+  - kind: fixed_version_archive_binding
+    url: https://arxiv.org/abs/2507.21046v4
+    checked_at: '2026-09-16'
+    finding: 官方固定 v4 的完整题名、27 作者、2026-01-16 修订与 BY4 已核。固定源响应 3,856,523 bytes 与既有 revision 对应；19 source
+      文字成员、135 selectors，八个非文本成员原已省略。
+    supports_public_redistribution: true
+  - kind: independent_template_license
+    url: https://github.com/JmlrOrg/tmlr-style-file/tree/7bf90efe3a0debbba703c05c43f3ff7e4d4a2992
+    related_urls:
+    - https://jmlr.org/tmlr/author-guide.html
+    finding: 官方指南直接链接模板仓库；实存 tmlr.sty、tmlr.bst、fancyhdr.sty 三组件与固定官方副本同字节。sty 依 Apache2，bst/fancy 各自保留
+      LPPL 授予、本包选择1.3c，原版权/名称/修改头不变。完整树十文件无上游 NOTICE，本地 NOTICE 是许可载体。未保存 natbib，不把外部依赖当再分发，也不为无额外条件的 fancy
+      普遍要求陪同 dtx。
+    supports_public_redistribution: true
+  - kind: independent_abstract_licenses
+    url: https://aclanthology.org/faq/copyright/
+    related_urls:
+    - https://aclanthology.org/2024.emnlp-main.856/
+    - https://aclanthology.org/2025.emnlp-industry.115/
+    finding: main.bib 的 AppBench、ARIA 摘要与对应 ACL 官方摘要一致，保留各作品作者/题名/来源并按 ACL 2016+ BY4 履约；不把其正文视为 CC0 metadata，不授权其所描述的代码或数据。
+    supports_public_redistribution: true
+  - kind: publisher_deposited_work_license
+    url: https://api.crossref.org/works/10.1145/3626772.3661381
+    related_urls:
+    - https://api.crossref.org/members/320
+    - https://www.crossref.org/documentation/schema-library/markup-guide-metadata-segments/license-information/
+    finding: tool_tut 的 DOI、题名、五作者、SIGIR2024 及页2983–2986与正式记录一致。提交者 member320 为 ACM，VOR 许可为 CC BY4，start2024-07-10/delay0。该记录不含
+      abstract，未声称对 ACM PDF/摘要逐字核验；无相反声明或不同版本迹象时合理依赖正式作品许可，不把 ACM 403 转成许可缺失，也不以 metadata CC0 代替。
+    supports_public_redistribution: true
+  - kind: fixed_url_materialization_replay
+    url: https://export.arxiv.org/e-print/2507.21046v4
+    finding: 两次真实固定 v4 物化的27文件一致。之后仅把 package 修改说明内的相对 Markdown 链接改为纯文本，避免传播至 Wiki 后错位；两次 finalize 仍幂等。source19/normalized
+      TeX/135selectors/files.jsonl不变，正文为原字节加唯一末尾附注，实际 footer NOTICE 链接正确。独立 evaluator 检查三方包、完整法条与源保留均通过。
+    supports_public_redistribution: true
+  missing: []
   classification: documented_permission
   license_id: CC-BY-4.0
   license_url: https://creativecommons.org/licenses/by/4.0/
-  license_scope: 覆盖该 arXiv article 中权利人有权许可的内容，不自动覆盖第三方组件、代码或数据。
+  license_scope: 本包只覆盖固定 arXiv v4 胶囊实际保存的 19 个 source 文字成员（484,027 bytes）、 normalized/document.tex、附注前的既有
+    normalized/document.txt 与 135 个 selector。 论文作者主文/附录及其文本转换按 CC BY 4.0；source/tmlr.sty 单独按 Apache 2.0；
+    source/tmlr.bst 与 source/fancyhdr.sty 分别按原 LPPL 许可授予、本包选择 LPPL 1.3c 履约。 source/main.bib 只有 tool_tut、AppBench
+    和 ARIA 三段额外摘要按各自作品级 CC BY 4.0 履约， 其余书目事实与排版引用不授权引用作品；source/00README.json 仅作为适用 CC0 的事实编译元数据。 独立组件仍各自保留原许可，不把整篇论文或整个
+    Bib 重许可为 Apache/LPPL；本包不是整个 archive 的镜像， 不覆盖原已省略的八个非文本成员、其他外链论文、代码、数据、商标、专利或权利人无权许可的材料。
   license_restrictions: []
   evidence_confidence: high
-  public_redistribution_recommendation: allow_after_conditions_met
+  public_redistribution_recommendation: allow_with_packaged_notice
   conditions:
-  - 署名作者并保留标题、来源和许可链接。
-  - 标明修改且不得附加限制。
-  - 逐件排除或清理第三方组件/材料。
-  - 将许可与当前 retrieval hash 和确切 arXiv vN 绑定。
-  current_capsule_compliance: pending_license_compliance_and_revision_binding
+  - 固定 v4 主文完整作者/题名/来源/BY4及转换说明保留。
+  - TMLR sty Apache 与 bst/fancy LPPL 独立履约，保留原版权、身份与完整法条。
+  - 三段额外摘要按各作品 BY4 单独署名，CC0仅编译元数据。
+  - 当前 revision、完整 NOTICE、唯一末尾附注及四方许可包一致。
+  current_capsule_compliance: verified_revision_and_notice_packaged
   publication_gate:
-    decision: block
-    reason: 存在公众许可证据，但当前胶囊尚未机器证明版本绑定、许可条件和第三方范围均满足。
-  human_follow_up:
-  - 人工核对本地 source archive 的 arXiv 版本。
-  - 补齐归属、许可链接/声明与第三方组件审计后再审批。
+    decision: allow
+    reason: 仅放行已核固定 v4 的当前文字包及其派生物；主文、三模板和三摘要分范围完成许可包装，源表达不变，未对省略媒体或外链授权。
+  human_follow_up: []
+  baseline_title: 'A Survey of Self-Evolving Agents: On Path to Artificial Super Intelligence'
+  redistribution_package:
+    source_revision: sha256:4bace9b0e6528f904932b2502264e47d4c5778660cd378f68e032e5588eae432
+    source_version_url: https://arxiv.org/abs/2507.21046v4
+    notice_path: raw_data/licenses/arxiv-cc-by-4.0-tmlr-apache-2.0-lppl-1.3c.md
+    attribution: '"A Survey of Self-Evolving Agents: What, When, How, and Where to Evolve on the Path
+      to Artificial Super Intelligence", arXiv:2507.21046v4，作者为 Huan-ang Gao; Jiayi Geng; Wenyue Hua;
+      Mengkang Hu; Xinzhe Juan; Hongzhang Liu; Shilong Liu; Jiahao Qiu; Xuan Qi; Yiran Wu; Hongru Wang;
+      Han Xiao; Yuhang Zhou; Shaokun Zhang; Jiayi Zhang; Jinyu Xiang; Yixiong Fang; Qiwen Zhao; Dongrui
+      Liu; Qihan Ren; Cheng Qian; Zhenhailong Wang; Minda Hu; Huazheng Wang; Qingyun Wu; Heng Ji; Mengdi
+      Wang。 来源：https://arxiv.org/abs/2507.21046v4，论文作者材料采用 CC BY 4.0：https://creativecommons.org/licenses/by/4.0/。
+      source/tmlr.sty 来自 TMLR 官方模板 https://github.com/JmlrOrg/tmlr-style-file/tree/7bf90efe3a0debbba703c05c43f3ff7e4d4a2992，
+      保留 Hugo Larochelle、Fabian Pedregosa 的改编与 Chris J. Maddison January 2021 的字体修改署名， 采用 Apache 2.0：https://www.apache.org/licenses/LICENSE-2.0。
+      source/tmlr.bst 保留 Copyright 2010 Hal Daum\''e III、J. Fürnkranz 的标签修改与 Copyright 1993-2007 Patrick
+      W Daly；source/fancyhdr.sty 保留 Copyright (C) 1994-2021 Pieter van Oostrum 及 v4.0.1 身份； 两组件分别保留原 LPPL
+      授予，本包选择 LPPL 1.3c：https://www.latex-project.org/lppl/lppl-1-3c/。 main.bib 的 tool_tut 摘要来自 "Empowering
+      Large Language Models: Tool Learning for Real-World Interaction"， Hongru Wang; Yujia Qin; Yankai
+      Lin; Jeff Z. Pan; Kam-Fai Wong，SIGIR 2024, pp. 2983-2986， https://doi.org/10.1145/3626772.3661381；ACM
+      提交的作品记录声明 VOR 按 CC BY 4.0 授权，始于 2024-07-10。 AppBench 摘要来自 "AppBench: Planning of Multiple APIs from
+      Various APPs for Complex User Instruction"， Hongru Wang; Rui Wang; Boyang Xue; Heming Xia; Jingtao
+      Cao; Zeming Liu; Jeff Z. Pan; Kam-Fai Wong， Copyright © 2024 ACL，https://aclanthology.org/2024.emnlp-main.856/，按
+      CC BY 4.0 授权。 ARIA 摘要来自 "Enabling Self-Improving Agents to Learn at Test Time With Human-In-The-Loop
+      Guidance"， Yufei He; Ruoyu Li; Alex Chen; Yue Liu; Yulin Chen; Yuan Sui; Cheng Chen; Yi Zhu; Luca
+      Luo; Frank Yang; Bryan Hooi，Copyright © 2025 ACL，https://aclanthology.org/2025.emnlp-industry.115/，按
+      CC BY 4.0 授权。 三段摘要的许可链接同为 https://creativecommons.org/licenses/by/4.0/，不代表授权其描述的代码、数据或其他引用作品。 source/00README.json
+      为 arXiv 自动处理/编译元数据，其适用 CC0 来源为 https://info.arxiv.org/help/policies/submission_agreement.html#metadata-license。'
+    modifications: 固定 v4 源包解包后，原有 19 个 source 文字成员逐字保留；不删除或改写论文、附录、三段额外摘要、 模板代码或组件身份。现有生成器展开主 TeX 的 include/input
+      至 normalized/document.tex，并转换为 normalized/document.txt、生成 135 个 selector；TeX 命令、结构和数学排版按既有流程归一为纯文本，
+      图像/PDF 不转换为可读正文。此次仅向 normalized/document.txt 末尾追加唯一分隔标记、论文与组件署名、 修改/范围说明及 NOTICE.md 链接，README 增加
+      NOTICE 链接，manifest 记录已应用的 package； source、normalized/document.tex 和既有 selector 不改。三段摘要在 main.bib
+      内保留其原文与引用字段， 未据最新题名改写其内部 "MetaBench" 用语，也不冒称 ACM PDF 或摘要逐字复核。
+    scope: 本包只覆盖固定 arXiv v4 胶囊实际保存的 19 个 source 文字成员（484,027 bytes）、 normalized/document.tex、附注前的既有 normalized/document.txt
+      与 135 个 selector。 论文作者主文/附录及其文本转换按 CC BY 4.0；source/tmlr.sty 单独按 Apache 2.0； source/tmlr.bst 与 source/fancyhdr.sty
+      分别按原 LPPL 许可授予、本包选择 LPPL 1.3c 履约。 source/main.bib 只有 tool_tut、AppBench 和 ARIA 三段额外摘要按各自作品级 CC BY
+      4.0 履约， 其余书目事实与排版引用不授权引用作品；source/00README.json 仅作为适用 CC0 的事实编译元数据。 独立组件仍各自保留原许可，不把整篇论文或整个 Bib 重许可为
+      Apache/LPPL；本包不是整个 archive 的镜像， 不覆盖原已省略的八个非文本成员、其他外链论文、代码、数据、商标、专利或权利人无权许可的材料。
+  clearance_review:
+    kind: agent_evidence_and_packaging_review
+    human_approval_claimed: false
+    scope: 19个source文字成员、normalized文件及135selectors；八个省略非文本成员不在本包。
+  conditions_fulfilled:
+  - 固定 v4 源响应对应既有 revision，完整题名和27作者已核。
+  - 主文、三模板及三摘要署名/许可分别保存，三份完整法条入库。
+  - 两次真实重建一致；最终描述修正后两次finalize幂等，原 source/TeX/selectors/body保持。
 - sequence: 67
   uid: arxiv:2509.23233
   source_type: arxiv
@@ -5616,9 +5799,11 @@ items:
 - sequence: 71
   uid: arxiv:2606.09877
   source_type: arxiv
-  title: 'Streaming Knowledge Compilation: Proactive Materiality-Scored Pinning for Time-Evolving LLM Wikis'
+  title: 'Streaming Knowledge Compilation: Proactive Materiality-Scored Pinning for Time-Evolving LLM
+    Wikis'
   manifest_path: materialized_sources/corpus/arxiv-2606.09877--80ac4aba/manifest.yaml
-  metadata_path: 'raw_data/arxiv/Streaming Knowledge Compilation: Proactive Materiality-Scored Pinning for Time-Evolving LLM Wikis/metadata.yaml'
+  metadata_path: 'raw_data/arxiv/Streaming Knowledge Compilation: Proactive Materiality-Scored Pinning
+    for Time-Evolving LLM Wikis/metadata.yaml'
   capsule_root: materialized_sources/corpus/arxiv-2606.09877--80ac4aba
   stored_full_text_paths:
   - materialized_sources/corpus/arxiv-2606.09877--80ac4aba/normalized/document.txt
@@ -5628,15 +5813,51 @@ items:
   canonical_url: https://arxiv.org/abs/2606.09877
   observed_rights:
     manifest:
-      declared_access: metadata_only
-      full_text_redistribution_assumed: true
+      declared_access: open
+      full_text_redistribution_assumed: false
       basis: arXiv source archive
-      assessment: 物化器声明/假设，不是权利人授权。
+      license_spdx: CC-BY-4.0
+      license_url: https://creativecommons.org/licenses/by/4.0/
+      license_verified_at: '2026-09-16'
+      redistribution_package:
+        source_revision: sha256:fc3f32bbffb155ce657dbcbf0049b3d9611f43e921050faaafb6ff5f26b31550
+        source_version_url: https://arxiv.org/abs/2606.09877v1
+        notice_path: raw_data/licenses/cc-by-4.0.md
+        attribution: '"Streaming Knowledge Compilation: Proactive Materiality-Scored Pinning for Time-Evolving
+          LLM Wikis", arXiv:2606.09877v1, by Juan M. Huerta, https://arxiv.org/abs/2606.09877v1, licensed
+          under CC BY 4.0: https://creativecommons.org/licenses/by/4.0/. source/neurips_2026.sty is independently
+          attributed to the NeurIPS 2026 Program Chairs'' official template, "Formatting Instructions
+          For NeurIPS 2026", https://www.overleaf.com/latex/templates/formatting-instructions-for-neurips-2026/bjdwqfdkyftc,
+          also declared CC BY 4.0. Its original attribution to Roman Garnett and the many authors of nips15submit_e.sty,
+          including MK and drstrip@sandia, is retained. The corresponding official source is https://media.neurips.cc/Conferences/NeurIPS2026/Formatting_Instructions_For_NeurIPS_2026.zip,
+          checked on 2026-09-16. source/00README.json is arXiv-generated compilation metadata under arXiv''s
+          CC0 1.0 metadata terms: https://info.arxiv.org/help/policies/submission_agreement.html#metadata-license.
+          None of these attributions implies endorsement of this repository.'
+        modifications: The fixed v1 source archive is unpacked and all four text members are retained
+          unchanged; no archive members are omitted. main.tex is copied to normalized/document.tex and
+          converted to normalized/document.txt; 98 selectors are generated. Only normalized/document.txt
+          receives the attribution, scope, changes statement and NOTICE link at its end. Compared with
+          the currently reviewed official template, the retained neurips_2026.sty lacks the six-line education-option
+          block; the existing difference is preserved, not introduced or repaired by this repository.
+          Its origin and modifier are not asserted. No historical template download or byte-identical
+          correspondence to the current complete style file is claimed.
+        scope: 本包仅覆盖固定 arXiv v1 的四个 source 文字成员、normalized/document.tex、 normalized/document.txt 与 98
+          个定位器（selectors）。论文作者表达及其文本转换适用 CC BY 4.0；source/neurips_2026.sty 作为独立模板按其官方 CC BY 4.0 声明分别署名，
+          不将模板著作权归给论文作者。source/00README.json 是 arXiv 自动生成的事实性编译元数据， 按其 metadata CC0 条款处理。references.bib
+          是没有摘要字段的书目记录，不授权所引作品； 未保存的新闻、Wikipedia 原文、外部模型和代码不属于许可包。定位器不改变其所定位组件的许可。
+      assessment: 固定 v1 主论文与独立模板 BY4 分别署名，00README 元数据单独按 CC0 标识；不是人工批准。
     source_metadata:
-      access: metadata_only
-      license_spdx: null
-      license_verified_at: null
-      notes: The repository stores metadata and source links; paper licensing must be checked during materialization.
+      license_spdx: CC-BY-4.0
+      license_url: https://creativecommons.org/licenses/by/4.0/
+      license_verified_at: '2026-09-16'
+      access: open
+      notes: Article-author material and the independently identified NeurIPS 2026 template each have
+        CC BY 4.0 evidence and separate attribution. arXiv-generated 00README.json compilation metadata
+        is treated under arXiv's metadata CC0 terms, not attributed to the paper author. This package
+        does not license cited works, underlying news or Wikipedia corpora, external code or models, trademarks,
+        or patents. Those underlying corpora are described but not reproduced in the retained paper source;
+        the example news headline is explicitly synthetic. No source member is removed or modified by
+        this packaging.
     capsule_source_metadata:
       path: materialized_sources/corpus/arxiv-2606.09877--80ac4aba/source-metadata.yaml
       assessment: rights 与 canonical metadata 一致，不是额外独立证据。
@@ -5644,48 +5865,109 @@ items:
   - kind: manifest_assertion
     path: materialized_sources/corpus/arxiv-2606.09877--80ac4aba/manifest.yaml
     locator: rights
-    finding: declared_access=metadata_only; full_text_redistribution_assumed=True; basis=arXiv source archive
+    finding: declared_access=metadata_only; full_text_redistribution_assumed=True; basis=arXiv source
+      archive
     supports_public_redistribution: false
+    baseline_observation: true
   - kind: source_metadata
-    path: 'raw_data/arxiv/Streaming Knowledge Compilation: Proactive Materiality-Scored Pinning for Time-Evolving LLM Wikis/metadata.yaml'
+    path: 'raw_data/arxiv/Streaming Knowledge Compilation: Proactive Materiality-Scored Pinning for Time-Evolving
+      LLM Wikis/metadata.yaml'
     locator: rights
-    finding: access=metadata_only; license_spdx=None; license_verified_at=None; notes=The repository stores metadata and source links; paper licensing
-      must be checked during materialization.
+    finding: access=metadata_only; license_spdx=None; license_verified_at=None; notes=The repository stores
+      metadata and source links; paper licensing must be checked during materialization.
     supports_public_redistribution: false
+    baseline_observation: true
   - kind: local_content_rights_scan
     path: materialized_sources/corpus/arxiv-2606.09877--80ac4aba
     locator: source/** and normalized/**
     finding: 未发现独立 LICENSE/COPYING/NOTICE 或文章级本地许可；命中项（如有）仅属模板、组件、引用或研究对象。
     supports_public_redistribution: false
+    baseline_observation: true
   - kind: official_article_license_record
     url: https://arxiv.org/abs/2606.09877
     license_url: https://creativecommons.org/licenses/by/4.0/
     checked_at: '2026-09-16'
     finding: arXiv 官方文章页的 Rights to this article 链接指向 CC-BY-4.0。
     supports_public_redistribution: true
-  missing:
-  - 本地三处 rights 未记录该文章许可及核验日期。
-  - retrieval hash 尚未与确切 arXiv vN 建立可审计映射。
-  - 未形成第三方组件例外清单和许可履约包。
+  - kind: fixed_version_archive_binding
+    url: https://arxiv.org/abs/2606.09877v1
+    checked_at: '2026-09-16'
+    finding: 官方 v1 的 Juan M. Huerta、2026-06-03 与 BY4 已核；固定 source 响应 48,158 bytes，对应既有 revision 和全部四个文本成员，0
+      omitted。
+    supports_public_redistribution: true
+  - kind: independent_template_license
+    url: https://www.overleaf.com/latex/templates/formatting-instructions-for-neurips-2026/bjdwqfdkyftc
+    related_urls:
+    - https://neurips.cc/Conferences/2026/CallForPapers
+    - https://media.neurips.cc/Conferences/NeurIPS2026/Formatting_Instructions_For_NeurIPS_2026.zip
+    finding: NeurIPS 2026 Program Chairs 官方模板明确 BY4；现存 sty 比官方 ZIP 的 sty 仅少六行 education-option block，其余表达及
+      2026-01-29 标识对应。分别保留 Program Chairs 与原 Roman Garnett 等作者线索，披露既存差异而不虚构修改者或历史下载版本；不声称完整 sty 字节相同，不向旧年份模板自动外推。
+    supports_public_redistribution: true
+  - kind: stored_component_rights_review
+    path: materialized_sources/corpus/arxiv-2606.09877--80ac4aba
+    finding: 72 个纯书目无 abstract/copyright/license 字段。提示词新闻内容为占位符，具体 NVDA 例子明确 synthetic；未保存 underlying
+      Finnhub/Wikipedia 长篇表达。00README 为 arXiv 自动生成事实编译元数据按 metadata CC0 处理。未发现独立相反权利声明，不新增逐句原创证明要求。
+    supports_public_redistribution: true
+  - kind: fixed_url_materialization_replay
+    url: https://export.arxiv.org/e-print/2606.09877v1
+    finding: 最终唯一 fixed v1 canonical URL 两次真实物化，12 个胶囊文件逐字节一致。source 四文件、normalized TeX、98 selectors 相对
+      HEAD 不变；正文精确为原字节加唯一完整末尾署名块，NOTICE 复用已有完整 CC BY4。独立 evaluator 发现并修复重复 YAML 旧 URL 覆盖问题后再次验证通过。
+    supports_public_redistribution: true
+  missing: []
   classification: documented_permission
   license_id: CC-BY-4.0
   license_url: https://creativecommons.org/licenses/by/4.0/
-  license_scope: 覆盖该 arXiv article 中权利人有权许可的内容，不自动覆盖第三方组件、代码或数据。
+  license_scope: 本包仅覆盖固定 arXiv v1 的四个 source 文字成员、normalized/document.tex、 normalized/document.txt 与 98
+    个定位器（selectors）。论文作者表达及其文本转换适用 CC BY 4.0；source/neurips_2026.sty 作为独立模板按其官方 CC BY 4.0 声明分别署名， 不将模板著作权归给论文作者。source/00README.json
+    是 arXiv 自动生成的事实性编译元数据， 按其 metadata CC0 条款处理。references.bib 是没有摘要字段的书目记录，不授权所引作品； 未保存的新闻、Wikipedia
+    原文、外部模型和代码不属于许可包。定位器不改变其所定位组件的许可。
   license_restrictions: []
   evidence_confidence: high
-  public_redistribution_recommendation: allow_after_conditions_met
+  public_redistribution_recommendation: allow_with_packaged_notice
   conditions:
-  - 署名作者并保留标题、来源和许可链接。
-  - 标明修改且不得附加限制。
-  - 逐件排除或清理第三方组件/材料。
-  - 将许可与当前 retrieval hash 和确切 arXiv vN 绑定。
-  current_capsule_compliance: pending_license_compliance_and_revision_binding
+  - 论文与独立模板分别保留署名、来源和 BY4；不得将模板著作权归论文作者。
+  - 保留模板原作者线索和已存在的 education-option 差异说明，不推断历史版本或修改者。
+  - arXiv 元数据与未保存外部材料范围分别标识。
+  - 当前固定 v1 revision、完整 NOTICE、唯一末尾署名块和四方包一致。
+  current_capsule_compliance: verified_revision_and_notice_packaged
   publication_gate:
-    decision: block
-    reason: 存在公众许可证据，但当前胶囊尚未机器证明版本绑定、许可条件和第三方范围均满足。
-  human_follow_up:
-  - 人工核对本地 source archive 的 arXiv 版本。
-  - 补齐归属、许可链接/声明与第三方组件审计后再审批。
+    decision: allow
+    reason: 仅放行已核固定 v1 实存文字包及其派生物；主文与官方模板 BY4 独立署名，CC0 仅指事实编译元数据，完整许可与修改声明已包装。
+  human_follow_up: []
+  redistribution_package:
+    source_revision: sha256:fc3f32bbffb155ce657dbcbf0049b3d9611f43e921050faaafb6ff5f26b31550
+    source_version_url: https://arxiv.org/abs/2606.09877v1
+    notice_path: raw_data/licenses/cc-by-4.0.md
+    attribution: '"Streaming Knowledge Compilation: Proactive Materiality-Scored Pinning for Time-Evolving
+      LLM Wikis", arXiv:2606.09877v1, by Juan M. Huerta, https://arxiv.org/abs/2606.09877v1, licensed
+      under CC BY 4.0: https://creativecommons.org/licenses/by/4.0/. source/neurips_2026.sty is independently
+      attributed to the NeurIPS 2026 Program Chairs'' official template, "Formatting Instructions For
+      NeurIPS 2026", https://www.overleaf.com/latex/templates/formatting-instructions-for-neurips-2026/bjdwqfdkyftc,
+      also declared CC BY 4.0. Its original attribution to Roman Garnett and the many authors of nips15submit_e.sty,
+      including MK and drstrip@sandia, is retained. The corresponding official source is https://media.neurips.cc/Conferences/NeurIPS2026/Formatting_Instructions_For_NeurIPS_2026.zip,
+      checked on 2026-09-16. source/00README.json is arXiv-generated compilation metadata under arXiv''s
+      CC0 1.0 metadata terms: https://info.arxiv.org/help/policies/submission_agreement.html#metadata-license.
+      None of these attributions implies endorsement of this repository.'
+    modifications: The fixed v1 source archive is unpacked and all four text members are retained unchanged;
+      no archive members are omitted. main.tex is copied to normalized/document.tex and converted to normalized/document.txt;
+      98 selectors are generated. Only normalized/document.txt receives the attribution, scope, changes
+      statement and NOTICE link at its end. Compared with the currently reviewed official template, the
+      retained neurips_2026.sty lacks the six-line education-option block; the existing difference is
+      preserved, not introduced or repaired by this repository. Its origin and modifier are not asserted.
+      No historical template download or byte-identical correspondence to the current complete style file
+      is claimed.
+    scope: 本包仅覆盖固定 arXiv v1 的四个 source 文字成员、normalized/document.tex、 normalized/document.txt 与 98 个定位器（selectors）。论文作者表达及其文本转换适用
+      CC BY 4.0；source/neurips_2026.sty 作为独立模板按其官方 CC BY 4.0 声明分别署名， 不将模板著作权归给论文作者。source/00README.json
+      是 arXiv 自动生成的事实性编译元数据， 按其 metadata CC0 条款处理。references.bib 是没有摘要字段的书目记录，不授权所引作品； 未保存的新闻、Wikipedia
+      原文、外部模型和代码不属于许可包。定位器不改变其所定位组件的许可。
+  clearance_review:
+    kind: agent_evidence_and_packaging_review
+    human_approval_claimed: false
+    scope: 四个 source 文字成员、normalized 文件与 98 selectors；不是整体 PR 合并或 trusted 发布批准。
+  conditions_fulfilled:
+  - 固定 v1 输入与既有 revision/全部成员对应。
+  - 作者、模板归属、差异、转换范围和完整 BY4 随包保存。
+  - 两次最终真实物化一致；原 source/TeX/selectors 和正文前缀保持。
 - sequence: 72
   uid: arxiv:2607.07663
   source_type: arxiv

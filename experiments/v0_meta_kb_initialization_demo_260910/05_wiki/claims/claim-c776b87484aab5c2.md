@@ -46,7 +46,7 @@ temporal:
   valid_to: null
   as_of: '2026-09-16T04:30:26Z'
 provenance:
-  build_id: build:llm-wiki-v0:bf1b13c8baaa32ad
+  build_id: build:llm-wiki-v0:05e882fced13f0e1
   generated_by_agent: pipeline/build_llm_wiki.py
   generated_by_model: null
   prompt_or_skill_version: deterministic-llm-wiki-v0.2
@@ -80,19 +80,29 @@ consumption:
       fundamentally static, unable to adapt their internal parameters to novel tasks, evolving knowledge domains,
       or dynami
     full: null
-  estimated_tokens: 263
+  estimated_tokens: 626
   machine_entry_points:
   - ../../04_claims/claims.jsonl
   - ../../03_evidence/evidence.jsonl
   - ../catalog/pages.jsonl
 rendered_claim_refs:
 - claim:c776b87484aab5c2
-rights_refs: []
-rights_unavailable_source_refs:
-- arxiv:2507.21046
+rights_refs:
+- source_uid: arxiv:2507.21046
+  source_revision: sha256:4bace9b0e6528f904932b2502264e47d4c5778660cd378f68e032e5588eae432
+  source_version_url: https://arxiv.org/abs/2507.21046v4
+  license_spdx: CC-BY-4.0
+  license_url: https://creativecommons.org/licenses/by/4.0/
+  notice_path: raw_data/licenses/arxiv-cc-by-4.0-tmlr-apache-2.0-lppl-1.3c.md
+  package_path: materialized_sources/corpus/arxiv-2507.21046--f477f5c3/manifest.yaml#rights.redistribution_package
+  usage: rendered_source_claims
+  transformation: The listed source-authored claim excerpts are rendered inside a mixed, compiler-generated page.
+  claim_refs:
+  - claim:c776b87484aab5c2
+rights_unavailable_source_refs: []
 ---
 
-# Source assertion from A Survey of Self-Evolving Agents: On Path to Artificial Super Intelligence
+# Source assertion from A Survey of Self-Evolving Agents: What, When, How, and Where to Evolve on the Path to Artificial Super Intelligence
 
 > **Candidate only.** This page exposes one atomic claim and its evidence bindings.
 
@@ -119,14 +129,20 @@ Check entailment, selector precision, source quality, identity, scope, contradic
 
 ## Related pages
 
-- [A Survey of Self-Evolving Agents: On Path to Artificial Super Intelligence](../sources/arxiv-2507.21046.md) — `evidenced_by`
+- [A Survey of Self-Evolving Agents: What, When, How, and Where to Evolve on the Path to Artificial Super Intelligence](../sources/arxiv-2507.21046.md) — `evidenced_by`
 - [Open Ended Evolution](../maps/open-ended-evolution.md) — `part_of`
 
 ## Source text rights and attribution
 
 The terms below apply only to the listed source-authored claim components. They do not relicense collector assessments, compiler synthesis, other source components, or this repository as a whole.
 
-### A Survey of Self-Evolving Agents: On Path to Artificial Super Intelligence (`arxiv:2507.21046`)
+### A Survey of Self-Evolving Agents: What, When, How, and Where to Evolve on the Path to Artificial Super Intelligence (`arxiv:2507.21046`)
 
-- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
-- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.
+- Components: `claim:c776b87484aab5c2`
+- Source revision: `sha256:4bace9b0e6528f904932b2502264e47d4c5778660cd378f68e032e5588eae432`
+- Source version: [pinned upstream version](https://arxiv.org/abs/2507.21046v4)
+- License: [CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/)
+- NOTICE: [raw_data/licenses/arxiv-cc-by-4.0-tmlr-apache-2.0-lppl-1.3c.md](../../../../raw_data/licenses/arxiv-cc-by-4.0-tmlr-apache-2.0-lppl-1.3c.md)
+- Attribution: "A Survey of Self-Evolving Agents: What, When, How, and Where to Evolve on the Path to Artificial Super Intelligence", arXiv:2507.21046v4，作者为 Huan-ang Gao; Jiayi Geng; Wenyue Hua; Mengkang Hu; Xinzhe Juan; Hongzhang Liu; Shilong Liu; Jiahao Qiu; Xuan Qi; Yiran Wu; Hongru Wang; Han Xiao; Yuhang Zhou; Shaokun Zhang; Jiayi Zhang; Jinyu Xiang; Yixiong Fang; Qiwen Zhao; Dongrui Liu; Qihan Ren; Cheng Qian; Zhenhailong Wang; Minda Hu; Huazheng Wang; Qingyun Wu; Heng Ji; Mengdi Wang。 来源：https://arxiv.org/abs/2507.21046v4，论文作者材料采用 CC BY 4.0：https://creativecommons.org/licenses/by/4.0/。 source/tmlr.sty 来自 TMLR 官方模板 https://github.com/JmlrOrg/tmlr-style-file/tree/7bf90efe3a0debbba703c05c43f3ff7e4d4a2992， 保留 Hugo Larochelle、Fabian Pedregosa 的改编与 Chris J. Maddison January 2021 的字体修改署名， 采用 Apache 2.0：https://www.apache.org/licenses/LICENSE-2.0。 source/tmlr.bst 保留 Copyright 2010 Hal Daum\'e III、J. Fürnkranz 的标签修改与 Copyright 1993-2007 Patrick W Daly；source/fancyhdr.sty 保留 Copyright (C) 1994-2021 Pieter van Oostrum 及 v4.0.1 身份； 两组件分别保留原 LPPL 授予，本包选择 LPPL 1.3c：https://www.latex-project.org/lppl/lppl-1-3c/。 main.bib 的 tool_tut 摘要来自 "Empowering Large Language Models: Tool Learning for Real-World Interaction"， Hongru Wang; Yujia Qin; Yankai Lin; Jeff Z. Pan; Kam-Fai Wong，SIGIR 2024, pp. 2983-2986， https://doi.org/10.1145/3626772.3661381；ACM 提交的作品记录声明 VOR 按 CC BY 4.0 授权，始于 2024-07-10。 AppBench 摘要来自 "AppBench: Planning of Multiple APIs from Various APPs for Complex User Instruction"， Hongru Wang; Rui Wang; Boyang Xue; Heming Xia; Jingtao Cao; Zeming Liu; Jeff Z. Pan; Kam-Fai Wong， Copyright © 2024 ACL，https://aclanthology.org/2024.emnlp-main.856/，按 CC BY 4.0 授权。 ARIA 摘要来自 "Enabling Self-Improving Agents to Learn at Test Time With Human-In-The-Loop Guidance"， Yufei He; Ruoyu Li; Alex Chen; Yue Liu; Yulin Chen; Yuan Sui; Cheng Chen; Yi Zhu; Luca Luo; Frank Yang; Bryan Hooi，Copyright © 2025 ACL，https://aclanthology.org/2025.emnlp-industry.115/，按 CC BY 4.0 授权。 三段摘要的许可链接同为 https://creativecommons.org/licenses/by/4.0/，不代表授权其描述的代码、数据或其他引用作品。 source/00README.json 为 arXiv 自动处理/编译元数据，其适用 CC0 来源为 https://info.arxiv.org/help/policies/submission_agreement.html#metadata-license。
+- Excerpt/page transformation: The listed source-authored claim excerpts are rendered inside a mixed, compiler-generated page. 固定 v4 源包解包后，原有 19 个 source 文字成员逐字保留；不删除或改写论文、附录、三段额外摘要、 模板代码或组件身份。现有生成器展开主 TeX 的 include/input 至 normalized/document.tex，并转换为 normalized/document.txt、生成 135 个 selector；TeX 命令、结构和数学排版按既有流程归一为纯文本， 图像/PDF 不转换为可读正文。此次仅向 normalized/document.txt 末尾追加唯一分隔标记、论文与组件署名、 修改/范围说明及 NOTICE.md 链接，README 增加 NOTICE 链接，manifest 记录已应用的 package； source、normalized/document.tex 和既有 selector 不改。三段摘要在 main.bib 内保留其原文与引用字段， 未据最新题名改写其内部 "MetaBench" 用语，也不冒称 ACM PDF 或摘要逐字复核。
+- Scope: 本包只覆盖固定 arXiv v4 胶囊实际保存的 19 个 source 文字成员（484,027 bytes）、 normalized/document.tex、附注前的既有 normalized/document.txt 与 135 个 selector。 论文作者主文/附录及其文本转换按 CC BY 4.0；source/tmlr.sty 单独按 Apache 2.0； source/tmlr.bst 与 source/fancyhdr.sty 分别按原 LPPL 许可授予、本包选择 LPPL 1.3c 履约。 source/main.bib 只有 tool_tut、AppBench 和 ARIA 三段额外摘要按各自作品级 CC BY 4.0 履约， 其余书目事实与排版引用不授权引用作品；source/00README.json 仅作为适用 CC0 的事实编译元数据。 独立组件仍各自保留原许可，不把整篇论文或整个 Bib 重许可为 Apache/LPPL；本包不是整个 archive 的镜像， 不覆盖原已省略的八个非文本成员、其他外链论文、代码、数据、商标、专利或权利人无权许可的材料。
