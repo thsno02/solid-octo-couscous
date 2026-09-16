@@ -12,23 +12,49 @@ status: materialized
 content_tier: full_text
 revision: sha256:4e4e2cb56c400a969ba38d8b2bf823a29e13441f96afeefa3d80e746950aadb7
 rights:
-  declared_access: unknown
-  full_text_redistribution_assumed: true
+  declared_access: open
+  full_text_redistribution_assumed: false
   basis: arXiv source archive
+  license_spdx: CC-BY-4.0
+  license_url: https://creativecommons.org/licenses/by/4.0/
+  license_verified_at: '2026-09-16'
+  redistribution_package:
+    source_revision: sha256:4e4e2cb56c400a969ba38d8b2bf823a29e13441f96afeefa3d80e746950aadb7
+    source_version_url: https://arxiv.org/abs/2607.07663v2
+    notice_path: raw_data/licenses/arxiv-cc-by-4.0-pandoc-bsd-3-clause.md
+    attribution: '"Recursive Self-Improvement in AI: From Bounded Self-Refinement to Autonomous Research Loops",
+      arXiv:2607.07663v2, by Mingguang Chen; Licheng Wang; and Bo Qu. Source: https://arxiv.org/abs/2607.07663v2.
+      Licensed under CC BY 4.0: https://creativecommons.org/licenses/by/4.0/. Portions of the LaTeX preamble incorporate
+      Pandoc default template material; Copyright (c) 2014--2019, John MacFarlane, redistributed under the BSD 3-Clause
+      license without asserting the Pandoc version used by the submitter. source/00README.json is automatically
+      generated arXiv compilation metadata and is treated under arXiv''s CC0 1.0 metadata terms, not as work authored
+      by the three paper authors.'
+    modifications: The fixed v2 source archive is unpacked; source/main.tex, source/main.bbl, source/references.bib,
+      and the arXiv-generated source/00README.json processing metadata are retained. main.tex is copied to normalized/document.tex
+      and converted to normalized/document.txt; 17 selectors are generated; the combined article attribution, Pandoc
+      template notice, arXiv metadata statement, and NOTICE link are appended to normalized/document.txt. Six PNG
+      members are omitted and are not stored in the capsule.
+    scope: 本组合包仅覆盖固定 arXiv v2 胶囊中实际保存的四个 source 文字成员、normalized/document.tex、normalized/document.txt 与 17 个 selector。main.tex
+      中的论文作者材料按 CC BY 4.0 履约；其中可与固定官方模板证据对应的 Pandoc 默认 LaTeX 模板片段按 BSD 3-Clause 履约，但不声称识别了作者实际使用的 Pandoc 版本；source/00README.json
+      是 arXiv 自动生成的事实性编译处理元数据，按 arXiv metadata CC0 条款处理且不归因为三位论文作者原创；references.bib 的 1,274 条书目及 main.bbl 的 196
+      条排版记录不授权其所引用作品。六张 PNG 已在物化时省略且不属于本包；许可不外推到外链论文、代码、数据或权利人无权许可的第三方材料。
 retrievals:
 - requested_urls:
-  - https://export.arxiv.org/e-print/2607.07663
-  - https://arxiv.org/e-print/2607.07663
-  resolved_url: https://export.arxiv.org/src/2607.07663
+  - https://export.arxiv.org/e-print/2607.07663v2
+  - https://arxiv.org/e-print/2607.07663v2
+  resolved_url: https://export.arxiv.org/src/2607.07663v2
   content_type: application/gzip
   bytes: 5313742
   sha256: 4e4e2cb56c400a969ba38d8b2bf823a29e13441f96afeefa3d80e746950aadb7
 selectors:
 - selectors.jsonl
 local_files:
+- path: materialized_sources/corpus/arxiv-2607.07663--e2b770de/NOTICE.md
+  bytes: 23724
+  sha256: 1e0418380d9eafb24c661f2c5ce3a3a83cde33244d1783f89995ccc99678dcee
 - path: materialized_sources/corpus/arxiv-2607.07663--e2b770de/README.md
-  bytes: 390
-  sha256: e00dd7a240a1d6d3bfb7609e4e977e57d026afa293bf230b1f98d87a89a9bfe5
+  bytes: 454
+  sha256: 397869711e068ede8ed56a53d4fa4438e7d2687b654e2b587e13c39c1b2ed4c7
 - path: materialized_sources/corpus/arxiv-2607.07663--e2b770de/files.jsonl
   bytes: 778
   sha256: ac79672225895b6984d5dff3b7dd772469c2ce76079d7d699deb8facadea574e
@@ -36,8 +62,8 @@ local_files:
   bytes: 117428
   sha256: 3a42f1fa1ab5c7f5c2c951eb3f2155cfa5663a7e14490577dbb0c9d4017d1318
 - path: materialized_sources/corpus/arxiv-2607.07663--e2b770de/normalized/document.txt
-  bytes: 108474
-  sha256: 8906f0f42f4cac254c57699adb5a27dcda2c667379791cc9c3d3297b8bd374b0
+  bytes: 110593
+  sha256: 6011e1246e497602436267f9969e15a8f6c8e87bbf330ed4b3d83a11ab5145a1
 - path: materialized_sources/corpus/arxiv-2607.07663--e2b770de/selectors.jsonl
   bytes: 4169
   sha256: 285799bc5217c2b5708b8aeefd01f58cad5ba98677f9d7063827e0f21df7f563
@@ -54,8 +80,8 @@ local_files:
   bytes: 452390
   sha256: 5dae1e2913d5a0b7977fd198b3fee8750ffdc83e95f433097cedc6b86048c3ef
 - path: materialized_sources/corpus/arxiv-2607.07663--e2b770de/source-metadata.yaml
-  bytes: 2519
-  sha256: 0259ef525120f0e7cee65904750299bf895ed3cb0b2eab94852a18151c2e5bce
+  bytes: 6101
+  sha256: 4782d717b8578ffb2f7fec4985d6f69bb4968a00e2cce7d8be57d2eb9e65edd7
 warnings: []
 errors: []
 archive_container: tar
@@ -63,9 +89,11 @@ materialization:
   stored_text_files: 4
   stored_text_bytes: 639085
   main_tex: main.tex
+  document: normalized/document.txt
   normalized_document: normalized/document.txt
   selector_count: 17
   omitted_member_count: 6
+  stored_characters: 110091
 omitted:
 - path: figures/verification_hierarchy.png
   reason: non-text-document-member
@@ -79,4 +107,4 @@ omitted:
   reason: non-text-document-member
 - path: figures/growth_timeline_v2.png
   reason: non-text-document-member
-local_bytes: 872843
+local_bytes: 902332

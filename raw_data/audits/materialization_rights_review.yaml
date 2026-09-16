@@ -22,12 +22,12 @@ summary:
     documented_permission: 50
     permission_unverified: 41
   recommendation_counts:
-    allow_after_conditions_met: 42
-    allow_with_packaged_notice: 8
+    allow_after_conditions_met: 41
+    allow_with_packaged_notice: 9
     do_not_redistribute_full_text: 41
   publication_gate_counts:
-    block: 83
-    allow: 8
+    block: 82
+    allow: 9
   license_evidence_counts:
     CC-BY-4.0: 24
     none: 41
@@ -45,7 +45,7 @@ summary:
   - 73 篇 arXiv 中 32 篇有 CC article license，41 篇只有授予 arXiv 的 nonexclusive/assumed license。
   - 14 份 W3C 文档都有许可；7 份旧式许可对 HTML→Markdown 仍需衍生权审查。
   - LinkML、Apache Ossie、ODCS 有 Apache-2.0 证据；Schema.org supporting documentation 有 CC BY-SA 3.0 证据。
-  - 基线91项中6项W3C、ODCS 3.2.0定义首页及arXiv 2502.18864v2已完成固定版本与NOTICE包装，8项allow；其余83项仍block（当前活跃全文82项block）。
+  - 基线91项中6项W3C、ODCS 3.2.0定义首页及arXiv 2502.18864v2、2607.07663v2已完成固定版本与NOTICE包装，9项allow；其余82项仍block（当前活跃全文81项block）。
 review_completion:
   evidence_review_complete_for_baseline: true
   legal_clearance_complete: false
@@ -5152,9 +5152,11 @@ items:
 - sequence: 72
   uid: arxiv:2607.07663
   source_type: arxiv
-  title: 'Recursive Self-Improvement in AI: From Bounded Self-Refinement to Autonomous Research Loops'
+  title: 'Recursive Self-Improvement in AI: From Bounded Self-Refinement to Autonomous
+    Research Loops'
   manifest_path: materialized_sources/corpus/arxiv-2607.07663--e2b770de/manifest.yaml
-  metadata_path: 'raw_data/arxiv/Recursive Self-Improvement in AI: From Bounded Self-Refinement to Autonomous Research Loops/metadata.yaml'
+  metadata_path: 'raw_data/arxiv/Recursive Self-Improvement in AI: From Bounded Self-Refinement
+    to Autonomous Research Loops/metadata.yaml'
   capsule_root: materialized_sources/corpus/arxiv-2607.07663--e2b770de
   stored_full_text_paths:
   - materialized_sources/corpus/arxiv-2607.07663--e2b770de/normalized/document.txt
@@ -5164,15 +5166,54 @@ items:
   canonical_url: https://arxiv.org/abs/2607.07663
   observed_rights:
     manifest:
-      declared_access: unknown
-      full_text_redistribution_assumed: true
+      declared_access: open
+      full_text_redistribution_assumed: false
       basis: arXiv source archive
-      assessment: 物化器声明/假设，不是权利人授权。
+      license_spdx: CC-BY-4.0
+      license_url: https://creativecommons.org/licenses/by/4.0/
+      license_verified_at: '2026-09-16'
+      redistribution_package:
+        source_revision: sha256:4e4e2cb56c400a969ba38d8b2bf823a29e13441f96afeefa3d80e746950aadb7
+        source_version_url: https://arxiv.org/abs/2607.07663v2
+        notice_path: raw_data/licenses/arxiv-cc-by-4.0-pandoc-bsd-3-clause.md
+        attribution: '"Recursive Self-Improvement in AI: From Bounded Self-Refinement
+          to Autonomous Research Loops", arXiv:2607.07663v2, by Mingguang Chen; Licheng
+          Wang; and Bo Qu. Source: https://arxiv.org/abs/2607.07663v2. Licensed under
+          CC BY 4.0: https://creativecommons.org/licenses/by/4.0/. Portions of the
+          LaTeX preamble incorporate Pandoc default template material; Copyright (c)
+          2014--2019, John MacFarlane, redistributed under the BSD 3-Clause license
+          without asserting the Pandoc version used by the submitter. source/00README.json
+          is automatically generated arXiv compilation metadata and is treated under
+          arXiv''s CC0 1.0 metadata terms, not as work authored by the three paper
+          authors.'
+        modifications: The fixed v2 source archive is unpacked; source/main.tex, source/main.bbl,
+          source/references.bib, and the arXiv-generated source/00README.json processing
+          metadata are retained. main.tex is copied to normalized/document.tex and
+          converted to normalized/document.txt; 17 selectors are generated; the combined
+          article attribution, Pandoc template notice, arXiv metadata statement, and
+          NOTICE link are appended to normalized/document.txt. Six PNG members are
+          omitted and are not stored in the capsule.
+        scope: 本组合包仅覆盖固定 arXiv v2 胶囊中实际保存的四个 source 文字成员、normalized/document.tex、normalized/document.txt
+          与 17 个 selector。main.tex 中的论文作者材料按 CC BY 4.0 履约；其中可与固定官方模板证据对应的 Pandoc 默认
+          LaTeX 模板片段按 BSD 3-Clause 履约，但不声称识别了作者实际使用的 Pandoc 版本；source/00README.json
+          是 arXiv 自动生成的事实性编译处理元数据，按 arXiv metadata CC0 条款处理且不归因为三位论文作者原创；references.bib
+          的 1,274 条书目及 main.bbl 的 196 条排版记录不授权其所引用作品。六张 PNG 已在物化时省略且不属于本包；许可不外推到外链论文、代码、数据或权利人无权许可的第三方材料。
+      assessment: 固定v2文本包已附论文CC BY与Pandoc模板BSD完整声明；编译元数据单独标识CC0，不是人工批准。
     source_metadata:
-      access: unknown
-      license_spdx: null
-      license_verified_at: null
-      notes: Requires canonical rights verification.
+      license_spdx: CC-BY-4.0
+      license_url: https://creativecommons.org/licenses/by/4.0/
+      license_verified_at: '2026-09-16'
+      access: open
+      notes: The official arXiv v2 page links this exact article version to CC BY
+        4.0. Distinct Pandoc default LaTeX template portions are redistributed under
+        the official template repository's BSD 3-Clause option, without claiming which
+        Pandoc version generated the submission. The automatically generated arXiv
+        00README.json processing metadata is covered by arXiv's metadata CC0 terms
+        and is not attributed to the paper authors. These permissions do not extend
+        to cited or linked works, code, data, the six omitted PNG files, or material
+        the licensors were not authorized to license. The full source-archive digest
+        is retained for version provenance even though the public capsule stores only
+        the text members listed in the package scope.
     capsule_source_metadata:
       path: materialized_sources/corpus/arxiv-2607.07663--e2b770de/source-metadata.yaml
       assessment: rights 与 canonical metadata 一致，不是额外独立证据。
@@ -5180,47 +5221,106 @@ items:
   - kind: manifest_assertion
     path: materialized_sources/corpus/arxiv-2607.07663--e2b770de/manifest.yaml
     locator: rights
-    finding: declared_access=unknown; full_text_redistribution_assumed=True; basis=arXiv source archive
+    finding: declared_access=unknown; full_text_redistribution_assumed=True; basis=arXiv
+      source archive
     supports_public_redistribution: false
+    baseline_observation: true
   - kind: source_metadata
-    path: 'raw_data/arxiv/Recursive Self-Improvement in AI: From Bounded Self-Refinement to Autonomous Research Loops/metadata.yaml'
+    path: 'raw_data/arxiv/Recursive Self-Improvement in AI: From Bounded Self-Refinement
+      to Autonomous Research Loops/metadata.yaml'
     locator: rights
-    finding: access=unknown; license_spdx=None; license_verified_at=None; notes=Requires canonical rights verification.
+    finding: access=unknown; license_spdx=None; license_verified_at=None; notes=Requires
+      canonical rights verification.
     supports_public_redistribution: false
+    baseline_observation: true
   - kind: local_content_rights_scan
     path: materialized_sources/corpus/arxiv-2607.07663--e2b770de
     locator: source/** and normalized/**
     finding: 未发现独立 LICENSE/COPYING/NOTICE 或文章级本地许可；命中项（如有）仅属模板、组件、引用或研究对象。
     supports_public_redistribution: false
+    baseline_observation: true
   - kind: official_article_license_record
     url: https://arxiv.org/abs/2607.07663
     license_url: https://creativecommons.org/licenses/by/4.0/
     checked_at: '2026-09-16'
     finding: arXiv 官方文章页的 Rights to this article 链接指向 CC-BY-4.0。
     supports_public_redistribution: true
-  missing:
-  - 本地三处 rights 未记录该文章许可及核验日期。
-  - retrieval hash 尚未与确切 arXiv vN 建立可审计映射。
-  - 未形成第三方组件例外清单和许可履约包。
+  - kind: fixed_arxiv_version_and_article_license
+    url: https://arxiv.org/abs/2607.07663v2
+    related_urls:
+    - https://export.arxiv.org/e-print/2607.07663v2
+    - https://arxiv.org/src/2607.07663v2
+    checked_at: '2026-09-16'
+    source_revision: sha256:4e4e2cb56c400a969ba38d8b2bf823a29e13441f96afeefa3d80e746950aadb7
+    finding: 官方v2标注三位作者、2026-09-06修订及CC BY 4.0；固定source archive为5313742 bytes，与现存revision一致。v1不同，不追溯该许可包装。
+    supports_public_redistribution: true
+  - kind: stored_component_rights_review
+    path: materialized_sources/corpus/arxiv-2607.07663--e2b770de
+    checked_at: '2026-09-16'
+    related_urls:
+    - https://github.com/jgm/pandoc-templates/blob/c27ad9128fa744fd6fe301416d274db9c1dea2a4/README.markdown
+    - https://github.com/jgm/pandoc-templates/blob/c27ad9128fa744fd6fe301416d274db9c1dea2a4/common.latex
+    - https://info.arxiv.org/help/00README.html
+    - https://info.arxiv.org/help/policies/submission_agreement.html#metadata-license
+    finding: 四个source文本成员保留。main.tex显著导言片段对应官方Pandoc模板，附完整John MacFarlane BSD-3-Clause版权/条件/免责，不虚构实际Pandoc版本。00README是arXiv自动生成编译元数据，单独按metadata
+      CC0条款标识。references.bib为1274条纯书目、main.bbl为196条机械排版引用，不含被引作品正文。6张PNG未保存；未发现其他单独第三方声明。
+    supports_public_redistribution: true
+  - kind: fixed_url_materialization_replay
+    url: https://export.arxiv.org/e-print/2607.07663v2
+    checked_at: '2026-09-16'
+    finding: 实际固定v2请求解析至 https://export.arxiv.org/src/2607.07663v2 并绑定同一revision；两次真实物化逐字节一致。四个source文件、normalized/document.tex与17个selectors未变，normalized/document.txt仅附组合署名和../NOTICE.md链接。
+    supports_public_redistribution: true
+  missing: []
   classification: documented_permission
   license_id: CC-BY-4.0
   license_url: https://creativecommons.org/licenses/by/4.0/
-  license_scope: 覆盖该 arXiv article 中权利人有权许可的内容，不自动覆盖第三方组件、代码或数据。
+  license_scope: 固定v2当前文本成员与派生物：论文作者材料CC BY 4.0，Pandoc模板片段BSD-3-Clause，arXiv编译元数据CC0；不覆盖已省略的6张PNG或引用/外链作品。
   license_restrictions: []
   evidence_confidence: high
-  public_redistribution_recommendation: allow_after_conditions_met
+  public_redistribution_recommendation: allow_with_packaged_notice
   conditions:
-  - 署名作者并保留标题、来源和许可链接。
-  - 标明修改且不得附加限制。
-  - 逐件排除或清理第三方组件/材料。
-  - 将许可与当前 retrieval hash 和确切 arXiv vN 绑定。
-  current_capsule_compliance: pending_license_compliance_and_revision_binding
+  - 三位作者、标题、固定来源、CC BY许可和转换说明随正文保存。
+  - Pandoc第三方模板完整BSD版权、条件和免责随包保存，实际版本不作推断。
+  - arXiv编译元数据与书目/外链范围分开标识。
+  - 固定v2源包与revision绑定；嵌套正文NOTICE链接有效。
+  current_capsule_compliance: verified_revision_and_notice_packaged
   publication_gate:
-    decision: block
-    reason: 存在公众许可证据，但当前胶囊尚未机器证明版本绑定、许可条件和第三方范围均满足。
-  human_follow_up:
-  - 人工核对本地 source archive 的 arXiv 版本。
-  - 补齐归属、许可链接/声明与第三方组件审计后再审批。
+    decision: allow
+    reason: 仅允许固定v2当前文本包及派生物；论文CC BY、Pandoc BSD和arXiv编译元数据CC0范围区分，完整组合NOTICE与署名/修改说明已随包保存。
+  human_follow_up: []
+  redistribution_package:
+    source_revision: sha256:4e4e2cb56c400a969ba38d8b2bf823a29e13441f96afeefa3d80e746950aadb7
+    source_version_url: https://arxiv.org/abs/2607.07663v2
+    notice_path: raw_data/licenses/arxiv-cc-by-4.0-pandoc-bsd-3-clause.md
+    attribution: '"Recursive Self-Improvement in AI: From Bounded Self-Refinement
+      to Autonomous Research Loops", arXiv:2607.07663v2, by Mingguang Chen; Licheng
+      Wang; and Bo Qu. Source: https://arxiv.org/abs/2607.07663v2. Licensed under
+      CC BY 4.0: https://creativecommons.org/licenses/by/4.0/. Portions of the LaTeX
+      preamble incorporate Pandoc default template material; Copyright (c) 2014--2019,
+      John MacFarlane, redistributed under the BSD 3-Clause license without asserting
+      the Pandoc version used by the submitter. source/00README.json is automatically
+      generated arXiv compilation metadata and is treated under arXiv''s CC0 1.0 metadata
+      terms, not as work authored by the three paper authors.'
+    modifications: The fixed v2 source archive is unpacked; source/main.tex, source/main.bbl,
+      source/references.bib, and the arXiv-generated source/00README.json processing
+      metadata are retained. main.tex is copied to normalized/document.tex and converted
+      to normalized/document.txt; 17 selectors are generated; the combined article
+      attribution, Pandoc template notice, arXiv metadata statement, and NOTICE link
+      are appended to normalized/document.txt. Six PNG members are omitted and are
+      not stored in the capsule.
+    scope: 本组合包仅覆盖固定 arXiv v2 胶囊中实际保存的四个 source 文字成员、normalized/document.tex、normalized/document.txt
+      与 17 个 selector。main.tex 中的论文作者材料按 CC BY 4.0 履约；其中可与固定官方模板证据对应的 Pandoc 默认 LaTeX
+      模板片段按 BSD 3-Clause 履约，但不声称识别了作者实际使用的 Pandoc 版本；source/00README.json 是 arXiv
+      自动生成的事实性编译处理元数据，按 arXiv metadata CC0 条款处理且不归因为三位论文作者原创；references.bib 的 1,274
+      条书目及 main.bbl 的 196 条排版记录不授权其所引用作品。六张 PNG 已在物化时省略且不属于本包；许可不外推到外链论文、代码、数据或权利人无权许可的第三方材料。
+  clearance_review:
+    kind: agent_evidence_and_packaging_review
+    human_approval_claimed: false
+    scope: 四个source文字成员、normalized文件及17 selectors；不宣称完整archive图文均已存储或审核。
+  conditions_fulfilled:
+  - 固定v2实际输入与既有revision一致，完整作者与版本信息已核验。
+  - CC BY完整法律文本与Pandoc官方完整BSD声明随包入库，00README metadata CC0依据明确。
+  - 保留源文本和定位器，嵌套正文只追加唯一组合署名块，NOTICE相对链接正确。
 - sequence: 73
   uid: arxiv:cs/0309048
   source_type: arxiv

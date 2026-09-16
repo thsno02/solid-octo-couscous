@@ -8,7 +8,7 @@ from typing import Any
 
 import yaml
 
-from materialize_all_sources import redistribution_footer
+from materialize_all_sources import redistribution_footer, redistribution_notice_href
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -132,7 +132,10 @@ def validate_publication_rights(
                 document = (manifest_path.parent / manifest["materialization"]["document"]).resolve()
                 document.relative_to(manifest_path.parent.resolve())
                 text = document.read_text(encoding="utf-8")
-                if text.count("<!-- materialization-redistribution-notice -->") != 1 or not text.endswith(redistribution_footer(package)):
+                notice_href = redistribution_notice_href(manifest_path.parent, document)
+                if text.count("<!-- materialization-redistribution-notice -->") != 1 or not text.endswith(
+                    redistribution_footer(package, notice_href)
+                ):
                     raise ValueError("attribution or modification notice is absent")
             except (KeyError, TypeError, AttributeError, ValueError, OSError) as exc:
                 fail(f"PUBLICATION_RIGHTS_PACKAGE_INVALID {uid}: {exc}", errors)

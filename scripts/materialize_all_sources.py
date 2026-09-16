@@ -474,7 +474,17 @@ class RedistributionPackageError(ValueError):
     """A declared publication condition failed; never downgrade it to metadata-only."""
 
 
-def redistribution_footer(package: dict[str, Any]) -> str:
+def redistribution_notice_href(root: Path, document: Path) -> str:
+    """Return the safe relative link from a materialized document to its notice."""
+    resolved_root = root.resolve()
+    resolved_document = document.resolve()
+    resolved_document.relative_to(resolved_root)
+    return Path(
+        os.path.relpath(resolved_root / "NOTICE.md", start=resolved_document.parent)
+    ).as_posix()
+
+
+def redistribution_footer(package: dict[str, Any], notice_href: str = "NOTICE.md") -> str:
     """Append attribution without shifting existing source selectors."""
     return (
         "\n\n<!-- materialization-redistribution-notice -->\n"
@@ -482,7 +492,7 @@ def redistribution_footer(package: dict[str, Any]) -> str:
         f"{package['attribution']}\n\n"
         f"Changes: {package['modifications']}\n\n"
         f"Scope: {package['scope']}\n\n"
-        "Full license and original rights links: [NOTICE.md](NOTICE.md).\n"
+        f"Full license and original rights links: [NOTICE.md]({notice_href}).\n"
     )
 
 
@@ -509,17 +519,18 @@ def apply_redistribution_package(record: SourceRecord, root: Path, manifest: dic
         raise ValueError("redistribution package needs an explicit materialized document")
     document = (root / document_name).resolve()
     document.relative_to(root.resolve())
+    notice_href = redistribution_notice_href(root, document)
     text = document.read_text(encoding="utf-8")
     previous = manifest.get("rights", {}).get("redistribution_package")
     marker_count = text.count("<!-- materialization-redistribution-notice -->")
     if marker_count:
         if marker_count != 1 or not previous:
             raise ValueError("unexpected or duplicate redistribution footer")
-        previous_footer = redistribution_footer(previous)
+        previous_footer = redistribution_footer(previous, notice_href)
         if not text.endswith(previous_footer):
             raise ValueError("previous redistribution footer is not intact at end of document")
         text = text[:-len(previous_footer)]
-    text += redistribution_footer(package)
+    text += redistribution_footer(package, notice_href)
     document.write_text(text, encoding="utf-8")
     (root / "NOTICE.md").write_text(notice, encoding="utf-8")
     manifest["materialization"]["stored_characters"] = len(text)
@@ -992,6 +1003,11 @@ def materialize_arxiv(record: SourceRecord, config: dict[str, Any], generated_at
         (normalized_root / "document.tex").write_text(flattened, encoding="utf-8")
         (normalized_root / "document.txt").write_text(tex_to_plain(flattened), encoding="utf-8")
 
+    normalized_document = root / "normalized" / "document.txt"
+    normalized_document_name = (
+        "normalized/document.txt" if main_tex and normalized_document.is_file() else None
+    )
+
     selectors: list[dict[str, Any]] = []
     revision_selector = archive_hash[:16]
     for path, text in sorted(stored.items()):
@@ -1046,7 +1062,8 @@ def materialize_arxiv(record: SourceRecord, config: dict[str, Any], generated_at
                 "stored_text_files": len(stored),
                 "stored_text_bytes": total_bytes,
                 "main_tex": main_tex,
-                "normalized_document": "normalized/document.txt" if main_tex else None,
+                "document": normalized_document_name,
+                "normalized_document": normalized_document_name,
                 "selector_count": len(selectors),
                 "omitted_member_count": len(omitted),
             },

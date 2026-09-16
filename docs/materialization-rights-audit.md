@@ -6,10 +6,10 @@
 
 - 50 条找到明确公众复制/再分发许可，分类为 <code>documented_permission</code>；这不表示当前胶囊已经履约。
 - 41 条未找到面向公众/本仓库的适用许可，分类为 <code>permission_unverified</code>；不应公开再分发全文。
-- 基线审计的 91 项中，DCAT 3、VC Data Model 2.0、ODRL 2.2、JSON-LD 1.1、DID Core 1.0、OWL-Time、ODCS 3.2.0 定义首页与 arXiv:2502.18864v2 已完成固定版本及许可包装，8 项为 <code>allow</code>；其余 83 项仍为 <code>block</code>。
+- 基线审计的 91 项中，DCAT 3、VC Data Model 2.0、ODRL 2.2、JSON-LD 1.1、DID Core 1.0、OWL-Time、ODCS 3.2.0 定义首页、arXiv:2502.18864v2 与 arXiv:2607.07663v2 已完成固定版本及许可包装，9 项为 <code>allow</code>；其余 82 项仍为 <code>block</code>。
 - Apache Ossie 基线胶囊只有 7 bytes（# Home），不是实质标准全文；后续降级不删除其基线审计行。
 
-当前 `full_text` 为 90 条，公开发布门检查结果为 `active_full_text=90 audited=91 blocked=82 errors=0`；整体仍未放行。审计覆盖数 91 与当前全文数 90 使用不同基线，不应混用。全文继续保存在本 GitHub repo；前次已将误解码的 PDF 衍生文件替换为原始 PDF 和可读文本，本次只补充许可包装，未移除作品、迁移存储或改写 Git 历史。
+当前 `full_text` 为 90 条，公开发布门检查结果为 `active_full_text=90 audited=91 blocked=81 errors=0`；整体仍未放行。审计覆盖数 91 与当前全文数 90 使用不同基线，不应混用。全文继续保存在本 GitHub repo；前次已将误解码的 PDF 衍生文件替换为原始 PDF 和可读文本，本次补齐嵌套正文的通用许可包装与一项 TeX 来源的组件声明，未移除作品、迁移存储或改写 Git 历史。
 
 机器可读逐条记录：<code>raw_data/audits/materialization_rights_review.yaml</code>。本报告记录许可证据与已落实的包装条件，不是法律意见或人工批准。
 
@@ -24,11 +24,11 @@
 | 基线 full_text | 91 |
 | documented_permission | 50 |
 | permission_unverified | 41 |
-| allow_after_conditions_met | 42 |
-| allow_with_packaged_notice | 8 |
+| allow_after_conditions_met | 41 |
+| allow_with_packaged_notice | 9 |
 | do_not_redistribute_full_text | 41 |
-| publication gate: allow | 8 |
-| publication gate: block（基线项） | 83 |
+| publication gate: allow | 9 |
+| publication gate: block（基线项） | 82 |
 
 ## 已落实的六项 W3C 许可包装（Packaged clearance）
 
@@ -60,6 +60,16 @@
 
 顶层 `full_text_url`、许可包版本 URL 与 manifest requested/resolved URL 均固定到 `/v3.2.0/`。两次真实固定 URL 重新物化逐字节一致；原正文保留，仅追加许可块，selectors 除 URL 派生前缀外的定位字段不变。复用现有包装机制，没有新增 pipeline 代码或 workflow。
 
+## 已落实的 TeX 文本与组件许可包装
+
+[arXiv:2607.07663v2](https://arxiv.org/abs/2607.07663v2) 的固定 source archive 为 5,313,742 bytes，与现存 revision 一致；官方页面列出 Mingguang Chen、Licheng Wang、Bo Qu 三位作者及 CC BY 4.0 许可。版本固定到 v2，不把该结论追溯至 v1。实际胶囊保存四个 source 文字成员、两个 normalized 文件及 17 个 selectors；六张 PNG 原本就未保存，不能称为完整图文 archive。
+
+独立复核识别出 `main.tex` 导言中的 Pandoc 默认模板片段。因此组合 NOTICE 分别保存论文的完整 CC BY 4.0 法律文本，以及 [Pandoc 官方模板 BSD 3-Clause 声明](https://github.com/jgm/pandoc-templates/blob/c27ad9128fa744fd6fe301416d274db9c1dea2a4/README.markdown)中的原版权、三项条件与免责声明。固定官方模板中的显著片段与本地导言对应，但没有据此虚构作者实际使用的 Pandoc 版本。不能仅用论文许可或 scope 排除语跳过实际保存的第三方模板。
+
+`00README.json` 是 [arXiv 自动生成的编译元数据](https://info.arxiv.org/help/00README.html)，依据[提交协议的 metadata CC0 条款](https://info.arxiv.org/help/policies/submission_agreement.html#metadata-license)单独标记，不归因为论文作者原创。`references.bib` 的 1,274 条书目与 `main.bbl` 的 196 条排版记录不包含所引作品正文，也不授权那些作品。
+
+通用包装器现在显式识别 `normalized/document.txt` 为正文，并从正文所在目录生成 `../NOTICE.md` 链接。校验器使用同一相对路径规则，拒绝错误链接；重复包装保持唯一附注。两次真实固定 v2 物化结果逐字节一致，四个 source 文件、`normalized/document.tex` 和 17 个 selectors 相对原包保持不变，预处理正文只追加组合署名块。此前八个根目录正文包的附注格式不变；没有新增独立脚本、UID 特例或 workflow。
+
 ## 来源族发现（Source-family Findings）
 
 - arXiv：32 篇官方文章页链接 CC；40 篇只有授予 arXiv.org 的 non-exclusive license，1 篇只有历史 assumed license。后两者不是公众许可。
@@ -69,7 +79,7 @@
 
 ## 人工审核与权利确认（Human Review and Clearance）
 
-逐条证据审核已经完成，许可履约仍未全量完成。50 条有公众许可证据的记录中，八项已按官方许可完成当前包的版本绑定与包装，其余 42 项继续核实条件；41 条未核实记录仍需适用授权或与确切作品版本绑定的新权威许可证据。不得以用户希望上传或 Agent 自我批准代替证据；整体自动上传继续失败关闭（fail closed）。
+逐条证据审核已经完成，许可履约仍未全量完成。50 条有公众许可证据的记录中，九项已按官方许可完成当前包的版本绑定与包装，其余 41 项继续核实条件；41 条未核实记录仍需适用授权或与确切作品版本绑定的新权威许可证据。不得以用户希望上传或 Agent 自我批准代替证据；整体自动上传继续失败关闭（fail closed）。
 
 ## 逐条审计（91 items）
 
@@ -146,7 +156,7 @@
 | 69 | <code>arxiv:2511.02824</code> | <code>materialized_sources/corpus/arxiv-2511.02824--1c218a8e/manifest.yaml</code><br><code>raw_data/arxiv/Kosmos: An AI Scientist for Autonomous Discovery/metadata.yaml</code> | <code>CC-BY-4.0</code>；arXiv 官方文章页的 Rights to this article 链接指向 CC-BY-4.0。；本地 access=<code>unknown</code>，assumed=true | 本地三处 rights 未记录该文章许可及核验日期。；retrieval hash 尚未与确切 arXiv vN 建立可审计映射。 | <code>documented_permission</code> | 满足条件后才可考虑发布；当前 gate=block |
 | 70 | <code>arxiv:2602.06855</code> | <code>materialized_sources/corpus/arxiv-2602.06855--0b517136/manifest.yaml</code><br><code>raw_data/arxiv/AIRS-Bench: a Suite of Tasks for Frontier AI Research Science Agents/metadata.yaml</code> | <code>CC-BY-NC-SA-4.0</code>；arXiv 官方文章页的 Rights to this article 链接指向 CC-BY-NC-SA-4.0。；本地 access=<code>unknown</code>，assumed=true | 本地三处 rights 未记录该文章许可及核验日期。；retrieval hash 尚未与确切 arXiv vN 建立可审计映射。 | <code>documented_permission</code> | 满足条件后才可考虑发布；当前 gate=block |
 | 71 | <code>arxiv:2606.09877</code> | <code>materialized_sources/corpus/arxiv-2606.09877--80ac4aba/manifest.yaml</code><br><code>raw_data/arxiv/Streaming Knowledge Compilation: Proactive Materiality-Scored Pinning for Time-Evolving LLM Wikis/metadata.yaml</code> | <code>CC-BY-4.0</code>；arXiv 官方文章页的 Rights to this article 链接指向 CC-BY-4.0。；本地 access=<code>metadata_only</code>，assumed=true | 本地三处 rights 未记录该文章许可及核验日期。；retrieval hash 尚未与确切 arXiv vN 建立可审计映射。 | <code>documented_permission</code> | 满足条件后才可考虑发布；当前 gate=block |
-| 72 | <code>arxiv:2607.07663</code> | <code>materialized_sources/corpus/arxiv-2607.07663--e2b770de/manifest.yaml</code><br><code>raw_data/arxiv/Recursive Self-Improvement in AI: From Bounded Self-Refinement to Autonomous Research Loops/metadata.yaml</code> | <code>CC-BY-4.0</code>；arXiv 官方文章页的 Rights to this article 链接指向 CC-BY-4.0。；本地 access=<code>unknown</code>，assumed=true | 本地三处 rights 未记录该文章许可及核验日期。；retrieval hash 尚未与确切 arXiv vN 建立可审计映射。 | <code>documented_permission</code> | 满足条件后才可考虑发布；当前 gate=block |
+| 72 | <code>arxiv:2607.07663</code> | <code>materialized_sources/corpus/arxiv-2607.07663--e2b770de/manifest.yaml</code><br><code>raw_data/arxiv/Recursive Self-Improvement in AI: From Bounded Self-Refinement to Autonomous Research Loops/metadata.yaml</code> | 固定 v2 archive 与 revision 一致；论文 CC BY、Pandoc 模板 BSD 及 arXiv 编译元数据 CC0 分别标记；完整组合 NOTICE 入库 | 无；仅覆盖当前保存的文本成员与派生物，六张 PNG 未保存 | <code>documented_permission</code> | 当前固定版本文本包 gate=allow；不等于整个 archive 或人工批准 |
 | 73 | <code>arxiv:cs/0309048</code> | <code>materialized_sources/corpus/arxiv-cs-0309048--34c0ca59/manifest.yaml</code><br><code>raw_data/arxiv/Goedel Machines: Self-Referential Universal Problem Solvers Making Provably Optimal Self-Improvements/metadata.yaml</code> | 官方记录仅假定 arXiv 自己具有历史非独占分发权；没有面向公众的明示许可。；本地 access=<code>unknown</code>，assumed=true | 面向公众的论文全文复制/再分发许可。；许可版本、权利人和精确作品版本绑定。 | <code>permission_unverified</code> | 不公开全文，仅元数据/链接；当前 gate=block |
 | 74 | <code>methodology:linkml-schema-first</code> | <code>materialized_sources/corpus/methodology-linkml-schema-first--182a2b38/manifest.yaml</code><br><code>raw_data/methodology/LinkML Schema First Knowledge Modeling/metadata.yaml</code> | <code>Apache-2.0</code>；官方 docs 源对应页面，根 LICENSE 明列文档源与生成文档并授权复制、修改、分发。；本地 access=<code>unknown</code>，assumed=true | 本地 rights 仍为 unknown。；网页 hash 未绑定精确部署 commit/tag。 | <code>documented_permission</code> | 满足条件后才可考虑发布；当前 gate=block |
 | 75 | <code>standard-w3c-prov-o</code> | <code>materialized_sources/corpus/standard-w3c-prov-o--6f83f2d8/manifest.yaml</code><br><code>raw_data/standard/PROV-O The PROV Ontology/metadata.yaml</code> | <code>W3C-Document-License-2002</code>；允许复制和分发，但一般不授予修改/衍生权。；本地 access=<code>open</code>，assumed=true | metadata 未记录确切 W3C 许可版本。；Markdown 未附完整许可/NOTICE，原许可链接已丢失。 | <code>documented_permission</code> | 满足条件后才可考虑发布；当前 gate=block |

@@ -76,6 +76,7 @@ class MaterializerBoundaryTests(unittest.TestCase):
         source_version: str | None = None,
         first_invalid: tuple[bytes, str] | None = None,
         extract_result: tuple[str, list[dict[str, object]], int] | None = None,
+        redistribution_package: dict[str, str] | None = None,
     ) -> tuple[tempfile.TemporaryDirectory[str], Path, Path, dict[str, object], list[str]]:
         temporary = tempfile.TemporaryDirectory()
         root = Path(temporary.name)
@@ -87,6 +88,14 @@ class MaterializerBoundaryTests(unittest.TestCase):
             "url": "https://arxiv.org/abs/1234.5678",
             "versioning": {"source_version": source_version},
         }
+        if redistribution_package is not None:
+            metadata["rights"] = {
+                "access": "open",
+                "redistribution_package": redistribution_package,
+            }
+            notice_source = root / redistribution_package["notice_path"]
+            notice_source.parent.mkdir(parents=True, exist_ok=True)
+            notice_source.write_text("Complete test license.\n", encoding="utf-8")
         metadata_path.write_text(yaml.safe_dump(metadata), encoding="utf-8")
         record = materializer.SourceRecord(
             uid="arxiv:1234.5678",
@@ -97,7 +106,7 @@ class MaterializerBoundaryTests(unittest.TestCase):
             metadata_path=metadata_path,
             metadata=metadata,
             priority="P0",
-            rights_access="unknown",
+            rights_access="open" if redistribution_package is not None else "unknown",
         )
         requested: list[str] = []
         eprint_calls = 0
@@ -346,6 +355,58 @@ class MaterializerBoundaryTests(unittest.TestCase):
                     self.assertEqual(manifest["archive_container"], container)
                     self.assertEqual(manifest["content_tier"], "full_text")
                     self.assertEqual((capsule / "source/main.tex").read_bytes(), tex)
+
+    def test_arxiv_tex_package_links_nested_notice_idempotently(self) -> None:
+        tex = b"\\documentclass{article}\n\\begin{document}\nSource text.\n\\end{document}\n"
+        package = {
+            "source_revision": "sha256:" + hashlib.sha256(tex).hexdigest(),
+            "source_version_url": "https://arxiv.org/e-print/1234.5678v2",
+            "notice_path": "license.md",
+            "attribution": "Copyright example authors; derived from the fixed version.",
+            "modifications": "Converted TeX to plain text.",
+            "scope": "Article text only.",
+        }
+        temporary, root, capsule, manifest, _ = self._run_arxiv(
+            tex,
+            "application/x-tex",
+            source_version="v2",
+            redistribution_package=package,
+        )
+        with temporary:
+            document = capsule / "normalized/document.txt"
+            expected_footer = materializer.redistribution_footer(package, "../NOTICE.md")
+            wrapped = document.read_text(encoding="utf-8")
+            self.assertEqual(manifest["materialization"]["document"], "normalized/document.txt")
+            self.assertTrue(wrapped.endswith(expected_footer))
+            self.assertIn("[NOTICE.md](../NOTICE.md)", wrapped)
+            self.assertEqual(wrapped.count("<!-- materialization-redistribution-notice -->"), 1)
+
+            metadata_path = root / "raw_data/arxiv/example/metadata.yaml"
+            metadata = yaml.safe_load(metadata_path.read_text(encoding="utf-8"))
+            record = materializer.SourceRecord(
+                uid="arxiv:1234.5678",
+                source_type="arxiv",
+                canonical_id="1234.5678",
+                title="Example",
+                canonical_url="https://arxiv.org/abs/1234.5678",
+                metadata_path=metadata_path,
+                metadata=metadata,
+                priority="P0",
+                rights_access="open",
+            )
+            with mock.patch.multiple(
+                materializer,
+                ROOT=root,
+                MATERIALIZED_ROOT=root / "materialized_sources",
+                CORPUS_ROOT=root / "materialized_sources/corpus",
+            ):
+                materializer.finalize_capsule(record, capsule, manifest)
+                refinalized = document.read_text(encoding="utf-8")
+                materializer.finalize_capsule(record, capsule, manifest)
+
+            self.assertEqual(refinalized, wrapped)
+            self.assertEqual(document.read_text(encoding="utf-8"), wrapped)
+            self.assertEqual(wrapped.count("<!-- materialization-redistribution-notice -->"), 1)
 
     def test_arxiv_rejects_error_pages_and_tries_the_second_eprint_host(self) -> None:
         tex = b"\\documentclass{article}\n\\begin{document}\nValid source.\n\\end{document}\n"

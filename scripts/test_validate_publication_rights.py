@@ -138,6 +138,61 @@ class PublicationRightsTests(unittest.TestCase):
             errors, _, _, _ = validate_publication_rights(audit, root / "materialized_sources/corpus")
             self.assertTrue(any("PACKAGE_INVALID" in error for error in errors))
 
+    def test_packaged_nested_document_requires_relative_notice_link(self):
+        temporary, root, audit = self.fixture()
+        with temporary:
+            capsule = root / "materialized_sources/corpus/item"
+            package = {
+                "source_revision": "rev-1",
+                "source_version_url": "https://example.test/v1",
+                "notice_path": "license.md",
+                "attribution": "Copyright example.",
+                "modifications": "Converted TeX to plain text.",
+                "scope": "Document text.",
+            }
+            expected_notice = "Complete test license.\n"
+            (root / "license.md").write_text(expected_notice, encoding="utf-8")
+            (capsule / "NOTICE.md").write_text(expected_notice, encoding="utf-8")
+            document = capsule / "normalized/document.txt"
+            document.parent.mkdir(parents=True)
+            document.write_text(
+                "Original source text.\n" + redistribution_footer(package, "../NOTICE.md"),
+                encoding="utf-8",
+            )
+
+            metadata = {"rights": {"redistribution_package": package}}
+            (root / "metadata.yaml").write_text(yaml.safe_dump(metadata), encoding="utf-8")
+            (capsule / "source-metadata.yaml").write_text(
+                yaml.safe_dump(metadata), encoding="utf-8"
+            )
+            manifest_path = capsule / "manifest.yaml"
+            manifest = yaml.safe_load(manifest_path.read_text(encoding="utf-8"))
+            manifest.update(
+                {
+                    "metadata_path": "metadata.yaml",
+                    "rights": {"redistribution_package": package},
+                    "materialization": {"document": "normalized/document.txt"},
+                }
+            )
+            manifest_path.write_text(yaml.safe_dump(manifest), encoding="utf-8")
+            reviewed = yaml.safe_load(audit.read_text(encoding="utf-8"))
+            reviewed["items"][0]["redistribution_package"] = package
+            audit.write_text(yaml.safe_dump(reviewed), encoding="utf-8")
+
+            errors, blocked, _, _ = validate_publication_rights(
+                audit, root / "materialized_sources/corpus"
+            )
+            self.assertEqual((errors, blocked), ([], []))
+
+            document.write_text(
+                "Original source text.\n" + redistribution_footer(package),
+                encoding="utf-8",
+            )
+            errors, _, _, _ = validate_publication_rights(
+                audit, root / "materialized_sources/corpus"
+            )
+            self.assertTrue(any("PACKAGE_INVALID" in error for error in errors))
+
 
 if __name__ == "__main__":
     unittest.main()
