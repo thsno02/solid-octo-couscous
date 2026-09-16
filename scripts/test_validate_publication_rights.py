@@ -148,7 +148,7 @@ class PublicationRightsTests(unittest.TestCase):
                 self.assertEqual((len(blocked), active, audited), (1, 1, 1))
 
     def test_ordered_retained_text_is_gated_even_with_metadata_tier_or_bad_declaration(self):
-        for sources in ([{"source": "source/spec.md", "format": "md"}, {"source": "source/schema.yaml", "format": "yaml"}], [], None):
+        for sources in ([{"source": "source/spec.md", "format": "md"}, {"source": "source/schema.yaml", "format": "yaml"}], [{"source": "source/spec.html", "format": "html"}], [], None):
             with self.subTest(sources=sources):
                 temporary, root, audit = self.fixture(decision="block")
                 with temporary:

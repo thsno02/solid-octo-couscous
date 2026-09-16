@@ -124,8 +124,8 @@ def validate_retained_text_binding(
         if (
             not isinstance(source_name, str) or not source_name or Path(source_name).is_absolute()
             or ".." in Path(source_name).parts or Path(source_name).parts[0] != "source"
-            or source_name in names or not isinstance(format_name, str) or format_name not in {"md", "yaml"}
-            or Path(source_name).suffix.lower() not in ({".md"} if format_name == "md" else {".yaml", ".yml"})
+            or source_name in names or not isinstance(format_name, str) or format_name not in {"md", "yaml", "html"}
+            or Path(source_name).suffix.lower() not in {"md": {".md"}, "yaml": {".yaml", ".yml"}, "html": {".html", ".htm"}}[format_name]
         ):
             errors.append(f"RETAINED_TEXT_SOURCE_PATH_FORMAT {uid}: {source_name}")
             continue
@@ -136,6 +136,12 @@ def validate_retained_text_binding(
         if source is None or not source.is_file() or not source_hash:
             errors.append(f"RETAINED_TEXT_SOURCE_UNHASHED {uid}: {source_name}")
             continue
+        if "config_range" in item:
+            bounds = item["config_range"]
+            start = bounds.get("start_line") if isinstance(bounds, dict) else None
+            end = bounds.get("end_line") if isinstance(bounds, dict) else None
+            if format_name != "html" or any(not isinstance(value, int) or isinstance(value, bool) for value in (start, end)) or not 1 <= start <= end <= len(source.read_bytes().decode("utf-8").splitlines()):
+                errors.append(f"RETAINED_HTML_CONFIG_RANGE {uid}: {source_name}")
         inventory = manifest.get("local_files")
         rows = [row for row in inventory if isinstance(row, dict) and row.get("path") == source_relative] if isinstance(inventory, list) else []
         if len(rows) != 1 or rows[0].get("sha256") != source_hash or rows[0].get("bytes") != source.stat().st_size:
