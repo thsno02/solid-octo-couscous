@@ -162,6 +162,8 @@ The release preserves `trusted_claims: 0`, and the review queue requires evidenc
 
 The first admission batch should remain small and should use independent reviewers or at least reviewer agents that do not share the generator's context and prompts.
 
+**准入范围澄清（Admission scope）：** 原始[准入矩阵](llm-wiki/07-admission-governance-and-evolution.md)将 Page 的 schema/citations 列为 candidate gate，将 review/policy/evaluation/freshness 列为 trusted/published gate。因此，人工编辑审核是可信晋升或正式发布前的门槛，不应被本审计扩大为候选 pipeline 代码 PR 的必需人工批准。当前 review/not_started、candidate、trusted=0 与 rollout=none 均保持不变。Source 的 rights 本来就属于 candidate gate，不能用候选状态豁免公开全文许可。
+
 ## Positive controls confirmed
 
 The audit found the following controls to be materially useful:
@@ -186,8 +188,9 @@ Recommended decision sequence:
 2. confirm the single `CI` / `Quality gate` passes on the new parent PR head, including committed-tree replay;
 3. choose and execute the full-text storage/rights remediation;
 4. enable branch protection and required checks;
-5. obtain a human review of a representative Wiki sample;
-6. only then mark PR #1 ready for review and merge.
+5. review the candidate implementation as a code PR without claiming editorial admission, then mark ready and merge only after its applicable gates are met.
+
+在候选代码合并之后、任何可信晋升或正式知识发布之前，仍须完成相应的独立证据/编辑审核并记录准入决定。此前把 representative human review 放入候选 PR 必需合并顺序，是本审计的过度归类，不是原始仓库规则；此处仅纠正说明，不授予批准，也不更改准入策略或产物状态。
 
 ## Follow-up acceptance criteria
 

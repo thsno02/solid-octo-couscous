@@ -49,6 +49,6 @@ Workflow 文件只负责执行，不能自行强制 GitHub 禁止合并。管理
 
 待新的检查在 PR 中成功出现后，从 GitHub 设置里的实际检查列表选择 `Quality gate`（所属 workflow 为 `CI`），不要继续要求已经删除的旧 `build`、`validate` 检查。保持检查名称唯一且稳定。如果启用合并队列，已有 `merge_group` 事件会执行相同门控。
 
-PR #2 的目标是修复工程检查；合入其父分支不会表示 PR #1 已获得公开全文许可或人工编辑批准。PR #1 仍需独立处理这些门控。
+PR #2 的目标是修复工程检查；合入其父分支不会表示 PR #1 已获得公开全文许可或人工编辑批准。公开全文许可仍是候选内容进入公开仓库的门控；人工编辑准入则约束可信晋升或正式知识发布，不自动等同于候选代码 PR 的必需人工审批。不得因此修改 review、admission 或 trusted 状态。
 
 依据：GitHub 官方说明指出，路径/分支过滤导致的未运行检查可能持续 Pending，必需检查应对应最新提交；参见[必需检查排障](https://docs.github.com/en/pull-requests/how-tos/merge-and-close-pull-requests/troubleshooting-required-status-checks)。合并队列需要独立的 `merge_group` 事件，参见[Workflow 触发事件](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows)。
