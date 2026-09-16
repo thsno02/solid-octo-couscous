@@ -22,12 +22,12 @@ summary:
     documented_permission: 50
     permission_unverified: 41
   recommendation_counts:
-    allow_after_conditions_met: 45
-    allow_with_packaged_notice: 5
+    allow_after_conditions_met: 43
+    allow_with_packaged_notice: 7
     do_not_redistribute_full_text: 41
   publication_gate_counts:
-    block: 86
-    allow: 5
+    block: 84
+    allow: 7
   license_evidence_counts:
     CC-BY-4.0: 24
     none: 41
@@ -45,7 +45,7 @@ summary:
   - 73 篇 arXiv 中 32 篇有 CC article license，41 篇只有授予 arXiv 的 nonexclusive/assumed license。
   - 14 份 W3C 文档都有许可；7 份旧式许可对 HTML→Markdown 仍需衍生权审查。
   - LinkML、Apache Ossie、ODCS 有 Apache-2.0 证据；Schema.org supporting documentation 有 CC BY-SA 3.0 证据。
-  - 基线91项中4项W3C及arXiv 2502.18864v2已完成固定版本与NOTICE包装，5项allow；其余86项仍block（当前活跃全文85项block）。
+  - 基线91项中6项W3C及arXiv 2502.18864v2已完成固定版本与NOTICE包装，7项allow；其余84项仍block（当前活跃全文83项block）。
 review_completion:
   evidence_review_complete_for_baseline: true
   legal_clearance_complete: false
@@ -5691,15 +5691,30 @@ items:
   canonical_url: https://www.w3.org/TR/did-core/
   observed_rights:
     manifest:
-      declared_access: unknown
-      full_text_redistribution_assumed: true
-      basis: null
-      assessment: 物化器声明/假设，不是权利人授权。
+      declared_access: open
+      full_text_redistribution_assumed: false
+      license_spdx: W3C-20150513
+      license_url: https://www.w3.org/copyright/software-license-2015/
+      license_verified_at: '2026-09-16'
+      redistribution_package:
+        source_revision: sha256:5e44345740d9bfaa852d3b66c57e98c9beb6c5bf6083b0126dd5daac377b9993
+        source_version_url: https://www.w3.org/TR/2022/REC-did-core-20220719/
+        notice_path: raw_data/licenses/w3c-software-document-2015.md
+        attribution: This document includes material copied from or derived from "Decentralized Identifiers (DIDs)
+          v1.0", https://www.w3.org/TR/2022/REC-did-core-20220719/. Copyright © 2022 W3C® (MIT, ERCIM, Keio, Beihang).
+          https://www.w3.org/copyright/software-license-2015/
+        modifications: Converted from W3C HTML to Markdown; navigation, hyperlinks, styling, and image assets were
+          omitted or normalized; selector excerpts were generated. The original copyright and Recommendation status
+          text was retained.
+        scope: 仅覆盖该固定 Recommendation 的已物化规范文字及由其生成的 selector 摘录；不授权未保存在本胶囊中的图片、外链 DID method 或其他作品、数据、W3C 商标、专利或权利人无权许可的第三方材料。
+      assessment: 当前固定版本已附完整NOTICE与署名/修改声明；此记录不代表人工批准。
     source_metadata:
-      access: unknown
-      license_spdx: null
-      license_verified_at: null
-      notes: Requires canonical rights verification.
+      access: open
+      license_spdx: W3C-20150513
+      license_url: https://www.w3.org/copyright/software-license-2015/
+      license_verified_at: '2026-09-16'
+      notes: Public redistribution is permitted subject to the W3C Software and Document License 2015, preservation
+        of existing notices, attribution, and disclosure of modifications.
     capsule_source_metadata:
       path: materialized_sources/corpus/standard-w3c-did-core--0d0c2de8/source-metadata.yaml
       assessment: rights 与 canonical metadata 一致，不是额外独立证据。
@@ -5709,11 +5724,13 @@ items:
     locator: rights
     finding: declared_access=unknown; full_text_redistribution_assumed=True; basis=None
     supports_public_redistribution: false
+    baseline_observation: true
   - kind: source_metadata
     path: raw_data/standard/Decentralized Identifiers DID Core/metadata.yaml
     locator: rights
     finding: access=unknown; license_spdx=None; license_verified_at=None; notes=Requires canonical rights verification.
     supports_public_redistribution: false
+    baseline_observation: true
   - kind: local_document_notice
     path: materialized_sources/corpus/standard-w3c-did-core--0d0c2de8/document.md
     locator: L10
@@ -5725,28 +5742,55 @@ items:
     checked_at: '2026-09-16'
     finding: 明确允许复制、修改和分发。
     supports_public_redistribution: true
-  missing:
-  - metadata 未记录确切 W3C 许可版本。
-  - Markdown 未附完整许可/NOTICE，原许可链接已丢失。
-  - 第三方与联合权利材料无逐件清单。
+  - kind: fixed_version_and_packaged_notice
+    url: https://www.w3.org/TR/2022/REC-did-core-20220719/
+    checked_at: '2026-09-16'
+    source_revision: sha256:5e44345740d9bfaa852d3b66c57e98c9beb6c5bf6083b0126dd5daac377b9993
+    finding: 两个独立固定版本HTML响应均与现存revision一致；完整2015 NOTICE、原权利链接、署名和转换说明随胶囊入库；实际requested/resolved均为固定URL；重新物化两次全文件逐字节一致，原正文不变，selectors仅URL派生前缀重新绑定，数量/行号/段落/preview不变。
+    supports_public_redistribution: true
+  - kind: stored_material_scope_review
+    path: materialized_sources/corpus/standard-w3c-did-core--0d0c2de8/document.md
+    locator: document.md:3.1/3.2 DID Syntax and B.3; copyright and Recommendation status
+    checked_at: '2026-09-16'
+    finding: DID Core 1.0 Recommendation；DID自有ABNF规则、RFC规则名和语法引用及短归因引述，不是完整RFC代码附件；实际未保存独立外链作品或图像。
+    supports_public_redistribution: true
+  missing: []
   classification: documented_permission
   license_id: W3C-Software-and-Document-License-2015
   license_url: https://www.w3.org/copyright/software-license-2015/
   license_scope: 覆盖该确切 W3C 规范中由列名权利人提供的内容；第三方材料、商标和专利除外。
   license_restrictions: []
-  evidence_confidence: moderate
-  public_redistribution_recommendation: allow_after_conditions_met
+  evidence_confidence: high
+  public_redistribution_recommendation: allow_with_packaged_notice
   conditions:
   - 提供完整 W3C NOTICE。
   - 保留既有权利声明并标明转换。
   - 商标、专利和第三方材料另审。
-  current_capsule_compliance: pending_license_compliance_and_transformation_review
+  current_capsule_compliance: verified_revision_and_notice_packaged
   publication_gate:
-    decision: block
-    reason: 存在公众许可证据，但当前胶囊尚未机器证明版本绑定、许可条件和第三方范围均满足。
-  human_follow_up:
-  - 复核官方页面实际链接的许可与当前 revision。
-  - 补齐 NOTICE/状态/修改说明；旧许可另审转换性质。
+    decision: allow
+    reason: 仅允许已绑定固定W3C版本且保留完整2015 NOTICE、原版权/状态与署名/修改声明的当前文字包；不扩展至外链作品、商标或专利。
+  human_follow_up: []
+  redistribution_package:
+    source_revision: sha256:5e44345740d9bfaa852d3b66c57e98c9beb6c5bf6083b0126dd5daac377b9993
+    source_version_url: https://www.w3.org/TR/2022/REC-did-core-20220719/
+    notice_path: raw_data/licenses/w3c-software-document-2015.md
+    attribution: This document includes material copied from or derived from "Decentralized Identifiers (DIDs) v1.0",
+      https://www.w3.org/TR/2022/REC-did-core-20220719/. Copyright © 2022 W3C® (MIT, ERCIM, Keio, Beihang). https://www.w3.org/copyright/software-license-2015/
+    modifications: Converted from W3C HTML to Markdown; navigation, hyperlinks, styling, and image assets were omitted
+      or normalized; selector excerpts were generated. The original copyright and Recommendation status text was
+      retained.
+    scope: 仅覆盖该固定 Recommendation 的已物化规范文字及由其生成的 selector 摘录；不授权未保存在本胶囊中的图片、外链 DID method 或其他作品、数据、W3C 商标、专利或权利人无权许可的第三方材料。
+  clearance_review:
+    kind: agent_evidence_and_packaging_review
+    human_approval_claimed: false
+    scope: 当前document.md与selector文字摘录；未保存图像或外链独立文档。
+    provenance: DID Core 1.0 Recommendation；DID自有ABNF规则、RFC规则名和语法引用及短归因引述，不是完整RFC代码附件；实际未保存独立外链作品或图像。
+  conditions_fulfilled:
+  - 固定版本响应与source_revision一致。
+  - 完整2015 W3C NOTICE及原权利链接随包入库。
+  - 保留原版权/文档状态；仅文末补署名和转换说明。selectors按固定来源URL重新绑定，内容定位字段保持不变；全局索引与派生产物同步重建。
+  - 独立范围复核未发现需另行清理的已存第三方资产；不将范围声明用于排除实际已保存内容。
 - sequence: 80
   uid: standard:w3c-json-ld-1.1
   source_type: standard
@@ -5995,15 +6039,33 @@ items:
   canonical_url: https://www.w3.org/TR/owl-time/
   observed_rights:
     manifest:
-      declared_access: unknown
-      full_text_redistribution_assumed: true
-      basis: null
-      assessment: 物化器声明/假设，不是权利人授权。
+      declared_access: open
+      full_text_redistribution_assumed: false
+      license_spdx: W3C-20150513
+      license_url: https://www.w3.org/copyright/software-license-2015/
+      license_verified_at: '2026-09-16'
+      redistribution_package:
+        source_revision: sha256:051ada9f5333cbc56a125cca9258f956f954a6372bac0910169cb7d7ffbb5aa4
+        source_version_url: https://www.w3.org/TR/2022/CRD-owl-time-20221115/
+        notice_path: raw_data/licenses/w3c-software-document-2015.md
+        attribution: This document includes material copied from or derived from "Time Ontology in OWL", https://www.w3.org/TR/2022/CRD-owl-time-20221115/.
+          Copyright © 2022 W3C® (MIT, ERCIM, Keio, Beihang). This source is a Candidate Recommendation Draft prepared
+          by the Spatial Data on the Web Working Group, a joint W3C–OGC project; publication does not imply endorsement
+          by W3C and its Members. https://www.w3.org/copyright/software-license-2015/
+        modifications: Converted from W3C HTML to Markdown; navigation, hyperlinks, styling, and image assets were
+          omitted or normalized; selector excerpts were generated. The original copyright, joint-project, Candidate
+          Recommendation Draft, and non-endorsement status text was retained.
+        scope: 仅覆盖该固定 Candidate Recommendation Draft 的已物化规范文字及由其生成的 selector 摘录；不授权未保存在本胶囊中的 W3C/OGC 标识、图像（包括 geologic-timescale
+          图）、外链 ontology/RDF/数据、商标、专利或权利人无权许可的第三方材料。
+      assessment: 当前固定版本已附完整NOTICE与署名/修改声明；此记录不代表人工批准。
     source_metadata:
-      access: unknown
-      license_spdx: null
-      license_verified_at: null
-      notes: Requires canonical rights verification.
+      access: open
+      license_spdx: W3C-20150513
+      license_url: https://www.w3.org/copyright/software-license-2015/
+      license_verified_at: '2026-09-16'
+      notes: Public redistribution is permitted subject to the W3C Software and Document License 2015, preservation
+        of existing notices, attribution, and disclosure of modifications. The original Candidate Recommendation
+        Draft and non-endorsement status must be retained.
     capsule_source_metadata:
       path: materialized_sources/corpus/standard-w3c-owl-time--446fcf02/source-metadata.yaml
       assessment: rights 与 canonical metadata 一致，不是额外独立证据。
@@ -6013,11 +6075,13 @@ items:
     locator: rights
     finding: declared_access=unknown; full_text_redistribution_assumed=True; basis=None
     supports_public_redistribution: false
+    baseline_observation: true
   - kind: source_metadata
     path: raw_data/standard/Time Ontology in OWL/metadata.yaml
     locator: rights
     finding: access=unknown; license_spdx=None; license_verified_at=None; notes=Requires canonical rights verification.
     supports_public_redistribution: false
+    baseline_observation: true
   - kind: local_document_notice
     path: materialized_sources/corpus/standard-w3c-owl-time--446fcf02/document.md
     locator: L5
@@ -6029,28 +6093,58 @@ items:
     checked_at: '2026-09-16'
     finding: 明确允许复制、修改和分发。
     supports_public_redistribution: true
-  missing:
-  - metadata 未记录确切 W3C 许可版本。
-  - Markdown 未附完整许可/NOTICE，原许可链接已丢失。
-  - 第三方与联合权利材料无逐件清单。
+  - kind: fixed_version_and_packaged_notice
+    url: https://www.w3.org/TR/2022/CRD-owl-time-20221115/
+    checked_at: '2026-09-16'
+    source_revision: sha256:051ada9f5333cbc56a125cca9258f956f954a6372bac0910169cb7d7ffbb5aa4
+    finding: 两个独立固定版本HTML响应均与现存revision一致；完整2015 NOTICE、原权利链接、署名和转换说明随胶囊入库；实际requested/resolved均为固定URL；重新物化两次全文件逐字节一致，原正文不变，selectors仅URL派生前缀重新绑定，数量/行号/段落/preview不变。
+    supports_public_redistribution: true
+  - kind: stored_material_scope_review
+    path: materialized_sources/corpus/standard-w3c-owl-time--446fcf02/document.md
+    locator: document.md:Status of This Document, Motivation and background, references
+    checked_at: '2026-09-16'
+    finding: 固定W3C页直接适用2015许可；保留W3C/OGC联合项目、Candidate Recommendation Draft和非背书状态，不声称另有OGC授权。ISO/Allen为归因概括；图像、外链ontology/RDF和独立ISO/OGC文档未保存。
+    supports_public_redistribution: true
+  missing: []
   classification: documented_permission
   license_id: W3C-Software-and-Document-License-2015
   license_url: https://www.w3.org/copyright/software-license-2015/
   license_scope: 覆盖该确切 W3C 规范中由列名权利人提供的内容；第三方材料、商标和专利除外。
   license_restrictions: []
-  evidence_confidence: moderate
-  public_redistribution_recommendation: allow_after_conditions_met
+  evidence_confidence: high
+  public_redistribution_recommendation: allow_with_packaged_notice
   conditions:
   - 提供完整 W3C NOTICE。
   - 保留既有权利声明并标明转换。
   - 商标、专利和第三方材料另审。
-  current_capsule_compliance: pending_license_compliance_and_transformation_review
+  current_capsule_compliance: verified_revision_and_notice_packaged
   publication_gate:
-    decision: block
-    reason: 存在公众许可证据，但当前胶囊尚未机器证明版本绑定、许可条件和第三方范围均满足。
-  human_follow_up:
-  - 复核官方页面实际链接的许可与当前 revision。
-  - 补齐 NOTICE/状态/修改说明；旧许可另审转换性质。
+    decision: allow
+    reason: 仅允许已绑定固定W3C版本且保留完整2015 NOTICE、原版权/状态与署名/修改声明的当前文字包；不扩展至外链作品、商标或专利。
+  human_follow_up: []
+  redistribution_package:
+    source_revision: sha256:051ada9f5333cbc56a125cca9258f956f954a6372bac0910169cb7d7ffbb5aa4
+    source_version_url: https://www.w3.org/TR/2022/CRD-owl-time-20221115/
+    notice_path: raw_data/licenses/w3c-software-document-2015.md
+    attribution: This document includes material copied from or derived from "Time Ontology in OWL", https://www.w3.org/TR/2022/CRD-owl-time-20221115/.
+      Copyright © 2022 W3C® (MIT, ERCIM, Keio, Beihang). This source is a Candidate Recommendation Draft prepared
+      by the Spatial Data on the Web Working Group, a joint W3C–OGC project; publication does not imply endorsement
+      by W3C and its Members. https://www.w3.org/copyright/software-license-2015/
+    modifications: Converted from W3C HTML to Markdown; navigation, hyperlinks, styling, and image assets were omitted
+      or normalized; selector excerpts were generated. The original copyright, joint-project, Candidate Recommendation
+      Draft, and non-endorsement status text was retained.
+    scope: 仅覆盖该固定 Candidate Recommendation Draft 的已物化规范文字及由其生成的 selector 摘录；不授权未保存在本胶囊中的 W3C/OGC 标识、图像（包括 geologic-timescale
+      图）、外链 ontology/RDF/数据、商标、专利或权利人无权许可的第三方材料。
+  clearance_review:
+    kind: agent_evidence_and_packaging_review
+    human_approval_claimed: false
+    scope: 当前document.md与selector文字摘录；未保存图像或外链独立文档。
+    provenance: 固定W3C页直接适用2015许可；保留W3C/OGC联合项目、Candidate Recommendation Draft和非背书状态，不声称另有OGC授权。ISO/Allen为归因概括；图像、外链ontology/RDF和独立ISO/OGC文档未保存。
+  conditions_fulfilled:
+  - 固定版本响应与source_revision一致。
+  - 完整2015 W3C NOTICE及原权利链接随包入库。
+  - 保留原版权/文档状态；仅文末补署名和转换说明。selectors按固定来源URL重新绑定，内容定位字段保持不变；全局索引与派生产物同步重建。
+  - 独立范围复核未发现需另行清理的已存第三方资产；不将范围声明用于排除实际已保存内容。
 - sequence: 83
   uid: standard:w3c-owl2
   source_type: standard

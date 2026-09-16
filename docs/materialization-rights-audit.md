@@ -6,10 +6,10 @@
 
 - 50 条找到明确公众复制/再分发许可，分类为 <code>documented_permission</code>；这不表示当前胶囊已经履约。
 - 41 条未找到面向公众/本仓库的适用许可，分类为 <code>permission_unverified</code>；不应公开再分发全文。
-- 基线审计的 91 项中，DCAT 3、VC Data Model 2.0、ODRL 2.2、JSON-LD 1.1 与 arXiv:2502.18864v2 已完成固定版本及许可包装，5 项为 <code>allow</code>；其余 86 项仍为 <code>block</code>。
+- 基线审计的 91 项中，DCAT 3、VC Data Model 2.0、ODRL 2.2、JSON-LD 1.1、DID Core 1.0、OWL-Time 与 arXiv:2502.18864v2 已完成固定版本及许可包装，7 项为 <code>allow</code>；其余 84 项仍为 <code>block</code>。
 - Apache Ossie 基线胶囊只有 7 bytes（# Home），不是实质标准全文；后续降级不删除其基线审计行。
 
-当前 `full_text` 为 90 条，公开发布门检查结果为 `active_full_text=90 audited=91 blocked=85 errors=0`；整体仍未放行。审计覆盖数 91 与当前全文数 90 使用不同基线，不应混用。全文继续保存在本 GitHub repo；本轮将误解码的 PDF 衍生文件替换为原始 PDF 和可读文本，未移除作品、迁移存储或改写 Git 历史。
+当前 `full_text` 为 90 条，公开发布门检查结果为 `active_full_text=90 audited=91 blocked=83 errors=0`；整体仍未放行。审计覆盖数 91 与当前全文数 90 使用不同基线，不应混用。全文继续保存在本 GitHub repo；前次已将误解码的 PDF 衍生文件替换为原始 PDF 和可读文本，本次只补充许可包装，未移除作品、迁移存储或改写 Git 历史。
 
 机器可读逐条记录：<code>raw_data/audits/materialization_rights_review.yaml</code>。本报告记录许可证据与已落实的包装条件，不是法律意见或人工批准。
 
@@ -24,21 +24,23 @@
 | 基线 full_text | 91 |
 | documented_permission | 50 |
 | permission_unverified | 41 |
-| allow_after_conditions_met | 45 |
-| allow_with_packaged_notice | 5 |
+| allow_after_conditions_met | 43 |
+| allow_with_packaged_notice | 7 |
 | do_not_redistribute_full_text | 41 |
-| publication gate: allow | 5 |
-| publication gate: block（基线项） | 86 |
+| publication gate: allow | 7 |
+| publication gate: block（基线项） | 84 |
 
-## 已落实的四项许可包装（Packaged clearance）
+## 已落实的六项 W3C 许可包装（Packaged clearance）
 
 - [DCAT 3 固定 Recommendation](https://www.w3.org/TR/2024/REC-vocab-dcat-3-20240822/) 与 [VC Data Model 2.0 固定 Recommendation](https://www.w3.org/TR/2025/REC-vc-data-model-2.0-20250515/) 的官方 HTML 响应均与现存 source revision 对齐；canonical metadata 的 `full_text_url` 固定到相应版本。
 - 两者明确使用 [W3C Software and Document License 2023](https://www.w3.org/copyright/software-license-2023/)。完整 NOTICE 随胶囊入库，恢复原权利链接；原文保持不变，仅在末尾补充署名、转换说明与 NOTICE 链接，不移动既有 selector 行位置。
 - [ODRL 2.2 固定 Recommendation](https://www.w3.org/TR/2018/REC-odrl-model-20180215/) 与 [JSON-LD 1.1 固定 Recommendation](https://www.w3.org/TR/2020/REC-json-ld11-20200716/) 使用 [2015 版许可](https://www.w3.org/copyright/software-license-2015/)，分别保留原 ©2018 和 ©2010–2020 W3C（MIT、ERCIM、Keio、Beihang）署名；共享完整 2015 NOTICE，不以新版版权主体替换旧版。两次从固定 HTML 输入重新物化的文件逐字节相同。
+- [DID Core 1.0 固定 Recommendation](https://www.w3.org/TR/2022/REC-did-core-20220719/) 与 [OWL-Time 固定 Candidate Recommendation Draft](https://www.w3.org/TR/2022/CRD-owl-time-20221115/) 同样使用 2015 版许可，保留原 ©2022 W3C 版权。各自固定 HTML 与现存 revision 一致，完整重新物化两次逐字节一致，既有正文仅在文末补署名、来源和转换说明。`full_text_url` 与实际 requested/resolved URL 均为固定版本，不依赖 latest；selectors 的 URL 派生前缀随之重新绑定，数量、段落、行号与 preview 保持不变，派生索引同步重建。
+- DID Core 的语法主体是其自身 DID 规则，RFC 规则名/语法引用与短归因引述不等同于另行保存整个 RFC 代码附件。OWL-Time 保留 W3C/OGC 联合项目、候选推荐草案及非背书声明；许可依据是固定 W3C 发布页的明确许可，不宣称另有 OGC 授权。实际包未保存独立 ISO/OGC 文档、图像或外链 ontology/RDF 文件。
 - `W3C-20150513` 标识不是误用旧许可：[SPDX 官方说明](https://spdx.org/licenses/W3C-20150513.html)确认 2023 年的小幅修改继续使用该标识；具体许可 URL 仍记录为 2023 版。
 - 清关只覆盖当前包内的规范文字及 selector 摘录，不扩展到外链作品、媒体、商标或专利。源版权头保留，未向包内加入外链媒体。
 - 生成器每次从 canonical metadata 与共享 NOTICE 重新组装，不依赖手工补丁。声明的包与新全文 revision 不符会终止物化，而不会被降级为 metadata-only 后误过门控。
-- 对这四项 `allow`，门控检查 canonical metadata、审计、胶囊 metadata、manifest 四方一致，并验证完整 NOTICE 和唯一的文末署名块；丢失声明、漏写审计包或替换 NOTICE 均失败。未将 Agent 核验写作 human approval。
+- 对这六项 `allow`，门控检查 canonical metadata、审计、胶囊 metadata、manifest 四方一致，并验证完整 NOTICE 和唯一的文末署名块；丢失声明、漏写审计包或替换 NOTICE 均失败。未将 Agent 核验写作 human approval。
 
 本批同时复核了 RDF 1.2 Concepts，但没有放行：固定 Candidate Recommendation Snapshot 的附录 F 实际保存了 RFC3986、RFC3987、RFC6874 的合成 IRI 语法代码。RFC6874 要求提取代码携带 BSD 声明；两份 2005 年 1 月 RFC 的旧版修改/再分发依据及声明也需核清。它们不是可以用 scope 排除的外链，正文继续保留，许可门仍为 `block`。详细来源和定位已写入机器审计。
 
@@ -59,7 +61,7 @@
 
 ## 人工审核与权利确认（Human Review and Clearance）
 
-逐条证据审核已经完成，许可履约仍未全量完成。50 条有公众许可证据的记录中，五项已按官方许可完成当前包的版本绑定与包装，其余 45 项继续核实条件；41 条未核实记录仍需适用授权或与确切作品版本绑定的新权威许可证据。不得以用户希望上传或 Agent 自我批准代替证据；整体自动上传继续失败关闭（fail closed）。
+逐条证据审核已经完成，许可履约仍未全量完成。50 条有公众许可证据的记录中，七项已按官方许可完成当前包的版本绑定与包装，其余 43 项继续核实条件；41 条未核实记录仍需适用授权或与确切作品版本绑定的新权威许可证据。不得以用户希望上传或 Agent 自我批准代替证据；整体自动上传继续失败关闭（fail closed）。
 
 ## 逐条审计（91 items）
 
@@ -143,10 +145,10 @@
 | 76 | <code>standard:apache-ossie</code> | <code>materialized_sources/corpus/standard-apache-ossie--ae9e548a/manifest.yaml</code><br><code>raw_data/standard/Apache Ossie Open Semantic Interchange/metadata.yaml</code> | <code>Apache-2.0</code>；官网页脚和 ossie-website README/首页源明确 Apache-2.0，NOTICE 标注 ASF。；本地 access=<code>open</code>，assumed=true | document.md 只有 7 bytes 且没有权利文本。；retrieval hash 未映射网站 commit。 | <code>documented_permission</code> | 满足条件后才可考虑发布；当前 gate=block |
 | 77 | <code>standard:odcs-3.2.0</code> | <code>materialized_sources/corpus/standard-odcs-3.2.0--affacf92/manifest.yaml</code><br><code>raw_data/standard/Open Data Contract Standard 3.2.0/metadata.yaml</code> | <code>Apache-2.0</code>；官方 README、v3.2.0 LICENSE 和 docs/README 明确 Apache-2.0。；本地 access=<code>open</code>，assumed=true | latest URL 未绑定 v3.2.0 commit。；Markdown 缺 SPDX、许可证和修改声明。 | <code>documented_permission</code> | 满足条件后才可考虑发布；当前 gate=block |
 | 78 | <code>standard:w3c-dcat-3</code> | <code>materialized_sources/corpus/standard-w3c-dcat-3--fe7850d7/manifest.yaml</code><br><code>raw_data/standard/Data Catalog Vocabulary DCAT 3/metadata.yaml</code> | <code>W3C-Software-and-Document-License-2023</code>；固定版本响应与source revision匹配；完整NOTICE及署名/修改声明已随文本入库 | 当前文字包条件已落实；不覆盖外链作品、商标或专利 | <code>documented_permission</code> | 当前固定版本与包装条件下 gate=allow；丢失NOTICE或署名仍失败 |
-| 79 | <code>standard:w3c-did-core</code> | <code>materialized_sources/corpus/standard-w3c-did-core--0d0c2de8/manifest.yaml</code><br><code>raw_data/standard/Decentralized Identifiers DID Core/metadata.yaml</code> | <code>W3C-Software-and-Document-License-2015</code>；明确允许复制、修改和分发。；本地 access=<code>unknown</code>，assumed=true | metadata 未记录确切 W3C 许可版本。；Markdown 未附完整许可/NOTICE，原许可链接已丢失。 | <code>documented_permission</code> | 满足条件后才可考虑发布；当前 gate=block |
+| 79 | <code>standard:w3c-did-core</code> | <code>materialized_sources/corpus/standard-w3c-did-core--0d0c2de8/manifest.yaml</code><br><code>raw_data/standard/Decentralized Identifiers DID Core/metadata.yaml</code> | 固定 DID Core 1.0 Recommendation；2015 NOTICE、原版权、来源和转换声明已完整包装 | 无；仅覆盖已核验的固定版本文字包 | <code>documented_permission</code> | 当前固定版本 gate=allow；不外推未来版本或外链资产 |
 | 80 | <code>standard:w3c-json-ld-1.1</code> | <code>materialized_sources/corpus/standard-w3c-json-ld-1.1--673c0833/manifest.yaml</code><br><code>raw_data/standard/JSON-LD 1.1/metadata.yaml</code> | <code>W3C-Software-and-Document-License-2015</code>；固定Recommendation响应与revision一致；完整NOTICE、署名与修改说明已入库；原Community Group来源保留为沿革证据 | 当前文字包条件已落实；外链媒体未保存，不扩展商标或专利 | <code>documented_permission</code> | 当前固定版本许可包 gate=allow；不等于人工批准 |
 | 81 | <code>standard:w3c-odrl-2.2</code> | <code>materialized_sources/corpus/standard-w3c-odrl-2.2--df9e3701/manifest.yaml</code><br><code>raw_data/standard/ODRL Information Model 2.2/metadata.yaml</code> | <code>W3C-Software-and-Document-License-2015</code>；固定Recommendation响应与revision一致；完整NOTICE、署名与修改说明已入库；原Community Group来源保留为沿革证据 | 当前文字包条件已落实；外链媒体未保存，不扩展商标或专利 | <code>documented_permission</code> | 当前固定版本许可包 gate=allow；不等于人工批准 |
-| 82 | <code>standard:w3c-owl-time</code> | <code>materialized_sources/corpus/standard-w3c-owl-time--446fcf02/manifest.yaml</code><br><code>raw_data/standard/Time Ontology in OWL/metadata.yaml</code> | <code>W3C-Software-and-Document-License-2015</code>；明确允许复制、修改和分发。；本地 access=<code>unknown</code>，assumed=true | metadata 未记录确切 W3C 许可版本。；Markdown 未附完整许可/NOTICE，原许可链接已丢失。 | <code>documented_permission</code> | 满足条件后才可考虑发布；当前 gate=block |
+| 82 | <code>standard:w3c-owl-time</code> | <code>materialized_sources/corpus/standard-w3c-owl-time--446fcf02/manifest.yaml</code><br><code>raw_data/standard/Time Ontology in OWL/metadata.yaml</code> | 固定 OWL-Time CRD；2015 NOTICE、2022 W3C版权、联合项目及非背书状态已保留 | 无；仅覆盖已核验的固定版本文字包 | <code>documented_permission</code> | 当前固定版本 gate=allow；不外推未来版本或外链资产 |
 | 83 | <code>standard:w3c-owl2</code> | <code>materialized_sources/corpus/standard-w3c-owl2--602129ed/manifest.yaml</code><br><code>raw_data/standard/OWL 2 Web Ontology Language/metadata.yaml</code> | <code>W3C-Document-License-2002</code>；允许复制和分发，但一般不授予修改/衍生权。；本地 access=<code>unknown</code>，assumed=true | metadata 未记录确切 W3C 许可版本。；Markdown 未附完整许可/NOTICE，原许可链接已丢失。 | <code>documented_permission</code> | 满足条件后才可考虑发布；当前 gate=block |
 | 84 | <code>standard:w3c-r2rml</code> | <code>materialized_sources/corpus/standard-w3c-r2rml--b9b6cc67/manifest.yaml</code><br><code>raw_data/standard/R2RML RDB to RDF Mapping Language/metadata.yaml</code> | <code>W3C-Document-License-2002</code>；允许复制和分发，但一般不授予修改/衍生权。；本地 access=<code>unknown</code>，assumed=true | metadata 未记录确切 W3C 许可版本。；Markdown 未附完整许可/NOTICE，原许可链接已丢失。 | <code>documented_permission</code> | 满足条件后才可考虑发布；当前 gate=block |
 | 85 | <code>standard:w3c-rdf-1.2-concepts</code> | <code>materialized_sources/corpus/standard-w3c-rdf-1.2-concepts--02058aec/manifest.yaml</code><br><code>raw_data/standard/RDF 1.2 Concepts and Abstract Syntax/metadata.yaml</code> | <code>W3C-Software-and-Document-License-2023</code>；明确允许复制、修改和分发。；本地 access=<code>unknown</code>，assumed=true | 附录F实际保存RFC3986/3987/6874合成语法；旧版代码再分发依据及RFC6874的BSD声明未落实 | <code>documented_permission</code> | 保持gate=block；不能用W3C主文档许可或scope排除代替RFC代码履约 |

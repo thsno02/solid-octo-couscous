@@ -1189,3 +1189,15 @@ The editors would like to thank the members of the W3C /OGC Spatial Data on the 
 
 
 ### G.2 Informative references
+
+
+<!-- materialization-redistribution-notice -->
+## Redistribution notice
+
+This document includes material copied from or derived from "Time Ontology in OWL", https://www.w3.org/TR/2022/CRD-owl-time-20221115/. Copyright © 2022 W3C® (MIT, ERCIM, Keio, Beihang). This source is a Candidate Recommendation Draft prepared by the Spatial Data on the Web Working Group, a joint W3C–OGC project; publication does not imply endorsement by W3C and its Members. https://www.w3.org/copyright/software-license-2015/
+
+Changes: Converted from W3C HTML to Markdown; navigation, hyperlinks, styling, and image assets were omitted or normalized; selector excerpts were generated. The original copyright, joint-project, Candidate Recommendation Draft, and non-endorsement status text was retained.
+
+Scope: 仅覆盖该固定 Candidate Recommendation Draft 的已物化规范文字及由其生成的 selector 摘录；不授权未保存在本胶囊中的 W3C/OGC 标识、图像（包括 geologic-timescale 图）、外链 ontology/RDF/数据、商标、专利或权利人无权许可的第三方材料。
+
+Full license and original rights links: [NOTICE.md](NOTICE.md).

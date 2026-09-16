@@ -4078,3 +4078,15 @@ Referenced in:
 § 7.1.3 DID Document Metadata (2) (3) (4) (5) (6) (7) (8) (9) (10)
 
 § 9.14 Equivalence Properties (2)
+
+
+<!-- materialization-redistribution-notice -->
+## Redistribution notice
+
+This document includes material copied from or derived from "Decentralized Identifiers (DIDs) v1.0", https://www.w3.org/TR/2022/REC-did-core-20220719/. Copyright © 2022 W3C® (MIT, ERCIM, Keio, Beihang). https://www.w3.org/copyright/software-license-2015/
+
+Changes: Converted from W3C HTML to Markdown; navigation, hyperlinks, styling, and image assets were omitted or normalized; selector excerpts were generated. The original copyright and Recommendation status text was retained.
+
+Scope: 仅覆盖该固定 Recommendation 的已物化规范文字及由其生成的 selector 摘录；不授权未保存在本胶囊中的图片、外链 DID method 或其他作品、数据、W3C 商标、专利或权利人无权许可的第三方材料。
+
+Full license and original rights links: [NOTICE.md](NOTICE.md).
