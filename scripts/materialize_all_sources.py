@@ -785,12 +785,17 @@ def choose_main_tex(files: dict[str, str]) -> str | None:
     return candidates[0] if len(candidates) == 1 else None
 
 
-def resolve_tex_include(current_path: str, target: str, files: dict[str, str]) -> str | None:
+def resolve_tex_include(
+    current_path: str, target: str, files: dict[str, str], *, directory: str | None = None,
+) -> str | None:
+    """Resolve retained literal paths, without root fallback for an explicit import directory."""
     target = target.strip().strip("{}\"")
     if not target:
         return None
-    current_dir = PurePosixPath(current_path).parent
-    candidates = [current_dir / target, PurePosixPath(target)]
+    current_dir = PurePosixPath(directory) if directory is not None else PurePosixPath(current_path).parent
+    candidates = [current_dir / target]
+    if directory is None:
+        candidates.append(PurePosixPath(target))
     expanded: list[PurePosixPath] = []
     for candidate in candidates:
         expanded.append(candidate)
@@ -813,9 +818,20 @@ def flatten_tex(
     diagnostics: list[dict[str, str]] | None = None,
     include_graph: list[dict[str, str]] | None = None,
 ) -> str:
-    include_pattern = re.compile(r"\\(?:input|include)\s*\{([^{}]+)\}")
+    """Expand literal braced calls, not macros, conditionals, or a full TeX engine.
 
-    def visit(path: str, stack: tuple[str, ...]) -> str:
+    ``import`` directories are relative to the selected root's compile directory;
+    ``subimport`` appends to the enclosing import directory. A nested ``import``
+    resets that directory. Within an import, ``input``/``include`` search only the
+    active import directory: unsupported ancestor/system-path searches stay missing
+    rather than silently selecting a same-named root file. Only retained paths resolve.
+    """
+    include_pattern = re.compile(
+        r"\\(?:(input|include)\s*\{([^{}]+)\}|(import|subimport)\s*\{([^{}]*)\}\s*\{([^{}]+)\})"
+    )
+    root_directory = PurePosixPath(main_path).parent.as_posix()
+
+    def visit(path: str, stack: tuple[str, ...], import_directory: str | None) -> str:
         if path in stack:
             if diagnostics is not None:
                 diagnostics.append({"kind": "cycle", "path": path})
@@ -825,27 +841,52 @@ def flatten_tex(
                 diagnostics.append({"kind": "depth_limit", "path": path})
             return f"\n% [include depth exceeded: {path}]\n"
         text = files.get(path, "")
+        supported_starts = {match.start() for match in include_pattern.finditer(text)}
+        for match in re.finditer(r"\\(?:input|include|import|subimport)\b", text):
+            line_prefix = text[text.rfind("\n", 0, match.start()) + 1:match.start()]
+            if match.start() not in supported_starts and tex_comment_start(line_prefix) is None:
+                if diagnostics is not None:
+                    line_end = text.find("\n", match.start())
+                    diagnostics.append({
+                        "kind": "unsupported_include_syntax", "path": path,
+                        "target": text[match.start():line_end if line_end >= 0 else len(text)],
+                    })
 
         def replace(match: re.Match[str]) -> str:
             line_prefix = text[text.rfind("\n", 0, match.start()) + 1:match.start()]
             if tex_comment_start(line_prefix) is not None:
                 return match.group(0)
-            resolved = resolve_tex_include(path, match.group(1), files)
+            command = match.group(1) or match.group(3)
+            target = match.group(2) if match.group(1) else match.group(5)
+            next_import_directory = import_directory
+            directory = import_directory
+            if match.group(3):
+                base_directory = root_directory if command == "import" else import_directory or root_directory
+                directory = posixpath.normpath(posixpath.join(base_directory, match.group(4).strip()))
+                next_import_directory = directory
+            if "\\" in target or (match.group(3) and "\\" in match.group(4)):
+                if diagnostics is not None:
+                    diagnostics.append({"kind": "unsupported_include_syntax", "path": path, "target": match.group(0)})
+                return match.group(0)
+            resolved = resolve_tex_include(path, target, files, directory=directory)
             if resolved is None:
                 if diagnostics is not None:
-                    diagnostics.append({"kind": "missing_include", "path": path, "target": match.group(1)})
+                    diagnostics.append({
+                        "kind": "missing_include", "path": path, "target": target,
+                        **({"directory": directory} if directory is not None else {}),
+                    })
                 return match.group(0)
             if include_graph is not None:
                 include_graph.append({"from": path, "to": resolved})
             return (
                 f"\n% --- begin included file: {resolved} ---\n"
-                + visit(resolved, stack + (path,))
+                + visit(resolved, stack + (path,), next_import_directory)
                 + f"\n% --- end included file: {resolved} ---\n"
             )
 
         return include_pattern.sub(replace, text)
 
-    return visit(main_path, tuple())
+    return visit(main_path, tuple(), None)
 
 
 def tex_to_plain(
@@ -868,8 +909,8 @@ def tex_to_plain(
     text = re.sub(r"\\label\{[^{}]*\}", "", text)
     text = re.sub(r"\\(?:cite|citep|citet|ref|eqref|label|url|href)\*?(?:\[[^\]]*\])?\{([^{}]*)\}", r" \1 ", text)
     text = re.sub(r"\\(?:textbf|textit|emph|mathrm|mathbf|mathit|operatorname)\{([^{}]*)\}", r"\1", text)
+    text = re.sub(r"\\(?:begin|end)\s*\{[^{}]+\}(?:\[[^\]]*\])?", "\n", text)
     text = re.sub(r"\\[A-Za-z@]+\*?(?:\[[^\]]*\])?", " ", text)
-    text = re.sub(r"\\(?:begin|end)\{[^{}]+\}", "\n", text)
     text = text.replace("{", " ").replace("}", " ")
     text = re.sub(r"\$+", " ", text)
     text = re.sub(r"[ \t]+", " ", text)
@@ -895,8 +936,6 @@ def write_arxiv_tex_derivatives(
     normalized: dict[str, str] = {}
     if main_tex:
         flattened = flatten_tex(main_tex, stored, diagnostics=diagnostics, include_graph=include_graph)
-        for match in re.finditer(r"\\(?:input|include)\b(?!\s*\{)[^\n]*", tex_without_comments(flattened)):
-            diagnostics.append({"kind": "unsupported_include_syntax", "path": main_tex, "target": match.group(0)})
         normalized = {
             "normalized/document.tex": flattened,
             "normalized/document.txt": tex_to_plain(flattened, diagnostics=normalization_diagnostics, path=main_tex),

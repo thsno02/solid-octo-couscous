@@ -4,7 +4,7 @@
 - Source type: `arxiv`
 - Canonical ID: `2404.16130`
 - Canonical URL: https://arxiv.org/abs/2404.16130
-- Materialization status: `materialized`
+- Materialization status: `partial`
 - Content tier: `full_text`
 
 This directory is a local evidence capsule. It is not, by itself, a trusted knowledge assertion.
