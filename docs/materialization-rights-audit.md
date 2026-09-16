@@ -4,12 +4,12 @@
 
 本审计逐条覆盖基线提交 <code>ee43cb37856bd40274bedda289a70dab03aaf3cc</code> 中 91 个 full_text 胶囊：73 篇 arXiv、17 份标准/词汇表、1 份方法文档。证据审计（evidence review）已完成，但权利清理（rights clearance）未完成。
 
-- 54 条找到明确公众复制/再分发许可，分类为 <code>documented_permission</code>；其中 25 条已完成可放行的当前包包装，29 条仍待全部适用条件落实，不能仅凭分类放行。
+- 54 条找到明确公众复制/再分发许可，分类为 <code>documented_permission</code>；其中 26 条已完成可放行的当前包包装，28 条仍待全部适用条件落实，不能仅凭分类放行。
 - 37 条未找到面向公众/本仓库的适用许可，分类为 <code>permission_unverified</code>；不应公开再分发全文。
-- 基线审计的 91 项中，七项 W3C、ODCS 3.2.0 定义首页、十五项 arXiv、LinkML 文档首页及 Schema.org 文档快照已完成当前内容版本的许可包装，25 项为 <code>allow</code>；其余 66 项仍为 <code>block</code>。
+- 基线审计的 91 项中，七项 W3C、ODCS 3.2.0 定义首页、十六项 arXiv、LinkML 文档首页及 Schema.org 文档快照已完成当前内容版本的许可包装，26 项为 <code>allow</code>；其余 65 项仍为 <code>block</code>。
 - Apache Ossie 基线胶囊只有 7 bytes（# Home），不是实质标准全文；后续降级不删除其基线审计行。
 
-当前 `full_text` 为 90 条，公开发布门检查结果为 `active_full_text=90 audited=91 blocked=65 errors=0`；整体仍未放行。65 项分为 37 项尚无适用公众许可证据、28 项已有许可证据但尚待履约，不应统称为缺少授权。基线 documented_permission 的 29 项待办还包括已非 active full_text 的 Apache Ossie。审计覆盖数 91 与当前全文数 90 使用不同基线，不应混用。当前集成 build 为 `640f5f05531b8dbe`，结构验证为 0 errors；这不等于权利门或整体发布放行。全文继续保存在本 GitHub repo；本次保留既有正文与快照，只补齐许可条件和传播信息，未移除作品、迁移存储或改写 Git 历史。
+当前 `full_text` 为 90 条，公开发布门检查结果为 `active_full_text=90 audited=91 blocked=64 errors=0`；整体仍未放行。64 项分为 37 项尚无适用公众许可证据、27 项已有许可证据但尚待履约，不应统称为缺少授权。基线 documented_permission 的 28 项待办还包括已非 active full_text 的 Apache Ossie。审计覆盖数 91 与当前全文数 90 使用不同基线，不应混用。当前集成 build 为 `59348b6351fcf392`，结构验证为 0 errors；这不等于权利门或整体发布放行。全文继续保存在本 GitHub repo；本次保留既有正文与快照，只补齐许可条件和传播信息，未移除作品、迁移存储或改写 Git 历史。
 
 机器可读逐条记录：<code>raw_data/audits/materialization_rights_review.yaml</code>。本报告记录许可证据与已落实的包装条件，不是法律意见或人工批准。
 
@@ -36,13 +36,13 @@
 | 基线 full_text | 91 |
 | documented_permission | 54 |
 | permission_unverified | 37 |
-| allow_after_conditions_met | 29 |
-| allow_with_packaged_notice | 25 |
+| allow_after_conditions_met | 28 |
+| allow_with_packaged_notice | 26 |
 | do_not_redistribute_full_text | 37 |
 | license evidence: CC-BY-4.0 | 28 |
 | license evidence: none | 37 |
-| publication gate: allow | 25 |
-| publication gate: block（基线项） | 66 |
+| publication gate: allow | 26 |
+| publication gate: block（基线项） | 65 |
 
 ### Robin / Kosmos：论文正文与额外收录的摘要分别判断
 
@@ -89,6 +89,22 @@ GraphRAG 固定 v2 的论文许可为 CC BY 4.0，DiscoveryWorld 固定 v2 为 C
 GraphRAG 的 `system_prompts.tex:37` 保存约 59 words 的 Fed 报道输入，与 [MCT 2023-09-18 报告](https://mortcap.com/wp-content/uploads/2023/09/mcmpdf09182023.pdf)近字对应，存在星期表达与等值时区等差异；该报告也援引其他新闻来源，不能据此断定 MCT 是最初作者。此段不被重新许可为论文 BY4。当前用途是保存研究论文中演示实体抽取的短篇事实性输入，不作为独立新闻全文或替代报道。依据 [17 USC §107](https://www.copyright.gov/title17/92chap1.html#107)按用途、作品性质、使用量与市场影响作有限情境判断；“研究”或短字数本身不构成自动豁免，也不授予下游任意用途的普遍许可。AFaCTA 的定义短引另保留对应 ACL 作品的归属和 BY4 链接。
 
 包装只补归属、许可、范围与转换说明，不删改原 source、TeX、正文或 selectors；未保存媒体和仅被调用的外部依赖不新增为已分发组件。DiscoveryWorld 的论文文本转换及其摘录保留 ShareAlike，独立模板仍单列 BY4，不将整个 repo 重新许可。此项范围判断须随原文和派生引用一起传递，不将包内一份法条误读成所有组件同一许可。
+
+### Progressive Neural Networks：旧模板按实际对应表达履约
+
+[固定 v4](https://arxiv.org/abs/1606.04671v4) 的文章许可为 CC BY 4.0；本轮固定源响应为 7,974,202 bytes，与现存 revision 及全部 20 个 source 文字成员逐字节对应。主文件为 `nips_2016.tex`，`progressive.tex` 是其中的章节；原规范化 TeX 为 49,876 bytes，原正文为 41,918 bytes，41 个 selectors 保持不变。保留全部既存文字成员；130 个原已省略的成员不冒称本包所有，也不将其中的 Makefile 等统称为非文字文件。
+
+实存 `nips_2016.sty` 标识为 `2016/03/07`。其字体、节标题、列表、表与脚注、标题、摘要以及行号兼容代码的长段表达，已逐块对应[当前官方 NeurIPS 模板的 BY4 授权](https://www.overleaf.com/latex/templates/formatting-instructions-for-neurips-2026/bjdwqfdkyftc)。随包分别说明标识／年号、短页脚、geometry 参数与调用方式、条件分支和代码位置的既存差异；当前新增的 track、workshop、education 等功能不属于旧件。旧文件 final 会议页脚原有的两行注释也原样保留，不声称由本仓库修改。此路径依赖当前获许可表达与具体差异，不推定历史 March 2016 整包已采用 BY4，也不改写文件的历史来源。
+
+论文完整八位作者和前三位等贡献说明，与模板当前 NeurIPS Program Chairs、原 Roman Garnett／MK／drstrip 等归属分别保留。普通书目不包含额外摘要；未实际保存的 natbib 或 BST 不新增为已分发组件。完整 BY4 法条、归属、转换与范围说明沿现有包装器保存，原 source、规范化 TeX、定位器和正文前缀保持，正文只加唯一末注。固定响应核对与离线重复 finalize 是不同操作，记录不将离线包装写成新的网络抓取。
+
+### RARR：已许可表达与未决引用风险分别记录
+
+[正式 ACL 论文](https://aclanthology.org/2023.acl-long.910/)的 BY4 路径、固定 arXiv v3 的版本对应、模板的对应表达和 BST 的 LPPL 路径已核实。进一步核查把六个实际 Wikipedia 页面的节选与其他样例分开；不能用相邻 Wikipedia 链接覆盖新闻句，也不能把 1973 年 Addams 页面用于证明 1964–1966 年节目段落的出处。[MarioWiki 的版权政策](https://www.mariowiki.com/MarioWiki:Copyrights)另区分 2026-02-27 前的 BY-SA 3.0 贡献，FLUDD 文字不以当前页面的 BY-SA 4.0 倒写历史许可。
+
+其余材料主要是论文方法和人类评估中反复展示的短事实性片段，不是完整新闻或旅游文章；这为具体研究引用提供判断依据，但不自动转授论文 BY4。尤其 Little House 约 41 词的宣传段落可能接近原宣传文字的核心，而多个原始 URL 未保留，不能编造出处或只凭字数认定安全。保留可确认的 Live Science、PA Media／Guardian 与 NPR 归属；未确认的原出处明确记为论文内所呈现的引用（as reproduced in RARR）。
+
+本轮不据此放行 RARR。美国版权局明确指出，合理使用需要综合目的、作品性质、使用量及市场影响，没有固定字数安全港，不能以“研究”直接替代判断；参见[官方说明](https://www.copyright.gov/fair-use/)。GraphRAG 的个案判断也不等于本项目已采用适用于所有公开持久分发的风险政策。这里记录具体未决范围，不要求每句事实都另取授权，也不虚构用户已接受风险、权利人已许可或司法确定性。
 
 ## 已落实的六项 W3C 许可包装（Packaged clearance）
 

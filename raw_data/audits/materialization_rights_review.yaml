@@ -22,12 +22,12 @@ summary:
     documented_permission: 54
     permission_unverified: 37
   recommendation_counts:
-    allow_after_conditions_met: 29
+    allow_after_conditions_met: 28
     do_not_redistribute_full_text: 37
-    allow_with_packaged_notice: 25
+    allow_with_packaged_notice: 26
   publication_gate_counts:
-    block: 66
-    allow: 25
+    block: 65
+    allow: 26
   license_evidence_counts:
     CC-BY-4.0: 28
     none: 37
@@ -46,11 +46,11 @@ summary:
     nonexclusive/assumed本身不转授公众权利，正文许可不自动覆盖源包旧稿、第三方摘录或模板。
   - 14 份 W3C 文档都有许可；7 份旧式许可对 HTML→Markdown 仍需衍生权审查。
   - LinkML、Apache Ossie、ODCS 有 Apache-2.0 证据；Schema.org supporting documentation 有 CC BY-SA 3.0 证据。
-  - 基线91项中7项W3C、ODCS 3.2.0定义首页、15项arXiv、LinkML单页及Schema.org既有文档快照已完成当前revision与NOTICE包装，25项allow；其余66项仍block（当前活跃全文65项block，其中37项缺许可、28项待履约）。
+  - 基线91项中7项W3C、ODCS 3.2.0定义首页、16项arXiv、LinkML单页及Schema.org既有文档快照已完成当前revision与NOTICE包装，26项allow；其余65项仍block（当前活跃全文64项block，其中37项缺许可、27项待履约）。
 review_completion:
   evidence_review_complete_for_baseline: true
   legal_clearance_complete: false
-  can_human_review_be_completed: 证据审计已完成；54条有公众许可证据，其中25条完成当前包装，29条仍待履约；另37条须取得适用许可或新的权威许可证据。客观许可履约不默认要求另行人工批准，Agent也不代替权利人授予新许可；已定位短引按具体目的、性质、使用量与市场影响判断，不把法定例外误写成普遍许可或自动豁免。
+  can_human_review_be_completed: 证据审计已完成；54条有公众许可证据，其中26条完成当前包装，28条仍待履约；另37条须取得适用许可或新的权威许可证据。客观许可履约不默认要求另行人工批准，Agent也不代替权利人授予新许可；已定位短引按具体目的、性质、使用量与市场影响判断，不把法定例外误写成普遍许可或自动豁免。
   not_legal_advice: true
 shared_component_findings:
 - component: natbib
@@ -139,33 +139,94 @@ items:
     related_urls:
     - https://arxiv.org/abs/1606.04671v4
     - https://nips.cc/Conferences/2016/PaperInformation/StyleFiles
-    finding: 官方当前文章页为v4（2022-10-22），其文章级许可链接为CC-BY-4.0；本次未获取固定vN响应与现存revision作字节比对，不把该revision声明为已绑定v4。当前胶囊实存20个source文字成员、76,305 bytes及41个selectors；其中nips_2016.sty为10,112 bytes，自识别2016/03/07，署名Roman Garnett及nips15submit_e.sty的旧作者但未写公众再分发许可。官方2016 Style Files页面提供投稿及camera-ready格式使用说明，链接的style为August 2016修订版；本次有界检查未找到覆盖实际March版本及其修改的明确公众许可，不将后年模板或相邻论文仓库许可外推至此文件。Do not distribute出现在匿名投稿页脚模板字符串中，不作为style文件禁止再分发的法律依据。
+    finding: 官方当前文章页为v4（2022-10-22），其文章级许可链接为CC-BY-4.0；本次未获取固定vN响应与现存revision作字节比对，不把该revision声明为已绑定v4。当前胶囊实存20个source文字成员、76,305
+      bytes及41个selectors；其中nips_2016.sty为10,112 bytes，自识别2016/03/07，署名Roman Garnett及nips15submit_e.sty的旧作者但未写公众再分发许可。官方2016
+      Style Files页面提供投稿及camera-ready格式使用说明，链接的style为August 2016修订版；本次有界检查未找到覆盖实际March版本及其修改的明确公众许可，不将后年模板或相邻论文仓库许可外推至此文件。Do
+      not distribute出现在匿名投稿页脚模板字符串中，不作为style文件禁止再分发的法律依据。
     evidence_applicability: current_article_license_and_local_components_only
     supports_public_redistribution: false
-  missing:
-  - 本地三处 rights 未记录该文章许可及核验日期。
-  - retrieval hash 尚未与确切 arXiv vN 建立可审计映射。
-  - 未形成第三方组件例外清单和许可履约包。
-  - 覆盖实存nips_2016.sty（2016/03/07）及其修改的模板权利依据与相应署名/许可履约；文章CC-BY-4.0和官方投稿使用说明不能自动填补该范围。
+  - kind: fixed_arxiv_v4_and_retained_expression_correspondence
+    checked_at: '2026-09-16'
+    url: https://export.arxiv.org/e-print/1606.04671v4
+    resolved_url: https://export.arxiv.org/src/1606.04671v4
+    path: materialized_sources/corpus/arxiv-1606.04671--2b4672cf
+    finding: 本轮planner仅一次真实GET取得固定v4源响应：application/gzip、7,974,202 bytes，与既有source_revision完全一致；150个file成员中全部20个实存source共76,305
+      bytes逐字节相同，0缺失/0不同，130个成员原已省略。现有转换函数内存重算main=nips_2016.tex，normalized TeX 49,876 bytes和附注前正文41,918 bytes均同字节，41个selectors对应。progressive.tex为作者论文的Progressive
+      Networks section而非另存整份模板指南；两个bbl各5,556 bytes且相同，未见额外abstract/copyright/license字段。未实存natbib.sty或BST，不新增这些未保存组件的LPPL/dtx条件。此前bounded
+      review的版本未绑定观察作为历史保留，此次已补齐。
+    supports_public_redistribution: false
+  - kind: current_official_template_matched_expression_and_adaptation_license
+    checked_at: '2026-09-16'
+    url: https://www.overleaf.com/latex/templates/formatting-instructions-for-neurips-2026/bjdwqfdkyftc
+    license_url: https://creativecommons.org/licenses/by/4.0/
+    related_urls:
+    - https://neurips.cc/Conferences/2026/CallForPapers
+    - https://media.neurips.cc/Conferences/NeurIPS2026/Formatting_Instructions_For_NeurIPS_2026.zip
+    - https://creativecommons.org/licenses/by/4.0/legalcode.en
+    path: materialized_sources/corpus/arxiv-1606.04671--2b4672cf/source/nips_2016.sty
+    finding: 当前NeurIPS2026 Program Chairs官方模板明确CC BY4；官方CFP指向20,259-byte ZIP，neurips_2026.sty为13,704 bytes、2026-01-29。实存March2016
+      STY为10,112 bytes，全部字体、section/list/table/footnote、title/abstract及lineno/amsmath长排版表达已逐块对应当前明确许可表达，依据BY4复制/改编路径分别署名，保留Roman
+      Garnett及nips15submit_e.sty旧作者MK/drstrip原credit。旧包/内部标识、2016会议事实、短页脚、geometry参数、lineno布局、标题分支及缺少当前新增模式/宏等具体差异完整列入package.modifications，旧final
+      footer原有注释不推断修改者。不是凭2026年份外推2016，不声称历史March整STY已BY4或与当前原件同字节；匿名Do not distribute仅输出字符串而非组件法律禁令。此前模板范围未核观察作为历史保留，此次对应表达路径已补齐。
+    evidence_applicability: current_matched_template_expression_and_disclosed_adaptation_only
+    supports_public_redistribution: true
+  - kind: offline_scoped_notice_packaging_and_idempotence
+    checked_at: '2026-09-16'
+    path: materialized_sources/corpus/arxiv-1606.04671--2b4672cf
+    locator: rights.redistribution_package; NOTICE.md; normalized/document.txt footer
+    finding: 本轮复用已核固定v4内容离线包装，新GET为0；最终metadata下两次offline finalize全部28个胶囊文件字节相同。20个source、normalized TeX、41个selectors（10,041
+      bytes）及files.jsonl（3,932 bytes）与包装前HEAD逐文件同字节；原41,918-byte正文前缀完整保留，只追加唯一4,275-byte末注，最终46,193 bytes。NOTICE为20,118
+      bytes且与完整共享BY4资产同字节。八位论文作者、前三位等贡献及独立Program Chairs/原模板credit分别保留；六字段与canonical/capsule metadata和manifest对象完全一致。generated_at
+      2026-09-16T04:30:26Z为离线构建时间，不是新的网络采集日志；不称为两次真实网络重建。
+    supports_public_redistribution: true
+  missing: []
   classification: documented_permission
   license_id: CC-BY-4.0
   license_url: https://creativecommons.org/licenses/by/4.0/
-  license_scope: 覆盖该 arXiv article 中权利人有权许可的内容，不自动覆盖第三方组件、代码或数据。
+  license_scope: 本包仅覆盖固定 arXiv 1606.04671v4 实存的 20 个 source 文本（76,305 bytes）、 normalized/document.tex（49,876 bytes）、附注前的
+    41,918-byte 正文及 41 个 定位器（selectors）。论文作者可许可的正文、实验及表格文字、附录和补充 source 适用该固定 v4 作品 CC BY 4.0；nips_2016.sty（10,112
+    bytes）的独立长排版对应表达 分别依当前 NeurIPS 官方 BY4 复制/改编路径署名，并保留已披露的旧标识、会议事实、 短页脚、geometry、分支和功能差异，不将模板版权归给论文作者，不声称历史 March
+    2016 整 STY 曾获同许可或向整个 2016 模板家族外推。nips_2016.bbl 与 progressive.bbl 各 5,556 bytes、彼此同字节，均为书目引用记录，不许可所引完整作品。原已省略的
+    130 个成员（包括文本 Makefile、图像和图表 PDF）、未保存的外链作品、软件依赖 （包括仅加载而未实存的 natbib）、媒体、模型、数据、商标及专利不属于本包； 不声称保存/许可了完整 tar，定位器不改变其所定位表达的适用权利。
   license_restrictions: []
   evidence_confidence: high
-  public_redistribution_recommendation: allow_after_conditions_met
+  public_redistribution_recommendation: allow_with_packaged_notice
   conditions:
-  - 署名作者并保留标题、来源和许可链接。
-  - 标明修改且不得附加限制。
-  - 逐件排除或清理第三方组件/材料。
-  - 将许可与当前 retrieval hash 和确切 arXiv vN 绑定。
-  current_capsule_compliance: pending_license_compliance_and_revision_binding
+  - 保留八作者及前三位等贡献说明、论文和独立模板归属、来源及CC BY4链接，不暗示背书。
+  - 保留完整NOTICE、已有修改/差异说明及唯一末注，不对已许可表达附加限制。
+  - 仅适用于已绑定固定v4和当前保留包；后续payload或组件范围变化须重新核验，不能复用不匹配的许可包。
+  current_capsule_compliance: packaged_notice_and_revision_binding_verified
   publication_gate:
-    decision: block
-    reason: 官方当前v4具有文章CC-BY-4.0证据，但现存revision尚未绑定确切vN，且实存March 2016版nips_2016.sty缺覆盖实际文件及修改的公众许可依据；本轮只增补有界组件事实，不能仅附文章NOTICE放行整个胶囊，也不把投稿页脚字符串当再分发禁令。
-  human_follow_up:
-  - 人工核对本地 source archive 的 arXiv 版本。
-  - 补齐归属、许可链接/声明与第三方组件审计后再审批。
+    decision: allow
+    reason: 固定v4及全部20个实存source和作者正文已对应；旧STY长排版表达依据当前官方BY4复制/改编路径分别署名、完整披露既存差异，不虚构历史2016许可。最终六字段四方一致、完整NOTICE及唯一末注已落实，两次离线finalize幂等且原source/TeX/正文前缀/41selectors保持；仅放行当前实际保留包，不包括完整tar或未保存依赖/媒体。
+  human_follow_up: []
+  redistribution_package:
+    source_revision: sha256:a4914f9b9e6d1652a5f6de990179705cf357621ee5a089d8bd6ca728c3b192ec
+    source_version_url: https://arxiv.org/abs/1606.04671v4
+    notice_path: raw_data/licenses/cc-by-4.0.md
+    attribution: '"Progressive Neural Networks", arXiv:1606.04671v4, by Andrei A. Rusu, Neil C. Rabinowitz, Guillaume
+      Desjardins, Hubert Soyer, James Kirkpatrick, Koray Kavukcuoglu, Razvan Pascanu and Raia Hadsell, https://arxiv.org/abs/1606.04671v4,
+      CC BY 4.0: https://creativecommons.org/licenses/by/4.0/. Andrei A. Rusu、Neil C. Rabinowitz、Guillaume Desjardins
+      为原文标星的前三位等贡献作者 （These authors contributed equally to this work），不是全部八作者等贡献。 模板独立归属：NeurIPS 2026 Program Chairs,
+      "Formatting Instructions For NeurIPS 2026", https://www.overleaf.com/latex/templates/formatting-instructions-for-neurips-2026/bjdwqfdkyftc，
+      当前官方明确 CC BY 4.0；官方 CFP https://neurips.cc/Conferences/2026/CallForPapers 所链源包为 https://media.neurips.cc/Conferences/NeurIPS2026/Formatting_Instructions_For_NeurIPS_2026.zip，
+      核对日期 2026-09-16。实际保留的是 nips_2016.sty 中对应的模板表达，不冒称整件同字节 或历史出处；保留 Roman Garnett (garnett@wustl.edu) and the
+      many authors of nips15submit_e.sty, including MK and drstrip@sandia 的原归属。以上署名不暗示背书。'
+    modifications: 固定 v4 的全部 20 个 source 文本、normalized/document.tex、41 个定位器及既有 41,918-byte 正文前缀原样保留；130 个未保存成员是既有物化范围，本次不新删内容。
+      仅 normalized/document.txt 末尾追加唯一署名、修改、范围附注与 NOTICE.md 链接， NOTICE.md 复制完整 BY4 法律资产，README 与 manifest 同步包装记录。
+      相对于当前明确授权的 neurips_2026.sty，实存样式保留 NIPS 名称、March 2016 与 2016/03/07 包标识、nips_2016 包名及内部 nips/final/caption-length
+      等旧标识； 会议事实为 29th/2016/Barcelona, Spain，而非当前 40th/2026/Sydney。 source/nips_2016.sty 第 49–50 行 final conference
+      页脚原已注释，未知修改者不作推断； 旧匿名投稿短页脚措辞保留。第 94–99 行直接加载 letterpaper、textheight=9in、 textwidth=5.5in、top=1in 的 geometry，而当前用
+      verbose/letterpaper、 AtBeginDocument/newgeometry 和 headheight/headsep/footskip/fullpage guard。 旧 lineno/amsmath
+      兼容长段前置、当前后置，缩进及括号布局不同；旧标题分支 if@nipsfinal 为真时显示作者、否则匿名，当前 if@anonymous 为真时匿名、否则显示作者， 两段长表达对应但顺序/条件适配。旧件没有当前
+      preprint、main/position/eandd/creativeai/education、单/双盲 workshop、nonanonymous 模式、ack/environ/hiding、最低字号覆盖、checklist
+      回答宏， final 选项亦没有当前的 anonymousfalse 设置。全部字体、section、list、table、 footnote、title/abstract 与 lineno/amsmath 长排版表达已逐块对应；这些既存差异
+      依当前 BY4 复制/改编路径准确披露，不虚构历史 2016 许可、历史整件字节一致、 旧件来自 2026 原包或修改者身份，本次不修改 STY。
+    scope: 本包仅覆盖固定 arXiv 1606.04671v4 实存的 20 个 source 文本（76,305 bytes）、 normalized/document.tex（49,876 bytes）、附注前的
+      41,918-byte 正文及 41 个 定位器（selectors）。论文作者可许可的正文、实验及表格文字、附录和补充 source 适用该固定 v4 作品 CC BY 4.0；nips_2016.sty（10,112
+      bytes）的独立长排版对应表达 分别依当前 NeurIPS 官方 BY4 复制/改编路径署名，并保留已披露的旧标识、会议事实、 短页脚、geometry、分支和功能差异，不将模板版权归给论文作者，不声称历史 March
+      2016 整 STY 曾获同许可或向整个 2016 模板家族外推。nips_2016.bbl 与 progressive.bbl 各 5,556 bytes、彼此同字节，均为书目引用记录，不许可所引完整作品。原已省略的
+      130 个成员（包括文本 Makefile、图像和图表 PDF）、未保存的外链作品、软件依赖 （包括仅加载而未实存的 natbib）、媒体、模型、数据、商标及专利不属于本包； 不声称保存/许可了完整 tar，定位器不改变其所定位表达的适用权利。
 - sequence: 2
   uid: arxiv-1705.05742
   source_type: arxiv
@@ -1739,7 +1800,8 @@ items:
   - kind: source_metadata
     path: 'raw_data/arxiv/RARR: Researching and Revising What Language Models Say, Using Language Models/metadata.yaml'
     locator: rights
-    finding: access=metadata_only; license_spdx=None; license_verified_at=None; notes=The repository stores metadata and source links; paper licensing must be checked during materialization.
+    finding: access=metadata_only; license_spdx=None; license_verified_at=None; notes=The repository stores metadata
+      and source links; paper licensing must be checked during materialization.
     supports_public_redistribution: false
   - kind: local_content_rights_scan
     path: materialized_sources/corpus/arxiv-2210.08726--8e79abf3
@@ -1756,7 +1818,8 @@ items:
     checked_at: '2026-09-16'
     url: https://export.arxiv.org/e-print/2210.08726v3
     path: materialized_sources/corpus/arxiv-2210.08726--8e79abf3
-    finding: 固定v3实际源响应988,552 bytes，与现存source_revision完全一致；41个tar成员中33个实存source文字成员共214,711 bytes全部同字节，merged TeX和115,974-byte plain正文及101个selectors绑定。8个未保存媒体不在当前文字包范围。该身份比对本身不授予公众权利。
+    finding: 固定v3实际源响应988,552 bytes，与现存source_revision完全一致；41个tar成员中33个实存source文字成员共214,711 bytes全部同字节，merged TeX和115,974-byte
+      plain正文及101个selectors绑定。8个未保存媒体不在当前文字包范围。该身份比对本身不授予公众权利。
     supports_public_redistribution: false
   - kind: alternate_acl_publication_correspondence
     checked_at: '2026-09-16'
@@ -1767,40 +1830,166 @@ items:
     - https://aclanthology.org/2023.acl-long.910.pdf
     - https://aclanthology.org/faq/copyright/
     path: materialized_sources/corpus/arxiv-2210.08726--8e79abf3
-    finding: 正式ACL2023 DOI10.18653/v1/2023.acl-long.910，PDF1,298,539 bytes、32页16477–16508；题名及十一作者对应，PDF署名Vincent Y. Zhao。主文、7_appendix中的附录A/B/D/E、7a_human_eval对应正式附录C（PDF16–20页），fig_prompts的28个实质evidence行也见于正式PDF。ACL作品级BY4政策覆盖这些已对应的作者出版表达，不因arXiv网页摘要的局部差异否定实存abstract.tex，也不将全部tar或被引用第三方表达重新授权。
+    finding: 正式ACL2023 DOI10.18653/v1/2023.acl-long.910，PDF1,298,539 bytes、32页16477–16508；题名及十一作者对应，PDF署名Vincent
+      Y. Zhao。主文、7_appendix中的附录A/B/D/E、7a_human_eval对应正式附录C（PDF16–20页），fig_prompts的28个实质evidence行也见于正式PDF。ACL作品级BY4政策覆盖这些已对应的作者出版表达，不因arXiv网页摘要的局部差异否定实存abstract.tex，也不将全部tar或被引用第三方表达重新授权。
     evidence_applicability: matched_author_publication_expression_only
     supports_public_redistribution: true
   - kind: retained_third_party_excerpt_and_component_review
     checked_at: '2026-09-16'
     path: materialized_sources/corpus/arxiv-2210.08726--8e79abf3/source
-    locator: fig_interesting_examples.tex:8,13,19,25,33; fig_example_prompts.tex:20; fig_prompts.tex:62,68,125,237,244,302,309; 7a_human_eval.tex:98–130,147,167–191; acl2023.sty; acl_natbib.bst
+    locator: fig_interesting_examples.tex:8,13,19,25,33; fig_example_prompts.tex:20; fig_prompts.tex:62,68,125,237,244,302,309;
+      7a_human_eval.tex:98–130,147,167–191; acl2023.sty; acl_natbib.bst
     related_urls:
     - https://www.overleaf.com/latex/templates/instructions-for-emnlp-2023-proceedings/scyjxmtnrskr
     - https://aclanthology.org/faq/copyright/
-    finding: 实存具体第三方表达包括Wikipedia/Britannica/SecondHandSongs/MeTV/Refinery29例段、47-word鼻周期新闻、Little House等重复evidence及其他11类、Reba/South Carolina、NPR短引、Addams/Sagrada中的Wikipedia及旅游表达。需对这个有限集合分别核定独立许可或具体科学研究引用依据，不把所有短事实句当作许可缺失，也不要求逐句原创。11,221-byte acl2023.sty与已核官方EMNLP2023路径的WikiChat 11,225-byte STY只有两个EMNLP→ACL标签差异；当前官方Overleaf BY4改编路径可用，差异仍须披露并包装。47,709-byte BST与WikiChat完全同字节，LPPL须独立履约。正文出版对应不替代这些额外范围条件。
+    finding: 实存具体第三方表达包括Wikipedia/Britannica/SecondHandSongs/MeTV/Refinery29例段、47-word鼻周期新闻、Little House等重复evidence及其他11类、Reba/South
+      Carolina、NPR短引、Addams/Sagrada中的Wikipedia及旅游表达。需对这个有限集合分别核定独立许可或具体科学研究引用依据，不把所有短事实句当作许可缺失，也不要求逐句原创。11,221-byte
+      acl2023.sty与已核官方EMNLP2023路径的WikiChat 11,225-byte STY只有两个EMNLP→ACL标签差异；当前官方Overleaf BY4改编路径可用，差异仍须披露并包装。47,709-byte
+      BST与WikiChat完全同字节，LPPL须独立履约。正文出版对应不替代这些额外范围条件。
     supports_public_redistribution: false
+  - kind: confirmed_wikipedia_and_mariowiki_component_licenses
+    checked_at: '2026-09-16'
+    path: materialized_sources/corpus/arxiv-2210.08726--8e79abf3/source
+    locator: fig_prompts.tex:86,149,265,323,279; fig_interesting_examples.tex:8; 7a_human_eval.tex:109,134,164,181–182
+    related_urls:
+    - https://en.wikipedia.org/wiki/Havel%E2%80%93Hakimi_algorithm
+    - https://en.wikipedia.org/wiki/If_She_Knew_What_She_Wants
+    - https://en.wikipedia.org/wiki/Back_to_God
+    - https://en.wikipedia.org/wiki/2017_NCAA_Division_I_women%27s_basketball_tournament
+    - https://en.wikipedia.org/wiki/The_Addams_Family_(1973_TV_series)
+    - https://en.wikipedia.org/wiki/Sagrada_Fam%C3%ADlia
+    - https://meta.wikimedia.org/wiki/Terms_of_use/Creative_Commons_4.0/Legal_note
+    - https://www.mariowiki.com/F.L.U.D.D.
+    - https://www.mariowiki.com/MarioWiki:Copyrights
+    finding: 六页Wikipedia的实际对应节选/既有改写及当前BYSA4页脚已核，分别以Wikipedia contributors和页面URL署名，采用官方3→4升级路径，不虚构oldid或采集日期，不称当前全文字节副本。F.L.U.D.D.约48词节选另以MarioWiki
+      contributors及文章URL署名；其官方版权政策对2026-02-27以前贡献采用BYSA3 Unported，当前包独立选择BYSA3，不把后年BYSA4冒充2023历史许可。体育新闻L119/132、Addams1964电视史L166和未匹配的募款句不在这六页已核范围；这里只支持已识别组件，不将独立论文或全部第三方表达重新许可。最终包已分别保存这些归属与完整适用法条。
+    evidence_applicability: identified_wiki_components_only
+    supports_public_redistribution: true
+  - kind: specific_short_excerpt_attribution_and_unresolved_expression_review
+    checked_at: '2026-09-16'
+    path: materialized_sources/corpus/arxiv-2210.08726--8e79abf3/source
+    locator: fig_prompts.tex:62,68,74,80,92,98,104,125,131,137,143,155,161,237,244,251,258,272,302,309,316,330,337;
+      fig_example_prompts.tex:20; fig_interesting_examples.tex:13,19,25,33; fig_compare_outputs.tex:32–35; 7a_human_eval.tex:119,132,147,166,184–185,227,229
+    related_urls:
+    - https://www.livescience.com/breathing-nose-sides
+    - https://www.theguardian.com/uk-news/2021/jan/09/kelvin-hopkins-quits-labour-before-conclusion-of-sexual-harassment-inquiry
+    - https://www.npr.org/about-npr/688139552/accuracy
+    - https://www.copyright.gov/fair-use/
+    finding: 鼻周期约47词对应Tyler Santora/Live Science/2021-09-18，Kelvin Hopkins前约47词对应PA Media/Guardian/2021-01-09（末尾model
+      phrase不归PA），NPR约18词省略号短引紧邻准确代表信息的方法讨论；这些确切归属已保留，但归属不等于显式转载许可。Little House约41空白tokens（约40实词）宣传段在L68/244/309重复，原URL未保存、当前候选页不含同段，可能接近宣传核心，不能仅凭词数小放行。其余Social
+      Work、Stanford、Lexington、Phoenix两段、募款句、旅游33词两句及部分domain-only/Reading评估/体育/电视史存在具体出处精度或引用情境不确定性，已按RARR所引Figure/Table/Appendix注明而不虚构作者或原采集URL。11个独立prompt短片段共有28行重复，应综合具体目的、性质、使用量及市场影响；不把普通事实/元数据都当作需独立授权的表达，也不将模型输出当然视为原创。当前未证明全部剩余实际表达适用于公开知识库持久分发；不是法律禁令，也不从GraphRAG个案推定全库风险接受。
+    supports_public_redistribution: false
+  - kind: offline_scoped_component_notice_packaging_completed
+    checked_at: '2026-09-16'
+    path: materialized_sources/corpus/arxiv-2210.08726--8e79abf3
+    locator: rights.redistribution_package; NOTICE.md; normalized/document.txt footer
+    finding: 最终六字段与canonical/capsule metadata和manifest对象逐字一致，按正式ACL .910及DOI署名十一作者、©2023ACL；论文及模板BY4、两处会议label改编、BST独立LPPL1-or-later选择1.3c、六页Wikipedia
+      BYSA4、MarioWiki BYSA3分别限定归属，新闻/NPR与原URL未知短引保留具体来源和未决说明。完整组合asset/NOTICE为92,408 bytes，四种法条原块复用且同字节。现有API两次离线finalize使用固定generated_at
+      2026-09-16T04:30:26Z，第二次全部41文件字节相同；33source共214,711 bytes、normalized TeX 134,942 bytes、原115,974-byte正文前缀、101selectors及files保持，旧retrieval/revision和8项省略不变，仅加NOTICE和唯一末注。该stamp是构建字段，不是新网络采集证明；assumed=false与包装完成不等于审计allow，publication
+      block仍在scope中明确保留。
+    evidence_applicability: completed_scoped_license_layers_not_whole_package_clearance
+    supports_public_redistribution: true
   missing:
-  - 已定位有限集合的第三方摘录适用许可或具体科学研究引用依据；已发表并不自动使独立摘录适用作者BY4。
-  - ACL2023 STY的当前公众许可/改编范围、两处标签差异披露及独立BST LPPL条件的实际包装。
-  - canonical/capsule metadata、manifest及当前包的十一作者归属、许可、转换说明和NOTICE尚未落实。
+  - Little House在fig_prompts.tex:68/244/309的约41-token宣传段原URL和完整原段未闭合，可能触及宣传核心；针对当前持久公开分发情境的具体适用许可或引用依据仍未充分核定。
+  - 其余已定位独立短摘录的具体出处/适用情境仍有有限不确定性，包含Social Work、Stanford、Lexington、Phoenix、募款句、旅游和部分domain-only/Reading/体育/电视史例段；不把普通事实句或metadata一概列为缺许可，已知新闻/NPR归属也不被冒充显式许可或普遍fair-use豁免。
   classification: documented_permission
   license_id: CC-BY-4.0
   license_url: https://creativecommons.org/licenses/by/4.0/
-  license_scope: 覆盖与ACL2023正式作品已对应的作者主文及附录表达；不自动覆盖被引用第三方摘录、独立模板组件或八个未保存媒体。
+  license_scope: 许可按组件（component）限定：固定v3作者/ACL可许可的主文及附录A–E表达与所列模板表达适用CC BY4；原样BST独立选择LPPL1.3c；六个明确列出的Wikipedia页面表达/既有改写及selector节选独立BY-SA4；MarioWiki
+    FLUDD文字及selector节选独立BY-SA3，不把ShareAlike扩张到独立论文或整个repo。其他研究样例不被BY4重许可。公开发布仍阻断（publication block）：Little House约41词宣传可能为原作品核心且原URL未保留；Social
+    Work、Stanford、Lexington、Phoenix Mills/Market City、2010募款歌句、旅游33词、部分domain-only与Reading/电视史/体育样例的原出处或分发依据未闭合。只记录有限研究/批评目的、事实性已发表材料、短片段及非替代性可能支持美国情境合理使用（fair
+    use）的因素；fig_prompts的11个独立证据表达在28行重复也计入使用量，不设字数安全港、不宣称司法结论、权利人授权或用户已接受风险。旅游7a_human_eval.tex第184行的33词第三方表达与第185行作者17词方法推论分开；募款歌句未核为候选Wikipedia页面来源；不把相邻Wiki归属扩至新闻句或1964–1966电视史。未授权省略媒体、外链全文、程序/模型/数据包、商标、专利或Nintendo材料；包装声明条款与具体未决范围，本身不是发布批准。
   license_restrictions: []
   evidence_confidence: high
   public_redistribution_recommendation: allow_after_conditions_met
   conditions:
-  - 以已绑定v3和正式出版表达记录十一作者（依PDF署名）、题名、DOI/来源及CC BY4链接，标明转换修改且不附加限制。
-  - 针对已定位摘录的有限集合核定适用依据，并分别落实STY BY4改编归属/差异与BST LPPL条件。
-  - 经现有许可包装机制落实当前固定包NOTICE及声明一致性后，才可改变publication gate；本轮不删改源表达。
-  current_capsule_compliance: pending_third_party_excerpt_scope_and_license_packaging
+  - 持续保留已完成论文/模板BY4、BST LPPL、六页Wikipedia BYSA4及MarioWiki BYSA3的分别归属、完整条款和转换/差异说明；不将独立作品重新许可。
+  - 只对上述具体剩余表达核定其原出处、适用许可或与当前研究例证及持久分发情境相符的具体引用依据，综合重复数量及市场影响；不新增逐句原创证明或普遍人工approval。
+  - 在这些实质未决范围闭合前保持publication block，不以assumed=false、NOTICE存在或有限个案风险决策代替整包权利条件；原source/正文/定位器保留。
+  current_capsule_compliance: scoped_notice_packaged_pending_specific_excerpt_clearance
   publication_gate:
     decision: block
-    reason: 固定v3及正式ACL主文/全部附录作者出版表达BY4路径已闭合；当前block落在已识别第三方摘录有限集合的独立依据、STY改编差异/BST条件及四方metadata与NOTICE包装，而非泛称主文许可或版本未证。短事实句不自动成为缺口，未保存媒体不新增门槛。
+    reason: 固定v3及作者正式ACL正文/附录BY4路径、实际模板两处label改编/BST LPPL和六页Wikipedia/MarioWiki分层NOTICE现已落实，六字段四方一致且两次离线finalize幂等；不再泛称版本、整个模板或包装未完成。仍未决的是Little
+      House约41-token宣传核心/原URL缺失，以及上述具体短摘录的出处精度和公开持久分发引用情境，普通事实句不自动缺授权，新闻/NPR署名不等于显式许可。当前包保持block，不将GraphRAG个案外推全库fair-use风险接受。
   human_follow_up:
-  - 只对已定位摘录及组件补足具体依据和客观履约，不要求所有句子原创证明、作者另函或人工approval。
-  - 当前包全部适用条件落实前保持block，保留论文、源文件及既存定位器，不把已证作者正文BY4误记为无公众许可。
+  - 针对已定位剩余实际表达补核具体出处及适用依据，保留其研究情境和来源精度不确定性；本次已履约许可层不重复设为待办，不自行删除或改写表达。
+  redistribution_package:
+    source_revision: sha256:7cc1715f63dfe9bdf62eeb456a02965794f4c8defd60291dbc406555bd1c4c70
+    source_version_url: https://arxiv.org/abs/2210.08726v3
+    notice_path: raw_data/licenses/rarr-v3-acl-cc-by-4.0-wikipedia-cc-by-sa-4.0-mariowiki-cc-by-sa-3.0-lppl-1.3c.md
+    attribution: 'Paper attribution: Luyu Gao, Zhuyun Dai, Panupong Pasupat, Anthony Chen, Arun Tejasvi Chaganty,
+      Yicheng Fan, Vincent Y. Zhao, Ni Lao, Hongrae Lee, Da-Cheng Juan and Kelvin Guu, "RARR: Researching and Revising
+      What Language Models Say, Using Language Models" (ACL 2023), https://aclanthology.org/2023.acl-long.910/,
+      DOI https://doi.org/10.18653/v1/2023.acl-long.910. The retained fixed arXiv v3 https://arxiv.org/abs/2210.08726v3
+      corresponds to the ACL-published main text and appendices A-E. Copyright ©2023 Association for Computational
+      Linguistics. Author/ACL-licensable paper expression is under Creative Commons Attribution 4.0 International,
+      https://creativecommons.org/licenses/by/4.0/; publisher policy https://aclanthology.org/faq/copyright/. This
+      is the ACL publication license path, not a public sublicense from arXiv''s non-exclusive distribution terms,
+      and excludes independently sourced third-party expression.
+
+      EMNLP template attribution: Houda Bouamor, Juan Pino and Kalika Bali, "Instructions for EMNLP 2023 Proceedings",
+      https://www.overleaf.com/latex/templates/instructions-for-emnlp-2023-proceedings/scyjxmtnrskr, CC BY 4.0,
+      https://creativecommons.org/licenses/by/4.0/. Official style page: https://2023.emnlp.org/calls/style-and-formatting/;
+      source ZIP: https://2023.emnlp.org/downloads/emnlp2023-latex.zip. Retained acl2023.sty corresponds to the
+      official emnlp2023.sty expression except the existing EMNLP-to-ACL conference and anonymous-submission labels
+      at lines 27 and 150. These existing label changes are retained; the repository did not make them. The BST''s
+      independent LPPL terms are not replaced by CC BY.
+
+      BST attribution: acl_natbib.bst is retained unchanged with its original header and "% urlbst" modification
+      marks. Copyright 1994-2002 Patrick W Daly; compling.bst created by Ron Artstein (2005-08-22); ACL changes
+      credited to Dan Gildea (2017-06-08, 2019-04-12) and Shay Cohen (2018-02-16); generated urlbst changes Copyright
+      2002-2023 Norman Gray. The file permits LPPL version 1 or any later version; this package selects LPPL 1.3c,
+      https://www.latex-project.org/lppl/lppl-1-3c.txt. Correspondence: https://2023.emnlp.org/downloads/emnlp2023-latex.zip
+      and https://github.com/acl-org/acl-style-files/blob/4c318538c99ce2d91201a3b43cfc12ef513e374b/acl_natbib.bst;
+      urlbst LPPL source: https://ctan.org/tex-archive/biblio/bibtex/contrib/urlbst. No urlbst script is retained;
+      no Current Maintainer or endorsement is claimed.
+
+      Wikipedia contributors, "Havel–Hakimi algorithm", https://en.wikipedia.org/wiki/Havel%E2%80%93Hakimi_algorithm
+      — fig_prompts.tex lines 86, 149, 265 and 323.
+
+      Wikipedia contributors, "If She Knew What She Wants", https://en.wikipedia.org/wiki/If_She_Knew_What_She_Wants
+      — fig_interesting_examples.tex line 8.
+
+      Wikipedia contributors, "Back to God", https://en.wikipedia.org/wiki/Back_to_God — 7a_human_eval.tex line
+      109.
+
+      Wikipedia contributors, "2017 NCAA Division I women''s basketball tournament", https://en.wikipedia.org/wiki/2017_NCAA_Division_I_women%27s_basketball_tournament
+      — 7a_human_eval.tex line 134 only; lines 119 and 132 are separate news expressions.
+
+      Wikipedia contributors, "The Addams Family (1973 TV series)", https://en.wikipedia.org/wiki/The_Addams_Family_(1973_TV_series)
+      — 7a_human_eval.tex line 164 only; the 1964-1966 passage at line 166 is not attributed to this page.
+
+      Wikipedia contributors, "Sagrada Família", https://en.wikipedia.org/wiki/Sagrada_Fam%C3%ADlia — 7a_human_eval.tex
+      lines 181-182.
+
+      The listed Wikipedia expressions, existing adaptations and corresponding selector excerpts are shared independently
+      under CC BY-SA 4.0, https://creativecommons.org/licenses/by-sa/4.0/. Corresponding current expressions and
+      page license notices were checked; no whole-article byte identity, original collection date or exact historical
+      page revision is claimed. Historical adaptation path: https://meta.wikimedia.org/wiki/Terms_of_use/Creative_Commons_4.0/Legal_note;
+      reuse terms: https://foundation.wikimedia.org/wiki/Policy:Terms_of_Use.
+
+      MarioWiki contributors, "F.L.U.D.D.", https://www.mariowiki.com/F.L.U.D.D. — fig_prompts.tex line 279, the
+      retained 48-word introduction and corresponding selector excerpt, CC BY-SA 3.0 Unported, https://creativecommons.org/licenses/by-sa/3.0/.
+      The official policy https://www.mariowiki.com/MarioWiki:Copyrights identifies contributions before 2026-02-27
+      as BY-SA 3.0; this package selects that path, not a retroactive 4.0 claim. Existing excerpting, formatting
+      and name variants are retained. This covers Wiki-authored text, not Nintendo images or game materials.
+
+      Other research quotations are not relicensed: Tyler Santora, Live Science (2021-09-18), https://www.livescience.com/breathing-nose-sides,
+      the approximately 47-word nasal-cycle excerpt in fig_prompts.tex and fig_example_prompts.tex line 20; PA Media,
+      The Guardian (2021-01-09), https://www.theguardian.com/uk-news/2021/jan/09/kelvin-hopkins-quits-labour-before-conclusion-of-sexual-harassment-inquiry,
+      approximately the first 47 words at fig_prompts.tex line 98, excluding the following model phrase "This agrees";
+      NPR, "Accuracy", https://www.npr.org/about-npr/688139552/accuracy, the approximately 18-word ellipsis quotation
+      in 7a_human_eval.tex line 147. Other original collection URLs not supplied in the retained source are identified
+      as quotations as reproduced in Gao et al., RARR (ACL 2023), not as authorized or original model output.
+
+      '
+    modifications: 本次包装不修改全部33个实存 source 文件、normalized/document.tex、原115,974-byte normalized/document.txt 正文前缀、101个
+      selectors 或 files.jsonl。既有 TeX-to-plain-text 提取已展开 include、减少宏/注释/格式；论文既有摘录、转述、遗漏、模型条件表达和名称变体保持不变，不虚构其修改者。acl2023.sty
+      既有两处 EMNLP→ACL 标签差异保留；acl_natbib.bst 及原许可头注原样保留。只追加此归属、分组件范围、修改及未决短引声明，并写入对应 NOTICE；不伪造原始获取日、oldid 或历史 retrieval。
+    scope: 许可按组件（component）限定：固定v3作者/ACL可许可的主文及附录A–E表达与所列模板表达适用CC BY4；原样BST独立选择LPPL1.3c；六个明确列出的Wikipedia页面表达/既有改写及selector节选独立BY-SA4；MarioWiki
+      FLUDD文字及selector节选独立BY-SA3，不把ShareAlike扩张到独立论文或整个repo。其他研究样例不被BY4重许可。公开发布仍阻断（publication block）：Little House约41词宣传可能为原作品核心且原URL未保留；Social
+      Work、Stanford、Lexington、Phoenix Mills/Market City、2010募款歌句、旅游33词、部分domain-only与Reading/电视史/体育样例的原出处或分发依据未闭合。只记录有限研究/批评目的、事实性已发表材料、短片段及非替代性可能支持美国情境合理使用（fair
+      use）的因素；fig_prompts的11个独立证据表达在28行重复也计入使用量，不设字数安全港、不宣称司法结论、权利人授权或用户已接受风险。旅游7a_human_eval.tex第184行的33词第三方表达与第185行作者17词方法推论分开；募款歌句未核为候选Wikipedia页面来源；不把相邻Wiki归属扩至新闻句或1964–1966电视史。未授权省略媒体、外链全文、程序/模型/数据包、商标、专利或Nintendo材料；包装声明条款与具体未决范围，本身不是发布批准。
 - sequence: 24
   uid: arxiv:2210.11610
   source_type: arxiv
