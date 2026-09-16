@@ -77,7 +77,7 @@ coverage_summary:
 
 使用与CI一致的Python 3.12.13／pypdf 6.18.1运行 `make demo && make test && make validate && make reproducibility`：106项测试通过；215份manifest、2,874个文件、22,069个selector检查无错误；46篇文档、80个相对链接检查通过。最终build为 `build:llm-wiki-v0:6b16cc1e2adf538b`；committed-tree、full-demo、compiler-only、read-only-validation四轮的169个生成文件均字节一致。
 
-RO-Crate胶囊共12文件（其中inventory计11件非manifest文件），1,681,687 bytes；派生正文5,584行／303,853字符、155个章节selector。固定原件离线重放不重新获取、不清空目录；原件和四图保持下载字节。36个selected、72条claim、72条evidence的各自文件与BASE字节一致，既有91条rights对象不变。
+RO-Crate胶囊共12文件；inventory计11件非manifest文件，`local_bytes=1,681,687`，含manifest的12件实际合计1,692,854 bytes。派生正文5,584行／303,853字符、155个章节selector。固定原件离线重放不重新获取、不清空目录；原件和四图保持下载字节。36个selected、72条claim、72条evidence的各自文件与BASE字节一致，既有91条rights对象不变。
 
 隔离Git候选索引导出（candidate index export）检验在禁用网络获取与目录清空的条件下重放同一胶囊，并逐字节比较12个文件；原Markdown、原HTML、派生Markdown的四张本地图均可解析。这个检查只证明候选Git树具备离线消费能力，不冒称remote clone或main fresh checkout；P5仍待执行。
 
