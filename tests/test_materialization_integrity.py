@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 import contextlib
+import gzip
 import hashlib
 import io
+import json
 import sys
+import tarfile
 import tempfile
 import unittest
 from pathlib import Path
@@ -18,7 +21,124 @@ import materialize_all_sources as materializer
 import validate_materialization_completeness as validator
 
 
+def minimal_pdf_pages(texts: list[str]) -> bytes:
+    """Build a small text PDF fixture without adding a test-only dependency."""
+
+    page_ids = list(range(3, 3 + len(texts)))
+    font_id = 3 + len(texts)
+    content_ids = list(range(font_id + 1, font_id + 1 + len(texts)))
+    kids = " ".join(f"{page_id} 0 R" for page_id in page_ids).encode("ascii")
+    objects = [
+        b"<< /Type /Catalog /Pages 2 0 R >>",
+        b"<< /Type /Pages /Kids [" + kids + b"] /Count " + str(len(texts)).encode("ascii") + b" >>",
+    ]
+    for content_id in content_ids:
+        objects.append(
+            b"<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] "
+            + f"/Resources << /Font << /F1 {font_id} 0 R >> >> /Contents {content_id} 0 R >>".encode("ascii")
+        )
+    objects.append(b"<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>")
+    for text in texts:
+        escaped = text.replace("\\", "\\\\").replace("(", "\\(").replace(")", "\\)")
+        stream = f"BT\n/F1 12 Tf\n72 720 Td\n({escaped}) Tj\nET\n".encode("ascii")
+        objects.append(
+            b"<< /Length " + str(len(stream)).encode("ascii") + b" >>\nstream\n" + stream + b"endstream"
+        )
+    payload = bytearray(b"%PDF-1.4\n%\xe2\xe3\xcf\xd3\n")
+    offsets = [0]
+    for number, value in enumerate(objects, 1):
+        offsets.append(len(payload))
+        payload.extend(f"{number} 0 obj\n".encode("ascii"))
+        payload.extend(value)
+        payload.extend(b"\nendobj\n")
+    xref_offset = len(payload)
+    payload.extend(f"xref\n0 {len(objects) + 1}\n".encode("ascii"))
+    payload.extend(b"0000000000 65535 f \n")
+    for offset in offsets[1:]:
+        payload.extend(f"{offset:010d} 00000 n \n".encode("ascii"))
+    payload.extend(
+        f"trailer\n<< /Size {len(objects) + 1} /Root 1 0 R >>\n"
+        f"startxref\n{xref_offset}\n%%EOF\n".encode("ascii")
+    )
+    return bytes(payload)
+
+
+def minimal_text_pdf(text: str = "Readable arXiv PDF regression evidence for the materializer.") -> bytes:
+    return minimal_pdf_pages([text])
+
+
 class MaterializerBoundaryTests(unittest.TestCase):
+    def _run_arxiv(
+        self,
+        payload: bytes,
+        content_type: str,
+        *,
+        source_version: str | None = None,
+        first_invalid: tuple[bytes, str] | None = None,
+        extract_result: tuple[str, list[dict[str, object]], int] | None = None,
+    ) -> tuple[tempfile.TemporaryDirectory[str], Path, Path, dict[str, object], list[str]]:
+        temporary = tempfile.TemporaryDirectory()
+        root = Path(temporary.name)
+        metadata_path = root / "raw_data" / "arxiv" / "example" / "metadata.yaml"
+        metadata_path.parent.mkdir(parents=True)
+        metadata = {
+            "uid": "arxiv:1234.5678",
+            "title": "Example",
+            "url": "https://arxiv.org/abs/1234.5678",
+            "versioning": {"source_version": source_version},
+        }
+        metadata_path.write_text(yaml.safe_dump(metadata), encoding="utf-8")
+        record = materializer.SourceRecord(
+            uid="arxiv:1234.5678",
+            source_type="arxiv",
+            canonical_id="1234.5678",
+            title="Example",
+            canonical_url="https://arxiv.org/abs/1234.5678",
+            metadata_path=metadata_path,
+            metadata=metadata,
+            priority="P0",
+            rights_access="unknown",
+        )
+        requested: list[str] = []
+        eprint_calls = 0
+
+        def fetch(url: str, **_: object) -> tuple[bytes, str, dict[str, str]]:
+            nonlocal eprint_calls
+            requested.append(url)
+            if "/e-print/" in url:
+                eprint_calls += 1
+                if first_invalid is not None and eprint_calls == 1:
+                    invalid_payload, invalid_type = first_invalid
+                    return invalid_payload, url, {"content-type": invalid_type}
+                return payload, url, {"content-type": content_type}
+            return (
+                b"Bounded abstract fallback evidence, not the complete paper.\n",
+                url,
+                {"content-type": "text/plain"},
+            )
+
+        with contextlib.ExitStack() as stack:
+            stack.enter_context(
+                mock.patch.multiple(
+                    materializer,
+                    ROOT=root,
+                    MATERIALIZED_ROOT=root / "materialized_sources",
+                    CORPUS_ROOT=root / "materialized_sources" / "corpus",
+                )
+            )
+            stack.enter_context(mock.patch.object(materializer, "fetch_bytes", side_effect=fetch))
+            if extract_result is not None:
+                stack.enter_context(
+                    mock.patch.object(materializer, "extract_pdf_text", return_value=extract_result)
+                )
+            manifest = materializer.materialize_arxiv(
+                record,
+                {"restricted_excerpt_chars": 1500, "generic_max_candidate_urls": 1},
+                "2026-09-16T00:00:00Z",
+            )
+            capsule = record.capsule_root
+        return temporary, root, capsule, manifest, requested
+
     def test_reviewed_notice_survives_rebuild_without_shifting_source_text(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
@@ -173,6 +293,147 @@ class MaterializerBoundaryTests(unittest.TestCase):
             self.assertIn("fallback evidence, not full text", reason)
             self.assertIn(reason, manifest["warnings"])
 
+    def test_arxiv_raw_pdf_uses_fixed_version_and_page_selectors(self) -> None:
+        pdf = minimal_text_pdf()
+        temporary, _, capsule, manifest, requested = self._run_arxiv(
+            pdf, "text/html", source_version="v2"
+        )
+        with temporary:
+            pdf_hash = hashlib.sha256(pdf).hexdigest()
+            self.assertEqual(requested[0], "https://export.arxiv.org/e-print/1234.5678v2")
+            self.assertEqual(manifest["adapter"], "arxiv_pdf_v1")
+            self.assertEqual(manifest["archive_container"], "pdf")
+            self.assertEqual(manifest["media_type"], "application/pdf")
+            self.assertEqual(manifest["revision"], f"sha256:{pdf_hash}")
+            self.assertEqual(manifest["status"], "materialized")
+            self.assertEqual(manifest["content_tier"], "full_text")
+            self.assertEqual((capsule / "source/document.pdf").read_bytes(), pdf)
+            self.assertIn("Readable arXiv PDF regression evidence", (capsule / "document.txt").read_text())
+            selectors = [json.loads(line) for line in (capsule / "selectors.jsonl").read_text().splitlines()]
+            self.assertEqual(len(selectors), 1)
+            self.assertTrue(selectors[0]["selector"].startswith(f"pdf://sha256-{pdf_hash[:16]}#page=1"))
+
+    def test_arxiv_gzip_pdf_keeps_transport_revision_and_pdf_selector_hash(self) -> None:
+        pdf = minimal_text_pdf()
+        response = gzip.compress(pdf, mtime=0)
+        temporary, _, capsule, manifest, _ = self._run_arxiv(response, "application/gzip")
+        with temporary:
+            response_hash = hashlib.sha256(response).hexdigest()
+            pdf_hash = hashlib.sha256(pdf).hexdigest()
+            self.assertEqual(manifest["archive_container"], "gzip-pdf")
+            self.assertEqual(manifest["revision"], f"sha256:{response_hash}")
+            self.assertEqual(manifest["materialization"]["source_pdf_sha256"], pdf_hash)
+            self.assertEqual((capsule / "source/document.pdf").read_bytes(), pdf)
+            selector = json.loads((capsule / "selectors.jsonl").read_text().splitlines()[0])
+            self.assertTrue(selector["selector"].startswith(f"pdf://sha256-{pdf_hash[:16]}#page=1"))
+
+    def test_arxiv_single_tex_and_gzip_single_tex_still_materialize(self) -> None:
+        tex = b"\\documentclass{article}\n\\begin{document}\nSource text.\n\\end{document}\n"
+        archive_buffer = io.BytesIO()
+        with tarfile.open(fileobj=archive_buffer, mode="w") as archive:
+            member = tarfile.TarInfo("main.tex")
+            member.size = len(tex)
+            archive.addfile(member, io.BytesIO(tex))
+        for payload, content_type, container in (
+            (tex, "application/x-tex", "single"),
+            (gzip.compress(tex, mtime=0), "application/gzip", "gzip-single"),
+            (archive_buffer.getvalue(), "application/x-tar", "tar"),
+        ):
+            with self.subTest(container=container):
+                temporary, _, capsule, manifest, _ = self._run_arxiv(payload, content_type)
+                with temporary:
+                    self.assertEqual(manifest["adapter"], "arxiv_latex_v2")
+                    self.assertEqual(manifest["archive_container"], container)
+                    self.assertEqual(manifest["content_tier"], "full_text")
+                    self.assertEqual((capsule / "source/main.tex").read_bytes(), tex)
+
+    def test_arxiv_rejects_error_pages_and_tries_the_second_eprint_host(self) -> None:
+        tex = b"\\documentclass{article}\n\\begin{document}\nValid source.\n\\end{document}\n"
+        temporary, _, capsule, manifest, requested = self._run_arxiv(
+            tex,
+            "application/x-tex",
+            first_invalid=(
+                b"<!doctype html><title>temporary error</title>\\documentclass{article}",
+                "text/html",
+            ),
+        )
+        with temporary:
+            self.assertEqual(requested[:2], [
+                "https://export.arxiv.org/e-print/1234.5678",
+                "https://arxiv.org/e-print/1234.5678",
+            ])
+            self.assertEqual(manifest["content_tier"], "full_text")
+            self.assertEqual((capsule / "source/main.tex").read_bytes(), tex)
+            self.assertTrue(any("rejected unsupported" in warning for warning in manifest["warnings"]))
+
+    def test_arxiv_raw_and_gzip_error_pages_fall_back_without_fake_tex(self) -> None:
+        error_page = b'{"error":"not an e-print: \\\\documentclass{article}"}'
+        for payload in (error_page, gzip.compress(error_page, mtime=0)):
+            with self.subTest(gzip=payload.startswith(b"\x1f\x8b")):
+                temporary, _, capsule, manifest, _ = self._run_arxiv(payload, "application/pdf")
+                with temporary:
+                    self.assertEqual(manifest["adapter"], "generic_web_or_document_v2")
+                    self.assertEqual(manifest["status"], "partial")
+                    self.assertEqual(manifest["content_tier"], "excerpt_capsule")
+                    self.assertFalse((capsule / "source/main.tex").exists())
+
+    def test_arxiv_pdf_image_only_page_is_recorded_without_selector(self) -> None:
+        pdf = minimal_text_pdf()
+        extracted = (
+            "## Page 1\n\nReadable source evidence remains locally available.\n\n## Page 2\n",
+            [
+                {"selector": "pdf://sha256-PENDING#page=1", "kind": "page", "page": 1,
+                 "text_preview": "Readable source evidence remains locally available."},
+                {"selector": "pdf://sha256-PENDING#page=2", "kind": "page", "page": 2,
+                 "text_preview": ""},
+            ],
+            2,
+        )
+        temporary, _, capsule, manifest, _ = self._run_arxiv(
+            pdf, "application/pdf", extract_result=extracted
+        )
+        with temporary:
+            self.assertEqual((manifest["status"], manifest["content_tier"]), ("partial", "full_text"))
+            self.assertEqual(manifest["materialization"]["pdf_pages_without_extractable_text"], [2])
+            self.assertEqual(manifest["materialization"]["selector_count"], 1)
+            self.assertEqual(len((capsule / "selectors.jsonl").read_text().splitlines()), 1)
+            self.assertIn("no OCR was performed", manifest["limitations"][0])
+
+    def test_arxiv_empty_or_unparseable_pdf_is_not_full_text(self) -> None:
+        for pdf in (minimal_pdf_pages([]), b"%PDF-1.4\ntruncated"):
+            with self.subTest(bytes=len(pdf)):
+                with contextlib.redirect_stderr(io.StringIO()):
+                    temporary, _, capsule, manifest, _ = self._run_arxiv(pdf, "application/pdf")
+                with temporary:
+                    self.assertEqual((manifest["status"], manifest["content_tier"]), (
+                        "partial", "metadata_capsule"
+                    ))
+                    self.assertEqual((capsule / "source/document.pdf").read_bytes(), pdf)
+                    self.assertFalse((capsule / "selectors.jsonl").exists())
+
+    def test_arxiv_page_extraction_failure_is_not_full_text(self) -> None:
+        pdf = minimal_text_pdf()
+        extracted = (
+            "## Page 1\n\nReadable source evidence remains locally available.\n\n"
+            "## Page 2\n\n[page extraction failed: fixture failure]\n",
+            [
+                {"selector": "pdf://sha256-PENDING#page=1", "kind": "page", "page": 1,
+                 "text_preview": "Readable source evidence remains locally available."},
+                {"selector": "pdf://sha256-PENDING#page=2", "kind": "page", "page": 2,
+                 "text_preview": "[page extraction failed: fixture failure]"},
+            ],
+            2,
+        )
+        temporary, _, capsule, manifest, _ = self._run_arxiv(
+            pdf, "application/pdf", extract_result=extracted
+        )
+        with temporary:
+            self.assertEqual((manifest["status"], manifest["content_tier"]), (
+                "partial", "excerpt_capsule"
+            ))
+            self.assertEqual(manifest["materialization"]["pdf_page_extraction_failures"], [2])
+            self.assertEqual(len((capsule / "selectors.jsonl").read_text().splitlines()), 1)
+
 
 class ValidatorIntegrityTests(unittest.TestCase):
     def setUp(self) -> None:
@@ -218,7 +479,7 @@ class ValidatorIntegrityTests(unittest.TestCase):
 
     def _write_consistent_artifacts(self) -> None:
         local_files = []
-        for path in sorted(self.capsule.iterdir()):
+        for path in sorted(self.capsule.rglob("*")):
             if path.is_file() and path.name != "manifest.yaml":
                 payload = path.read_bytes()
                 local_files.append(
@@ -305,9 +566,124 @@ class ValidatorIntegrityTests(unittest.TestCase):
             result = validator.main()
         return result, output.getvalue()
 
+    def _configure_arxiv_pdf_fixture(self) -> Path:
+        (self.capsule / "document.md").unlink()
+        document = self.capsule / "document.txt"
+        document.write_text(
+            "## Page 1\n\nEvidence that belongs only to the first PDF page.\n\n"
+            "## Page 2\n\nEvidence that belongs only to the second PDF page.\n",
+            encoding="utf-8",
+        )
+        source_pdf = self.capsule / "source" / "document.pdf"
+        source_pdf.parent.mkdir()
+        source_pdf.write_bytes(minimal_pdf_pages(["First PDF page", "Second PDF page"]))
+        pdf_hash = hashlib.sha256(source_pdf.read_bytes()).hexdigest()
+        document_path = document.relative_to(self.root).as_posix()
+        selectors = self.capsule / "selectors.jsonl"
+        selectors.write_text(
+            "\n".join(
+                json.dumps(row)
+                for row in (
+                    {
+                        "selector": f"pdf://sha256-{pdf_hash[:16]}#page=1",
+                        "local_path": document_path,
+                        "kind": "page",
+                        "page": 1,
+                        "text_preview": "Evidence that belongs only to the first PDF page.",
+                    },
+                    {
+                        "selector": f"pdf://sha256-{pdf_hash[:16]}#page=2",
+                        "local_path": document_path,
+                        "kind": "page",
+                        "page": 2,
+                        "text_preview": "Evidence that belongs only to the second PDF page.",
+                    },
+                )
+            ) + "\n",
+            encoding="utf-8",
+        )
+        self._write_consistent_artifacts()
+
+        manifest_path = self.capsule / "manifest.yaml"
+        manifest = yaml.safe_load(manifest_path.read_text())
+        manifest.update(
+            {
+                "source_type": "arxiv",
+                "adapter": "arxiv_pdf_v1",
+                "archive_container": "pdf",
+                "media_type": "application/pdf",
+                "revision": f"sha256:{pdf_hash}",
+                "retrievals": [{"sha256": pdf_hash}],
+                "materialization": {
+                    "document": "document.txt",
+                    "source_pdf": "source/document.pdf",
+                    "source_pdf_sha256": pdf_hash,
+                    "selector_count": 2,
+                    "pdf_page_count": 2,
+                    "pdf_text_page_count": 2,
+                    "pdf_pages_without_extractable_text": [],
+                    "pdf_page_extraction_failures": [],
+                    "substantive_text": True,
+                },
+            }
+        )
+        manifest_path.write_text(yaml.safe_dump(manifest, sort_keys=False))
+        index = yaml.safe_load(self.index.read_text())
+        index["items"][0]["revision"] = f"sha256:{pdf_hash}"
+        self._write_yaml(self.index, index)
+        registry = yaml.safe_load(self.registry.read_text())
+        registry["entries"][0]["materialization"]["revision"] = f"sha256:{pdf_hash}"
+        self._write_yaml(self.registry, registry)
+        return selectors
+
     def test_valid_fixture_passes(self) -> None:
         result, output = self._run_validator()
         self.assertEqual(result, 0, output)
+
+    def test_valid_arxiv_pdf_fixture_passes_page_binding(self) -> None:
+        self._configure_arxiv_pdf_fixture()
+
+        result, output = self._run_validator()
+
+        self.assertEqual(result, 0, output)
+
+    def test_arxiv_pdf_selector_uri_page_must_match_page_field(self) -> None:
+        selectors = self._configure_arxiv_pdf_fixture()
+        rows = [json.loads(line) for line in selectors.read_text().splitlines()]
+        rows[0]["selector"] = rows[0]["selector"].replace("page=1", "page=2")
+        selectors.write_text("\n".join(json.dumps(row) for row in rows) + "\n")
+
+        result, output = self._run_validator()
+
+        self.assertEqual(result, 1)
+        self.assertIn("ARXIV_PDF_SELECTOR_HASH_OR_PAGE", output)
+
+    def test_arxiv_pdf_preview_must_resolve_inside_its_page(self) -> None:
+        selectors = self._configure_arxiv_pdf_fixture()
+        rows = [json.loads(line) for line in selectors.read_text().splitlines()]
+        rows[0]["text_preview"] = "Evidence that belongs only to the second PDF page."
+        selectors.write_text("\n".join(json.dumps(row) for row in rows) + "\n")
+
+        result, output = self._run_validator()
+
+        self.assertEqual(result, 1)
+        self.assertIn("ARXIV_PDF_SELECTOR_PREVIEW_CROSS_PAGE", output)
+
+    def test_arxiv_pdf_page_count_and_coverage_are_complete(self) -> None:
+        selectors = self._configure_arxiv_pdf_fixture()
+        selectors.write_text(selectors.read_text().splitlines()[0] + "\n")
+        manifest_path = self.capsule / "manifest.yaml"
+        manifest = yaml.safe_load(manifest_path.read_text())
+        manifest["materialization"]["pdf_page_count"] = 1
+        manifest["materialization"]["pdf_text_page_count"] = 1
+        manifest["materialization"]["selector_count"] = 1
+        manifest_path.write_text(yaml.safe_dump(manifest, sort_keys=False))
+
+        result, output = self._run_validator()
+
+        self.assertEqual(result, 1)
+        self.assertIn("ARXIV_PDF_PAGE_COUNT", output)
+        self.assertIn("ARXIV_PDF_PAGE_COVERAGE", output)
 
     def test_unresolved_preview_and_unhashed_file_fail(self) -> None:
         selectors = self.capsule / "selectors.jsonl"
@@ -322,6 +698,33 @@ class ValidatorIntegrityTests(unittest.TestCase):
         self.assertEqual(result, 1)
         self.assertIn("SELECTOR_PREVIEW_UNRESOLVED", output)
         self.assertIn("UNHASHED_LOCAL_FILE", output)
+
+    def test_pdf_bytes_disguised_as_arxiv_tex_fail(self) -> None:
+        (self.capsule / "document.md").unlink()
+        source = self.capsule / "source" / "main.tex"
+        source.parent.mkdir()
+        source.write_bytes(b"%PDF-1.4\nsource evidence\n")
+        local_path = source.relative_to(self.root).as_posix()
+        (self.capsule / "selectors.jsonl").write_text(
+            json.dumps({
+                "selector": "arxiv://example#L1-L2",
+                "local_path": local_path,
+                "start_line": 1,
+                "end_line": 2,
+                "text_preview": "%PDF-1.4",
+            }) + "\n",
+            encoding="utf-8",
+        )
+        self._write_consistent_artifacts()
+        manifest_path = self.capsule / "manifest.yaml"
+        manifest = yaml.safe_load(manifest_path.read_text())
+        manifest.update({"source_type": "arxiv", "adapter": "arxiv_latex_v2", "archive_container": "single"})
+        manifest_path.write_text(yaml.safe_dump(manifest, sort_keys=False))
+
+        result, output = self._run_validator()
+
+        self.assertEqual(result, 1)
+        self.assertIn("ARXIV_PDF_AS_TEX", output)
 
 
 if __name__ == "__main__":

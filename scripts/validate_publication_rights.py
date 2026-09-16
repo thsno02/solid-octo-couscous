@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Fail closed unless every full-text capsule has an explicit publication allowance."""
+"""Fail closed unless every retained full document has a publication allowance."""
 from __future__ import annotations
 
 import sys
@@ -59,7 +59,15 @@ def validate_publication_rights(
     active_full_text: dict[str, Path] = {}
     for manifest_path in sorted(corpus_root.glob("*/manifest.yaml")):
         manifest = load_yaml(manifest_path)
-        if not isinstance(manifest, dict) or manifest.get("content_tier") != "full_text":
+        materialization = manifest.get("materialization") if isinstance(manifest, dict) else None
+        retained_source_pdf = (
+            isinstance(materialization, dict)
+            and isinstance(materialization.get("source_pdf"), str)
+            and bool(materialization["source_pdf"])
+        )
+        if not isinstance(manifest, dict) or (
+            manifest.get("content_tier") != "full_text" and not retained_source_pdf
+        ):
             continue
         uid = manifest.get("uid")
         if not isinstance(uid, str) or not uid:
@@ -153,11 +161,11 @@ def main() -> int:
     if errors or blocked:
         print(
             "\nPublic redistribution remains blocked until every active full-text capsule "
-            "has an explicit audited allow decision.",
+            "or retained full document has an explicit audited allow decision.",
             file=sys.stderr,
         )
         return 1
-    print("\nEvery active full-text capsule has an explicit audited publication allowance.")
+    print("\nEvery active full-text capsule or retained full document has an explicit audited publication allowance.")
     return 0
 
 

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 import sys
 from collections import Counter
 from pathlib import Path
@@ -61,6 +62,22 @@ def scoped_path(raw_path: Any, scope: Path) -> Path | None:
 
 def relative(path: Path) -> str:
     return path.relative_to(ROOT).as_posix()
+
+
+def pdf_page_sections(text: str) -> tuple[dict[int, str], set[int]]:
+    """Split extracted PDF text at exact page headings."""
+
+    matches = list(re.finditer(r"(?m)^## Page ([1-9]\d*)[ \t]*$", text))
+    sections: dict[int, str] = {}
+    duplicates: set[int] = set()
+    for index, match in enumerate(matches):
+        page = int(match.group(1))
+        end = matches[index + 1].start() if index + 1 < len(matches) else len(text)
+        if page in sections:
+            duplicates.add(page)
+        else:
+            sections[page] = text[match.end():end]
+    return sections, duplicates
 
 
 def evidence_role_for(status: Any, content_tier: Any) -> str:
@@ -154,6 +171,7 @@ def main() -> int:
         capsule_root = manifest_path.parent
         local_files = manifest.get("local_files")
         declared_files: set[str] = set()
+        actual_hashes: dict[str, str] = {}
         declared_bytes = 0
         if not isinstance(local_files, list):
             errors.append(f"LOCAL_FILES_MISSING {uid}")
@@ -186,6 +204,7 @@ def main() -> int:
                 continue
             hashed_files += 1
             declared_bytes += actual_bytes
+            actual_hashes[raw_path] = actual_hash
             if actual_hash != expected_hash:
                 errors.append(f"HASH_MISMATCH {uid} {raw_path}")
             expected_bytes = item.get("bytes")
@@ -215,6 +234,94 @@ def main() -> int:
         else:
             errors.append(f"SOURCE_METADATA_MISSING {uid}")
 
+        expected_pdf_selector_prefix: str | None = None
+        arxiv_pdf_page_count: int | None = None
+        arxiv_pdf_materialization: dict[str, Any] | None = None
+        arxiv_pdf_selector_pages: set[int] = set()
+        arxiv_pdf_selector_count = 0
+        if manifest.get("source_type") == "arxiv":
+            adapter = manifest.get("adapter")
+            if adapter == "arxiv_latex_v2":
+                for raw_path in sorted(declared_files):
+                    if Path(raw_path).suffix.lower() not in {".tex", ".ltx"}:
+                        continue
+                    path = scoped_path(raw_path, capsule_root)
+                    if path is not None and path.is_file():
+                        try:
+                            with path.open("rb") as handle:
+                                magic = handle.read(5)
+                            if magic == b"%PDF-":
+                                errors.append(f"ARXIV_PDF_AS_TEX {uid} {raw_path}")
+                        except OSError as exc:
+                            errors.append(f"ARXIV_TEX_SNIFF {uid} {raw_path}: {exc}")
+            if adapter == "arxiv_pdf_v1" and manifest.get("archive_container") not in {"pdf", "gzip-pdf"}:
+                errors.append(f"ARXIV_PDF_CONTAINER {uid} {manifest.get('archive_container')}")
+            if adapter == "arxiv_pdf_v1" and manifest.get("archive_container") in {"pdf", "gzip-pdf"}:
+                materialization = manifest.get("materialization")
+                if not isinstance(materialization, dict):
+                    errors.append(f"ARXIV_PDF_MATERIALIZATION {uid}")
+                    materialization = {}
+                arxiv_pdf_materialization = materialization
+                if manifest.get("media_type") != "application/pdf":
+                    errors.append(f"ARXIV_PDF_MEDIA_TYPE {uid} {manifest.get('media_type')}")
+                source_pdf = materialization.get("source_pdf")
+                source_pdf_path: Path | None = None
+                if isinstance(source_pdf, str) and source_pdf:
+                    candidate = capsule_root / source_pdf
+                    try:
+                        candidate.resolve().relative_to(capsule_root.resolve())
+                        source_pdf_path = candidate
+                    except (OSError, ValueError):
+                        pass
+                if source_pdf_path is None or not source_pdf_path.is_file():
+                    errors.append(f"ARXIV_PDF_SOURCE_MISSING {uid} {source_pdf}")
+                else:
+                    source_pdf_rel = relative(source_pdf_path)
+                    source_pdf_hash = actual_hashes.get(source_pdf_rel)
+                    if source_pdf_rel not in declared_files:
+                        errors.append(f"ARXIV_PDF_SOURCE_UNHASHED {uid} {source_pdf_rel}")
+                    try:
+                        with source_pdf_path.open("rb") as handle:
+                            magic = handle.read(5)
+                        if magic != b"%PDF-":
+                            errors.append(f"ARXIV_PDF_MAGIC {uid} {source_pdf_rel}")
+                    except OSError as exc:
+                        errors.append(f"ARXIV_PDF_READ {uid} {source_pdf_rel}: {exc}")
+                    try:
+                        from pypdf import PdfReader
+
+                        arxiv_pdf_page_count = len(PdfReader(source_pdf_path).pages)
+                    except Exception as exc:
+                        errors.append(f"ARXIV_PDF_PARSE {uid} {source_pdf_rel}: {exc}")
+                    if materialization.get("pdf_page_count") != arxiv_pdf_page_count:
+                        errors.append(
+                            f"ARXIV_PDF_PAGE_COUNT {uid} declared={materialization.get('pdf_page_count')} "
+                            f"actual={arxiv_pdf_page_count}"
+                        )
+                    if not source_pdf_hash or materialization.get("source_pdf_sha256") != source_pdf_hash:
+                        errors.append(
+                            f"ARXIV_PDF_HASH {uid} declared={materialization.get('source_pdf_sha256')} "
+                            f"actual={source_pdf_hash}"
+                        )
+                    if source_pdf_hash:
+                        expected_pdf_selector_prefix = f"pdf://sha256-{source_pdf_hash[:16]}#page="
+
+                    retrievals = manifest.get("retrievals")
+                    transport_hash = None
+                    if isinstance(retrievals, list) and retrievals and isinstance(retrievals[-1], dict):
+                        transport_hash = retrievals[-1].get("sha256")
+                    if not isinstance(transport_hash, str) or manifest.get("revision") != f"sha256:{transport_hash}":
+                        errors.append(f"ARXIV_PDF_TRANSPORT_REVISION {uid}")
+                    if manifest.get("archive_container") == "pdf" and transport_hash != source_pdf_hash:
+                        errors.append(f"ARXIV_PDF_RAW_HASH {uid}")
+
+                failures = materialization.get("pdf_page_extraction_failures")
+                pages_without_text = materialization.get("pdf_pages_without_extractable_text")
+                if tier == "full_text" and (materialization.get("substantive_text") is not True or failures):
+                    errors.append(f"ARXIV_PDF_FALSE_FULL_TEXT {uid}")
+                if status == "materialized" and pages_without_text:
+                    errors.append(f"ARXIV_PDF_UNACKNOWLEDGED_TEXT_GAPS {uid}")
+
         selectors_path = capsule_root / "selectors.jsonl"
         selector_declaration = manifest.get("selectors")
         if not isinstance(selector_declaration, list):
@@ -229,6 +336,7 @@ def main() -> int:
         valid_selector_count = 0
         seen_selectors: set[str] = set()
         target_text: dict[str, str] = {}
+        target_pdf_sections: dict[str, tuple[dict[int, str], set[int]]] = {}
         if selectors_path.exists():
             try:
                 selector_lines = selectors_path.read_text(encoding="utf-8").splitlines()
@@ -301,14 +409,52 @@ def main() -> int:
 
                 page = selector.get("page")
                 if page is not None:
+                    if local_path not in target_pdf_sections:
+                        target_pdf_sections[local_path] = pdf_page_sections(text)
+                    page_sections, duplicate_markers = target_pdf_sections[local_path]
                     if (
                         not isinstance(page, int)
                         or isinstance(page, bool)
                         or page < 1
-                        or f"## Page {page}" not in text
+                        or page not in page_sections
                     ):
                         errors.append(f"SELECTOR_PAGE_UNRESOLVED {uid}:{line_number}: {page}")
                         selector_valid = False
+                    for duplicate_page in sorted(duplicate_markers):
+                        errors.append(
+                            f"PDF_PAGE_MARKER_DUPLICATE {uid}:{line_number}: {duplicate_page}"
+                        )
+                        selector_valid = False
+                    if expected_pdf_selector_prefix is not None:
+                        arxiv_pdf_selector_count += 1
+                        uri_match = (
+                            re.fullmatch(
+                                re.escape(expected_pdf_selector_prefix) + r"([1-9]\d*)",
+                                selector_id,
+                            )
+                            if isinstance(selector_id, str)
+                            else None
+                        )
+                        if uri_match is None or not isinstance(page, int) or int(uri_match.group(1)) != page:
+                            errors.append(f"ARXIV_PDF_SELECTOR_HASH_OR_PAGE {uid}:{line_number}: {selector_id}")
+                            selector_valid = False
+                        if isinstance(page, int) and not isinstance(page, bool):
+                            if page in arxiv_pdf_selector_pages:
+                                errors.append(f"ARXIV_PDF_SELECTOR_PAGE_DUPLICATE {uid}:{line_number}: {page}")
+                                selector_valid = False
+                            arxiv_pdf_selector_pages.add(page)
+                            if arxiv_pdf_page_count is not None and page > arxiv_pdf_page_count:
+                                errors.append(f"ARXIV_PDF_SELECTOR_PAGE_RANGE {uid}:{line_number}: {page}")
+                                selector_valid = False
+                            if (
+                                isinstance(preview, str)
+                                and page in page_sections
+                                and preview not in page_sections[page]
+                            ):
+                                errors.append(
+                                    f"ARXIV_PDF_SELECTOR_PREVIEW_CROSS_PAGE {uid}:{line_number}: {page}"
+                                )
+                                selector_valid = False
 
                 ordinal = selector.get("ordinal")
                 if ordinal is not None and (
@@ -332,6 +478,48 @@ def main() -> int:
             errors.append(f"METADATA_CAPSULE_HAS_SELECTORS {uid} count={manifest_selector_count}")
         if tier != "metadata_capsule" and valid_selector_count == 0:
             errors.append(f"NO_VALID_SELECTORS {uid}")
+        if expected_pdf_selector_prefix is not None and arxiv_pdf_materialization is not None:
+            def declared_page_set(field: str) -> set[int]:
+                value = arxiv_pdf_materialization.get(field)
+                if not isinstance(value, list) or any(
+                    not isinstance(page, int) or isinstance(page, bool) or page < 1 for page in value
+                ):
+                    errors.append(f"ARXIV_PDF_PAGE_SET {uid} {field}={value!r}")
+                    return set()
+                pages = set(value)
+                if len(pages) != len(value):
+                    errors.append(f"ARXIV_PDF_PAGE_SET_DUPLICATE {uid} {field}")
+                if arxiv_pdf_page_count is not None and any(page > arxiv_pdf_page_count for page in pages):
+                    errors.append(f"ARXIV_PDF_PAGE_SET_RANGE {uid} {field}={value!r}")
+                return pages
+
+            pages_without_text = declared_page_set("pdf_pages_without_extractable_text")
+            failed_pages = declared_page_set("pdf_page_extraction_failures")
+            if (
+                arxiv_pdf_selector_pages & pages_without_text
+                or arxiv_pdf_selector_pages & failed_pages
+                or pages_without_text & failed_pages
+            ):
+                errors.append(f"ARXIV_PDF_PAGE_SET_OVERLAP {uid}")
+            if arxiv_pdf_page_count is not None:
+                expected_pages = set(range(1, arxiv_pdf_page_count + 1))
+                covered_pages = arxiv_pdf_selector_pages | pages_without_text | failed_pages
+                if covered_pages != expected_pages:
+                    errors.append(
+                        f"ARXIV_PDF_PAGE_COVERAGE {uid} expected={sorted(expected_pages)} "
+                        f"actual={sorted(covered_pages)}"
+                    )
+            if arxiv_pdf_materialization.get("pdf_text_page_count") != arxiv_pdf_selector_count:
+                errors.append(
+                    f"ARXIV_PDF_TEXT_PAGE_COUNT {uid} "
+                    f"declared={arxiv_pdf_materialization.get('pdf_text_page_count')} "
+                    f"actual={arxiv_pdf_selector_count}"
+                )
+            if arxiv_pdf_selector_count != manifest_selector_count:
+                errors.append(
+                    f"ARXIV_PDF_NON_PAGE_SELECTOR {uid} pages={arxiv_pdf_selector_count} "
+                    f"selectors={manifest_selector_count}"
+                )
 
     for metadata_path, count in sorted(metadata_references.items()):
         if count > 1:

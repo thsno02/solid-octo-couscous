@@ -73,6 +73,24 @@ class PublicationRightsTests(unittest.TestCase):
             )
         self.assertTrue(any("REVISION_MISMATCH" in error for error in errors))
 
+    def test_retained_source_pdf_is_gated_even_when_text_tier_is_incomplete(self):
+        for tier in ("metadata_capsule", "excerpt_capsule"):
+            with self.subTest(tier=tier):
+                temporary, root, audit = self.fixture(decision="block")
+                with temporary:
+                    manifest_path = root / "materialized_sources/corpus/item/manifest.yaml"
+                    manifest = yaml.safe_load(manifest_path.read_text())
+                    manifest["content_tier"] = tier
+                    manifest["materialization"] = {"source_pdf": "source/document.pdf"}
+                    manifest_path.write_text(yaml.safe_dump(manifest))
+
+                    errors, blocked, active, audited = validate_publication_rights(
+                        audit, root / "materialized_sources/corpus"
+                    )
+
+                self.assertEqual(errors, [])
+                self.assertEqual((len(blocked), active, audited), (1, 1, 1))
+
     def test_packaged_allowance_requires_notice_and_attribution(self):
         temporary, root, audit = self.fixture()
         with temporary:

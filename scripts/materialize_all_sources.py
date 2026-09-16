@@ -610,6 +610,84 @@ def unpack_arxiv(payload: bytes) -> tuple[list[tuple[str, bytes]], str]:
         return [("main.tex", uncompressed)], "gzip-single"
 
 
+def arxiv_pdf_payload(payload: bytes) -> tuple[bytes | None, str | None]:
+    """Return the actual PDF bytes and transport container when magic confirms it."""
+
+    if payload.startswith(b"%PDF-"):
+        return payload, "pdf"
+    if not payload.startswith(b"\x1f\x8b"):
+        return None, None
+    try:
+        uncompressed = gzip.decompress(payload)
+    except OSError:
+        return None, None
+    if uncompressed.startswith(b"%PDF-"):
+        return uncompressed, "gzip-pdf"
+    return None, None
+
+
+def looks_like_single_tex(payload: bytes) -> bool:
+    """Recognize a single TeX source without treating arbitrary 200 bodies as TeX."""
+
+    if b"\x00" in payload[:8192]:
+        return False
+    sample = payload[:1_000_000].decode("utf-8", errors="ignore")
+    return bool(
+        re.search(
+            r"\\(?:documentclass\b|documentstyle\b|begin\s*\{document\}|input\b|include\b|"
+            r"title\b|author\b|section\b|def\b|newcommand\b|usepackage\b|bye\b)",
+            sample,
+        )
+    )
+
+
+def is_obvious_error_document(payload: bytes) -> bool:
+    prefix = payload.lstrip()
+    if prefix.startswith(b"\xef\xbb\xbf"):
+        prefix = prefix[3:].lstrip()
+    prefix = prefix[:512].lower()
+    return prefix.startswith((b"<!doctype html", b"<html", b"<!--", b"<?xml", b"{", b"["))
+
+
+def classify_arxiv_payload(payload: bytes) -> str | None:
+    """Classify only supported arXiv e-print representations by their bytes."""
+
+    _, pdf_container = arxiv_pdf_payload(payload)
+    if pdf_container is not None:
+        return pdf_container
+    if is_obvious_error_document(payload):
+        return None
+    try:
+        with tarfile.open(fileobj=io.BytesIO(payload), mode="r:*") as archive:
+            if any(member.isfile() for member in archive.getmembers()):
+                return "tar"
+    except tarfile.TarError:
+        pass
+    if payload.startswith(b"\x1f\x8b"):
+        try:
+            uncompressed = gzip.decompress(payload)
+        except OSError:
+            return None
+        if is_obvious_error_document(uncompressed):
+            return None
+        return "gzip-single" if looks_like_single_tex(uncompressed) else None
+    return "single" if looks_like_single_tex(payload) else None
+
+
+def arxiv_eprint_id(record: SourceRecord) -> str:
+    """Bind an arXiv retrieval to ``versioning.source_version`` when declared."""
+
+    if not record.canonical_id:
+        raise ValueError("missing arXiv identifier")
+    versioning = record.metadata.get("versioning")
+    source_version = versioning.get("source_version") if isinstance(versioning, dict) else None
+    if source_version in (None, ""):
+        return record.canonical_id
+    if not isinstance(source_version, str) or not re.fullmatch(r"v[1-9]\d*", source_version.strip()):
+        raise ValueError("arXiv versioning.source_version must be vN")
+    return f"{record.canonical_id}{source_version.strip()}"
+
+
 def choose_main_tex(files: dict[str, str]) -> str | None:
     scored: list[tuple[int, int, str]] = []
     for path, text in files.items():
@@ -701,27 +779,48 @@ def materialize_arxiv(record: SourceRecord, config: dict[str, Any], generated_at
         manifest["errors"].append("missing arXiv identifier")
         return finalize_capsule(record, root, manifest)
 
-    quoted_id = urllib.parse.quote(arxiv_id, safe="/")
+    try:
+        requested_arxiv_id = arxiv_eprint_id(record)
+    except ValueError as exc:
+        manifest["errors"].append(str(exc))
+        return finalize_capsule(record, root, manifest)
+    quoted_id = urllib.parse.quote(requested_arxiv_id, safe="/")
     urls = [
         f"https://export.arxiv.org/e-print/{quoted_id}",
         f"https://arxiv.org/e-print/{quoted_id}",
     ]
     payload: bytes | None = None
+    payload_kind: str | None = None
     resolved_url: str | None = None
     headers: dict[str, str] = {}
     for url in urls:
         try:
-            payload, resolved_url, headers = fetch_bytes(
+            candidate_payload, candidate_url, candidate_headers = fetch_bytes(
                 url,
                 timeout=int(config.get("http_timeout_seconds", 45)),
                 max_bytes=int(config.get("arxiv_max_archive_bytes", 60_000_000)),
             )
+            candidate_kind = classify_arxiv_payload(candidate_payload)
+            content_type = (candidate_headers.get("content-type") or "").lower()
+            if candidate_kind is None or (
+                "application/pdf" in content_type and candidate_kind not in {"pdf", "gzip-pdf"}
+            ):
+                manifest["warnings"].append(
+                    f"rejected unsupported arXiv e-print payload from {candidate_url or url} "
+                    f"(content-type {content_type or 'unreported'})"
+                )
+                continue
+            payload = candidate_payload
+            payload_kind = candidate_kind
+            resolved_url = candidate_url
+            headers = candidate_headers
             break
         except Exception as exc:
             manifest["warnings"].append(str(exc))
     if payload is None:
         manifest["errors"].append("arXiv source archive could not be acquired")
         # Preserve a bounded local copy of the abstract page when the source archive fails.
+        manifest["adapter"] = "generic_web_or_document_v2"
         return materialize_generic(
             record,
             config,
@@ -744,7 +843,111 @@ def materialize_arxiv(record: SourceRecord, config: dict[str, Any], generated_at
             "sha256": archive_hash,
         }
     )
+    pdf_payload, pdf_container = arxiv_pdf_payload(payload)
+    if pdf_payload is not None and pdf_container is not None:
+        manifest["adapter"] = "arxiv_pdf_v1"
+        manifest["archive_container"] = pdf_container
+        manifest["media_type"] = "application/pdf"
+        manifest["retrievals"][-1]["detected_media_type"] = "application/pdf"
+
+        source_root = root / "source"
+        source_root.mkdir(parents=True, exist_ok=True)
+        source_pdf = source_root / "document.pdf"
+        source_pdf.write_bytes(pdf_payload)
+        source_pdf_hash = sha256_bytes(pdf_payload)
+        document_text = ""
+        selectors: list[dict[str, Any]] = []
+        page_count: int | None = None
+        extraction_failed_pages: list[int] = []
+        pages_without_text: list[int] = []
+        try:
+            document_text, extracted_selectors, page_count = extract_pdf_text(pdf_payload)
+            for selector in extracted_selectors:
+                page = selector.get("page")
+                preview = selector.get("text_preview")
+                if isinstance(preview, str) and preview.startswith("[page extraction failed:"):
+                    if isinstance(page, int):
+                        extraction_failed_pages.append(page)
+                    continue
+                if not isinstance(preview, str) or not preview.strip():
+                    if isinstance(page, int):
+                        pages_without_text.append(page)
+                    continue
+                selector["selector"] = selector["selector"].replace(
+                    "sha256-PENDING", f"sha256-{source_pdf_hash[:16]}"
+                )
+                selectors.append(selector)
+        except Exception as exc:
+            manifest["errors"].append(f"PDF parsing failed: {exc}")
+
+        substantive_text = has_substantive_document_text(document_text) if document_text else False
+        document_name: str | None = None
+        if document_text:
+            document_name = "document.txt"
+            document_path = root / document_name
+            document_path.write_text(document_text, encoding="utf-8")
+            if selectors:
+                local_path = document_path.relative_to(ROOT).as_posix()
+                for selector in selectors:
+                    selector["local_path"] = local_path
+                write_jsonl(root / "selectors.jsonl", selectors)
+                manifest["selectors"] = ["selectors.jsonl"]
+
+        limitations: list[str] = []
+        if pages_without_text:
+            limitations.append(
+                "PDF pages without extractable text: "
+                + ", ".join(str(page) for page in pages_without_text)
+                + "; the original PDF is preserved and no OCR was performed."
+            )
+        if extraction_failed_pages:
+            limitations.append(
+                "PDF text extraction failed on pages: "
+                + ", ".join(str(page) for page in extraction_failed_pages)
+                + "; the original PDF is preserved."
+            )
+
+        if substantive_text and selectors and not extraction_failed_pages:
+            manifest["content_tier"] = "full_text"
+            manifest["status"] = "partial" if pages_without_text else "materialized"
+        elif selectors:
+            manifest["content_tier"] = "excerpt_capsule"
+            manifest["status"] = "partial"
+        else:
+            manifest["content_tier"] = "metadata_capsule"
+            manifest["status"] = "partial"
+            if page_count == 0:
+                manifest["warnings"].append("PDF contained no pages; retained only as acquisition evidence.")
+            elif not manifest["errors"]:
+                manifest["warnings"].append(
+                    "PDF contained no substantive extractable text; the original PDF was retained without OCR."
+                )
+        manifest["warnings"].extend(limitations)
+        if limitations:
+            manifest["limitations"] = limitations
+        manifest["rights"] = {
+            "declared_access": record.rights_access,
+            "full_text_redistribution_assumed": True,
+            "basis": "arXiv e-print PDF",
+        }
+        manifest["materialization"] = {
+            "document": document_name,
+            "normalized_document": document_name,
+            "source_pdf": "source/document.pdf",
+            "source_pdf_sha256": source_pdf_hash,
+            "stored_characters": len(document_text),
+            "selector_count": len(selectors),
+            "pdf_page_count": page_count,
+            "pdf_text_page_count": len(selectors),
+            "pdf_pages_without_extractable_text": pages_without_text,
+            "pdf_page_extraction_failures": extraction_failed_pages,
+            "substantive_text": substantive_text,
+        }
+        return finalize_capsule(record, root, manifest)
+
     bundle, container_kind = unpack_arxiv(payload)
+    if payload_kind not in {"tar", "single", "gzip-single"}:
+        raise RuntimeError(f"unsupported classified arXiv payload: {payload_kind}")
     manifest["archive_container"] = container_kind
 
     stored: dict[str, str] = {}
@@ -1302,7 +1505,10 @@ def extract_pdf_text(payload: bytes, max_pages: int | None = None) -> tuple[str,
     selectors: list[dict[str, Any]] = []
     for page_index in range(limit):
         try:
-            text = reader.pages[page_index].extract_text() or ""
+            text = reader.pages[page_index].extract_text(
+                extraction_mode="layout",
+                layout_mode_strip_rotated=False,
+            ) or ""
         except Exception as exc:
             text = f"[page extraction failed: {exc}]"
         text_parts.append(f"\n\n## Page {page_index + 1}\n\n{text.strip()}\n")
@@ -1372,8 +1578,8 @@ def filter_selectors_for_document(
             continue
 
         preview = selector.get("text_preview")
-        if isinstance(preview, str) and preview:
-            if preview not in document_text:
+        if preview is not None:
+            if not isinstance(preview, str) or not preview or preview not in document_text:
                 omitted += 1
                 continue
 

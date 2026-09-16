@@ -132,7 +132,7 @@ publication lane
   repository proposal branch (text + manifests + derived artifacts) → PR → independent CI → review → merge
 ```
 
-剩余 86 项受阻的全文使生产流程无法上传新批次；四项固定版本 W3C 文字包已完成声明与署名条件，但不代表端到端上传成功。许可失败不会退回 artifact 发布或直接推送分支。已提交正文留存在 GitHub，远程任务检出相应 commit 继续工作，无需依赖上一个 runner。默认分支启用、Actions 创建 PR 权限及自动化 PR 的 CI 批准要求见[当前操作说明](ci-workflow.md)。
+剩余 85 项受阻的全文使生产流程无法上传新批次；四项固定版本 W3C 文字包与一项 arXiv PDF 包已完成声明与署名条件，但不代表端到端上传成功。许可失败不会退回 artifact 发布或直接推送分支。已提交正文留存在 GitHub，远程任务检出相应 commit 继续工作，无需依赖上一个 runner。默认分支启用、Actions 创建 PR 权限及自动化 PR 的 CI 批准要求见[当前操作说明](ci-workflow.md)。
 
 ### A-06 — Reproducibility is same-environment, not yet supply-chain reproducibility
 
@@ -159,14 +159,20 @@ The first admission batch should remain small and should use independent reviewe
 
 **准入范围澄清（Admission scope）：** 原始[准入矩阵](llm-wiki/07-admission-governance-and-evolution.md)将 Page 的 schema/citations 列为 candidate gate，将 review/policy/evaluation/freshness 列为 trusted/published gate。因此，人工编辑审核是可信晋升或正式发布前的门槛，不应被本审计扩大为候选 pipeline 代码 PR 的必需人工批准。当前 review/not_started、candidate、trusted=0 与 rollout=none 均保持不变。Source 的 rights 本来就属于 candidate gate，不能用候选状态豁免公开全文许可。
 
-### A-08 — arXiv 的 PDF 响应被当成 TeX（待修复）
+### A-08 — arXiv 的 PDF 响应被当成 TeX（已修复）
 
 **严重性：** 物化内容完整性缺陷，不能由结构 CI 绿灯豁免
-**状态：** 2026-09-16 许可批次复核时发现，尚未修复
+**状态：** 2026-09-16 发现并修复；实际原件与衍生产物已恢复，新增页级回归检查
 
 `arxiv:2502.18864` 的 manifest 记录响应为 `application/pdf`、5,885,207 bytes，却由 `arxiv_latex_v2` 标为 `archive_container: single`、`materialized/full_text`。保存的 `source/main.tex` 被本机 `file` 识别为 PDF 1.4，文件大小已变成 10,164,708 bytes；它不是可信的 TeX 原稿。`unpack_arxiv` 的单文件回退与后续文本解码没有区分 PDF，现有清单/重放检查也不验证这种媒体类型错配。
 
-后续须先识别实际响应类型，沿现有 PDF 文本提取路径恢复可消费正文和有效定位器，并加入最小回归测试；不能只更改扩展名或把错误产物重新加上许可声明。恢复仍需绑定许可与原始版本，不删除全文来隐藏问题。本项未在当前许可包装批次中冒充已解决。
+修复前，新增验证器已在实际坏胶囊上报出 `ARXIV_PDF_AS_TEX`。现有生产入口按实际内容区分 PDF、TeX、tar 与 HTML/XML/JSON 错误页，兼容 gzip；首个 e-print 入口返回错误页时继续尝试备用入口，不再将任意响应当成单文件 TeX。
+
+固定 v2 的原始 PDF 与先前 manifest 的响应 revision 一致，157 页原件逐字节保留；用可读文本替换损坏的 TeX/文本衍生文件，生成 155 个页定位器。第 4、20 页为图示页，无可提取文本，明确记录为 `partial/full_text`、`bounded-excerpt`，不虚构 OCR。连续两次用同一真实响应物化，胶囊全部文件字节一致。
+
+校验器核对实际 PDF 页数、页 URI 与页字段、页内 preview，以及文本/无文本/失败三类页的互斥完整覆盖；回归覆盖错误页夹带 TeX 标记、错页定位器、跨页 preview、漏页和 PDF 伪装为 TeX。保留原始 PDF 时，不允许利用文本提取失败或 metadata/excerpt 降级绕过全文许可门。固定 v2 的 CC BY 4.0、51 位作者及完整 NOTICE 已绑定到原件与衍生包；不覆盖使用另一许可的 v1。
+
+范围限于当前 Makefile/workflow 调用的 `materialize_all_sources.py`，不宣称历史脚本全部修复。旧损坏产物可从 Git 历史恢复；未删除作品或改写历史。
 
 ## Positive controls confirmed
 
@@ -184,7 +190,7 @@ The audit found the following controls to be materially useful:
 
 ## Merge recommendation
 
-PR #1 的候选 pipeline 已有结构验证基础，但仍须完成许可履约及 A-08 的物化类型修复；不能以现有 CI 绿灯证明全部正文已正确物化。存在许可阻塞或该已知完整性缺陷时，不合并 main。
+PR #1 的候选 pipeline 已有结构验证基础，A-08 的物化类型缺陷已修复，但仍须完成许可履约；不能以 CI 绿灯证明全部正文具有公开再分发许可。存在许可阻塞时，不合并 main。
 
 Recommended decision sequence:
 

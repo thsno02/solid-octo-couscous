@@ -50,13 +50,13 @@ sections:
   source_refs: *id001
   editorial_intent: Declare unresolved review work.
 temporal:
-  created_at: '2026-09-13T17:38:21Z'
-  updated_at: '2026-09-13T17:38:21Z'
+  created_at: '2026-09-16T04:30:26Z'
+  updated_at: '2026-09-16T04:30:26Z'
   valid_from: null
   valid_to: null
-  as_of: '2026-09-13T17:38:21Z'
+  as_of: '2026-09-16T04:30:26Z'
 provenance:
-  build_id: build:llm-wiki-v0:9c2a89d879277c9e
+  build_id: build:llm-wiki-v0:464b90323fe86f3e
   generated_by_agent: pipeline/build_llm_wiki.py
   generated_by_model: null
   prompt_or_skill_version: deterministic-llm-wiki-v0.2
@@ -73,8 +73,8 @@ provenance:
   - arxiv:2406.06769@sha256:cb1d6ccc88eb66af69e71730a5c488234ff4fe8af04ba04081b5a445f4d39b3e
   - arxiv:2602.06855@sha256:ac1ba940f1bdc54e012cc384c428f78bd01d50d7a947f052117944c03e790d9a
   - arxiv-2104.00405@sha256:d9ca19652574908e954b524249d31a8b450830023739ee49797f58d52784dd03
-  created_at: '2026-09-13T17:38:21Z'
-  updated_at: '2026-09-13T17:38:21Z'
+  created_at: '2026-09-16T04:30:26Z'
+  updated_at: '2026-09-16T04:30:26Z'
   manual_edits_preserved: false
 review:
   state: needs_human
@@ -85,7 +85,7 @@ review:
   - Scientific, semantic, neutrality, and due-weight review remain required before publication.
 freshness:
   status: fresh
-  checked_at: '2026-09-13T17:38:21Z'
+  checked_at: '2026-09-16T04:30:26Z'
   max_age_days: 30
   source_dependencies: *id001
   staleness_reasons: []

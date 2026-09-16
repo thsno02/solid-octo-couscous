@@ -6,10 +6,10 @@
 
 - 50 条找到明确公众复制/再分发许可，分类为 <code>documented_permission</code>；这不表示当前胶囊已经履约。
 - 41 条未找到面向公众/本仓库的适用许可，分类为 <code>permission_unverified</code>；不应公开再分发全文。
-- 基线审计的 91 项中，DCAT 3、VC Data Model 2.0、ODRL 2.2 与 JSON-LD 1.1 已完成固定版本及许可包装，4 项为 <code>allow</code>；其余 87 项仍为 <code>block</code>。
+- 基线审计的 91 项中，DCAT 3、VC Data Model 2.0、ODRL 2.2、JSON-LD 1.1 与 arXiv:2502.18864v2 已完成固定版本及许可包装，5 项为 <code>allow</code>；其余 86 项仍为 <code>block</code>。
 - Apache Ossie 基线胶囊只有 7 bytes（# Home），不是实质标准全文；后续降级不删除其基线审计行。
 
-当前 `full_text` 为 90 条，公开发布门检查结果为 `active_full_text=90 audited=91 blocked=86 errors=0`；整体仍未放行。审计覆盖数 91 与当前全文数 90 使用不同基线，不应混用。全文继续保存在本 GitHub repo；本轮未删除正文、迁移存储或改写 Git 历史。
+当前 `full_text` 为 90 条，公开发布门检查结果为 `active_full_text=90 audited=91 blocked=85 errors=0`；整体仍未放行。审计覆盖数 91 与当前全文数 90 使用不同基线，不应混用。全文继续保存在本 GitHub repo；本轮将误解码的 PDF 衍生文件替换为原始 PDF 和可读文本，未移除作品、迁移存储或改写 Git 历史。
 
 机器可读逐条记录：<code>raw_data/audits/materialization_rights_review.yaml</code>。本报告记录许可证据与已落实的包装条件，不是法律意见或人工批准。
 
@@ -24,11 +24,11 @@
 | 基线 full_text | 91 |
 | documented_permission | 50 |
 | permission_unverified | 41 |
-| allow_after_conditions_met | 46 |
-| allow_with_packaged_notice | 4 |
+| allow_after_conditions_met | 45 |
+| allow_with_packaged_notice | 5 |
 | do_not_redistribute_full_text | 41 |
-| publication gate: allow | 4 |
-| publication gate: block（基线项） | 87 |
+| publication gate: allow | 5 |
+| publication gate: block（基线项） | 86 |
 
 ## 已落实的四项许可包装（Packaged clearance）
 
@@ -42,6 +42,14 @@
 
 本批同时复核了 RDF 1.2 Concepts，但没有放行：固定 Candidate Recommendation Snapshot 的附录 F 实际保存了 RFC3986、RFC3987、RFC6874 的合成 IRI 语法代码。RFC6874 要求提取代码携带 BSD 声明；两份 2005 年 1 月 RFC 的旧版修改/再分发依据及声明也需核清。它们不是可以用 scope 排除的外链，正文继续保留，许可门仍为 `block`。详细来源和定位已写入机器审计。
 
+## 已落实的 PDF 版本许可与物化修复
+
+[arXiv:2502.18864v2](https://arxiv.org/abs/2502.18864v2) 的标题为 *Accelerating scientific discovery with Co-Scientist*，官方固定版本标注 CC BY 4.0。固定 PDF 与 e-print 响应均为原 manifest 对应的 5,885,207 bytes、157 页 PDF；51 位作者按官方顺序完整署名。完整 [CC BY 4.0 法律文本](https://creativecommons.org/licenses/by/4.0/legalcode.txt)、来源链接和转换说明随包入库，原始 PDF 保持不变。v1 的 CC BY-NC-ND 4.0 不被替换或追溯豁免，本项 `allow` 仅绑定已验证的 v2。
+
+旧管线误把 PDF 解码为 TeX，现以 `source/document.pdf` 和 `document.txt` 替换损坏的衍生文件。155 页有可提取文本；第 4、20 页的图示仍完整保留在 PDF 中，没有冒充 OCR 文本或生成虚假页定位器。因此保留 `full_text` 原件，状态为 `partial`、证据角色为 `bounded-excerpt`。许可核验覆盖实际保留的整个 PDF 与文本衍生物，而不是用抽取缺页缩小许可范围。全文扫描及代表页图像复核未发现另列第三方权利声明；外链数据未被复制入包。
+
+门控对包含 `source_pdf` 的胶囊始终检查完整原件许可，即使文本提取失败导致其文本层级降为 metadata/excerpt，也不能绕过检查。版本、NOTICE、署名及审计与其他已许可包采用同一套一致性验证，不新增针对该 UID 的例外。
+
 ## 来源族发现（Source-family Findings）
 
 - arXiv：32 篇官方文章页链接 CC；40 篇只有授予 arXiv.org 的 non-exclusive license，1 篇只有历史 assumed license。后两者不是公众许可。
@@ -51,7 +59,7 @@
 
 ## 人工审核与权利确认（Human Review and Clearance）
 
-逐条证据审核已经完成，许可履约仍未全量完成。50 条有公众许可证据的记录中，四项已按官方许可完成当前文字包的版本绑定与包装，其余 46 项继续核实条件；41 条未核实记录仍需适用授权或与确切作品版本绑定的新权威许可证据。不得以用户希望上传或 Agent 自我批准代替证据；整体自动上传继续失败关闭（fail closed）。
+逐条证据审核已经完成，许可履约仍未全量完成。50 条有公众许可证据的记录中，五项已按官方许可完成当前包的版本绑定与包装，其余 45 项继续核实条件；41 条未核实记录仍需适用授权或与确切作品版本绑定的新权威许可证据。不得以用户希望上传或 Agent 自我批准代替证据；整体自动上传继续失败关闭（fail closed）。
 
 ## 逐条审计（91 items）
 
@@ -114,7 +122,7 @@
 | 55 | <code>arxiv:2501.13956</code> | <code>materialized_sources/corpus/arxiv-2501.13956--b93a114f/manifest.yaml</code><br><code>raw_data/arxiv/Zep: A Temporal Knowledge Graph Architecture for Agent Memory/metadata.yaml</code> | <code>CC-BY-NC-SA-4.0</code>；arXiv 官方文章页的 Rights to this article 链接指向 CC-BY-NC-SA-4.0。；本地 access=<code>unknown</code>，assumed=true | 本地三处 rights 未记录该文章许可及核验日期。；retrieval hash 尚未与确切 arXiv vN 建立可审计映射。 | <code>documented_permission</code> | 满足条件后才可考虑发布；当前 gate=block |
 | 56 | <code>arxiv:2502.12110</code> | <code>materialized_sources/corpus/arxiv-2502.12110--d27d79d8/manifest.yaml</code><br><code>raw_data/arxiv/A-MEM: Agentic Memory for LLM Agents/metadata.yaml</code> | 官方许可只授予 arXiv.org 非独占分发权，不授予公众或本仓库。；本地 access=<code>unknown</code>，assumed=true | 面向公众的论文全文复制/再分发许可。；许可版本、权利人和精确作品版本绑定。 | <code>permission_unverified</code> | 不公开全文，仅元数据/链接；当前 gate=block |
 | 57 | <code>arxiv:2502.14499</code> | <code>materialized_sources/corpus/arxiv-2502.14499--a7f1a2e8/manifest.yaml</code><br><code>raw_data/arxiv/MLGym: A New Framework and Benchmark for Advancing AI Research Agents/metadata.yaml</code> | <code>CC-BY-NC-SA-4.0</code>；arXiv 官方文章页的 Rights to this article 链接指向 CC-BY-NC-SA-4.0。；本地 access=<code>unknown</code>，assumed=true | 本地三处 rights 未记录该文章许可及核验日期。；retrieval hash 尚未与确切 arXiv vN 建立可审计映射。 | <code>documented_permission</code> | 满足条件后才可考虑发布；当前 gate=block |
-| 58 | <code>arxiv:2502.18864</code> | <code>materialized_sources/corpus/arxiv-2502.18864--014b4710/manifest.yaml</code><br><code>raw_data/arxiv/Towards an AI co-scientist/metadata.yaml</code> | <code>CC-BY-4.0</code>；arXiv 官方文章页的 Rights to this article 链接指向 CC-BY-4.0。；本地 access=<code>unknown</code>，assumed=true | 本地三处 rights 未记录该文章许可及核验日期。；retrieval hash 尚未与确切 arXiv vN 建立可审计映射。 | <code>documented_permission</code> | 满足条件后才可考虑发布；当前 gate=block |
+| 58 | <code>arxiv:2502.18864</code> | <code>materialized_sources/corpus/arxiv-2502.18864--014b4710/manifest.yaml</code><br><code>raw_data/arxiv/Towards an AI co-scientist/metadata.yaml</code> | 固定 v2 的 <code>CC-BY-4.0</code>；原始 PDF、51 作者、完整 NOTICE 与文本转换说明均已绑定 | 无；抽取缺页 4/20 如实标记 partial，不影响 PDF 原件留存 | <code>documented_permission</code> | 仅当前已验证 v2 包 gate=allow；不覆盖 v1 或未来版本 |
 | 59 | <code>arxiv:2503.18102</code> | <code>materialized_sources/corpus/arxiv-2503.18102--1133e9d5/manifest.yaml</code><br><code>raw_data/arxiv/AgentRxiv: Towards Collaborative Autonomous Research/metadata.yaml</code> | <code>CC-BY-4.0</code>；arXiv 官方文章页的 Rights to this article 链接指向 CC-BY-4.0。；本地 access=<code>unknown</code>，assumed=true | 本地三处 rights 未记录该文章许可及核验日期。；retrieval hash 尚未与确切 arXiv vN 建立可审计映射。 | <code>documented_permission</code> | 满足条件后才可考虑发布；当前 gate=block |
 | 60 | <code>arxiv:2504.01848</code> | <code>materialized_sources/corpus/arxiv-2504.01848--006ccffe/manifest.yaml</code><br><code>raw_data/arxiv/PaperBench: Evaluating AI's Ability to Replicate AI Research/metadata.yaml</code> | <code>CC-BY-4.0</code>；arXiv 官方文章页的 Rights to this article 链接指向 CC-BY-4.0。；本地 access=<code>unknown</code>，assumed=true | 本地三处 rights 未记录该文章许可及核验日期。；retrieval hash 尚未与确切 arXiv vN 建立可审计映射。 | <code>documented_permission</code> | 满足条件后才可考虑发布；当前 gate=block |
 | 61 | <code>arxiv:2504.03160</code> | <code>materialized_sources/corpus/arxiv-2504.03160--0f30d3ca/manifest.yaml</code><br><code>raw_data/arxiv/DeepResearcher: Scaling Deep Research via Reinforcement Learning in Real-world Environments/metadata.yaml</code> | 官方许可只授予 arXiv.org 非独占分发权，不授予公众或本仓库。；本地 access=<code>unknown</code>，assumed=true | 面向公众的论文全文复制/再分发许可。；许可版本、权利人和精确作品版本绑定。 | <code>permission_unverified</code> | 不公开全文，仅元数据/链接；当前 gate=block |
