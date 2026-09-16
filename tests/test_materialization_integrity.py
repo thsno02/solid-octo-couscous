@@ -69,6 +69,339 @@ def minimal_text_pdf(text: str = "Readable arXiv PDF regression evidence for the
 
 
 class RetainedMarkdownTests(unittest.TestCase):
+    @contextlib.contextmanager
+    def _dated_html_capsule(self, *, unretained: bool = False):
+        with self._retained_capsule() as (root, record, _, _, asset, document):
+            document.unlink()
+            capsule = record.capsule_root
+            (capsule / "document.md").write_bytes(b"# Historical excerpt\r\n\r\nOld bounded body and its original attribution.\r\n")
+            materializer.write_jsonl(capsule / "selectors.jsonl", [{
+                "selector": "historical://excerpt#L1-L3", "local_path": (capsule / "document.md").relative_to(root).as_posix(),
+                "kind": "section", "start_line": 1, "end_line": 3, "text_preview": "Historical excerpt",
+            }])
+            old = materializer.load_yaml(capsule / "manifest.yaml")
+            old.pop("source_version")
+            old["content_tier"] = "excerpt_capsule"
+            old["materialization"] = {"document": "document.md", "selector_count": 1}
+            old["selectors"] = ["selectors.jsonl"]
+            old["local_files"] = materializer.local_file_inventory(capsule)
+            original = "\r\n".join([
+                '<!DOCTYPE html><html><head><title>Dated specification</title></head><body>',
+                '<div class="head"><h1 id="title">Fixed specification</h1><p>Author identity and copyright retained.</p>',
+                '<img src="https://example.test/logo.svg" alt="UI_LOGO"><a class="orcid"><svg>UI_ORCID</svg>Author name</a></div>',
+                '<nav id="toc">UI_TOC</nav><p id="back-to-top">UI_BACK_TOP</p><div class="dfn-panel">UI_DEFINITION_PANEL</div>',
+                '<h2 id="status">Status of This Document</h2><p>This dated specification records a stable source boundary with explicit local evidence and reviewed attribution for readers.</p>',
+                '<dl><dt>TERM_ONE</dt><dt>TERM_TWO</dt><dd>DEFINITION_ONE<dl><dt>NESTED_TERM</dt><dd>NESTED_DEFINITION</dd></dl></dd><dd>DEFINITION_TWO</dd></dl>',
+                '<h2 id="figures">Figures</h2><figure><a href="figure.svg"><object data="figure.svg" type="image/svg+xml" aria-label="asserted graph"></object></a><figcaption>ASSERTED_CAPTION</figcaption></figure>',
+                '<figure><object data="figure.svg" type="image/svg+xml" aria-describedby="figure-description"><p id="figure-description">FALLBACK_GRAPH_DESCRIPTION</p></object><figcaption>UNASSERTED_CAPTION and <a href="#annex">Annex description</a></figcaption></figure>',
+                '<button>Compacted (Input)</button><button>Expanded (Result)</button>',
+                '<pre class="header-value">Header value<br>&nbsp;&nbsp;continuation<br><span>final line</span></pre>',
+                '<table><tr><th>PROPERTY</th><th>CONSTRAINT</th></tr><tr><td>authentication</td><td rowspan="5" colspan="2">SHARED_CONSTRAINT</td></tr><tr><td>assertionMethod</td></tr></table>',
+                '<img src="figure.svg" alt="MULTILINE_ALT\nsecond line retains graph meaning">',
+                '<pre>literal {ticker} and {% template %}\n\nThis hidden code example claims an impossible result without any source verification.\n# Fake heading</pre>',
+                '<h2 id="annex">Annex A</h2><p>Detailed graph meaning remains part of the original specification body.</p>',
+                '</body></html>', '',
+            ]).encode()
+            if unretained:
+                original = original.replace(b'</body>', b'<figure><img src="./images/unlicensed-map.png" alt="Map extent"><figcaption>Original map credit and caption retained.</figcaption></figure></body>')
+            source = capsule / "source/specification.html"
+            source.write_bytes(original)
+            revision = "sha256:" + hashlib.sha256(original).hexdigest()
+            package = {**record.metadata["rights"]["redistribution_package"],
+                "source_revision": revision, "modifications": "Declared UI removal and structural HTML text; original response unchanged.",
+                "scope": "Dated HTML and explicitly retained scientific figure.",
+            }
+            record.metadata["full_text_url"] = package["source_version_url"]
+            record.metadata["rights"]["redistribution_package"] = package
+            materializer.write_yaml(record.metadata_path, record.metadata)
+            materializer.write_yaml(capsule / "source-metadata.yaml", record.metadata)
+            notice = b"Historical attribution remains complete.\n\nCurrent dated HTML grant and original rights links.\n"
+            (root / "license.md").write_bytes(notice)
+            (capsule / "NOTICE.md").write_bytes(notice)
+            manifest = materializer.base_manifest(record, "generic_web_or_document_v2", "fixed-time")
+            manifest.update({"status": "materialized", "content_tier": "full_text", "revision": revision, "source_version": "1.2", "historical_acquisition": old})
+            manifest["rights"]["redistribution_package"] = package
+            manifest["materialization"] = {
+                "retained_text_binding": "dated_html_response", "document": "normalized/document.md", "normalized_document": "normalized/document.md",
+                "retained_text_selectors": "normalized/selectors.jsonl",
+                "retained_text_sources": [{"source": "source/specification.html", "format": "html", "exclude_selectors": ["nav#toc", "p#back-to-top", ".dfn-panel", ".head img", ".head a.orcid svg"]}],
+                "link_rewrites": {"figure.svg": "../source/assets/img/figure.svg"},
+            }
+            if unretained:
+                manifest["status"] = "partial"
+                manifest["materialization"]["retained_text_sources"][0]["unretained_assets"] = ["./images/unlicensed-map.png"]
+                manifest["limitations"] = ["Image basemap credit lacks a confirmed public persistence grant."]
+            manifest["selectors"] = ["selectors.jsonl", "normalized/selectors.jsonl"]
+            manifest["retrievals"] = [{
+                "local_path": path.relative_to(capsule).as_posix(), "requested_url": url, "resolved_url": url,
+                "sha256": materializer.sha256_file(path), "bytes": path.stat().st_size,
+                "http_status": 200, "content_type": media, "retrieved_at": "fixed-acquisition-time",
+            } for path, url, media in (
+                (source, package["source_version_url"], "text/html; charset=utf-8"),
+                (asset, package["source_version_url"] + "figure.svg", "image/svg+xml"),
+            )]
+            manifest["local_files"] = materializer.local_file_inventory(capsule)
+            materializer.write_yaml(capsule / "manifest.yaml", manifest)
+            audit = root / "raw_data/audits/materialization_rights_review.yaml"
+            audit.parent.mkdir(parents=True)
+            materializer.write_yaml(audit, {"items": [{
+                "uid": record.uid, "manifest_path": (capsule / "manifest.yaml").relative_to(root).as_posix(), "source_revision": revision,
+                "redistribution_package": package, "publication_gate": {"decision": "allow"},
+            }]})
+            yield root, record, source, asset, document, manifest
+
+    def test_dated_html_explicit_unretained_figure_is_a_link_not_an_image(self) -> None:
+        with self._dated_html_capsule(unretained=True) as (root, record, source, _, document, manifest), mock.patch.object(materializer, "fetch_bytes", side_effect=AssertionError("explicit unretained figures must not be fetched")), mock.patch.object(materializer, "prepare_capsule", side_effect=AssertionError("dated replay must retain the legacy capsule")):
+            original = source.read_bytes()
+            materializer.replay_retained_text_sources(record, manifest, "fixed-time", check_derived=False)
+            result = materializer.materialize_one(record, {}, "fixed-time")
+            before = {path.relative_to(record.capsule_root): path.read_bytes() for path in record.capsule_root.rglob("*") if path.is_file()}
+            materializer.materialize_one(record, {}, "fixed-time")
+            self.assertEqual({path.relative_to(record.capsule_root): path.read_bytes() for path in record.capsule_root.rglob("*") if path.is_file()}, before)
+            text = document.read_bytes().decode()
+            self.assertEqual(result["status"], "partial")
+            self.assertIn("[Original figure not retained locally: Map extent](https://example.test/specification/1.2/images/unlicensed-map.png)", text)
+            self.assertIn("Original map credit and caption retained.", text)
+            self.assertIn("> Collector asset gap:", text)
+            self.assertNotIn("![Map extent]", text)
+            self.assertFalse(list(record.capsule_root.rglob("*.png")))
+            self.assertEqual(source.read_bytes(), original)
+            errors: list[str] = []
+            validator.validate_retained_markdown_binding(result, record.capsule_root, {source.relative_to(root).as_posix(): materializer.sha256_file(source)}, errors, repository_root=root)
+            self.assertEqual(errors, [])
+
+    def test_dated_html_unretained_assets_do_not_relax_other_originals(self) -> None:
+        for change in ("absent", "both-routes", "wrong-type", "complete-status", "undeclared", "other-asset-missing"):
+            with self.subTest(change=change), self._dated_html_capsule(unretained=True) as (root, record, source, asset, _, manifest):
+                item = manifest["materialization"]["retained_text_sources"][0]
+                if change == "absent":
+                    item["unretained_assets"] = ["./images/not-in-dom.png"]
+                elif change == "both-routes":
+                    manifest["materialization"]["link_rewrites"]["./images/unlicensed-map.png"] = "../source/assets/img/figure.svg"
+                elif change == "wrong-type":
+                    item["unretained_assets"] = "./images/unlicensed-map.png"
+                elif change == "complete-status":
+                    manifest["status"] = "materialized"
+                elif change == "undeclared":
+                    del item["unretained_assets"]
+                else:
+                    asset.unlink()
+                materializer.write_yaml(record.capsule_root / "manifest.yaml", manifest)
+                before = {path.relative_to(root): path.read_bytes() for path in root.rglob("*") if path.is_file()}
+                with mock.patch.object(materializer, "fetch_bytes") as fetch, mock.patch.object(materializer, "prepare_capsule") as prepare, mock.patch.object(materializer, "finalize_capsule") as finalize:
+                    with self.assertRaises(materializer.RetainedMarkdownPreflightError):
+                        materializer.materialize_one(record, {}, "fixed-time")
+                    fetch.assert_not_called()
+                    prepare.assert_not_called()
+                    finalize.assert_not_called()
+                self.assertEqual({path.relative_to(root): path.read_bytes() for path in root.rglob("*") if path.is_file()}, before)
+
+    def test_dated_html_first_build_and_two_offline_replays_preserve_legacy_bytes(self) -> None:
+        with self._dated_html_capsule() as (root, record, source, asset, document, manifest), mock.patch.object(
+            materializer, "fetch_bytes", side_effect=AssertionError("dated HTML replay must not fetch"),
+        ), mock.patch.object(materializer, "prepare_capsule", side_effect=AssertionError("dated HTML replay must not clear originals")):
+            preserved = {path: path.read_bytes() for path in (source, asset, record.capsule_root / "document.md", record.capsule_root / "selectors.jsonl")}
+            materializer.replay_retained_text_sources(record, manifest, "fixed-time", check_derived=False)
+            first = {path.relative_to(record.capsule_root): path.read_bytes() for path in record.capsule_root.rglob("*") if path.is_file()}
+            for executor in (materializer.materialize_generic, materializer.materialize_one):
+                replayed = executor(record, {}, "fixed-time")
+                self.assertEqual({path.relative_to(record.capsule_root): path.read_bytes() for path in record.capsule_root.rglob("*") if path.is_file()}, first)
+                self.assertNotIn("source_version", replayed["historical_acquisition"])
+                self.assertEqual(replayed["historical_acquisition"], manifest["historical_acquisition"])
+                rows = [json.loads(line) for line in (record.capsule_root / "normalized/selectors.jsonl").read_text().splitlines()]
+                self.assertEqual(replayed["materialization"]["selector_count"], 1 + len(rows))
+                errors: list[str] = []
+                validator.validate_retained_markdown_binding(replayed, record.capsule_root, {source.relative_to(root).as_posix(): materializer.sha256_file(source)}, errors, repository_root=root)
+                self.assertEqual(errors, [])
+            self.assertEqual({path: path.read_bytes() for path in preserved}, preserved)
+            text = document.read_bytes().decode()
+            for token in ("Author identity and copyright retained.", "Author name", "Status of This Document", "Compacted (Input)", "Expanded (Result)", "Annex A", "FALLBACK_GRAPH_DESCRIPTION", "UNASSERTED_CAPTION"):
+                self.assertEqual(text.count(token), 1)
+            self.assertEqual(text.count("\nASSERTED_CAPTION\n"), 1)
+            for token in ("UI_TOC", "UI_BACK_TOP", "UI_DEFINITION_PANEL", "UI_LOGO", "UI_ORCID"):
+                self.assertNotIn(token, text)
+            terms = ("TERM_ONE", "TERM_TWO", "DEFINITION_ONE", "NESTED_TERM", "NESTED_DEFINITION", "DEFINITION_TWO")
+            self.assertEqual([text.index(token) for token in terms], sorted(text.index(token) for token in terms))
+            for token in terms:
+                self.assertIn("\n\n" + token, text)
+            self.assertIn("![asserted graph](../source/assets/img/figure.svg)", text)
+            self.assertIn("![figure.svg](../source/assets/img/figure.svg)", text)
+            self.assertIn("[Enclosing object link](../source/assets/img/figure.svg)", text)
+            self.assertIn("[aria-describedby: figure-description](#specification-figure-description)", text)
+            self.assertIn("[Annex description](#specification-annex)", text)
+            self.assertIn("literal {ticker} and {% template %}\n\nThis hidden code", text)
+            self.assertIn("```\nHeader value\n\u00a0\u00a0continuation\nfinal line\n```", text)
+            self.assertIn("- authentication | SHARED_CONSTRAINT [rowspan=5] [colspan=2]", text)
+            self.assertIn("- assertionMethod", text)
+            self.assertIn("![MULTILINE_ALT second line retains graph meaning](../source/assets/img/figure.svg)", text)
+            self.assertNotIn("snapshot_commit", record.metadata["versioning"])
+
+    def test_dated_html_failed_preflight_preserves_all_bytes_through_wrapper_and_executor(self) -> None:
+        changes = ("version", "metadata-version-type", "cached-package", "url", "requested-url", "resolved-url", "main-hash", "asset-drift", "missing-main", "missing-asset", "notice", "package", "audit", "exclude", "binding-type", "materialization-type", "missing-main-bad-mapping", "declaration", "legacy-drift")
+        for change in changes:
+            with self.subTest(change=change), self._dated_html_capsule() as (root, record, source, asset, _, manifest):
+                materializer.replay_retained_text_sources(record, manifest, "fixed-time", check_derived=False)
+                manifest = materializer.load_yaml(record.capsule_root / "manifest.yaml")
+                if change == "version":
+                    manifest["source_version"] = "1.3"
+                elif change == "metadata-version-type":
+                    record.metadata["versioning"] = 7
+                elif change == "cached-package":
+                    record.metadata["rights"]["redistribution_package"]["scope"] = "Cached but unreviewed grant"
+                elif change == "url":
+                    record.metadata["full_text_url"] = "https://example.test/specification/latest/"
+                    materializer.write_yaml(record.metadata_path, record.metadata)
+                elif change in {"requested-url", "resolved-url"}:
+                    manifest["retrievals"][0][change.replace("-", "_")] += "wrong/"
+                elif change == "main-hash":
+                    manifest["retrievals"][0]["sha256"] = "stale"
+                elif change == "asset-drift":
+                    asset.write_bytes(asset.read_bytes() + b"Drift")
+                elif change in {"missing-main", "missing-asset"}:
+                    (source if change == "missing-main" else asset).unlink()
+                elif change == "notice":
+                    (record.capsule_root / "NOTICE.md").write_bytes(b"Truncated notice")
+                elif change == "package":
+                    manifest["rights"]["redistribution_package"]["scope"] = "Unreviewed grant"
+                elif change == "audit":
+                    audit = root / "raw_data/audits/materialization_rights_review.yaml"
+                    value = materializer.load_yaml(audit)
+                    value["items"][0]["redistribution_package"]["scope"] = "Unreviewed grant"
+                    materializer.write_yaml(audit, value)
+                elif change == "exclude":
+                    manifest["materialization"]["retained_text_sources"][0]["exclude_selectors"] = ["body"]
+                elif change == "binding-type":
+                    manifest["materialization"]["retained_text_binding"] = 7
+                elif change == "materialization-type":
+                    manifest["materialization"] = 7
+                elif change == "missing-main-bad-mapping":
+                    source.unlink()
+                    manifest["materialization"] = 7
+                elif change == "declaration":
+                    del manifest["materialization"]["retained_text_sources"]
+                else:
+                    (record.capsule_root / "document.md").write_bytes(b"Changed historical body")
+                materializer.write_yaml(record.capsule_root / "manifest.yaml", manifest)
+                before = {path.relative_to(root): path.read_bytes() for path in root.rglob("*") if path.is_file()}
+                with mock.patch.object(materializer, "fetch_bytes") as fetch, mock.patch.object(materializer, "prepare_capsule") as prepare, mock.patch.object(materializer, "finalize_capsule") as finalize:
+                    for executor in (materializer.materialize_generic, materializer.materialize_one):
+                        with self.assertRaises(materializer.RetainedMarkdownPreflightError):
+                            executor(record, {}, "fixed-time")
+                        self.assertEqual({path.relative_to(root): path.read_bytes() for path in root.rglob("*") if path.is_file()}, before)
+                    fetch.assert_not_called()
+                    prepare.assert_not_called()
+                    finalize.assert_not_called()
+
+    def test_dated_html_skip_absent_derivatives_is_not_a_wrapper_fallback(self) -> None:
+        for change in ("missing-sidecar", "wrong-pair", "invalid-selector", "absent-exclusion", "not-opted-in"):
+            with self.subTest(change=change), self._dated_html_capsule() as (root, record, source, _, _, manifest):
+                materializer.replay_retained_text_sources(record, manifest, "fixed-time", check_derived=False)
+                manifest = materializer.load_yaml(record.capsule_root / "manifest.yaml")
+                sidecar = record.capsule_root / "normalized/selectors.jsonl"
+                if change == "missing-sidecar":
+                    sidecar.unlink()
+                elif change == "wrong-pair":
+                    manifest["materialization"]["retained_text_selectors"] = "selectors.jsonl"
+                elif change == "invalid-selector":
+                    rows = [json.loads(line) for line in sidecar.read_text().splitlines()]
+                    rows[0]["derived_from"] = "imaginary/source.html"
+                    materializer.write_jsonl(sidecar, rows)
+                elif change == "absent-exclusion":
+                    # Supported syntax still has to match the actual original.
+                    source.write_bytes(source.read_bytes().replace(b'id="toc"', b'id="other-nav"'))
+                    with self.assertRaisesRegex(ValueError, "declared HTML exclusion is absent"):
+                        materializer.retained_html_body(source.read_bytes().decode(), dated_html_response=True, exclude_selectors=["nav#toc"])
+                else:
+                    del manifest["materialization"]["retained_text_binding"]
+                    del manifest["materialization"]["retained_text_selectors"]
+                materializer.write_yaml(record.capsule_root / "manifest.yaml", manifest)
+                before = {path.relative_to(root): path.read_bytes() for path in root.rglob("*") if path.is_file()}
+                errors: list[str] = []
+                validator.validate_retained_markdown_binding(manifest, record.capsule_root, {source.relative_to(root).as_posix(): materializer.sha256_file(source)}, errors, repository_root=root, check_derived=False)
+                self.assertTrue(errors)
+                with mock.patch.object(materializer, "fetch_bytes") as fetch, mock.patch.object(materializer, "prepare_capsule") as prepare, mock.patch.object(materializer, "finalize_capsule") as finalize:
+                    with self.assertRaises(materializer.RetainedMarkdownPreflightError):
+                        materializer.materialize_one(record, {}, "fixed-time")
+                    fetch.assert_not_called()
+                    prepare.assert_not_called()
+                    finalize.assert_not_called()
+                self.assertEqual({path.relative_to(root): path.read_bytes() for path in root.rglob("*") if path.is_file()}, before)
+
+    def test_dated_html_sidecar_declaration_preserves_capsule_without_physical_sentinels(self) -> None:
+        with self._dated_html_capsule() as (root, record, source, _, _, manifest):
+            materializer.replay_retained_text_sources(record, manifest, "fixed-time", check_derived=False)
+            manifest = materializer.load_yaml(record.capsule_root / "manifest.yaml")
+            source.unlink()
+            (record.capsule_root / "normalized/selectors.jsonl").unlink()
+            manifest["materialization"] = 7
+            self.assertEqual(manifest["selectors"], ["selectors.jsonl", "normalized/selectors.jsonl"])
+            materializer.write_yaml(record.capsule_root / "manifest.yaml", manifest)
+            before = {path.relative_to(root): path.read_bytes() for path in root.rglob("*") if path.is_file()}
+            with mock.patch.object(materializer, "fetch_bytes") as fetch, mock.patch.object(materializer, "prepare_capsule") as prepare, mock.patch.object(materializer, "finalize_capsule") as finalize:
+                for executor in (materializer.materialize_generic, materializer.materialize_one):
+                    with self.subTest(executor=executor.__name__), self.assertRaisesRegex(materializer.RetainedMarkdownPreflightError, "materialization must be a mapping"):
+                        executor(record, {}, "fixed-time")
+                    self.assertEqual({path.relative_to(root): path.read_bytes() for path in root.rglob("*") if path.is_file()}, before)
+                fetch.assert_not_called()
+                prepare.assert_not_called()
+                finalize.assert_not_called()
+
+    def test_ordinary_unknown_source_without_dated_declaration_keeps_generic_fallback(self) -> None:
+        with self._retained_capsule() as (_, record, _, _, _, _):
+            manifest = materializer.load_yaml(record.capsule_root / "manifest.yaml")
+            manifest["materialization"] = 7
+            manifest["selectors"] = ["selectors.jsonl"]
+            materializer.write_yaml(record.capsule_root / "manifest.yaml", manifest)
+            ordinary = replace(record, source_type="unknown", canonical_url=None, metadata={})
+            with mock.patch.object(materializer, "fetch_bytes") as fetch, mock.patch.object(materializer, "prepare_capsule", return_value=record.capsule_root) as prepare, mock.patch.object(materializer, "finalize_capsule", side_effect=lambda _record, _root, current: current) as finalize:
+                result = materializer.materialize_generic(ordinary, {}, "fixed-time")
+                self.assertIn("no retrievable URL in metadata", result["errors"])
+                prepare.assert_called_once_with(ordinary)
+                finalize.assert_called_once()
+                fetch.assert_not_called()
+
+    def test_dated_html_table_cell_pre_has_standalone_fences_and_is_not_excerpted(self) -> None:
+        code = "NAME\tVALUE\n# Fake code heading\n\n## Abstract\n\nThis code comment falsely guarantees perfect answers for every possible question without any additional validation.\n{% template %} {ticker}  \n"
+        last_code = 'owl:onDatatype xsd:string ;\n  xsd:pattern "--(0[1-9]|1[0-9]|20)"^^xsd:string ;  '
+        actual = "This actual specification defines a bounded source method whose explicit restrictions and local evidence remain available for independent review by readers."
+        original = (
+            '<html><body><h2>Introduction</h2><table><tr><td>TABLE_LABEL</td><td></td>'
+            '<td rowspan="5" colspan="2">TEXT_BEFORE<pre>' + code + '</pre>TEXT_AFTER</td><td>FINAL_CELL</td></tr>'
+            '<tr><td>Subclass of:</td><td><pre><code>' + last_code + '</code></pre></td></tr></table>'
+            '<h2>Current body</h2><p>' + actual + '</p></body></html>\n'
+        ).encode()
+        with tempfile.TemporaryDirectory() as directory, mock.patch.object(materializer, "ROOT", Path(directory)):
+            root = Path(directory)
+            source = root / "capsule/source/specification.html"
+            source.parent.mkdir(parents=True)
+            source.write_bytes(original)
+            document = root / "capsule/normalized/document.md"
+            rows = materializer.derive_retained_text_sources([(source, "html")], document, {}, source_options={source.resolve(): {"dated_html_response": True}})
+            text = document.read_bytes().decode()
+            self.assertIn("\n```\n" + code + "```\n", text)
+            self.assertIn("\n```\n" + last_code + "\n```\n", text)
+            self.assertIn("> Collector cell 2 of 4: (empty)", text)
+            self.assertIn("> Collector cell span: [rowspan=5] [colspan=2]\n\nTEXT_BEFORE", text)
+            ordered = ("TABLE_LABEL", "> Collector cell 2 of 4: (empty)", "TEXT_BEFORE", code, "TEXT_AFTER", "FINAL_CELL", "Subclass of:", last_code)
+            self.assertEqual([text.index(value) for value in ordered], sorted(text.index(value) for value in ordered))
+            self.assertEqual(text.count("> Collector table row:"), 2)
+            headings = materializer.extract_markdown_headings(text, "document.md", structured=True)
+            self.assertNotIn("Abstract", [row["heading"] for row in headings])
+            self.assertNotIn("Fake code heading", [row["heading"] for row in headings])
+            pipeline = REPOSITORY_ROOT / "experiments/v0_meta_kb_initialization_demo_260910/pipeline"
+            with mock.patch.object(sys, "path", [str(pipeline), *sys.path]):
+                from build_demo import source_excerpt
+            excerpt, first, last = source_excerpt(text, "Specification", reading_view=True)
+            self.assertEqual(excerpt, actual)
+            self.assertIn(excerpt, "\n".join(text.splitlines()[first - 1:last]))
+            for row in rows:
+                self.assertIn(row["text_preview"], "\n".join(text.splitlines()[row["start_line"] - 1:row["end_line"]]))
+            legacy = root / "capsule/normalized/legacy.md"
+            materializer.derive_retained_text_sources([(source, "html")], legacy, {})
+            self.assertIn("- TABLE_LABEL |  | TEXT_BEFORE", legacy.read_bytes().decode())
+            self.assertNotIn("> Collector table row:", legacy.read_bytes().decode())
+            self.assertEqual(source.read_bytes(), original)
+
     def test_structured_headings_recognize_setext_atx_and_ignore_fenced_examples(self) -> None:
         text = "\n".join([
             "Document title", "==============", "", "Section name", "------------",

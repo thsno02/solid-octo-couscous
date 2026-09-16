@@ -31,6 +31,7 @@ ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT / "scripts"))
 from validate_materialization_completeness import pdf_primary_excerpt_range, validate_pdf_supplement
 from validate_publication_rights import validate_pdf_supplement_rights
+from materialize_all_sources import retained_text_selector_file
 CONFIG_PATH = EXPERIMENT_ROOT / "config.yaml"
 MATERIALIZED_INDEX = ROOT / "materialized_sources" / "index.yaml"
 KNOWLEDGE_SCHEMA = ROOT / "raw_data" / "schemas" / "knowledge_model.schema.yaml"
@@ -218,13 +219,16 @@ def choose_local_selectors(item: dict[str, Any], manifest: dict[str, Any]) -> Pa
     capsule_root = (ROOT / str(item["manifest"])).parent
     if admitted_pdf_supplement(item, manifest):
         return capsule_root / "pdf-supplement/selectors.jsonl"
-    return capsule_root / "selectors.jsonl"
+    return retained_text_selector_file(manifest, capsule_root, require_exists=True)
 
 
 def choose_local_document(item: dict[str, Any], manifest: dict[str, Any]) -> Path | None:
     capsule_root = (ROOT / str(item["manifest"])).parent
     if admitted_pdf_supplement(item, manifest):
         return capsule_root / "pdf-supplement/document.txt"
+    sidecar = retained_text_selector_file(manifest, capsule_root, require_exists=True)
+    if sidecar != capsule_root / "selectors.jsonl":
+        return capsule_root / manifest["materialization"]["document"]
     candidates = [
         capsule_root / "normalized" / "document.txt",
         capsule_root / "document.md",
@@ -291,6 +295,8 @@ def meaningful_excerpt(text: str, title: str, *, reading_view: bool = False) -> 
     region = working[offset:]
     for block in re.finditer(r"\S[^\n]*(?:\n(?!\s*\n)[^\n]*)*", region):
         raw = block.group()
+        if reading_view and re.search(r"<a\s+id\s*=", raw):
+            continue  # Do not clean collector anchors into a fabricated contiguous quote.
         candidate = " ".join(raw.split())
         if raw.lstrip().startswith(("---", "#", "- ", ">", "<", "```", "!", "[", "\\")):
             continue
@@ -571,10 +577,11 @@ def main() -> int:
         consumed_item = {**item, "revision": representation.get("revision")} if use_pdf else item
         if use_pdf:
             consumed_item["source_representation"] = "pdf_supplement"
-        reading_view = (not use_pdf and isinstance(manifest.get("materialization", {}).get("tex_reading_view"), dict)
-                        and manifest["materialization"]["tex_reading_view"].get("enabled") is True)
+        retained_html = not use_pdf and manifest.get("materialization", {}).get("retained_text_binding") == "dated_html_response"
+        reading_view = retained_html or (not use_pdf and isinstance(manifest.get("materialization", {}).get("tex_reading_view"), dict)
+                                        and manifest["materialization"]["tex_reading_view"].get("enabled") is True)
         if reading_view:
-            consumed_item = {**consumed_item, "source_representation": "tex_reading_view"}
+            consumed_item = {**consumed_item, "source_representation": "retained_html_response" if retained_html else "tex_reading_view"}
         declared_rights = rights_snapshot(representation.get("rights"))
         source_for_rights = {
             **consumed_item,
@@ -663,7 +670,8 @@ def main() -> int:
                         "excerpt_sha256": hashlib.sha256(excerpt.encode("utf-8")).hexdigest(),
                         "content_tier": item.get("content_tier"),
                         "evidence_role": evidence_role,
-                        **({"source_representation": "tex_reading_view", "transformation": "Collector-derived static TeX reading view; excerpt is not a raw-source quotation."} if reading_view else {}),
+                        **({"source_representation": "retained_html_response" if retained_html else "tex_reading_view",
+                            "transformation": "Collector-derived static HTML structural text; excerpt is not a raw-source quotation." if retained_html else "Collector-derived static TeX reading view; excerpt is not a raw-source quotation."} if reading_view else {}),
                         **evidence_rights,
                     },
                     assertion_kind="observation",
@@ -685,7 +693,7 @@ def main() -> int:
                     "claim_scope": "source-reported assertion",
                     "domain": domain,
                     "subject_ref": source_entity_uid,
-                    "limitations": (["Only the locally retained excerpt is evidence; omitted source content was not reviewed."] if limited_evidence else []) + (representation.get("limitations", []) if use_pdf else []) + (["Excerpt comes from a collector-derived conservative TeX reading view, not a raw-source quotation; uncertain TeX expressions are excluded from automatic excerpts."] if reading_view else []),
+                    "limitations": (["Only the locally retained excerpt is evidence; omitted source content was not reviewed."] if limited_evidence else []) + (representation.get("limitations", []) if use_pdf else []) + (["Excerpt comes from collector-derived static HTML structural text, not a raw-source quotation; code blocks and candidate paragraphs containing collector anchors are excluded from automatic excerpts." if retained_html else "Excerpt comes from a collector-derived conservative TeX reading view, not a raw-source quotation; uncertain TeX expressions are excluded from automatic excerpts."] if reading_view else []),
                     **(
                         {
                             "rights_refs": [

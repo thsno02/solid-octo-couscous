@@ -2140,9 +2140,143 @@ def retained_html_reference(
     return urllib.parse.urljoin(source_url, reference) if source_url else reference
 
 
+def retained_text_selector_file(manifest: dict[str, Any], root: Path, *, require_exists: bool = False) -> Path:
+    """Route only the explicitly paired dated-HTML consumer; keep legacy defaults."""
+    materialization = manifest.get("materialization")
+    sidecar_declared = isinstance(manifest.get("selectors"), list) and "normalized/selectors.jsonl" in manifest["selectors"]
+    if not isinstance(materialization, dict):
+        if sidecar_declared:
+            raise ValueError("retained selector sidecar has no materialization mapping")
+        return root / "selectors.jsonl"
+    binding = materialization.get("retained_text_binding")
+    if binding is None:
+        if "retained_text_binding" in materialization or "retained_text_selectors" in materialization or sidecar_declared:
+            raise ValueError("retained selector sidecar requires an explicit binding")
+        return root / "selectors.jsonl"
+    if binding != "dated_html_response":
+        raise ValueError("unknown retained text binding")
+    sources = materialization.get("retained_text_sources")
+    if (
+        materialization.get("document") != "normalized/document.md"
+        or materialization.get("normalized_document") != "normalized/document.md"
+        or materialization.get("retained_text_selectors") != "normalized/selectors.jsonl"
+        or manifest.get("selectors") != ["selectors.jsonl", "normalized/selectors.jsonl"]
+        or not isinstance(sources, list) or len(sources) != 1 or not isinstance(sources[0], dict)
+        or sources[0].get("source") != "source/specification.html" or sources[0].get("format") != "html"
+    ):
+        raise ValueError("dated HTML needs its fixed original, document and selector pair")
+    for name in ("source/specification.html", "normalized/document.md", "normalized/selectors.jsonl"):
+        path = root / name
+        path.resolve().relative_to(root.resolve())
+        if path.is_symlink():
+            raise ValueError("dated HTML paths cannot alias retained files")
+    if require_exists and any(not (root / name).is_file() or not (root / name).stat().st_size for name in ("normalized/document.md", "normalized/selectors.jsonl")):
+        raise ValueError("explicit dated HTML document or selector sidecar is missing")
+    return root / "normalized/selectors.jsonl"
+
+
+def retained_html_body(original: str, *, dated_html_response: bool = False, exclude_selectors: Any = None) -> Any:
+    """Exclude only declared, observed UI from a derived DOM, never the original."""
+    from bs4 import BeautifulSoup
+    soup = BeautifulSoup(original, "html.parser")
+    if not dated_html_response:
+        return soup.body or soup
+    if len(soup.find_all("body")) != 1:
+        raise ValueError("dated HTML must have one static body")
+    excluded = [] if exclude_selectors is None else exclude_selectors
+    allowed = {"nav#toc", "p#back-to-top", ".dfn-panel", ".head img", ".head a.orcid svg"}
+    if not isinstance(excluded, list) or any(not isinstance(value, str) or value not in allowed for value in excluded) or len(excluded) != len(set(excluded)):
+        raise ValueError("dated HTML exclusions must be an explicit list of supported UI selectors")
+    for selector in excluded:
+        nodes = soup.body.select(selector)
+        if not nodes:
+            raise ValueError(f"declared HTML exclusion is absent: {selector}")
+        for node in nodes:
+            node.decompose()
+    return soup.body
+
+
+def preflight_dated_html_assets(manifest: dict[str, Any], root: Path, *, repository_root: Path) -> dict[str, Any]:
+    """Bind finite HTML routes to the existing original inventory and retrievals."""
+    materialization = manifest["materialization"]
+    retained_text_selector_file(manifest, root)
+    item = materialization["retained_text_sources"][0]
+    if "exclude_selectors" in item and not isinstance(item["exclude_selectors"], list):
+        raise ValueError("dated HTML exclude_selectors must be a list")
+    source = (root / item["source"]).resolve()
+    retrieval = next(row for row in manifest["retrievals"] if row.get("local_path") == item["source"])
+    source_url = retrieval["requested_url"]
+    body = retained_html_body(source.read_bytes().decode("utf-8"), dated_html_response=True, exclude_selectors=item.get("exclude_selectors"))
+    unretained = item.get("unretained_assets", [])
+    if not isinstance(unretained, list) or any(
+        not isinstance(reference, str) or not reference or any(char.isspace() for char in reference)
+        or urllib.parse.urlsplit(reference).scheme or urllib.parse.urlsplit(reference).netloc
+        or not urllib.parse.urlsplit(reference).path or urllib.parse.urlsplit(reference).query or urllib.parse.urlsplit(reference).fragment
+        for reference in unretained
+    ) or len(unretained) != len(set(unretained)):
+        raise ValueError("unretained HTML assets must be explicit unique relative src values")
+    if unretained and manifest.get("status") != "partial":
+        raise ValueError("unretained original figures require an honest partial status")
+    rewrites = materialization.get("link_rewrites", {})
+    if not isinstance(rewrites, dict) or any(
+        not isinstance(old, str) or not old or not isinstance(new, str) or not new
+        or any(char in old + new for char in "\r\n")
+        or urllib.parse.urlsplit(new).scheme or urllib.parse.urlsplit(new).netloc
+        for old, new in rewrites.items()
+    ):
+        raise ValueError("dated HTML needs finite local href routes")
+    if any(reference in rewrites for reference in unretained):
+        raise ValueError("unretained HTML assets cannot also have retained local routes")
+
+    def check_original(path: Path, expected_url: str | None = None) -> None:
+        path.relative_to((root / "source").resolve())
+        if not path.is_file() or path.is_symlink():
+            raise ValueError("dated HTML route or asset original is missing")
+        actual = sha256_file(path)
+        inventory = [row for row in manifest["local_files"] if row.get("path") == path.relative_to(repository_root).as_posix()]
+        records = [row for row in manifest["retrievals"] if row.get("local_path") == path.relative_to(root.resolve()).as_posix()]
+        if (
+            len(inventory) != 1 or inventory[0].get("sha256") != actual or inventory[0].get("bytes") != path.stat().st_size
+            or len(records) != 1 or records[0].get("sha256") != actual or records[0].get("bytes") != path.stat().st_size
+            or expected_url is not None and (records[0].get("requested_url") != expected_url or records[0].get("resolved_url") != expected_url or records[0].get("http_status") != 200)
+        ):
+            raise ValueError("dated HTML route or asset differs from inventory or retrieval")
+
+    document = root / materialization["document"]
+    for target in rewrites.values():
+        parsed = urllib.parse.urlsplit(target)
+        if parsed.path:
+            check_original((document.parent / urllib.parse.unquote(parsed.path)).resolve())
+    observed_assets: set[str] = set()
+    for node in body.find_all(["img", "object"]):
+        if node.find_parent(["pre", "code", "script", "style", "template"]):
+            continue
+        reference = node.get("data" if node.name == "object" else "src", "")
+        parsed = urllib.parse.urlsplit(reference)
+        if not reference or not parsed.path:
+            raise ValueError("dated HTML asset has no original path")
+        observed_assets.add(reference)
+        if reference in unretained:
+            continue
+        if reference in rewrites:
+            route = urllib.parse.urlsplit(rewrites[reference])
+            if not route.path:
+                raise ValueError("dated HTML asset route must target an original file")
+            asset = (document.parent / urllib.parse.unquote(route.path)).resolve()
+        elif parsed.scheme or parsed.netloc:
+            raise ValueError("dated HTML external asset needs an explicit retained route")
+        else:
+            asset = (source.parent / urllib.parse.unquote(parsed.path)).resolve()
+        check_original(asset, urllib.parse.urljoin(source_url, reference))
+    if set(unretained) - observed_assets:
+        raise ValueError("declared unretained HTML asset is absent from the derived DOM")
+    return {"source_url": source_url, "dated_html_response": True, "exclude_selectors": item.get("exclude_selectors", []), "unretained_assets": unretained}
+
+
 def retained_html_sections(
     source: Path, document: Path, html_sources: dict[Path, tuple[Any, str, set[str]]],
-    rewrites: dict[str, str], source_url: str,
+    rewrites: dict[str, str], source_url: str, *, dated_html_response: bool = False,
+    unretained_assets: list[str] | None = None,
 ) -> list[dict[str, Any]]:
     """Render structural atoms, then visit every remaining body text node once."""
     from bs4 import Comment, NavigableString
@@ -2155,7 +2289,7 @@ def retained_html_sections(
         return f'\n<a id="{html.escape(stem + "-" + str(node["id"]), quote=True)}"></a>\n' if node.get("id") else ""
 
     def code_block(node: Any) -> str:
-        value = node.get_text("", strip=False)
+        value = "".join("\n" if getattr(child, "name", None) == "br" else str(child) if isinstance(child, NavigableString) and not isinstance(child, Comment) else "" for child in node.descendants) if dated_html_response else node.get_text("", strip=False)
         fence = "`" * max(3, max((len(run) + 1 for run in re.findall(r"`+", value)), default=3))
         return f"\n\n{fence}\n" + value + ("" if value.endswith("\n") else "\n") + fence + "\n\n"
 
@@ -2174,12 +2308,30 @@ def retained_html_sections(
             fence = "`" * max(1, max((len(run) + 1 for run in re.findall(r"`+", value)), default=1))
             return prefix + fence + value + fence
         if node.name == "img":
+            label = " ".join(str(node.get("alt", "")).split()) if dated_html_response else node.get("alt", "")
+            if dated_html_response and node.get("src") in (unretained_assets or []):
+                return prefix + f"[Original figure not retained locally: {label}]({urllib.parse.urljoin(source_url, node['src'])})"
             src = retained_html_reference(source, node.get("src", ""), document, html_sources, rewrites, source_url, asset=True)
-            return prefix + f"![{node.get('alt', '')}]({src})"
+            return prefix + f"![{label}]({src})"
+        if dated_html_response and node.name == "object":
+            unretained = node.get("data") in (unretained_assets or [])
+            src = urllib.parse.urljoin(source_url, node["data"]) if unretained else retained_html_reference(source, node.get("data", ""), document, html_sources, rewrites, source_url, asset=True)
+            label = node.get("aria-label") or Path(urllib.parse.urlsplit(node.get("data", "")).path).name
+            label = " ".join(str(label).split())
+            descriptions = " ".join(
+                f"[aria-describedby: {name}]({retained_html_reference(source, '#' + name, document, html_sources, rewrites, source_url)})"
+                for name in str(node.get("aria-describedby", "")).split()
+            )
+            fallback = "".join(inline(child) for child in node.children)
+            representation = f"[Original figure not retained locally: {label}]({src})" if unretained else f"![{label}]({src})"
+            return prefix + "\n\n" + representation + "\n\n" + descriptions + "\n\n" + fallback
         value = "".join(inline(child) for child in node.children)
         if node.name == "a" and node.get("href"):
             href = retained_html_reference(source, node["href"], document, html_sources, rewrites, source_url)
-            value = f"[{value.strip()}]({href})"
+            if dated_html_response and node.find("object"):
+                value += f"\n[Enclosing object link]({href})\n"
+            else:
+                value = f"[{value.strip()}]({href})"
         elif node.name == "br":
             value = "\n"
         return prefix + value
@@ -2214,6 +2366,7 @@ def retained_html_sections(
             return
         if node.name == "table":
             rows: list[tuple[Any, list[str]]] = []
+            block_rows: set[int] = set()
             def table_content(child: Any) -> None:
                 if isinstance(child, Comment):
                     return
@@ -2223,11 +2376,18 @@ def retained_html_sections(
                     return
                 if child.name in {"script", "style", "template"}:
                     return
-                if child.name in {"th", "td", "pre", "code", "a", "img", "br"}:
+                if child.name in {"th", "td", "pre", "code", "a", "img", "br"} or dated_html_response and child.name == "object":
                     row = child.find_parent("tr") or child
                     if not rows or rows[-1][0] is not row:
                         rows.append((row, []))
-                    rows[-1][1].append(inline(child).strip())
+                    value = inline(child).strip()
+                    block_cell = dated_html_response and (child.name == "pre" or child.find("pre") is not None)
+                    if block_cell:
+                        block_rows.add(id(row))
+                    if dated_html_response and child.name in {"th", "td"}:
+                        spans = "".join(f" [{attribute}={child[attribute]}]" for attribute in ("rowspan", "colspan") if child.has_attr(attribute))
+                        value = "> Collector cell span:" + spans + "\n\n" + value if block_cell and spans else value + spans
+                    rows[-1][1].append(value)
                     return  # Includes nested cell text exactly once, including orphan td.
                 if child.get("id"):
                     rows.append((child, [anchor(child)]))
@@ -2235,12 +2395,23 @@ def retained_html_sections(
                     table_content(descendant)
             for child in node.children:
                 table_content(child)
-            parts.append(anchor(node) + "\n\n" + "\n".join("- " + " | ".join(cells) for _, cells in rows if any(cells)) + "\n\n")
+            rendered_rows: list[str] = []
+            for row, cells in rows:
+                if not any(cells):
+                    continue
+                if id(row) in block_rows:
+                    rendered_rows.append("\n> Collector table row: cell blocks remain in original order.\n\n" + "\n\n".join(
+                        f"> Collector cell {index} of {len(cells)}:" + (" (empty)" if not cell else "") + "\n\n" + cell
+                        for index, cell in enumerate(cells, 1)
+                    ) + "\n")
+                else:
+                    rendered_rows.append("- " + " | ".join(cells))
+            parts.append(anchor(node) + "\n\n" + "\n".join(rendered_rows) + "\n\n")
             return
-        if node.name in {"a", "img", "code", "br"}:
+        if node.name in {"a", "img", "code", "br"} or dated_html_response and node.name == "object":
             parts.append(inline(node))
             return
-        block = node.name in {"p", "div", "section", "article", "figure", "figcaption", "ul", "ol", "li", "blockquote"} or "concept-item" in node.get("class", [])
+        block = node.name in {"p", "div", "section", "article", "figure", "figcaption", "ul", "ol", "li", "blockquote"} or "concept-item" in node.get("class", []) or dated_html_response and node.name in {"dl", "dt", "dd"}
         parts.append(anchor(node) + ("\n\n" if block else ""))
         if node.name == "li":
             depth = max(0, len(node.find_parents(["ul", "ol"])) - 1)
@@ -2291,9 +2462,8 @@ def derive_retained_text_sources(
         if format_name == "md":
             known_anchors.update(re.findall(r'<a\b[^>]*\bid=["\']([^"\']+)["\']', original))
         elif format_name == "html":
-            from bs4 import BeautifulSoup
-            soup = BeautifulSoup(original, "html.parser")
-            body = soup.body or soup
+            options = (source_options or {}).get(source.resolve(), {})
+            body = retained_html_body(original, dated_html_response=options.get("dated_html_response") is True, exclude_selectors=options.get("exclude_selectors"))
             ids = {str(node["id"]) for node in body.find_all(id=True) if node.name not in {"script", "style", "template"} and not node.find_parent(["pre", "code", "script", "style", "template"])}
             if body.get("id"):
                 ids.add(str(body["id"]))
@@ -2314,7 +2484,10 @@ def derive_retained_text_sources(
         parts.append(value)
         next_line += len(value.splitlines())
 
-    emit("# Retained specification text (collector assembly)\n\nThis consumer Markdown assembles the explicitly retained originals in declared order. Source labels, line anchors and local href rewrites are collector additions; " + ("HTML is represented as structural text with ordered table cells and preserved code, without running source scripts.\n" if has_html else "YAML below is an unmodified native schema displayed in a code fence.\n"))
+    dated_html = any(options.get("dated_html_response") is True for options in (source_options or {}).values())
+    emit("# Retained specification text (collector assembly)\n\n" + ("> " if dated_html else "") + "This consumer Markdown assembles the explicitly retained originals in declared order. Source labels, line anchors and local href rewrites are collector additions; " + ("HTML is represented as structural text with ordered table cells and preserved code, without running source scripts.\n" if has_html else "YAML below is an unmodified native schema displayed in a code fence.\n"))
+    if dated_html:
+        emit("\n> Collector representation: declared cell spans are annotations, not an expanded table grid; code br line breaks and NBSP are retained, and image-label whitespace is normalized without dropping label words.\n")
     for source_path, stem, format_name, text, headings in prepared:
         lines = text.splitlines(keepends=True)
         href = Path(os.path.relpath(ROOT.resolve() / source_path, start=document.parent.resolve())).as_posix()
@@ -2322,8 +2495,10 @@ def derive_retained_text_sources(
         if format_name == "html":
             source = ROOT.resolve() / source_path
             options = (source_options or {}).get(source, {})
+            if options.get("dated_html_response") is True and options.get("unretained_assets"):
+                emit("\n> Collector asset gap: these original figures are linked to the publisher response but their image bytes are not retained locally: " + ", ".join(f"[{reference}]({urllib.parse.urljoin(options['source_url'], reference)})" for reference in options["unretained_assets"]) + ".\n")
             emit(f'\n<a id="{stem}-L1"></a>\n')
-            for section in retained_html_sections(source, document.resolve(), html_sources, link_rewrites, options.get("source_url", "")):
+            for section in retained_html_sections(source, document.resolve(), html_sources, link_rewrites, options.get("source_url", ""), dated_html_response=options.get("dated_html_response") is True, unretained_assets=options.get("unretained_assets")):
                 if section.get("heading_line"):
                     emit(f'\n<a id="{stem}-L{section["heading_line"]}"></a>\n')
                 start_line = next_line
@@ -2333,6 +2508,7 @@ def derive_retained_text_sources(
                     "selector": f"derived://{local_path}#L{start_line}-L{next_line - 1}", "local_path": local_path,
                     "kind": "section" if section.get("heading") else "file", "start_line": start_line, "end_line": next_line - 1,
                     "text_preview": preview, "derived_from": source_path, "source_format": "html",
+                    **({"transformation": "static HTML structural text with declared UI exclusions and local href routes" + ("; declared original figure links without retained image bytes" if options.get("unretained_assets") else "")} if options.get("dated_html_response") is True else {}),
                     **({"source_heading_line": section["heading_line"]} if section.get("heading_line") else {}),
                     **{key: value for key, value in section.items() if key in {"source_start_line", "source_end_line", "heading", "level"}},
                 })
@@ -3116,10 +3292,20 @@ def has_substantive_document_text(document_text: str) -> bool:
 
 def replay_retained_text_sources(
     record: SourceRecord, manifest: dict[str, Any], generated_at: str,
+    *, check_derived: bool = True,
 ) -> dict[str, Any]:
     """Preflight all declared originals before writing a collector assembly."""
     root = record.capsule_root
     materialization = manifest["materialization"]
+    dated_html = materialization.get("retained_text_binding") == "dated_html_response"
+    selector_path = retained_text_selector_file(manifest, root, require_exists=dated_html and check_derived)
+    if dated_html and (
+        not isinstance(record.metadata.get("versioning"), dict)
+        or record.metadata["versioning"].get("source_version") != manifest.get("source_version")
+        or record.metadata.get("rights", {}).get("redistribution_package") != manifest.get("rights", {}).get("redistribution_package")
+        or record.metadata.get("full_text_url") != manifest.get("rights", {}).get("redistribution_package", {}).get("source_version_url")
+    ):
+        raise ValueError("dated HTML replay metadata differs from its reviewed current package")
     if "retained_markdown_source" in materialization:
         raise ValueError("retained single Markdown and ordered text declarations are mutually exclusive")
     document_name = sanitize_relative_path(materialization["document"])
@@ -3143,9 +3329,10 @@ def replay_retained_text_sources(
     validate_retained_markdown_binding(
         manifest, root, {source.relative_to(ROOT.resolve()).as_posix(): sha256_file(source) for source, _ in paths},
         errors, repository_root=ROOT,
+        check_derived=check_derived,
     )
     commit = record.metadata.get("versioning", {}).get("snapshot_commit")
-    if manifest.get("revision") != f"git:{commit}":
+    if not dated_html and manifest.get("revision") != f"git:{commit}":
         errors.append("retained snapshot commit differs from canonical metadata")
     if errors:
         raise ValueError("; ".join(errors))
@@ -3177,8 +3364,10 @@ def replay_retained_text_sources(
                 if not match or not int(match.group(1)) <= int(match.group(2)) <= len(path.read_bytes().decode("utf-8").splitlines()):
                     raise ValueError("retained href rewrite source line range is invalid")
     options: dict[Path, dict[str, Any]] = {}
+    if dated_html:
+        options[paths[0][0]] = preflight_dated_html_assets(manifest, root, repository_root=ROOT.resolve())
     for item, (source, format_name) in zip(sources, paths):
-        if format_name != "html":
+        if format_name != "html" or dated_html:
             continue
         from bs4 import BeautifulSoup
         retrieval = next(row for row in manifest["retrievals"] if row.get("local_path") == item["source"])
@@ -3199,12 +3388,16 @@ def replay_retained_text_sources(
             check_original(asset, require_commit=True)
             if src in rewrites and (document.parent / urllib.parse.unquote(urllib.parse.urlsplit(rewrites[src]).path)).resolve() != asset:
                 raise ValueError("retained HTML src rewrite does not resolve to the same original")
+    if dated_html:
+        legacy_count = sum(bool(line.strip()) for line in (root / "selectors.jsonl").read_bytes().decode("utf-8").splitlines())
+    else:
+        legacy_count = 0
     selectors = derive_retained_text_sources(paths, document, rewrites, source_options=options)
-    write_jsonl(root / "selectors.jsonl", selectors)
-    manifest.update({"generated_at": generated_at, "selectors": ["selectors.jsonl"]})
+    write_jsonl(selector_path, selectors)
+    manifest.update({"generated_at": generated_at, "selectors": ["selectors.jsonl", "normalized/selectors.jsonl"] if dated_html else ["selectors.jsonl"]})
     materialization.update({
         "normalized_document": materialization["document"],
-        "stored_characters": len(document.read_bytes().decode("utf-8")), "selector_count": len(selectors),
+        "stored_characters": len(document.read_bytes().decode("utf-8")), "selector_count": legacy_count + len(selectors),
     })
     return finalize_capsule(record, root, manifest)
 
@@ -3234,6 +3427,10 @@ def replay_retained_markdown(
         ):
             raise ValueError("retained snapshot source metadata or selected version differs")
         materialization = manifest["materialization"]
+        if not isinstance(materialization, dict):
+            raise TypeError("retained materialization must be a mapping")
+        if "retained_text_binding" in materialization and "retained_text_sources" not in materialization:
+            raise ValueError("retained text binding has no original declaration")
         if "retained_text_sources" in materialization:
             return replay_retained_text_sources(record, manifest, generated_at)
         paths: dict[str, Path] = {}
@@ -3312,11 +3509,16 @@ def materialize_generic(
             or (isinstance(retained, dict) and "pdf_supplement" in retained)
         ):
             raise RedistributionPackageError(f"{record.uid}: PDF replay preflight failed: {exc}; retained capsule preserved") from exc
+        if (record.capsule_root / "source/specification.html").exists() or (record.capsule_root / "normalized/selectors.jsonl").exists():
+            raise RetainedMarkdownPreflightError(f"{record.uid}: retained HTML preflight failed: {exc}; retained originals preserved") from exc
         raise
     if existing_root is None:
         retained_materialization = retained.get("materialization") if isinstance(retained, dict) else None
-        if isinstance(retained_materialization, dict) and any(field in retained_materialization for field in ("retained_markdown_source", "retained_text_sources")):
+        sidecar_declared = isinstance(retained, dict) and isinstance(retained.get("selectors"), list) and "normalized/selectors.jsonl" in retained["selectors"]
+        if sidecar_declared or isinstance(retained_materialization, dict) and any(field in retained_materialization for field in ("retained_markdown_source", "retained_text_sources", "retained_text_binding", "retained_text_selectors")):
             return replay_retained_markdown(record, retained, generated_at)
+        if (record.capsule_root / "source/specification.html").exists() or (record.capsule_root / "normalized/selectors.jsonl").exists():
+            raise RetainedMarkdownPreflightError(f"{record.uid}: retained HTML original has no replay declaration; retained originals preserved")
     if publisher_declared:
         raise RedistributionPackageError(f"{record.uid}: declared publisher PDF has no offline replay manifest; retained capsule preserved")
     root = existing_root or prepare_capsule(record)
