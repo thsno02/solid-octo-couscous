@@ -34,6 +34,47 @@ class ExcerptTests(unittest.TestCase):
     def test_no_fabricated_excerpt_for_nonprose(self):
         self.assertEqual(meaningful_excerpt("article\n\nusepackage\n\n# Heading\n", "Paper")[0], "")
 
+    def test_opt_in_skips_whole_fences_with_internal_blank_lines_and_fake_abstract(self):
+        hidden = "This hidden template or inactive branch contains enough detailed prose to look like a source assertion."
+        actual = "This current paper describes a locally retained method with source evidence and stable boundaries for a reviewable derived view."
+        for fence in ("```latex", "````latex", "~~~latex"):
+            closing = fence.split("latex")[0]
+            text = f"{fence}\n\n## Abstract\n\n{hidden}\n\n```\n\nMore hidden code.\n{closing}\n\n## Abstract\n\n{actual}\n"
+            # For triple-backtick fences that intermediate triple closes the block;
+            # do not manufacture a malformed fixture for the ordinary valid case.
+            if fence == "```latex":
+                text = f"{fence}\n\n## Abstract\n\n{hidden}\n{closing}\n\n## Abstract\n\n{actual}\n"
+            with self.subTest(fence=fence):
+                result = source_excerpt(text, "Paper", reading_view=True)
+                self.assertTrue(result[0].startswith("This current paper"))
+                self.assert_located(text, result)
+
+    def test_opt_in_never_quotes_only_fallback_or_unterminated_fence(self):
+        paragraph = "This internal code example describes a false source statement that should never become an automatically generated assertion."
+        self.assertEqual(source_excerpt("# Derived view\n\n> Collector description is not source prose.\n\n```latex\n\n" + paragraph + "\n```\n", "Paper", reading_view=True)[0], "")
+        self.assertEqual(source_excerpt("```latex\n\n" + paragraph, "Paper", reading_view=True)[0], "")
+
+    def test_explicit_reading_consumer_is_chosen_and_missing_view_never_uses_legacy(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            capsule = root / "materialized_sources/corpus/example"
+            (capsule / "normalized").mkdir(parents=True)
+            legacy = capsule / "normalized/document.txt"
+            legacy.write_text("Legacy document is still retained.\n")
+            reading = capsule / "normalized/reading.md"
+            reading.write_text("Chosen conservative reading view.\n")
+            item = {"uid": "arxiv:synthetic", "manifest": "materialized_sources/corpus/example/manifest.yaml"}
+            view = {"enabled": True, "profile": "conservative-v1", "document": "normalized/reading.md"}
+            manifest = {"materialization": {"document": "normalized/reading.md", "tex_reading_view": view}}
+            with mock.patch.object(build_demo, "ROOT", root):
+                self.assertEqual(choose_local_document(item, manifest), reading)
+                self.assertEqual(choose_local_selectors(item, manifest), capsule / "selectors.jsonl")
+                reading.unlink()
+                with self.assertRaises(ValueError):
+                    choose_local_document(item, manifest)
+                manifest = {"materialization": {"document": "normalized/document.txt"}}
+                self.assertEqual(choose_local_document(item, manifest), legacy)
+
     def test_long_wrapped_paragraph(self):
         text = "\n".join(["Evidence locations must cover every quoted word in the original local source"] * 20) + "."
         result = meaningful_excerpt(text, "Paper")

@@ -64,6 +64,71 @@ def relative(path: Path) -> str:
     return path.relative_to(ROOT).as_posix()
 
 
+def validate_tex_reading_view(
+    manifest: dict[str, Any], capsule_root: Path, actual_hashes: dict[str, str],
+    errors: list[str], *, repository_root: Path | None = None,
+) -> None:
+    """An opt-in reading view remains derived and bound to retained local inputs."""
+    materialization = manifest.get("materialization") or {}
+    view = materialization.get("tex_reading_view")
+    if not isinstance(view, dict) or view.get("enabled") is not True:
+        return
+    uid, repo_root = manifest.get("uid"), repository_root or ROOT
+    try:
+        if manifest.get("adapter") != "arxiv_latex_v2" or view.get("profile") != "conservative-v1" or view.get("document") != "normalized/reading.md":
+            raise ValueError("invalid adapter/profile/document")
+        if materialization.get("document") != view["document"] or materialization.get("normalized_document") != view["document"]:
+            raise ValueError("chosen consumer is not the declared reading view")
+        if view.get("legacy_documents") != ["normalized/document.tex", "normalized/document.txt"]:
+            raise ValueError("both legacy documents must remain declared")
+        root_name, support, paths = view["source_root"], view["citation_support"], view["source_paths"]
+        if not isinstance(support, list) or not isinstance(paths, list) or not paths or len(set(paths)) != len(paths):
+            raise ValueError("invalid finite source paths")
+        for name in [root_name, *support]:
+            if not isinstance(name, str) or not name or Path(name).is_absolute() or ".." in Path(name).parts or Path(name).parts[0] != "source":
+                raise ValueError("reading inputs must be retained source paths")
+        root_relative = (capsule_root / root_name).relative_to(repo_root).as_posix()
+        if paths[0] != root_relative or not {(capsule_root / name).relative_to(repo_root).as_posix() for name in support}.issubset(paths):
+            raise ValueError("source paths do not cover root and citation support")
+        source_rows = [json.loads(line) for line in (capsule_root / "files.jsonl").read_text(encoding="utf-8").splitlines() if line.strip()]
+        retained = {row["path"]: row for row in source_rows}
+        for path_name in paths:
+            path = scoped_path(path_name, capsule_root / "source", repository_root=repo_root)
+            if path is None or not path.is_file() or path_name not in actual_hashes or path_name not in retained or retained[path_name].get("sha256") != actual_hashes[path_name] or retained[path_name].get("bytes") != path.stat().st_size:
+                raise ValueError("reading input is not inventoried retained source")
+        for name in [view["document"], *view["legacy_documents"], "files.jsonl"]:
+            if (capsule_root / name).relative_to(repo_root).as_posix() not in actual_hashes:
+                raise ValueError("reading or legacy input is not inventoried")
+        document = capsule_root / view["document"]
+        local_path = document.relative_to(repo_root).as_posix()
+        text = document.read_text(encoding="utf-8")
+        lines = text.splitlines()
+        selectors = [json.loads(line) for line in (capsule_root / "selectors.jsonl").read_text(encoding="utf-8").splitlines() if line.strip()]
+        count = view["legacy_selector_count"]
+        if not isinstance(count, int) or isinstance(count, bool) or not 0 <= count < len(selectors) or any(row.get("local_path") == local_path for row in selectors[:count]):
+            raise ValueError("invalid legacy prefix or no reading selectors")
+        for row in selectors[count:]:
+            first, last = row.get("start_line"), row.get("end_line")
+            if any(not isinstance(value, int) or isinstance(value, bool) for value in (first, last)) or not 1 <= first <= last <= len(lines):
+                raise ValueError("invalid reading range")
+            if row.get("selector") != f"derived://{local_path}#L{first}-L{last}" or row.get("local_path") != local_path or row.get("kind") not in {"file", "section"} or row.get("reading_profile") != view["profile"]:
+                raise ValueError("invalid derived reading selector")
+            if row.get("derived_from") != root_relative or row.get("source_paths") != paths or not isinstance(row.get("transformation"), str) or not row["transformation"].strip():
+                raise ValueError("missing reading transformation/source provenance")
+            preview = row.get("text_preview")
+            if not isinstance(preview, str) or not preview or preview not in "\n".join(lines[first - 1:last]):
+                raise ValueError("reading preview does not resolve in its own span")
+            if "source_heading_line" in row:
+                source_path = row.get("source_heading_path")
+                heading_line = row["source_heading_line"]
+                if source_path not in paths or not isinstance(heading_line, int) or isinstance(heading_line, bool) or not 1 <= heading_line <= len((repo_root / source_path).read_text(encoding="utf-8").splitlines()):
+                    raise ValueError("invalid original heading location")
+        if not any(row.get("kind") == "file" and row.get("start_line") == 1 for row in selectors[count:]):
+            raise ValueError("reading view needs a real file range")
+    except (KeyError, TypeError, AttributeError, ValueError, OSError, UnicodeError, json.JSONDecodeError) as exc:
+        errors.append(f"TEX_READING_VIEW {uid}: {exc}")
+
+
 def validate_retained_markdown_binding(
     manifest: dict[str, Any], capsule_root: Path, actual_hashes: dict[str, str],
     errors: list[str], *, repository_root: Path | None = None,
@@ -599,6 +664,7 @@ def main() -> int:
             )
 
         validate_retained_markdown_binding(manifest, capsule_root, actual_hashes, errors)
+        validate_tex_reading_view(manifest, capsule_root, actual_hashes, errors)
 
         source_metadata_path = capsule_root / "source-metadata.yaml"
         if metadata_file is not None and source_metadata_path.is_file():
