@@ -11,7 +11,7 @@
 
 物化流水线执行：现有许可预检 → 测试 → 获取/预处理/构建/结构校验 → 重放 → 生成版本的许可检查 → 提案分支 commit/push → Draft PR → 独立 CI 与审查。只有这条人工触发的生产流程申请 `contents: write` 和 `pull-requests: write`；它不直接更新 base/main，不强推，不自动合并。每次运行使用新的 `codex/materialize-<run_id>-<attempt>` 分支，避免覆盖人的工作；无变化时不创建空 PR。普通 CI 仍只读。
 
-公开仓库中的提案分支也公开，因此许可检查必须在 push **之前**执行。当前全文检查为 `active=90 / blocked=78 / errors=0`：六项 W3C 文字包、一项 ODCS 固定定义页、三项 arXiv 包（PDF 一项、TeX 两项）、LinkML 首页及 Schema.org 已存文档快照已落实许可条件。剩余 78 项中，40 项缺适用公众许可证据，38 项已有许可证据但待履约；整体生产流程仍会在预检停止，不能把这个预期阻断称为成功上传。Zep 已保存声明包但仍待非商业用途确认，不能把有 NOTICE 等同 allow。新 revision 若不匹配已有许可审计或声明的许可包，生产流程会失败，不会自动改写审计为 allow。来源的 metadata-only、partial 等状态仍需阅读报告，运行成功不保证所有 URL 已获取全文，也不表示已抓取单页来源链接的整个站点。
+公开仓库中的提案分支也公开，因此许可检查必须在 push **之前**执行。已放行来源、尚缺适用公众许可证据与已有许可但待履约的数量，以[当前许可审计](materialization-rights-audit.md)为准；本文不重复维护快照计数。整体生产流程仍会在预检停止，不能把这个预期阻断称为成功上传。Zep 已保存声明包但仍待非商业用途确认，不能把有 NOTICE 等同 allow。新 revision 若不匹配已有许可审计或声明的许可包，生产流程会失败，不会自动改写审计为 allow。来源的 metadata-only、partial 等状态仍需阅读报告，运行成功不保证所有 URL 已获取全文，也不表示已抓取单页来源链接的整个站点。
 
 当前生产入口 `scripts/materialize_all_sources.py` 按响应内容区分 arXiv 的 tar、单文件 TeX、PDF 和错误页，支持 gzip；HTML/XML/JSON 错误页不会被标为 TeX 全文，会尝试备用入口。PDF 保留原件并按页提取文本，无文本页与失败页明确记录，定位器必须对应实际页的文本。未运行 OCR；图示页无可提取文字时状态为 partial。许可门也覆盖所有保留 `source_pdf` 的胶囊，不受文本层级降级影响。本修复不宣称覆盖未被当前 Makefile/workflow 调用的历史物化脚本。
 

@@ -22,12 +22,12 @@ summary:
     documented_permission: 51
     permission_unverified: 40
   recommendation_counts:
-    allow_after_conditions_met: 37
-    allow_with_packaged_notice: 14
+    allow_after_conditions_met: 36
+    allow_with_packaged_notice: 15
     do_not_redistribute_full_text: 40
   publication_gate_counts:
-    block: 77
-    allow: 14
+    block: 76
+    allow: 15
   license_evidence_counts:
     CC-BY-4.0: 25
     none: 40
@@ -45,11 +45,11 @@ summary:
   - 73 篇 arXiv 中32篇官方文章页提供CC许可；WikiChat另由作者exact v2 camera-ready声明与ACL许可形成作者正文授权链，其余40篇仍缺适用公众许可证据。arXiv nonexclusive/assumed本身不转授公众权利。
   - 14 份 W3C 文档都有许可；7 份旧式许可对 HTML→Markdown 仍需衍生权审查。
   - LinkML、Apache Ossie、ODCS 有 Apache-2.0 证据；Schema.org supporting documentation 有 CC BY-SA 3.0 证据。
-  - 基线91项中6项W3C、ODCS 3.2.0定义首页、5项arXiv、LinkML单页及Schema.org既有文档快照已完成当前revision与NOTICE包装，14项allow；其余77项仍block（当前活跃全文76项block，其中40项缺许可、36项待履约）。
+  - 基线91项中7项W3C、ODCS 3.2.0定义首页、5项arXiv、LinkML单页及Schema.org既有文档快照已完成当前revision与NOTICE包装，15项allow；其余76项仍block（当前活跃全文75项block，其中40项缺许可、35项待履约）。
 review_completion:
   evidence_review_complete_for_baseline: true
   legal_clearance_complete: false
-  can_human_review_be_completed: 证据审计已完成；51条有公众许可证据，其中14条完成当前包装，37条仍待履约；另40条须取得适用许可或新的权威许可证据。客观许可履约不默认要求另行人工批准，Agent也不代替权利人授予新许可。
+  can_human_review_be_completed: 证据审计已完成；51条有公众许可证据，其中15条完成当前包装，36条仍待履约；另40条须取得适用许可或新的权威许可证据。客观许可履约不默认要求另行人工批准，Agent也不代替权利人授予新许可；未核实不表示不存在其他现有授权，替代出版路径也可通过实际表达对应建立。
   not_legal_advice: true
 items:
 - sequence: 1
@@ -101,10 +101,21 @@ items:
     checked_at: '2026-09-16'
     finding: arXiv 官方文章页的 Rights to this article 链接指向 CC-BY-4.0。
     supports_public_redistribution: true
+  - kind: bounded_current_version_and_component_review
+    url: https://arxiv.org/abs/1606.04671
+    path: materialized_sources/corpus/arxiv-1606.04671--2b4672cf
+    checked_at: '2026-09-16'
+    related_urls:
+    - https://arxiv.org/abs/1606.04671v4
+    - https://nips.cc/Conferences/2016/PaperInformation/StyleFiles
+    finding: 官方当前文章页为v4（2022-10-22），其文章级许可链接为CC-BY-4.0；本次未获取固定vN响应与现存revision作字节比对，不把该revision声明为已绑定v4。当前胶囊实存20个source文字成员、76,305 bytes及41个selectors；其中nips_2016.sty为10,112 bytes，自识别2016/03/07，署名Roman Garnett及nips15submit_e.sty的旧作者但未写公众再分发许可。官方2016 Style Files页面提供投稿及camera-ready格式使用说明，链接的style为August 2016修订版；本次有界检查未找到覆盖实际March版本及其修改的明确公众许可，不将后年模板或相邻论文仓库许可外推至此文件。Do not distribute出现在匿名投稿页脚模板字符串中，不作为style文件禁止再分发的法律依据。
+    evidence_applicability: current_article_license_and_local_components_only
+    supports_public_redistribution: false
   missing:
   - 本地三处 rights 未记录该文章许可及核验日期。
   - retrieval hash 尚未与确切 arXiv vN 建立可审计映射。
   - 未形成第三方组件例外清单和许可履约包。
+  - 覆盖实存nips_2016.sty（2016/03/07）及其修改的模板权利依据与相应署名/许可履约；文章CC-BY-4.0和官方投稿使用说明不能自动填补该范围。
   classification: documented_permission
   license_id: CC-BY-4.0
   license_url: https://creativecommons.org/licenses/by/4.0/
@@ -120,7 +131,7 @@ items:
   current_capsule_compliance: pending_license_compliance_and_revision_binding
   publication_gate:
     decision: block
-    reason: 存在公众许可证据，但当前胶囊尚未机器证明版本绑定、许可条件和第三方范围均满足。
+    reason: 官方当前v4具有文章CC-BY-4.0证据，但现存revision尚未绑定确切vN，且实存March 2016版nips_2016.sty缺覆盖实际文件及修改的公众许可依据；本轮只增补有界组件事实，不能仅附文章NOTICE放行整个胶囊，也不把投稿页脚字符串当再分发禁令。
   human_follow_up:
   - 人工核对本地 source archive 的 arXiv 版本。
   - 补齐归属、许可链接/声明与第三方组件审计后再审批。
@@ -250,14 +261,23 @@ items:
     checked_at: '2026-09-16'
     finding: 官方许可只授予 arXiv.org 非独占分发权，不授予公众或本仓库。
     supports_public_redistribution: false
-  - kind: alternate_publisher_scope_review
-    url: https://www.nature.com/articles/s42256-024-00832-8
-    related_urls:
-    - https://arxiv.org/abs/2304.05376
+  - kind: corrected_mismatched_alternate_publisher_review
+    url: https://arxiv.org/abs/1706.08840
+    path: materialized_sources/corpus/arxiv-1706.08840--acb7e7ed
     checked_at: '2026-09-16'
-    finding: Nature Machine Intelligence的2024-05-08出版版明确CC BY 4.0，并链接arXiv预印本；当前arXiv页面最后修订为2023-10-02 v5，摘要与出版版有差异，未找到覆盖当前保留源包全部内容的版本级许可声明。出版页照片另标IBM
-      Research CC BY-ND 2.0；这些照片并非本地文本包成员，不能据此外推许可或虚构本地保存图像。实际包还含plex-serif/plex-sans/minted及neurips_2022样式，须分别核验，不以出版版文章许可自动覆盖。
+    finding: 原替代出版商记录错配至另一篇作品，排除其对GEM许可证据的支持或否定作用。官方abs题名为Gradient Episodic Memory for Continual Learning，作者为David Lopez-Paz和Marc'Aurelio
+      Ranzato，注明Published at NIPS 2017；公开版本史为v5=2017-11-04、当前v6=2022-09-13，而非原记录的2023-10-02 v5。本地continuum.tex题名和两作者一致，实际19个source文字成员为continuum.tex、appendix.tex、continuum.bbl、nips_2017.sty及figures/下15个实验结果txt；未保存原记录所称plex-serif/plex-sans/minted或neurips_2022组件。此纠错只核作品身份、公开版本史和本地组件，不把本地revision自动绑定为v6，也不新增或否定公众许可。
+    evidence_applicability: identity_and_local_components_only
     supports_public_redistribution: false
+    historical_mismatch:
+      kind: alternate_publisher_scope_review
+      url: https://www.nature.com/articles/s42256-024-00832-8
+      related_urls:
+      - https://arxiv.org/abs/2304.05376
+      checked_at: '2026-09-16'
+      finding: Nature Machine Intelligence的2024-05-08出版版明确CC BY 4.0，并链接arXiv预印本；当前arXiv页面最后修订为2023-10-02 v5，摘要与出版版有差异，未找到覆盖当前保留源包全部内容的版本级许可声明。出版页照片另标IBM
+        Research CC BY-ND 2.0；这些照片并非本地文本包成员，不能据此外推许可或虚构本地保存图像。实际包还含plex-serif/plex-sans/minted及neurips_2022样式，须分别核验，不以出版版文章许可自动覆盖。
+      assessment: 仅保留错配历史；不作为目标GEM作品许可的支持或否定证据，原段其他作品的断言未在本次纠错中重核。
   missing:
   - 面向公众的论文全文复制/再分发许可。
   - 许可版本、权利人和精确作品版本绑定。
@@ -2072,10 +2092,51 @@ items:
     checked_at: '2026-09-16'
     finding: 当前本地 source_revision 与固定 arXiv v2 e-print 字节一致。ACL Anthology 出版材料有 CC BY 4.0 政策，作者 ALCE 仓库也将其标识为同一 EMNLP 论文；但未找到权威声明确认外部 arXiv v2 就是获该许可的 camera-ready 确切版本。
     supports_public_redistribution: false
+    historical_assessment: 保留先前版本核验与未找到精确声明的历史观测；以下本轮有界内容核对将其细化，不把新增作者exact-vN或camera-ready声明作为公众许可适用的普遍必要条件，也不要求TeX/PDF字节一致。
+  - kind: bounded_acl_article_content_correspondence
+    url: https://aclanthology.org/2023.emnlp-main.398/
+    doi: https://doi.org/10.18653/v1/2023.emnlp-main.398
+    path: materialized_sources/corpus/arxiv-2305.14627--6d5b37c6
+    locator: source/emnlp2023.tex; source/sections/appendix.tex L246-264; normalized/document.txt
+    checked_at: '2026-09-16'
+    related_urls:
+    - https://aclanthology.org/2023.emnlp-main.398.pdf
+    - https://aclanthology.org/faq/copyright/
+    - https://github.com/princeton-nlp/ALCE
+    - https://raw.githubusercontent.com/princeton-nlp/ALCE/main/paper/ALCE.pdf
+    finding: 官方EMNLP 2023作品题名及Tianyu Gao、Howard Yen、Jiatong Yu、Danqi Chen四作者与本地一致，正式PDF为481,920 bytes/24页，署名©2023 Association for Computational Linguistics；ACL政策明确2016后ACL材料采用CC-BY-4.0。只读核对确认摘要、正文主干、A-I附录结构及若干关键研究/实验表达可实质对应，不把文章许可路径继续归结为缺新作者精确声明。当前胶囊实存38个source文字成员、269,376 bytes及95个selectors；本地附录G另有Open-source Models三段及Stable Beluga 2结果表行，正式PDF未出现该模型或该小节，不能虚称当前源包全部表达与出版物相同。作者MIT仓库中的paper/ALCE.pdf为445,098 bytes/23页，也未出现上述模型或小节；仓库代码/相关文档许可不据此自动覆盖这些未对应的扩展。sections/discussion.tex实际仅有根文件注释，不是额外正文。本轮沿用先前v2 payload绑定证据，未重新获取arXiv源响应。
+    evidence_applicability: published_article_correspondence_and_specific_unmatched_expressions
+    supports_public_redistribution: false
+  - kind: bounded_bibliography_abstract_permission_review
+    path: materialized_sources/corpus/arxiv-2305.14627--6d5b37c6/source/custom.bib
+    locator: L739-751; L1708-1721
+    checked_at: '2026-09-16'
+    related_urls:
+    - https://aclanthology.org/2020.tacl-1.25/
+    - https://doi.org/10.1162/tacl_a_00321
+    - https://aclanthology.org/2021.eacl-main.74/
+    - https://doi.org/10.18653/v1/2021.eacl-main.74
+    - https://aclanthology.org/faq/copyright/
+    license_url: https://creativecommons.org/licenses/by/4.0/
+    finding: custom.bib实际保存两段abstract，分别引用BLiMP（2020.tacl-1.25，DOI10.1162/tacl_a_00321）及Leveraging Passage Retrieval with Generative Models for Open Domain Question Answering（2021.eacl-main.74，DOI10.18653/v1/2021.eacl-main.74）。两项有对应官方ACL作品页及2016后CC-BY-4.0政策入口，可按作品归属分别补许可包装；本轮不声称已完成胶囊署名/NOTICE履约，也不将两个作品许可外推至整个bibliography或其相邻作品。
+    evidence_applicability: two_identified_abstracts_only
+    supports_public_redistribution: false
+  - kind: bounded_acl_template_license_lead
+    url: https://github.com/acl-org/acl-style-files
+    path: materialized_sources/corpus/arxiv-2305.14627--6d5b37c6/source
+    locator: emnlp2023.sty header; acl_natbib.bst L148-172
+    checked_at: '2026-09-16'
+    related_urls:
+    - https://raw.githubusercontent.com/acl-org/acl-style-files/master/README.md
+    - https://www.overleaf.com/latex/templates/association-for-computational-linguistics-acl-conference/jvxskxpnznfj
+    finding: 官方acl-style-files README直接链接ACL Overleaf模板，模板作者标为该官方仓库且页面明确CC-BY-4.0，提供实际模板许可核对入口；本轮尚未将该许可模板的具体文件/版本与实存emnlp2023.sty建立内容对应，不无条件外推当前模板许可至本地2023文件。实存acl_natbib.bst另有LPPL version 1 or any later version声明及Patrick W Daly等原始组件/后续改编署名，应独立核对归属并保留完整许可，不统套论文CC-BY-4.0。
+    evidence_applicability: official_template_license_lead_and_local_bst_notice_only
+    supports_public_redistribution: false
   missing:
-  - 面向公众的论文全文复制/再分发许可。
-  - 许可版本、权利人和精确作品版本绑定。
-  - 第三方素材和 TeX 组件权利边界。
+  - 本地Open-source Models三段及Stable Beluga 2表行等具体未对应表达的适用公开许可依据或进一步实质内容对应；不普遍要求新增作者exact-vN/camera-ready声明或TeX/PDF字节一致。
+  - 将已核实的arXiv v2 payload、ACL获许可作品对应范围及未覆盖扩展分别记录到许可履约包，不能把同作品身份直接写成全部source成员均已授权。
+  - custom.bib中BLiMP与FiD两段摘要的作品级署名、来源和CC-BY-4.0包装。
+  - 官方BY4模板与实存emnlp2023.sty的具体组件/版本对应，以及acl_natbib.bst的独立LPPL归属和NOTICE履约；第三方示例引用保留原标识，不声称其相邻网页全文获论文许可。
   classification: permission_unverified
   license_id: null
   license_url: https://arxiv.org/licenses/nonexclusive-distrib/1.0/
@@ -2088,10 +2149,10 @@ items:
   current_capsule_compliance: blocked_no_public_permission
   publication_gate:
     decision: block
-    reason: 未找到授予公众或本仓库复制并再分发该全文的适用许可。
+    reason: ACL正式文章具有CC-BY-4.0许可且与当前正文主干可实质对应，缺新增作者精确camera-ready声明不单独构成阻塞；但当前完整源包仍含尚未对应的Open-source Models三段及Stable Beluga 2表行，实际模板许可范围和两段摘要/独立BST履约也未完成。保持全文与block，不把已许可文章主体或官方模板线索虚称为全部38个source成员已获许可。
   human_follow_up:
-  - 取得权利人书面许可或与确切版本绑定的权威公开许可。
-  - 在此之前仅公开元数据、引用、官方链接及合法短引。
+  - 有界核对上述具体扩展是否由同作品公开许可内容覆盖，并补齐实际模板/摘要/BST归属与许可包装；公开证据可闭合时不默认要求新作者确认。
+  - 在完整源包适用许可范围及条件闭合前维持block，不自行删改附带内容或构造授权。
 - sequence: 29
   uid: arxiv:2310.02304
   source_type: arxiv
@@ -5181,10 +5242,22 @@ items:
     checked_at: '2026-09-16'
     finding: arXiv 官方文章页的 Rights to this article 链接指向 CC-BY-4.0。
     supports_public_redistribution: true
+  - kind: bounded_current_version_and_component_review
+    url: https://arxiv.org/abs/2505.22954
+    path: materialized_sources/corpus/arxiv-2505.22954--8a7041cb
+    locator: manifest.materialization; source/natbib.sty L1-30; source/iclr2026_conference.sty
+    checked_at: '2026-09-16'
+    related_urls:
+    - https://arxiv.org/abs/2505.22954v3
+    finding: 官方当前文章页为v3（2026-03-12），其文章级许可链接为CC-BY-4.0；本次未获取固定vN响应与现存revision作字节比对，不声称已完成版本绑定。当前胶囊实存34个source文字成员、390,140 bytes及77个selectors，包含ICLR2026 style/bst、fancyhdr.sty和45,154-byte natbib.sty，main.bib未命中abstract字段。实存natbib自识别2009/07/16 8.31，文件头声明LPPL version 1 or any later version，并额外明确须陪同原始natbib.dtx；当前保存成员没有该dtx，本次未取得解除该条件的新依据。ICLR style的组件许可范围亦未闭合，不能以论文CC-BY-4.0替代这些组件的独立条件；本次未重复追索natbib历史版本。
+    evidence_applicability: current_article_license_and_local_components_only
+    supports_public_redistribution: false
   missing:
   - 本地三处 rights 未记录该文章许可及核验日期。
   - retrieval hash 尚未与确切 arXiv vN 建立可审计映射。
   - 未形成第三方组件例外清单和许可履约包。
+  - 实存natbib 8.31文件头要求的原始natbib.dtx陪同分发条件尚未落实或取得明确解除依据；其他natbib修订版不能冒称对应此文件。
+  - 实存ICLR2026 style/bst、fancyhdr等组件的逐件许可范围和履约记录，不能外推文章CC-BY-4.0。
   classification: documented_permission
   license_id: CC-BY-4.0
   license_url: https://creativecommons.org/licenses/by/4.0/
@@ -5200,7 +5273,7 @@ items:
   current_capsule_compliance: pending_license_compliance_and_revision_binding
   publication_gate:
     decision: block
-    reason: 存在公众许可证据，但当前胶囊尚未机器证明版本绑定、许可条件和第三方范围均满足。
+    reason: 官方当前v3具有文章CC-BY-4.0证据，但现存revision尚未绑定确切vN；实际保存的natbib 8.31仍有未落实的natbib.dtx陪同条件，ICLR2026等第三方组件范围也未闭合。保持全部正文与block，本轮有界核验不构成完整组件清理或版本许可放行。
   human_follow_up:
   - 人工核对本地 source archive 的 arXiv 版本。
   - 补齐归属、许可链接/声明与第三方组件审计后再审批。
@@ -7425,30 +7498,142 @@ items:
     - https://trustee.ietf.org/documents/trust-legal-provisions/tlp-5/
     finding: 附录F实际保存由RFC3986/3987/6874合成的IRI ABNF，不是外链。RFC6874的IP-literal/ZoneID/IPv6addrz三条与正文相同，提取代码要求BSD声明但当前未附。RFC3986/3987为2005年1月文本，不能无依据套用后出的RFC3978或现行TLP；其旧版合成修改的对外许可与原声明仍需核清。
     supports_public_redistribution: false
-  missing:
-  - metadata 未记录确切 W3C 许可版本。
-  - Markdown 未附完整许可/NOTICE，原许可链接已丢失。
-  - 第三方与联合权利材料无逐件清单。
-  - 附录F已存RFC代码的组合许可履约：RFC6874提取代码BSD声明；RFC3986/3987旧版对外修改再分发依据、原版权及免责条款。
+  - kind: official_fixed_snapshot_revision
+    url: https://www.w3.org/TR/2026/CR-rdf12-concepts-20260407/
+    checked_at: '2026-09-16'
+    finding: 真实固定HTML响应577086bytes，sha256:2e67fd5c732edf127f711c75c4a4ce35e9cbca936b3dfe25386383b92f683365精确匹配原manifest；既有HTML提取器所得108882字符/109529bytes正文与原document.md完全相同。官方标题为RDF 1.2 Concepts and Abstract Data Model，状态为W3C Candidate Recommendation Snapshot 07 April 2026，版权2004-2026 World Wide Web Consortium，适用2023 Software and Document License；不称为Recommendation。
+    supports_public_redistribution: true
+  - kind: publishing_time_rfc_code_permission
+    checked_at: '2026-09-16'
+    urls:
+    - https://www.rfc-editor.org/rfc/rfc3986.txt
+    - https://www.rfc-editor.org/rfc/rfc3987.txt
+    - https://www.rfc-editor.org/rfc/rfc3667.txt
+    - https://trustee.ietf.org/about/faq/
+    finding: RFC3986/3987均为2005年1月且原始文本无no-modification/no-derivative-works legend；发布时RFC3667 BCP78 §3.3(a)(E)允许对代码片段在IETF标准流程外提取、复制、修改和分发，受§5约束。官方Trust FAQ的pre-March-2005 code指导由planner/main/evaluator独立核验；executor的FAQ网页请求超时，不冒充成功抓取。两RFC原Full Copyright Statement及免责措辞相同，组合NOTICE和正文footer明确各自作者/原RFC归属后完整共同保留该声明；本依据仅覆盖附录F相应代码，不扩张W3C整文许可。
+    supports_public_redistribution: true
+  - kind: publishing_time_rfc6874_bsd_code_notice
+    checked_at: '2026-09-16'
+    urls:
+    - https://www.rfc-editor.org/rfc/rfc6874.txt
+    - https://trustee.ietf.org/wp-content/uploads/IETF-TLP-4.pdf
+    - https://trustee.ietf.org/documents/trust-legal-provisions/tlp-5/
+    finding: RFC6874发布于2013年2月；适用effective2009-12-28的TLP4 §4.c/4.e，其实际三条款BSD允许代码复用修改。executor下载并渲染核对TLP4第3-4页完整BSD边界；历史Simplified BSD误名保留在原版权通知，官方TLP5顶部确认名称纠正但法条正文从未改变。完整三条款BSD、2013IETFTrust版权、作者Brian Carpenter/Stuart Cheshire/Robert M. Hinden和原Copyright Notice均同时保留于NOTICE及含IP-literal/ZoneID/IPv6addrz代码的document文末，不用W3C许可替代。
+    supports_public_redistribution: true
+  - kind: combined_notice_and_two_real_rebuilds
+    path: materialized_sources/corpus/standard-w3c-rdf-1.2-concepts--02058aec/document.md
+    notice_path: raw_data/licenses/w3c-rdf12-concepts-20260407-combined-notice.md
+    checked_at: '2026-09-16'
+    generated_at: '2026-09-16T04:30:26Z'
+    finding: 最终canonical状态下调用既有materialize_one两次完整真实回源，均为materialized/full_text、577086bytes固定HTML/revision相同、warnings/errors为空；6文件NOTICE.md/README.md/document.md/manifest.yaml/selectors.jsonl/source-metadata.yaml逐字节一致。原109529bytes正文完整保留为精确前缀，仅文末追加一次声明；1349selectors的ordinal/kind/preview/local_path等全部字段与原包一致，唯一变化为固定URL使web前缀由2300f177c42e7c9c变为5b1b3800d4d5e12a，B定位不变。组合NOTICE逐字节复制到胶囊；六字段package在canonical/capsule metadata/manifest/audit一致，verification/evidence信任状态不晋升。未新增外置grammar文件、未删除正文/源/selector，也未审外链媒体。
+    supports_public_redistribution: true
+  missing: []
   classification: documented_permission
   license_id: W3C-Software-and-Document-License-2023
   license_url: https://www.w3.org/copyright/software-license-2023/
-  license_scope: 覆盖该确切 W3C 规范中由列名权利人提供的内容；第三方材料、商标和专利除外。
-  license_restrictions: []
-  evidence_confidence: moderate
-  public_redistribution_recommendation: allow_after_conditions_met
+  license_scope: 固定2026-04-07 CR Snapshot当前W3C文字/示例和selector；附录F的RFC3986/3987代码适用发布时RFC3667代码许可，RFC6874的IP-literal/ZoneID/IPv6addrz适用发布时TLP4三条款BSD。各来源许可不互相扩张；不覆盖未存外链媒体、商标或专利。
+  license_restrictions:
+  - 保留完整W3C NOTICE、原权利声明、确切CR Snapshot身份和转换/修改说明。
+  - RFC3986/3987代码副本保留各自来源作者及原版权/免责声明；RFC6874代码副本保留2013版权、完整三条款BSD与免责且不得无许可背书。
+  evidence_confidence: high
+  public_redistribution_recommendation: allow_with_packaged_notice
   conditions:
-  - 提供完整 W3C NOTICE。
-  - 保留既有权利声明并标明转换。
-  - 商标、专利和第三方材料另审。
-  current_capsule_compliance: pending_license_compliance_and_transformation_review
+  - 当前固定revision的组合NOTICE、W3C署名/状态/修改说明和各RFC原声明同时保留，未来revision不得继承当前allow。
+  - 不以范围声明排除已存附录F代码；商标、专利和外链媒体不在当前文字包许可范围。
+  current_capsule_compliance: verified_revision_and_notice_packaged
   publication_gate:
-    decision: block
-    reason: 固定W3C主文档许可不自动覆盖附录F实际保存的RFC代码；组合许可依据与声明未完成，保持block，不删正文。
-  human_follow_up:
-  - 复核官方页面实际链接的许可与当前 revision。
-  - 补齐 NOTICE/状态/修改说明；旧许可另审转换性质。
-  - 核清RFC3986/3987旧版代码对外许可，并按RFC6874条款补齐代码声明；不得仅用scope排除实际已存附录。
+    decision: allow
+    reason: 仅允许绑定既有revision与2026-04-07固定CR Snapshot的当前文字包：W3C2023许可与附录F各RFC发布时代码许可已分别核验，完整组合NOTICE和RFC原版权/免责/三条款BSD随含code正文保留，真实两次重建与四方package一致；不删除grammar，不扩张外链媒体/商标/专利授权。
+  human_follow_up: []
+  redistribution_package:
+    source_revision: sha256:2e67fd5c732edf127f711c75c4a4ce35e9cbca936b3dfe25386383b92f683365
+    source_version_url: https://www.w3.org/TR/2026/CR-rdf12-concepts-20260407/
+    notice_path: raw_data/licenses/w3c-rdf12-concepts-20260407-combined-notice.md
+    attribution: 'This document includes material copied from or derived from "RDF 1.2 Concepts and Abstract Data
+      Model", W3C Candidate Recommendation Snapshot 07 April 2026, https://www.w3.org/TR/2026/CR-rdf12-concepts-20260407/.
+      Copyright © 2004-2026 World Wide Web Consortium. https://www.w3.org/copyright/software-license-2023/. This converted
+      repository copy is not the official W3C rendering and is not a W3C Recommendation or an endorsement by W3C.
+
+
+      Appendix F''s consolidated IRI ABNF includes code copied from or derived from IETF RFC 3986, "Uniform Resource
+      Identifier (URI): Generic Syntax" (January 2005), by Tim Berners-Lee, Roy T. Fielding and Larry Masinter, https://www.rfc-editor.org/rfc/rfc3986.txt;
+      and IETF RFC 3987, "Internationalized Resource Identifiers (IRIs)" (January 2005), by Martin Dürst and Michel
+      Suignard, https://www.rfc-editor.org/rfc/rfc3987.txt. The code permission is RFC 3667 (BCP 78), Section 3.3(a)(E),
+      subject to Section 5, https://www.rfc-editor.org/rfc/rfc3667.txt; the pre-March-2005 code guidance is https://trustee.ietf.org/about/faq/.
+      The following original Full Copyright Statement applies separately to each of RFC 3986 and RFC 3987 and is retained
+      for the Appendix F code, not asserted as a license for the W3C document as a whole:
+
+
+      Copyright (C) The Internet Society (2005).
+
+
+      This document is subject to the rights, licenses and restrictions contained in BCP 78, and except as set forth
+      therein, the authors retain all their rights.
+
+
+      This document and the information contained herein are provided on an "AS IS" basis and THE CONTRIBUTOR, THE
+      ORGANIZATION HE/SHE REPRESENTS OR IS SPONSORED BY (IF ANY), THE INTERNET SOCIETY AND THE INTERNET ENGINEERING
+      TASK FORCE DISCLAIM ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTY THAT THE USE
+      OF THE INFORMATION HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY IMPLIED WARRANTIES OF MERCHANTABILITY OR FITNESS
+      FOR A PARTICULAR PURPOSE.
+
+
+      Appendix F''s IP-literal, ZoneID and IPv6addrz code includes material copied from or derived from IETF RFC 6874,
+      "Representing IPv6 Zone Identifiers in Address Literals and Uniform Resource Identifiers" (February 2013), by
+      Brian Carpenter, Stuart Cheshire and Robert M. Hinden, https://www.rfc-editor.org/rfc/rfc6874.txt. Its original
+      Copyright Notice is retained below; "Simplified BSD" is the original historical label. The applicable dated
+      TLP4 is https://trustee.ietf.org/wp-content/uploads/IETF-TLP-4.pdf (effective 28 December 2009), Section 4.c/4.e.
+      The IETF Trust confirms that this was always the three-clause Revised BSD text and the license text did not
+      change: https://trustee.ietf.org/documents/trust-legal-provisions/tlp-5/. This permission applies to these RFC
+      6874 code components, not the W3C document as a whole.
+
+
+      Copyright (c) 2013 IETF Trust and the persons identified as the document authors. All rights reserved.
+
+
+      This document is subject to BCP 78 and the IETF Trust''s Legal Provisions Relating to IETF Documents (http://trustee.ietf.org/license-info)
+      in effect on the date of publication of this document. Please review these documents carefully, as they describe
+      your rights and restrictions with respect to this document. Code Components extracted from this document must
+      include Simplified BSD License text as described in Section 4.e of the Trust Legal Provisions and are provided
+      without warranty as described in the Simplified BSD License.
+
+
+      BSD License (TLP4 Section 4.c; year inserted for RFC 6874):
+
+
+      Copyright (c) 2013 IETF Trust and the persons identified as authors of the code. All rights reserved.
+
+
+      Redistribution and use in source and binary forms, with or without modification, are permitted provided that
+      the following conditions are met:
+
+
+      - Redistributions of source code must retain the above copyright notice, this list of conditions and the following
+      disclaimer.
+
+      - Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the
+      following disclaimer in the documentation and/or other materials provided with the distribution.
+
+      - Neither the name of Internet Society, IETF or IETF Trust, nor the names of specific contributors, may be used
+      to endorse or promote products derived from this software without specific prior written permission.
+
+
+      THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS” AND ANY EXPRESS OR IMPLIED WARRANTIES,
+      INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+      ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+      SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+      OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+      WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
+      THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+      '
+    modifications: HTML was converted to Markdown by the existing extractor; navigation, hyperlink targets, styling,
+      figures, table structure and table-only cells were omitted, and text/code whitespace was normalized. Selectors
+      contain excerpts of retained text. The existing converted body, including Appendix F's consolidated RFC grammar,
+      is unchanged by this license packaging; only this source/status/change notice and the applicable original RFC
+      notices were appended.
+    scope: 仅覆盖该固定 Candidate Recommendation Snapshot 当前保留的 W3C 文字、示例和 selector 摘录，以及附录F实际保存的 RFC3986/3987 合成 IRI ABNF
+      与 RFC6874 的 IP-literal、ZoneID、IPv6addrz 代码；RFC 条款仅作用于相应代码，不覆盖 W3C 整文。不授权外链媒体、商标、专利或未实际保存的外部文件；不以范围声明排除已存 grammar。
 - sequence: 86
   uid: standard:w3c-shacl
   source_type: standard

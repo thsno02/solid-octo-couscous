@@ -1,4 +1,4 @@
-# RDF 1.2 Concepts and Abstract Syntax
+# RDF 1.2 Concepts and Abstract Data Model
 
 - UID: `standard:w3c-rdf-1.2-concepts`
 - Source type: `standard`
@@ -8,3 +8,5 @@
 - Content tier: `full_text`
 
 This directory is a local evidence capsule. It is not, by itself, a trusted knowledge assertion.
+
+Redistribution notice and attribution: [NOTICE.md](NOTICE.md).

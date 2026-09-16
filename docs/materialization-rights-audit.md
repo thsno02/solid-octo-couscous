@@ -6,10 +6,10 @@
 
 - 51 条找到明确公众复制/再分发许可，分类为 <code>documented_permission</code>；这不表示当前胶囊已经履约。
 - 40 条未找到面向公众/本仓库的适用许可，分类为 <code>permission_unverified</code>；不应公开再分发全文。
-- 基线审计的 91 项中，六项 W3C、ODCS 3.2.0 定义首页、五项 arXiv、LinkML 文档首页及 Schema.org 文档快照已完成当前内容版本的许可包装，14 项为 <code>allow</code>；其余 77 项仍为 <code>block</code>。
+- 基线审计的 91 项中，七项 W3C、ODCS 3.2.0 定义首页、五项 arXiv、LinkML 文档首页及 Schema.org 文档快照已完成当前内容版本的许可包装，15 项为 <code>allow</code>；其余 76 项仍为 <code>block</code>。
 - Apache Ossie 基线胶囊只有 7 bytes（# Home），不是实质标准全文；后续降级不删除其基线审计行。
 
-当前 `full_text` 为 90 条，公开发布门检查结果为 `active_full_text=90 audited=91 blocked=76 errors=0`；整体仍未放行。76 项分为 40 项尚无适用公众许可证据、36 项已有许可证据但尚待履约，不应统称为缺少授权。审计覆盖数 91 与当前全文数 90 使用不同基线，不应混用。全文继续保存在本 GitHub repo；本次保留既有正文与快照，只补齐许可条件和传播信息，未移除作品、迁移存储或改写 Git 历史。
+当前 `full_text` 为 90 条，公开发布门检查结果为 `active_full_text=90 audited=91 blocked=75 errors=0`；整体仍未放行。75 项分为 40 项尚无适用公众许可证据、35 项已有许可证据但尚待履约，不应统称为缺少授权。审计覆盖数 91 与当前全文数 90 使用不同基线，不应混用。全文继续保存在本 GitHub repo；本次保留既有正文与快照，只补齐许可条件和传播信息，未移除作品、迁移存储或改写 Git 历史。
 
 机器可读逐条记录：<code>raw_data/audits/materialization_rights_review.yaml</code>。本报告记录许可证据与已落实的包装条件，不是法律意见或人工批准。
 
@@ -20,6 +20,8 @@
 许可范围必须对象匹配：代码/模型/数据/模板/参考文献许可不能覆盖论文；平台获授分发权不能转授公众；CC/W3C/Apache 的署名、NOTICE、修改、NC、ND、SA 条件必须落实。
 
 审查以实际保存的表达与具体权利声明为边界，不要求证明每句话原创。在作品版本对应、发布机构/作者明确许可且没有相反声明或具体风险迹象时，可以合理依赖该许可；纯书目事实、名称、URL、未保存的外链作品不要求另行授权。不能仅因论文含用户研究或模型样例，就要求调取参与者同意书、作者历史服务合同；正式论文之外已明确识别的第三方长摘录、软件或模板则分别履约。完整法条副本、四方包校验和双次重建是当前实现的校验办法，不是额外的人类批准或所有许可证一概要求的法律条件。
+
+替代出版路径的版本对应（Version correspondence）也可以通过实际保存的表达与获许可出版内容的实质比对建立，不普遍要求作者另写精确 arXiv vN 确认信，更不要求 TeX 源包与出版 PDF 字节相同。相同题名或作者本身仍不足；发现正文、附录或第三方组件差异时须明确差异及其许可范围。旧审计中的“人工核对”“机器证明”描述待办或实现状态，不新增人类审批条件；尚未找到许可也不等于已经证明不存在任何其他授权。
 
 论文正文完整保存，与源包中每个附带组件必须字节不变，是两个不同要求。当前尚未获得整理非正文组件的范围确认，因此没有删除参考文献里的第三方完整摘要，也没有改名或改写 LaTeX 模板来越过问题。若后续允许此类整理，仍须保留论文实际表达、说明转换、重建受影响的定位器，并通过相同许可门；不能只手工改当前胶囊而让下一次物化恢复旧问题。
 
@@ -34,11 +36,11 @@
 | 基线 full_text | 91 |
 | documented_permission | 51 |
 | permission_unverified | 40 |
-| allow_after_conditions_met | 37 |
-| allow_with_packaged_notice | 14 |
+| allow_after_conditions_met | 36 |
+| allow_with_packaged_notice | 15 |
 | do_not_redistribute_full_text | 40 |
-| publication gate: allow | 14 |
-| publication gate: block（基线项） | 77 |
+| publication gate: allow | 15 |
+| publication gate: block（基线项） | 76 |
 
 ### Robin / Kosmos：论文正文与额外收录的摘要分别判断
 
@@ -70,7 +72,15 @@ AI Scientist-v2 七份匿名评审意见已独立核对：[OpenReview 条款](ht
 - 生成器每次从 canonical metadata 与共享 NOTICE 重新组装，不依赖手工补丁。声明的包与新全文 revision 不符会终止物化，而不会被降级为 metadata-only 后误过门控。
 - 对这六项 `allow`，门控检查 canonical metadata、审计、胶囊 metadata、manifest 四方一致，并验证完整 NOTICE 和唯一的文末署名块；丢失声明、漏写审计包或替换 NOTICE 均失败。未将 Agent 核验写作 human approval。
 
-本批同时复核了 RDF 1.2 Concepts，但没有放行：固定 Candidate Recommendation Snapshot 的附录 F 实际保存了 RFC3986、RFC3987、RFC6874 的合成 IRI 语法代码。RFC6874 要求提取代码携带 BSD 声明；两份 2005 年 1 月 RFC 的旧版修改/再分发依据及声明也需核清。它们不是可以用 scope 排除的外链，正文继续保留，许可门仍为 `block`。详细来源和定位已写入机器审计。
+### RDF 1.2：主文档与附录 RFC 代码分别履约
+
+[RDF 1.2 Concepts and Abstract Data Model 固定 Candidate Recommendation Snapshot](https://www.w3.org/TR/2026/CR-rdf12-concepts-20260407/) 的附录 F 实际保存了 RFC3986、RFC3987、RFC6874 的合成 IRI ABNF，不是可以通过 scope 排除的外链。主文档按 W3C 2023 Software and Document License 包装，附录代码另按各自出版时的适用许可履约。
+
+2005 年 1 月的 RFC3986/3987 适用 [RFC3667 §3.3(a)(E)](https://www.rfc-editor.org/rfc/rfc3667.html#section-3.3) 和 §5 通知条件；[IETF Trust 官方 FAQ](https://trustee.ietf.org/about/faq/)同时明确说明 2005 年 3 月以前代码的复用和修改路径。两篇原文未列禁止衍生声明，因此不需要新增作者授权，也不把后来的 BSD 追溯套给旧代码。两份 RFC 的作者、来源及原 Full Copyright Statement（含免责）在正文末注和组合 NOTICE 中保留。
+
+RFC6874 的三条规则 `IP-literal`、`ZoneID`、`IPv6addrz` 按出版时生效的 [TLP4](https://trustee.ietf.org/wp-content/uploads/IETF-TLP-4.pdf) 履约。原声明中的 Simplified BSD 是历史误名：[IETF 官方更正](https://trustee.ietf.org/documents/trust-legal-provisions/tlp-5/)确认原文一直为三条款 Revised BSD，未修改许可文本。本包在实际包含代码的 `document.md` 末注内保存完整三条款、版权和免责，不只是外置 NOTICE，也不将代码许可套给 W3C 整文。
+
+原正文和既有合成语法说明保持不变；固定 URL 重新绑定定位器的 URL 前缀，不改变定位顺序、行号或摘录内容。该项成为第七份已包装 W3C 文字包，仅覆盖当前实存文字和代码，不代表外链资源或其他 RFC 全文获得授权。
 
 ## 已落实的 PDF 版本许可与物化修复
 
@@ -157,6 +167,12 @@ AI Scientist-v2 七份匿名评审意见已独立核对：[OpenReview 条款](ht
 
 WikiChat 新找到[作者官方公告](https://github.com/stanford-oval/WikiChat)与 [arXiv v2](https://arxiv.org/abs/2305.14292v2)的同日 camera-ready 版本绑定，连同 [ACL 出版记录](https://aclanthology.org/2023.findings-emnlp.157/)和[版权政策](https://aclanthology.org/faq/copyright/)，支持将作者论文正文记为 `documented_permission / CC-BY-4.0`。这不是整个 archive 的放行：`emnlp2023.sty`、`acl_natbib.bst` 等第三方组件及 NOTICE 仍需核清，门控保持 `block`。FActScore、ALCE、RAGTruth、STORM 与 WikiContradict 的替代出版路径尚未形成适用于现存版本的充分公众许可链；相似文本、相同标题或代码/数据许可证都不单独补足这个缺口。
 
+本次对上述待办作了进一步有界核验和纠错：
+
+- ALCE 的[正式 ACL 出版内容](https://aclanthology.org/2023.emnlp-main.398/)有 BY4 路径，主体及附录主干与本地对应；阻碍不再笼统表述为缺少作者精确版本声明。本地附录额外三段 Open-source Models 及 Stable Beluga 2 结果行，未出现在正式出版 PDF 或作者仓库论文副本中，需继续核对这些具体表达的适用许可。两份额外摘要分别有 ACL 作品级许可入口，模板也有官方 Overleaf BY4 线索，但实际组件对应与包装未完成；整包仍为 block。
+- Progressive Neural Networks 实存 March 2016 模板尚缺覆盖实际版本的公众许可依据；Darwin Gödel Machine 包含 ICLR2026 模板及有原源码随附条件的 natbib 8.31。这些是有界组件发现，未冒称已经核对整包固定版本，也不将投稿页脚的 Do not distribute 当作模板禁令。
+- GEM 的一条替代出版商证据曾错配另一篇作品。已在机器审计中明确排除该条对 GEM 的证明作用并保留纠错历史；官方 GEM 题名、作者、NIPS2017 出版信息和版本史与原错配记录不同。此次纠错不新增或否定 GEM 的公众许可，不改变其门控。
+
 ## 来源族发现（Source-family Findings）
 
 - arXiv：32 篇官方文章页链接 CC；WikiChat 另由作者的确切 camera-ready 版本声明与 ACL 出版许可形成正文授权链。其余 40 篇仍缺适用公众许可证据；arXiv non-exclusive/历史 assumed license 本身不授予公众再分发权。
@@ -166,7 +182,7 @@ WikiChat 新找到[作者官方公告](https://github.com/stanford-oval/WikiChat
 
 ## 人工审核与权利确认（Human Review and Clearance）
 
-逐条证据审核已经完成，许可履约仍未全量完成。51 条有公众许可证据的记录中，十一项已按官方许可完成当前包的内容版本绑定与包装，其余 40 项继续核实条件；40 条未核实记录仍需适用授权或与确切作品版本绑定的新权威许可证据。客观许可履约不默认要求另行人工批准，但 Agent 也不能代替权利人授予新许可；整体自动上传继续失败关闭（fail closed）。
+逐条证据审核已经完成，许可履约仍未全量完成。已完成包装、待履约与尚缺适用许可的数量，以本文开头的结论及机器审计汇总为准，避免在此重复维护计数。未核实记录仍需适用授权或与确切作品版本绑定的新权威许可证据。客观许可履约不默认要求另行人工批准，但 Agent 也不能代替权利人授予新许可；整体自动上传继续失败关闭（fail closed）。
 
 ## 逐条审计（91 items）
 
@@ -256,7 +272,7 @@ WikiChat 新找到[作者官方公告](https://github.com/stanford-oval/WikiChat
 | 82 | <code>standard:w3c-owl-time</code> | <code>materialized_sources/corpus/standard-w3c-owl-time--446fcf02/manifest.yaml</code><br><code>raw_data/standard/Time Ontology in OWL/metadata.yaml</code> | 固定 OWL-Time CRD；2015 NOTICE、2022 W3C版权、联合项目及非背书状态已保留 | 无；仅覆盖已核验的固定版本文字包 | <code>documented_permission</code> | 当前固定版本 gate=allow；不外推未来版本或外链资产 |
 | 83 | <code>standard:w3c-owl2</code> | <code>materialized_sources/corpus/standard-w3c-owl2--602129ed/manifest.yaml</code><br><code>raw_data/standard/OWL 2 Web Ontology Language/metadata.yaml</code> | <code>W3C-Document-License-2002</code>；允许复制和分发，但一般不授予修改/衍生权。；本地 access=<code>unknown</code>，assumed=true | metadata 未记录确切 W3C 许可版本。；Markdown 未附完整许可/NOTICE，原许可链接已丢失。 | <code>documented_permission</code> | 满足条件后才可考虑发布；当前 gate=block |
 | 84 | <code>standard:w3c-r2rml</code> | <code>materialized_sources/corpus/standard-w3c-r2rml--b9b6cc67/manifest.yaml</code><br><code>raw_data/standard/R2RML RDB to RDF Mapping Language/metadata.yaml</code> | <code>W3C-Document-License-2002</code>；允许复制和分发，但一般不授予修改/衍生权。；本地 access=<code>unknown</code>，assumed=true | metadata 未记录确切 W3C 许可版本。；Markdown 未附完整许可/NOTICE，原许可链接已丢失。 | <code>documented_permission</code> | 满足条件后才可考虑发布；当前 gate=block |
-| 85 | <code>standard:w3c-rdf-1.2-concepts</code> | <code>materialized_sources/corpus/standard-w3c-rdf-1.2-concepts--02058aec/manifest.yaml</code><br><code>raw_data/standard/RDF 1.2 Concepts and Abstract Syntax/metadata.yaml</code> | <code>W3C-Software-and-Document-License-2023</code>；明确允许复制、修改和分发。；本地 access=<code>unknown</code>，assumed=true | 附录F实际保存RFC3986/3987/6874合成语法；旧版代码再分发依据及RFC6874的BSD声明未落实 | <code>documented_permission</code> | 保持gate=block；不能用W3C主文档许可或scope排除代替RFC代码履约 |
+| 85 | <code>standard:w3c-rdf-1.2-concepts</code> | <code>materialized_sources/corpus/standard-w3c-rdf-1.2-concepts--02058aec/manifest.yaml</code><br><code>raw_data/standard/RDF 1.2 Concepts and Abstract Syntax/metadata.yaml</code> | 固定 2026-04-07 CR Snapshot；W3C 2023 与附录 RFC 代码分别履约，原通知和完整三条款 BSD 随正文保存 | 无；仅限当前保存文字与合成 ABNF，不含外链资源 | <code>documented_permission</code> | 当前固定文字包 gate=allow；不等于人工批准或整体 PR 完成 |
 | 86 | <code>standard:w3c-shacl</code> | <code>materialized_sources/corpus/standard-w3c-shacl--63e18f6d/manifest.yaml</code><br><code>raw_data/standard/Shapes Constraint Language SHACL/metadata.yaml</code> | <code>W3C-Document-License-2015</code>；允许复制和分发；修改/衍生仅有有限实现例外。；本地 access=<code>unknown</code>，assumed=true | metadata 未记录确切 W3C 许可版本。；Markdown 未附完整许可/NOTICE，原许可链接已丢失。 | <code>documented_permission</code> | 满足条件后才可考虑发布；当前 gate=block |
 | 87 | <code>standard:w3c-skos</code> | <code>materialized_sources/corpus/standard-w3c-skos--02ed3abb/manifest.yaml</code><br><code>raw_data/standard/SKOS Simple Knowledge Organization System/metadata.yaml</code> | <code>W3C-Document-License-2002</code>；允许复制和分发，但一般不授予修改/衍生权。；本地 access=<code>unknown</code>，assumed=true | metadata 未记录确切 W3C 许可版本。；Markdown 未附完整许可/NOTICE，原许可链接已丢失。 | <code>documented_permission</code> | 满足条件后才可考虑发布；当前 gate=block |
 | 88 | <code>standard:w3c-sosa-ssn</code> | <code>materialized_sources/corpus/standard-w3c-sosa-ssn--33efc488/manifest.yaml</code><br><code>raw_data/standard/SOSA SSN Ontology/metadata.yaml</code> | <code>W3C-Document-License-2015</code>；允许复制和分发；修改/衍生仅有有限实现例外。；本地 access=<code>unknown</code>，assumed=true | metadata 未记录确切 W3C 许可版本。；Markdown 未附完整许可/NOTICE，原许可链接已丢失。 | <code>documented_permission</code> | 满足条件后才可考虑发布；当前 gate=block |

@@ -3550,3 +3550,42 @@ Referenced in:
 Referenced in:
 
 § 5.1 The XML Schema Built-in Datatypes
+
+
+<!-- materialization-redistribution-notice -->
+## Redistribution notice
+
+This document includes material copied from or derived from "RDF 1.2 Concepts and Abstract Data Model", W3C Candidate Recommendation Snapshot 07 April 2026, https://www.w3.org/TR/2026/CR-rdf12-concepts-20260407/. Copyright © 2004-2026 World Wide Web Consortium. https://www.w3.org/copyright/software-license-2023/. This converted repository copy is not the official W3C rendering and is not a W3C Recommendation or an endorsement by W3C.
+
+Appendix F's consolidated IRI ABNF includes code copied from or derived from IETF RFC 3986, "Uniform Resource Identifier (URI): Generic Syntax" (January 2005), by Tim Berners-Lee, Roy T. Fielding and Larry Masinter, https://www.rfc-editor.org/rfc/rfc3986.txt; and IETF RFC 3987, "Internationalized Resource Identifiers (IRIs)" (January 2005), by Martin Dürst and Michel Suignard, https://www.rfc-editor.org/rfc/rfc3987.txt. The code permission is RFC 3667 (BCP 78), Section 3.3(a)(E), subject to Section 5, https://www.rfc-editor.org/rfc/rfc3667.txt; the pre-March-2005 code guidance is https://trustee.ietf.org/about/faq/. The following original Full Copyright Statement applies separately to each of RFC 3986 and RFC 3987 and is retained for the Appendix F code, not asserted as a license for the W3C document as a whole:
+
+Copyright (C) The Internet Society (2005).
+
+This document is subject to the rights, licenses and restrictions contained in BCP 78, and except as set forth therein, the authors retain all their rights.
+
+This document and the information contained herein are provided on an "AS IS" basis and THE CONTRIBUTOR, THE ORGANIZATION HE/SHE REPRESENTS OR IS SPONSORED BY (IF ANY), THE INTERNET SOCIETY AND THE INTERNET ENGINEERING TASK FORCE DISCLAIM ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF THE INFORMATION HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY IMPLIED WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
+
+Appendix F's IP-literal, ZoneID and IPv6addrz code includes material copied from or derived from IETF RFC 6874, "Representing IPv6 Zone Identifiers in Address Literals and Uniform Resource Identifiers" (February 2013), by Brian Carpenter, Stuart Cheshire and Robert M. Hinden, https://www.rfc-editor.org/rfc/rfc6874.txt. Its original Copyright Notice is retained below; "Simplified BSD" is the original historical label. The applicable dated TLP4 is https://trustee.ietf.org/wp-content/uploads/IETF-TLP-4.pdf (effective 28 December 2009), Section 4.c/4.e. The IETF Trust confirms that this was always the three-clause Revised BSD text and the license text did not change: https://trustee.ietf.org/documents/trust-legal-provisions/tlp-5/. This permission applies to these RFC 6874 code components, not the W3C document as a whole.
+
+Copyright (c) 2013 IETF Trust and the persons identified as the document authors. All rights reserved.
+
+This document is subject to BCP 78 and the IETF Trust's Legal Provisions Relating to IETF Documents (http://trustee.ietf.org/license-info) in effect on the date of publication of this document. Please review these documents carefully, as they describe your rights and restrictions with respect to this document. Code Components extracted from this document must include Simplified BSD License text as described in Section 4.e of the Trust Legal Provisions and are provided without warranty as described in the Simplified BSD License.
+
+BSD License (TLP4 Section 4.c; year inserted for RFC 6874):
+
+Copyright (c) 2013 IETF Trust and the persons identified as authors of the code. All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+
+- Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+- Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+- Neither the name of Internet Society, IETF or IETF Trust, nor the names of specific contributors, may be used to endorse or promote products derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS” AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+Changes: HTML was converted to Markdown by the existing extractor; navigation, hyperlink targets, styling, figures, table structure and table-only cells were omitted, and text/code whitespace was normalized. Selectors contain excerpts of retained text. The existing converted body, including Appendix F's consolidated RFC grammar, is unchanged by this license packaging; only this source/status/change notice and the applicable original RFC notices were appended.
+
+Scope: 仅覆盖该固定 Candidate Recommendation Snapshot 当前保留的 W3C 文字、示例和 selector 摘录，以及附录F实际保存的 RFC3986/3987 合成 IRI ABNF 与 RFC6874 的 IP-literal、ZoneID、IPv6addrz 代码；RFC 条款仅作用于相应代码，不覆盖 W3C 整文。不授权外链媒体、商标、专利或未实际保存的外部文件；不以范围声明排除已存 grammar。
+
+Full license and original rights links: [NOTICE.md](NOTICE.md).
