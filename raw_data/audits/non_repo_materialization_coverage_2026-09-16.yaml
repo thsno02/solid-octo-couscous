@@ -1,15 +1,15 @@
-# P1集合/历史证据继承；P2仅2已知parser UID本地派生更新，不升级129历史判断。
+# P1集合及P1/P2历史证据继承；P3-TEX-01仅GraphRAG更新，不升级其余130历史判断。
 audit_id: "non-repo-materialization-coverage-2026-09-16"
 schema_version: 1
 language: "zh-CN"
-phase: "P2"
+phase: "P3-TEX-01"
 execution:
-  base_sha: "474992c2664fb2af06765abdb4dfb23b6db40fb8"
+  base_sha: "03c2fdcd5b94e684aa54d582f7f966188575cf7d"
   collection_anchor_sha: "5458fbdffc95444cc26d5e9346fc2f9ab96e09c5"
-  source_snapshot_merge_commit: "474992c2664fb2af06765abdb4dfb23b6db40fb8"
-  branch: "codex/p2-known-parser-gaps-260916"
-  p2_pr: 7
-  report_path: "docs/plans/260916-corpus-completion-main-convergence/p2-parser-results.md"
+  source_snapshot_merge_commit: "03c2fdcd5b94e684aa54d582f7f966188575cf7d"
+  branch: "codex/p3-graphrag-import-body-260916"
+  p3_tex_01_pr: 8
+  report_path: "docs/plans/260916-corpus-completion-main-convergence/p3-tex-01-graphrag.md"
   network_source_requests: 0
   original_source_bytes_changed: false
   derived_materialization_changed: true
@@ -17,32 +17,47 @@ execution:
   new_license_conclusions: false
   fresh_checkout_performed: false
   manual_judgment_updated_uids:
-    - "arxiv:2406.04268"
-    - "arxiv:2502.18864"
-  historical_p1_execution:
-    base_sha: "5458fbdffc95444cc26d5e9346fc2f9ab96e09c5"
-    corpus_reference_sha: "568d31de26c918a9251fadf9488a47ae3405c034"
-    p0_pr: 5
-    p0_independent_evaluation: "PASS"
-    p0_evaluated_head: "9b52e939388d33c0240f94ad05acc52c30d0200a"
-    p0_ci_run: 35098034713
-    p0_merge_commit: "5458fbdffc95444cc26d5e9346fc2f9ab96e09c5"
-    branch: "codex/p1-nonrepo-coverage-260916"
-    p1_pr: 6
+    - "arxiv:2404.16130"
+  historical_p2_execution:
+    base_sha: "474992c2664fb2af06765abdb4dfb23b6db40fb8"
+    collection_anchor_sha: "5458fbdffc95444cc26d5e9346fc2f9ab96e09c5"
+    source_snapshot_merge_commit: "474992c2664fb2af06765abdb4dfb23b6db40fb8"
+    branch: "codex/p2-known-parser-gaps-260916"
+    p2_pr: 7
+    report_path: "docs/plans/260916-corpus-completion-main-convergence/p2-parser-results.md"
     network_source_requests: 0
-    source_files_changed: false
-    manifest_registry_index_changed: false
+    original_source_bytes_changed: false
+    derived_materialization_changed: true
+    manifest_registry_index_changed: true
     new_license_conclusions: false
     fresh_checkout_performed: false
+    manual_judgment_updated_uids:
+      - "arxiv:2406.04268"
+      - "arxiv:2502.18864"
+    historical_p1_execution:
+      base_sha: "5458fbdffc95444cc26d5e9346fc2f9ab96e09c5"
+      corpus_reference_sha: "568d31de26c918a9251fadf9488a47ae3405c034"
+      p0_pr: 5
+      p0_independent_evaluation: "PASS"
+      p0_evaluated_head: "9b52e939388d33c0240f94ad05acc52c30d0200a"
+      p0_ci_run: 35098034713
+      p0_merge_commit: "5458fbdffc95444cc26d5e9346fc2f9ab96e09c5"
+      branch: "codex/p1-nonrepo-coverage-260916"
+      p1_pr: 6
+      network_source_requests: 0
+      source_files_changed: false
+      manifest_registry_index_changed: false
+      new_license_conclusions: false
+      fresh_checkout_performed: false
 scope:
-  denominator: "固定P1 collection anchor5458fbd index中的全部source_type!=github UID；P2仅修复/重读2已知parser例，不扩集合。"
+  denominator: "固定P1 collection anchor5458fbd index中的全部source_type!=github UID；P3-TEX-01仅更新GraphRAG派生正文及其判断，不扩集合。"
   non_repo_uid_count: 131
   github_repo_excluded: 84
   known_parser_uids:
     - "arxiv:2406.04268"
     - "arxiv:2502.18864"
   parser_cases_are_within_full_text: true
-  minimum_checks: "P1历史已盘点131结构/14metadata/27excerpt/2parser，26full_text有局部内容证据；这些累计数字不写成P2新抽检。P2只重读2parser UID，其余129项手读判断继承来源snapshot P1 merge474。"
+  minimum_checks: "P1历史已盘点131结构/14metadata/27excerpt/2parser，26full_text有局部内容证据；P2仅重读2parser UID。P3-TEX-01只新读GraphRAG开中尾/附录/缺图/书目边界，累计27full_text局部检查不写成P3新抽检或90full_text全部verified。其余130项原样继承PR7 merge03c2fd。"
 interpretation:
   separate_axes: "原件（original artifact）、文本提取（text extraction）、本地持久化（persistence）、selector结构、既有公共发布门控、知识准入各自独立；标签不升级为完成结论。"
   unknown: "unknown 是证据不足，不是 null、无正文或不可得；partial_check 不等于全body verified。"
@@ -54,11 +69,12 @@ interpretation:
   knowledge_claims: "仅所选 demo claims；30 nonrepo UID 有 candidate claim，101无被引用 claim 用state=null且observed_claims_exist=false；metadata verification 不是 trusted。"
   original_html: "全部131当前 inventory 原HTML留存为0；17个非arxiv full_text仅派生document，须原件比对，不能默认HTML提取无缺失。"
   html_parser_risk: "现有 html_to_sections 只直接选 h1-h4/p/li/pre；dt/dd/td/tr/h5/h6/裸文本等可能遗漏，空References heading与figure notices仅为风险/具体观察，不自动推出全部body缺失。"
-  arxiv_assets: "68个 arxiv manifest 有 omitted 候选；只有6个实际引用已omitted资产的已读案例判 original partial，不把 normalized 完整当 archive artifact 完整。"
-  auditor_contract: "集合anchor固定5458fbd，执行base与report_path从ledger.execution读取；P2继承P1 merge474，仅2UID本地parser派生更新。历史coverage-baseline.md不改，新phase不把129历史判断升级为新body核验。"
+  arxiv_assets: "68个 arxiv manifest 有 omitted 候选；累计只有7个实际引用已omitted资产的已读案例判 original partial（P3-TEX-01新增GraphRAG两张JPG）；不把 normalized 完整当 archive artifact 完整。"
+  auditor_contract: "集合anchor固定5458fbd，执行base与report_path从ledger.execution读取；P3-TEX-01 base为PR7 merge03c2fd，仅1UID更新，历史coverage-baseline.md/P2报告不改。本阶段要求base为本地提交且HEAD祖先，集合anchor依赖保留工作历史；此检查不是未来P5 squash后fresh checkout的吸收证明，后续P4须显式升级阶段契约，不偷偷放宽当前检查。"
   arxiv_title_only_scan: "主线程只读73 arxiv本地root标题/文档开头，唯一明确错作品为DyRep→QCD；其余仅候选标题对齐/宏标题，不能当完整body核验。RE-Net副标题差异已记录且版本按当前null。Kosmos source/main.tex L75标题对齐。title-only scan不加入其他UID的content_inspection。"
-  phase_inheritance: "其他129items语义保持P1 snapshot merge474原样；其无phase标记的coverage/content_inspection等证据为P1历史。2更新UID旧证据标observed_in_phase=P1，新派生文本审读证据标P2；PDF旧pypdf6.10字符探测也是P1历史。"
+  phase_inheritance: "其余130items逐对象原样保持PR7 merge03c2fd：其中128项继承P1判断，2项继承P2派生更新。无phase标记的coverage/content_inspection为P1历史，不能写成P3新检查。GraphRAG旧结构证据标observed_in_phase=P1且snapshot_merge_commit为P1 merge474；仅新正文/源边界证据标P3-TEX-01。PDF旧pypdf6.10字符探测仍为P1历史。"
   p2_remaining_boundaries: "TeX root/text可消费的局部归一已完成但图资产/vN/有损文本仍缺；PDF图文字已部分转录，但native4/20仍为空、图形/数字/版式未重建。两例均needs_boundary_verification，仍partial，不为凑状态安装OCR或晋级trusted。"
+  p3_tex_01_remaining_boundaries: "GraphRAG保留root及14条已有import的主文/七个附录节、表和研究提示词已局部展开并审读；两张已引用JPG仍缺，编译书目未内联，轻量预处理不执行宏/条件/comment环境，纯文本数学/表格/图形/转义/版式有损。仅unknown→partial/partial_check，仍needs_boundary_verification，不晋级complete/trusted，也不重评既有allow。"
 verification:
   structural_probe: "python3 -B scripts/audit_non_repo_coverage.py --probe；复用discover_records/filter_selectors_for_document/pdf_page_sections/scoped_path，本地只读"
   prior_make_validate:
@@ -91,7 +107,7 @@ verification:
     nonparser_full_text_uids: 24
     parser_full_text_uids: 2
     structure_only_full_text_uids: 64
-    method: "human-authored content_inspection/coverage judgments；observed 仅自动结构数据，算法不替代逐source手读。 数字为累计P1历史检查覆盖，不代表P2又逐个检查；P2仅2UID新派生审读。"
+    method: "human-authored content_inspection/coverage judgments；observed仅自动结构数据，算法不替代逐source手读。此块数字为累计P1历史检查覆盖，不代表P2/P3又逐个检查；P2仅2UID新派生审读，P3-TEX-01仅GraphRAG新增检查，当前累计数见summary。"
   p2_local_checks:
     content_checked_uids:
       - "arxiv:2406.04268"
@@ -105,6 +121,35 @@ verification:
     conventional_ocr_performed: false
     new_license_conclusions: false
     scope: "本地结构复算/直接字节或文本前缀对比及派生文本审读；正式default auditor/test/validate由主线程P2报告记录，不冒充全bodyverified。"
+    observed_in_phase: "P2"
+    snapshot_merge_commit: "03c2fdcd5b94e684aa54d582f7f966188575cf7d"
+  p3_tex_01_local_checks:
+    content_checked_uids:
+      - "arxiv:2404.16130"
+    other_130_observed_drift: 0
+    original_source_file_count: 19
+    original_source_bytes: 160932
+    original_source_and_files_inventory_byte_differences: 0
+    real_tex_include_edges: 14
+    tex_include_errors: []
+    old_selector_count: 61
+    appended_derived_selectors: 42
+    old_selectors_are_exact_byte_prefix: true
+    normalized_tex_bytes: 102241
+    normalized_tex_lines: 1687
+    source_end_document_line: 469
+    normalized_tex_end_document_line: 1687
+    document_bytes: 86085
+    document_characters: 84236
+    document_lines: 1494
+    body_prefix_bytes: 81087
+    body_prefix_characters: 81068
+    footer_bytes: 4998
+    footer_boundary_definition: "footer从唯一notice marker前的两换行起算；正文81087B/81068字符+footer4998B=整document86085B，materialization.stored_characters84236含footer。"
+    redistribution_notice_count: 1
+    local_bytes: 424337
+    new_license_conclusions: false
+    scope: "本地结构复算、原source/files.jsonl与旧selectors直接字节对比、实际派生正文开中尾和附录/缺图/书目审读；正式default auditor/test/validate由主线程当前报告记录，不冒充全bodyverified。"
 summary:
   collection_records: 215
   non_repo_total: 131
@@ -125,12 +170,12 @@ summary:
   original_artifact_counts:
     complete: 1
     metadata_only: 18
-    partial: 6
-    unknown: 106
+    partial: 7
+    unknown: 105
   text_extraction_counts:
-    partial: 23
+    partial: 24
     unavailable: 18
-    unknown: 90
+    unknown: 89
   action_bucket_counts:
     access_restricted: 7
     author_manuscript_fetch: 2
@@ -144,8 +189,8 @@ summary:
     allow: 26
     block: 65
     unknown: 40
-  content_inspected_full_text: 26
-  structure_only_full_text: 64
+  content_inspected_full_text: 27
+  structure_only_full_text: 63
   locally_persisted_complete: 0
   knowledge_candidate_sources: 30
   knowledge_trusted_sources: 0
@@ -4455,19 +4500,19 @@ items:
       canonical_id: "2404.16130"
       canonical_url: "https://arxiv.org/abs/2404.16130"
       selected_version: "v2"
-      version_status: "recorded_not_reverified_in_P1"
-      version_reason: "原样继承 metadata.versioning.source_version 与既有 provenance；P1 未重新验证版本，不推翻任何既有绑定或 verification 记录。"
+      version_status: "recorded_not_reverified_in_P3-TEX-01"
+      version_reason: "沿用metadata.versioning.source_version=v2与既有provenance/归属记录；本批仅在本地展开同一19件保留source，直接字节对比确认原source与files.jsonl未变，不重新获取/证明远端版次，也不推翻已有绑定或verification记录。"
       source_kind: "tex"
-      boundary: "由 arXiv:2404.16130 所指论文主文、引用的附录与图表；以 metadata 已记录版本（若有）为候选，实际版本和全文边界仍待比对。"
-      boundary_verification_state: "unverified"
+      boundary: "由arXiv:2404.16130已记录v2所指论文主文、被root实际引用的14个import文件及七个附录节、图表与书目；原graph_rag.tex L80 begin{document}/L469 end{document}保留。未被root引用的checklist.tex/fine_tuning.tex虽留存在19件source内，不自动当成缺失的论文正文；已引用两张JPG、编译书目与完整表达边界仍待核验。"
+      boundary_verification_state: "partial_check"
     observed:
-      reported_status: "materialized"
+      reported_status: "partial"
       reported_content_tier: "full_text"
       source_version_recorded: "v2"
       local_revision: "sha256:aab5aeef01f6e03ef402c28fcea0c3041337c201af216c1e41f825c59ae7c628"
       document_path: "materialized_sources/corpus/arxiv-2404.16130--fe9ed9e5/normalized/document.txt"
-      document_lines: 478
-      document_characters: 42225
+      document_lines: 1494
+      document_characters: 84236
       main_tex_path: "materialized_sources/corpus/arxiv-2404.16130--fe9ed9e5/source/graph_rag.tex"
       normalized_document: "normalized/document.txt"
       source_pdf: null
@@ -4476,7 +4521,7 @@ items:
       all_declared_files_present: true
       all_declared_files_tracked: true
       selector_path: "materialized_sources/corpus/arxiv-2404.16130--fe9ed9e5/selectors.jsonl"
-      selector_count: 61
+      selector_count: 103
       invalid_selector_count: 0
       pdf_page_count_reported: null
       pdf_text_page_headings: []
@@ -4485,8 +4530,12 @@ items:
       content_was_truncated: null
       omitted_member_count: 2
       errors: []
-      warnings: []
-      limitations: []
+      warnings:
+        - "Two JPEGs were already omitted from the retained source package: Level0Multihop.jpg and Level1Multihop.jpg, referenced by source/communities_figure.tex lines 4-5 in Example Community Detection. This offline batch does not fetch or remove source members."
+        - "The lightweight TeX preprocessor expands literal braced input/include/import/subimport calls only. It does not execute macros, conditional or comment environments, automatically load the retained graph_rag.bbl bibliography, or search import ancestor/system paths. normalized/document.txt is lossy for mathematics, plots, table structure, escaped characters, and layout; retained source and normalized TeX remain authoritative."
+      limitations:
+        - "Two JPEGs were already omitted from the retained source package: Level0Multihop.jpg and Level1Multihop.jpg, referenced by source/communities_figure.tex lines 4-5 in Example Community Detection. This offline batch does not fetch or remove source members."
+        - "The lightweight TeX preprocessor expands literal braced input/include/import/subimport calls only. It does not execute macros, conditional or comment environments, automatically load the retained graph_rag.bbl bibliography, or search import ancestor/system paths. normalized/document.txt is lossy for mathematics, plots, table structure, escaped characters, and layout; retained source and normalized TeX remain authoritative."
       requested_urls:
         - "https://export.arxiv.org/e-print/2404.16130"
         - "https://arxiv.org/e-print/2404.16130"
@@ -4497,24 +4546,74 @@ items:
       public_gate_revision_matches: true
       knowledge_claim_state_counts: {}
     original_artifact_coverage:
-      state: "unknown"
-      verification_state: "unverified"
+      state: "partial"
+      verification_state: "partial_check"
       evidence:
         -
           path: "materialized_sources/corpus/arxiv-2404.16130--fe9ed9e5/manifest.yaml"
           locator: "retrievals/local_files/materialization/omitted"
-          result: "当前 inventory 存在=true、跟踪=true；原HTML留存=0，omitted候选=2；这些结构事实不证明目标原件完整。"
-      missing_assets: []
+          result: "P1历史结构证据（非当前after事实）：当前 inventory 存在=true、跟踪=true；原HTML留存=0，omitted候选=2；这些结构事实不证明目标原件完整。"
+          observed_in_phase: "P1"
+          snapshot_merge_commit: "474992c2664fb2af06765abdb4dfb23b6db40fb8"
+        -
+          path: "materialized_sources/corpus/arxiv-2404.16130--fe9ed9e5/source/communities_figure.tex"
+          locator: "L4-L8"
+          start_line: 4
+          end_line: 8
+          text_preview: "\\includegraphics[width=0.5\\textwidth]{Level0Multihop.jpg}&"
+          result: "实际引用 Level0Multihop.jpg 与 Level1Multihop.jpg 并说明 level 0/1 社区图；两件都在既有 omitted 且当前 source 中不存在。不是未引用模板资产，因此目标 original artifact 明确 partial；本批未获取或新删除 JPG。"
+          observed_in_phase: "P3-TEX-01"
+        -
+          path: "materialized_sources/corpus/arxiv-2404.16130--fe9ed9e5/manifest.yaml"
+          locator: "local_files/omitted/materialization.tex_include_graph/tex_include_errors"
+          result: "当前19件原source共160932 bytes与files.jsonl逐件直接字节比PR7 merge03c2fd原样；14条实际import边已展开且errors=[]。原件留存不等于目标完整：两个被communities_figure.tex L4-L5实际引用的JPEG既有省略未补齐。"
+          observed_in_phase: "P3-TEX-01"
+      missing_assets:
+        - "Level0Multihop.jpg"
+        - "Level1Multihop.jpg"
     text_extraction_coverage:
-      state: "unknown"
-      verification_state: "unverified"
+      state: "partial"
+      verification_state: "partial_check"
       evidence:
         -
           path: "materialized_sources/corpus/arxiv-2404.16130--fe9ed9e5/manifest.yaml"
           locator: "materialization/document/content_tier/selectors"
-          result: "记录 document=materialized_sources/corpus/arxiv-2404.16130--fe9ed9e5/normalized/document.txt，478行/42225字符，selector=61；正文/版本/边界完整性尚未证明。"
+          result: "P1历史结构证据（非当前after事实）：记录 document=materialized_sources/corpus/arxiv-2404.16130--fe9ed9e5/normalized/document.txt，478行/42225字符，selector=61；正文/版本/边界完整性尚未证明。"
+          observed_in_phase: "P1"
+          snapshot_merge_commit: "474992c2664fb2af06765abdb4dfb23b6db40fb8"
+        -
+          path: "materialized_sources/corpus/arxiv-2404.16130--fe9ed9e5/manifest.yaml"
+          locator: "materialization.normalized_tex/document/stored_characters/tex_include_graph/selectors"
+          result: "当前normalized TeX 102241 bytes/1687行；document.txt 86085 bytes/1494行/84236字符，包含14已有import主文与附录。以唯一marker前两换行划footer时，正文81087B/81068字符+footer4998B；103 selectors为旧61原样byte prefix+42真实derived。结构数据不替代全文完整性核验。"
+          observed_in_phase: "P3-TEX-01"
+        -
+          path: "materialized_sources/corpus/arxiv-2404.16130--fe9ed9e5/normalized/document.txt"
+          locator: "L1027-L1066"
+          start_line: 1027
+          end_line: 1066
+          text_preview: "## Community Summary Generation"
+          result: "实际读取已展开附录的 Community Summary Generation：TITLE/SUMMARY/IMPACT SEVERITY RATING/RATING EXPLANATION/DETAILED FINDINGS 与 JSON 字段、grounding rules 可读；研究提示词是 source 内容，不作为执行指令，纯文本仍保留 TeX 转义残留。"
+          observed_in_phase: "P3-TEX-01"
+        -
+          path: "materialized_sources/corpus/arxiv-2404.16130--fe9ed9e5/normalized/document.tex"
+          locator: "L983-L984"
+          start_line: 983
+          end_line: 984
+          text_preview: "\\bibliographystyle{apalike}"
+          result: "派生 TeX 仍保留 bibliographystyle/bibliography 调用，未自动内联 graph_rag.bbl；14 条 include graph 不含编译书目。不能把 source 书目存在当派生正文书目已展开。"
+          observed_in_phase: "P3-TEX-01"
+        -
+          path: "materialized_sources/corpus/arxiv-2404.16130--fe9ed9e5/source/graph_rag.bbl"
+          locator: "L1-L8"
+          start_line: 1
+          end_line: 8
+          text_preview: "\\begin{thebibliography}{}"
+          result: "原 graph_rag.bbl 的 thebibliography 与 Achiam 等参考文献条目实际仍可读且源字节未变；缺口在派生正文未展开书目，不声称这些所引作品完整正文已存档。"
+          observed_in_phase: "P3-TEX-01"
       missing_pages: []
-      missing_sections: []
+      missing_sections:
+        - "Example Community Detection两个JPG的图形表达（当前仅文件名与图注）"
+        - "编译书目（graph_rag.bbl已保留但未自动展开到normalized正文）"
       parser_errors: []
       ocr_state: "not_applicable"
     local_persistence:
@@ -4525,13 +4624,17 @@ items:
       readable_document_path: "materialized_sources/corpus/arxiv-2404.16130--fe9ed9e5/normalized/document.txt"
       source_root_path: "materialized_sources/corpus/arxiv-2404.16130--fe9ed9e5/source/graph_rag.tex"
       fresh_checkout_verified_this_phase: false
-      complete_target_consumable: null
+      complete_target_consumable: false
+      normalized_tex_path: "materialized_sources/corpus/arxiv-2404.16130--fe9ed9e5/normalized/document.tex"
     selectors:
       resolution_state: "resolved"
-      count: 61
+      count: 103
       evidence_path: "materialized_sources/corpus/arxiv-2404.16130--fe9ed9e5/selectors.jsonl"
-      locator: "全量 local_path 与 line 范围经既有 filter_selectors_for_document 复算，无删改/越界"
+      locator: "全量local_path与line范围经既有filter_selectors_for_document复算，invalid=0；旧61条source selectors与PR7 merge03c2fd逐字节prefix一致，另42条真实derived正文定位。whole-target语义/版本/缺图边界未验证。"
       semantic_boundary_verified: false
+      original_source_selector_count: 61
+      appended_derived_selector_count: 42
+      original_selectors_byte_prefix_preserved: true
     public_redistribution:
       state: "allow"
       reported_gate: "allow"
@@ -4548,12 +4651,60 @@ items:
       evidence_path: "experiments/v0_meta_kb_initialization_demo_260910/04_claims/claims.jsonl"
       locator: "provenance.source_refs contains arxiv:2404.16130; governance.promotion_state"
       note: "所选 demo 未引用此 UID，state=null 为不适用/无观测 claim，不能伪造 candidate。"
-    content_inspection: []
-    inspection_method: "structural_probe_only"
+    content_inspection:
+      -
+        path: "materialized_sources/corpus/arxiv-2404.16130--fe9ed9e5/normalized/document.txt"
+        locator: "L1-L16"
+        start_line: 1
+        end_line: 16
+        text_preview: "## Abstract"
+        result: "实际读取开头 Abstract/Introduction：GraphRAG 两阶段图索引、社区摘要与 global sensemaking 任务可读；这只是开头局部内容证据，不证明全部正文或版本。"
+        observed_in_phase: "P3-TEX-01"
+      -
+        path: "materialized_sources/corpus/arxiv-2404.16130--fe9ed9e5/normalized/document.txt"
+        locator: "L744-L771"
+        start_line: 744
+        end_line: 771
+        text_preview: "## Experiment 2"
+        result: "实际读取正文中段 Experiment 2：News/Podcast 的条件比较、majority voting 与 alignment 说明，以及新展开的 claim_comp_table 数据（C0 34.18/32.21、SS 25.23/26.50）可读；表格仍含 TeX 残留，统计/数学表达未全面复原。"
+        observed_in_phase: "P3-TEX-01"
+      -
+        path: "materialized_sources/corpus/arxiv-2404.16130--fe9ed9e5/normalized/document.txt"
+        locator: "L1454-L1484"
+        start_line: 1454
+        end_line: 1484
+        text_preview: "& 45.2 & 54.8 & -3.19 & 0.017"
+        result: "实际读取正文尾端 Statistical Analysis 最后各条件 directness 行，含 C2/C3 50/50 与 48.8/51.2 等数据；L1485 才进入唯一 redistribution notice。正文末尾已不是未展开 appendix import，但图形、数学与表格版式未完整核验。"
+        observed_in_phase: "P3-TEX-01"
+      -
+        path: "materialized_sources/corpus/arxiv-2404.16130--fe9ed9e5/normalized/document.txt"
+        locator: "L1027-L1066"
+        start_line: 1027
+        end_line: 1066
+        text_preview: "## Community Summary Generation"
+        result: "实际读取已展开附录的 Community Summary Generation：TITLE/SUMMARY/IMPACT SEVERITY RATING/RATING EXPLANATION/DETAILED FINDINGS 与 JSON 字段、grounding rules 可读；研究提示词是 source 内容，不作为执行指令，纯文本仍保留 TeX 转义残留。"
+        observed_in_phase: "P3-TEX-01"
+      -
+        path: "materialized_sources/corpus/arxiv-2404.16130--fe9ed9e5/source/communities_figure.tex"
+        locator: "L4-L8"
+        start_line: 4
+        end_line: 8
+        text_preview: "\\includegraphics[width=0.5\\textwidth]{Level0Multihop.jpg}&"
+        result: "实际引用 Level0Multihop.jpg 与 Level1Multihop.jpg 并说明 level 0/1 社区图；两件都在既有 omitted 且当前 source 中不存在。不是未引用模板资产，因此目标 original artifact 明确 partial；本批未获取或新删除 JPG。"
+        observed_in_phase: "P3-TEX-01"
+      -
+        path: "materialized_sources/corpus/arxiv-2404.16130--fe9ed9e5/source/graph_rag.tex"
+        locator: "L459-L469"
+        start_line: 459
+        end_line: 469
+        text_preview: "\\bibliographystyle{apalike}"
+        result: "实际读取原 root 尾边界：L459-L460 书目命令、L465 appendix import 与 L469 end{document} 均存在。原 root 无末尾换行不等于缺 end；展开后 normalized/document.tex L1687 也以 end{document} 结束。"
+        observed_in_phase: "P3-TEX-01"
+    inspection_method: "agent_read_local_content_or_confirmed_absence"
     known_parser_issue: false
-    exact_limitation: "只核对 metadata/manifest/index/registry、文件存在/跟踪与全部 selector 结构；未执行该 UID 正文开中尾或原件比对，不能从 full_text 标签推出 complete。 selected_version 继承 metadata 与既有 provenance；本轮未重验这些版本，不推翻既有绑定。 omitted=2 是缺口候选，未逐个判断引用与必要性，不能自动判全 archive complete 或 partial。"
+    exact_limitation: "P3-TEX-01实际审读新增正文开中尾及附录提示词/缺图/书目；原root L469 end{document}存在，14条已有import已展开且errors=[]，19件source160932 bytes+files.jsonl未变。正文现在包含七个附录节、结果表与研究提示词，但communities_figure.tex L4-L5实际引用的Level0Multihop.jpg/Level1Multihop.jpg仍缺；graph_rag.bbl虽保留但未内联。轻量预处理不执行宏、条件/comment环境或编译书目，纯文本数学、图形、表格结构、转义和版式有损；normalized TeX保留表达也不能补出缺JPG。仅original/text unknown→partial/partial_check，不证明目标v2整件完整；selected_version及公共allow原样继承既有记录，无新许可结论/网络获取/知识晋级。"
     action_bucket: "needs_boundary_verification"
-    next_action: "后续按具体 UID 固定目标文档/版本，再比对原件开中尾、章节/附录、引用资产与派生文本；P1 不获取原文或提升 complete。"
+    next_action: "核验既有v2保留root与已发表目标的完整消费边界：两张实际引用社区JPG的必要图形内容、未内联编译书目、数学/结果表/转义及版式语义。后续若补资产或改变引用/分发范围另行审批与核验；本批不抓取source、不修license、不晋级complete/trusted。"
     resolution: "unresolved"
   -
     uid: "arxiv:2405.14768"

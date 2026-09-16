@@ -462,6 +462,134 @@ class MaterializerBoundaryTests(unittest.TestCase):
                 else:
                     self.assertIn("omitted" if expected == "cycle" else "depth exceeded", flattened)
 
+    def test_tex_import_directories_and_nested_subimport_use_explicit_context(self) -> None:
+        files = {
+            "draft/paper.txt": "\\import{chapters/}{intro}\n\\import{}{closing}\n",
+            "draft/chapters/intro.tex": (
+                "Introduction evidence.\n\\input{detail}\n"
+                "\\subimport{nested/}{detail.ltx}\n\\import{shared/}{recap}\n"
+            ),
+            "draft/chapters/detail.tex": "Local input evidence.\n",
+            "draft/chapters/nested/detail.ltx": "Nested evidence.\n\\subimport{}{tail}\n",
+            "draft/chapters/nested/tail.tex": "Nested tail evidence.\n",
+            "draft/shared/recap.tex": "Reset import evidence.\n",
+            "draft/closing.tex": "Closing evidence.\n",
+            "chapters/intro.tex": "WRONG PACKAGE ROOT COPY.\n",
+        }
+        diagnostics: list[dict[str, str]] = []
+        graph: list[dict[str, str]] = []
+        flattened = materializer.flatten_tex("draft/paper.txt", files, diagnostics=diagnostics, include_graph=graph)
+        self.assertEqual(diagnostics, [])
+        self.assertEqual(graph, [
+            {"from": "draft/paper.txt", "to": "draft/chapters/intro.tex"},
+            {"from": "draft/chapters/intro.tex", "to": "draft/chapters/detail.tex"},
+            {"from": "draft/chapters/intro.tex", "to": "draft/chapters/nested/detail.ltx"},
+            {"from": "draft/chapters/nested/detail.ltx", "to": "draft/chapters/nested/tail.tex"},
+            {"from": "draft/chapters/intro.tex", "to": "draft/shared/recap.tex"},
+            {"from": "draft/paper.txt", "to": "draft/closing.tex"},
+        ])
+        for evidence in ("Introduction", "Local input", "Nested tail", "Reset import", "Closing"):
+            self.assertIn(f"{evidence} evidence.", flattened)
+        self.assertNotIn("WRONG PACKAGE ROOT", flattened)
+
+    def test_tex_import_comment_parity_and_repeated_legal_references(self) -> None:
+        for command in ("import", "subimport"):
+            for slash_count in range(5):
+                with self.subTest(command=command, backslashes=slash_count):
+                    files = {
+                        "main.tex": "Line end" + "\\" * slash_count + f"% \\{command}{{parts/}}{{body}}\n",
+                        "parts/body.tex": "Imported evidence.\n",
+                    }
+                    errors: list[dict[str, str]] = []
+                    graph: list[dict[str, str]] = []
+                    flattened = materializer.flatten_tex("main.tex", files, diagnostics=errors, include_graph=graph)
+                    self.assertEqual(errors, [])
+                    self.assertEqual(bool(graph), slash_count % 2 == 1)
+                    self.assertEqual("Imported evidence." in materializer.tex_to_plain(flattened), slash_count % 2 == 1)
+        graph = []
+        errors = []
+        flattened = materializer.flatten_tex("main.tex", {
+            "main.tex": "\\import{parts/}{body}\n\\import{parts/}{body}\n",
+            "parts/body.tex": "Repeated legal evidence.\n",
+        }, diagnostics=errors, include_graph=graph)
+        self.assertEqual(errors, [])
+        self.assertEqual(flattened.count("Repeated legal evidence."), 2)
+        self.assertEqual(graph, [{"from": "main.tex", "to": "parts/body.tex"}] * 2)
+
+    def test_tex_import_diagnostics_do_not_hide_missing_unsafe_or_unsupported_calls(self) -> None:
+        for files, depth, expected in (
+            ({"main.txt": "\\import{parts/}{missing}"}, 20, "missing_include"),
+            ({"main.txt": "\\import{../outside/}{body}", "../outside/body.tex": "UNSAFE EVIDENCE."}, 20, "missing_include"),
+            ({"main.txt": "\\import{/absolute/}{body}", "/absolute/body.tex": "UNSAFE EVIDENCE."}, 20, "missing_include"),
+            ({"main.txt": "\\import{}{../outside.tex}", "../outside.tex": "UNSAFE EVIDENCE."}, 20, "missing_include"),
+            ({"main.txt": "\\import{}{loop}", "loop.tex": "\\subimport{}{main.txt}"}, 20, "cycle"),
+            ({"main.txt": "\\import{}{body}", "body.tex": "Evidence."}, 1, "depth_limit"),
+            ({
+                "main.txt": "\\import{parts/}{body}", "parts/body.tex": "\\input{shared}",
+                "shared.tex": "WRONG ROOT FALLBACK.",
+            }, 20, "missing_include"),
+            ({"main.txt": "\\import{\\folder}{body}"}, 20, "unsupported_include_syntax"),
+            ({"main.txt": "\\import*{}{body}"}, 20, "unsupported_include_syntax"),
+            ({"main.txt": "\\subimport{parts/}"}, 20, "unsupported_include_syntax"),
+        ):
+            with self.subTest(files=files, kind=expected):
+                diagnostics: list[dict[str, str]] = []
+                flattened = materializer.flatten_tex("main.txt", files, max_depth=depth, diagnostics=diagnostics)
+                self.assertEqual([item["kind"] for item in diagnostics], [expected])
+                self.assertNotIn("UNSAFE EVIDENCE.", flattened)
+                self.assertNotIn("WRONG ROOT FALLBACK.", flattened)
+                if expected in {"missing_include", "unsupported_include_syntax"}:
+                    self.assertIn("\\", flattened)
+
+    def test_retained_graphrag_imports_cover_appendix_tables_and_prompt_boundaries(self) -> None:
+        source = REPOSITORY_ROOT / "materialized_sources/corpus/arxiv-2404.16130--fe9ed9e5/source"
+        stored = {path.relative_to(source).as_posix(): path.read_text() for path in source.rglob("*") if path.is_file()}
+        self.assertEqual(materializer.tex_root_candidates(stored), ["graph_rag.tex"])
+        diagnostics: list[dict[str, str]] = []
+        graph: list[dict[str, str]] = []
+        flattened = materializer.flatten_tex("graph_rag.tex", stored, diagnostics=diagnostics, include_graph=graph)
+        self.assertEqual(diagnostics, [])
+        self.assertEqual(graph, [
+            {"from": "graph_rag.tex", "to": "flow_figure.tex"},
+            {"from": "graph_rag.tex", "to": "question_table.tex"},
+            {"from": "graph_rag.tex", "to": "measures_figure.tex"},
+            {"from": "graph_rag.tex", "to": "community_table.tex"},
+            {"from": "graph_rag.tex", "to": "claim_comp_table.tex"},
+            {"from": "graph_rag.tex", "to": "claim_div_table.tex"},
+            {"from": "graph_rag.tex", "to": "acks.tex"},
+            {"from": "graph_rag.tex", "to": "appendix.tex"},
+            {"from": "appendix.tex", "to": "self_reflection_figure.tex"},
+            {"from": "appendix.tex", "to": "communities_figure.tex"},
+            {"from": "appendix.tex", "to": "answer_table.tex"},
+            {"from": "appendix.tex", "to": "system_prompts.tex"},
+            {"from": "appendix.tex", "to": "evaluation_prompts.tex"},
+            {"from": "appendix.tex", "to": "stats_table.tex"},
+        ])
+        self.assertNotIn("\\import{", materializer.tex_without_comments(flattened))
+        plain = materializer.tex_to_plain(flattened)
+        self.assertTrue(plain.startswith("## Abstract\n"))
+        self.assertNotIn("authoryear, sort", plain)
+        self.assertNotIn("Microsoft Office of the CTO", plain)
+        self.assertTrue(plain.split("## Statistical Analysis\n", 1)[1].lstrip().startswith("Pairwise comparisons"))
+        for heading in (
+            "Entity and Relationship Extraction Approach", "Example Community Detection", "Context Window Selection",
+            "Example Answer Comparison", "System Prompts", "Evaluation Prompts", "Statistical Analysis",
+        ):
+            self.assertIn(f"## {heading}\n", plain)
+        for evidence in (
+            "Average number of extracted claims", "Average number of clusters across different distance thresholds",
+            "Example question, answers, and LLM-generated assessments", "Comprehensiveness: Winner=1 (Graph RAG)",
+            "Given a text document that is potentially relevant to this activity", "Write a comprehensive report of a community",
+            "Note: the prompts for SS (semantic search) and TS (text summarization) conditions",
+            "You are a helpful assistant responsible for grading two answers", '"winner": <1, 2, or 0>',
+            "quality of answer as it relates to clearly explaining", "Pairwise comparisons of six conditions",
+            "58.64 & 41.36 & -3.68", "43.6 & 56.4 & -3.96",
+        ):
+            self.assertIn(evidence, plain)
+        self.assertIn("\\bibliography{bibliography}", flattened)  # Automatic .bbl loading is not implemented.
+        self.assertIn("Level0Multihop.jpg", flattened)
+        self.assertIn("Level1Multihop.jpg", flattened)
+
     def test_tex_plain_normalization_excludes_preamble_and_trailing_material(self) -> None:
         tex = (
             "\\documentclass{article}\n\\newcommand{\\layout}{PREAMBLE MUST NOT ENTER BODY}\n"
@@ -534,9 +662,10 @@ class MaterializerBoundaryTests(unittest.TestCase):
             "unusual-root.txt": (
                 "\\documentclass{article}\n\\newcommand{\\layout}{PREAMBLE NOT BODY}\n"
                 "\\begin{document}\n\\begin{abstract}\nAbstract evidence.\n\\end{abstract}\n"
-                "\\input{sections/body}\n\\include{appendix}\n\\end{document}\n"
+                "\\import{sections/}{body}\n\\include{appendix}\n\\end{document}\n"
             ),
-            "sections/body.tex": "\\section{Introduction}\nBody evidence.\n",
+            "sections/body.tex": "\\section{Introduction}\nBody evidence.\n\\subimport{}{detail}\n",
+            "sections/detail.tex": "Nested import evidence.\n",
             "appendix.tex": "\\appendix\n\\section{Appendix}\nAppendix evidence.\n",
         }
         archive_buffer = io.BytesIO()
@@ -551,6 +680,10 @@ class MaterializerBoundaryTests(unittest.TestCase):
             before_manifest = yaml.safe_load((capsule / "manifest.yaml").read_text())
             original = {path: (capsule / "source" / path).read_bytes() for path in files}
             original["files.jsonl"] = (capsule / "files.jsonl").read_bytes()
+            source_selector_bytes = b"".join(
+                line for line in (capsule / "selectors.jsonl").read_bytes().splitlines(keepends=True)
+                if "derived_from" not in json.loads(line)
+            )
             metadata_path = root / "raw_data/arxiv/example/metadata.yaml"
             record = materializer.SourceRecord(
                 uid="arxiv:1234.5678", source_type="arxiv", canonical_id="1234.5678", title="Example",
@@ -580,7 +713,9 @@ class MaterializerBoundaryTests(unittest.TestCase):
             plain = (capsule / "normalized/document.txt").read_text()
             self.assertNotIn("PREAMBLE", plain)
             self.assertIn("Body evidence.", plain)
+            self.assertIn("Nested import evidence.", plain)
             self.assertIn("Appendix evidence.", plain)
+            self.assertTrue((capsule / "selectors.jsonl").read_bytes().startswith(source_selector_bytes))
             selectors = [json.loads(line) for line in (capsule / "selectors.jsonl").read_text().splitlines()]
             self.assertEqual(len(selectors), derivatives["selector_count"])
             for selector in selectors:
