@@ -9,7 +9,7 @@ final_target:
   protected: false
 integration_branch:
   branch: work/v0-meta-kb-initialization-demo-260910
-  sha: 474992c2664fb2af06765abdb4dfb23b6db40fb8
+  sha: 03c2fdcd5b94e684aa54d582f7f966188575cf7d
   role: temporary_integration_for_pr_1
   pull_request: 1
   pr_base: main
@@ -35,6 +35,18 @@ incorporated_pull_requests:
     ci_run: 35102694456
     already_in_integration_branch: true
     final_destination: main_via_pr_1
+  - number: 7
+    title: 'P2: 修复非标准 TeX root 并补齐图像页消费记录'
+    state: merged
+    merged_into: work/v0-meta-kb-initialization-demo-260910
+    merge_commit: 03c2fdcd5b94e684aa54d582f7f966188575cf7d
+    evaluated_head: e6acec5fbbea45aae8d871aaa28b721a8784008f
+    evaluated_base: 474992c2664fb2af06765abdb4dfb23b6db40fb8
+    independent_evaluation: PASS
+    evaluation_review: 5223835324
+    ci_run: 35106080160
+    already_in_integration_branch: true
+    final_destination: main_via_pr_1
 planning_pull_request:
   number: 5
   state: merged
@@ -53,13 +65,15 @@ planning_pull_request:
   implementation_authorized: false
   subsequent_user_decision: execute_serial_phases_after_planning_merge
 active_implementation:
-  phase: P2
-  branch: codex/p2-known-parser-gaps-260916
-  base_sha: 474992c2664fb2af06765abdb4dfb23b6db40fb8
+  phase: P3-TEX-01
+  branch: codex/p3-graphrag-import-body-260916
+  base_sha: 03c2fdcd5b94e684aa54d582f7f966188575cf7d
   target: work/v0-meta-kb-initialization-demo-260910
-  pull_request: 7
-  state: implemented_pending_exact_head_evaluation_and_ci
-  source_uids: [arxiv:2406.04268, arxiv:2502.18864]
+  pull_request: null
+  state: planned
+  source_uids: [arxiv:2404.16130]
+  adapter_family: arxiv_latex_v2
+  action_bucket: parser_only
   network_source_acquisition: false
   original_source_bytes_mutation: false
   derived_text_changes: true
