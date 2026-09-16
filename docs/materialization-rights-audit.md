@@ -4,12 +4,12 @@
 
 本审计逐条覆盖基线提交 <code>ee43cb37856bd40274bedda289a70dab03aaf3cc</code> 中 91 个 full_text 胶囊：73 篇 arXiv、17 份标准/词汇表、1 份方法文档。证据审计（evidence review）已完成，但权利清理（rights clearance）未完成。
 
-- 51 条找到明确公众复制/再分发许可，分类为 <code>documented_permission</code>；其中 23 条已完成可放行的当前包包装，28 条仍待全部适用条件落实，不能仅凭分类放行。
-- 40 条未找到面向公众/本仓库的适用许可，分类为 <code>permission_unverified</code>；不应公开再分发全文。
+- 54 条找到明确公众复制/再分发许可，分类为 <code>documented_permission</code>；其中 23 条已完成可放行的当前包包装，31 条仍待全部适用条件落实，不能仅凭分类放行。
+- 37 条未找到面向公众/本仓库的适用许可，分类为 <code>permission_unverified</code>；不应公开再分发全文。
 - 基线审计的 91 项中，七项 W3C、ODCS 3.2.0 定义首页、十三项 arXiv、LinkML 文档首页及 Schema.org 文档快照已完成当前内容版本的许可包装，23 项为 <code>allow</code>；其余 68 项仍为 <code>block</code>。
 - Apache Ossie 基线胶囊只有 7 bytes（# Home），不是实质标准全文；后续降级不删除其基线审计行。
 
-当前 `full_text` 为 90 条，公开发布门检查结果为 `active_full_text=90 audited=91 blocked=67 errors=0`；整体仍未放行。67 项分为 40 项尚无适用公众许可证据、27 项已有许可证据但尚待履约，不应统称为缺少授权。基线 documented_permission 的 28 项待办还包括已非 active full_text 的 Apache Ossie。审计覆盖数 91 与当前全文数 90 使用不同基线，不应混用。当前集成 build 为 `096e2cb4557cf60c`，结构验证为 0 errors；这不等于权利门或整体发布放行。全文继续保存在本 GitHub repo；本次保留既有正文与快照，只补齐许可条件和传播信息，未移除作品、迁移存储或改写 Git 历史。
+当前 `full_text` 为 90 条，公开发布门检查结果为 `active_full_text=90 audited=91 blocked=67 errors=0`；整体仍未放行。67 项分为 37 项尚无适用公众许可证据、30 项已有许可证据但尚待履约，不应统称为缺少授权。基线 documented_permission 的 31 项待办还包括已非 active full_text 的 Apache Ossie。审计覆盖数 91 与当前全文数 90 使用不同基线，不应混用。当前集成 build 为 `096e2cb4557cf60c`，结构验证为 0 errors；这不等于权利门或整体发布放行。全文继续保存在本 GitHub repo；本次保留既有正文与快照，只补齐许可条件和传播信息，未移除作品、迁移存储或改写 Git 历史。
 
 机器可读逐条记录：<code>raw_data/audits/materialization_rights_review.yaml</code>。本报告记录许可证据与已落实的包装条件，不是法律意见或人工批准。
 
@@ -34,11 +34,13 @@
 | 维度 | 结果 |
 |---|---:|
 | 基线 full_text | 91 |
-| documented_permission | 51 |
-| permission_unverified | 40 |
-| allow_after_conditions_met | 28 |
+| documented_permission | 54 |
+| permission_unverified | 37 |
+| allow_after_conditions_met | 31 |
 | allow_with_packaged_notice | 23 |
-| do_not_redistribute_full_text | 40 |
+| do_not_redistribute_full_text | 37 |
+| license evidence: CC-BY-4.0 | 28 |
+| license evidence: none | 37 |
 | publication gate: allow | 23 |
 | publication gate: block（基线项） | 68 |
 
@@ -219,21 +221,21 @@ Wikipedia 范围包括 appendix 中的地震、Matt Willis、两次 Mauna Loa �
 
 [ICLR2025 专用官方模板](https://www.overleaf.com/latex/templates/template-for-iclr-2025-conference-submission/gqzkdyycxtvt)明确署名 ICLR、CC BY4 及官方源码目录；ADAS 的 9,025-byte STY 与[新增2025模板的固定文件](https://github.com/ICLR/Master-Template/blob/05833d63fe48bbf250b144741ea77691018bb328/iclr2025/iclr2025_conference.sty)完全相同。[DiscoveryWorld 使用的官方赛道样式包](https://media.neurips.cc/Conferences/NeurIPS2024/NeurIPS-Dataset-Styles.zip)对应证据只解决组件身份，不能单独替代缺少的许可依据。
 
-## 新发现的替代出版路径（Alternate publication routes）
+## 已对应的替代出版路径（Alternate publication routes）
 
-arXiv 的 nonexclusive 只说明该平台得到的托管权，不足以排除同一表达在正式出版物中的其他许可。本轮找到三项有具体作品依据的路径：
+arXiv 的 nonexclusive 只说明该平台得到的托管权，不足以排除同一表达在正式出版物中的其他许可。三项固定源响应及保留成员已与现存 revision 对应，作者正式出版正文及附录的 BY4 路径现已闭合：
 
-- RE-Net：[EMNLP 2020 正式作品](https://aclanthology.org/2020.emnlp-main.541/)，15 页；现存主文件标题、四作者与 final 标识对应，arXiv v4 标明 EMNLP2020。
-- RARR：[ACL 2023 正式作品](https://aclanthology.org/2023.acl-long.910/)，32 页；现存摘要对应正式作品，不能用 arXiv 网页摘要的局部差异直接否定实际保存内容。
-- ResearchAgent：[NAACL 2025 正式作品](https://aclanthology.org/2025.naacl-long.342/)，30 页；现存标题、四作者和摘要对应，arXiv v2 标明 NAACL2025。
+- RE-Net：[固定 v4 源包](https://export.arxiv.org/e-print/1904.05530v4)为 1,052,179 bytes，12 个实存 source 全部同字节，另 30 个 tar 成员原未保存。[EMNLP 2020 正式作品](https://aclanthology.org/2020.emnlp-main.541/)为 15 页，正式题名用单数 **Recurrent Event Network**；正文 1–6、表 1–4、图 caption 1–8、附录 A–G 对应，PDF 全文 tokens 仅页码/页眉和 arXiv stamp 不同。剩余缺口是源内旧摘要、禁用旧表和 OtherRelatedWork 的完整旧稿表达未证明属于已许可出版范围，不对数字事实另设授权要求；STY 主排版范围及嵌入 everyshi/eso-pic、BST 的独立 LPPL 条件仍待履约。
+- RARR：[固定 v3 源包](https://export.arxiv.org/e-print/2210.08726v3)为 988,552 bytes，33 个实存 source 共 214,711 bytes 全同字节，115,974-byte 正文及 101 selectors 已绑定。[ACL 2023 正式作品](https://aclanthology.org/2023.acl-long.910/)为 32 页；主文、附录 A–E（`7a_human_eval` 对应附录 C）及 `fig_prompts` 的 28 个实质 evidence 行均对应。剩余条件集中在已定位 Wikipedia、新闻及旅游等独立摘录的有限集合，以及 STY 两处 EMNLP→ACL 标签差异和 BST LPPL 包装；科学研究引用需按具体表达判断，不一概要求普通事实句或短引另行授权。
+- ResearchAgent：[固定 v2 源包](https://arxiv.org/src/2404.07738v2)为 8,125,839 bytes，33 个实存 source 共 282,197 bytes 全同字节。[NAACL 2025 正式作品](https://aclanthology.org/2025.naacl-long.342/)为 30 页，主文、附录 A/B 及 16 个表对应，未见额外未出版主体。剩余具体条件是 [Vamathevan 2019](https://www.nature.com/articles/s41573-019-0024-5)额外完整摘要和 FlyWire 固定预印本输入摘要尚缺适用依据，两份 ACL 输入摘要已有独立 BY4 路径但尚待包装；STY 与当前官方模板有真实差异，不能称同字节，Goodfeli 使用声明及 BST LPPL 也分别履约。Nature 的 permissions 入口不等于禁止复制，后出版改写摘要的许可也不能自动追溯旧表达。
 
-[ACL 版权政策](https://aclanthology.org/faq/copyright/)对 2016 年后的本机构材料提供公众 BY4。上述三项仍须完成固定响应、正文和附录的实质对应，以及实际组件的分别包装；本轮只记录可验证路径，不凭同标题或摘要把全包改为 allow，分类与计数暂不变。无需把追加作者授权函设置为普遍门槛。
+[ACL 版权政策](https://aclanthology.org/faq/copyright/)对 2016 年后的本机构材料提供公众 BY4。按既有判定模型，三项均为 `documented_permission`、`CC-BY-4.0`、`allow_after_conditions_met`，但当前 gate 仍为 `block`：作者出版许可不等于全部 tar、未出版旧稿或独立摘录/模板获得重新授权。本轮只更新审计及汇总，未改正文、source、metadata 或派生产物，也未自动删除或整理已识别材料；许可未核实不等于禁止，不新增作者另函或人工 approval 门槛。
 
 另完成四项有界清单核查：MEMORYLLM 的两个书目文件没有摘要；PaperBench 的 26 个 abstract 字段实际含 2 个空值、4 个短描述/截断占位和 20 个较长摘要，不一概称完整作品。GraphRAG 固定 v2 的 6,473,933-byte 响应与既有 revision、19 个保留源成员一致；其 NeurIPS2024 样式及 checklist 仍需适用范围判断，不能以已更新到 2026 的模板入口 URL 单独证明历史许可。Open-Endedness 实存 DeepMind 模板独立 BY-SA4，不能由主论文 BY4 覆盖所有组件。具体文件事实保存在机器审计；本轮不删除正文、模板或书目表达。
 
 ## 来源族发现（Source-family Findings）
 
-- arXiv：32 篇官方文章页链接 CC；WikiChat 另由作者的确切 camera-ready 版本声明与 ACL 出版许可形成正文授权链。其余 40 篇仍缺适用公众许可证据；arXiv non-exclusive/历史 assumed license 本身不授予公众再分发权。
+- arXiv：32 篇官方文章页链接 CC；WikiChat 另由作者的确切 camera-ready 版本声明与 ACL 出版许可形成正文授权链；RE-Net、RARR、ResearchAgent 另由固定 payload 与正式 ACL 出版表达对应形成作者正文 BY4 路径。其余 37 篇仍缺适用公众许可证据；arXiv non-exclusive/历史 assumed license 本身不授予公众再分发权，正文许可不自动覆盖所有附带组件。
 - W3C：7 份页面采用可修改的 Software and Document License；7 份旧页面采用限制一般衍生的 Document License。
 - Apache/LinkML/ODCS：ODCS 固定定义首页与 LinkML 当前文档首页已分别完成 Apache-2.0 包装；范围不扩展到各自整个站点。
 - Schema.org：已为当前 supporting-documentation 快照恢复 Terms、来源、署名、修改说明和 CC BY-SA 3.0 适配物许可；未来新版本仍需重新核验。
@@ -250,7 +252,7 @@ arXiv 的 nonexclusive 只说明该平台得到的托管权，不足以排除同
 | 2 | <code>arxiv-1705.05742</code> | <code>materialized_sources/corpus/arxiv-1705.05742--6e18ab25/manifest.yaml</code><br><code>raw_data/arxiv/Know-Evolve Deep Temporal Reasoning for Dynamic Knowledge Graphs/metadata.yaml</code> | 官方许可只授予 arXiv.org 非独占分发权，不授予公众或本仓库。；本地 access=<code>metadata_only</code>，assumed=true | 面向公众的论文全文复制/再分发许可。；许可版本、权利人和精确作品版本绑定。 | <code>permission_unverified</code> | 不公开全文，仅元数据/链接；当前 gate=block |
 | 3 | <code>arxiv-1706.08840</code> | <code>materialized_sources/corpus/arxiv-1706.08840--acb7e7ed/manifest.yaml</code><br><code>raw_data/arxiv/Gradient Episodic Memory for Continual Learning/metadata.yaml</code> | 官方许可只授予 arXiv.org 非独占分发权，不授予公众或本仓库。；本地 access=<code>metadata_only</code>，assumed=true | 面向公众的论文全文复制/再分发许可。；许可版本、权利人和精确作品版本绑定。 | <code>permission_unverified</code> | 不公开全文，仅元数据/链接；当前 gate=block |
 | 4 | <code>arxiv-1809.10697</code> | <code>materialized_sources/corpus/arxiv-1809.10697--798152f6/manifest.yaml</code><br><code>raw_data/arxiv/DyRep Learning Representations over Dynamic Graphs/metadata.yaml</code> | 官方许可只授予 arXiv.org 非独占分发权，不授予公众或本仓库。；本地 access=<code>metadata_only</code>，assumed=true | 面向公众的论文全文复制/再分发许可。；许可版本、权利人和精确作品版本绑定。 | <code>permission_unverified</code> | 不公开全文，仅元数据/链接；当前 gate=block |
-| 5 | <code>arxiv-1904.05530</code> | <code>materialized_sources/corpus/arxiv-1904.05530--cddfa770/manifest.yaml</code><br><code>raw_data/arxiv/Recurrent Event Network for Reasoning over Temporal Knowledge Graphs/metadata.yaml</code> | 官方许可只授予 arXiv.org 非独占分发权，不授予公众或本仓库。；本地 access=<code>metadata_only</code>，assumed=true | 面向公众的论文全文复制/再分发许可。；许可版本、权利人和精确作品版本绑定。 | <code>permission_unverified</code> | 不公开全文，仅元数据/链接；当前 gate=block |
+| 5 | <code>arxiv-1904.05530</code> | <code>materialized_sources/corpus/arxiv-1904.05530--cddfa770/manifest.yaml</code><br><code>raw_data/arxiv/Recurrent Event Network for Reasoning over Temporal Knowledge Graphs/metadata.yaml</code> | 固定 v4 与 12 个 source 同字节；EMNLP2020 作者正文、表图文字及附录表达 BY4 路径已对应 | 源内三类完整旧稿表达的许可范围、STY 主排版及独立 LPPL 条件、当前包 NOTICE 尚待落实 | <code>documented_permission</code> | 满足具体剩余条件后再发布；当前 gate=block，不泛称主文许可未证 |
 | 6 | <code>arxiv-2104.00405</code> | <code>materialized_sources/corpus/arxiv-2104.00405--93b3bffb/manifest.yaml</code><br><code>raw_data/arxiv/Avalanche an End-to-End Library for Continual Learning/metadata.yaml</code> | 官方许可只授予 arXiv.org 非独占分发权，不授予公众或本仓库。；本地 access=<code>metadata_only</code>，assumed=true | 面向公众的论文全文复制/再分发许可。；许可版本、权利人和精确作品版本绑定。 | <code>permission_unverified</code> | 不公开全文，仅元数据/链接；当前 gate=block |
 | 7 | <code>arxiv-2110.11309</code> | <code>materialized_sources/corpus/arxiv-2110.11309--d5da3395/manifest.yaml</code><br><code>raw_data/arxiv/Fast Model Editing at Scale/metadata.yaml</code> | <code>CC-BY-4.0</code>；arXiv 官方文章页的 Rights to this article 链接指向 CC-BY-4.0。；本地 access=<code>metadata_only</code>，assumed=true | 本地三处 rights 未记录该文章许可及核验日期。；retrieval hash 尚未与确切 arXiv vN 建立可审计映射。 | <code>documented_permission</code> | 满足条件后才可考虑发布；当前 gate=block |
 | 8 | <code>arxiv-2202.05262</code> | <code>materialized_sources/corpus/arxiv-2202.05262--f62c1586/manifest.yaml</code><br><code>raw_data/arxiv/Locating and Editing Factual Associations in GPT/metadata.yaml</code> | 官方许可只授予 arXiv.org 非独占分发权，不授予公众或本仓库。；本地 access=<code>metadata_only</code>，assumed=true | 面向公众的论文全文复制/再分发许可。；许可版本、权利人和精确作品版本绑定。 | <code>permission_unverified</code> | 不公开全文，仅元数据/链接；当前 gate=block |
@@ -268,7 +270,7 @@ arXiv 的 nonexclusive 只说明该平台得到的托管权，不足以排除同
 | 20 | <code>arxiv:1906.01820</code> | <code>materialized_sources/corpus/arxiv-1906.01820--d2306d3e/manifest.yaml</code><br><code>raw_data/arxiv/Risks from Learned Optimization in Advanced Machine Learning Systems/metadata.yaml</code> | 官方许可只授予 arXiv.org 非独占分发权，不授予公众或本仓库。；本地 access=<code>unknown</code>，assumed=true | 面向公众的论文全文复制/再分发许可。；许可版本、权利人和精确作品版本绑定。 | <code>permission_unverified</code> | 不公开全文，仅元数据/链接；当前 gate=block |
 | 21 | <code>arxiv:1912.01683</code> | <code>materialized_sources/corpus/arxiv-1912.01683--074c13b2/manifest.yaml</code><br><code>raw_data/arxiv/Optimal Policies Tend to Seek Power/metadata.yaml</code> | 官方许可只授予 arXiv.org 非独占分发权，不授予公众或本仓库。；本地 access=<code>unknown</code>，assumed=true | 面向公众的论文全文复制/再分发许可。；许可版本、权利人和精确作品版本绑定。 | <code>permission_unverified</code> | 不公开全文，仅元数据/链接；当前 gate=block |
 | 22 | <code>arxiv:2206.08896</code> | <code>materialized_sources/corpus/arxiv-2206.08896--d2b63071/manifest.yaml</code><br><code>raw_data/arxiv/Evolution through Large Models/metadata.yaml</code> | 官方许可只授予 arXiv.org 非独占分发权，不授予公众或本仓库。；本地 access=<code>unknown</code>，assumed=true | 面向公众的论文全文复制/再分发许可。；许可版本、权利人和精确作品版本绑定。 | <code>permission_unverified</code> | 不公开全文，仅元数据/链接；当前 gate=block |
-| 23 | <code>arxiv:2210.08726</code> | <code>materialized_sources/corpus/arxiv-2210.08726--8e79abf3/manifest.yaml</code><br><code>raw_data/arxiv/RARR: Researching and Revising What Language Models Say, Using Language Models/metadata.yaml</code> | 官方许可只授予 arXiv.org 非独占分发权，不授予公众或本仓库。；本地 access=<code>metadata_only</code>，assumed=true | 面向公众的论文全文复制/再分发许可。；许可版本、权利人和精确作品版本绑定。 | <code>permission_unverified</code> | 不公开全文，仅元数据/链接；当前 gate=block |
+| 23 | <code>arxiv:2210.08726</code> | <code>materialized_sources/corpus/arxiv-2210.08726--8e79abf3/manifest.yaml</code><br><code>raw_data/arxiv/RARR: Researching and Revising What Language Models Say, Using Language Models/metadata.yaml</code> | 固定 v3 与 33 个 source 同字节；ACL2023 作者主文及附录 A–E 表达 BY4 路径已对应 | 具体独立摘录的有限集合依据、STY 标签改编/BST 条件和 NOTICE 尚待落实；事实句、普通短引不一概另行授权 | <code>documented_permission</code> | 满足具体剩余条件后再发布；当前 gate=block，不重新许可第三方表达 |
 | 24 | <code>arxiv:2210.11610</code> | <code>materialized_sources/corpus/arxiv-2210.11610--122d6152/manifest.yaml</code><br><code>raw_data/arxiv/Large Language Models Can Self-Improve/metadata.yaml</code> | 官方许可只授予 arXiv.org 非独占分发权，不授予公众或本仓库。；本地 access=<code>unknown</code>，assumed=true | 面向公众的论文全文复制/再分发许可。；许可版本、权利人和精确作品版本绑定。 | <code>permission_unverified</code> | 不公开全文，仅元数据/链接；当前 gate=block |
 | 25 | <code>arxiv:2304.05376</code> | <code>materialized_sources/corpus/arxiv-2304.05376--4e0dcba3/manifest.yaml</code><br><code>raw_data/arxiv/ChemCrow: Augmenting large-language models with chemistry tools/metadata.yaml</code> | 官方许可只授予 arXiv.org 非独占分发权，不授予公众或本仓库。；本地 access=<code>unknown</code>，assumed=true | 面向公众的论文全文复制/再分发许可。；许可版本、权利人和精确作品版本绑定。 | <code>permission_unverified</code> | 不公开全文，仅元数据/链接；当前 gate=block |
 | 26 | <code>arxiv:2305.14251</code> | <code>materialized_sources/corpus/arxiv-2305.14251--582edc7d/manifest.yaml</code><br><code>raw_data/arxiv/FActScore: Fine-grained Atomic Evaluation of Factual Precision in Long Form Text Generation/metadata.yaml</code> | 官方许可只授予 arXiv.org 非独占分发权，不授予公众或本仓库。；本地 access=<code>metadata_only</code>，assumed=true | 面向公众的论文全文复制/再分发许可。；许可版本、权利人和精确作品版本绑定。 | <code>permission_unverified</code> | 不公开全文，仅元数据/链接；当前 gate=block |
@@ -282,7 +284,7 @@ arXiv 的 nonexclusive 只说明该平台得到的托管权，不足以排除同
 | 34 | <code>arxiv:2402.04624</code> | <code>materialized_sources/corpus/arxiv-2402.04624--c3e9e366/manifest.yaml</code><br><code>raw_data/arxiv/MEMORYLLM: Towards Self-Updatable Large Language Models/metadata.yaml</code> | <code>CC-BY-4.0</code>；arXiv 官方文章页的 Rights to this article 链接指向 CC-BY-4.0。；本地 access=<code>unknown</code>，assumed=true | 本地三处 rights 未记录该文章许可及核验日期。；retrieval hash 尚未与确切 arXiv vN 建立可审计映射。 | <code>documented_permission</code> | 满足条件后才可考虑发布；当前 gate=block |
 | 35 | <code>arxiv:2402.14207</code> | <code>materialized_sources/corpus/arxiv-2402.14207--b99559f4/manifest.yaml</code><br><code>raw_data/arxiv/Assisting in Writing Wikipedia-like Articles From Scratch with Large Language Models/metadata.yaml</code> | 官方许可只授予 arXiv.org 非独占分发权，不授予公众或本仓库。；本地 access=<code>metadata_only</code>，assumed=true | 面向公众的论文全文复制/再分发许可。；许可版本、权利人和精确作品版本绑定。 | <code>permission_unverified</code> | 不公开全文，仅元数据/链接；当前 gate=block |
 | 36 | <code>arxiv:2402.18264</code> | <code>materialized_sources/corpus/arxiv-2402.18264--ebc0e524/manifest.yaml</code><br><code>raw_data/arxiv/WIKIGENBENCH: Exploring Full-length Wikipedia Generation under Real-World Scenario/metadata.yaml</code> | <code>CC-BY-4.0</code>；arXiv 官方文章页的 Rights to this article 链接指向 CC-BY-4.0。；本地 access=<code>metadata_only</code>，assumed=true | 本地三处 rights 未记录该文章许可及核验日期。；retrieval hash 尚未与确切 arXiv vN 建立可审计映射。 | <code>documented_permission</code> | 满足条件后才可考虑发布；当前 gate=block |
-| 37 | <code>arxiv:2404.07738</code> | <code>materialized_sources/corpus/arxiv-2404.07738--3e68f613/manifest.yaml</code><br><code>raw_data/arxiv/ResearchAgent: Iterative Research Idea Generation over Scientific Literature with Large Language Models/metadata.yaml</code> | 官方许可只授予 arXiv.org 非独占分发权，不授予公众或本仓库。；本地 access=<code>unknown</code>，assumed=true | 面向公众的论文全文复制/再分发许可。；许可版本、权利人和精确作品版本绑定。 | <code>permission_unverified</code> | 不公开全文，仅元数据/链接；当前 gate=block |
+| 37 | <code>arxiv:2404.07738</code> | <code>materialized_sources/corpus/arxiv-2404.07738--3e68f613/manifest.yaml</code><br><code>raw_data/arxiv/ResearchAgent: Iterative Research Idea Generation over Scientific Literature with Large Language Models/metadata.yaml</code> | 固定 v2 与 33 个 source 同字节；NAACL2025 作者主文、附录及 16 表表达 BY4 路径已对应 | Vamathevan/FlyWire 独立摘要依据、两份 ACL 摘要包装、STY 真实差异及其他独立条件/NOTICE 尚待落实 | <code>documented_permission</code> | 满足具体剩余条件后再发布；当前 gate=block，unknown 不等于禁止 |
 | 38 | <code>arxiv:2404.14387</code> | <code>materialized_sources/corpus/arxiv-2404.14387--a0c7dbc0/manifest.yaml</code><br><code>raw_data/arxiv/A Survey on Self-Evolution of Large Language Models/metadata.yaml</code> | 官方许可只授予 arXiv.org 非独占分发权，不授予公众或本仓库。；本地 access=<code>unknown</code>，assumed=true | 面向公众的论文全文复制/再分发许可。；许可版本、权利人和精确作品版本绑定。 | <code>permission_unverified</code> | 不公开全文，仅元数据/链接；当前 gate=block |
 | 39 | <code>arxiv:2404.16130</code> | <code>materialized_sources/corpus/arxiv-2404.16130--fe9ed9e5/manifest.yaml</code><br><code>raw_data/arxiv/From Local to Global: A Graph RAG Approach to Query-Focused Summarization/metadata.yaml</code> | <code>CC-BY-4.0</code>；arXiv 官方文章页的 Rights to this article 链接指向 CC-BY-4.0。；本地 access=<code>unknown</code>，assumed=true | 本地三处 rights 未记录该文章许可及核验日期。；retrieval hash 尚未与确切 arXiv vN 建立可审计映射。 | <code>documented_permission</code> | 满足条件后才可考虑发布；当前 gate=block |
 | 40 | <code>arxiv:2405.14768</code> | <code>materialized_sources/corpus/arxiv-2405.14768--80dba2af/manifest.yaml</code><br><code>raw_data/arxiv/WISE: Rethinking the Knowledge Memory for Lifelong Model Editing of Large Language Models/metadata.yaml</code> | 官方许可只授予 arXiv.org 非独占分发权，不授予公众或本仓库。；本地 access=<code>unknown</code>，assumed=true | 面向公众的论文全文复制/再分发许可。；许可版本、权利人和精确作品版本绑定。 | <code>permission_unverified</code> | 不公开全文，仅元数据/链接；当前 gate=block |

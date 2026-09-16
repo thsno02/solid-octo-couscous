@@ -19,18 +19,18 @@ decision_model:
   scope_rule: 代码、数据、模板、引用作品或相邻仓库的许可不得外推至目标全文。
 summary:
   classification_counts:
-    documented_permission: 51
-    permission_unverified: 40
+    documented_permission: 54
+    permission_unverified: 37
   recommendation_counts:
-    allow_after_conditions_met: 28
-    do_not_redistribute_full_text: 40
+    allow_after_conditions_met: 31
+    do_not_redistribute_full_text: 37
     allow_with_packaged_notice: 23
   publication_gate_counts:
     block: 68
     allow: 23
   license_evidence_counts:
-    CC-BY-4.0: 25
-    none: 40
+    CC-BY-4.0: 28
+    none: 37
     CC-BY-SA-4.0: 2
     CC-BY-NC-SA-4.0: 4
     CC-BY-NC-ND-4.0: 2
@@ -42,14 +42,14 @@ summary:
     CC-BY-SA-3.0: 1
   key_findings:
   - 91/91 manifest 在基线均写 full_text_redistribution_assumed=true；该字段从不作为授权。
-  - 73 篇 arXiv 中32篇官方文章页提供CC许可；WikiChat另由作者exact v2 camera-ready声明与ACL许可形成作者正文授权链，其余40篇仍缺适用公众许可证据。arXiv nonexclusive/assumed本身不转授公众权利。
+  - 73 篇 arXiv 中32篇官方文章页提供CC许可；WikiChat另由作者exact v2 camera-ready声明与ACL许可形成作者正文授权链，RE-Net、RARR及ResearchAgent另由固定payload与正式ACL出版表达对应形成作者正文BY4路径，其余37篇仍缺适用公众许可证据。arXiv nonexclusive/assumed本身不转授公众权利，正文许可不自动覆盖源包旧稿、第三方摘录或模板。
   - 14 份 W3C 文档都有许可；7 份旧式许可对 HTML→Markdown 仍需衍生权审查。
   - LinkML、Apache Ossie、ODCS 有 Apache-2.0 证据；Schema.org supporting documentation 有 CC BY-SA 3.0 证据。
-  - 基线91项中7项W3C、ODCS 3.2.0定义首页、13项arXiv、LinkML单页及Schema.org既有文档快照已完成当前revision与NOTICE包装，23项allow；其余68项仍block（当前活跃全文67项block，其中40项缺许可、27项待履约）。
+  - 基线91项中7项W3C、ODCS 3.2.0定义首页、13项arXiv、LinkML单页及Schema.org既有文档快照已完成当前revision与NOTICE包装，23项allow；其余68项仍block（当前活跃全文67项block，其中37项缺许可、30项待履约）。
 review_completion:
   evidence_review_complete_for_baseline: true
   legal_clearance_complete: false
-  can_human_review_be_completed: 证据审计已完成；51条有公众许可证据，其中23条完成当前包装，28条仍待履约；另40条须取得适用许可或新的权威许可证据。客观许可履约不默认要求另行人工批准，Agent也不代替权利人授予新许可；未核实不表示不存在其他现有授权，替代出版路径也可通过实际表达对应建立。
+  can_human_review_be_completed: 证据审计已完成；54条有公众许可证据，其中23条完成当前包装，31条仍待履约；另37条须取得适用许可或新的权威许可证据。客观许可履约不默认要求另行人工批准，Agent也不代替权利人授予新许可；未核实不表示不存在其他现有授权，替代出版路径也可通过实际表达对应建立。
   not_legal_advice: true
 shared_component_findings:
 - component: natbib
@@ -438,7 +438,7 @@ items:
   - kind: local_content_rights_scan
     path: materialized_sources/corpus/arxiv-1904.05530--cddfa770
     locator: source/** and normalized/**
-    finding: emnlp2020.sty 与 acl_natbib.bst 的许可仅覆盖模板组件。
+    finding: 实存emnlp2020.sty与acl_natbib.bst须按独立组件分别核定范围及履约；不能用组件声明代替论文许可，也不能反向以正式论文BY4覆盖整份STY。
     supports_public_redistribution: false
   - kind: official_article_license_record
     url: https://arxiv.org/abs/1904.05530
@@ -446,36 +446,53 @@ items:
     checked_at: '2026-09-16'
     finding: 官方许可只授予 arXiv.org 非独占分发权，不授予公众或本仓库。
     supports_public_redistribution: false
-  - kind: alternate_acl_publication_candidate
+  - kind: fixed_arxiv_source_and_retained_member_correspondence
+    checked_at: '2026-09-16'
+    url: https://export.arxiv.org/e-print/1904.05530v4
+    path: materialized_sources/corpus/arxiv-1904.05530--cddfa770
+    finding: 固定v4实际源响应1,052,179 bytes，与现存source_revision完全一致；12个实存source文字成员全部同字节，另30个tar成员原未保存。该证据闭合实际payload及保留成员身份，不单独授予公众权利。
+    supports_public_redistribution: false
+  - kind: alternate_acl_publication_correspondence
     checked_at: '2026-09-16'
     url: https://aclanthology.org/2020.emnlp-main.541/
+    license_url: https://creativecommons.org/licenses/by/4.0/
     related_urls:
     - https://arxiv.org/abs/1904.05530v4
+    - https://aclanthology.org/2020.emnlp-main.541.pdf
     - https://aclanthology.org/faq/copyright/
     path: materialized_sources/corpus/arxiv-1904.05530--cddfa770
-    finding: 正式EMNLP2020 DOI10.18653/v1/2020.emnlp-main.541，15页6669–6683；实存0-main.tex启用aclfinalcopy，标题与四作者对应正式RE-Net。arxiv v4注明EMNLP2020；旧收集标题不同不能单独否定实际源表达。 ACL官方政策对2016年后本机构材料授予公众BY4。这里只确定可核验的替代出版路径；尚未完成固定vN payload与全部正文/附录对应，不对全部TeX成员或外部材料作许可结论。
-    evidence_applicability: candidate_publisher_route_pending_retained_expression_correspondence
+    finding: >-
+      正式题名为Recurrent Event Network: Autoregressive Structure Inference over Temporal Knowledge Graphs（Network单数），四作者Woojeong Jin、Meng Qu、Xisen Jin、Xiang Ren；EMNLP2020 DOI10.18653/v1/2020.emnlp-main.541，15页6669–6683。正式PDF与固定v4 PDF的全文tokens仅有出版页码/页眉及arXiv stamp差异；正文1–6、表1–4、图caption1–8及附录A–G对应。ACL官方2016年后作品级BY4政策因此覆盖已对应的作者出版表达，不是全部tar成员重新授权；保留旧collection title，不据其差异否定实际正文。
+    evidence_applicability: matched_author_publication_expression_only
+    supports_public_redistribution: true
+  - kind: retained_extra_expression_and_component_review
+    checked_at: '2026-09-16'
+    path: materialized_sources/corpus/arxiv-1904.05530--cddfa770/source
+    locator: 000abs.tex:1–3,21–23; 030experiments.tex:4–40; appendix.tex:422–432; emnlp2020.sty:160–171,211–222; acl_natbib.bst
+    finding: 000abs.tex两处旧摘要、030experiments.tex禁用旧table及appendix.tex禁用OtherRelatedWork中的GN/RRN段仍在source和merged TeX中，内容实质不同于获许可正式出版表达；plain正文已剔除注释，不能因此宣称源内旧稿也已覆盖。emnlp2020.sty主ACL排版部分的整体许可尚未核定；嵌入everyshi头为LPPL1-or-later、eso-pic头为LPPL1.2-or-later，acl_natbib.bst为LPPL1-or-later并保留原署名，均须分别履约。bib/bbl没有abstract类额外表达。本轮不自动删除或整理这些已识别成员。
     supports_public_redistribution: false
   missing:
-  - 面向公众的论文全文复制/再分发许可。
-  - 许可版本、权利人和精确作品版本绑定。
-  - 第三方素材和 TeX 组件权利边界。
-  classification: permission_unverified
-  license_id: null
-  license_url: https://arxiv.org/licenses/nonexclusive-distrib/1.0/
-  license_scope: 未证实公众许可。
+  - 源内三处具体旧稿表达的适用许可或在获允许边界内的非正文组件整理路径；正式出版BY4不自动覆盖这些差异。
+  - emnlp2020.sty主排版部分的适用许可范围，以及everyshi、eso-pic、acl_natbib.bst的独立LPPL履约。
+  - canonical/capsule metadata、manifest及当前包的BY4归属、许可、转换说明和NOTICE尚未落实。
+  classification: documented_permission
+  license_id: CC-BY-4.0
+  license_url: https://creativecommons.org/licenses/by/4.0/
+  license_scope: 覆盖与EMNLP2020正式作品已对应的作者正文、表图文字及附录表达；不自动覆盖source/merged TeX中未出版旧稿、独立模板组件或未保存tar成员。
   license_restrictions: []
   evidence_confidence: high
-  public_redistribution_recommendation: do_not_redistribute_full_text
+  public_redistribution_recommendation: allow_after_conditions_met
   conditions:
-  - 不得把可下载、公开托管或 source archive 可访问性当作授权。
-  current_capsule_compliance: blocked_no_public_permission
+  - 以已绑定v4和正式出版表达记录四作者、正式题名、DOI/来源及CC BY4链接，标明转换修改且不附加限制。
+  - 闭合上述三处额外旧稿及独立组件的具体范围和适用条件；本轮不自行删除或改写源文件。
+  - 通过现有许可包装机制落实当前固定包NOTICE和声明一致性后，才可改变publication gate。
+  current_capsule_compliance: pending_extra_source_scope_and_license_packaging
   publication_gate:
     decision: block
-    reason: 发现同一论文的ACL正式出版BY4路径，但现存固定源版本、正文/附录表达对应及组件包装尚未完成；保持block，不再把arxiv nonexclusive当作排除其他公开许可的充分依据。
+    reason: 固定v4及正式EMNLP正文/附录BY4路径已闭合，当前block不再归因于主文许可或版本未知；实际source/merged TeX仍保存三处未由出版比对覆盖的旧稿，emnlp2020.sty主排版范围及独立LPPL条件、四方metadata与NOTICE包装尚未全部落实，不能仅附文章许可放行整包。
   human_follow_up:
-  - 取得权利人书面许可或与确切版本绑定的权威公开许可。
-  - 在此之前仅公开元数据、引用、官方链接及合法短引。
+  - 针对已定位旧稿和组件补足适用依据及客观履约；不普遍要求作者另写精确vN许可函或人工approval。
+  - 在当前包全部适用条件落实前保持block，保留正文与既存源成员，不把已证主文BY4误记为无公众许可。
 - sequence: 6
   uid: arxiv-2104.00405
   source_type: arxiv
@@ -1734,36 +1751,55 @@ items:
     checked_at: '2026-09-16'
     finding: 官方许可只授予 arXiv.org 非独占分发权，不授予公众或本仓库。
     supports_public_redistribution: false
-  - kind: alternate_acl_publication_candidate
+  - kind: fixed_arxiv_source_and_retained_member_correspondence
+    checked_at: '2026-09-16'
+    url: https://export.arxiv.org/e-print/2210.08726v3
+    path: materialized_sources/corpus/arxiv-2210.08726--8e79abf3
+    finding: 固定v3实际源响应988,552 bytes，与现存source_revision完全一致；41个tar成员中33个实存source文字成员共214,711 bytes全部同字节，merged TeX和115,974-byte plain正文及101个selectors绑定。8个未保存媒体不在当前文字包范围。该身份比对本身不授予公众权利。
+    supports_public_redistribution: false
+  - kind: alternate_acl_publication_correspondence
     checked_at: '2026-09-16'
     url: https://aclanthology.org/2023.acl-long.910/
+    license_url: https://creativecommons.org/licenses/by/4.0/
     related_urls:
     - https://arxiv.org/abs/2210.08726v3
+    - https://aclanthology.org/2023.acl-long.910.pdf
     - https://aclanthology.org/faq/copyright/
     path: materialized_sources/corpus/arxiv-2210.08726--8e79abf3
-    finding: 正式ACL2023 DOI10.18653/v1/2023.acl-long.910，32页16477–16508；实存main.tex使用ACL2023，标题十一作者与abstract.tex表达对应正式作品。arxiv网页摘要多few-shot表述，不据网页差异否定实际保存的abstract.tex。 ACL官方政策对2016年后本机构材料授予公众BY4。这里只确定可核验的替代出版路径；尚未完成固定vN payload与全部正文/附录对应，不对全部TeX成员或外部材料作许可结论。
-    evidence_applicability: candidate_publisher_route_pending_retained_expression_correspondence
+    finding: 正式ACL2023 DOI10.18653/v1/2023.acl-long.910，PDF1,298,539 bytes、32页16477–16508；题名及十一作者对应，PDF署名Vincent Y. Zhao。主文、7_appendix中的附录A/B/D/E、7a_human_eval对应正式附录C（PDF16–20页），fig_prompts的28个实质evidence行也见于正式PDF。ACL作品级BY4政策覆盖这些已对应的作者出版表达，不因arXiv网页摘要的局部差异否定实存abstract.tex，也不将全部tar或被引用第三方表达重新授权。
+    evidence_applicability: matched_author_publication_expression_only
+    supports_public_redistribution: true
+  - kind: retained_third_party_excerpt_and_component_review
+    checked_at: '2026-09-16'
+    path: materialized_sources/corpus/arxiv-2210.08726--8e79abf3/source
+    locator: fig_interesting_examples.tex:8,13,19,25,33; fig_example_prompts.tex:20; fig_prompts.tex:62,68,125,237,244,302,309; 7a_human_eval.tex:98–130,147,167–191; acl2023.sty; acl_natbib.bst
+    related_urls:
+    - https://www.overleaf.com/latex/templates/instructions-for-emnlp-2023-proceedings/scyjxmtnrskr
+    - https://aclanthology.org/faq/copyright/
+    finding: 实存具体第三方表达包括Wikipedia/Britannica/SecondHandSongs/MeTV/Refinery29例段、47-word鼻周期新闻、Little House等重复evidence及其他11类、Reba/South Carolina、NPR短引、Addams/Sagrada中的Wikipedia及旅游表达。需对这个有限集合分别核定独立许可或具体科学研究引用依据，不把所有短事实句当作许可缺失，也不要求逐句原创。11,221-byte acl2023.sty与已核官方EMNLP2023路径的WikiChat 11,225-byte STY只有两个EMNLP→ACL标签差异；当前官方Overleaf BY4改编路径可用，差异仍须披露并包装。47,709-byte BST与WikiChat完全同字节，LPPL须独立履约。正文出版对应不替代这些额外范围条件。
     supports_public_redistribution: false
   missing:
-  - 面向公众的论文全文复制/再分发许可。
-  - 许可版本、权利人和精确作品版本绑定。
-  - 第三方素材和 TeX 组件权利边界。
-  classification: permission_unverified
-  license_id: null
-  license_url: https://arxiv.org/licenses/nonexclusive-distrib/1.0/
-  license_scope: 未证实公众许可。
+  - 已定位有限集合的第三方摘录适用许可或具体科学研究引用依据；已发表并不自动使独立摘录适用作者BY4。
+  - ACL2023 STY的当前公众许可/改编范围、两处标签差异披露及独立BST LPPL条件的实际包装。
+  - canonical/capsule metadata、manifest及当前包的十一作者归属、许可、转换说明和NOTICE尚未落实。
+  classification: documented_permission
+  license_id: CC-BY-4.0
+  license_url: https://creativecommons.org/licenses/by/4.0/
+  license_scope: 覆盖与ACL2023正式作品已对应的作者主文及附录表达；不自动覆盖被引用第三方摘录、独立模板组件或八个未保存媒体。
   license_restrictions: []
   evidence_confidence: high
-  public_redistribution_recommendation: do_not_redistribute_full_text
+  public_redistribution_recommendation: allow_after_conditions_met
   conditions:
-  - 不得把可下载、公开托管或 source archive 可访问性当作授权。
-  current_capsule_compliance: blocked_no_public_permission
+  - 以已绑定v3和正式出版表达记录十一作者（依PDF署名）、题名、DOI/来源及CC BY4链接，标明转换修改且不附加限制。
+  - 针对已定位摘录的有限集合核定适用依据，并分别落实STY BY4改编归属/差异与BST LPPL条件。
+  - 经现有许可包装机制落实当前固定包NOTICE及声明一致性后，才可改变publication gate；本轮不删改源表达。
+  current_capsule_compliance: pending_third_party_excerpt_scope_and_license_packaging
   publication_gate:
     decision: block
-    reason: 发现同一论文的ACL正式出版BY4路径，但现存固定源版本、正文/附录表达对应及组件包装尚未完成；保持block，不再把arxiv nonexclusive当作排除其他公开许可的充分依据。
+    reason: 固定v3及正式ACL主文/全部附录作者出版表达BY4路径已闭合；当前block落在已识别第三方摘录有限集合的独立依据、STY改编差异/BST条件及四方metadata与NOTICE包装，而非泛称主文许可或版本未证。短事实句不自动成为缺口，未保存媒体不新增门槛。
   human_follow_up:
-  - 取得权利人书面许可或与确切版本绑定的权威公开许可。
-  - 在此之前仅公开元数据、引用、官方链接及合法短引。
+  - 只对已定位摘录及组件补足具体依据和客观履约，不要求所有句子原创证明、作者另函或人工approval。
+  - 当前包全部适用条件落实前保持block，保留论文、源文件及既存定位器，不把已证作者正文BY4误记为无公众许可。
 - sequence: 24
   uid: arxiv:2210.11610
   source_type: arxiv
@@ -3072,36 +3108,59 @@ items:
     checked_at: '2026-09-16'
     finding: 官方许可只授予 arXiv.org 非独占分发权，不授予公众或本仓库。
     supports_public_redistribution: false
-  - kind: alternate_acl_publication_candidate
+  - kind: fixed_arxiv_source_and_retained_member_correspondence
+    checked_at: '2026-09-16'
+    url: https://arxiv.org/src/2404.07738v2
+    path: materialized_sources/corpus/arxiv-2404.07738--3e68f613
+    finding: 固定v2实际源请求与resolved URL均为https://arxiv.org/src/2404.07738v2，application/gzip、8,125,839 bytes，与现存source_revision完全一致；43个tar成员中33个实存source文字成员共282,197 bytes全部同字节。该比对闭合固定payload及保留成员身份，不单独授予公众权利。
+    supports_public_redistribution: false
+  - kind: alternate_acl_publication_correspondence
     checked_at: '2026-09-16'
     url: https://aclanthology.org/2025.naacl-long.342/
+    license_url: https://creativecommons.org/licenses/by/4.0/
     related_urls:
     - https://arxiv.org/abs/2404.07738v2
+    - https://aclanthology.org/2025.naacl-long.342.pdf
     - https://aclanthology.org/faq/copyright/
     path: materialized_sources/corpus/arxiv-2404.07738--3e68f613
-    finding: 正式NAACL2025 DOI10.18653/v1/2025.naacl-long.342，30页6709–6738；实存acl_latex.tex使用acl[final]，标题四作者及Sections/1_abstract.tex对应正式作品；arxiv v2注明NAACL2025。 ACL官方政策对2016年后本机构材料授予公众BY4。这里只确定可核验的替代出版路径；尚未完成固定vN payload与全部正文/附录对应，不对全部TeX成员或外部材料作许可结论。
-    evidence_applicability: candidate_publisher_route_pending_retained_expression_correspondence
+    finding: 正式NAACL2025 DOI10.18653/v1/2025.naacl-long.342，30页6709–6738，题名及四作者对应。主文、Sections/8_appendix的附录A/B及16个表均对应正式PDF，包括6页prompt、4页criteria和5页examples；未见额外未出版主体。ACL作品级BY4政策因此覆盖已对应的作者出版表达，不将custom.bib额外摘要、表中独立输入摘要或模板自动重新授权。
+    evidence_applicability: matched_author_publication_expression_only
+    supports_public_redistribution: true
+  - kind: retained_third_party_abstract_and_component_review
+    checked_at: '2026-09-16'
+    path: materialized_sources/corpus/arxiv-2404.07738--3e68f613/source
+    locator: custom.bib:150; Tables/example.tex:44,111,167; acl.sty; math_commands.tex; acl_natbib.bst
+    related_urls:
+    - https://www.nature.com/articles/s41573-019-0024-5
+    - https://aclanthology.org/2023.matching-1.7/
+    - https://aclanthology.org/2023.findings-emnlp.1033/
+    - https://www.biorxiv.org/content/10.1101/2023.06.27.546055v2
+    - https://www.overleaf.com/latex/templates/association-for-computational-linguistics-acl-conference/jvxskxpnznfj
+    - https://github.com/goodfeli/dlbook_notation/blob/master/README.md
+    finding: custom.bib保存Vamathevan2019（DOI10.1038/s41573-019-0024-5）完整摘要，与Nature当前原文匹配，但当前仅见reprints/permissions入口，未核定覆盖该表达的公众CC或其他适用依据；不把权限入口当作禁止复制证明。Tables/example.tex三份input摘要前两份对应ACL2023.matching-1.7及2023.findings-emnlp.1033，具有独立作品级BY4路径但尚待分别归属包装；第三份FlyWire预印本DOI10.1101/2023.06.27.546055v2许可尚未核，不借改题的Nature新版外推。11,830-byte acl.sty与现行官方11,615-byte STY有真实差异，匹配表达具有官方Overleaf BY4路径但全部差异范围尚未包装，不称同字节。math_commands为12,283 bytes，与已放行Self-RAG的12,284-byte组件仅EOF换行不同，保留Goodfeli独立使用声明；47,709-byte BST与WikiChat同字节，独立LPPL条件尚待履约。
     supports_public_redistribution: false
   missing:
-  - 面向公众的论文全文复制/再分发许可。
-  - 许可版本、权利人和精确作品版本绑定。
-  - 第三方素材和 TeX 组件权利边界。
-  classification: permission_unverified
-  license_id: null
-  license_url: https://arxiv.org/licenses/nonexclusive-distrib/1.0/
-  license_scope: 未证实公众许可。
+  - Vamathevan2019额外完整摘要及FlyWire固定v2输入摘要的适用许可或其他具体引用依据；两份ACL输入摘要的独立BY4归属/转换包装。
+  - acl.sty与当前官方BY4模板的真实差异范围、改编说明及独立Goodfeli/BST LPPL条件的实际包装。
+  - canonical/capsule metadata、manifest及当前包的四作者归属、许可、转换说明和NOTICE尚未落实。
+  classification: documented_permission
+  license_id: CC-BY-4.0
+  license_url: https://creativecommons.org/licenses/by/4.0/
+  license_scope: 覆盖与NAACL2025正式作品已对应的作者主文、附录及表中作者表达；不自动覆盖额外书目摘要、独立输入摘要、模板组件或未保存tar成员。
   license_restrictions: []
   evidence_confidence: high
-  public_redistribution_recommendation: do_not_redistribute_full_text
+  public_redistribution_recommendation: allow_after_conditions_met
   conditions:
-  - 不得把可下载、公开托管或 source archive 可访问性当作授权。
-  current_capsule_compliance: blocked_no_public_permission
+  - 以已绑定v2和正式出版表达记录四作者、题名、DOI/来源及CC BY4链接，标明转换修改且不附加限制。
+  - 对四份实际独立摘要分别核定或落实适用依据，不将后出版改写摘要的许可追溯套至旧预印本，也不将其当作纯书目事实。
+  - 分别落实实际STY差异、Goodfeli使用声明、BST LPPL及当前固定包NOTICE/声明一致性后，才可改变publication gate；本轮不删改源表达。
+  current_capsule_compliance: pending_third_party_abstract_scope_and_license_packaging
   publication_gate:
     decision: block
-    reason: 发现同一论文的ACL正式出版BY4路径，但现存固定源版本、正文/附录表达对应及组件包装尚未完成；保持block，不再把arxiv nonexclusive当作排除其他公开许可的充分依据。
+    reason: 固定v2及正式NAACL主文/附录作者出版表达BY4路径已闭合，未见额外未出版主体；当前block在Vamathevan/FlyWire具体独立摘要依据、两份ACL摘要包装、实际STY差异及Goodfeli/BST条件、四方metadata与NOTICE，而非主文许可或版本未知。不能称整个source archive已获授权，也不外推后出版Nature改写版本。
   human_follow_up:
-  - 取得权利人书面许可或与确切版本绑定的权威公开许可。
-  - 在此之前仅公开元数据、引用、官方链接及合法短引。
+  - 只对已识别独立摘要及组件补足适用依据和客观履约，不要求逐句原创、作者另函、模型合同或人工approval。
+  - 当前包全部适用条件落实前保持block，保留论文、源文件及既存定位器，不把已证作者正文BY4误记为无公众许可。
 - sequence: 38
   uid: arxiv:2404.14387
   source_type: arxiv
