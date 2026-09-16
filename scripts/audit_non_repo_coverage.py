@@ -23,6 +23,22 @@ RIGHTS = "raw_data/audits/materialization_rights_review.yaml"
 CLAIMS = "experiments/v0_meta_kb_initialization_demo_260910/04_claims/claims.jsonl"
 
 
+def target_version_matches(target: dict, observed: dict) -> bool:
+    """Only an explicit, validated PDF target can select its independent version."""
+    representation = target.get("representation")
+    if representation is None:
+        return target.get("selected_version") == observed.get("source_version_recorded")
+    if representation != "pdf_supplement":
+        return False
+    supplement = observed.get("pdf_supplement")
+    return (
+        isinstance(supplement, dict) and supplement.get("validation_errors") == []
+        and supplement.get("public_package_valid") is True
+        and isinstance(supplement.get("source_version"), str) and bool(supplement["source_version"].strip())
+        and target.get("selected_version") == supplement["source_version"]
+    )
+
+
 def git(*args: str) -> str:
     return subprocess.check_output(["git", *args], cwd=ROOT, text=True, stderr=subprocess.PIPE)
 
@@ -226,7 +242,7 @@ def check(facts: dict) -> int:
         require(all(target[key] == expected[uid][key] for key in ("title", "canonical_id", "canonical_url")), f"{uid}: target identity changed")
         require(target["source_kind"] in ("tex", "pdf", "html", "specification", "other"), f"{uid}: invalid source kind")
         require(target["boundary_verification_state"] in plan["coverage_verification_state"], f"{uid}: invalid boundary verification")
-        require(target["selected_version"] == item["observed"]["source_version_recorded"], f"{uid}: invented version")
+        require(target_version_matches(target, item["observed"]), f"{uid}: invented or unvalidated representation version")
         require(bool(item["exact_limitation"]) and bool(item["next_action"]), f"{uid}: missing limitation/action")
         require(item["action_bucket"] in plan["action_bucket"], f"{uid}: invalid bucket")
         for key in ("original_artifact_coverage", "text_extraction_coverage"):

@@ -8,7 +8,10 @@ from typing import Any
 
 import yaml
 
-from materialize_all_sources import arxiv_pdf_version_url, redistribution_footer, redistribution_notice_href
+from materialize_all_sources import (
+    pdf_supplement_retrieval_url_matches, pdf_supplement_version_urls,
+    redistribution_footer, redistribution_notice_href,
+)
 from validate_materialization_completeness import sha256_file
 
 
@@ -27,9 +30,9 @@ def fail(message: str, errors: list[str]) -> None:
 
 def validate_pdf_supplement_rights(
     manifest: dict[str, Any], manifest_path: Path, publication_root: Path,
-    review: dict[str, Any] | None,
+    review: dict[str, Any] | None, *, check_derived: bool = True,
 ) -> tuple[list[str], list[str]]:
-    """Fail closed for a PDF-specific allowance, independently of the old TeX gate."""
+    """Check independent main/SI allowances; build preflight may precede derived files."""
     errors: list[str] = []
     blocked: list[str] = []
     supplement = manifest.get("pdf_supplement")
@@ -38,60 +41,83 @@ def validate_pdf_supplement_rights(
     if supplement is None:
         if (supplement_root / "document.pdf").is_file():
             errors.append(f"PUBLICATION_PDF_SUPPLEMENT_UNDECLARED {uid}")
+        if manifest.get("source_type") == "journal":
+            try:
+                metadata = load_yaml(publication_root / manifest["metadata_path"])
+                if "publisher_pdf" in (metadata.get("versioning") or {}):
+                    errors.append(f"PUBLICATION_PDF_SUPPLEMENT_DECLARATION_MISSING {uid}")
+            except (KeyError, TypeError, AttributeError, OSError, yaml.YAMLError) as exc:
+                errors.append(f"PUBLICATION_PDF_SUPPLEMENT_PACKAGE_INVALID {uid}: {exc}")
         return errors, blocked
     try:
-        if not isinstance(supplement, dict) or manifest.get("source_type") != "arxiv" or manifest.get("adapter") != "arxiv_latex_v2":
-            raise ValueError("PDF supplement must belong to an existing arXiv TeX capsule")
+        if not isinstance(supplement, dict):
+            raise ValueError("PDF supplement must be an explicitly declared representation")
         actual_manifest = manifest_path.resolve().relative_to(publication_root.resolve()).as_posix()
         if not review or review.get("manifest_path") != actual_manifest:
             raise ValueError("PDF review is missing or points to another manifest")
-        rights = supplement.get("rights")
-        reviewed = review.get("pdf_supplement")
         metadata_path = (publication_root / manifest["metadata_path"]).resolve()
         metadata_path.relative_to(publication_root.resolve())
         canonical_metadata = load_yaml(metadata_path)
-        canonical = canonical_metadata.get("rights", {}).get("pdf_supplement")
-        capsule = load_yaml(manifest_path.parent / "source-metadata.yaml").get("rights", {}).get("pdf_supplement")
-        if not isinstance(rights, dict) or not (rights == reviewed == canonical == capsule):
-            raise ValueError("canonical, capsule, manifest and audited PDF allowances differ")
-        package = rights.get("redistribution_package")
-        if not isinstance(package, dict) or not all(isinstance(package.get(field), str) and package[field].strip() for field in (
-            "source_revision", "source_version_url", "notice_path", "attribution", "modifications", "scope",
-        )):
-            raise ValueError("PDF redistribution package is incomplete")
-        if any(not isinstance(rights.get(field), str) or not rights[field].strip() for field in ("license_spdx", "license_url", "license_verified_at")):
-            raise ValueError("PDF rights declaration lacks its reviewed license")
-        gate = rights.get("publication_gate")
-        if not isinstance(gate, dict) or gate.get("decision") != "allow":
-            blocked.append(f"{uid} PDF supplement: missing explicit audited allow decision")
-        if not isinstance(gate, dict) or gate.get("approved_scope") != package["scope"] or not isinstance(gate.get("reason"), str) or not gate["reason"].strip():
-            raise ValueError("PDF allowance does not explicitly approve its own retained scope")
+        capsule_metadata = load_yaml(manifest_path.parent / "source-metadata.yaml")
         version = supplement.get("source_version")
-        if (canonical_metadata.get("versioning") or {}).get("source_version") != version:
-            raise ValueError("PDF version differs from the selected source version")
-        version_url = arxiv_pdf_version_url(manifest.get("canonical_id"), version)
-        source = (supplement_root / "document.pdf").resolve()
-        source.relative_to(supplement_root.resolve())
-        materialization = supplement.get("materialization") or {}
-        source_hash = sha256_file(source)
-        if (
-            package["source_revision"] != supplement.get("revision") or supplement.get("revision") != f"sha256:{source_hash}"
-            or materialization.get("source_pdf") != "pdf-supplement/document.pdf"
-            or materialization.get("source_pdf_sha256") != source_hash
-            or package["source_version_url"] != version_url
-        ):
-            raise ValueError("PDF allowance does not cover the retained PDF revision/version")
-        license_path = (publication_root / package["notice_path"]).resolve()
-        license_path.relative_to(publication_root.resolve())
-        expected_notice = license_path.read_text(encoding="utf-8")
-        if not expected_notice.strip() or (supplement_root / "NOTICE.md").read_text(encoding="utf-8") != expected_notice:
-            raise ValueError("PDF notice is absent or differs from its reviewed original")
-        if materialization.get("document") != "pdf-supplement/document.txt":
-            raise ValueError("PDF text document is not independently declared")
-        document = supplement_root / "document.txt"
-        text = document.read_text(encoding="utf-8")
-        if text.count("<!-- materialization-redistribution-notice -->") != 1 or not text.endswith(redistribution_footer(package)):
-            raise ValueError("PDF attribution or modification footer is absent")
+        version_url, si_url = pdf_supplement_version_urls(manifest, canonical_metadata, capsule_metadata, version)
+        si = supplement.get("supplementary_information")
+        if (si_url is not None) != (si is not None):
+            raise ValueError("required publisher SI is missing or an undeclared SI is present")
+        if (supplement_root / "supplementary-information").exists() and si_url is None:
+            raise ValueError("retained SI files have no explicit publisher declaration")
+        parts = [(supplement, "pdf-supplement", "pdf_supplement", version_url)]
+        if si_url is not None:
+            if not isinstance(si, dict) or "supplementary_information" in si:
+                raise ValueError("only one explicitly declared SI PDF is supported")
+            parts.append((si, "pdf-supplement/supplementary-information", "supplementary_information", si_url))
+        for part, directory, grant_key, approved_url in parts:
+            rights = part.get("rights")
+            canonical = canonical_metadata.get("rights", {}).get(grant_key)
+            capsule = capsule_metadata.get("rights", {}).get(grant_key)
+            if not isinstance(rights, dict) or not (rights == review.get(grant_key) == canonical == capsule):
+                raise ValueError(f"{grant_key}: canonical, capsule, manifest and audited PDF allowances differ")
+            package = rights.get("redistribution_package")
+            if not isinstance(package, dict) or not all(isinstance(package.get(field), str) and package[field].strip() for field in (
+                "source_revision", "source_version_url", "notice_path", "attribution", "modifications", "scope",
+            )):
+                raise ValueError(f"{grant_key}: PDF redistribution package is incomplete")
+            if any(not isinstance(rights.get(field), str) or not rights[field].strip() for field in ("license_spdx", "license_url", "license_verified_at")):
+                raise ValueError(f"{grant_key}: PDF rights declaration lacks its reviewed license")
+            gate = rights.get("publication_gate")
+            if not isinstance(gate, dict) or gate.get("decision") != "allow":
+                blocked.append(f"{uid} {grant_key} PDF supplement: missing explicit audited allow decision")
+            if not isinstance(gate, dict) or gate.get("approved_scope") != package["scope"] or not isinstance(gate.get("reason"), str) or not gate["reason"].strip():
+                raise ValueError(f"{grant_key}: PDF allowance does not explicitly approve its own retained scope")
+            base = manifest_path.parent / directory
+            base.resolve().relative_to(manifest_path.parent.resolve())
+            source = (base / "document.pdf").resolve()
+            source.relative_to(base.resolve())
+            materialization = part.get("materialization") or {}
+            source_hash = sha256_file(source)
+            retrievals = part.get("retrievals")
+            retrieval = retrievals[0] if isinstance(retrievals, list) and len(retrievals) == 1 and isinstance(retrievals[0], dict) else {}
+            publisher = manifest.get("source_type") == "journal"
+            if (
+                part.get("source_version") != version or (publisher and package.get("source_version") != version)
+                or package["source_revision"] != part.get("revision") or part.get("revision") != f"sha256:{source_hash}"
+                or materialization.get("source_pdf") != f"{directory}/document.pdf"
+                or materialization.get("source_pdf_sha256") != source_hash or package["source_version_url"] != approved_url
+                or not pdf_supplement_retrieval_url_matches(retrieval, approved_url, publisher=publisher)
+                or retrieval.get("sha256") != source_hash or retrieval.get("bytes") != source.stat().st_size
+            ):
+                raise ValueError(f"{grant_key}: PDF allowance does not cover the retained PDF revision/version/URL")
+            license_path = (publication_root / package["notice_path"]).resolve()
+            license_path.relative_to(publication_root.resolve())
+            expected_notice = license_path.read_text(encoding="utf-8")
+            if not expected_notice.strip() or (base / "NOTICE.md").read_text(encoding="utf-8") != expected_notice:
+                raise ValueError(f"{grant_key}: PDF notice is absent or differs from its reviewed original")
+            if materialization.get("document") != f"{directory}/document.txt":
+                raise ValueError(f"{grant_key}: PDF text document is not independently declared")
+            if check_derived:
+                text = (base / "document.txt").read_text(encoding="utf-8")
+                if text.count("<!-- materialization-redistribution-notice -->") != 1 or not text.endswith(redistribution_footer(package)):
+                    raise ValueError(f"{grant_key}: PDF attribution or modification footer is absent")
     except (KeyError, TypeError, AttributeError, ValueError, OSError, yaml.YAMLError) as exc:
         errors.append(f"PUBLICATION_PDF_SUPPLEMENT_PACKAGE_INVALID {uid}: {exc}")
     return errors, blocked
@@ -137,6 +163,7 @@ def validate_publication_rights(
         audited[uid] = item
 
     active_full_text: dict[str, Path] = {}
+    supplemental_uids: set[str] = set()
     for manifest_path in sorted(corpus_root.glob("*/manifest.yaml")):
         manifest = load_yaml(manifest_path)
         if isinstance(manifest, dict):
@@ -145,6 +172,8 @@ def validate_publication_rights(
             )
             errors.extend(supplement_errors)
             blocked.extend(supplement_blocks)
+            if isinstance(manifest.get("pdf_supplement"), dict):
+                supplemental_uids.add(str(manifest.get("uid") or ""))
         materialization = manifest.get("materialization") if isinstance(manifest, dict) else None
         retained_source_pdf = (
             isinstance(materialization, dict)
@@ -161,7 +190,7 @@ def validate_publication_rights(
         )
         if not isinstance(manifest, dict) or (
             manifest.get("content_tier") != "full_text" and not retained_source_pdf
-            and not retained_source_markdown and not manifest.get("pdf_supplement")
+            and not retained_source_markdown
         ):
             continue
         uid = manifest.get("uid")
@@ -235,9 +264,9 @@ def validate_publication_rights(
             except (KeyError, TypeError, AttributeError, ValueError, OSError) as exc:
                 fail(f"PUBLICATION_RIGHTS_PACKAGE_INVALID {uid}: {exc}", errors)
 
-    if not active_full_text:
+    if not active_full_text and not supplemental_uids:
         fail("PUBLICATION_FULL_TEXT_SET_EMPTY", errors)
-    return errors, blocked, len(active_full_text), len(audited)
+    return errors, blocked, len(set(active_full_text) | supplemental_uids), len(audited)
 
 
 def main() -> int:

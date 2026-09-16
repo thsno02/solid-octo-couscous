@@ -2792,51 +2792,114 @@ def arxiv_pdf_version_url(canonical_id: Any, source_version: Any) -> str:
     return f"https://arxiv.org/pdf/{canonical_id}{source_version}"
 
 
-def build_pdf_supplement(
-    root: Path, source_version: str, retrieval: dict[str, Any], rights: dict[str, Any],
-    *, body_quality_verified: bool = False, limitations: list[str] | None = None,
-    primary_excerpt: dict[str, int] | None = None,
-) -> dict[str, Any]:
-    """Derive page text from an already acquired PDF without rebuilding the TeX capsule.
+def pdf_supplement_version_urls(
+    manifest: dict[str, Any], canonical: dict[str, Any], capsule: dict[str, Any], source_version: Any,
+) -> tuple[str, str | None]:
+    """Bind the existing arXiv representation or an explicitly reviewed publisher work."""
+    if manifest.get("source_type") == "arxiv" and manifest.get("adapter") == "arxiv_latex_v2":
+        url = arxiv_pdf_version_url(manifest.get("canonical_id"), source_version)
+        if any((metadata.get("versioning") or {}).get("source_version") != source_version for metadata in (canonical, capsule)):
+            raise ValueError("PDF supplement version differs from the retained source version")
+        return url, None
+    if manifest.get("source_type") != "journal" or manifest.get("adapter") != "generic_web_or_document_v2":
+        raise ValueError("PDF supplement requires an existing arXiv TeX or declared journal capsule")
+    for metadata in (canonical, capsule):
+        if any(metadata.get(field) != manifest.get(field) for field in ("uid", "source_type", "canonical_id", "canonical_url")):
+            raise ValueError("publisher PDF canonical identity differs from the retained work")
+    declaration = (canonical.get("versioning") or {}).get("publisher_pdf")
+    if not isinstance(declaration, dict) or declaration != (capsule.get("versioning") or {}).get("publisher_pdf"):
+        raise ValueError("canonical and capsule publisher PDF declarations differ")
+    doi = declaration.get("doi")
+    canonical_id = manifest.get("canonical_id")
+    if not isinstance(doi, str) or not doi.strip() or not isinstance(canonical_id, str) or doi != canonical_id.removeprefix("doi:"):
+        raise ValueError("publisher PDF DOI differs from the retained work")
+    if (
+        not isinstance(source_version, str) or not source_version.startswith("publisher-vor:")
+        or not source_version.removeprefix("publisher-vor:").strip() or "\n" in source_version or "\r" in source_version
+        or declaration.get("source_version") != source_version
+    ):
+        raise ValueError("publisher PDF version differs from its explicit declaration")
+    si = declaration.get("supplementary_information")
+    if not isinstance(si, dict) or type(si.get("required")) is not bool:
+        raise ValueError("publisher PDF must explicitly declare whether SI is required")
+    si_url = si.get("source_pdf_url")
+    if (si["required"] and not isinstance(si_url, str)) or (not si["required"] and si_url is not None):
+        raise ValueError("publisher SI requirement and approved URL disagree")
+    main_url = declaration.get("source_pdf_url")
+    for url in (main_url, si_url) if si["required"] else (main_url,):
+        if not isinstance(url, str):
+            raise ValueError("publisher PDF requires an explicitly approved URL")
+        parsed = urllib.parse.urlsplit(url)
+        if parsed.scheme != "https" or not parsed.netloc or not parsed.path or parsed.query or parsed.fragment or parsed.username:
+            raise ValueError("publisher PDF approved URL must be an explicit HTTPS resource")
+    return main_url, si_url
 
-    The caller owns acquisition, the independently reviewed PDF notice, canonical
-    metadata/audit updates and the final local-file inventory. No source bytes,
-    default document/selectors, manifest or metadata are changed here.
-    """
-    manifest = load_yaml(root / "manifest.yaml")
-    if manifest.get("source_type") != "arxiv" or manifest.get("adapter") != "arxiv_latex_v2":
-        raise ValueError("PDF supplement is only supported on an existing arXiv TeX capsule")
-    version_url = arxiv_pdf_version_url(manifest.get("canonical_id"), source_version)
-    metadata = load_yaml(root / "source-metadata.yaml")
-    if (metadata.get("versioning") or {}).get("source_version") != source_version:
-        raise ValueError("PDF supplement version differs from the retained source version")
-    payload = (root / "pdf-supplement/document.pdf").read_bytes()
+
+def pdf_supplement_retrieval_url_matches(
+    retrieval: dict[str, Any], approved_url: str, *, publisher: bool = False,
+) -> bool:
+    """Keep real redirect provenance; only Nature's observed cookie query is equivalent."""
+    if retrieval.get("requested_urls") != [approved_url]:
+        return False
+    resolved = retrieval.get("resolved_url")
+    if resolved == approved_url:
+        return True
+    if not publisher or not isinstance(resolved, str):
+        return False
+    requested, effective = urllib.parse.urlsplit(approved_url), urllib.parse.urlsplit(resolved)
+    if (
+        requested.scheme != "https" or requested.netloc != "www.nature.com" or requested.query
+        or (effective.scheme, effective.netloc, effective.path, effective.fragment)
+        != (requested.scheme, requested.netloc, requested.path, "")
+    ):
+        return False
+    query = urllib.parse.parse_qsl(effective.query, keep_blank_values=True)
+    values = dict(query)
+    return (
+        len(query) == 2 and set(values) == {"error", "code"} and values["error"] == "cookies_not_supported"
+        and re.fullmatch(r"[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}", values["code"]) is not None
+    )
+
+
+def _derive_pdf_supplement_part(
+    root: Path, directory: str, source_version: str, version_url: str,
+    retrieval: dict[str, Any], rights: dict[str, Any], *, publisher: bool,
+    body_quality_verified: bool, limitations: list[str] | None, primary_excerpt: dict[str, int] | None = None,
+) -> tuple[dict[str, Any], str, list[dict[str, Any]]]:
+    """Preflight and derive one fixed local PDF entirely in memory."""
+    base = root / directory
+    base.resolve().relative_to(root.resolve())
+    for name in ("document.pdf", "document.txt", "selectors.jsonl", "NOTICE.md"):
+        if (base / name).is_symlink():
+            raise ValueError("PDF supplement paths must not alias retained files")
+    payload = (base / "document.pdf").read_bytes()
     if not payload.startswith(b"%PDF-"):
         raise ValueError("PDF supplement source is not a PDF")
     source_hash = sha256_bytes(payload)
     revision = f"sha256:{source_hash}"
     if (
-        retrieval.get("requested_urls") != [version_url] or retrieval.get("resolved_url") != version_url
+        not pdf_supplement_retrieval_url_matches(retrieval, version_url, publisher=publisher)
         or retrieval.get("bytes") != len(payload) or retrieval.get("sha256") != source_hash
         or retrieval.get("content_type", "").split(";", 1)[0].strip() != "application/pdf"
-        or not retrieval.get("retrieved_at")
+        or not isinstance(retrieval.get("retrieved_at"), str) or not retrieval["retrieved_at"].strip()
     ):
-        raise ValueError("PDF supplement retrieval does not describe the fixed-version PDF")
+        raise ValueError("PDF supplement retrieval does not describe the approved fixed-version PDF")
     package = rights.get("redistribution_package") or {}
     gate = rights.get("publication_gate") or {}
     if not all(isinstance(package.get(field), str) and package[field].strip() for field in (
         "source_revision", "source_version_url", "notice_path", "attribution", "modifications", "scope",
     )) or package.get("source_revision") != revision or package.get("source_version_url") != version_url:
         raise ValueError("PDF supplement needs its own complete, revision-bound redistribution package")
+    if publisher and package.get("source_version") != source_version:
+        raise ValueError("publisher PDF allowance does not bind its declared source version")
     if gate.get("decision") != "allow" or gate.get("approved_scope") != package.get("scope"):
         raise ValueError("PDF supplement scope has no explicit publication allowance")
-
-    # This batch contains body text in Form XObjects that layout mode omits.
-    # The optional layer explicitly uses plain mode; primary PDFs keep layout.
+    if type(body_quality_verified) is not bool or not isinstance(limitations or [], list) or any(
+        not isinstance(value, str) or not value.strip() for value in (limitations or [])
+    ):
+        raise ValueError("PDF supplement body check and limitations must be explicit")
     document_text, extracted, page_count = extract_pdf_text(payload, extraction_mode="plain")
-    selectors = []
-    empty_pages = []
-    failed_pages = []
+    selectors, empty_pages, failed_pages = [], [], []
     for original in extracted:
         preview = original.get("text_preview") or ""
         if preview.startswith("[page extraction failed:"):
@@ -2845,33 +2908,137 @@ def build_pdf_supplement(
             empty_pages.append(original["page"])
         else:
             selectors.append({
-                **original,
-                "selector": f"pdf://sha256-{source_hash[:16]}#page={original['page']}",
-                "local_path": (root / "pdf-supplement/document.txt").relative_to(ROOT).as_posix(),
+                **original, "selector": f"pdf://sha256-{source_hash[:16]}#page={original['page']}",
+                "local_path": (base / "document.txt").relative_to(ROOT).as_posix(),
             })
+    if primary_excerpt is not None:
+        from validate_materialization_completeness import pdf_primary_excerpt_range
+        pdf_primary_excerpt_range({"primary_excerpt": primary_excerpt}, document_text)
+    substantive = has_substantive_document_text(document_text)
+    if body_quality_verified and (not substantive or failed_pages):
+        raise ValueError("PDF supplement body quality cannot hide missing substantive text or extraction failures")
     document_text += redistribution_footer(package)
-    (root / "pdf-supplement/document.txt").write_text(document_text, encoding="utf-8")
-    write_jsonl(root / "pdf-supplement/selectors.jsonl", selectors)
-    return {
-        "source_version": source_version,
-        "revision": revision,
-        "media_type": "application/pdf",
-        "retrievals": [dict(retrieval)],
-        "selectors": ["pdf-supplement/selectors.jsonl"],
-        "body_quality_verified": body_quality_verified,
-        "limitations": list(limitations or []),
+    part = {
+        "source_version": source_version, "revision": revision, "media_type": "application/pdf",
+        "retrievals": [dict(retrieval)], "selectors": [f"{directory}/selectors.jsonl"],
+        "body_quality_verified": body_quality_verified, "limitations": list(limitations or []),
         **({"primary_excerpt": dict(primary_excerpt)} if primary_excerpt is not None else {}),
         "rights": rights,
         "materialization": {
-            "source_pdf": "pdf-supplement/document.pdf", "source_pdf_sha256": source_hash,
-            "document": "pdf-supplement/document.txt", "normalized_document": "pdf-supplement/document.txt",
+            "source_pdf": f"{directory}/document.pdf", "source_pdf_sha256": source_hash,
+            "document": f"{directory}/document.txt", "normalized_document": f"{directory}/document.txt",
             "stored_characters": len(document_text), "selector_count": len(selectors),
-            "pdf_page_count": page_count, "pdf_text_page_count": len(selectors),
-            "pdf_text_extraction_mode": "plain",
+            "pdf_page_count": page_count, "pdf_text_page_count": len(selectors), "pdf_text_extraction_mode": "plain",
             "pdf_pages_without_extractable_text": empty_pages, "pdf_page_extraction_failures": failed_pages,
-            "substantive_text": has_substantive_document_text(document_text.split("<!-- materialization-redistribution-notice -->", 1)[0]),
+            "substantive_text": substantive,
         },
     }
+    return part, document_text, selectors
+
+
+def build_pdf_supplement(
+    root: Path, source_version: str, retrieval: dict[str, Any], rights: dict[str, Any],
+    *, body_quality_verified: bool = False, limitations: list[str] | None = None,
+    primary_excerpt: dict[str, int] | None = None,
+    supplementary_information: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Derive main and optional required SI PDFs without rebuilding the legacy capsule.
+
+    The caller owns acquisition, the independently reviewed PDF notice, canonical
+    metadata/audit updates and the final local-file inventory. No source bytes,
+    default document/selectors, manifest or metadata are changed here.
+    """
+    try:
+        manifest = load_yaml(root / "manifest.yaml")
+        canonical_path = (ROOT / manifest["metadata_path"]).resolve()
+        canonical_path.relative_to(ROOT.resolve())
+        canonical = load_yaml(canonical_path)
+        capsule = load_yaml(root / "source-metadata.yaml")
+        version_url, si_url = pdf_supplement_version_urls(manifest, canonical, capsule, source_version)
+        publisher = manifest.get("source_type") == "journal"
+        if (si_url is not None) != (supplementary_information is not None):
+            raise ValueError("required publisher SI must be provided exactly once")
+        if (root / "pdf-supplement/supplementary-information").exists() and si_url is None:
+            raise ValueError("undeclared SI files cannot be retained as an approved representation")
+        if publisher:
+            for row in manifest.get("local_files", []):
+                path = (ROOT / row["path"]).resolve()
+                path.relative_to(root.resolve())
+                if row.get("bytes") != path.stat().st_size or row.get("sha256") != sha256_file(path):
+                    raise ValueError("retained capsule inventory differs before PDF replay")
+        main = _derive_pdf_supplement_part(
+            root, "pdf-supplement", source_version, version_url, retrieval, rights, publisher=publisher,
+            body_quality_verified=body_quality_verified, limitations=limitations, primary_excerpt=primary_excerpt,
+        )
+        parts = [("pdf-supplement", main)]
+        if si_url is not None:
+            if not isinstance(supplementary_information, dict) or "supplementary_information" in supplementary_information:
+                raise ValueError("only one explicitly declared SI PDF is supported")
+            si = _derive_pdf_supplement_part(
+                root, "pdf-supplement/supplementary-information", source_version, si_url,
+                supplementary_information["retrieval"], supplementary_information["rights"], publisher=True,
+                body_quality_verified=supplementary_information.get("body_quality_verified", False),
+                limitations=supplementary_information.get("limitations"),
+            )
+            main[0]["supplementary_information"] = si[0]
+            parts.append(("pdf-supplement/supplementary-information", si))
+        if publisher:
+            from validate_publication_rights import validate_pdf_supplement_rights
+            audit = load_yaml(ROOT / "raw_data/audits/materialization_rights_review.yaml")
+            review = next((row for row in audit["items"] if isinstance(row, dict) and row.get("uid") == manifest.get("uid")), None)
+            errors, blocked = validate_pdf_supplement_rights(
+                {**manifest, "pdf_supplement": main[0]}, root / "manifest.yaml", ROOT, review, check_derived=False,
+            )
+            if errors or blocked:
+                raise ValueError("; ".join(errors + blocked))
+        # Neither PDF/NOTICE nor any legacy file is written; all parts have passed preflight.
+        for directory, (_, text, selectors) in parts:
+            (root / directory / "document.txt").write_text(text, encoding="utf-8")
+            write_jsonl(root / directory / "selectors.jsonl", selectors)
+        return main[0]
+    except RedistributionPackageError:
+        raise
+    except Exception as exc:
+        raise RedistributionPackageError(f"PDF supplement preflight/replay failed: {exc}; retained capsule preserved") from exc
+
+
+def replay_pdf_supplement(record: SourceRecord, manifest: dict[str, Any]) -> dict[str, Any]:
+    """Replay declared publisher PDFs before generic acquisition or capsule clearing."""
+    try:
+        if any(manifest.get(field) != value for field, value in (
+            ("uid", record.uid), ("source_type", record.source_type), ("canonical_id", record.canonical_id),
+            ("canonical_url", record.canonical_url), ("metadata_path", record.relative_metadata_path),
+        )):
+            raise ValueError("publisher PDF replay identity differs from the retained capsule")
+        from validate_materialization_completeness import validate_pdf_supplement
+        inventory = manifest.get("local_files") or []
+        errors: list[str] = []
+        validate_pdf_supplement(
+            manifest, record.capsule_root, {row["path"] for row in inventory},
+            {row["path"]: row["sha256"] for row in inventory}, errors, repository_root=ROOT,
+        )
+        if errors:
+            raise ValueError("; ".join(errors))
+        old = manifest["pdf_supplement"]
+        si = old.get("supplementary_information")
+        supplement = build_pdf_supplement(
+            record.capsule_root, old["source_version"], old["retrievals"][0], old["rights"],
+            body_quality_verified=old["body_quality_verified"], limitations=old["limitations"],
+            primary_excerpt=old.get("primary_excerpt"),
+            supplementary_information=None if si is None else {
+                "retrieval": si["retrievals"][0], "rights": si["rights"],
+                "body_quality_verified": si["body_quality_verified"], "limitations": si["limitations"],
+            },
+        )
+        manifest["pdf_supplement"] = supplement
+        manifest["local_files"] = local_file_inventory(record.capsule_root)
+        manifest["local_bytes"] = sum(row["bytes"] for row in manifest["local_files"])
+        write_yaml(record.capsule_root / "manifest.yaml", manifest)
+        return manifest
+    except RedistributionPackageError:
+        raise
+    except Exception as exc:
+        raise RedistributionPackageError(f"{record.uid}: PDF replay failed: {exc}; retained capsule preserved") from exc
 
 
 def filter_selectors_for_document(
@@ -3121,11 +3288,37 @@ def materialize_generic(
     existing_manifest: dict[str, Any] | None = None,
     force_excerpt_reason: str | None = None,
 ) -> dict[str, Any]:
-    if existing_root is None and (record.capsule_root / "manifest.yaml").is_file():
-        retained = load_yaml(record.capsule_root / "manifest.yaml")
+    metadata = record.metadata
+    versioning = metadata.get("versioning") if isinstance(metadata, dict) else None
+    publisher_declared = record.source_type == "journal" and isinstance(versioning, dict) and "publisher_pdf" in versioning
+    retained = existing_manifest
+    try:
+        if existing_root is None and (record.capsule_root / "manifest.yaml").is_file():
+            retained = load_yaml(record.capsule_root / "manifest.yaml")
+        if record.source_type == "journal" and (
+            not isinstance(metadata, dict) or (versioning is not None and not isinstance(versioning, dict))
+        ):
+            raise TypeError("journal versioning must be a mapping or null")
+        if existing_root is None:
+            if isinstance(retained, dict) and "pdf_supplement" in retained:
+                return replay_pdf_supplement(record, retained)
+            if (record.capsule_root / "pdf-supplement").exists() or publisher_declared:
+                raise ValueError("retained PDF supplement is undeclared")
+    except Exception as exc:
+        if isinstance(exc, RedistributionPackageError):
+            raise
+        if (
+            (record.capsule_root / "pdf-supplement").exists() or publisher_declared
+            or (isinstance(retained, dict) and "pdf_supplement" in retained)
+        ):
+            raise RedistributionPackageError(f"{record.uid}: PDF replay preflight failed: {exc}; retained capsule preserved") from exc
+        raise
+    if existing_root is None:
         retained_materialization = retained.get("materialization") if isinstance(retained, dict) else None
         if isinstance(retained_materialization, dict) and any(field in retained_materialization for field in ("retained_markdown_source", "retained_text_sources")):
             return replay_retained_markdown(record, retained, generated_at)
+    if publisher_declared:
+        raise RedistributionPackageError(f"{record.uid}: declared publisher PDF has no offline replay manifest; retained capsule preserved")
     root = existing_root or prepare_capsule(record)
     manifest = existing_manifest or base_manifest(record, "generic_web_or_document_v2", generated_at)
     if existing_root is None:
