@@ -67,6 +67,7 @@ claim_refs:
 - claim:27f7e77bbaa0d47f
 - claim:df1b88d18276a319
 - claim:2060aa1cdd09f8bd
+- claim:b0434511c0c174ad
 - claim:822962fc261c9559
 - claim:9077f46d7f30e565
 - claim:8798b3dc1ae125ea
@@ -497,7 +498,7 @@ temporal:
   valid_to: null
   as_of: '2026-09-16T04:30:26Z'
 provenance:
-  build_id: build:llm-wiki-v0:59348b6351fcf392
+  build_id: build:llm-wiki-v0:bfe1ec178597b638
   generated_by_agent: pipeline/build_llm_wiki.py
   generated_by_model: null
   prompt_or_skill_version: deterministic-llm-wiki-v0.2
@@ -623,5 +624,5 @@ rights_unavailable_source_refs: []
 ## Atomic expansion
 
 - **36** source pages
-- **71** claim/evidence pages
+- **72** claim/evidence pages
 - Machine catalogs, graph, lexical index, context packs, change proposal, and review queues

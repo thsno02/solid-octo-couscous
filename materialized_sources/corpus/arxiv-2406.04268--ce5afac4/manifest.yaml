@@ -31,9 +31,15 @@ local_files:
 - path: materialized_sources/corpus/arxiv-2406.04268--ce5afac4/files.jsonl
   bytes: 1390
   sha256: 8169c8b249d300922ece9053979e8ee224b23416c25178955e6c36a9cfcd8003
+- path: materialized_sources/corpus/arxiv-2406.04268--ce5afac4/normalized/document.tex
+  bytes: 76086
+  sha256: 381b5a3435c27c5cf02213a117d61bb65388507ba74e09f2084aa98a61c54cee
+- path: materialized_sources/corpus/arxiv-2406.04268--ce5afac4/normalized/document.txt
+  bytes: 70717
+  sha256: dac68f264f4a27d7527577aacd8e2fc0205f6b02dc00cc7c443df0bb16b9768b
 - path: materialized_sources/corpus/arxiv-2406.04268--ce5afac4/selectors.jsonl
-  bytes: 8546
-  sha256: cba9cefcd375c8b4c1a176e66eda16b1fa68dc646f235226e2e3861dd1bb4548
+  bytes: 34829
+  sha256: 66a326a50b1ed1c3f9cf6fa7daedc02e32a47d59d39c76349f39b5b3abfaa171
 - path: materialized_sources/corpus/arxiv-2406.04268--ce5afac4/source/fancyhdr.sty
   bytes: 20521
   sha256: b56ec4434b9f4607529a4b23dc68ad8d4b94f1f631c8cddaf7da78140d53a5ea
@@ -59,16 +65,47 @@ local_files:
   bytes: 2504
   sha256: f8e29acb07a525c7773f090097bbc81c189faa50291d45f0ef2b87308ca1244b
 warnings:
-- TeX files were stored but a root document was not identified
+- The retained TeX root is normalized offline; the selected upstream arXiv version remains unrecorded.
+- 'Referenced figure assets are absent from retained source: assets/Figure_1.pdf, assets/OE_AIS_Final.png, assets/rate_distortion_final.png.'
 errors: []
 archive_container: tar
+limitations:
+- Normalized TeX/text covers the retained root document and its body/appendices, not the omitted figure assets or
+  a newly verified upstream version.
+- Plain-text normalization is a lossy TeX-derived representation; the retained source and normalized TeX remain
+  authoritative for mathematical syntax and figure references.
 materialization:
   stored_text_files: 7
   stored_text_bytes: 221320
-  main_tex: null
-  normalized_document: null
-  selector_count: 32
+  main_tex: main_clean_arxiv.txt
+  normalized_document: normalized/document.txt
+  selector_count: 60
   omitted_member_count: 6
+  normalization:
+    method: offline-retained-tex-root-and-include-expansion
+    source_document: source/main_clean_arxiv.txt
+    root_evidence_lines:
+      documentclass: 2
+      begin_document: 48
+      end_document: 346
+    source_body_line_range:
+    - 49
+    - 345
+    normalized_tex_boundary: Entire retained root TeX with include expansion.
+    normalized_text_boundary: Document body only; preamble and post-document material excluded.
+    source_bytes_unchanged: true
+    selected_upstream_version: null
+    missing_assets:
+    - assets/Figure_1.pdf
+    - assets/OE_AIS_Final.png
+    - assets/rate_distortion_final.png
+  tex_root_candidates:
+  - main_clean_arxiv.txt
+  document: normalized/document.txt
+  normalized_tex: normalized/document.tex
+  tex_include_graph: []
+  tex_include_errors: []
+  stored_characters: 70713
 omitted:
 - path: assets/rate_distortion_final.png
   reason: non-text-document-member
@@ -82,4 +119,4 @@ omitted:
   reason: non-text-document-member
 - path: assets/dmlogo.png
   reason: non-text-document-member
-local_bytes: 234130
+local_bytes: 407216

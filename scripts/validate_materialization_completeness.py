@@ -80,6 +80,74 @@ def pdf_page_sections(text: str) -> tuple[dict[int, str], set[int]]:
     return sections, duplicates
 
 
+def pdf_image_transcription_declaration(
+    materialization: dict[str, Any], capsule_root: Path, declared_files: set[str],
+    page_count: int | None, uid: str, errors: list[str],
+) -> tuple[str | None, set[int], str | None]:
+    """Permit derived page text only with an explicit, source-bound declaration."""
+    declaration = materialization.get("image_page_transcription")
+    if declaration is None:
+        return None, set(), None
+    if not isinstance(declaration, dict):
+        errors.append(f"ARXIV_PDF_TRANSCRIPTION_DECLARATION {uid}")
+        return None, set(), None
+    valid = True
+
+    def reject(detail: str) -> None:
+        nonlocal valid
+        errors.append(f"ARXIV_PDF_TRANSCRIPTION_PROVENANCE {uid} {detail}")
+        valid = False
+
+    document = declaration.get("document")
+    document_path: Path | None = None
+    if isinstance(document, str) and document and not Path(document).is_absolute() and ".." not in Path(document).parts:
+        candidate = capsule_root / document
+        try:
+            candidate.resolve().relative_to((capsule_root / "derived").resolve())
+            if candidate.is_file():
+                document_path = candidate
+        except (OSError, ValueError):
+            pass
+    document_rel = relative(document_path) if document_path is not None else None
+    if document_rel is None or document_rel not in declared_files or document == materialization.get("document"):
+        reject(f"document={document!r} must be a separately inventoried derived text file")
+    for field in ("renderer", "model_revision", "scope"):
+        value = declaration.get(field)
+        if not isinstance(value, str) or not value.strip():
+            reject(f"{field} is required (use an explicit not_exposed value when appropriate)")
+    method = declaration.get("method")
+    if not isinstance(method, str) or method not in {"agent_visual_transcription", "manual_transcription"}:
+        reject(f"method={method!r}")
+    if declaration.get("native_text_extraction_changed") is not False:
+        reject("native_text_extraction_changed must be false")
+    if declaration.get("conventional_ocr_performed") is not False:
+        reject("visual/manual transcription must not claim conventional OCR")
+    if not isinstance(declaration.get("complete_image_representation"), bool):
+        reject("complete_image_representation must explicitly state the retained boundary")
+
+    source_pages = declaration.get("source_pages")
+    pages: set[int] = set()
+    if not isinstance(source_pages, list) or not source_pages or any(
+        not isinstance(page, int) or isinstance(page, bool) or page < 1
+        or page_count is None or page > page_count for page in source_pages
+    ):
+        reject(f"source_pages={source_pages!r}")
+    else:
+        pages = set(source_pages)
+        if len(pages) != len(source_pages):
+            reject("source_pages must be unique")
+        gaps = materialization.get("pdf_pages_without_extractable_text")
+        failures = materialization.get("pdf_page_extraction_failures")
+        if not isinstance(gaps, list) or not isinstance(failures, list) or not all(page in gaps or page in failures for page in pages):
+            reject("source_pages must remain acknowledged native extraction gaps")
+    render_dpi = declaration.get("render_dpi")
+    if not isinstance(render_dpi, dict) or any(not isinstance(page, int) or isinstance(page, bool) for page in render_dpi) or set(render_dpi) != pages or any(
+        not isinstance(dpi, int) or isinstance(dpi, bool) or dpi < 1 for dpi in render_dpi.values()
+    ):
+        reject("render_dpi must declare a positive resolution for every source page")
+    return (document_rel, pages, method) if valid else (None, set(), None)
+
+
 def evidence_role_for(status: Any, content_tier: Any) -> str:
     if status in {"metadata_only", "failed"} or content_tier == "metadata_capsule":
         return "catalog-only"
@@ -239,6 +307,11 @@ def main() -> int:
         arxiv_pdf_materialization: dict[str, Any] | None = None
         arxiv_pdf_selector_pages: set[int] = set()
         arxiv_pdf_selector_count = 0
+        arxiv_pdf_derived_selector_count = 0
+        arxiv_pdf_derived_selector_pages: set[int] = set()
+        image_transcription_path: str | None = None
+        image_transcription_pages: set[int] = set()
+        image_transcription_method: str | None = None
         if manifest.get("source_type") == "arxiv":
             adapter = manifest.get("adapter")
             if adapter == "arxiv_latex_v2":
@@ -321,6 +394,9 @@ def main() -> int:
                     errors.append(f"ARXIV_PDF_FALSE_FULL_TEXT {uid}")
                 if status == "materialized" and pages_without_text:
                     errors.append(f"ARXIV_PDF_UNACKNOWLEDGED_TEXT_GAPS {uid}")
+                image_transcription_path, image_transcription_pages, image_transcription_method = pdf_image_transcription_declaration(
+                    materialization, capsule_root, declared_files, arxiv_pdf_page_count, uid, errors,
+                )
 
         selectors_path = capsule_root / "selectors.jsonl"
         selector_declaration = manifest.get("selectors")
@@ -382,6 +458,7 @@ def main() -> int:
                 text = target_text[local_path]
 
                 selector_valid = True
+                derived_transcription_selector = False
                 preview = selector.get("text_preview")
                 if preview is not None:
                     if not isinstance(preview, str) or not preview or preview not in text:
@@ -390,6 +467,7 @@ def main() -> int:
 
                 start_line = selector.get("start_line")
                 end_line = selector.get("end_line")
+                line_range_valid = False
                 if start_line is not None or end_line is not None:
                     line_count = max(1, len(text.splitlines()))
                     if (
@@ -406,6 +484,8 @@ def main() -> int:
                             f"{start_line}-{end_line} target_lines={line_count}"
                         )
                         selector_valid = False
+                    else:
+                        line_range_valid = True
 
                 page = selector.get("page")
                 if page is not None:
@@ -427,6 +507,13 @@ def main() -> int:
                         selector_valid = False
                     if expected_pdf_selector_prefix is not None:
                         arxiv_pdf_selector_count += 1
+                        native_document = arxiv_pdf_materialization.get("document") if arxiv_pdf_materialization else None
+                        if (
+                            not isinstance(native_document, str) or Path(native_document).is_absolute()
+                            or ".." in Path(native_document).parts or local_path != relative(capsule_root / native_document)
+                        ):
+                            errors.append(f"ARXIV_PDF_NATIVE_SELECTOR_TARGET {uid}:{line_number}: {local_path}")
+                            selector_valid = False
                         uri_match = (
                             re.fullmatch(
                                 re.escape(expected_pdf_selector_prefix) + r"([1-9]\d*)",
@@ -456,6 +543,24 @@ def main() -> int:
                                 )
                                 selector_valid = False
 
+                if expected_pdf_selector_prefix is not None and page is None and image_transcription_path is not None:
+                    source_page = selector.get("source_page")
+                    uri_match = re.fullmatch(r"derived://[^#\s]+#L([1-9]\d*)-L([1-9]\d*)", selector_id) if isinstance(selector_id, str) else None
+                    if (
+                        local_path != image_transcription_path or selector.get("kind") != "line_range"
+                        or "page" in selector or not isinstance(source_page, int) or isinstance(source_page, bool)
+                        or source_page not in image_transcription_pages
+                        or selector.get("extraction_method") != image_transcription_method
+                        or not line_range_valid or uri_match is None
+                        or int(uri_match.group(1)) != start_line or int(uri_match.group(2)) != end_line
+                    ):
+                        errors.append(f"ARXIV_PDF_TRANSCRIPTION_SELECTOR {uid}:{line_number}: {selector_id}")
+                        selector_valid = False
+                    if not isinstance(preview, str) or not preview or not line_range_valid or preview not in "\n".join(text.splitlines()[start_line - 1:end_line]):
+                        errors.append(f"ARXIV_PDF_TRANSCRIPTION_PREVIEW_RANGE {uid}:{line_number}: {selector_id}")
+                        selector_valid = False
+                    derived_transcription_selector = True
+
                 ordinal = selector.get("ordinal")
                 if ordinal is not None and (
                     not isinstance(ordinal, int) or isinstance(ordinal, bool) or ordinal < 1
@@ -464,6 +569,9 @@ def main() -> int:
                     selector_valid = False
                 if selector_valid:
                     valid_selector_count += 1
+                    if derived_transcription_selector:
+                        arxiv_pdf_derived_selector_count += 1
+                        arxiv_pdf_derived_selector_pages.add(selector["source_page"])
 
         expected_selector_count = (
             manifest.get("materialization", {}).get("selector_count")
@@ -515,10 +623,15 @@ def main() -> int:
                     f"declared={arxiv_pdf_materialization.get('pdf_text_page_count')} "
                     f"actual={arxiv_pdf_selector_count}"
                 )
-            if arxiv_pdf_selector_count != manifest_selector_count:
+            if arxiv_pdf_selector_count + arxiv_pdf_derived_selector_count != manifest_selector_count:
                 errors.append(
                     f"ARXIV_PDF_NON_PAGE_SELECTOR {uid} pages={arxiv_pdf_selector_count} "
-                    f"selectors={manifest_selector_count}"
+                    f"declared_derived={arxiv_pdf_derived_selector_count} selectors={manifest_selector_count}"
+                )
+            if image_transcription_path is not None and arxiv_pdf_derived_selector_pages != image_transcription_pages:
+                errors.append(
+                    f"ARXIV_PDF_TRANSCRIPTION_PAGE_COVERAGE {uid} declared={sorted(image_transcription_pages)} "
+                    f"actual={sorted(arxiv_pdf_derived_selector_pages)}"
                 )
 
     for metadata_path, count in sorted(metadata_references.items()):

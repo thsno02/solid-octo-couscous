@@ -17,10 +17,10 @@ claim_refs: &id002
 - claim:ecf45fd3f4ab576a
 - claim:2a05950fe0a0b64d
 - claim:ae45b8d667e29552
+- claim:b0434511c0c174ad
 - claim:d38b49dc4376d4b0
 - claim:f810d086e0a4a305
 - claim:17c715b34b0f0c68
-- claim:4fd96c70e0c625fd
 source_refs: &id001
 - arxiv:2502.14499
 - arxiv:2406.06769
@@ -30,6 +30,7 @@ source_refs: &id001
 - arxiv:2502.12110
 - arxiv:cs/0309048
 - arxiv:2505.22954
+- arxiv:2406.04268
 - github:jennyzzt/dgm
 - arxiv:2410.04444
 page_refs:
@@ -87,7 +88,7 @@ temporal:
   valid_to: null
   as_of: '2026-09-16T04:30:26Z'
 provenance:
-  build_id: build:llm-wiki-v0:59348b6351fcf392
+  build_id: build:llm-wiki-v0:bfe1ec178597b638
   generated_by_agent: pipeline/build_llm_wiki.py
   generated_by_model: null
   prompt_or_skill_version: deterministic-llm-wiki-v0.2
@@ -100,6 +101,7 @@ provenance:
   - arxiv:2502.12110@sha256:d112e92606a562a0369e2e8cddadad88ac8d448d66c24ee9b63e808c2c84e42b
   - arxiv:cs/0309048@sha256:ab75c69deb1c4b41ae77f5f817735922ad52fc9a8d51ec5184f4978a88b4052e
   - arxiv:2505.22954@sha256:9ce27273d9175badbb14d1181bc6166c7afd5e7989ac274d3d5187413e19b9ed
+  - arxiv:2406.04268@sha256:151c2d39de074a44985b681977a2a5383b91932b87eb734709948e9eb1607871
   - github:jennyzzt/dgm@a565fd2d1dca504ef5104a7cc0f3bdc4ab9b4fd2
   - arxiv:2410.04444@sha256:d33fb4b64b53231411e0d14e65e6a3fc4f3dbfbcfe3ab4b5113f8ffa8c16cd52
   created_at: '2026-09-16T04:30:26Z'
@@ -126,7 +128,7 @@ consumption:
     one_line: Evidence, conflict, review, admission, monitoring, and rollback form one governed loop.
     short: Evidence, conflict, review, admission, monitoring, and rollback form one governed loop.
     full: null
-  estimated_tokens: 2213
+  estimated_tokens: 2279
   machine_entry_points:
   - ../../04_claims/claims.jsonl
   - ../../03_evidence/evidence.jsonl
@@ -140,10 +142,10 @@ rendered_claim_refs:
 - claim:ecf45fd3f4ab576a
 - claim:2a05950fe0a0b64d
 - claim:ae45b8d667e29552
+- claim:b0434511c0c174ad
 - claim:d38b49dc4376d4b0
 - claim:f810d086e0a4a305
 - claim:17c715b34b0f0c68
-- claim:4fd96c70e0c625fd
 rights_refs:
 - source_uid: arxiv:2406.06769
   source_revision: sha256:cb1d6ccc88eb66af69e71730a5c488234ff4fe8af04ba04081b5a445f4d39b3e
@@ -180,6 +182,7 @@ rights_refs:
   - claim:c776b87484aab5c2
 rights_unavailable_source_refs:
 - arxiv:2404.14387
+- arxiv:2406.04268
 - arxiv:2410.04444
 - arxiv:2502.12110
 - arxiv:2502.14499
@@ -204,10 +207,10 @@ Evidence, conflict, review, admission, monitoring, and rollback form one governe
 - **A-MEM: Agentic Memory for LLM Agents** (source assertion): While large language model (LLM) agents can effectively use external tools for complex real-world tasks, they require memory systems to leverage historical experiences. Current memory systems enable basic storage and retrieval but lack sophisticated memory organization, despite recent attempts to incorporate graph databases. 〔[claim:ecf45fd3f4ab576a](../claims/claim-ecf45fd3f4ab576a.md)〕
 - **Goedel Machines: Self-Referential Universal Problem Solvers Making Provably Optimal Self-Improvements** (source assertion): We present the first class of mathematically rigorous, general, fully self-referential, self-improving, optimally efficient problem solvers. Inspired by Kurt G\" o del's celebrated self-referential formulas (1931), such a problem solver rewrites any part of its own code as soon as it has found a proof that the rewrite is useful, where the problem-dependent utility function and the hardware and the entire initial code 〔[claim:2a05950fe0a0b64d](../claims/claim-2a05950fe0a0b64d.md)〕
 - **Darwin Godel Machine: Open-Ended Evolution of Self-Improving Agents** (source assertion): Most of today's AI systems are constrained by human-designed, fixed architectures and cannot autonomously and continuously improve themselves. The scientific method, on the other hand, is a cumulative and open-ended system, where each innovation builds upon previous artifacts, enabling future discoveries. 〔[claim:ae45b8d667e29552](../claims/claim-ae45b8d667e29552.md)〕
+- **Position: Open-Endedness is Essential for Artificial Superhuman Intelligence** (source assertion): In recent years there has been a tremendous surge in the general capabilities of AI systems, mainly fuelled by training foundation models on internet-scale data. Nevertheless, the creation of open-ended, ever self-improving AI remains elusive. 〔[claim:b0434511c0c174ad](../claims/claim-b0434511c0c174ad.md)〕
 - **jennyzzt/dgm** (source assertion): Repository for **Darwin Gödel Machine (DGM)**, a novel self-improving system that iteratively modifies its own code (thereby also improving its ability to modify its own codebase) and empirically validates each change using coding benchmarks. 〔[claim:d38b49dc4376d4b0](../claims/claim-d38b49dc4376d4b0.md)〕
 - **Goedel Agent: A Self-Referential Agent Framework for Recursive Self-Improvement** (source assertion): The rapid advancement of large language models (LLMs) has significantly enhanced the capabilities of agents across various tasks. However, existing agentic systems, whether based on fixed pipeline algorithms or pre-defined meta-learning frameworks, cannot search the whole agent design space due to the restriction of human-designed components, and thus might miss the more optimal agent design. 〔[claim:f810d086e0a4a305](../claims/claim-f810d086e0a4a305.md)〕
 - **AIRS-Bench: a Suite of Tasks for Frontier AI Research Science Agents** (collection assessment): A 2026 benchmark explicitly targeting frontier AI research-science agents across the research lifecycle, including idea generation, experimentation, analysis and iterative refinement. 〔[claim:17c715b34b0f0c68](../claims/claim-17c715b34b0f0c68.md)〕
-- **MLGym: A New Framework and Benchmark for Advancing AI Research Agents** (collection assessment): A Gym-style environment and benchmark for training/evaluating agents on open-ended ML research tasks requiring ideation, implementation, experimentation, analysis and iterative improvement. 〔[claim:4fd96c70e0c625fd](../claims/claim-4fd96c70e0c625fd.md)〕
 
 ## Compiled interpretation
 
@@ -261,6 +264,11 @@ The terms below apply only to the listed source-authored claim components. They 
 - Scope: 本包只覆盖固定 arXiv v4 胶囊实际保存的 19 个 source 文字成员（484,027 bytes）、 normalized/document.tex、附注前的既有 normalized/document.txt 与 135 个 selector。 论文作者主文/附录及其文本转换按 CC BY 4.0；source/tmlr.sty 单独按 Apache 2.0； source/tmlr.bst 与 source/fancyhdr.sty 分别按原 LPPL 许可授予、本包选择 LPPL 1.3c 履约。 source/main.bib 只有 tool_tut、AppBench 和 ARIA 三段额外摘要按各自作品级 CC BY 4.0 履约， 其余书目事实与排版引用不授权引用作品；source/00README.json 仅作为适用 CC0 的事实编译元数据。 独立组件仍各自保留原许可，不把整篇论文或整个 Bib 重许可为 Apache/LPPL；本包不是整个 archive 的镜像， 不覆盖原已省略的八个非文本成员、其他外链论文、代码、数据、商标、专利或权利人无权许可的材料。
 
 ### A Survey on Self-Evolution of Large Language Models (`arxiv:2404.14387`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.
+
+### Position: Open-Endedness is Essential for Artificial Superhuman Intelligence (`arxiv:2406.04268`)
 
 - Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
 - Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.

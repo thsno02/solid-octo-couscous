@@ -30,11 +30,14 @@ rights:
       Dhillon; Eeshit Dhaval Vaishnav; Byron Lee; Tiago R D Costa; José R Penadés; Gary Peltz; Yossi Matias; James
       Manyika; Demis Hassabis; Yunhan Xu; Pushmeet Kohli; Annalisa Pawlosky; Alan Karthikesalingam; and Vivek Natarajan.
       Source: https://arxiv.org/abs/2502.18864v2. Licensed under CC BY 4.0: https://creativecommons.org/licenses/by/4.0/.'
-    modifications: The fixed source/document.pdf is retained without modification. Plain text is extracted page
-      by page into the capsule-root document.txt, page selectors are generated, and the attribution and NOTICE link
-      are appended to document.txt. Images are not converted into readable text but remain present in the retained
+    modifications: The fixed source/document.pdf is retained without modification. Native plain text is extracted
+      page by page into document.txt, with page selectors and an attribution footer. P2 adds a separately attributed
+      agent visual transcription of page 4 figure text and page 20 plot titles/axis labels in derived/image-pages-transcription.md;
+      it is not native PDF text or conventional OCR. Layout and plotted values are not reconstructed. Native page
+      text is unchanged; this footer is updated to describe the derivative accurately. Images remain in the original
       PDF.
-    scope: 仅覆盖本包中与固定 arXiv v2 revision 一致的 source/document.pdf 原件，以及由该 PDF 生成的 document.txt 和 selectors 派生物；不将许可外推到论文链接的作品、代码、数据或权利人无权许可的第三方材料。
+    scope: 仅覆盖本包中与固定 arXiv v2 revision 一致的 source/document.pdf 原件，以及由该 PDF 生成的 document.txt、derived/image-pages-transcription.md
+      和 selectors 派生物；不将许可外推到论文链接的作品、代码、数据或权利人无权许可的第三方材料。
 retrievals:
 - requested_urls:
   - https://export.arxiv.org/e-print/2502.18864v2
@@ -53,18 +56,21 @@ local_files:
 - path: materialized_sources/corpus/arxiv-2502.18864--014b4710/README.md
   bytes: 409
   sha256: 7d8e8b3046ca425fdbf65d84bd6b0b319bb65551aa954df2a9abfdb14b89ec29
+- path: materialized_sources/corpus/arxiv-2502.18864--014b4710/derived/image-pages-transcription.md
+  bytes: 7072
+  sha256: 1ba40be999644cbd82cd856311cf13c8541f9256286b2d9bea73eda9a7039dfe
 - path: materialized_sources/corpus/arxiv-2502.18864--014b4710/document.txt
-  bytes: 380470
-  sha256: f387af61b0fa30112d443ddcb619e53bd54ef37f33a847b8b348ec5fb6aa73d0
+  bytes: 380748
+  sha256: d1a2cbc2ff8607a2ffc035a6e557e002f20e8b9dc7bf1430c581205a1cf5f41a
 - path: materialized_sources/corpus/arxiv-2502.18864--014b4710/selectors.jsonl
-  bytes: 66842
-  sha256: 60878aa0111ff19ff56bbe6b0bc408d5ac0e9806d833e57e8fda4ac9c4edc736
+  bytes: 68351
+  sha256: 0e54932bfe214eb8652812a5074b703b002bc32687cbae32ebd8289fea416e97
 - path: materialized_sources/corpus/arxiv-2502.18864--014b4710/source/document.pdf
   bytes: 5885207
   sha256: e603a77c9d2bdfb528313e4cf35405b72261e018a70da724fcebca94c96e4716
 - path: materialized_sources/corpus/arxiv-2502.18864--014b4710/source-metadata.yaml
-  bytes: 6210
-  sha256: 65ab93643f6e8fcc811494f94d2d6acb76754a0b6a1aa605763ad06df9653e2c
+  bytes: 6506
+  sha256: a0d2082e993e6da8cb29c13c3e95506deb5977a15c341e8c40b16f22c709a8f3
 warnings:
 - 'PDF pages without extractable text: 4, 20; the original PDF is preserved and no OCR was performed.'
 errors: []
@@ -72,13 +78,15 @@ archive_container: pdf
 media_type: application/pdf
 limitations:
 - 'PDF pages without extractable text: 4, 20; the original PDF is preserved and no OCR was performed.'
+- P2 visually transcribed page 4 figure text and page 20 plot labels into a separate derivative. Native page text
+  is unchanged; layout, ticks and plotted values are not reconstructed, so extraction remains partial.
 materialization:
   document: document.txt
   normalized_document: document.txt
   source_pdf: source/document.pdf
   source_pdf_sha256: e603a77c9d2bdfb528313e4cf35405b72261e018a70da724fcebca94c96e4716
-  stored_characters: 378641
-  selector_count: 155
+  stored_characters: 378917
+  selector_count: 159
   pdf_page_count: 157
   pdf_text_page_count: 155
   pdf_pages_without_extractable_text:
@@ -86,4 +94,19 @@ materialization:
   - 20
   pdf_page_extraction_failures: []
   substantive_text: true
-local_bytes: 6359256
+  image_page_transcription:
+    document: derived/image-pages-transcription.md
+    source_pages:
+    - 4
+    - 20
+    method: agent_visual_transcription
+    renderer: Poppler pdftoppm 26.05.0
+    render_dpi:
+      4: 240
+      20: 180
+    model_revision: not_exposed
+    native_text_extraction_changed: false
+    conventional_ocr_performed: false
+    complete_image_representation: false
+    scope: Page 4 figure text; page 20 eight plot titles and axis labels; not coordinates, plot values or layout.
+local_bytes: 6368411
