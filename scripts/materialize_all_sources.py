@@ -468,6 +468,12 @@ def write_capsule_readme(record: SourceRecord, root: Path, manifest: dict[str, A
     ]
     if manifest.get("rights", {}).get("redistribution_package"):
         lines.extend(["", "Redistribution notice and attribution: [NOTICE.md](NOTICE.md)."])
+    materialization = manifest.get("materialization") or {}
+    if materialization.get("retained_markdown_source"):
+        lines.extend(["", "Local retained representations:"])
+        for label, field in (("Consumer Markdown", "document"), ("Original Markdown", "retained_markdown_source"), ("Original HTML", "retained_html_source")):
+            if materialization.get(field):
+                lines.append(f"- [{label}]({materialization[field]})")
     (root / "README.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
@@ -477,6 +483,10 @@ class RedistributionPackageError(ValueError):
 
 class ArxivPreflightError(RuntimeError):
     """An arXiv rebuild cannot safely replace the retained capsule."""
+
+
+class RetainedMarkdownPreflightError(RuntimeError):
+    """A fixed Markdown snapshot cannot safely be replayed; keep its originals."""
 
 
 def redistribution_notice_href(root: Path, document: Path) -> str:
@@ -1333,20 +1343,115 @@ def decode_github_blob(blob: dict[str, Any]) -> bytes:
     return content.encode("utf-8")
 
 
-def extract_markdown_headings(text: str, path: str) -> list[dict[str, Any]]:
+def extract_markdown_headings(
+    text: str, path: str, *, structured: bool = False,
+) -> list[dict[str, Any]]:
+    """Keep legacy ATX output; opt in to Setext, fences and Pandoc simple tables."""
     headings: list[dict[str, Any]] = []
-    for line_number, line in enumerate(text.splitlines(), 1):
-        match = re.match(r"^(#{1,6})\s+(.+?)\s*$", line)
+    fence = ""
+    simple_table = False
+    previous: tuple[int, str] | None = None
+    lines = text.splitlines()
+    for line_number, line in enumerate(lines, 1):
+        if structured:
+            if fence:
+                if re.fullmatch(rf" {{0,3}}{re.escape(fence[0])}{{{len(fence)},}}[ \t]*", line):
+                    fence = ""
+                previous = None
+                continue
+            opening = re.match(r"^ {0,3}(`{3,}|~{3,})(.*)$", line)
+            if opening and not (opening.group(1)[0] == "`" and "`" in opening.group(2)):
+                fence = opening.group(1)
+                previous = None
+                continue
+            if simple_table:
+                if re.fullmatch(r" {0,3}-{3,}[ \t]*", line):
+                    simple_table = False
+                previous = None
+                continue
+            if (
+                re.fullmatch(r" {0,3}-{3,}[ \t]*", line) and line_number + 1 < len(lines)
+                and re.fullmatch(r" {0,3}-+(?:[ \t]+-+)+[ \t]*", lines[line_number + 1])
+            ):
+                simple_table = True
+                previous = None
+                continue
+        match = re.match(
+            r"^ {0,3}(#{1,6})[ \t]+(.+?)[ \t]*$" if structured else r"^(#{1,6})\s+(.+?)\s*$",
+            line,
+        )
         if match:
+            heading = match.group(2).strip()
+            if structured:
+                heading = re.sub(r"[ \t]+#+[ \t]*$", "", heading)
             headings.append(
                 {
                     "path": path,
                     "line": line_number,
                     "level": len(match.group(1)),
-                    "heading": match.group(2).strip(),
+                    "heading": heading,
                 }
             )
+            previous = None
+        elif structured:
+            underline = re.fullmatch(r" {0,3}(=+|-+)[ \t]*", line)
+            if underline and previous:
+                headings.append({
+                    "path": path, "line": previous[0],
+                    "level": 1 if underline.group(1)[0] == "=" else 2,
+                    "heading": previous[1],
+                })
+                previous = None
+            else:
+                previous = (line_number, line.strip()) if re.match(r"^ {0,3}\S", line) else None
     return headings
+
+
+def derive_retained_markdown(
+    source: Path, document: Path, asset_rewrites: dict[str, str],
+) -> list[dict[str, Any]]:
+    """Copy retained UTF-8 Markdown, rewriting only explicitly mapped img src paths.
+
+    Line endings and all other text are preserved. Paths belong to this repository;
+    returned section ranges partition the document, including its leading preamble.
+    """
+    if source.resolve() == document.resolve():
+        raise ValueError("derived Markdown cannot overwrite its retained original")
+    if not isinstance(asset_rewrites, dict) or any(
+        not isinstance(old, str) or not old or not isinstance(new, str) or not new
+        or "\n" in old or "\r" in old or "\n" in new or "\r" in new
+        for old, new in asset_rewrites.items()
+    ):
+        raise ValueError("asset_rewrites must map nonempty single-line paths")
+    local_path = document.resolve().relative_to(ROOT.resolve()).as_posix()
+    source_path = source.resolve().relative_to(ROOT.resolve()).as_posix()
+    text = source.read_bytes().decode("utf-8")
+    text = re.sub(
+        r"(<img\b[^>]*?\s+src\s*=\s*)([\"'])(.*?)\2",
+        lambda match: match.group(1) + match.group(2)
+        + asset_rewrites.get(match.group(3), match.group(3)) + match.group(2),
+        text, flags=re.IGNORECASE,
+    )
+    lines = text.splitlines()
+    headings = extract_markdown_headings(text, local_path, structured=True)
+    starts = [(1, headings[0] if headings else None)] + [
+        (heading["line"], heading) for heading in headings[1:]
+    ]
+    selectors: list[dict[str, Any]] = []
+    if text.strip():
+        for index, (start, heading) in enumerate(starts):
+            end = starts[index + 1][0] - 1 if index + 1 < len(starts) else len(lines)
+            selectors.append({
+                "selector": f"derived://{local_path}#L{start}-L{end}",
+                "local_path": local_path, "kind": "section" if heading else "file",
+                "start_line": start, "end_line": end,
+                "text_preview": next(line for line in lines[start - 1:end] if line.strip())[:700],
+                "derived_from": source_path,
+                **({"heading": heading["heading"], "level": heading["level"]} if heading else {}),
+            })
+    document.parent.mkdir(parents=True, exist_ok=True)
+    document.write_bytes(text.encode("utf-8"))
+    return selectors
 
 
 def github_git_inventory(
@@ -1916,6 +2021,74 @@ def has_substantive_document_text(document_text: str) -> bool:
     return len(non_heading.strip()) >= 20 and len(tokens) >= 3
 
 
+def replay_retained_markdown(
+    record: SourceRecord, manifest: dict[str, Any], generated_at: str,
+) -> dict[str, Any]:
+    """Replay an explicitly fixed snapshot without fetching or clearing originals."""
+    root = record.capsule_root
+    try:
+        identity = {
+            "uid": record.uid, "source_type": record.source_type,
+            "canonical_id": record.canonical_id, "canonical_url": record.canonical_url,
+            "title": record.title, "metadata_path": record.relative_metadata_path,
+        }
+        if any(manifest.get(field) != value for field, value in identity.items()):
+            raise ValueError("retained snapshot canonical identity differs from metadata")
+        source_metadata = load_yaml(root / "source-metadata.yaml")
+        version = (record.metadata.get("versioning") or {}).get("source_version")
+        if (
+            not isinstance(source_metadata, dict) or not isinstance(version, str) or not version.strip()
+            or manifest.get("source_version") != version
+            or (source_metadata.get("versioning") or {}).get("source_version") != version
+            or any(source_metadata.get(field) != record.metadata.get(field) for field in (
+                "uid", "title", "url", "canonical_url", "canonical_id",
+            ))
+        ):
+            raise ValueError("retained snapshot source metadata or selected version differs")
+        materialization = manifest["materialization"]
+        paths: dict[str, Path] = {}
+        for field, prefix in (("retained_markdown_source", "source"), ("document", "normalized")):
+            relative_path = sanitize_relative_path(materialization[field])
+            if relative_path is None or relative_path.parts[0] != prefix:
+                raise ValueError(f"retained {field} must be a capsule-local {prefix} path")
+            paths[field] = (root / relative_path).resolve()
+            paths[field].relative_to(root.resolve())
+        source, document = paths["retained_markdown_source"], paths["document"]
+        from validate_materialization_completeness import validate_retained_markdown_binding
+        binding_errors: list[str] = []
+        validate_retained_markdown_binding(
+            manifest, root, {source.relative_to(ROOT.resolve()).as_posix(): sha256_file(source)},
+            binding_errors, repository_root=ROOT,
+        )
+        if binding_errors:
+            raise ValueError("; ".join(binding_errors))
+        rewrites = materialization.get("asset_rewrites", {})
+        if not isinstance(rewrites, dict):
+            raise ValueError("retained asset_rewrites must be an explicit path mapping")
+        for old, new in rewrites.items():
+            if not isinstance(old, str) or not isinstance(new, str):
+                raise ValueError("retained asset_rewrites must map local paths")
+            asset = (source.parent / old).resolve()
+            asset.relative_to(root.resolve())
+            if not asset.is_file() or asset != (document.parent / new).resolve():
+                raise ValueError("retained asset rewrite must resolve to the same local original")
+        package = (record.metadata.get("rights") or {}).get("redistribution_package")
+        if package and package.get("source_revision") != manifest.get("revision"):
+            raise ValueError("redistribution package does not cover the retained snapshot revision")
+        selectors = derive_retained_markdown(source, document, rewrites)
+        write_jsonl(root / "selectors.jsonl", selectors)
+        manifest["generated_at"] = generated_at
+        manifest["selectors"] = ["selectors.jsonl"]
+        materialization.update({
+            "normalized_document": materialization["document"],
+            "stored_characters": len(document.read_bytes().decode("utf-8")),
+            "selector_count": len(selectors),
+        })
+        return finalize_capsule(record, root, manifest)
+    except (KeyError, TypeError, AttributeError, ValueError, OSError, yaml.YAMLError) as exc:
+        raise RetainedMarkdownPreflightError(f"{record.uid}: {exc}; retained originals preserved") from exc
+
+
 def materialize_generic(
     record: SourceRecord,
     config: dict[str, Any],
@@ -1925,6 +2098,11 @@ def materialize_generic(
     existing_manifest: dict[str, Any] | None = None,
     force_excerpt_reason: str | None = None,
 ) -> dict[str, Any]:
+    if existing_root is None and (record.capsule_root / "manifest.yaml").is_file():
+        retained = load_yaml(record.capsule_root / "manifest.yaml")
+        retained_materialization = retained.get("materialization") if isinstance(retained, dict) else None
+        if isinstance(retained_materialization, dict) and "retained_markdown_source" in retained_materialization:
+            return replay_retained_markdown(record, retained, generated_at)
     root = existing_root or prepare_capsule(record)
     manifest = existing_manifest or base_manifest(record, "generic_web_or_document_v2", generated_at)
     if existing_root is None:
@@ -2095,7 +2273,7 @@ def materialize_one(record: SourceRecord, config: dict[str, Any], generated_at: 
                 return materialize_github(record, config, generated_at)
         with _generic_semaphore:
             return materialize_generic(record, config, generated_at)
-    except (RedistributionPackageError, ArxivPreflightError):
+    except (RedistributionPackageError, ArxivPreflightError, RetainedMarkdownPreflightError):
         raise
     except Exception as exc:
         root = record.capsule_root
@@ -2322,7 +2500,7 @@ def main() -> int:
             record = future_map[future]
             try:
                 manifest = future.result()
-            except (RedistributionPackageError, ArxivPreflightError):
+            except (RedistributionPackageError, ArxivPreflightError, RetainedMarkdownPreflightError):
                 raise
             except Exception as exc:
                 if record.source_type == "arxiv" and record.capsule_root.exists():

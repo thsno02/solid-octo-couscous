@@ -65,6 +65,46 @@ class PublicationRightsTests(unittest.TestCase):
             )
         self.assertEqual((errors, blocked, active, audited), ([], [], 1, 1))
 
+    def test_explicit_zero_additional_reviews_preserves_baseline(self):
+        temporary, root, audit = self.fixture()
+        with temporary:
+            reviewed = yaml.safe_load(audit.read_text())
+            reviewed["scope"]["additional_full_text_review_count"] = 0
+            audit.write_text(yaml.safe_dump(reviewed))
+            result = validate_publication_rights(audit, root / "materialized_sources/corpus")
+        self.assertEqual(result, ([], [], 1, 1))
+
+    def test_additional_review_extends_without_changing_historical_baseline(self):
+        temporary, root, audit = self.fixture()
+        with temporary:
+            reviewed = yaml.safe_load(audit.read_text())
+            reviewed["scope"]["additional_full_text_review_count"] = 1
+            reviewed["items"].append({
+                "uid": "source:two", "manifest_path": "materialized_sources/corpus/second/manifest.yaml",
+                "source_revision": "rev-2", "publication_gate": {"decision": "allow", "reason": "test decision"},
+            })
+            manifest = root / "materialized_sources/corpus/second/manifest.yaml"
+            manifest.parent.mkdir()
+            manifest.write_text(yaml.safe_dump({
+                "uid": "source:two", "content_tier": "full_text", "revision": "rev-2",
+            }))
+            audit.write_text(yaml.safe_dump(reviewed))
+            result = validate_publication_rights(audit, root / "materialized_sources/corpus")
+            self.assertEqual(reviewed["scope"]["baseline_full_text_count"], 1)
+        self.assertEqual(result, ([], [], 2, 2))
+
+    def test_invalid_or_mismatched_additional_review_counts_are_rejected(self):
+        for count in (-1, True, False, 1.0, "1", None, 1):
+            with self.subTest(count=count):
+                temporary, root, audit = self.fixture()
+                with temporary:
+                    reviewed = yaml.safe_load(audit.read_text())
+                    reviewed["scope"]["additional_full_text_review_count"] = count
+                    audit.write_text(yaml.safe_dump(reviewed))
+                    errors, blocked, _, _ = validate_publication_rights(audit, root / "materialized_sources/corpus")
+                self.assertTrue(any("PUBLICATION_RIGHTS_AUDIT_COUNT" in error for error in errors))
+                self.assertEqual(blocked, [])
+
     def test_stale_revision_blocks(self):
         temporary, root, audit = self.fixture(reviewed_revision="rev-0")
         with temporary:
@@ -88,6 +128,22 @@ class PublicationRightsTests(unittest.TestCase):
                         audit, root / "materialized_sources/corpus"
                     )
 
+                self.assertEqual(errors, [])
+                self.assertEqual((len(blocked), active, audited), (1, 1, 1))
+
+    def test_retained_markdown_is_gated_even_when_text_tier_is_incomplete(self):
+        for tier in ("metadata_capsule", "excerpt_capsule"):
+            with self.subTest(tier=tier):
+                temporary, root, audit = self.fixture(decision="block")
+                with temporary:
+                    manifest_path = root / "materialized_sources/corpus/item/manifest.yaml"
+                    manifest = yaml.safe_load(manifest_path.read_text())
+                    manifest["content_tier"] = tier
+                    manifest["materialization"] = {"retained_markdown_source": "source/document.md"}
+                    manifest_path.write_text(yaml.safe_dump(manifest))
+                    errors, blocked, active, audited = validate_publication_rights(
+                        audit, root / "materialized_sources/corpus"
+                    )
                 self.assertEqual(errors, [])
                 self.assertEqual((len(blocked), active, audited), (1, 1, 1))
 

@@ -9,6 +9,7 @@ import sys
 import tarfile
 import tempfile
 import unittest
+from dataclasses import replace
 from pathlib import Path
 from unittest import mock
 
@@ -65,6 +66,185 @@ def minimal_pdf_pages(texts: list[str]) -> bytes:
 
 def minimal_text_pdf(text: str = "Readable arXiv PDF regression evidence for the materializer.") -> bytes:
     return minimal_pdf_pages([text])
+
+
+class RetainedMarkdownTests(unittest.TestCase):
+    def test_structured_headings_recognize_setext_atx_and_ignore_fenced_examples(self) -> None:
+        text = "\n".join([
+            "Document title", "==============", "", "Section name", "------------",
+            "   ### Actual ATX ###", "``` {.json}", "# example not a heading",
+            "Example Setext", "--------------", "``", "## still example", "~~~~", "```",
+            "~~~ {.text}", "### tilde example", "Tilde Setext", "============", "~~~",
+            "    # indented example", "    Indented Setext", "    ----", "## Final ATX",
+        ])
+        headings = materializer.extract_markdown_headings(text, "document.md", structured=True)
+        self.assertEqual([(row["line"], row["level"], row["heading"]) for row in headings], [
+            (1, 1, "Document title"), (4, 2, "Section name"), (6, 3, "Actual ATX"), (23, 2, "Final ATX"),
+        ])
+
+    def test_default_headings_preserve_legacy_github_output(self) -> None:
+        text = "Title\n=====\n   ### Indented\n```\n# Example\n```\n## Actual ##\n"
+        self.assertEqual(materializer.extract_markdown_headings(text, "README.md"), [
+            {"path": "README.md", "line": 5, "level": 1, "heading": "Example"},
+            {"path": "README.md", "line": 7, "level": 2, "heading": "Actual ##"},
+        ])
+
+    def test_pandoc_simple_table_border_is_not_a_setext_heading(self) -> None:
+        text = "\n".join([
+            "Document title", "==============", "", "  -----------------------",
+            "  Name      Media type", "  --------  ------------", "  First     text/plain",
+            "", "  Last      text/turtle", "  -----------------------", "", "### After table",
+        ])
+        headings = materializer.extract_markdown_headings(text, "document.md", structured=True)
+        self.assertEqual([(row["line"], row["heading"]) for row in headings], [(1, "Document title"), (12, "After table")])
+
+    def test_derivation_rewrites_only_four_img_paths_and_preserves_source_and_line_endings(self) -> None:
+        names = ("crate1-folders.svg", "introduction-figure-1.png", "introduction-figure-2.png", "ro-crate-preview-example.png")
+        rewrites = {f"../../assets/img/{name}": f"../source/assets/img/{name}" for name in names}
+        lines = [
+            "<!-- Preamble remains -->", "", "Native title", "============", "",
+            "### Example {#example}", "``` {.json}", "# not a heading",
+            '"literal\\nnewline": "unchanged 中文"', "```", "",
+            *[f'`<img src="../../assets/img/{name}" alt="Reference {index}" />`{{=html}}' for index, name in enumerate(names)],
+            "[External link unchanged](https://example.test/doc#title)",
+            "[Asset link unchanged](../../assets/img/crate1-folders.svg)",
+            '<img data-src="../../assets/img/crate1-folders.svg" src="unmapped.png" />',
+            "## End", "Last real paragraph without a final newline.",
+        ]
+        original = "\r\n".join(lines).encode("utf-8")
+        expected = original
+        for old, new in rewrites.items():
+            expected = expected.replace(f'<img src="{old}"'.encode(), f'<img src="{new}"'.encode())
+        with tempfile.TemporaryDirectory() as temporary, mock.patch.object(materializer, "ROOT", Path(temporary)):
+            root = Path(temporary)
+            source = root / "capsule/source/specification/1.2/document.md"
+            document = root / "capsule/normalized/document.md"
+            source.parent.mkdir(parents=True)
+            source.write_bytes(original)
+            rows = materializer.derive_retained_markdown(source, document, rewrites)
+            self.assertEqual(source.read_bytes(), original)
+            self.assertEqual(document.read_bytes(), expected)
+            self.assertEqual([(row["start_line"], row["end_line"]) for row in rows], [(1, 5), (6, 18), (19, 20)])
+            for row in rows:
+                self.assertEqual(root / row["local_path"], document)
+                cited = "\n".join(expected.decode().splitlines()[row["start_line"] - 1:row["end_line"]])
+                self.assertIn(row["text_preview"], cited)
+                self.assertEqual(row["selector"], f"derived://{row['local_path']}#L{row['start_line']}-L{row['end_line']}")
+            filtered, omitted = materializer.filter_selectors_for_document(rows, expected.decode())
+            self.assertEqual((filtered, omitted), (rows, 0))
+            with self.assertRaises(ValueError):
+                materializer.derive_retained_markdown(source, source, rewrites)
+            self.assertEqual(source.read_bytes(), original)
+
+    @contextlib.contextmanager
+    def _retained_capsule(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            with mock.patch.multiple(materializer, ROOT=root, CORPUS_ROOT=root / "materialized_sources/corpus"):
+                original = b'Native title\n============\n\n<img src="../../assets/img/figure.svg" alt="Figure" />\n\n## Final section\nActual retained body.\n'
+                revision = "sha256:" + hashlib.sha256(original).hexdigest()
+                package = {
+                    "source_revision": revision, "source_version_url": "https://example.test/specification/1.2/",
+                    "notice_path": "license.md", "attribution": "Copyright specification author.",
+                    "modifications": "Rebased explicitly retained image paths.", "scope": "Specification Markdown and assets.",
+                }
+                metadata = {
+                    "uid": "standard:example-1.2", "title": "Example specification",
+                    "url": package["source_version_url"], "versioning": {"source_version": "1.2"},
+                    "rights": {"access": "open", "redistribution_package": package},
+                }
+                record = materializer.SourceRecord(
+                    uid=metadata["uid"], source_type="standard", canonical_id="example-1.2", title=metadata["title"],
+                    canonical_url=metadata["url"], metadata_path=root / "metadata.yaml", metadata=metadata,
+                    priority="P0", rights_access="open",
+                )
+                source = record.capsule_root / "source/specification/1.2/document.md"
+                source.parent.mkdir(parents=True)
+                source.write_bytes(original)
+                html = source.with_suffix(".html")
+                html.write_bytes(b"<html>Complete retained HTML snapshot.</html>\n")
+                asset = record.capsule_root / "source/assets/img/figure.svg"
+                asset.parent.mkdir(parents=True)
+                asset.write_bytes(b"<svg>Retained figure</svg>\n")
+                document = record.capsule_root / "normalized/document.md"
+                document.parent.mkdir()
+                document.write_text("Previous consumer document.\n", encoding="utf-8")
+                (root / "license.md").write_text("Complete test license.\n", encoding="utf-8")
+                materializer.write_yaml(record.metadata_path, metadata)
+                materializer.write_yaml(record.capsule_root / "source-metadata.yaml", metadata)
+                manifest = materializer.base_manifest(record, "generic_web_or_document_v2", "fixed-time")
+                manifest.update({"status": "materialized", "content_tier": "full_text", "revision": revision, "source_version": "1.2"})
+                manifest["materialization"] = {
+                    "retained_markdown_source": "source/specification/1.2/document.md", "document": "normalized/document.md",
+                    "retained_html_source": "source/specification/1.2/document.html",
+                    "asset_rewrites": {"../../assets/img/figure.svg": "../source/assets/img/figure.svg"},
+                }
+                manifest["retrievals"] = [{
+                    "local_path": "source/specification/1.2/document.md",
+                    "sha256": revision.removeprefix("sha256:"), "bytes": len(original),
+                }]
+                manifest["local_files"] = materializer.local_file_inventory(record.capsule_root)
+                manifest["local_bytes"] = sum(item["bytes"] for item in manifest["local_files"])
+                materializer.write_yaml(record.capsule_root / "manifest.yaml", manifest)
+                yield root, record, source, html, asset, document
+
+    def test_generic_replays_fixed_snapshot_offline_and_restores_notice(self) -> None:
+        with self._retained_capsule() as (_, record, source, html, asset, document), mock.patch.object(
+            materializer, "fetch_bytes", side_effect=AssertionError("snapshot replay must not fetch"),
+        ), mock.patch.object(materializer, "prepare_capsule", side_effect=AssertionError("snapshot replay must not clear originals")):
+            originals = {path: path.read_bytes() for path in (source, html, asset)}
+            for _ in range(2):
+                manifest = materializer.materialize_one(record, {}, "fixed-time")
+                text = document.read_text(encoding="utf-8")
+                self.assertEqual(text.count("<!-- materialization-redistribution-notice -->"), 1)
+                self.assertTrue(text.endswith(materializer.redistribution_footer(record.metadata["rights"]["redistribution_package"], "../NOTICE.md")))
+                self.assertEqual(manifest["materialization"]["selector_count"], 2)
+                readme = (record.capsule_root / "README.md").read_text(encoding="utf-8")
+                for target in ("normalized/document.md", "source/specification/1.2/document.md", "source/specification/1.2/document.html"):
+                    self.assertIn(f"]({target})", readme)
+                for path, payload in originals.items():
+                    self.assertEqual(path.read_bytes(), payload)
+
+    def test_replay_rejects_changed_version_or_identity_without_touching_retained_files(self) -> None:
+        with self._retained_capsule() as (_, record, source, html, asset, document), mock.patch.object(
+            materializer, "fetch_bytes", side_effect=AssertionError("failed replay must not fetch"),
+        ), mock.patch.object(materializer, "prepare_capsule", side_effect=AssertionError("failed replay must not clear originals")):
+            before = {path: path.read_bytes() for path in (source, html, asset, document, record.capsule_root / "manifest.yaml")}
+            changed_records = (
+                replace(record, metadata={**record.metadata, "versioning": {"source_version": "1.3"}}),
+                replace(record, canonical_url="https://example.test/specification/1.3/"),
+            )
+            for changed in changed_records:
+                with self.subTest(version=changed.metadata["versioning"], canonical_url=changed.canonical_url):
+                    with self.assertRaises(materializer.RetainedMarkdownPreflightError):
+                        materializer.materialize_one(changed, {}, "fixed-time")
+                    for path, payload in before.items():
+                        self.assertEqual(path.read_bytes(), payload)
+
+    def test_replay_rejects_source_drift_before_changing_any_derived_file(self) -> None:
+        with self._retained_capsule() as (_, record, source, html, asset, document), mock.patch.object(
+            materializer, "fetch_bytes", side_effect=AssertionError("drifted replay must not fetch"),
+        ), mock.patch.object(materializer, "prepare_capsule", side_effect=AssertionError("drifted replay must not clear originals")):
+            source.write_bytes(source.read_bytes() + b"External source drift.\n")
+            before = {path: path.read_bytes() for path in (source, html, asset, document, record.capsule_root / "manifest.yaml")}
+            with self.assertRaisesRegex(materializer.RetainedMarkdownPreflightError, "RETAINED_MARKDOWN_REVISION"):
+                materializer.materialize_one(record, {}, "fixed-time")
+            for path, payload in before.items():
+                self.assertEqual(path.read_bytes(), payload)
+
+    def test_source_binding_rejects_stale_revision_or_retrieval_even_with_updated_inventory(self) -> None:
+        with self._retained_capsule() as (root, record, source, _, _, _):
+            original_manifest = materializer.load_yaml(record.capsule_root / "manifest.yaml")
+            actual = {source.relative_to(root).as_posix(): materializer.sha256_file(source)}
+            for field in ("revision", "retrievals"):
+                manifest = dict(original_manifest)
+                if field == "revision":
+                    manifest[field] = "sha256:stale"
+                else:
+                    manifest[field] = [{**manifest[field][0], "sha256": "stale"}]
+                errors: list[str] = []
+                validator.validate_retained_markdown_binding(manifest, record.capsule_root, actual, errors, repository_root=root)
+                self.assertTrue(any(f"RETAINED_MARKDOWN_{'REVISION' if field == 'revision' else 'RETRIEVAL'}" in error for error in errors))
 
 
 class MaterializerBoundaryTests(unittest.TestCase):

@@ -64,6 +64,38 @@ def relative(path: Path) -> str:
     return path.relative_to(ROOT).as_posix()
 
 
+def validate_retained_markdown_binding(
+    manifest: dict[str, Any], capsule_root: Path, actual_hashes: dict[str, str],
+    errors: list[str], *, repository_root: Path | None = None,
+) -> None:
+    """Bind an opt-in retained Markdown original to its inventory and retrieval."""
+    materialization = manifest.get("materialization")
+    if not isinstance(materialization, dict) or "retained_markdown_source" not in materialization:
+        return
+    uid = manifest.get("uid")
+    source_name = materialization["retained_markdown_source"]
+    repo_root = repository_root or ROOT
+    if not isinstance(source_name, str) or not source_name or Path(source_name).is_absolute() or ".." in Path(source_name).parts:
+        errors.append(f"RETAINED_MARKDOWN_SOURCE_PATH {uid}")
+        return
+    source_relative = (capsule_root / source_name).relative_to(repo_root).as_posix()
+    source = scoped_path(source_relative, capsule_root, repository_root=repo_root)
+    source_hash = actual_hashes.get(source_relative)
+    if source is None or not source.is_file() or not source_hash:
+        errors.append(f"RETAINED_MARKDOWN_SOURCE_UNHASHED {uid}")
+        return
+    inventory = manifest.get("local_files")
+    rows = [item for item in inventory if isinstance(item, dict) and item.get("path") == source_relative] if isinstance(inventory, list) else []
+    if len(rows) != 1 or rows[0].get("sha256") != source_hash:
+        errors.append(f"RETAINED_MARKDOWN_INVENTORY_HASH {uid}")
+    if manifest.get("revision") != f"sha256:{source_hash}":
+        errors.append(f"RETAINED_MARKDOWN_REVISION {uid}")
+    retrievals = manifest.get("retrievals")
+    rows = [item for item in retrievals if isinstance(item, dict) and item.get("local_path") == source_name] if isinstance(retrievals, list) else []
+    if len(rows) != 1 or rows[0].get("sha256") != source_hash or rows[0].get("bytes") != source.stat().st_size:
+        errors.append(f"RETAINED_MARKDOWN_RETRIEVAL {uid}")
+
+
 def pdf_page_sections(text: str) -> tuple[dict[int, str], set[int]]:
     """Split extracted PDF text at exact page headings."""
 
@@ -509,6 +541,8 @@ def main() -> int:
             errors.append(
                 f"LOCAL_BYTES_MISMATCH {uid} expected={manifest.get('local_bytes')} actual={declared_bytes}"
             )
+
+        validate_retained_markdown_binding(manifest, capsule_root, actual_hashes, errors)
 
         source_metadata_path = capsule_root / "source-metadata.yaml"
         if metadata_file is not None and source_metadata_path.is_file():
