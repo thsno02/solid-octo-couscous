@@ -4,6 +4,7 @@ This directory explains how the repository was collected, materialized, governed
 
 ## Entry points
 
+- [`ci-workflow.md`](ci-workflow.md) — CI 门控、手动物化、故障分类与仓库保护的职责边界。
 - [`260909-collection/`](260909-collection/README.md) — the 2026-09-09 collection snapshot: scope, coverage, omissions, schemas, source-specific materialization, validation, and handoff rules.
 - [`llm-wiki/`](llm-wiki/README.md) — how frozen source revisions become claims, pages, indexes, context packs, and governed wiki releases.
 - [`pr-1-post-completion-audit.md`](pr-1-post-completion-audit.md) — post-completion audit of the v0 materialization/meta-KB/LLM Wiki pull request, including fixed defects and remaining merge gates.

@@ -24,7 +24,7 @@ It is **not yet a trusted knowledge release**. The correct state remains a valid
 2. full-text redistribution is still blocked for the active corpus;
 3. the public branch already contains material whose redistribution decision is unresolved;
 4. repository settings do not currently enforce required checks or pull-request-only changes;
-5. long-term reproducibility is weaker than same-environment byte replay because several dependencies are range-pinned rather than fully locked.
+5. long-term supply-chain reproducibility remains distinct from same-environment byte replay; dependency versions are now fixed, but runner images and action release tags are not immutable.
 
 ## Findings
 
@@ -66,7 +66,7 @@ After PR #1 eventually lands, equivalent changes on `main` would not receive the
 The follow-up workflow:
 
 - runs on pull requests;
-- runs on `main` and the existing work branch;
+- uses a single `CI` / `Quality gate` on all PRs, `main` pushes and `merge_group`, without temporary-branch or PR-path filters;
 - uses `contents: read`;
 - rebuilds and validates without publishing;
 - fails when the rebuilt experiment differs from the committed tree.
@@ -111,8 +111,7 @@ Recommended repository settings:
 
 ```text
 require pull request before merging
-require Validate repository knowledge artifacts
-require Build and verify v0 LLM Wiki demo
+require Quality gate (workflow: CI; select the actual emitted check)
 require branch to be up to date
 block force pushes
 block direct pushes except narrowly scoped automation
@@ -124,9 +123,9 @@ This cannot be fully solved by a repository file alone.
 ### A-05 — Scheduled acquisition and public publication are still coupled
 
 **Severity:** medium/high operational risk  
-**Status:** unresolved architectural follow-up
+**Status:** automated publication removed; durable private acquisition remains future work
 
-The scheduled materialization workflow performs network acquisition, rebuilds the corpus and demo, applies a public-rights gate, and then attempts to commit generated content. The fail-closed gate currently prevents publication, but it also means scheduled acquisition cannot persist useful updates through that path.
+The old scheduled workflow coupled acquisition with a rights gate and an automatic commit. The follow-up replaces it with manual, read-only acquisition: no schedule, commit, push or artifact upload. It only diagnoses acquisition/build/validation in an ephemeral runner. The publication-rights validator is unchanged; there is no longer an automatic publishing path to gate.
 
 The next version should separate two lanes:
 
@@ -143,11 +142,11 @@ A failed publication gate should not erase the acquisition result, and a success
 ### A-06 — Reproducibility is same-environment, not yet supply-chain reproducibility
 
 **Severity:** medium  
-**Status:** unresolved follow-up
+**Status:** dependency drift reduced; immutable supply-chain reproduction not claimed
 
-The build manifest hashes input files and compiler modules, which is useful. Several Python dependencies remain version-ranged, so a later installation may select a different HTML parser, PDF parser or HTTP client. Byte-identical replay on one runner does not prove replay under a future resolver result.
+The follow-up fixes Python to 3.12.13, runner family to ubuntu-24.04, Actions to explicit release tags, and the complete resolved Python dependency set to exact versions in the existing requirements file. Byte-identical replay still does not prove an immutable runner or supply chain.
 
-Recommended next steps:
+Optional future high-assurance measures (not required for this minimal CI repair):
 
 - add a fully resolved lock file with hashes;
 - record Python implementation/version and installed package versions in the build manifest;
@@ -184,7 +183,7 @@ PR #1 is technically suitable as a **candidate pipeline implementation**, subjec
 Recommended decision sequence:
 
 1. merge the follow-up audit PR into the PR #1 work branch;
-2. rerun both validation workflows and confirm the committed-tree replay passes;
+2. confirm the single `CI` / `Quality gate` passes on the new parent PR head, including committed-tree replay;
 3. choose and execute the full-text storage/rights remediation;
 4. enable branch protection and required checks;
 5. obtain a human review of a representative Wiki sample;
