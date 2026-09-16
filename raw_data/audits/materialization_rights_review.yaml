@@ -2256,7 +2256,8 @@ items:
   - kind: source_metadata
     path: 'raw_data/arxiv/Knowledge Editing for Large Language Models: A Survey/metadata.yaml'
     locator: rights
-    finding: access=unknown; license_spdx=None; license_verified_at=None; notes=Requires canonical rights verification.
+    finding: access=unknown; license_spdx=None; license_verified_at=None; notes=Requires canonical rights
+      verification.
     supports_public_redistribution: false
   - kind: local_content_rights_scan
     path: materialized_sources/corpus/arxiv-2310.16218--21c4a191
@@ -2269,10 +2270,29 @@ items:
     checked_at: '2026-09-16'
     finding: arXiv 官方文章页的 Rights to this article 链接指向 CC-BY-4.0。
     supports_public_redistribution: true
+  - kind: fixed_article_version_binding
+    url: https://arxiv.org/abs/2310.16218v4
+    source_url: https://export.arxiv.org/src/2310.16218v4
+    checked_at: '2026-09-16'
+    source_revision: sha256:be80105279b0f4acf0e1817a727c0de41b57db523e6a7bc5369b0e062139f52f
+    finding: 固定v4为1823714bytes，与现存revision对应；5个实际source成员与源archive逐字节相同。官方版本为2024-09-19，六作者与CC BY4明确；10图像/PDF成员原已省略。acmart.bib没有abstract字段，不把普通书目当第三方全文。
+    supports_public_redistribution: true
+  - kind: modified_template_component_review
+    url: https://github.com/borisveytsman/acmart/tree/c7f908da9118fd3040fdadc998258af9dc992f0b
+    related_urls:
+    - https://raw.githubusercontent.com/borisveytsman/acmart/c7f908da9118fd3040fdadc998258af9dc992f0b/acmart.dtx
+    - https://www.latex-project.org/lppl/lppl-1-3c/
+    path: materialized_sources/corpus/arxiv-2310.16218--21c4a191/source/acmart.cls
+    locator: ProvidesClass L40; keywords L391-L405; five fancyfoot changes around L2973-L3150
+    checked_at: '2026-09-16'
+    finding: 官方v1.90a固定Work以tex -no-shell-escape acmart.ins重新生成后，与本地cls对比确认两处keywords和五处fancyfoot的实质修改；另有TeX生成编码差异，不混同作者改动。本地仍名acmart.cls、ProvidesClass为acmart，原头要求修改版异名；无法使用未改Compiled
+      Work的LPPL§3路径。LPPL1.3c§6(a)(b)要求修改版运行时身份和组件自身变更声明，单独添加NOTICE不足。固定dtx保留ACM2016-2023版权、LPPL1.3或以后版及维护者Boris
+      Veytsman。
+    supports_public_redistribution: false
   missing:
-  - 本地三处 rights 未记录该文章许可及核验日期。
-  - retrieval hash 尚未与确切 arXiv vN 建立可审计映射。
-  - 未形成第三方组件例外清单和许可履约包。
+  - 论文BY4归属、转换声明及许可包仍待写入canonical/capsule。
+  - 实际acmart.cls为未改名且未标示身份的修改版：需非正文组件改名/身份和变更说明，并重绑主TeX类引用；当前未自行改源。
+  - 随包补齐LPPL及固定完整上游Work获取信息；论文主许可不能覆盖模板。
   classification: documented_permission
   license_id: CC-BY-4.0
   license_url: https://creativecommons.org/licenses/by/4.0/
@@ -2285,13 +2305,12 @@ items:
   - 标明修改且不得附加限制。
   - 逐件排除或清理第三方组件/材料。
   - 将许可与当前 retrieval hash 和确切 arXiv vN 绑定。
-  current_capsule_compliance: pending_license_compliance_and_revision_binding
+  current_capsule_compliance: article_v4_bound_modified_template_identity_pending
   publication_gate:
     decision: block
-    reason: 存在公众许可证据，但当前胶囊尚未机器证明版本绑定、许可条件和第三方范围均满足。
+    reason: 论文固定v4及BY4已核；实际acmart.cls含七处样式修改却沿用原版身份，需按LPPL修改版条件处理，NOTICE-only不能放行。
   human_follow_up:
-  - 人工核对本地 source archive 的 arXiv 版本。
-  - 补齐归属、许可链接/声明与第三方组件审计后再审批。
+  - 确认可在保留论文正文完整的前提下整理非正文模板组件，随后以普通文件级改名、运行时身份、变更日志和类引用重绑完成LPPL履约；无需额外ACM授权或人工审批。
 - sequence: 32
   uid: arxiv:2401.00396
   source_type: arxiv
@@ -3293,7 +3312,8 @@ items:
   - kind: source_metadata
     path: 'raw_data/arxiv/The AI Scientist: Towards Fully Automated Open-Ended Scientific Discovery/metadata.yaml'
     locator: rights
-    finding: access=unknown; license_spdx=None; license_verified_at=None; notes=Requires canonical rights verification.
+    finding: access=unknown; license_spdx=None; license_verified_at=None; notes=Requires canonical rights
+      verification.
     supports_public_redistribution: false
   - kind: local_content_rights_scan
     path: materialized_sources/corpus/arxiv-2408.06292--522d359c
@@ -3306,10 +3326,39 @@ items:
     checked_at: '2026-09-16'
     finding: arXiv 官方文章页的 Rights to this article 链接指向 CC-BY-4.0。
     supports_public_redistribution: true
+  - kind: fixed_version_archive_binding
+    url: https://arxiv.org/abs/2408.06292v3
+    checked_at: '2026-09-16'
+    finding: 固定 v3 官方源响应为 11,378,199 bytes，与既有 source_revision 及 26 个保留 source 成员对应。主论文 CC BY4、官方作者与 canonical
+      一致；书目文件未发现额外 abstract/copyright 字段。未换版、未修改 source。
+    supports_public_redistribution: true
+  - kind: independent_template_license
+    path: materialized_sources/corpus/arxiv-2408.06292--522d359c/source/include/gdm_format.cls
+    finding: Google DeepMind 模板 v0.4（September 2023）自身声明 CC BY-SA4，保留 DeepMind, London, 2019 和 shakir@；模板与主论文分开履约，不把
+      SA 外推整个 collection，也不把条件输出的内部报告字符串当分发禁令。
+    supports_public_redistribution: true
+  - kind: independent_component_version_correspondence
+    url: https://github.com/ICLR/Master-Template/blob/09727556f8eb5183f03d427d2a285711cc554888/natbib.sty
+    finding: 三项保留的 natbib.sty 均为 45,154 bytes，与此 ICLR 官方固定副本同字节，版本 2009/07/16 8.31；原 Patrick W Daly 1993–2009
+      版权和 LPPL 1-or-later 保持。未发现本地代码修改，不另设重编译证明要求。
+    supports_public_redistribution: true
+  - kind: official_component_release_record
+    url: https://ctan.org/ctan-ann/id/alpine.DEB.2.00.0907222144050.25678@wintermute.proteosys
+    finding: CTAN 2009-07-22 公告确认 natbib 8.31、Daly/Ogawa 与 LPPL；版本和许可不是未知。
+    supports_public_redistribution: true
+  - kind: explicit_component_distribution_condition
+    path: materialized_sources/corpus/arxiv-2408.06292--522d359c/source/natbib.sty
+    locator: lines 11–17
+    finding: 同一头还明确要求分发时附 original natbib.dtx。LPPL1.3c §3 不一般性要求 Compiled Work 附源码，但当前没有明确依据证明该头条件已被 later-version
+      option 撤销；本轮不直接据 §3 放行。最小待办是对应原源码或明确公开解释，不要求整个 TeX 发行版。
+    supports_public_redistribution: false
+  - kind: historical_source_version_mismatch
+    url: https://ftp.math.utah.edu/pub/tex/historic/systems/texlive/2009/tlnet/archive/natbib.source.tar.xz
+    finding: 实际可取得的原源码小包是 2009/11/07 8.31a，而非当前 8.31，未冒充匹配或加入许可包；有界查找已停止。
+    supports_public_redistribution: false
   missing:
-  - 本地三处 rights 未记录该文章许可及核验日期。
-  - retrieval hash 尚未与确切 arXiv vN 建立可审计映射。
-  - 未形成第三方组件例外清单和许可履约包。
+  - 固定论文版本和主要组件许可已核实，但 canonical/capsule 许可包尚未落实。
+  - natbib 8.31 文件头的原源码随附条件尚未闭合；不以 8.31a 替代，也不假定选用 LPPL1.3c 自动撤销该声明。
   classification: documented_permission
   license_id: CC-BY-4.0
   license_url: https://creativecommons.org/licenses/by/4.0/
@@ -3322,13 +3371,12 @@ items:
   - 标明修改且不得附加限制。
   - 逐件排除或清理第三方组件/材料。
   - 将许可与当前 retrieval hash 和确切 arXiv vN 绑定。
-  current_capsule_compliance: pending_license_compliance_and_revision_binding
+  current_capsule_compliance: pending_component_conditions
   publication_gate:
     decision: block
-    reason: 存在公众许可证据，但当前胶囊尚未机器证明版本绑定、许可条件和第三方范围均满足。
+    reason: 主论文 BY4、GDM BY-SA4 及 LPPL 组件已识别；natbib 8.31 的具体原源码条件尚未闭合，保持全文与 block，不增设一般性的 LPPL 源码门槛。
   human_follow_up:
-  - 人工核对本地 source archive 的 arXiv 版本。
-  - 补齐归属、许可链接/声明与第三方组件审计后再审批。
+  - 提供可准确标识的 natbib 8.31 原 natbib.dtx，或针对其头条件的明确公开许可解释；随后按各组件许可补齐声明，不用论文许可统包。
 - sequence: 46
   uid: arxiv:2408.08435
   source_type: arxiv
@@ -4056,7 +4104,8 @@ items:
   - kind: source_metadata
     path: 'raw_data/arxiv/Agent Laboratory: Using LLM Agents as Research Assistants/metadata.yaml'
     locator: rights
-    finding: access=unknown; license_spdx=None; license_verified_at=None; notes=Requires canonical rights verification.
+    finding: access=unknown; license_spdx=None; license_verified_at=None; notes=Requires canonical rights
+      verification.
     supports_public_redistribution: false
   - kind: local_content_rights_scan
     path: materialized_sources/corpus/arxiv-2501.04227--a0515b2c
@@ -4069,10 +4118,48 @@ items:
     checked_at: '2026-09-16'
     finding: arXiv 官方文章页的 Rights to this article 链接指向 CC-BY-4.0。
     supports_public_redistribution: true
+  - kind: fixed_version_archive_binding
+    url: https://arxiv.org/abs/2501.04227v2
+    checked_at: '2026-09-16'
+    finding: 固定 v2 官方源响应为 2,852,285 bytes，与既有 source_revision 及 8 个保留 source 成员对应。主论文 CC BY4、官方作者与 canonical
+      一致；书目文件未发现额外 abstract/copyright 字段。未换版、未修改 source。
+    supports_public_redistribution: true
+  - kind: independent_template_license
+    path: materialized_sources/corpus/arxiv-2501.04227--a0515b2c/source/gdm_format.cls
+    finding: Google DeepMind 模板 v0.4（September 2023）自身声明 CC BY-SA4，保留 DeepMind, London, 2019 和 shakir@；模板与主论文分开履约，不把
+      SA 外推整个 collection，也不把条件输出的内部报告字符串当分发禁令。
+    supports_public_redistribution: true
+  - kind: independent_component_version_correspondence
+    url: https://github.com/ICLR/Master-Template/blob/09727556f8eb5183f03d427d2a285711cc554888/natbib.sty
+    finding: 三项保留的 natbib.sty 均为 45,154 bytes，与此 ICLR 官方固定副本同字节，版本 2009/07/16 8.31；原 Patrick W Daly 1993–2009
+      版权和 LPPL 1-or-later 保持。未发现本地代码修改，不另设重编译证明要求。
+    supports_public_redistribution: true
+  - kind: official_component_release_record
+    url: https://ctan.org/ctan-ann/id/alpine.DEB.2.00.0907222144050.25678@wintermute.proteosys
+    finding: CTAN 2009-07-22 公告确认 natbib 8.31、Daly/Ogawa 与 LPPL；版本和许可不是未知。
+    supports_public_redistribution: true
+  - kind: explicit_component_distribution_condition
+    path: materialized_sources/corpus/arxiv-2501.04227--a0515b2c/source/natbib.sty
+    locator: lines 11–17
+    finding: 同一头还明确要求分发时附 original natbib.dtx。LPPL1.3c §3 不一般性要求 Compiled Work 附源码，但当前没有明确依据证明该头条件已被 later-version
+      option 撤销；本轮不直接据 §3 放行。最小待办是对应原源码或明确公开解释，不要求整个 TeX 发行版。
+    supports_public_redistribution: false
+  - kind: historical_source_version_mismatch
+    url: https://ftp.math.utah.edu/pub/tex/historic/systems/texlive/2009/tlnet/archive/natbib.source.tar.xz
+    finding: 实际可取得的原源码小包是 2009/11/07 8.31a，而非当前 8.31，未冒充匹配或加入许可包；有界查找已停止。
+    supports_public_redistribution: false
+  - kind: independent_component_version_correspondence
+    url: https://ftp.math.utah.edu/pub/tex/historic/systems/texlive/2009/tlnet/archive/fancyhdr.tar.xz
+    finding: 现存 fancyhdr.sty 3.2 为 20,521 bytes，与 TUG 列出的历史镜像包同字节；保留 Piet van Oostrum 及 LPPL1-or-later。没有
+      natbib 的额外 dtx 陪同声明，不对所有 LPPL 组件施加同一源码要求。
+    supports_public_redistribution: true
+  - kind: independent_component_version_correspondence
+    url: https://github.com/ICLR/Master-Template/blob/09727556f8eb5183f03d427d2a285711cc554888/iclr2021/iclr2021_conference.bst
+    finding: 现存 bst 与官方固定副本仅有 Latin-1 ü 转 UTF-8 的编码差异；Hal Daumé III、Patrick Daly、J. Fürnkranz 的版权/修改头保留，LPPL1-or-later。未发现程序逻辑修改，不因编码转换要求另名。
+    supports_public_redistribution: true
   missing:
-  - 本地三处 rights 未记录该文章许可及核验日期。
-  - retrieval hash 尚未与确切 arXiv vN 建立可审计映射。
-  - 未形成第三方组件例外清单和许可履约包。
+  - 固定论文版本和主要组件许可已核实，但 canonical/capsule 许可包尚未落实。
+  - natbib 8.31 文件头的原源码随附条件尚未闭合；不以 8.31a 替代，也不假定选用 LPPL1.3c 自动撤销该声明。
   classification: documented_permission
   license_id: CC-BY-4.0
   license_url: https://creativecommons.org/licenses/by/4.0/
@@ -4085,13 +4172,12 @@ items:
   - 标明修改且不得附加限制。
   - 逐件排除或清理第三方组件/材料。
   - 将许可与当前 retrieval hash 和确切 arXiv vN 绑定。
-  current_capsule_compliance: pending_license_compliance_and_revision_binding
+  current_capsule_compliance: pending_component_conditions
   publication_gate:
     decision: block
-    reason: 存在公众许可证据，但当前胶囊尚未机器证明版本绑定、许可条件和第三方范围均满足。
+    reason: 主论文 BY4、GDM BY-SA4 及 LPPL 组件已识别；natbib 8.31 的具体原源码条件尚未闭合，保持全文与 block，不增设一般性的 LPPL 源码门槛。
   human_follow_up:
-  - 人工核对本地 source archive 的 arXiv 版本。
-  - 补齐归属、许可链接/声明与第三方组件审计后再审批。
+  - 提供可准确标识的 natbib 8.31 原 natbib.dtx，或针对其头条件的明确公开许可解释；随后按各组件许可补齐声明，不用论文许可统包。
 - sequence: 55
   uid: arxiv:2501.13956
   source_type: arxiv
@@ -4778,7 +4864,8 @@ items:
   source_type: arxiv
   title: 'The AI Scientist-v2: Workshop-Level Automated Scientific Discovery via Agentic Tree Search'
   manifest_path: materialized_sources/corpus/arxiv-2504.08066--22ed15f2/manifest.yaml
-  metadata_path: 'raw_data/arxiv/The AI Scientist-v2: Workshop-Level Automated Scientific Discovery via Agentic Tree Search/metadata.yaml'
+  metadata_path: 'raw_data/arxiv/The AI Scientist-v2: Workshop-Level Automated Scientific Discovery via
+    Agentic Tree Search/metadata.yaml'
   capsule_root: materialized_sources/corpus/arxiv-2504.08066--22ed15f2
   stored_full_text_paths:
   - materialized_sources/corpus/arxiv-2504.08066--22ed15f2/normalized/document.txt
@@ -4807,9 +4894,11 @@ items:
     finding: declared_access=unknown; full_text_redistribution_assumed=True; basis=arXiv source archive
     supports_public_redistribution: false
   - kind: source_metadata
-    path: 'raw_data/arxiv/The AI Scientist-v2: Workshop-Level Automated Scientific Discovery via Agentic Tree Search/metadata.yaml'
+    path: 'raw_data/arxiv/The AI Scientist-v2: Workshop-Level Automated Scientific Discovery via Agentic
+      Tree Search/metadata.yaml'
     locator: rights
-    finding: access=unknown; license_spdx=None; license_verified_at=None; notes=Requires canonical rights verification.
+    finding: access=unknown; license_spdx=None; license_verified_at=None; notes=Requires canonical rights
+      verification.
     supports_public_redistribution: false
   - kind: local_content_rights_scan
     path: materialized_sources/corpus/arxiv-2504.08066--22ed15f2
@@ -4822,10 +4911,52 @@ items:
     checked_at: '2026-09-16'
     finding: arXiv 官方文章页的 Rights to this article 链接指向 CC-BY-4.0。
     supports_public_redistribution: true
+  - kind: fixed_version_archive_binding
+    url: https://arxiv.org/abs/2504.08066v1
+    checked_at: '2026-09-16'
+    finding: 固定 v1 官方源响应为 9,426,383 bytes，与既有 source_revision 及 17 个保留 source 成员对应。主论文 CC BY4、官方作者与 canonical
+      一致；书目文件未发现额外 abstract/copyright 字段。未换版、未修改 source。
+    supports_public_redistribution: true
+  - kind: independent_template_license
+    path: materialized_sources/corpus/arxiv-2504.08066--22ed15f2/source/include/gdm_format.cls
+    finding: Google DeepMind 模板 v0.4（September 2023）自身声明 CC BY-SA4，保留 DeepMind, London, 2019 和 shakir@；模板与主论文分开履约，不把
+      SA 外推整个 collection，也不把条件输出的内部报告字符串当分发禁令。
+    supports_public_redistribution: true
+  - kind: independent_component_version_correspondence
+    url: https://github.com/ICLR/Master-Template/blob/09727556f8eb5183f03d427d2a285711cc554888/natbib.sty
+    finding: 三项保留的 natbib.sty 均为 45,154 bytes，与此 ICLR 官方固定副本同字节，版本 2009/07/16 8.31；原 Patrick W Daly 1993–2009
+      版权和 LPPL 1-or-later 保持。未发现本地代码修改，不另设重编译证明要求。
+    supports_public_redistribution: true
+  - kind: official_component_release_record
+    url: https://ctan.org/ctan-ann/id/alpine.DEB.2.00.0907222144050.25678@wintermute.proteosys
+    finding: CTAN 2009-07-22 公告确认 natbib 8.31、Daly/Ogawa 与 LPPL；版本和许可不是未知。
+    supports_public_redistribution: true
+  - kind: explicit_component_distribution_condition
+    path: materialized_sources/corpus/arxiv-2504.08066--22ed15f2/source/natbib.sty
+    locator: lines 11–17
+    finding: 同一头还明确要求分发时附 original natbib.dtx。LPPL1.3c §3 不一般性要求 Compiled Work 附源码，但当前没有明确依据证明该头条件已被 later-version
+      option 撤销；本轮不直接据 §3 放行。最小待办是对应原源码或明确公开解释，不要求整个 TeX 发行版。
+    supports_public_redistribution: false
+  - kind: historical_source_version_mismatch
+    url: https://ftp.math.utah.edu/pub/tex/historic/systems/texlive/2009/tlnet/archive/natbib.source.tar.xz
+    finding: 实际可取得的原源码小包是 2009/11/07 8.31a，而非当前 8.31，未冒充匹配或加入许可包；有界查找已停止。
+    supports_public_redistribution: false
+  - kind: independent_component_version_correspondence
+    url: https://ftp.math.utah.edu/pub/tex/historic/systems/texlive/2009/tlnet/archive/fancyhdr.tar.xz
+    finding: 现存 fancyhdr.sty 3.2 为 20,521 bytes，与 TUG 列出的历史镜像包同字节；保留 Piet van Oostrum 及 LPPL1-or-later。没有
+      natbib 的额外 dtx 陪同声明，不对所有 LPPL 组件施加同一源码要求。
+    supports_public_redistribution: true
+  - kind: independent_review_text_license
+    url: https://openreview.net/legal/terms
+    version_url: https://arxiv.org/abs/2504.08066v1
+    checked_at: '2026-09-16'
+    finding: 保留七份匿名 human-review txt（14,094 bytes），主文逐份纳入；OpenReview 2024-09-24 Terms 将 tasked review
+      归 Comment，并明确 CC BY4 与 API 公开可读性分开。仅 compositional 两份有字面 explicit inclusion permission，另五份不虚称同样同意；投稿已撤、不声称公开
+      forum 匹配。七文本未见另加保密/版权/个人身份或第三方长摘录，按匿名 reviewer 编号、原路径和固定报告来源独立 BY4 署名即可，不要求私密同意书或去匿名。
+    supports_public_redistribution: true
   missing:
-  - 本地三处 rights 未记录该文章许可及核验日期。
-  - retrieval hash 尚未与确切 arXiv vN 建立可审计映射。
-  - 未形成第三方组件例外清单和许可履约包。
+  - 固定论文版本和主要组件许可已核实，但 canonical/capsule 许可包尚未落实。
+  - natbib 8.31 文件头的原源码随附条件尚未闭合；不以 8.31a 替代，也不假定选用 LPPL1.3c 自动撤销该声明。
   classification: documented_permission
   license_id: CC-BY-4.0
   license_url: https://creativecommons.org/licenses/by/4.0/
@@ -4838,20 +4969,18 @@ items:
   - 标明修改且不得附加限制。
   - 逐件排除或清理第三方组件/材料。
   - 将许可与当前 retrieval hash 和确切 arXiv vN 绑定。
-  current_capsule_compliance: pending_license_compliance_and_revision_binding
+  current_capsule_compliance: pending_component_conditions
   publication_gate:
     decision: block
-    reason: 存在公众许可证据，但当前胶囊尚未机器证明版本绑定、许可条件和第三方范围均满足。
+    reason: 主论文 BY4、GDM BY-SA4 及 LPPL 组件已识别；natbib 8.31 的具体原源码条件尚未闭合，保持全文与 block，不增设一般性的 LPPL 源码门槛。
   human_follow_up:
-  - 人工核对本地 source archive 的 arXiv 版本。
-  - 补齐归属、许可链接/声明与第三方组件审计后再审批。
+  - 提供可准确标识的 natbib 8.31 原 natbib.dtx，或针对其头条件的明确公开许可解释；随后按各组件许可补齐声明，不用论文许可统包。
 - sequence: 63
   uid: arxiv:2505.13400
   source_type: arxiv
   title: 'Robin: A multi-agent system for automating scientific discovery'
   manifest_path: materialized_sources/corpus/arxiv-2505.13400--6cb0cfb6/manifest.yaml
-  metadata_path: 'raw_data/arxiv/Robin: A multi-agent system for automating scientific
-    discovery/metadata.yaml'
+  metadata_path: 'raw_data/arxiv/Robin: A multi-agent system for automating scientific discovery/metadata.yaml'
   capsule_root: materialized_sources/corpus/arxiv-2505.13400--6cb0cfb6
   stored_full_text_paths:
   - materialized_sources/corpus/arxiv-2505.13400--6cb0cfb6/normalized/document.txt
@@ -4877,14 +5006,13 @@ items:
   - kind: manifest_assertion
     path: materialized_sources/corpus/arxiv-2505.13400--6cb0cfb6/manifest.yaml
     locator: rights
-    finding: declared_access=unknown; full_text_redistribution_assumed=True; basis=arXiv
-      source archive
+    finding: declared_access=unknown; full_text_redistribution_assumed=True; basis=arXiv source archive
     supports_public_redistribution: false
   - kind: source_metadata
     path: 'raw_data/arxiv/Robin: A multi-agent system for automating scientific discovery/metadata.yaml'
     locator: rights
-    finding: access=unknown; license_spdx=None; license_verified_at=None; notes=Requires
-      canonical rights verification.
+    finding: access=unknown; license_spdx=None; license_verified_at=None; notes=Requires canonical rights
+      verification.
     supports_public_redistribution: false
   - kind: local_content_rights_scan
     path: materialized_sources/corpus/arxiv-2505.13400--6cb0cfb6
@@ -4900,14 +5028,37 @@ items:
   - kind: retained_bibliography_content_review
     path: materialized_sources/corpus/arxiv-2505.13400--6cb0cfb6/source/references.bib
     checked_at: '2026-09-16'
-    finding: 实际保留的references.bib含88个abstract字段、15个copyright字段，不是仅标题/作者/DOI的纯书目。文章CC
-      BY不能自动覆盖所收第三方摘要；需逐项确认所存摘要的许可依据。此观察不认定每条摘要均禁止再分发，也不删除已有文本。
+    finding: 实际保留的references.bib含88个abstract字段、15个copyright字段，不是仅标题/作者/DOI的纯书目。文章CC BY不能自动覆盖所收第三方摘要；需逐项确认所存摘要的许可依据。此观察不认定每条摘要均禁止再分发，也不删除已有文本。
+    supports_public_redistribution: false
+  - kind: fixed_version_archive_binding
+    url: https://arxiv.org/abs/2505.13400v1
+    checked_at: '2026-09-16'
+    finding: 固定 v1 官方源响应为 13,149,222 bytes，与既有 source_revision 及全部保留 source 成员对应；未替换正文或版本。
+    supports_public_redistribution: false
+  - kind: independent_template_license
+    url: https://raw.githubusercontent.com/kourgeorge/arxiv-style/6f6ba71ba233a101d5791b104b9299fed57c7c34/License.txt
+    finding: George Kour 基础模板存在明确 MIT 许可；现存 arxiv.sty 与官方 2018 基线仅有三处显示删改。许可证据来自 2020 年声明，不把该日期追溯写成 2018
+      年已授权；尚未包装 MIT。
+    supports_public_redistribution: true
+  - kind: specific_retained_abstract_permission_gap
+    url: https://link.springer.com/article/10.1007/s40265-013-0095-2
+    locator: 'source/references.bib: ballantyne_dabrafenib_2013'
+    finding: 实际保存完整 1,802 字符摘要；官方页为订阅预览/RightsLink，未找到适用于本仓库的公众再分发许可。此为许可依据缺口，不以付费墙本身断言禁止。
+    supports_public_redistribution: false
+  - kind: specific_retained_abstract_permission_gap
+    url: https://academic.oup.com/jleukbio/article-abstract/104/1/147/6935662
+    locator: 'source/references.bib: aulakh_inhibiting_2018'
+    finding: 实际保存完整 1,597 字符摘要；官方页注明 ©2018 Society for Leukocyte Biology 及 Standard Journals Publication
+      Model，未找到适用公众再分发许可。
+    supports_public_redistribution: false
+  - kind: specific_retained_abstract_noncommercial_condition
+    url: https://www.biorxiv.org/content/10.1101/2024.11.11.623004v1
+    locator: 'source/references.bib: swanson_virtual_2024'
+    finding: 实际完整摘要随 CC BY-NC 4.0 声明保存；主论文 BY4 不能覆盖独立摘要，实际 NC 用途条件尚未确认。
     supports_public_redistribution: false
   missing:
-  - 本地三处 rights 未记录该文章许可及核验日期。
-  - retrieval hash 尚未与确切 arXiv vN 建立可审计映射。
-  - 未形成第三方组件例外清单和许可履约包。
-  - 所存references.bib中88个第三方摘要及15个版权字段需逐条核实适用许可，不能按纯书目清权。
+  - 固定版本已核实，但 canonical/capsule 三处 rights 与许可包尚未落实。
+  - 88 个附带第三方摘要中已定位两项公众许可依据缺口及一项 NC 条件；未获得整理非正文摘要的范围确认。
   classification: documented_permission
   license_id: CC-BY-4.0
   license_url: https://creativecommons.org/licenses/by/4.0/
@@ -4920,13 +5071,13 @@ items:
   - 标明修改且不得附加限制。
   - 逐件排除或清理第三方组件/材料。
   - 将许可与当前 retrieval hash 和确切 arXiv vN 绑定。
-  current_capsule_compliance: pending_license_compliance_and_revision_binding
+  current_capsule_compliance: pending_component_conditions
   publication_gate:
     decision: block
-    reason: 存在公众许可证据，但当前胶囊尚未机器证明版本绑定、许可条件和第三方范围均满足。
+    reason: 主论文固定版本与 BY4 已核实；实际保留的独立第三方摘要存在具体未满足条件，保持 block，不删正文或自动套用主论文许可。
   human_follow_up:
-  - 人工核对本地 source archive 的 arXiv 版本。
-  - 补齐归属、许可链接/声明与第三方组件审计后再审批。
+  - 确认是否允许只整理源包中额外嵌入的第三方摘要，完整保留论文正文；或提供覆盖这些确切表达的再分发许可。
+  - 确认实际 NC 使用目的；其余已许可组件按条件补齐署名、许可与转换说明。
 - sequence: 64
   uid: arxiv:2505.22954
   source_type: arxiv
@@ -5322,19 +5473,18 @@ items:
   - kind: manifest_assertion
     path: materialized_sources/corpus/arxiv-2511.02824--1c218a8e/manifest.yaml
     locator: rights
-    finding: declared_access=unknown; full_text_redistribution_assumed=True; basis=arXiv
-      source archive
+    finding: declared_access=unknown; full_text_redistribution_assumed=True; basis=arXiv source archive
     supports_public_redistribution: false
   - kind: source_metadata
     path: 'raw_data/arxiv/Kosmos: An AI Scientist for Autonomous Discovery/metadata.yaml'
     locator: rights
-    finding: access=unknown; license_spdx=None; license_verified_at=None; notes=Requires
-      canonical rights verification.
+    finding: access=unknown; license_spdx=None; license_verified_at=None; notes=Requires canonical rights
+      verification.
     supports_public_redistribution: false
   - kind: local_content_rights_scan
     path: materialized_sources/corpus/arxiv-2511.02824--1c218a8e
     locator: source/** and normalized/**
-    finding: 某图板 reproduced with permission；未证明可再次转授权。
+    finding: main.tex 的 reproduced with permission 图板声明对应 Fig2-bc.pdf；该媒体原已省略，不把未保存图像作为当前文字包的额外障碍。
     supports_public_redistribution: false
   - kind: official_article_license_record
     url: https://arxiv.org/abs/2511.02824
@@ -5345,14 +5495,30 @@ items:
   - kind: retained_bibliography_content_review
     path: materialized_sources/corpus/arxiv-2511.02824--1c218a8e/source/references.bib
     checked_at: '2026-09-16'
-    finding: 实际保留的references.bib含80个abstract字段、31个copyright字段，不是仅标题/作者/DOI的纯书目。文章CC
-      BY不能自动覆盖所收第三方摘要；需逐项确认所存摘要的许可依据。此观察不认定每条摘要均禁止再分发，也不删除已有文本。
+    finding: 实际保留的references.bib含80个abstract字段、31个copyright字段，不是仅标题/作者/DOI的纯书目。文章CC BY不能自动覆盖所收第三方摘要；需逐项确认所存摘要的许可依据。此观察不认定每条摘要均禁止再分发，也不删除已有文本。
+    supports_public_redistribution: false
+  - kind: fixed_version_archive_binding
+    url: https://arxiv.org/abs/2511.02824v2
+    checked_at: '2026-09-16'
+    finding: 固定 v2 官方源响应为 7,605,232 bytes，与既有 source_revision 及全部保留 source 成员对应；未替换正文或版本。
+    supports_public_redistribution: false
+  - kind: specific_retained_abstract_no_redistribution
+    url: https://api.biorxiv.org/details/biorxiv/10.1101/2024.06.17.599454
+    locator: 'source/references.bib: yan_systemic_2024'
+    finding: 实际保存的 v1 完整摘要与版权字段明示未经许可不得再分发、复用或改编；官方 API 该版本 license=cc_no。
+    supports_public_redistribution: false
+  - kind: later_version_does_not_license_retained_expression
+    url: https://www.thno.org/v15p4016.htm
+    finding: 后续 Theranostics 论文采用 CC BY4，但标题和摘要已重写，不能用其许可整体覆盖实际保存的旧预印本摘要。
+    supports_public_redistribution: false
+  - kind: specific_retained_abstract_noncommercial_condition
+    url: https://api.biorxiv.org/details/biorxiv/10.1101/2025.02.27.640551
+    locator: 'source/references.bib: piazza_physical_2025'
+    finding: 实际保存 v1 完整摘要标注 CC BY-NC4；官方 API license=cc_by_nc。主论文 BY4 不消除这一独立范围的 NC 条件。
     supports_public_redistribution: false
   missing:
-  - 本地三处 rights 未记录该文章许可及核验日期。
-  - retrieval hash 尚未与确切 arXiv vN 建立可审计映射。
-  - 未形成第三方组件例外清单和许可履约包。
-  - 所存references.bib中80个第三方摘要及31个版权字段需逐条核实适用许可，不能按纯书目清权。
+  - 固定版本已核实，但 canonical/capsule 三处 rights 与许可包尚未落实。
+  - 80 个附带第三方摘要中已定位 v1 明示禁止未经许可再分发的摘要及 NC 摘要；未获得整理非正文摘要的范围确认。
   classification: documented_permission
   license_id: CC-BY-4.0
   license_url: https://creativecommons.org/licenses/by/4.0/
@@ -5365,13 +5531,13 @@ items:
   - 标明修改且不得附加限制。
   - 逐件排除或清理第三方组件/材料。
   - 将许可与当前 retrieval hash 和确切 arXiv vN 绑定。
-  current_capsule_compliance: pending_license_compliance_and_revision_binding
+  current_capsule_compliance: pending_component_conditions
   publication_gate:
     decision: block
-    reason: 存在公众许可证据，但当前胶囊尚未机器证明版本绑定、许可条件和第三方范围均满足。
+    reason: 主论文固定版本与 BY4 已核实；实际保留的独立第三方摘要存在具体未满足条件，保持 block，不删正文或自动套用主论文许可。
   human_follow_up:
-  - 人工核对本地 source archive 的 arXiv 版本。
-  - 补齐归属、许可链接/声明与第三方组件审计后再审批。
+  - 确认是否允许只整理源包中额外嵌入的第三方摘要，完整保留论文正文；或提供覆盖这些确切表达的再分发许可。
+  - 确认实际 NC 使用目的；其余已许可组件按条件补齐署名、许可与转换说明。
 - sequence: 70
   uid: arxiv:2602.06855
   source_type: arxiv
