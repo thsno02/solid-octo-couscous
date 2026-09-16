@@ -38,6 +38,7 @@ def build_core_pages(ctx: dict[str, Any], snapshot: dict[str, Any]) -> list[dict
         if uid == "wiki-page:map-open-implementations":
             refs = [ref for ref, row in srow.items() if str(row.get("source_type")) == "github"]; selected = [c for c in claims if any(ref in refs for ref in srcs(c))]
         core[uid] = page(path, uid, title, ptype, summary); core[uid]["claims"] = [str(x["uid"]) for x in selected]; core[uid]["sources"] = refs
+        core[uid]["rendered_claims"] = list(core[uid]["claims"])
         core[uid]["sections"] = [{"heading": "Purpose", "claim_refs": [], "source_refs": refs, "editorial_intent": "State the page's editorial purpose."}, {"heading": "Candidate evidence", "claim_refs": core[uid]["claims"], "source_refs": refs, "editorial_intent": "Expose claim-backed signals without automatic admission."}, {"heading": "Review boundary", "claim_refs": [], "source_refs": refs, "editorial_intent": "Declare unresolved review work."}]
         core[uid]["body"] = f"""# {title}\n\n## Purpose\n\n{summary}\n\n## Candidate evidence\n\n{signals(selected, path, claim_paths, titles)}\n\n## Compiled interpretation\n\nThis page reorganizes candidate knowledge around a stable reader task. It is not source concatenation and it does not turn retrieval, maintainer claims, preprints, or generated prose into verified truth.\n\n## Review boundary\n\nCheck evidence entailment, source independence, contradiction, neutrality, due weight, freshness, and downstream impact before publication."""
         pages.append(core[uid])

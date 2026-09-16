@@ -110,7 +110,7 @@ temporal:
   valid_to: null
   as_of: '2026-09-16T04:30:26Z'
 provenance:
-  build_id: build:llm-wiki-v0:0f0b56605b4756b3
+  build_id: build:llm-wiki-v0:bf1b13c8baaa32ad
   generated_by_agent: pipeline/build_llm_wiki.py
   generated_by_model: null
   prompt_or_skill_version: deterministic-llm-wiki-v0.2
@@ -143,11 +143,26 @@ consumption:
     one_line: Routing map for cross cutting sources, questions, and claims.
     short: Routing map for cross cutting sources, questions, and claims.
     full: null
-  estimated_tokens: 518
+  estimated_tokens: 767
   machine_entry_points:
   - ../../04_claims/claims.jsonl
   - ../../03_evidence/evidence.jsonl
   - ../catalog/pages.jsonl
+rendered_claim_refs:
+- claim:00e6310ce97dc279
+- claim:0d2b54965305cf83
+- claim:21bdaa7b130a7cc4
+- claim:32d4ab82e7394fa1
+- claim:334565c7ebb30cb5
+- claim:34aa536e34afa87c
+- claim:87456c04d2f50e30
+- claim:a7845ddab7913b4f
+rights_refs: []
+rights_unavailable_source_refs:
+- arxiv:1905.10985
+- arxiv:2408.08435
+- arxiv:2509.25651
+- github:SakanaAI/AI-Scientist
 ---
 
 # Cross Cutting
@@ -195,3 +210,27 @@ The map routes candidate evidence; it does not flatten sources into consensus or
 - [AI-GAs: AI-generating algorithms, an alternate paradigm for producing general artificial intelligence](../sources/arxiv-1905.10985.md) — `explains`
 - [LLM Wiki reference system](../systems/reference-system.md) — `related`
 - [Knowledge frontier](../research_questions/knowledge-frontier.md) — `related`
+
+## Source text rights and attribution
+
+The terms below apply only to the listed source-authored claim components. They do not relicense collector assessments, compiler synthesis, other source components, or this repository as a whole.
+
+### AI-GAs: AI-generating algorithms, an alternate paradigm for producing general artificial intelligence (`arxiv:1905.10985`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.
+
+### Automated Design of Agentic Systems (`arxiv:2408.08435`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.
+
+### AutoLabs: Cognitive Multi-Agent Systems with Self-Correction for Autonomous Chemical Experimentation (`arxiv:2509.25651`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.
+
+### SakanaAI/AI-Scientist (`github:SakanaAI/AI-Scientist`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.

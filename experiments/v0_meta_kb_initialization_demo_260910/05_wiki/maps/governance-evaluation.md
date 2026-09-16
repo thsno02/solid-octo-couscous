@@ -96,7 +96,7 @@ temporal:
   valid_to: null
   as_of: '2026-09-16T04:30:26Z'
 provenance:
-  build_id: build:llm-wiki-v0:0f0b56605b4756b3
+  build_id: build:llm-wiki-v0:bf1b13c8baaa32ad
   generated_by_agent: pipeline/build_llm_wiki.py
   generated_by_model: null
   prompt_or_skill_version: deterministic-llm-wiki-v0.2
@@ -128,11 +128,23 @@ consumption:
     one_line: Routing map for governance evaluation sources, questions, and claims.
     short: Routing map for governance evaluation sources, questions, and claims.
     full: null
-  estimated_tokens: 455
+  estimated_tokens: 664
   machine_entry_points:
   - ../../04_claims/claims.jsonl
   - ../../03_evidence/evidence.jsonl
   - ../catalog/pages.jsonl
+rendered_claim_refs:
+- claim:17c715b34b0f0c68
+- claim:4bf5ea8e6b4e37de
+- claim:4fd96c70e0c625fd
+- claim:84c91602bd1dfb78
+- claim:bde139a533f9483a
+- claim:ecdd2719fa55751c
+rights_refs: []
+rights_unavailable_source_refs:
+- arxiv:2406.06769
+- arxiv:2502.14499
+- arxiv:2602.06855
 ---
 
 # Governance Evaluation
@@ -176,3 +188,22 @@ The map routes candidate evidence; it does not flatten sources into consensus or
 - [DISCOVERYWORLD: A Virtual Environment for Developing and Evaluating Automated Scientific Discovery Agents](../sources/arxiv-2406.06769.md) — `explains`
 - [v0 LLM Wiki quality gates](../evaluations/v0-quality-gates.md) — `related`
 - [Automation versus editorial review](../debates/automation-editorial-review.md) — `related`
+
+## Source text rights and attribution
+
+The terms below apply only to the listed source-authored claim components. They do not relicense collector assessments, compiler synthesis, other source components, or this repository as a whole.
+
+### DISCOVERYWORLD: A Virtual Environment for Developing and Evaluating Automated Scientific Discovery Agents (`arxiv:2406.06769`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.
+
+### MLGym: A New Framework and Benchmark for Advancing AI Research Agents (`arxiv:2502.14499`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.
+
+### AIRS-Bench: a Suite of Tasks for Frontier AI Research Science Agents (`arxiv:2602.06855`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.

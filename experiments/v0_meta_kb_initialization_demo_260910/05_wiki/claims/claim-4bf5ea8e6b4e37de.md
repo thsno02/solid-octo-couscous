@@ -45,7 +45,7 @@ temporal:
   valid_to: null
   as_of: '2026-09-16T04:30:26Z'
 provenance:
-  build_id: build:llm-wiki-v0:0f0b56605b4756b3
+  build_id: build:llm-wiki-v0:bf1b13c8baaa32ad
   generated_by_agent: pipeline/build_llm_wiki.py
   generated_by_model: null
   prompt_or_skill_version: deterministic-llm-wiki-v0.2
@@ -79,11 +79,16 @@ consumption:
       on AI research tasks. This is the first Gym environment for machine learning (ML) tasks, enabling research
       on reinforce
     full: null
-  estimated_tokens: 152
+  estimated_tokens: 244
   machine_entry_points:
   - ../../04_claims/claims.jsonl
   - ../../03_evidence/evidence.jsonl
   - ../catalog/pages.jsonl
+rendered_claim_refs:
+- claim:4bf5ea8e6b4e37de
+rights_refs: []
+rights_unavailable_source_refs:
+- arxiv:2502.14499
 ---
 
 # Source assertion from MLGym: A New Framework and Benchmark for Advancing AI Research Agents
@@ -115,3 +120,12 @@ Check entailment, selector precision, source quality, identity, scope, contradic
 
 - [MLGym: A New Framework and Benchmark for Advancing AI Research Agents](../sources/arxiv-2502.14499.md) — `evidenced_by`
 - [Governance Evaluation](../maps/governance-evaluation.md) — `part_of`
+
+## Source text rights and attribution
+
+The terms below apply only to the listed source-authored claim components. They do not relicense collector assessments, compiler synthesis, other source components, or this repository as a whole.
+
+### MLGym: A New Framework and Benchmark for Advancing AI Research Agents (`arxiv:2502.14499`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.

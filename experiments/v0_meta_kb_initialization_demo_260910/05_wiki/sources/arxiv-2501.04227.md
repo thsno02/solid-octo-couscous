@@ -52,7 +52,7 @@ temporal:
   valid_to: null
   as_of: '2026-09-16T04:30:26Z'
 provenance:
-  build_id: build:llm-wiki-v0:0f0b56605b4756b3
+  build_id: build:llm-wiki-v0:bf1b13c8baaa32ad
   generated_by_agent: pipeline/build_llm_wiki.py
   generated_by_model: null
   prompt_or_skill_version: deterministic-llm-wiki-v0.2
@@ -82,11 +82,17 @@ consumption:
     one_line: 'Source page for Agent Laboratory: Using LLM Agents as Research Assistants with claim/evidence expansion.'
     short: 'Source page for Agent Laboratory: Using LLM Agents as Research Assistants with claim/evidence expansion.'
     full: null
-  estimated_tokens: 173
+  estimated_tokens: 262
   machine_entry_points:
   - ../../04_claims/claims.jsonl
   - ../../03_evidence/evidence.jsonl
   - ../catalog/pages.jsonl
+rendered_claim_refs:
+- claim:2f8ebd974fc7b5fd
+- claim:3d07597b1776b0bd
+rights_refs: []
+rights_unavailable_source_refs:
+- arxiv:2501.04227
 ---
 
 # Agent Laboratory: Using LLM Agents as Research Assistants
@@ -127,3 +133,12 @@ Source statements remain unverified candidates. Collection assessments explain i
 - [Automated Research](../maps/automated-research.md) — `part_of`
 - [Claim 2f8ebd974fc7b5fd](../claims/claim-2f8ebd974fc7b5fd.md) — `evidenced_by`
 - [Claim 3d07597b1776b0bd](../claims/claim-3d07597b1776b0bd.md) — `evidenced_by`
+
+## Source text rights and attribution
+
+The terms below apply only to the listed source-authored claim components. They do not relicense collector assessments, compiler synthesis, other source components, or this repository as a whole.
+
+### Agent Laboratory: Using LLM Agents as Research Assistants (`arxiv:2501.04227`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.

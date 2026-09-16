@@ -11,23 +11,55 @@ status: materialized
 content_tier: full_text
 revision: sha256:d98c3a619caf66173e92e9a21829b32312db83156e30ede9e6bb45c1c6016d51
 rights:
-  declared_access: unknown
-  full_text_redistribution_assumed: true
+  declared_access: restricted
+  full_text_redistribution_assumed: false
   basis: arXiv source archive
+  license_spdx: CC-BY-NC-SA-4.0
+  license_url: https://creativecommons.org/licenses/by-nc-sa/4.0/
+  license_verified_at: '2026-09-16'
+  redistribution_package:
+    source_revision: sha256:d98c3a619caf66173e92e9a21829b32312db83156e30ede9e6bb45c1c6016d51
+    source_version_url: https://arxiv.org/abs/2501.13956v1
+    notice_path: raw_data/licenses/arxiv-cc-by-nc-sa-4.0-prime-cc-by-4.0-george-kour-mit.md
+    attribution: '"Zep: A Temporal Knowledge Graph Architecture for Agent Memory", arXiv:2501.13956v1, by Preston
+      Rasmussen; Pavlo Paliychuk; Travis Beauvais; Jack Ryan; and Daniel Chalef. Source: https://arxiv.org/abs/2501.13956v1.
+      The article-author material is licensed under CC BY-NC-SA 4.0: https://creativecommons.org/licenses/by-nc-sa/4.0/.
+      This repository has not yet verified that its intended publication is NonCommercial; this package is not a
+      publication approval. source/PRIMEarxiv.sty corresponds to the Arxiv & PRIME AI Style Template adapted by
+      Moulay A. Akhloufi, https://www.overleaf.com/latex/templates/arxiv-and-prime-ai-style-template/qdnhqytdqzsc,
+      licensed under CC BY 4.0: https://creativecommons.org/licenses/by/4.0/. That adaptation is based on George
+      Kour''s arxiv-style, https://github.com/kourgeorge/arxiv-style; its base portions retain Copyright (c) 2020
+      George Kour and the MIT License. The retained Zep style enables the page footer that the otherwise matching
+      PaperQA2 copy comments out; the modifier of this one-line variant is unknown and is not attributed to the
+      paper authors.'
+    modifications: The fixed v1 source archive is unpacked and its four text members—source/main.tex, source/main.bbl,
+      source/references.bib, and source/PRIMEarxiv.sty—are retained without modification. main.tex is copied to
+      normalized/document.tex and converted to normalized/document.txt; 29 selectors are generated; the article
+      attribution, Moulay A. Akhloufi template attribution, George Kour MIT notice, modification statement, and
+      NOTICE link are appended to normalized/document.txt. For provenance, the retained Zep PRIMEarxiv.sty is recorded
+      as differing from the otherwise matching PaperQA2 copy only at line 35 by enabling the page footer; this packaging
+      does not identify the author of that pre-existing variant.
+    scope: 本组合包仅覆盖固定 arXiv v1 胶囊实际保存的四个 source 文字成员、normalized/document.tex、normalized/document.txt 与 29 个 selector。论文作者材料及其文本转换和
+      selector 派生物按 CC BY-NC-SA 4.0 履约，任何共享仅限非商业用途，派生输出须采用同一或兼容许可；当前仓库用途尚未完成非商业核实，故本包不表示发布已获准，未来商业用途须另行取得授权。source/PRIMEarxiv.sty
+      作为 Moulay A. Akhloufi 改编的 PRIME 模板按 CC BY 4.0 履约，并对其所基于的 George Kour arxiv-style 保留 MIT 版权和许可；Zep 所存版本相对 PaperQA2
+      对应副本仅启用第 35 行页脚，本包记录该差异但不把修改归给论文作者。main.bbl 与 references.bib 作为排版记录和引用元数据保留，不授权其所引用作品。许可不外推到外链论文、代码、数据或权利人无权许可的第三方材料。
 retrievals:
 - requested_urls:
-  - https://export.arxiv.org/e-print/2501.13956
-  - https://arxiv.org/e-print/2501.13956
-  resolved_url: https://export.arxiv.org/src/2501.13956
+  - https://export.arxiv.org/e-print/2501.13956v1
+  - https://arxiv.org/e-print/2501.13956v1
+  resolved_url: https://export.arxiv.org/src/2501.13956v1
   content_type: application/gzip
   bytes: 22911
   sha256: d98c3a619caf66173e92e9a21829b32312db83156e30ede9e6bb45c1c6016d51
 selectors:
 - selectors.jsonl
 local_files:
+- path: materialized_sources/corpus/arxiv-2501.13956--b93a114f/NOTICE.md
+  bytes: 44284
+  sha256: 9db71f13546cf6ad5fe45a99ac1d69d925474e23692099eedae6789ad5c7555a
 - path: materialized_sources/corpus/arxiv-2501.13956--b93a114f/README.md
-  bytes: 360
-  sha256: 5b860a834873444a312fa3c373d4bdf5950ae01bf9b1b349e4a17ab98b699852
+  bytes: 424
+  sha256: 582bceac7f41b9b2f02b9c7a87b2693d42e2b09b79535a7779126ac18e66fd2e
 - path: materialized_sources/corpus/arxiv-2501.13956--b93a114f/files.jsonl
   bytes: 774
   sha256: 3412fa84cfa808acd38b898f1fb3ee04237e9ec6d41e57189784b628d83acc10
@@ -35,8 +67,8 @@ local_files:
   bytes: 42610
   sha256: 2cb3586ca426d4b8b0ebd0cd79d3fdb1606bf085a1effdcfe74c3a21d275b2c8
 - path: materialized_sources/corpus/arxiv-2501.13956--b93a114f/normalized/document.txt
-  bytes: 38151
-  sha256: 6880e7e25e7de508dee913ce758e73af6c8a25735452055920c3f0de7f9e974c
+  bytes: 41063
+  sha256: d3719b20af11be7540efa352674b9b98ec2ce2c48c9a2f74c8ade2366a452483
 - path: materialized_sources/corpus/arxiv-2501.13956--b93a114f/selectors.jsonl
   bytes: 7148
   sha256: e629c102de1a38a61928d768158bf9f34627eb7bc34fda769e4ce3a8ddd40d14
@@ -53,8 +85,8 @@ local_files:
   bytes: 10376
   sha256: 5011583126ec90fa0f536a2f657b7dccbc7719c3bd64e6439b742977c4b85e77
 - path: materialized_sources/corpus/arxiv-2501.13956--b93a114f/source-metadata.yaml
-  bytes: 2524
-  sha256: 88c8e9167010a385a4448d6c720e2ed6a2ceadf664e63ec00b6b7e6a9043ee61
+  bytes: 7107
+  sha256: d6ac6eebb3ae0188ab1b2f12b572ad9d86c1c1db1de52127badadccdee5b6805
 warnings: []
 errors: []
 archive_container: tar
@@ -62,8 +94,10 @@ materialization:
   stored_text_files: 4
   stored_text_bytes: 66435
   main_tex: main.tex
+  document: normalized/document.txt
   normalized_document: normalized/document.txt
   selector_count: 29
   omitted_member_count: 0
+  stored_characters: 40565
 omitted: []
-local_bytes: 158002
+local_bytes: 209845

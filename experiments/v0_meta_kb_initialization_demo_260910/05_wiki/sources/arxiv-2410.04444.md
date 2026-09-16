@@ -53,7 +53,7 @@ temporal:
   valid_to: null
   as_of: '2026-09-16T04:30:26Z'
 provenance:
-  build_id: build:llm-wiki-v0:0f0b56605b4756b3
+  build_id: build:llm-wiki-v0:bf1b13c8baaa32ad
   generated_by_agent: pipeline/build_llm_wiki.py
   generated_by_model: null
   prompt_or_skill_version: deterministic-llm-wiki-v0.2
@@ -85,11 +85,17 @@ consumption:
     short: 'Source page for Goedel Agent: A Self-Referential Agent Framework for Recursive Self-Improvement with
       claim/evidence expansion.'
     full: null
-  estimated_tokens: 219
+  estimated_tokens: 309
   machine_entry_points:
   - ../../04_claims/claims.jsonl
   - ../../03_evidence/evidence.jsonl
   - ../catalog/pages.jsonl
+rendered_claim_refs:
+- claim:f43359e01e4c4b0b
+- claim:f810d086e0a4a305
+rights_refs: []
+rights_unavailable_source_refs:
+- arxiv:2410.04444
 ---
 
 # Goedel Agent: A Self-Referential Agent Framework for Recursive Self-Improvement
@@ -130,3 +136,12 @@ Source statements remain unverified candidates. Collection assessments explain i
 - [Recursive Self Improvement](../maps/recursive-self-improvement.md) — `part_of`
 - [Claim f43359e01e4c4b0b](../claims/claim-f43359e01e4c4b0b.md) — `evidenced_by`
 - [Claim f810d086e0a4a305](../claims/claim-f810d086e0a4a305.md) — `evidenced_by`
+
+## Source text rights and attribution
+
+The terms below apply only to the listed source-authored claim components. They do not relicense collector assessments, compiler synthesis, other source components, or this repository as a whole.
+
+### Goedel Agent: A Self-Referential Agent Framework for Recursive Self-Improvement (`arxiv:2410.04444`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.

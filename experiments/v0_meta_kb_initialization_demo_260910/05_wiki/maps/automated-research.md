@@ -110,7 +110,7 @@ temporal:
   valid_to: null
   as_of: '2026-09-16T04:30:26Z'
 provenance:
-  build_id: build:llm-wiki-v0:0f0b56605b4756b3
+  build_id: build:llm-wiki-v0:bf1b13c8baaa32ad
   generated_by_agent: pipeline/build_llm_wiki.py
   generated_by_model: null
   prompt_or_skill_version: deterministic-llm-wiki-v0.2
@@ -143,11 +143,26 @@ consumption:
     one_line: Routing map for automated research sources, questions, and claims.
     short: Routing map for automated research sources, questions, and claims.
     full: null
-  estimated_tokens: 532
+  estimated_tokens: 790
   machine_entry_points:
   - ../../04_claims/claims.jsonl
   - ../../03_evidence/evidence.jsonl
   - ../catalog/pages.jsonl
+rendered_claim_refs:
+- claim:2f8ebd974fc7b5fd
+- claim:38c95b3e2bcfcf51
+- claim:3c6cef89711e89f2
+- claim:3d07597b1776b0bd
+- claim:852bc42ef50e89c7
+- claim:8798b3dc1ae125ea
+- claim:9077f46d7f30e565
+- claim:d3a0d3c2f4fd45d4
+rights_refs: []
+rights_unavailable_source_refs:
+- arxiv:2408.06292
+- arxiv:2501.04227
+- arxiv:2504.08066
+- arxiv:2505.13400
 ---
 
 # Automated Research
@@ -195,3 +210,27 @@ The map routes candidate evidence; it does not flatten sources into consensus or
 - [The AI Scientist-v2: Workshop-Level Automated Scientific Discovery via Agentic Tree Search](../sources/arxiv-2504.08066.md) — `explains`
 - [Automation versus editorial review](../debates/automation-editorial-review.md) — `related`
 - [Knowledge evolution loop](../concepts/knowledge-evolution-loop.md) — `related`
+
+## Source text rights and attribution
+
+The terms below apply only to the listed source-authored claim components. They do not relicense collector assessments, compiler synthesis, other source components, or this repository as a whole.
+
+### The AI Scientist: Towards Fully Automated Open-Ended Scientific Discovery (`arxiv:2408.06292`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.
+
+### Agent Laboratory: Using LLM Agents as Research Assistants (`arxiv:2501.04227`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.
+
+### The AI Scientist-v2: Workshop-Level Automated Scientific Discovery via Agentic Tree Search (`arxiv:2504.08066`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.
+
+### Robin: A multi-agent system for automating scientific discovery (`arxiv:2505.13400`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.

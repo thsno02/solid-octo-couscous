@@ -138,7 +138,7 @@ temporal:
   valid_to: null
   as_of: '2026-09-16T04:30:26Z'
 provenance:
-  build_id: build:llm-wiki-v0:0f0b56605b4756b3
+  build_id: build:llm-wiki-v0:bf1b13c8baaa32ad
   generated_by_agent: pipeline/build_llm_wiki.py
   generated_by_model: null
   prompt_or_skill_version: deterministic-llm-wiki-v0.2
@@ -173,11 +173,32 @@ consumption:
     one_line: Routing map for llm wiki sources, questions, and claims.
     short: Routing map for llm wiki sources, questions, and claims.
     full: null
-  estimated_tokens: 761
+  estimated_tokens: 1121
   machine_entry_points:
   - ../../04_claims/claims.jsonl
   - ../../03_evidence/evidence.jsonl
   - ../catalog/pages.jsonl
+rendered_claim_refs:
+- claim:1929edca74fa3fa5
+- claim:55eeb2a1683b8804
+- claim:6f5fa83ca484f664
+- claim:714e301e8b2162bc
+- claim:9a3b21da11a96956
+- claim:9f0a3dc6de4c7f84
+- claim:b281f7d7bc21b10d
+- claim:bc9a34bd8a9c7154
+- claim:bed2f056ecd73c69
+- claim:c4f2def09ea56d98
+- claim:e7026275c099e7e2
+- claim:e7ac7da9ac39e47d
+rights_refs: []
+rights_unavailable_source_refs:
+- arxiv:2305.14251
+- arxiv:2305.14627
+- arxiv:2402.14207
+- arxiv:2509.23233
+- github:VectifyAI/OpenKB
+- github:xoai/sage-wiki
 ---
 
 # Llm Wiki
@@ -233,3 +254,37 @@ The map routes candidate evidence; it does not flatten sources into consensus or
 - [xoai/sage-wiki](../sources/github-xoai-sage-wiki.md) — `explains`
 - [LLM Wiki overview](../overviews/llm-wiki.md) — `related`
 - [Grounded long-form synthesis](../methods/grounded-synthesis.md) — `related`
+
+## Source text rights and attribution
+
+The terms below apply only to the listed source-authored claim components. They do not relicense collector assessments, compiler synthesis, other source components, or this repository as a whole.
+
+### FActScore: Fine-grained Atomic Evaluation of Factual Precision in Long Form Text Generation (`arxiv:2305.14251`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.
+
+### Enabling Large Language Models to Generate Text with Citations (`arxiv:2305.14627`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.
+
+### Assisting in Writing Wikipedia-like Articles From Scratch with Large Language Models (`arxiv:2402.14207`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.
+
+### Detecting Corpus-Level Knowledge Inconsistencies in Wikipedia with Large Language Models (`arxiv:2509.23233`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.
+
+### VectifyAI/OpenKB (`github:VectifyAI/OpenKB`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.
+
+### xoai/sage-wiki (`github:xoai/sage-wiki`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.

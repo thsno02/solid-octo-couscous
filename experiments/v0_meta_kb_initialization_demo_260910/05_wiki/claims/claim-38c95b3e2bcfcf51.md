@@ -45,7 +45,7 @@ temporal:
   valid_to: null
   as_of: '2026-09-16T04:30:26Z'
 provenance:
-  build_id: build:llm-wiki-v0:0f0b56605b4756b3
+  build_id: build:llm-wiki-v0:bf1b13c8baaa32ad
   generated_by_agent: pipeline/build_llm_wiki.py
   generated_by_model: null
   prompt_or_skill_version: deterministic-llm-wiki-v0.2
@@ -79,11 +79,16 @@ consumption:
       scientific research and discovering new knowledge. While frontier models have already been used as aides to
       human '
     full: null
-  estimated_tokens: 140
+  estimated_tokens: 230
   machine_entry_points:
   - ../../04_claims/claims.jsonl
   - ../../03_evidence/evidence.jsonl
   - ../catalog/pages.jsonl
+rendered_claim_refs:
+- claim:38c95b3e2bcfcf51
+rights_refs: []
+rights_unavailable_source_refs:
+- arxiv:2408.06292
 ---
 
 # Source assertion from The AI Scientist: Towards Fully Automated Open-Ended Scientific Discovery
@@ -115,3 +120,12 @@ Check entailment, selector precision, source quality, identity, scope, contradic
 
 - [The AI Scientist: Towards Fully Automated Open-Ended Scientific Discovery](../sources/arxiv-2408.06292.md) — `evidenced_by`
 - [Automated Research](../maps/automated-research.md) — `part_of`
+
+## Source text rights and attribution
+
+The terms below apply only to the listed source-authored claim components. They do not relicense collector assessments, compiler synthesis, other source components, or this repository as a whole.
+
+### The AI Scientist: Towards Fully Automated Open-Ended Scientific Discovery (`arxiv:2408.06292`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.

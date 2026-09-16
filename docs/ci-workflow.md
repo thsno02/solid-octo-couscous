@@ -11,7 +11,7 @@
 
 物化流水线执行：现有许可预检 → 测试 → 获取/预处理/构建/结构校验 → 重放 → 生成版本的许可检查 → 提案分支 commit/push → Draft PR → 独立 CI 与审查。只有这条人工触发的生产流程申请 `contents: write` 和 `pull-requests: write`；它不直接更新 base/main，不强推，不自动合并。每次运行使用新的 `codex/materialize-<run_id>-<attempt>` 分支，避免覆盖人的工作；无变化时不创建空 PR。普通 CI 仍只读。
 
-公开仓库中的提案分支也公开，因此许可检查必须在 push **之前**执行。当前全文检查为 `active=90 / blocked=79 / errors=0`：六项 W3C 文字包、一项 ODCS 固定定义页、两项 arXiv 包（PDF 与 TeX 各一项）、LinkML 首页及 Schema.org 已存文档快照已落实许可条件。剩余 79 项中，40 项缺适用公众许可证据，39 项已有许可证据但待履约；整体生产流程仍会在预检停止，不能把这个预期阻断称为成功上传。新 revision 若不匹配已有许可审计或声明的许可包，生产流程会失败，不会自动改写审计为 allow。来源的 metadata-only、partial 等状态仍需阅读报告，运行成功不保证所有 URL 已获取全文，也不表示已抓取单页来源链接的整个站点。
+公开仓库中的提案分支也公开，因此许可检查必须在 push **之前**执行。当前全文检查为 `active=90 / blocked=78 / errors=0`：六项 W3C 文字包、一项 ODCS 固定定义页、三项 arXiv 包（PDF 一项、TeX 两项）、LinkML 首页及 Schema.org 已存文档快照已落实许可条件。剩余 78 项中，40 项缺适用公众许可证据，38 项已有许可证据但待履约；整体生产流程仍会在预检停止，不能把这个预期阻断称为成功上传。Zep 已保存声明包但仍待非商业用途确认，不能把有 NOTICE 等同 allow。新 revision 若不匹配已有许可审计或声明的许可包，生产流程会失败，不会自动改写审计为 allow。来源的 metadata-only、partial 等状态仍需阅读报告，运行成功不保证所有 URL 已获取全文，也不表示已抓取单页来源链接的整个站点。
 
 当前生产入口 `scripts/materialize_all_sources.py` 按响应内容区分 arXiv 的 tar、单文件 TeX、PDF 和错误页，支持 gzip；HTML/XML/JSON 错误页不会被标为 TeX 全文，会尝试备用入口。PDF 保留原件并按页提取文本，无文本页与失败页明确记录，定位器必须对应实际页的文本。未运行 OCR；图示页无可提取文字时状态为 partial。许可门也覆盖所有保留 `source_pdf` 的胶囊，不受文本层级降级影响。本修复不宣称覆盖未被当前 Makefile/workflow 调用的历史物化脚本。
 
@@ -22,6 +22,14 @@
 **CI green 仅表示代码、结构与确定性重放通过；不表示公开分发许可（publication rights）、人工编辑准入（human editorial admission）或发布批准（release approval）已通过。** 许可检查器 `scripts/validate_publication_rights.py` 保持 fail-closed；文本入库的产品要求不等于自动授予第三方全文许可。
 
 ## 远程继续工作（Remote continuation）
+
+### 许可随引用传递（Rights propagation）
+
+来源包的 NOTICE 不是派生内容的自动授权。凡是复制来源表达的 evidence、claim、Wiki 页面或机器索引，都应保留与该来源及其版本对应的归属、许可、NOTICE 位置和摘录/转换说明；机器消费者也需要获得这些信息，不能只拿到匿名文本。混合页面按实际来源片段标示条件，不把某一来源的许可错误套到整个页面、独立作品或整个仓库。收集者自己的纳入理由与评述（collector assessment）不冒充来源正文，也不自动继承来源许可。
+
+许可信息传递与发布放行是两个判断。保存 `CC-BY-NC-SA-4.0` 等条款不表示非商业（NonCommercial）用途已经核实；相同方式共享（ShareAlike）条件也不能在生成 Wiki 或 context pack 时丢失。尚缺实际用途或第三方范围证据的来源继续保持 `block`，工程测试通过不替代这些判断。
+
+实现复用一套 `rights_propagation` 模块，不按来源 UID 写特例。来源实体保存声明包，evidence/claim 保存版本化引用，页面、catalog、graph、search、page plan 与 context pack 继续携带引用。校验器检查来源声明与实际渲染内容、机器视图的一致性；负测覆盖丢失引用、版本错配、把来源摘录伪装成 collector assessment、孤立 evidence 及页面删去许可说明。没有完整包的来源明确标为 `unavailable`，不据此删除现存文本，也不推定获得许可。
 
 新任务 clone 对应的提案或工作分支后即可读取已提交的文本、manifest、registry 与派生候选，不需要依赖此前 runner 的文件，也不需要先重新联网抓取。固定到所需 commit 后运行：
 

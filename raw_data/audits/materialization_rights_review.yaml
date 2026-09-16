@@ -22,12 +22,12 @@ summary:
     documented_permission: 51
     permission_unverified: 40
   recommendation_counts:
-    allow_after_conditions_met: 40
-    allow_with_packaged_notice: 11
+    allow_after_conditions_met: 39
+    allow_with_packaged_notice: 12
     do_not_redistribute_full_text: 40
   publication_gate_counts:
-    block: 80
-    allow: 11
+    block: 79
+    allow: 12
   license_evidence_counts:
     CC-BY-4.0: 25
     none: 40
@@ -45,11 +45,11 @@ summary:
   - 73 篇 arXiv 中32篇官方文章页提供CC许可；WikiChat另由作者exact v2 camera-ready声明与ACL许可形成作者正文授权链，其余40篇仍缺适用公众许可证据。arXiv nonexclusive/assumed本身不转授公众权利。
   - 14 份 W3C 文档都有许可；7 份旧式许可对 HTML→Markdown 仍需衍生权审查。
   - LinkML、Apache Ossie、ODCS 有 Apache-2.0 证据；Schema.org supporting documentation 有 CC BY-SA 3.0 证据。
-  - 基线91项中6项W3C、ODCS 3.2.0定义首页、arXiv 2502.18864v2与2607.07663v2、LinkML单页及Schema.org既有文档快照已完成当前revision与NOTICE包装，11项allow；其余80项仍block（当前活跃全文79项block，其中40项缺许可、39项待履约）。
+  - 基线91项中6项W3C、ODCS 3.2.0定义首页、arXiv 2502.18864v2、2607.07663v2与2409.13740v2、LinkML单页及Schema.org既有文档快照已完成当前revision与NOTICE包装，12项allow；其余79项仍block（当前活跃全文78项block，其中40项缺许可、38项待履约）。
 review_completion:
   evidence_review_complete_for_baseline: true
   legal_clearance_complete: false
-  can_human_review_be_completed: 证据审计已完成；51条有公众许可证据，其中11条完成当前包装，40条仍待履约；另40条须取得适用许可或新的权威许可证据。客观许可履约不默认要求另行人工批准，Agent也不代替权利人授予新许可。
+  can_human_review_be_completed: 证据审计已完成；51条有公众许可证据，其中12条完成当前包装，39条仍待履约；另40条须取得适用许可或新的权威许可证据。客观许可履约不默认要求另行人工批准，Agent也不代替权利人授予新许可。
   not_legal_advice: true
 items:
 - sequence: 1
@@ -173,6 +173,14 @@ items:
     checked_at: '2026-09-16'
     finding: 官方许可只授予 arXiv.org 非独占分发权，不授予公众或本仓库。
     supports_public_redistribution: false
+  - kind: alternate_publisher_scope_review
+    url: https://proceedings.mlr.press/v70/trivedi17a.html
+    related_urls:
+    - https://proceedings.mlr.press/pmlr-license-agreement.html
+    - https://arxiv.org/abs/1705.05742
+    checked_at: '2026-09-16'
+    finding: PMLR出版协议对已发表article提供CC BY 4.0并要求原出版引用/链接；对应页面题名与作者一致。本地arxiv.tex使用ICML2017 accepted格式，但格式开关不单独证明保留的TeX全部内容与受许可出版版相同；精确作品范围仍待核清。包内实际保存algorithm.sty、algorithmic.sty、icml2017.sty、natbib.sty等组件，其许可不能用文章许可替代。未把当前通用协议推定为每个源包成员的授权。
+    supports_public_redistribution: false
   missing:
   - 面向公众的论文全文复制/再分发许可。
   - 许可版本、权利人和精确作品版本绑定。
@@ -241,6 +249,14 @@ items:
     license_url: https://arxiv.org/licenses/nonexclusive-distrib/1.0/
     checked_at: '2026-09-16'
     finding: 官方许可只授予 arXiv.org 非独占分发权，不授予公众或本仓库。
+    supports_public_redistribution: false
+  - kind: alternate_publisher_scope_review
+    url: https://www.nature.com/articles/s42256-024-00832-8
+    related_urls:
+    - https://arxiv.org/abs/2304.05376
+    checked_at: '2026-09-16'
+    finding: Nature Machine Intelligence的2024-05-08出版版明确CC BY 4.0，并链接arXiv预印本；当前arXiv页面最后修订为2023-10-02 v5，摘要与出版版有差异，未找到覆盖当前保留源包全部内容的版本级许可声明。出版页照片另标IBM
+      Research CC BY-ND 2.0；这些照片并非本地文本包成员，不能据此外推许可或虚构本地保存图像。实际包还含plex-serif/plex-sans/minted及neurips_2022样式，须分别核验，不以出版版文章许可自动覆盖。
     supports_public_redistribution: false
   missing:
   - 面向公众的论文全文复制/再分发许可。
@@ -1911,8 +1927,8 @@ items:
   - kind: source_metadata
     path: 'raw_data/arxiv/WikiChat: Stopping the Hallucination of Large Language Model Chatbots by Few-Shot Grounding on Wikipedia/metadata.yaml'
     locator: rights
-    finding: access=metadata_only; license_spdx=None; license_verified_at=None; notes=The repository stores metadata and source links; paper licensing
-      must be checked during materialization.
+    finding: access=metadata_only; license_spdx=None; license_verified_at=None; notes=The repository stores metadata and source links;
+      paper licensing must be checked during materialization.
     supports_public_redistribution: false
   - kind: local_content_rights_scan
     path: materialized_sources/corpus/arxiv-2305.14292--5b8a65bd
@@ -1948,10 +1964,21 @@ items:
     checked_at: '2026-09-16'
     finding: ACL Anthology 官方记录以 DOI 标识 WikiChat camera-ready；ACL 版权 FAQ 说明 2016 年后出版材料按 CC BY 4.0 许可。结合作者公告与精确 v2 校验，该许可可绑定到当前论文正文版本。
     supports_public_redistribution: true
+  - kind: retained_template_and_wikipedia_component_review
+    url: https://2023.emnlp.org/calls/style-and-formatting/
+    related_urls:
+    - https://2023.emnlp.org/downloads/emnlp2023-latex.zip
+    - https://github.com/acl-org/acl-style-files/blob/4c318538c99ce2d91201a3b43cfc12ef513e374b/acl_natbib.bst
+    - https://ctan.org/tex-archive/biblio/bibtex/contrib/urlbst
+    checked_at: '2026-09-16'
+    finding: emnlp2023.sty与官方模板ZIP成员一致，未在该文件/ZIP找到独立再分发许可；正文main.tex还保留模板说明。acl_natbib.bst内有Patrick W Daly版权及LPPL version1-or-later，官方urlbst说明其生成修改部分沿用LPPL，可通过保留头注和适用许可履约。appendix.tex:325-336、431-435及normalized正文实际含四组Wikipedia文章摘录，需要页面归属、许可与修改说明，不能全部归入作者论文CC
+      BY。纯书目事实不要求逐条另取许可；未因缺少研究参与者原始同意书或历史模型服务合同而自行新增门槛。
+    supports_public_redistribution: false
   missing:
   - source/emnlp2023.sty、source/acl_natbib.bst 等第三方组件尚未逐件确认再分发范围；acl_natbib.bst 含 Patrick W Daly 版权与 LPPL 声明，不能按论文 CC BY 4.0 自动覆盖。
   - 示例输出、引用材料及其他第三方内容尚未逐件划定许可边界。
   - 尚未形成覆盖作者、标题、来源、许可链接及修改说明的 NOTICE/署名履约包。
+  - 四组实际保存的Wikipedia摘录尚未补齐来源页面/历史归属、适用CC BY-SA与转换说明；不是未保存外链的抽象风险。
   classification: documented_permission
   license_id: CC-BY-4.0
   license_url: https://creativecommons.org/licenses/by/4.0/
@@ -3459,15 +3486,59 @@ items:
   canonical_url: https://arxiv.org/abs/2409.13740
   observed_rights:
     manifest:
-      declared_access: unknown
-      full_text_redistribution_assumed: true
+      declared_access: open
+      full_text_redistribution_assumed: false
       basis: arXiv source archive
-      assessment: 物化器声明/假设，不是权利人授权。
+      license_spdx: CC-BY-SA-4.0
+      license_url: https://creativecommons.org/licenses/by-sa/4.0/
+      license_verified_at: '2026-09-16'
+      redistribution_package:
+        source_revision: sha256:65291665eab887972d9c55d23c4535531976789f093fbc193af4a7f99b2e5858
+        source_version_url: https://arxiv.org/abs/2409.13740v2
+        notice_path: raw_data/licenses/arxiv-cc-by-sa-4.0-prime-cc-by-4.0-george-kour-mit-acl-cc-by-4.0.md
+        attribution: '"Language agents achieve superhuman synthesis of scientific knowledge", arXiv:2409.13740v2,
+          by Michael D. Skarlinski; Sam Cox; Jon M. Laurent; James D. Braza; Michaela Hinks; Michael J.
+          Hammerling; Manvitha Ponnapati; Samuel G. Rodriques; and Andrew D. White. Source: https://arxiv.org/abs/2409.13740v2.
+          The article-author material is licensed under CC BY-SA 4.0: https://creativecommons.org/licenses/by-sa/4.0/.
+          source/README.md and source/PRIMEarxiv.sty identify the Arxiv & PRIME AI Style Template adapted
+          by Moulay A. Akhloufi; the official template page is https://www.overleaf.com/latex/templates/arxiv-and-prime-ai-style-template/qdnhqytdqzsc
+          and licenses the adaptation under CC BY 4.0: https://creativecommons.org/licenses/by/4.0/. Corresponding
+          base portions derive from George Kour''s arxiv-style, https://github.com/kourgeorge/arxiv-style,
+          and retain Copyright (c) 2020 George Kour and the MIT License. The abstract field for "PubMedQA:
+          A Dataset for Biomedical Research Question Answering" is by Qiao Jin; Bhuwan Dhingra; Zhengping
+          Liu; William Cohen; and Xinghua Lu, ACL Anthology D19-1259, DOI 10.18653/v1/D19-1259, https://aclanthology.org/D19-1259/,
+          and is separately licensed under CC BY 4.0: https://creativecommons.org/licenses/by/4.0/.'
+        modifications: The fixed arXiv v2 source archive is unpacked and its seven text members are retained
+          without repository modification. main.tex and SI.tex are flattened into normalized/document.tex
+          and converted to normalized/document.txt; 28 selectors are generated; 13 binary figures and
+          PDFs are omitted; the combined attribution, changes statement, scope, and NOTICE link are appended
+          only to normalized/document.txt. The retained PRIMEarxiv.sty already contains an archive-side
+          change that comments out the default page-number footer (marked "JL removing default page numbers");
+          this prior modification is preserved and disclosed. The PubMedQA abstract wording is unchanged;
+          relative to the ACL page/XML rendering, source/references.bib uses only BibTeX percent and URL
+          escapes plus flattened paragraph whitespace.
+        scope: 本组合包仅覆盖固定 arXiv v2 胶囊实际保存的七个 source 文字成员、normalized/document.tex、 normalized/document.txt
+          与 28 个 selector。论文作者材料及其 normalized 文本转换按 CC BY-SA 4.0 履约，分享改编版本时仍须采用同一或兼容许可；各 selector 仅定位其对应的
+          source/normalized 组件，不改变被定位组件的许可。source/README.md 与 source/PRIMEarxiv.sty 中 Moulay A. Akhloufi
+          的 PRIME 模板改编按 CC BY 4.0 履约， 其中可对应 George Kour arxiv-style 的基础模板部分同时保留 Copyright (c) 2020 George
+          Kour 与完整 MIT notice。source/references.bib 内仅 PubMedQA 摘要字段按 CC BY 4.0 独立 履约，不将其重新许可为 CC BY-SA
+          4.0；其余书目条目作为引用记录保留，不授权被引用作品。 将这些独立作品放入同一 collection 不改变各自许可，但未来引用、共享或派生任何组件仍须 分别满足适用的署名、修改标记、ShareAlike
+          或 notice 条件。范围不包含已省略的图片/PDF、 外链论文、代码和数据、PubMedQA 数据集或其底层 PubMed 摘要，也不授予商标、专利或其他 第三方权利。
+      assessment: 固定版本与实际保留组件已分别记录许可和完整NOTICE；包装不是使用或发布批准。
     source_metadata:
-      access: unknown
-      license_spdx: null
-      license_verified_at: null
-      notes: Requires canonical rights verification.
+      license_spdx: CC-BY-SA-4.0
+      license_url: https://creativecommons.org/licenses/by-sa/4.0/
+      license_verified_at: '2026-09-16'
+      access: open
+      notes: 'The principal article-author material is CC BY-SA 4.0. Two independently identified components
+        remain under their own terms: Moulay A. Akhloufi''s Arxiv & PRIME AI Style Template adaptation
+        is CC BY 4.0 while the corresponding George Kour arxiv-style base portions retain the MIT License,
+        and the PubMedQA abstract stored in source/references.bib is CC BY 4.0 ACL material. These terms
+        do not extend to cited or linked works, the PubMedQA dataset or underlying PubMed abstracts, omitted
+        figures and PDFs, code, data, trademarks, patents, or material a licensor was not authorized to
+        license. Collection-level packaging does not relicense independent components; future sharing
+        or adaptation must satisfy each applicable license separately, including ShareAlike for article-derived
+        adaptations.'
     capsule_source_metadata:
       path: materialized_sources/corpus/arxiv-2409.13740--66861ff1/source-metadata.yaml
       assessment: rights 与 canonical metadata 一致，不是额外独立证据。
@@ -3477,46 +3548,121 @@ items:
     locator: rights
     finding: declared_access=unknown; full_text_redistribution_assumed=True; basis=arXiv source archive
     supports_public_redistribution: false
+    baseline_observation: true
   - kind: source_metadata
     path: raw_data/arxiv/Language agents achieve superhuman synthesis of scientific knowledge/metadata.yaml
     locator: rights
-    finding: access=unknown; license_spdx=None; license_verified_at=None; notes=Requires canonical rights verification.
+    finding: access=unknown; license_spdx=None; license_verified_at=None; notes=Requires canonical rights
+      verification.
     supports_public_redistribution: false
+    baseline_observation: true
   - kind: local_content_rights_scan
     path: materialized_sources/corpus/arxiv-2409.13740--66861ff1
     locator: source/** and normalized/**
     finding: source/README 的 MIT 只覆盖 arXiv 样式组件。
     supports_public_redistribution: false
+    baseline_observation: true
   - kind: official_article_license_record
     url: https://arxiv.org/abs/2409.13740
     license_url: https://creativecommons.org/licenses/by-sa/4.0/
     checked_at: '2026-09-16'
     finding: arXiv 官方文章页的 Rights to this article 链接指向 CC-BY-SA-4.0。
     supports_public_redistribution: true
-  missing:
-  - 本地三处 rights 未记录该文章许可及核验日期。
-  - retrieval hash 尚未与确切 arXiv vN 建立可审计映射。
-  - 未形成第三方组件例外清单和许可履约包。
+  - kind: component_template_license
+    url: https://www.overleaf.com/latex/templates/arxiv-and-prime-ai-style-template/qdnhqytdqzsc
+    related_urls:
+    - https://github.com/kourgeorge/arxiv-style/blob/920514696f6e7270cab0558fd97c44515c63b4c4/License.txt
+    checked_at: '2026-09-16'
+    finding: PaperQA2本地README明确Moulay A. Akhloufi改编的PRIME模板；作者官方Overleaf页授予CC BY4；George Kour基础材料保留Copyright(c)2020
+      George Kour及完整MIT。两胶囊模板仅第35行页码开关不同，不把变体归给Zep作者；模板两层分别履约。
+    supports_public_redistribution: true
+  - kind: fixed_article_version_binding
+    url: https://arxiv.org/abs/2409.13740v2
+    source_url: https://export.arxiv.org/src/2409.13740v2
+    checked_at: '2026-09-16'
+    source_revision: sha256:65291665eab887972d9c55d23c4535531976789f093fbc193af4a7f99b2e5858
+    finding: 固定v2官方文章页声明CC BY-SA4；4646196-byte源响应与现存revision一致，九作者完整署名。实际保留7个source文字成员（152608bytes）、28selectors，原已省略13个成员；不冒充完整图文archive。
+    supports_public_redistribution: true
+  - kind: third_party_abstract_license
+    url: https://aclanthology.org/D19-1259/
+    related_urls:
+    - https://aclanthology.org/faq/copyright/
+    - https://github.com/acl-org/acl-anthology/blob/f27fde6433cfa53bce6d7e3982a8b0085099d301/data/xml/D19.xml
+    checked_at: '2026-09-16'
+    finding: references.bib唯一abstract字段为PubMedQA；规范化BibTeX百分号/URL转义和空白后与ACL D19-1259官方摘要对应。2019 ACL材料适用CC
+      BY4，完整署名Qiao Jin、Bhuwan Dhingra、Zhengping Liu、William Cohen、Xinghua Lu及题名/DOI/来源。不假定ACL metadata为CC0，不授权PubMedQA数据集或底层PubMed摘要。
+    supports_public_redistribution: true
+  - kind: packaging_and_replay_check
+    path: materialized_sources/corpus/arxiv-2409.13740--66861ff1
+    checked_at: '2026-09-16'
+    finding: 两次固定v2真实物化15个胶囊文件逐字节一致；7source、normalized/document.tex、files.jsonl及28selectors保持，document.txt只追加唯一署名/转换块及../NOTICE.md。完整CC
+      BY-SA4、CC BY4、MIT随NOTICE保存。
+    supports_public_redistribution: true
+  missing: []
   classification: documented_permission
   license_id: CC-BY-SA-4.0
   license_url: https://creativecommons.org/licenses/by-sa/4.0/
-  license_scope: 覆盖该 arXiv article 中权利人有权许可的内容，不自动覆盖第三方组件、代码或数据。
+  license_scope: 本组合包仅覆盖固定 arXiv v2 胶囊实际保存的七个 source 文字成员、normalized/document.tex、 normalized/document.txt
+    与 28 个 selector。论文作者材料及其 normalized 文本转换按 CC BY-SA 4.0 履约，分享改编版本时仍须采用同一或兼容许可；各 selector 仅定位其对应的 source/normalized
+    组件，不改变被定位组件的许可。source/README.md 与 source/PRIMEarxiv.sty 中 Moulay A. Akhloufi 的 PRIME 模板改编按 CC BY 4.0
+    履约， 其中可对应 George Kour arxiv-style 的基础模板部分同时保留 Copyright (c) 2020 George Kour 与完整 MIT notice。source/references.bib
+    内仅 PubMedQA 摘要字段按 CC BY 4.0 独立 履约，不将其重新许可为 CC BY-SA 4.0；其余书目条目作为引用记录保留，不授权被引用作品。 将这些独立作品放入同一 collection
+    不改变各自许可，但未来引用、共享或派生任何组件仍须 分别满足适用的署名、修改标记、ShareAlike 或 notice 条件。范围不包含已省略的图片/PDF、 外链论文、代码和数据、PubMedQA
+    数据集或其底层 PubMed 摘要，也不授予商标、专利或其他 第三方权利。
   license_restrictions:
   - share_alike
   evidence_confidence: high
-  public_redistribution_recommendation: allow_after_conditions_met
+  public_redistribution_recommendation: allow_with_packaged_notice
   conditions:
   - 署名、来源、许可链接与修改说明。
   - 改编材料以 CC BY-SA 4.0 相同方式共享。
   - 逐件排除或清理第三方材料。
   - 将许可与当前 retrieval hash 和确切 arXiv vN 绑定。
-  current_capsule_compliance: pending_license_compliance_and_revision_binding
+  current_capsule_compliance: packaged_notice_and_revision_binding_verified
   publication_gate:
-    decision: block
-    reason: 存在公众许可证据，但当前胶囊尚未机器证明版本绑定、许可条件和第三方范围均满足。
-  human_follow_up:
-  - 人工核对本地 source archive 的 arXiv 版本。
-  - 补齐归属、许可链接/声明与第三方组件审计后再审批。
+    decision: allow
+    reason: 固定v2与现存revision一致；论文BY-SA4、PRIME改编BY4、George Kour基础MIT及PubMedQA摘要BY4分别署名并保存完整条款，正文转换与同许可共享范围明确。仅覆盖当前实际保留包。
+  human_follow_up: []
+  redistribution_package:
+    source_revision: sha256:65291665eab887972d9c55d23c4535531976789f093fbc193af4a7f99b2e5858
+    source_version_url: https://arxiv.org/abs/2409.13740v2
+    notice_path: raw_data/licenses/arxiv-cc-by-sa-4.0-prime-cc-by-4.0-george-kour-mit-acl-cc-by-4.0.md
+    attribution: '"Language agents achieve superhuman synthesis of scientific knowledge", arXiv:2409.13740v2,
+      by Michael D. Skarlinski; Sam Cox; Jon M. Laurent; James D. Braza; Michaela Hinks; Michael J. Hammerling;
+      Manvitha Ponnapati; Samuel G. Rodriques; and Andrew D. White. Source: https://arxiv.org/abs/2409.13740v2.
+      The article-author material is licensed under CC BY-SA 4.0: https://creativecommons.org/licenses/by-sa/4.0/.
+      source/README.md and source/PRIMEarxiv.sty identify the Arxiv & PRIME AI Style Template adapted
+      by Moulay A. Akhloufi; the official template page is https://www.overleaf.com/latex/templates/arxiv-and-prime-ai-style-template/qdnhqytdqzsc
+      and licenses the adaptation under CC BY 4.0: https://creativecommons.org/licenses/by/4.0/. Corresponding
+      base portions derive from George Kour''s arxiv-style, https://github.com/kourgeorge/arxiv-style,
+      and retain Copyright (c) 2020 George Kour and the MIT License. The abstract field for "PubMedQA:
+      A Dataset for Biomedical Research Question Answering" is by Qiao Jin; Bhuwan Dhingra; Zhengping
+      Liu; William Cohen; and Xinghua Lu, ACL Anthology D19-1259, DOI 10.18653/v1/D19-1259, https://aclanthology.org/D19-1259/,
+      and is separately licensed under CC BY 4.0: https://creativecommons.org/licenses/by/4.0/.'
+    modifications: The fixed arXiv v2 source archive is unpacked and its seven text members are retained
+      without repository modification. main.tex and SI.tex are flattened into normalized/document.tex
+      and converted to normalized/document.txt; 28 selectors are generated; 13 binary figures and PDFs
+      are omitted; the combined attribution, changes statement, scope, and NOTICE link are appended only
+      to normalized/document.txt. The retained PRIMEarxiv.sty already contains an archive-side change
+      that comments out the default page-number footer (marked "JL removing default page numbers"); this
+      prior modification is preserved and disclosed. The PubMedQA abstract wording is unchanged; relative
+      to the ACL page/XML rendering, source/references.bib uses only BibTeX percent and URL escapes plus
+      flattened paragraph whitespace.
+    scope: 本组合包仅覆盖固定 arXiv v2 胶囊实际保存的七个 source 文字成员、normalized/document.tex、 normalized/document.txt 与
+      28 个 selector。论文作者材料及其 normalized 文本转换按 CC BY-SA 4.0 履约，分享改编版本时仍须采用同一或兼容许可；各 selector 仅定位其对应的 source/normalized
+      组件，不改变被定位组件的许可。source/README.md 与 source/PRIMEarxiv.sty 中 Moulay A. Akhloufi 的 PRIME 模板改编按 CC BY
+      4.0 履约， 其中可对应 George Kour arxiv-style 的基础模板部分同时保留 Copyright (c) 2020 George Kour 与完整 MIT notice。source/references.bib
+      内仅 PubMedQA 摘要字段按 CC BY 4.0 独立 履约，不将其重新许可为 CC BY-SA 4.0；其余书目条目作为引用记录保留，不授权被引用作品。 将这些独立作品放入同一 collection
+      不改变各自许可，但未来引用、共享或派生任何组件仍须 分别满足适用的署名、修改标记、ShareAlike 或 notice 条件。范围不包含已省略的图片/PDF、 外链论文、代码和数据、PubMedQA
+      数据集或其底层 PubMed 摘要，也不授予商标、专利或其他 第三方权利。
+  clearance_review:
+    kind: agent_evidence_and_packaging_review
+    human_approval_claimed: false
+    scope: 固定v2实际文字成员和衍生文本；不涵盖省略图像、外链或所引作品。
+  conditions_fulfilled:
+  - 固定v2、既有revision、九作者与许可对应。
+  - 四项权利范围分别履约；独立组件不被论文许可吞并。
+  - 原source与selector保留，正文仅补唯一NOTICE与修改附注；双次真实重建一致。
 - sequence: 49
   uid: arxiv:2410.04444
   source_type: arxiv
@@ -3961,15 +4107,57 @@ items:
   canonical_url: https://arxiv.org/abs/2501.13956
   observed_rights:
     manifest:
-      declared_access: unknown
-      full_text_redistribution_assumed: true
+      declared_access: restricted
+      full_text_redistribution_assumed: false
       basis: arXiv source archive
-      assessment: 物化器声明/假设，不是权利人授权。
+      license_spdx: CC-BY-NC-SA-4.0
+      license_url: https://creativecommons.org/licenses/by-nc-sa/4.0/
+      license_verified_at: '2026-09-16'
+      redistribution_package:
+        source_revision: sha256:d98c3a619caf66173e92e9a21829b32312db83156e30ede9e6bb45c1c6016d51
+        source_version_url: https://arxiv.org/abs/2501.13956v1
+        notice_path: raw_data/licenses/arxiv-cc-by-nc-sa-4.0-prime-cc-by-4.0-george-kour-mit.md
+        attribution: '"Zep: A Temporal Knowledge Graph Architecture for Agent Memory", arXiv:2501.13956v1,
+          by Preston Rasmussen; Pavlo Paliychuk; Travis Beauvais; Jack Ryan; and Daniel Chalef. Source:
+          https://arxiv.org/abs/2501.13956v1. The article-author material is licensed under CC BY-NC-SA
+          4.0: https://creativecommons.org/licenses/by-nc-sa/4.0/. This repository has not yet verified
+          that its intended publication is NonCommercial; this package is not a publication approval.
+          source/PRIMEarxiv.sty corresponds to the Arxiv & PRIME AI Style Template adapted by Moulay A.
+          Akhloufi, https://www.overleaf.com/latex/templates/arxiv-and-prime-ai-style-template/qdnhqytdqzsc,
+          licensed under CC BY 4.0: https://creativecommons.org/licenses/by/4.0/. That adaptation is based
+          on George Kour''s arxiv-style, https://github.com/kourgeorge/arxiv-style; its base portions
+          retain Copyright (c) 2020 George Kour and the MIT License. The retained Zep style enables the
+          page footer that the otherwise matching PaperQA2 copy comments out; the modifier of this one-line
+          variant is unknown and is not attributed to the paper authors.'
+        modifications: The fixed v1 source archive is unpacked and its four text members—source/main.tex,
+          source/main.bbl, source/references.bib, and source/PRIMEarxiv.sty—are retained without modification.
+          main.tex is copied to normalized/document.tex and converted to normalized/document.txt; 29 selectors
+          are generated; the article attribution, Moulay A. Akhloufi template attribution, George Kour
+          MIT notice, modification statement, and NOTICE link are appended to normalized/document.txt.
+          For provenance, the retained Zep PRIMEarxiv.sty is recorded as differing from the otherwise
+          matching PaperQA2 copy only at line 35 by enabling the page footer; this packaging does not
+          identify the author of that pre-existing variant.
+        scope: 本组合包仅覆盖固定 arXiv v1 胶囊实际保存的四个 source 文字成员、normalized/document.tex、normalized/document.txt
+          与 29 个 selector。论文作者材料及其文本转换和 selector 派生物按 CC BY-NC-SA 4.0 履约，任何共享仅限非商业用途，派生输出须采用同一或兼容许可；当前仓库用途尚未完成非商业核实，故本包不表示发布已获准，未来商业用途须另行取得授权。source/PRIMEarxiv.sty
+          作为 Moulay A. Akhloufi 改编的 PRIME 模板按 CC BY 4.0 履约，并对其所基于的 George Kour arxiv-style 保留 MIT 版权和许可；Zep
+          所存版本相对 PaperQA2 对应副本仅启用第 35 行页脚，本包记录该差异但不把修改归给论文作者。main.bbl 与 references.bib 作为排版记录和引用元数据保留，不授权其所引用作品。许可不外推到外链论文、代码、数据或权利人无权许可的第三方材料。
+      assessment: 固定版本与实际保留组件已分别记录许可和完整NOTICE；包装不是使用或发布批准。
     source_metadata:
-      access: unknown
-      license_spdx: null
-      license_verified_at: null
-      notes: Requires canonical rights verification.
+      license_spdx: CC-BY-NC-SA-4.0
+      license_url: https://creativecommons.org/licenses/by-nc-sa/4.0/
+      license_verified_at: '2026-09-16'
+      access: restricted
+      notes: The official arXiv v1 page links this exact article version to CC BY-NC-SA 4.0. The repository
+        has not yet established that its intended public use is NonCommercial, so this package records
+        attribution and license obligations but does not approve publication. Article-derived material
+        must remain under CC BY-NC-SA 4.0 and future commercial use requires separate authorization. PaperQA2's
+        retained source README identifies PRIMEarxiv.sty as Moulay A. Akhloufi's adaptation of George
+        Kour's arxiv-style; Moulay A. Akhloufi's official Overleaf template page declares CC BY 4.0, while
+        George Kour's official repository supplies the MIT license and Copyright (c) 2020 George Kour.
+        The Zep and PaperQA2 style files differ only at line 35, where the Zep copy enables the page footer
+        that the PaperQA2 copy comments out; the modifier of that variant is not identified or attributed
+        to the Zep paper authors. These permissions do not extend to cited or linked works, code, data,
+        or material the licensors were not authorized to license.
     capsule_source_metadata:
       path: materialized_sources/corpus/arxiv-2501.13956--b93a114f/source-metadata.yaml
       assessment: rights 与 canonical metadata 一致，不是额外独立证据。
@@ -3979,30 +4167,60 @@ items:
     locator: rights
     finding: declared_access=unknown; full_text_redistribution_assumed=True; basis=arXiv source archive
     supports_public_redistribution: false
+    baseline_observation: true
   - kind: source_metadata
     path: 'raw_data/arxiv/Zep: A Temporal Knowledge Graph Architecture for Agent Memory/metadata.yaml'
     locator: rights
-    finding: access=unknown; license_spdx=None; license_verified_at=None; notes=Requires canonical rights verification.
+    finding: access=unknown; license_spdx=None; license_verified_at=None; notes=Requires canonical rights
+      verification.
     supports_public_redistribution: false
+    baseline_observation: true
   - kind: local_content_rights_scan
     path: materialized_sources/corpus/arxiv-2501.13956--b93a114f
     locator: source/** and normalized/**
     finding: 未发现独立 LICENSE/COPYING/NOTICE 或文章级本地许可；命中项（如有）仅属模板、组件、引用或研究对象。
     supports_public_redistribution: false
+    baseline_observation: true
   - kind: official_article_license_record
     url: https://arxiv.org/abs/2501.13956
     license_url: https://creativecommons.org/licenses/by-nc-sa/4.0/
     checked_at: '2026-09-16'
     finding: arXiv 官方文章页的 Rights to this article 链接指向 CC-BY-NC-SA-4.0。
     supports_public_redistribution: true
+  - kind: fixed_article_version_and_component_license
+    url: https://arxiv.org/abs/2501.13956v1
+    source_url: https://export.arxiv.org/e-print/2501.13956v1
+    related_urls:
+    - https://creativecommons.org/licenses/by-nc-sa/4.0/
+    - https://github.com/kourgeorge/arxiv-style/blob/master/License.txt
+    checked_at: '2026-09-16'
+    source_revision: sha256:d98c3a619caf66173e92e9a21829b32312db83156e30ede9e6bb45c1c6016d51
+    finding: 固定v1为22911bytes，与现存revision一致；五作者完整署名，官方论文CC BY-NC-SA4。四个source文字成员与29selectors保留，bib无abstract/copyright/annote/review字段。PRIME模板按Moulay改编BY4与George
+      Kour基础MIT分别署名并保存完整条款。
+    supports_public_redistribution: true
+  - kind: packaging_complete_use_condition_pending
+    path: materialized_sources/corpus/arxiv-2501.13956--b93a114f
+    checked_at: '2026-09-16'
+    finding: 两次固定v1真实物化12个胶囊文件逐字节一致；4source、normalized/document.tex及29selectors对HEAD不变，document.txt只追加唯一EOF署名/变更块和../NOTICE.md。完整CC
+      BY-NC-SA4、CC BY4、MIT与官方一致。NC使用事实仍待确认，不能由研究/candidate标签或public GitHub推定满足。
+    supports_public_redistribution: false
+  - kind: component_template_license
+    url: https://www.overleaf.com/latex/templates/arxiv-and-prime-ai-style-template/qdnhqytdqzsc
+    related_urls:
+    - https://github.com/kourgeorge/arxiv-style/blob/920514696f6e7270cab0558fd97c44515c63b4c4/License.txt
+    checked_at: '2026-09-16'
+    finding: PaperQA2本地README明确Moulay A. Akhloufi改编的PRIME模板；作者官方Overleaf页授予CC BY4；George Kour基础材料保留Copyright(c)2020
+      George Kour及完整MIT。两胶囊模板仅第35行页码开关不同，不把变体归给Zep作者；模板两层分别履约。
+    supports_public_redistribution: true
   missing:
-  - 本地三处 rights 未记录该文章许可及核验日期。
-  - retrieval hash 尚未与确切 arXiv vN 建立可审计映射。
-  - 未形成第三方组件例外清单和许可履约包。
+  - 实际使用是否主要旨在或指向商业利益或金钱报酬尚未核实；NC主体/公开托管标签不单独决定。
   classification: documented_permission
   license_id: CC-BY-NC-SA-4.0
   license_url: https://creativecommons.org/licenses/by-nc-sa/4.0/
-  license_scope: 覆盖该 arXiv article 中权利人有权许可的内容，不自动覆盖第三方组件、代码或数据。
+  license_scope: 本组合包仅覆盖固定 arXiv v1 胶囊实际保存的四个 source 文字成员、normalized/document.tex、normalized/document.txt
+    与 29 个 selector。论文作者材料及其文本转换和 selector 派生物按 CC BY-NC-SA 4.0 履约，任何共享仅限非商业用途，派生输出须采用同一或兼容许可；当前仓库用途尚未完成非商业核实，故本包不表示发布已获准，未来商业用途须另行取得授权。source/PRIMEarxiv.sty
+    作为 Moulay A. Akhloufi 改编的 PRIME 模板按 CC BY 4.0 履约，并对其所基于的 George Kour arxiv-style 保留 MIT 版权和许可；Zep
+    所存版本相对 PaperQA2 对应副本仅启用第 35 行页脚，本包记录该差异但不把修改归给论文作者。main.bbl 与 references.bib 作为排版记录和引用元数据保留，不授权其所引用作品。许可不外推到外链论文、代码、数据或权利人无权许可的第三方材料。
   license_restrictions:
   - noncommercial
   - share_alike
@@ -4014,13 +4232,47 @@ items:
   - 改编材料以 CC BY-NC-SA 4.0 相同方式共享。
   - 逐件排除或清理第三方材料。
   - 将许可与当前 retrieval hash 和确切 arXiv vN 绑定。
-  current_capsule_compliance: pending_license_compliance_and_revision_binding
+  current_capsule_compliance: notice_packaged_pending_noncommercial_use_confirmation
   publication_gate:
     decision: block
-    reason: 存在公众许可证据，但当前胶囊尚未机器证明版本绑定、许可条件和第三方范围均满足。
+    reason: 固定v1、论文和两层模板NOTICE已包装；通用派生引用许可传递已实现，实际NC用途事实尚未核实，不能仅凭包装将整项allow。
   human_follow_up:
-  - 人工核对本地 source archive 的 arXiv 版本。
-  - 补齐归属、许可链接/声明与第三方组件审计后再审批。
+  - 确认实际使用满足CC BY-NC-SA 4.0的NonCommercial定义；若不满足，取得权利人额外许可。
+  redistribution_package:
+    source_revision: sha256:d98c3a619caf66173e92e9a21829b32312db83156e30ede9e6bb45c1c6016d51
+    source_version_url: https://arxiv.org/abs/2501.13956v1
+    notice_path: raw_data/licenses/arxiv-cc-by-nc-sa-4.0-prime-cc-by-4.0-george-kour-mit.md
+    attribution: '"Zep: A Temporal Knowledge Graph Architecture for Agent Memory", arXiv:2501.13956v1,
+      by Preston Rasmussen; Pavlo Paliychuk; Travis Beauvais; Jack Ryan; and Daniel Chalef. Source: https://arxiv.org/abs/2501.13956v1.
+      The article-author material is licensed under CC BY-NC-SA 4.0: https://creativecommons.org/licenses/by-nc-sa/4.0/.
+      This repository has not yet verified that its intended publication is NonCommercial; this package
+      is not a publication approval. source/PRIMEarxiv.sty corresponds to the Arxiv & PRIME AI Style Template
+      adapted by Moulay A. Akhloufi, https://www.overleaf.com/latex/templates/arxiv-and-prime-ai-style-template/qdnhqytdqzsc,
+      licensed under CC BY 4.0: https://creativecommons.org/licenses/by/4.0/. That adaptation is based
+      on George Kour''s arxiv-style, https://github.com/kourgeorge/arxiv-style; its base portions retain
+      Copyright (c) 2020 George Kour and the MIT License. The retained Zep style enables the page footer
+      that the otherwise matching PaperQA2 copy comments out; the modifier of this one-line variant is
+      unknown and is not attributed to the paper authors.'
+    modifications: The fixed v1 source archive is unpacked and its four text members—source/main.tex,
+      source/main.bbl, source/references.bib, and source/PRIMEarxiv.sty—are retained without modification.
+      main.tex is copied to normalized/document.tex and converted to normalized/document.txt; 29 selectors
+      are generated; the article attribution, Moulay A. Akhloufi template attribution, George Kour MIT
+      notice, modification statement, and NOTICE link are appended to normalized/document.txt. For provenance,
+      the retained Zep PRIMEarxiv.sty is recorded as differing from the otherwise matching PaperQA2 copy
+      only at line 35 by enabling the page footer; this packaging does not identify the author of that
+      pre-existing variant.
+    scope: 本组合包仅覆盖固定 arXiv v1 胶囊实际保存的四个 source 文字成员、normalized/document.tex、normalized/document.txt 与
+      29 个 selector。论文作者材料及其文本转换和 selector 派生物按 CC BY-NC-SA 4.0 履约，任何共享仅限非商业用途，派生输出须采用同一或兼容许可；当前仓库用途尚未完成非商业核实，故本包不表示发布已获准，未来商业用途须另行取得授权。source/PRIMEarxiv.sty
+      作为 Moulay A. Akhloufi 改编的 PRIME 模板按 CC BY 4.0 履约，并对其所基于的 George Kour arxiv-style 保留 MIT 版权和许可；Zep
+      所存版本相对 PaperQA2 对应副本仅启用第 35 行页脚，本包记录该差异但不把修改归给论文作者。main.bbl 与 references.bib 作为排版记录和引用元数据保留，不授权其所引用作品。许可不外推到外链论文、代码、数据或权利人无权许可的第三方材料。
+  clearance_review:
+    kind: agent_evidence_and_packaging_review
+    human_approval_claimed: false
+    scope: 固定v1来源包装与派生许可传递；实际NC使用尚未放行。
+  conditions_fulfilled:
+  - 确切v1与现存revision绑定，原论文表达与定位器保留。
+  - 论文CC BY-NC-SA4、PRIME改编CC BY4、George Kour基础MIT完整声明分别保存。
+  - 通用pipeline传递来源摘录、claim、页面与机器视图许可引用，不强加给collector或整库独立作品。
 - sequence: 56
   uid: arxiv:2502.12110
   source_type: arxiv

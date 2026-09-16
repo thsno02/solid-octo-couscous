@@ -53,7 +53,7 @@ temporal:
   valid_to: null
   as_of: '2026-09-16T04:30:26Z'
 provenance:
-  build_id: build:llm-wiki-v0:0f0b56605b4756b3
+  build_id: build:llm-wiki-v0:bf1b13c8baaa32ad
   generated_by_agent: pipeline/build_llm_wiki.py
   generated_by_model: null
   prompt_or_skill_version: deterministic-llm-wiki-v0.2
@@ -85,11 +85,17 @@ consumption:
     short: 'Source page for FActScore: Fine-grained Atomic Evaluation of Factual Precision in Long Form Text Generation
       with claim/evidence expansion.'
     full: null
-  estimated_tokens: 228
+  estimated_tokens: 321
   machine_entry_points:
   - ../../04_claims/claims.jsonl
   - ../../03_evidence/evidence.jsonl
   - ../catalog/pages.jsonl
+rendered_claim_refs:
+- claim:9f0a3dc6de4c7f84
+- claim:b281f7d7bc21b10d
+rights_refs: []
+rights_unavailable_source_refs:
+- arxiv:2305.14251
 ---
 
 # FActScore: Fine-grained Atomic Evaluation of Factual Precision in Long Form Text Generation
@@ -130,3 +136,12 @@ Source statements remain unverified candidates. Collection assessments explain i
 - [Llm Wiki](../maps/llm-wiki.md) — `part_of`
 - [Claim 9f0a3dc6de4c7f84](../claims/claim-9f0a3dc6de4c7f84.md) — `evidenced_by`
 - [Claim b281f7d7bc21b10d](../claims/claim-b281f7d7bc21b10d.md) — `evidenced_by`
+
+## Source text rights and attribution
+
+The terms below apply only to the listed source-authored claim components. They do not relicense collector assessments, compiler synthesis, other source components, or this repository as a whole.
+
+### FActScore: Fine-grained Atomic Evaluation of Factual Precision in Long Form Text Generation (`arxiv:2305.14251`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.

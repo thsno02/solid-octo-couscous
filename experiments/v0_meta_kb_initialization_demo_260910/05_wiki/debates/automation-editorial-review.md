@@ -89,7 +89,7 @@ temporal:
   valid_to: null
   as_of: '2026-09-16T04:30:26Z'
 provenance:
-  build_id: build:llm-wiki-v0:0f0b56605b4756b3
+  build_id: build:llm-wiki-v0:bf1b13c8baaa32ad
   generated_by_agent: pipeline/build_llm_wiki.py
   generated_by_model: null
   prompt_or_skill_version: deterministic-llm-wiki-v0.2
@@ -130,11 +130,38 @@ consumption:
     one_line: Automation accelerates research and writing but requires independent evidence and governance gates.
     short: Automation accelerates research and writing but requires independent evidence and governance gates.
     full: null
-  estimated_tokens: 737
+  estimated_tokens: 1448
   machine_entry_points:
   - ../../04_claims/claims.jsonl
   - ../../03_evidence/evidence.jsonl
   - ../catalog/pages.jsonl
+rendered_claim_refs:
+- claim:2f8ebd974fc7b5fd
+- claim:38c95b3e2bcfcf51
+- claim:3c6cef89711e89f2
+- claim:9077f46d7f30e565
+- claim:4bf5ea8e6b4e37de
+- claim:84c91602bd1dfb78
+- claim:ecdd2719fa55751c
+- claim:1929edca74fa3fa5
+- claim:b281f7d7bc21b10d
+- claim:bc9a34bd8a9c7154
+- claim:bed2f056ecd73c69
+- claim:e7026275c099e7e2
+rights_refs: []
+rights_unavailable_source_refs:
+- arxiv:2305.14251
+- arxiv:2305.14627
+- arxiv:2402.14207
+- arxiv:2406.06769
+- arxiv:2408.06292
+- arxiv:2501.04227
+- arxiv:2502.14499
+- arxiv:2504.08066
+- arxiv:2505.13400
+- arxiv:2509.23233
+- arxiv:2602.06855
+- github:VectifyAI/OpenKB
 ---
 
 # Automation versus editorial review
@@ -175,3 +202,67 @@ Automation is useful for perspective discovery, extraction, planning, drafting, 
 - [Automated Research](../maps/automated-research.md) — `related`
 - [Governance Evaluation](../maps/governance-evaluation.md) — `related`
 - [v0 LLM Wiki quality gates](../evaluations/v0-quality-gates.md) — `evaluates`
+
+## Source text rights and attribution
+
+The terms below apply only to the listed source-authored claim components. They do not relicense collector assessments, compiler synthesis, other source components, or this repository as a whole.
+
+### FActScore: Fine-grained Atomic Evaluation of Factual Precision in Long Form Text Generation (`arxiv:2305.14251`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.
+
+### Enabling Large Language Models to Generate Text with Citations (`arxiv:2305.14627`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.
+
+### Assisting in Writing Wikipedia-like Articles From Scratch with Large Language Models (`arxiv:2402.14207`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.
+
+### DISCOVERYWORLD: A Virtual Environment for Developing and Evaluating Automated Scientific Discovery Agents (`arxiv:2406.06769`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.
+
+### The AI Scientist: Towards Fully Automated Open-Ended Scientific Discovery (`arxiv:2408.06292`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.
+
+### Agent Laboratory: Using LLM Agents as Research Assistants (`arxiv:2501.04227`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.
+
+### MLGym: A New Framework and Benchmark for Advancing AI Research Agents (`arxiv:2502.14499`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.
+
+### The AI Scientist-v2: Workshop-Level Automated Scientific Discovery via Agentic Tree Search (`arxiv:2504.08066`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.
+
+### Robin: A multi-agent system for automating scientific discovery (`arxiv:2505.13400`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.
+
+### Detecting Corpus-Level Knowledge Inconsistencies in Wikipedia with Large Language Models (`arxiv:2509.23233`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.
+
+### AIRS-Bench: a Suite of Tasks for Frontier AI Research Science Agents (`arxiv:2602.06855`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.
+
+### VectifyAI/OpenKB (`github:VectifyAI/OpenKB`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.

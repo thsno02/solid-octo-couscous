@@ -165,4 +165,18 @@ def signals(rows: list[dict[str, Any]], current: str, claim_paths: dict[str, str
 
 
 def page(path: str, uid: str, title: str, ptype: str, summary: str, body: str = "") -> dict[str, Any]:
-    return {"path": path, "uid": uid, "title": title, "type": ptype, "summary": summary, "body": body, "claims": [], "sources": [], "outgoing": [], "sections": []}
+    return {
+        "path": path,
+        "uid": uid,
+        "title": title,
+        "type": ptype,
+        "summary": summary,
+        "body": body,
+        "claims": [],
+        "rendered_claims": [],
+        "sources": [],
+        "rights_refs": [],
+        "rights_unavailable_source_refs": [],
+        "outgoing": [],
+        "sections": [],
+    }

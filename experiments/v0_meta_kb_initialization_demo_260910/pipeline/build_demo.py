@@ -12,6 +12,19 @@ from typing import Any, Iterable
 
 import yaml
 
+from rights_propagation import (
+    CLAIM_TRANSFORMATION,
+    CLAIM_USE,
+    DECLARED,
+    EVIDENCE_TRANSFORMATION,
+    EVIDENCE_USE,
+    UNAVAILABLE,
+    make_rights_ref,
+    page_rights_payload,
+    rights_markdown,
+    rights_snapshot,
+)
+
 EXPERIMENT_ROOT = Path(__file__).resolve().parents[1]
 ROOT = Path(__file__).resolve().parents[3]
 CONFIG_PATH = EXPERIMENT_ROOT / "config.yaml"
@@ -358,6 +371,9 @@ def wiki_frontmatter(
     source_refs: list[str],
     generated_at: str,
     build_id: str,
+    rendered_claim_refs: list[str] | None = None,
+    rights_refs: list[dict[str, Any]] | None = None,
+    rights_unavailable_source_refs: list[str] | None = None,
 ) -> dict[str, Any]:
     return {
         "uid": uid,
@@ -369,7 +385,10 @@ def wiki_frontmatter(
         "aliases": [],
         "ontology_refs": ["experiment:meta-kb-v0"],
         "claim_refs": claim_refs,
+        "rendered_claim_refs": rendered_claim_refs or [],
         "source_refs": source_refs,
+        "rights_refs": rights_refs or [],
+        "rights_unavailable_source_refs": rights_unavailable_source_refs or [],
         "page_refs": [],
         "outgoing_links": [],
         "sections": [],
@@ -435,6 +454,7 @@ def main() -> int:
     input_paths = {CONFIG_PATH, MATERIALIZED_INDEX, Path(__file__),
                    Path(__file__).with_name("validate_demo.py"),
                    Path(__file__).with_name("evidence_validation.py"),
+                   Path(__file__).with_name("rights_propagation.py"),
                    KNOWLEDGE_SCHEMA, WIKI_PAGE_SCHEMA}
     for item in selected:
         manifest_path = ROOT / str(item["manifest"])
@@ -468,6 +488,12 @@ def main() -> int:
         manifest = load_yaml(manifest_path)
         if not isinstance(manifest, dict):
             continue
+        declared_rights = rights_snapshot(manifest.get("rights"))
+        source_for_rights = {
+            **item,
+            "rights": declared_rights,
+            "rights_status": DECLARED if declared_rights else UNAVAILABLE,
+        }
         domain = domain_bucket(item, metadata)
         limited_evidence = item.get("status") == "partial" or item.get("content_tier") == "excerpt_capsule"
         evidence_role = ("bounded-excerpt" if limited_evidence else
@@ -507,6 +533,8 @@ def main() -> int:
                     "content_tier": item.get("content_tier"),
                     "manifest": item.get("manifest"),
                     "domain": domain,
+                    "rights_status": source_for_rights["rights_status"],
+                    **({"rights": declared_rights} if declared_rights else {}),
                 },
                 method="materialized-source-registration",
                 source_version=str(item.get("revision") or "unknown"),
@@ -517,10 +545,21 @@ def main() -> int:
         )
 
         claim_refs: list[str] = []
+        rendered_claim_refs: list[str] = []
         if excerpt and local_path:
             evidence_uid = f"evidence:{short_hash(uid + ':source-excerpt')}"
             claim_uid = f"claim:{short_hash(uid + ':source-assertion')}"
             selector = f"local://{local_path}#L{start_line}-L{end_line}"
+            evidence_rights_ref = make_rights_ref(
+                source_for_rights,
+                usage=EVIDENCE_USE,
+                transformation=EVIDENCE_TRANSFORMATION,
+            )
+            evidence_rights = (
+                {"rights_refs": [evidence_rights_ref]}
+                if evidence_rights_ref
+                else {"rights_unavailable_source_refs": [uid]}
+            )
             evidence_objects.append(
                 knowledge_object(
                     uid=evidence_uid,
@@ -535,6 +574,7 @@ def main() -> int:
                         "excerpt_sha256": hashlib.sha256(excerpt.encode("utf-8")).hexdigest(),
                         "content_tier": item.get("content_tier"),
                         "evidence_role": evidence_role,
+                        **evidence_rights,
                     },
                     assertion_kind="observation",
                     method="deterministic-local-excerpt",
@@ -556,6 +596,19 @@ def main() -> int:
                     "domain": domain,
                     "subject_ref": source_entity_uid,
                     "limitations": ["Only the locally retained excerpt is evidence; omitted source content was not reviewed."] if limited_evidence else [],
+                    **(
+                        {
+                            "rights_refs": [
+                                make_rights_ref(
+                                    source_for_rights,
+                                    usage=CLAIM_USE,
+                                    transformation=CLAIM_TRANSFORMATION,
+                                )
+                            ]
+                        }
+                        if declared_rights
+                        else {"rights_unavailable_source_refs": [uid]}
+                    ),
                 },
                 assertion_kind="assertion",
                 evidence_refs=[evidence_uid],
@@ -566,6 +619,7 @@ def main() -> int:
             claim_objects.append(claim)
             claims_by_domain[domain].append(claim)
             claim_refs.append(claim_uid)
+            rendered_claim_refs.append(claim_uid)
 
         assessment_field, assessment_text = inclusion_reason_field(metadata)
         assessment_evidence_uid = f"evidence:{short_hash(uid + ':collection-metadata')}"
@@ -621,6 +675,8 @@ def main() -> int:
             "metadata_path": manifest.get("metadata_path"),
             "local_document": local_path,
             "claim_refs": claim_refs,
+            "rights_status": source_for_rights["rights_status"],
+            **({"rights": declared_rights} if declared_rights else {}),
         }
         selected_rows.append(selected_row)
         source_page_records.append(
@@ -628,6 +684,7 @@ def main() -> int:
                 "item": item,
                 "domain": domain,
                 "claim_refs": claim_refs,
+                "rendered_claim_refs": rendered_claim_refs,
                 "excerpt": excerpt,
                 "assessment": assessment_text,
                 "local_path": local_path,
@@ -706,6 +763,8 @@ def main() -> int:
     write_jsonl(EXPERIMENT_ROOT / "04_claims" / "contradictions.jsonl", [])
 
     wiki_root = EXPERIMENT_ROOT / "05_wiki"
+    claims_by_uid = {str(claim["uid"]): claim for claim in claim_objects}
+    selected_by_uid = {str(source["uid"]): source for source in selected_rows}
     source_pages: list[str] = []
     for record in source_page_records:
         item = record["item"]
@@ -723,6 +782,11 @@ def main() -> int:
             "",
             "## Source-reported assertion",
             "",
+            *(
+                [f"- Claim ID: `{record['rendered_claim_refs'][0]}`", ""]
+                if record["rendered_claim_refs"]
+                else []
+            ),
             record["excerpt"] or "No local full-text assertion was extracted.",
             "",
             "## Collection assessment",
@@ -733,6 +797,19 @@ def main() -> int:
             "",
             "Both statements remain candidates. The source assertion is not treated as independently verified, and the collection assessment is not treated as source-authored evidence.",
         ]
+        page_rights, unavailable_rights = page_rights_payload(
+            record["rendered_claim_refs"], claims_by_uid
+        )
+        rights_body = rights_markdown(
+            current_repo_path=(
+                EXPERIMENT_ROOT.relative_to(ROOT) / "05_wiki" / "sources" / f"{slug}.md"
+            ).as_posix(),
+            rights_refs=page_rights,
+            unavailable_source_refs=unavailable_rights,
+            sources_by_uid=selected_by_uid,
+        )
+        if rights_body:
+            body_lines.extend(["", rights_body])
         frontmatter = wiki_frontmatter(
             uid=f"wiki-page:source-{short_hash(str(item['uid']))}",
             title=str(item.get("title") or item["uid"]),
@@ -743,6 +820,9 @@ def main() -> int:
             source_refs=[str(item["uid"])],
             generated_at=generated_at,
             build_id=build_id,
+            rendered_claim_refs=list(record["rendered_claim_refs"]),
+            rights_refs=page_rights,
+            rights_unavailable_source_refs=unavailable_rights,
         )
         write_wiki_page(wiki_root / "sources" / f"{slug}.md", frontmatter, "\n".join(body_lines))
 
@@ -756,6 +836,18 @@ def main() -> int:
             text = str(claim["semantics"]["property_assertions"].get("text") or "")
             scope = str(claim["semantics"]["property_assertions"].get("claim_scope") or "")
             body.extend([f"## `{claim['uid']}`", "", f"**Scope:** {scope}", "", text, ""])
+        rendered_claim_refs = [str(claim["uid"]) for claim in claims]
+        page_rights, unavailable_rights = page_rights_payload(rendered_claim_refs, claims_by_uid)
+        rights_body = rights_markdown(
+            current_repo_path=(
+                EXPERIMENT_ROOT.relative_to(ROOT) / "05_wiki" / page_path
+            ).as_posix(),
+            rights_refs=page_rights,
+            unavailable_source_refs=unavailable_rights,
+            sources_by_uid=selected_by_uid,
+        )
+        if rights_body:
+            body.extend([rights_body, ""])
         write_wiki_page(
             wiki_root / page_path,
             wiki_frontmatter(
@@ -768,6 +860,9 @@ def main() -> int:
                 source_refs=source_refs,
                 generated_at=generated_at,
                 build_id=build_id,
+                rendered_claim_refs=rendered_claim_refs,
+                rights_refs=page_rights,
+                rights_unavailable_source_refs=unavailable_rights,
             ),
             "\n".join(body),
         )

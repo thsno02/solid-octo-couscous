@@ -78,7 +78,7 @@ temporal:
   valid_to: null
   as_of: '2026-09-16T04:30:26Z'
 provenance:
-  build_id: build:llm-wiki-v0:0f0b56605b4756b3
+  build_id: build:llm-wiki-v0:bf1b13c8baaa32ad
   generated_by_agent: pipeline/build_llm_wiki.py
   generated_by_model: null
   prompt_or_skill_version: deterministic-llm-wiki-v0.2
@@ -119,11 +119,38 @@ consumption:
     one_line: Open questions requiring more evidence, testing, conflict analysis, or editorial decisions.
     short: Open questions requiring more evidence, testing, conflict analysis, or editorial decisions.
     full: null
-  estimated_tokens: 718
+  estimated_tokens: 1420
   machine_entry_points:
   - ../../04_claims/claims.jsonl
   - ../../03_evidence/evidence.jsonl
   - ../catalog/pages.jsonl
+rendered_claim_refs:
+- claim:2f8ebd974fc7b5fd
+- claim:38c95b3e2bcfcf51
+- claim:3c6cef89711e89f2
+- claim:9077f46d7f30e565
+- claim:0d2b54965305cf83
+- claim:32d4ab82e7394fa1
+- claim:334565c7ebb30cb5
+- claim:a7845ddab7913b4f
+- claim:4bf5ea8e6b4e37de
+- claim:84c91602bd1dfb78
+- claim:ecdd2719fa55751c
+- claim:4715a4ff3b1706fd
+rights_refs: []
+rights_unavailable_source_refs:
+- arxiv-2104.00405
+- arxiv:1905.10985
+- arxiv:2406.06769
+- arxiv:2408.06292
+- arxiv:2408.08435
+- arxiv:2501.04227
+- arxiv:2502.14499
+- arxiv:2504.08066
+- arxiv:2505.13400
+- arxiv:2509.25651
+- arxiv:2602.06855
+- github:SakanaAI/AI-Scientist
 ---
 
 # Knowledge frontier
@@ -167,3 +194,67 @@ Check evidence entailment, source independence, contradiction, neutrality, due w
 
 - [Materialization, evidence, and trust gaps](../gaps/evidence-and-trust.md) — `extends`
 - [v0 LLM Wiki quality gates](../evaluations/v0-quality-gates.md) — `depends_on`
+
+## Source text rights and attribution
+
+The terms below apply only to the listed source-authored claim components. They do not relicense collector assessments, compiler synthesis, other source components, or this repository as a whole.
+
+### Avalanche: an End-to-End Library for Continual Learning (`arxiv-2104.00405`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.
+
+### AI-GAs: AI-generating algorithms, an alternate paradigm for producing general artificial intelligence (`arxiv:1905.10985`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.
+
+### DISCOVERYWORLD: A Virtual Environment for Developing and Evaluating Automated Scientific Discovery Agents (`arxiv:2406.06769`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.
+
+### The AI Scientist: Towards Fully Automated Open-Ended Scientific Discovery (`arxiv:2408.06292`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.
+
+### Automated Design of Agentic Systems (`arxiv:2408.08435`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.
+
+### Agent Laboratory: Using LLM Agents as Research Assistants (`arxiv:2501.04227`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.
+
+### MLGym: A New Framework and Benchmark for Advancing AI Research Agents (`arxiv:2502.14499`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.
+
+### The AI Scientist-v2: Workshop-Level Automated Scientific Discovery via Agentic Tree Search (`arxiv:2504.08066`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.
+
+### Robin: A multi-agent system for automating scientific discovery (`arxiv:2505.13400`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.
+
+### AutoLabs: Cognitive Multi-Agent Systems with Self-Correction for Autonomous Chemical Experimentation (`arxiv:2509.25651`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.
+
+### AIRS-Bench: a Suite of Tasks for Frontier AI Research Science Agents (`arxiv:2602.06855`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.
+
+### SakanaAI/AI-Scientist (`github:SakanaAI/AI-Scientist`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.

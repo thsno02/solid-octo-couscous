@@ -45,7 +45,7 @@ temporal:
   valid_to: null
   as_of: '2026-09-16T04:30:26Z'
 provenance:
-  build_id: build:llm-wiki-v0:0f0b56605b4756b3
+  build_id: build:llm-wiki-v0:bf1b13c8baaa32ad
   generated_by_agent: pipeline/build_llm_wiki.py
   generated_by_model: null
   prompt_or_skill_version: deterministic-llm-wiki-v0.2
@@ -79,11 +79,16 @@ consumption:
       in machine learning. Recently, we have witnessed a renewed and fast-growing interest in continual learning,
       especial
     full: null
-  estimated_tokens: 137
+  estimated_tokens: 225
   machine_entry_points:
   - ../../04_claims/claims.jsonl
   - ../../03_evidence/evidence.jsonl
   - ../catalog/pages.jsonl
+rendered_claim_refs:
+- claim:4715a4ff3b1706fd
+rights_refs: []
+rights_unavailable_source_refs:
+- arxiv-2104.00405
 ---
 
 # Source assertion from Avalanche: an End-to-End Library for Continual Learning
@@ -115,3 +120,12 @@ Check entailment, selector precision, source quality, identity, scope, contradic
 
 - [Avalanche: an End-to-End Library for Continual Learning](../sources/arxiv-2104.00405.md) — `evidenced_by`
 - [Knowledge Editing](../maps/knowledge-editing.md) — `part_of`
+
+## Source text rights and attribution
+
+The terms below apply only to the listed source-authored claim components. They do not relicense collector assessments, compiler synthesis, other source components, or this repository as a whole.
+
+### Avalanche: an End-to-End Library for Continual Learning (`arxiv-2104.00405`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.

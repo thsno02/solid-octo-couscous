@@ -13,6 +13,7 @@ import yaml
 from jsonschema import Draft202012Validator, FormatChecker
 
 from evidence_validation import validate_evidence_chain
+from rights_propagation import rights_snapshot, source_rights, validate_page_rights
 
 EXPERIMENT_ROOT = Path(__file__).resolve().parents[1]
 ROOT = Path(__file__).resolve().parents[3]
@@ -44,7 +45,7 @@ def load_jsonl(path: Path) -> list[dict[str, Any]]:
     return rows
 
 
-def parse_frontmatter(path: Path) -> dict[str, Any]:
+def parse_frontmatter_and_body(path: Path) -> tuple[dict[str, Any], str]:
     text = path.read_text(encoding="utf-8")
     if not text.startswith("---\n"):
         raise ValueError("missing YAML frontmatter")
@@ -54,7 +55,11 @@ def parse_frontmatter(path: Path) -> dict[str, Any]:
     value = yaml.safe_load(text[4:end])
     if not isinstance(value, dict):
         raise ValueError("frontmatter is not an object")
-    return value
+    return value, text[end + 5 :]
+
+
+def parse_frontmatter(path: Path) -> dict[str, Any]:
+    return parse_frontmatter_and_body(path)[0]
 
 
 def schema_errors(validator: Draft202012Validator, value: dict[str, Any], prefix: str) -> list[str]:
@@ -134,10 +139,25 @@ def main(*, write_reports: bool = False) -> int:
     }
     selected = load_yaml(EXPERIMENT_ROOT / "00_inputs" / "selected_sources.yaml")
     selected_sources = selected.get("sources") if isinstance(selected, dict) else []
+    selected_by_uid = {
+        str(item.get("uid")): item for item in selected_sources if isinstance(item, dict)
+    }
     selected_uids = {str(item.get("uid")) for item in selected_sources if isinstance(item, dict)}
     missing_registry = sorted(selected_uids - source_uids)
     if missing_registry:
         errors.append(f"SELECTED_NOT_IN_REGISTRY {missing_registry}")
+
+    source_entities_by_uid = {
+        str(item.get("semantics", {}).get("property_assertions", {}).get("source_uid") or ""): item
+        for item in source_entities
+    }
+    for source_uid, source in selected_by_uid.items():
+        entity = source_entities_by_uid.get(source_uid)
+        props = entity.get("semantics", {}).get("property_assertions", {}) if entity else {}
+        if not entity:
+            errors.append(f"RIGHTS_SOURCE_ENTITY_MISSING {source_uid}")
+        elif props.get("rights_status") != source.get("rights_status") or rights_snapshot(props.get("rights")) != source_rights(source):
+            errors.append(f"RIGHTS_SOURCE_ENTITY_MISMATCH {source_uid}")
 
     evidence_validation = validate_evidence_chain(
         root=ROOT,
@@ -155,7 +175,7 @@ def main(*, write_reports: bool = False) -> int:
     referenced_claims: Counter[str] = Counter()
     for path in wiki_pages:
         try:
-            frontmatter = parse_frontmatter(path)
+            frontmatter, body = parse_frontmatter_and_body(path)
         except Exception as exc:
             errors.append(f"WIKI_FRONTMATTER {path.relative_to(EXPERIMENT_ROOT)}: {exc}")
             continue
@@ -171,6 +191,20 @@ def main(*, write_reports: bool = False) -> int:
         for source_ref in frontmatter.get("source_refs", []):
             if source_ref not in source_uids:
                 errors.append(f"PAGE_BROKEN_SOURCE {path.relative_to(EXPERIMENT_ROOT)} -> {source_ref}")
+        rendered = frontmatter.get("rendered_claim_refs", [])
+        if not isinstance(rendered, list) or not set(str(ref) for ref in rendered).issubset(
+            set(str(ref) for ref in frontmatter.get("claim_refs", []))
+        ):
+            errors.append(f"PAGE_RENDERED_CLAIMS_MISMATCH {path.relative_to(EXPERIMENT_ROOT)}")
+        errors.extend(
+            validate_page_rights(
+                owner=path.relative_to(EXPERIMENT_ROOT).as_posix(),
+                frontmatter=frontmatter,
+                body=body,
+                claims_by_uid=claims_by_uid,
+                sources_by_uid=selected_by_uid,
+            )
+        )
 
     unreferenced_claims = sorted(set(claims_by_uid) - set(referenced_claims))
     if unreferenced_claims:
@@ -210,6 +244,7 @@ def main(*, write_reports: bool = False) -> int:
             "claim_to_evidence_integrity": "pass" if not (
                 evidence_validation["evidence_errors"]
                 or evidence_validation["claim_errors"]
+                or evidence_validation["rights_errors"]
                 or any(
                     error.startswith(("CLAIM_WITHOUT_EVIDENCE", "CLAIM_BROKEN_EVIDENCE"))
                     for error in errors
@@ -217,6 +252,10 @@ def main(*, write_reports: bool = False) -> int:
             ) else "fail",
             "local_evidence_resolution": "pass" if not evidence_validation["evidence_errors"] else "fail",
             "evidence_content_integrity": "pass" if not evidence_validation["evidence_errors"] else "fail",
+            "rights_propagation": "pass" if not any(
+                error.startswith(("RIGHTS_", "CLAIM_RIGHTS_", "CLAIM_SCOPE_", "CLAIM_EVIDENCE_", "EVIDENCE_RIGHTS_", "COLLECTOR_"))
+                for error in errors
+            ) else "fail",
             "metadata_only_source_policy": "pass" if not any(
                 error.startswith("METADATA_ONLY_SOURCE_REPORTED_CLAIM")
                 for error in evidence_validation["policy_errors"]

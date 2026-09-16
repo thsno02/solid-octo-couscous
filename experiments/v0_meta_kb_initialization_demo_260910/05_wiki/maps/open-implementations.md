@@ -72,7 +72,7 @@ temporal:
   valid_to: null
   as_of: '2026-09-16T04:30:26Z'
 provenance:
-  build_id: build:llm-wiki-v0:0f0b56605b4756b3
+  build_id: build:llm-wiki-v0:bf1b13c8baaa32ad
   generated_by_agent: pipeline/build_llm_wiki.py
   generated_by_model: null
   prompt_or_skill_version: deterministic-llm-wiki-v0.2
@@ -107,11 +107,32 @@ consumption:
     one_line: Commit-pinned repositories relevant to the LLM Wiki architecture.
     short: Commit-pinned repositories relevant to the LLM Wiki architecture.
     full: null
-  estimated_tokens: 406
+  estimated_tokens: 728
   machine_entry_points:
   - ../../04_claims/claims.jsonl
   - ../../03_evidence/evidence.jsonl
   - ../catalog/pages.jsonl
+rendered_claim_refs:
+- claim:d38b49dc4376d4b0
+- claim:1b6ae1229c17cacd
+- claim:334565c7ebb30cb5
+- claim:21bdaa7b130a7cc4
+- claim:bc85c4d0c6801c3a
+- claim:d6556415105fc41e
+- claim:e7ac7da9ac39e47d
+- claim:c4f2def09ea56d98
+- claim:fc57f26307cefee3
+- claim:3adb88340e0eb2b6
+- claim:e7026275c099e7e2
+- claim:714e301e8b2162bc
+rights_refs: []
+rights_unavailable_source_refs:
+- github:SakanaAI/AI-Scientist
+- github:VectifyAI/OpenKB
+- github:getzep/graphiti
+- github:jennyzzt/dgm
+- github:linkml/linkml
+- github:xoai/sage-wiki
 ---
 
 # Open implementations
@@ -147,3 +168,37 @@ Check evidence entailment, source independence, contradiction, neutrality, due w
 
 - [Source-specific consumption](../concepts/source-specific-consumption.md) — `depends_on`
 - [LLM Wiki reference system](../systems/reference-system.md) — `related`
+
+## Source text rights and attribution
+
+The terms below apply only to the listed source-authored claim components. They do not relicense collector assessments, compiler synthesis, other source components, or this repository as a whole.
+
+### SakanaAI/AI-Scientist (`github:SakanaAI/AI-Scientist`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.
+
+### VectifyAI/OpenKB (`github:VectifyAI/OpenKB`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.
+
+### getzep/graphiti (`github:getzep/graphiti`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.
+
+### jennyzzt/dgm (`github:jennyzzt/dgm`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.
+
+### linkml/linkml (`github:linkml/linkml`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.
+
+### xoai/sage-wiki (`github:xoai/sage-wiki`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.

@@ -9,6 +9,8 @@ from typing import Any
 
 import yaml
 
+from rights_propagation import validate_rights_chain
+
 
 LINE_SELECTOR = re.compile(r"L([1-9][0-9]*)-L([1-9][0-9]*)")
 METADATA_FIELDS = {
@@ -198,12 +200,19 @@ def validate_evidence_chain(
 
     if trusted_claims:
         policy_errors.append(f"TRUSTED_CLAIMS_MUST_BE_ZERO count={trusted_claims}")
-    errors = evidence_errors + claim_errors + policy_errors
+    rights_errors = validate_rights_chain(
+        root=root,
+        claims=claims,
+        evidence=evidence,
+        sources=sources,
+    )
+    errors = evidence_errors + claim_errors + policy_errors + rights_errors
     return {
         "errors": errors,
         "evidence_errors": evidence_errors,
         "claim_errors": claim_errors,
         "policy_errors": policy_errors,
+        "rights_errors": rights_errors,
         "trusted_claims": trusted_claims,
         "evidence_count": len(evidence),
         "claim_count": len(claims),

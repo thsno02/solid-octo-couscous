@@ -96,7 +96,7 @@ temporal:
   valid_to: null
   as_of: '2026-09-16T04:30:26Z'
 provenance:
-  build_id: build:llm-wiki-v0:0f0b56605b4756b3
+  build_id: build:llm-wiki-v0:bf1b13c8baaa32ad
   generated_by_agent: pipeline/build_llm_wiki.py
   generated_by_model: null
   prompt_or_skill_version: deterministic-llm-wiki-v0.2
@@ -128,11 +128,23 @@ consumption:
     one_line: Routing map for open ended evolution sources, questions, and claims.
     short: Routing map for open ended evolution sources, questions, and claims.
     full: null
-  estimated_tokens: 450
+  estimated_tokens: 650
   machine_entry_points:
   - ../../04_claims/claims.jsonl
   - ../../03_evidence/evidence.jsonl
   - ../catalog/pages.jsonl
+rendered_claim_refs:
+- claim:2060aa1cdd09f8bd
+- claim:c16ddfd2ab0e0feb
+- claim:c776b87484aab5c2
+- claim:df1b88d18276a319
+- claim:ecf45fd3f4ab576a
+- claim:f8088669f62de120
+rights_refs: []
+rights_unavailable_source_refs:
+- arxiv:2404.14387
+- arxiv:2502.12110
+- arxiv:2507.21046
 ---
 
 # Open Ended Evolution
@@ -176,3 +188,22 @@ The map routes candidate evidence; it does not flatten sources into consensus or
 - [A-MEM: Agentic Memory for LLM Agents](../sources/arxiv-2502.12110.md) — `explains`
 - [Knowledge evolution loop](../concepts/knowledge-evolution-loop.md) — `related`
 - [Knowledge frontier](../research_questions/knowledge-frontier.md) — `related`
+
+## Source text rights and attribution
+
+The terms below apply only to the listed source-authored claim components. They do not relicense collector assessments, compiler synthesis, other source components, or this repository as a whole.
+
+### A Survey on Self-Evolution of Large Language Models (`arxiv:2404.14387`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.
+
+### A-MEM: Agentic Memory for LLM Agents (`arxiv:2502.12110`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.
+
+### A Survey of Self-Evolving Agents: On Path to Artificial Super Intelligence (`arxiv:2507.21046`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.

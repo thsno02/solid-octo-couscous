@@ -12,13 +12,17 @@ from evidence_validation import validate_evidence_chain
 def evidence(local_path: str, selector: str, excerpt: str) -> dict:
     return {
         "uid": "evidence:1",
-        "provenance": {"source_refs": ["source:1"]},
+        "provenance": {
+            "source_refs": ["source:1"],
+            "method": "deterministic-local-excerpt",
+        },
         "semantics": {
             "property_assertions": {
                 "local_path": local_path,
                 "selector": selector,
                 "excerpt": excerpt,
                 "excerpt_sha256": hashlib.sha256(excerpt.encode("utf-8")).hexdigest(),
+                "evidence_role": "source-text",
             }
         },
     }

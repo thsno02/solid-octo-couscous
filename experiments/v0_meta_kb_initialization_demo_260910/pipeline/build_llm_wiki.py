@@ -31,6 +31,7 @@ def main() -> int:
         Path(__file__).with_name("llm_wiki_validation.py"),
         Path(__file__).with_name("validate_demo.py"),
         Path(__file__).with_name("evidence_validation.py"),
+        Path(__file__).with_name("rights_propagation.py"),
         ROOT / "raw_data/schemas/knowledge_model.schema.yaml",
         ROOT / "raw_data/schemas/wiki_page.schema.yaml",
         ROOT / "raw_data/schemas/wiki_change.schema.yaml",

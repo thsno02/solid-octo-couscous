@@ -52,7 +52,7 @@ temporal:
   valid_to: null
   as_of: '2026-09-16T04:30:26Z'
 provenance:
-  build_id: build:llm-wiki-v0:0f0b56605b4756b3
+  build_id: build:llm-wiki-v0:bf1b13c8baaa32ad
   generated_by_agent: pipeline/build_llm_wiki.py
   generated_by_model: null
   prompt_or_skill_version: deterministic-llm-wiki-v0.2
@@ -84,11 +84,17 @@ consumption:
     short: 'Source page for Robin: A multi-agent system for automating scientific discovery with claim/evidence
       expansion.'
     full: null
-  estimated_tokens: 198
+  estimated_tokens: 287
   machine_entry_points:
   - ../../04_claims/claims.jsonl
   - ../../03_evidence/evidence.jsonl
   - ../catalog/pages.jsonl
+rendered_claim_refs:
+- claim:3c6cef89711e89f2
+- claim:852bc42ef50e89c7
+rights_refs: []
+rights_unavailable_source_refs:
+- arxiv:2505.13400
 ---
 
 # Robin: A multi-agent system for automating scientific discovery
@@ -129,3 +135,12 @@ Source statements remain unverified candidates. Collection assessments explain i
 - [Automated Research](../maps/automated-research.md) — `part_of`
 - [Claim 3c6cef89711e89f2](../claims/claim-3c6cef89711e89f2.md) — `evidenced_by`
 - [Claim 852bc42ef50e89c7](../claims/claim-852bc42ef50e89c7.md) — `evidenced_by`
+
+## Source text rights and attribution
+
+The terms below apply only to the listed source-authored claim components. They do not relicense collector assessments, compiler synthesis, other source components, or this repository as a whole.
+
+### Robin: A multi-agent system for automating scientific discovery (`arxiv:2505.13400`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.

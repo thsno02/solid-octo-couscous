@@ -45,7 +45,7 @@ temporal:
   valid_to: null
   as_of: '2026-09-16T04:30:26Z'
 provenance:
-  build_id: build:llm-wiki-v0:0f0b56605b4756b3
+  build_id: build:llm-wiki-v0:bf1b13c8baaa32ad
   generated_by_agent: pipeline/build_llm_wiki.py
   generated_by_model: null
   prompt_or_skill_version: deterministic-llm-wiki-v0.2
@@ -78,11 +78,16 @@ consumption:
     short: Automated scientific discovery promises to accelerate progress across scientific domains. However, developing
       and evaluating an AI agent's capacity for end-to-end scientific reasoning is challenging as running real-world
     full: null
-  estimated_tokens: 146
+  estimated_tokens: 239
   machine_entry_points:
   - ../../04_claims/claims.jsonl
   - ../../03_evidence/evidence.jsonl
   - ../catalog/pages.jsonl
+rendered_claim_refs:
+- claim:84c91602bd1dfb78
+rights_refs: []
+rights_unavailable_source_refs:
+- arxiv:2406.06769
 ---
 
 # Source assertion from DISCOVERYWORLD: A Virtual Environment for Developing and Evaluating Automated Scientific Discovery Agents
@@ -114,3 +119,12 @@ Check entailment, selector precision, source quality, identity, scope, contradic
 
 - [DISCOVERYWORLD: A Virtual Environment for Developing and Evaluating Automated Scientific Discovery Agents](../sources/arxiv-2406.06769.md) — `evidenced_by`
 - [Governance Evaluation](../maps/governance-evaluation.md) — `part_of`
+
+## Source text rights and attribution
+
+The terms below apply only to the listed source-authored claim components. They do not relicense collector assessments, compiler synthesis, other source components, or this repository as a whole.
+
+### DISCOVERYWORLD: A Virtual Environment for Developing and Evaluating Automated Scientific Discovery Agents (`arxiv:2406.06769`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.

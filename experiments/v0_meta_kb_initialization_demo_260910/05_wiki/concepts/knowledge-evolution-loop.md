@@ -87,7 +87,7 @@ temporal:
   valid_to: null
   as_of: '2026-09-16T04:30:26Z'
 provenance:
-  build_id: build:llm-wiki-v0:0f0b56605b4756b3
+  build_id: build:llm-wiki-v0:bf1b13c8baaa32ad
   generated_by_agent: pipeline/build_llm_wiki.py
   generated_by_model: null
   prompt_or_skill_version: deterministic-llm-wiki-v0.2
@@ -126,11 +126,36 @@ consumption:
     one_line: Evidence, conflict, review, admission, monitoring, and rollback form one governed loop.
     short: Evidence, conflict, review, admission, monitoring, and rollback form one governed loop.
     full: null
-  estimated_tokens: 727
+  estimated_tokens: 1318
   machine_entry_points:
   - ../../04_claims/claims.jsonl
   - ../../03_evidence/evidence.jsonl
   - ../catalog/pages.jsonl
+rendered_claim_refs:
+- claim:4bf5ea8e6b4e37de
+- claim:84c91602bd1dfb78
+- claim:ecdd2719fa55751c
+- claim:c776b87484aab5c2
+- claim:df1b88d18276a319
+- claim:ecf45fd3f4ab576a
+- claim:2a05950fe0a0b64d
+- claim:ae45b8d667e29552
+- claim:d38b49dc4376d4b0
+- claim:f810d086e0a4a305
+- claim:17c715b34b0f0c68
+- claim:4fd96c70e0c625fd
+rights_refs: []
+rights_unavailable_source_refs:
+- arxiv:2404.14387
+- arxiv:2406.06769
+- arxiv:2410.04444
+- arxiv:2502.12110
+- arxiv:2502.14499
+- arxiv:2505.22954
+- arxiv:2507.21046
+- arxiv:2602.06855
+- arxiv:cs/0309048
+- github:jennyzzt/dgm
 ---
 
 # Knowledge evolution loop
@@ -167,3 +192,57 @@ Check evidence entailment, source independence, contradiction, neutrality, due w
 - [Recursive Self Improvement](../maps/recursive-self-improvement.md) — `related`
 - [Open Ended Evolution](../maps/open-ended-evolution.md) — `related`
 - [Freshness, versioning, and rollback](freshness-versioning-rollback.md) — `extends`
+
+## Source text rights and attribution
+
+The terms below apply only to the listed source-authored claim components. They do not relicense collector assessments, compiler synthesis, other source components, or this repository as a whole.
+
+### A Survey on Self-Evolution of Large Language Models (`arxiv:2404.14387`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.
+
+### DISCOVERYWORLD: A Virtual Environment for Developing and Evaluating Automated Scientific Discovery Agents (`arxiv:2406.06769`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.
+
+### Goedel Agent: A Self-Referential Agent Framework for Recursive Self-Improvement (`arxiv:2410.04444`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.
+
+### A-MEM: Agentic Memory for LLM Agents (`arxiv:2502.12110`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.
+
+### MLGym: A New Framework and Benchmark for Advancing AI Research Agents (`arxiv:2502.14499`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.
+
+### Darwin Godel Machine: Open-Ended Evolution of Self-Improving Agents (`arxiv:2505.22954`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.
+
+### A Survey of Self-Evolving Agents: On Path to Artificial Super Intelligence (`arxiv:2507.21046`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.
+
+### AIRS-Bench: a Suite of Tasks for Frontier AI Research Science Agents (`arxiv:2602.06855`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.
+
+### Goedel Machines: Self-Referential Universal Problem Solvers Making Provably Optimal Self-Improvements (`arxiv:cs/0309048`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.
+
+### jennyzzt/dgm (`github:jennyzzt/dgm`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.

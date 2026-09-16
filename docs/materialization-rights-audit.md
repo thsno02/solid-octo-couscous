@@ -6,10 +6,10 @@
 
 - 51 条找到明确公众复制/再分发许可，分类为 <code>documented_permission</code>；这不表示当前胶囊已经履约。
 - 40 条未找到面向公众/本仓库的适用许可，分类为 <code>permission_unverified</code>；不应公开再分发全文。
-- 基线审计的 91 项中，六项 W3C、ODCS 3.2.0 定义首页、两项 arXiv、LinkML 文档首页及 Schema.org 文档快照已完成当前内容版本的许可包装，11 项为 <code>allow</code>；其余 80 项仍为 <code>block</code>。
+- 基线审计的 91 项中，六项 W3C、ODCS 3.2.0 定义首页、三项 arXiv、LinkML 文档首页及 Schema.org 文档快照已完成当前内容版本的许可包装，12 项为 <code>allow</code>；其余 79 项仍为 <code>block</code>。
 - Apache Ossie 基线胶囊只有 7 bytes（# Home），不是实质标准全文；后续降级不删除其基线审计行。
 
-当前 `full_text` 为 90 条，公开发布门检查结果为 `active_full_text=90 audited=91 blocked=79 errors=0`；整体仍未放行。79 项分为 40 项尚无适用公众许可证据、39 项已有许可证据但尚待履约，不应统称为缺少授权。审计覆盖数 91 与当前全文数 90 使用不同基线，不应混用。全文继续保存在本 GitHub repo；本次保留 LinkML 既有正文与 Schema.org 旧快照，只补齐许可条件，未移除作品、迁移存储或改写 Git 历史。
+当前 `full_text` 为 90 条，公开发布门检查结果为 `active_full_text=90 audited=91 blocked=78 errors=0`；整体仍未放行。78 项分为 40 项尚无适用公众许可证据、38 项已有许可证据但尚待履约，不应统称为缺少授权。审计覆盖数 91 与当前全文数 90 使用不同基线，不应混用。全文继续保存在本 GitHub repo；本次保留既有正文与快照，只补齐许可条件和传播信息，未移除作品、迁移存储或改写 Git 历史。
 
 机器可读逐条记录：<code>raw_data/audits/materialization_rights_review.yaml</code>。本报告记录许可证据与已落实的包装条件，不是法律意见或人工批准。
 
@@ -19,16 +19,18 @@
 
 许可范围必须对象匹配：代码/模型/数据/模板/参考文献许可不能覆盖论文；平台获授分发权不能转授公众；CC/W3C/Apache 的署名、NOTICE、修改、NC、ND、SA 条件必须落实。
 
+审查以实际保存的表达与具体权利声明为边界，不要求证明每句话原创。在作品版本对应、发布机构/作者明确许可且没有相反声明或具体风险迹象时，可以合理依赖该许可；纯书目事实、名称、URL、未保存的外链作品不要求另行授权。不能仅因论文含用户研究或模型样例，就要求调取参与者同意书、作者历史服务合同；正式论文之外已明确识别的第三方长摘录、软件或模板则分别履约。完整法条副本、四方包校验和双次重建是当前实现的校验办法，不是额外的人类批准或所有许可证一概要求的法律条件。
+
 | 维度 | 结果 |
 |---|---:|
 | 基线 full_text | 91 |
 | documented_permission | 51 |
 | permission_unverified | 40 |
-| allow_after_conditions_met | 40 |
-| allow_with_packaged_notice | 11 |
+| allow_after_conditions_met | 39 |
+| allow_with_packaged_notice | 12 |
 | do_not_redistribute_full_text | 40 |
-| publication gate: allow | 11 |
-| publication gate: block（基线项） | 80 |
+| publication gate: allow | 12 |
+| publication gate: block（基线项） | 79 |
 
 ## 已落实的六项 W3C 许可包装（Packaged clearance）
 
@@ -69,6 +71,22 @@
 `00README.json` 是 [arXiv 自动生成的编译元数据](https://info.arxiv.org/help/00README.html)，依据[提交协议的 metadata CC0 条款](https://info.arxiv.org/help/policies/submission_agreement.html#metadata-license)单独标记，不归因为论文作者原创。`references.bib` 的 1,274 条书目与 `main.bbl` 的 196 条排版记录不包含所引作品正文，也不授权那些作品。
 
 通用包装器现在显式识别 `normalized/document.txt` 为正文，并从正文所在目录生成 `../NOTICE.md` 链接。校验器使用同一相对路径规则，拒绝错误链接；重复包装保持唯一附注。两次真实固定 v2 物化结果逐字节一致，四个 source 文件、`normalized/document.tex` 和 17 个 selectors 相对原包保持不变，预处理正文只追加组合署名块。此前八个根目录正文包的附注格式不变；没有新增独立脚本、UID 特例或 workflow。
+
+## PaperQA2 的分层组件许可与派生传播
+
+[PaperQA2 arXiv:2409.13740v2](https://arxiv.org/abs/2409.13740v2) 的固定源包为 4,646,196 bytes，与既有 revision 一致。当前保留七个 source 文字成员、28 个 selectors，13 个图片/PDF 成员原已省略；不宣称包含完整图文 archive。论文九位作者完整署名，作者材料与其文本转换按 CC BY-SA 4.0 分发。
+
+实际独立组件分别履约：Moulay A. Akhloufi 的 PRIME 模板改编依据[作者 Overleaf 模板页](https://www.overleaf.com/latex/templates/arxiv-and-prime-ai-style-template/qdnhqytdqzsc)使用 CC BY 4.0；George Kour 基础模板保留原版权与 MIT。`references.bib` 唯一的摘要字段对应 [PubMedQA](https://aclanthology.org/D19-1259/)，与固定 ACL XML 的摘要规范化后对应，按 [ACL 2019 材料适用的 CC BY 4.0](https://aclanthology.org/faq/copyright/)保留五作者、来源及许可。没有假定 ACL metadata 为 CC0，也没有把论文许可外推到 PubMedQA 数据集、底层 PubMed 摘要或所引作品。
+
+三份完整许可文本随 NOTICE 保存；四个权利范围独立标明。两次真实固定 v2 重建的 15 个胶囊文件一致，source、规范化 TeX 与 selectors 保持，正文仅追加许可附注。此项成为第十二项 `allow`，仅限所记录版本与实际保留内容。
+
+派生管线复用通用许可传播模块（Rights propagation），将来源的声明包与版本化引用传递到 evidence、claim、Wiki 页面及机器视图。来源表达与收集者评述分开，缺包显式 `unavailable`，混合页面不把某一组件的许可套到整库独立作品。结构校验不代替此处逐来源的使用与发布判断。
+
+## 已包装但未放行：Zep 的非商业用途条件
+
+[Zep arXiv:2501.13956v1](https://arxiv.org/abs/2501.13956v1) 的 22,911-byte 固定源包已与现存 revision 对应。论文的 CC BY-NC-SA 4.0、Moulay PRIME 改编的 CC BY 4.0 与 George Kour 基础模板的 MIT 分别保存。Zep 与 PaperQA2 模板仅页码开关一行不同，未将该变体归为 Zep 作者原创；五位论文作者、来源及修改说明已补齐。两次固定 v1 物化一致，四个 source 文件、规范化 TeX 与 29 个 selectors 不变，规范化正文仅追加许可附注。
+
+这项仍为 `block`，不计入十二项已放行来源：实际使用是否满足非商业（NonCommercial）条件尚待确认。其判断标准是该使用是否主要旨在或指向商业利益或金钱报酬，不是简单判断仓库是否公开、使用者是否营利或是否标成研究项目。派生内容保留归属、许可与适用的相同方式共享（ShareAlike）条件；通用传播已实现，但不替代实际用途的确认，也不把某一来源的 SA 条件自动套到整个仓库的独立作品。
 
 ## LinkML 单页许可包装与必要证据边界
 
@@ -156,14 +174,14 @@ WikiChat 新找到[作者官方公告](https://github.com/stanford-oval/WikiChat
 | 45 | <code>arxiv:2408.06292</code> | <code>materialized_sources/corpus/arxiv-2408.06292--522d359c/manifest.yaml</code><br><code>raw_data/arxiv/The AI Scientist: Towards Fully Automated Open-Ended Scientific Discovery/metadata.yaml</code> | <code>CC-BY-4.0</code>；arXiv 官方文章页的 Rights to this article 链接指向 CC-BY-4.0。；本地 access=<code>unknown</code>，assumed=true | 本地三处 rights 未记录该文章许可及核验日期。；retrieval hash 尚未与确切 arXiv vN 建立可审计映射。 | <code>documented_permission</code> | 满足条件后才可考虑发布；当前 gate=block |
 | 46 | <code>arxiv:2408.08435</code> | <code>materialized_sources/corpus/arxiv-2408.08435--dc6e6730/manifest.yaml</code><br><code>raw_data/arxiv/Automated Design of Agentic Systems/metadata.yaml</code> | <code>CC-BY-4.0</code>；arXiv 官方文章页的 Rights to this article 链接指向 CC-BY-4.0。；本地 access=<code>unknown</code>，assumed=true | 本地三处 rights 未记录该文章许可及核验日期。；retrieval hash 尚未与确切 arXiv vN 建立可审计映射。 | <code>documented_permission</code> | 满足条件后才可考虑发布；当前 gate=block |
 | 47 | <code>arxiv:2408.15232</code> | <code>materialized_sources/corpus/arxiv-2408.15232--a890ae4f/manifest.yaml</code><br><code>raw_data/arxiv/Into the Unknown Unknowns: Engaged Human Learning through Participation in Language Model Agent Conversations/metadata.yaml</code> | 官方许可只授予 arXiv.org 非独占分发权，不授予公众或本仓库。；本地 access=<code>metadata_only</code>，assumed=true | 面向公众的论文全文复制/再分发许可。；许可版本、权利人和精确作品版本绑定。 | <code>permission_unverified</code> | 不公开全文，仅元数据/链接；当前 gate=block |
-| 48 | <code>arxiv:2409.13740</code> | <code>materialized_sources/corpus/arxiv-2409.13740--66861ff1/manifest.yaml</code><br><code>raw_data/arxiv/Language agents achieve superhuman synthesis of scientific knowledge/metadata.yaml</code> | <code>CC-BY-SA-4.0</code>；arXiv 官方文章页的 Rights to this article 链接指向 CC-BY-SA-4.0。；本地 access=<code>unknown</code>，assumed=true | 本地三处 rights 未记录该文章许可及核验日期。；retrieval hash 尚未与确切 arXiv vN 建立可审计映射。 | <code>documented_permission</code> | 满足条件后才可考虑发布；当前 gate=block |
+| 48 | <code>arxiv:2409.13740</code> | <code>materialized_sources/corpus/arxiv-2409.13740--66861ff1/manifest.yaml</code><br><code>raw_data/arxiv/Language agents achieve superhuman synthesis of scientific knowledge/metadata.yaml</code> | 固定v2论文CC BY-SA4、PRIME改编BY4、基础MIT与PubMedQA摘要BY4分别履约；access=open，assumed=false | 当前实际包已完成版本、署名、NOTICE和转换声明 | <code>documented_permission</code> | 已包装放行；当前 gate=allow |
 | 49 | <code>arxiv:2410.04444</code> | <code>materialized_sources/corpus/arxiv-2410.04444--2b1bb2d2/manifest.yaml</code><br><code>raw_data/arxiv/Goedel Agent: A Self-Referential Agent Framework for Recursive Self-Improvement/metadata.yaml</code> | 官方许可只授予 arXiv.org 非独占分发权，不授予公众或本仓库。；本地 access=<code>unknown</code>，assumed=true | 面向公众的论文全文复制/再分发许可。；许可版本、权利人和精确作品版本绑定。 | <code>permission_unverified</code> | 不公开全文，仅元数据/链接；当前 gate=block |
 | 50 | <code>arxiv:2410.05779</code> | <code>materialized_sources/corpus/arxiv-2410.05779--5b53b22b/manifest.yaml</code><br><code>raw_data/arxiv/LightRAG: Simple and Fast Retrieval-Augmented Generation/metadata.yaml</code> | <code>CC-BY-NC-SA-4.0</code>；arXiv 官方文章页的 Rights to this article 链接指向 CC-BY-NC-SA-4.0。；本地 access=<code>unknown</code>，assumed=true | 本地三处 rights 未记录该文章许可及核验日期。；retrieval hash 尚未与确切 arXiv vN 建立可审计映射。 | <code>documented_permission</code> | 满足条件后才可考虑发布；当前 gate=block |
 | 51 | <code>arxiv:2410.07095</code> | <code>materialized_sources/corpus/arxiv-2410.07095--b72cdb8f/manifest.yaml</code><br><code>raw_data/arxiv/MLE-bench: Evaluating Machine Learning Agents on Machine Learning Engineering/metadata.yaml</code> | <code>CC-BY-4.0</code>；arXiv 官方文章页的 Rights to this article 链接指向 CC-BY-4.0。；本地 access=<code>unknown</code>，assumed=true | 本地三处 rights 未记录该文章许可及核验日期。；retrieval hash 尚未与确切 arXiv vN 建立可审计映射。 | <code>documented_permission</code> | 满足条件后才可考虑发布；当前 gate=block |
 | 52 | <code>arxiv:2410.10762</code> | <code>materialized_sources/corpus/arxiv-2410.10762--72c09413/manifest.yaml</code><br><code>raw_data/arxiv/AFlow: Automating Agentic Workflow Generation/metadata.yaml</code> | 官方许可只授予 arXiv.org 非独占分发权，不授予公众或本仓库。；本地 access=<code>unknown</code>，assumed=true | 面向公众的论文全文复制/再分发许可。；许可版本、权利人和精确作品版本绑定。 | <code>permission_unverified</code> | 不公开全文，仅元数据/链接；当前 gate=block |
 | 53 | <code>arxiv:2411.14199</code> | <code>materialized_sources/corpus/arxiv-2411.14199--e07b84a9/manifest.yaml</code><br><code>raw_data/arxiv/OpenScholar: Synthesizing Scientific Literature with Retrieval-augmented LMs/metadata.yaml</code> | <code>CC-BY-4.0</code>；arXiv 官方文章页的 Rights to this article 链接指向 CC-BY-4.0。；本地 access=<code>unknown</code>，assumed=true | 本地三处 rights 未记录该文章许可及核验日期。；retrieval hash 尚未与确切 arXiv vN 建立可审计映射。 | <code>documented_permission</code> | 满足条件后才可考虑发布；当前 gate=block |
 | 54 | <code>arxiv:2501.04227</code> | <code>materialized_sources/corpus/arxiv-2501.04227--a0515b2c/manifest.yaml</code><br><code>raw_data/arxiv/Agent Laboratory: Using LLM Agents as Research Assistants/metadata.yaml</code> | <code>CC-BY-4.0</code>；arXiv 官方文章页的 Rights to this article 链接指向 CC-BY-4.0。；本地 access=<code>unknown</code>，assumed=true | 本地三处 rights 未记录该文章许可及核验日期。；retrieval hash 尚未与确切 arXiv vN 建立可审计映射。 | <code>documented_permission</code> | 满足条件后才可考虑发布；当前 gate=block |
-| 55 | <code>arxiv:2501.13956</code> | <code>materialized_sources/corpus/arxiv-2501.13956--b93a114f/manifest.yaml</code><br><code>raw_data/arxiv/Zep: A Temporal Knowledge Graph Architecture for Agent Memory/metadata.yaml</code> | <code>CC-BY-NC-SA-4.0</code>；arXiv 官方文章页的 Rights to this article 链接指向 CC-BY-NC-SA-4.0。；本地 access=<code>unknown</code>，assumed=true | 本地三处 rights 未记录该文章许可及核验日期。；retrieval hash 尚未与确切 arXiv vN 建立可审计映射。 | <code>documented_permission</code> | 满足条件后才可考虑发布；当前 gate=block |
+| 55 | <code>arxiv:2501.13956</code> | <code>materialized_sources/corpus/arxiv-2501.13956--b93a114f/manifest.yaml</code><br><code>raw_data/arxiv/Zep: A Temporal Knowledge Graph Architecture for Agent Memory/metadata.yaml</code> | 固定v1论文CC BY-NC-SA4、PRIME改编BY4与基础MIT分别完成NOTICE；access=restricted，assumed=false | 实际NC用途尚待确认；许可传递不替代用途判断 | <code>documented_permission</code> | 源包已包装但不等于发布批准；当前 gate=block |
 | 56 | <code>arxiv:2502.12110</code> | <code>materialized_sources/corpus/arxiv-2502.12110--d27d79d8/manifest.yaml</code><br><code>raw_data/arxiv/A-MEM: Agentic Memory for LLM Agents/metadata.yaml</code> | 官方许可只授予 arXiv.org 非独占分发权，不授予公众或本仓库。；本地 access=<code>unknown</code>，assumed=true | 面向公众的论文全文复制/再分发许可。；许可版本、权利人和精确作品版本绑定。 | <code>permission_unverified</code> | 不公开全文，仅元数据/链接；当前 gate=block |
 | 57 | <code>arxiv:2502.14499</code> | <code>materialized_sources/corpus/arxiv-2502.14499--a7f1a2e8/manifest.yaml</code><br><code>raw_data/arxiv/MLGym: A New Framework and Benchmark for Advancing AI Research Agents/metadata.yaml</code> | <code>CC-BY-NC-SA-4.0</code>；arXiv 官方文章页的 Rights to this article 链接指向 CC-BY-NC-SA-4.0。；本地 access=<code>unknown</code>，assumed=true | 本地三处 rights 未记录该文章许可及核验日期。；retrieval hash 尚未与确切 arXiv vN 建立可审计映射。 | <code>documented_permission</code> | 满足条件后才可考虑发布；当前 gate=block |
 | 58 | <code>arxiv:2502.18864</code> | <code>materialized_sources/corpus/arxiv-2502.18864--014b4710/manifest.yaml</code><br><code>raw_data/arxiv/Towards an AI co-scientist/metadata.yaml</code> | 固定 v2 的 <code>CC-BY-4.0</code>；原始 PDF、51 作者、完整 NOTICE 与文本转换说明均已绑定 | 无；抽取缺页 4/20 如实标记 partial，不影响 PDF 原件留存 | <code>documented_permission</code> | 仅当前已验证 v2 包 gate=allow；不覆盖 v1 或未来版本 |

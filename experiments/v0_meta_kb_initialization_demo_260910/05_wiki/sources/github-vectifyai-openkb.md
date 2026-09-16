@@ -52,7 +52,7 @@ temporal:
   valid_to: null
   as_of: '2026-09-16T04:30:26Z'
 provenance:
-  build_id: build:llm-wiki-v0:0f0b56605b4756b3
+  build_id: build:llm-wiki-v0:bf1b13c8baaa32ad
   generated_by_agent: pipeline/build_llm_wiki.py
   generated_by_model: null
   prompt_or_skill_version: deterministic-llm-wiki-v0.2
@@ -82,11 +82,17 @@ consumption:
     one_line: Source page for VectifyAI/OpenKB with claim/evidence expansion.
     short: Source page for VectifyAI/OpenKB with claim/evidence expansion.
     full: null
-  estimated_tokens: 171
+  estimated_tokens: 253
   machine_entry_points:
   - ../../04_claims/claims.jsonl
   - ../../03_evidence/evidence.jsonl
   - ../catalog/pages.jsonl
+rendered_claim_refs:
+- claim:714e301e8b2162bc
+- claim:e7026275c099e7e2
+rights_refs: []
+rights_unavailable_source_refs:
+- github:VectifyAI/OpenKB
 ---
 
 # VectifyAI/OpenKB
@@ -127,3 +133,12 @@ Source statements remain unverified candidates. Collection assessments explain i
 - [Llm Wiki](../maps/llm-wiki.md) — `part_of`
 - [Claim 714e301e8b2162bc](../claims/claim-714e301e8b2162bc.md) — `evidenced_by`
 - [Claim e7026275c099e7e2](../claims/claim-e7026275c099e7e2.md) — `evidenced_by`
+
+## Source text rights and attribution
+
+The terms below apply only to the listed source-authored claim components. They do not relicense collector assessments, compiler synthesis, other source components, or this repository as a whole.
+
+### VectifyAI/OpenKB (`github:VectifyAI/OpenKB`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.

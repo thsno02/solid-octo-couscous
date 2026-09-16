@@ -120,7 +120,7 @@ temporal:
   valid_to: null
   as_of: '2026-09-16T04:30:26Z'
 provenance:
-  build_id: build:llm-wiki-v0:0f0b56605b4756b3
+  build_id: build:llm-wiki-v0:bf1b13c8baaa32ad
   generated_by_agent: pipeline/build_llm_wiki.py
   generated_by_model: null
   prompt_or_skill_version: deterministic-llm-wiki-v0.2
@@ -154,11 +154,27 @@ consumption:
     one_line: Routing map for recursive self improvement sources, questions, and claims.
     short: Routing map for recursive self improvement sources, questions, and claims.
     full: null
-  estimated_tokens: 643
+  estimated_tokens: 893
   machine_entry_points:
   - ../../04_claims/claims.jsonl
   - ../../03_evidence/evidence.jsonl
   - ../catalog/pages.jsonl
+rendered_claim_refs:
+- claim:1b6ae1229c17cacd
+- claim:2a05950fe0a0b64d
+- claim:822962fc261c9559
+- claim:90ae7352bb085ae8
+- claim:9243c79fad41f2cb
+- claim:ae45b8d667e29552
+- claim:d38b49dc4376d4b0
+- claim:f43359e01e4c4b0b
+- claim:f810d086e0a4a305
+rights_refs: []
+rights_unavailable_source_refs:
+- arxiv:2410.04444
+- arxiv:2505.22954
+- arxiv:cs/0309048
+- github:jennyzzt/dgm
 ---
 
 # Recursive Self Improvement
@@ -209,3 +225,27 @@ The map routes candidate evidence; it does not flatten sources into consensus or
 - [Goedel Agent: A Self-Referential Agent Framework for Recursive Self-Improvement](../sources/arxiv-2410.04444.md) — `explains`
 - [Knowledge evolution loop](../concepts/knowledge-evolution-loop.md) — `related`
 - [Automation versus editorial review](../debates/automation-editorial-review.md) — `related`
+
+## Source text rights and attribution
+
+The terms below apply only to the listed source-authored claim components. They do not relicense collector assessments, compiler synthesis, other source components, or this repository as a whole.
+
+### Goedel Agent: A Self-Referential Agent Framework for Recursive Self-Improvement (`arxiv:2410.04444`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.
+
+### Darwin Godel Machine: Open-Ended Evolution of Self-Improving Agents (`arxiv:2505.22954`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.
+
+### Goedel Machines: Self-Referential Universal Problem Solvers Making Provably Optimal Self-Improvements (`arxiv:cs/0309048`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.
+
+### jennyzzt/dgm (`github:jennyzzt/dgm`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.

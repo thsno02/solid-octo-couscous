@@ -96,7 +96,7 @@ temporal:
   valid_to: null
   as_of: '2026-09-16T04:30:26Z'
 provenance:
-  build_id: build:llm-wiki-v0:0f0b56605b4756b3
+  build_id: build:llm-wiki-v0:bf1b13c8baaa32ad
   generated_by_agent: pipeline/build_llm_wiki.py
   generated_by_model: null
   prompt_or_skill_version: deterministic-llm-wiki-v0.2
@@ -128,11 +128,33 @@ consumption:
     one_line: Routing map for ontology semantic architecture sources, questions, and claims.
     short: Routing map for ontology semantic architecture sources, questions, and claims.
     full: null
-  estimated_tokens: 334
+  estimated_tokens: 600
   machine_entry_points:
   - ../../04_claims/claims.jsonl
   - ../../03_evidence/evidence.jsonl
   - ../catalog/pages.jsonl
+rendered_claim_refs:
+- claim:0edb741be0f31f6f
+- claim:27f7e77bbaa0d47f
+- claim:3adb88340e0eb2b6
+- claim:3e6ec7f46b13c44f
+- claim:583280271287ef9c
+- claim:fc57f26307cefee3
+rights_refs:
+- source_uid: methodology:linkml-schema-first
+  source_revision: sha256:93a9f00b0006695dab8f1bde801a40e36eed8c236c4c839aff645bec38b5dc6c
+  source_version_url: https://linkml.io/linkml/
+  license_spdx: Apache-2.0
+  license_url: https://www.apache.org/licenses/LICENSE-2.0
+  notice_path: raw_data/licenses/apache-2.0.md
+  package_path: materialized_sources/corpus/methodology-linkml-schema-first--182a2b38/manifest.yaml#rights.redistribution_package
+  usage: rendered_source_claims
+  transformation: The listed source-authored claim excerpts are rendered inside a mixed, compiler-generated page.
+  claim_refs:
+  - claim:583280271287ef9c
+rights_unavailable_source_refs:
+- arxiv:2511.02824
+- github:linkml/linkml
 ---
 
 # Ontology Semantic Architecture
@@ -176,3 +198,28 @@ The map routes candidate evidence; it does not flatten sources into consensus or
 - [linkml/linkml](../sources/github-linkml-linkml.md) — `explains`
 - [Claim–evidence–page compilation](../methods/claim-evidence-page.md) — `related`
 - [LLM Wiki reference system](../systems/reference-system.md) — `related`
+
+## Source text rights and attribution
+
+The terms below apply only to the listed source-authored claim components. They do not relicense collector assessments, compiler synthesis, other source components, or this repository as a whole.
+
+### LinkML schema-first knowledge modeling (`methodology:linkml-schema-first`)
+
+- Components: `claim:583280271287ef9c`
+- Source revision: `sha256:93a9f00b0006695dab8f1bde801a40e36eed8c236c4c839aff645bec38b5dc6c`
+- Source version: [pinned upstream version](https://linkml.io/linkml/)
+- License: [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0)
+- NOTICE: [raw_data/licenses/apache-2.0.md](../../../../raw_data/licenses/apache-2.0.md)
+- Attribution: This document includes material copied from or derived from "LinkML Documentation", https://linkml.io/linkml/. Copyright 2021-2026 LinkML Authors. SPDX-License-Identifier: Apache-2.0. Licensed under the Apache License, Version 2.0, https://www.apache.org/licenses/LICENSE-2.0.
+- Excerpt/page transformation: The listed source-authored claim excerpts are rendered inside a mixed, compiler-generated page. Converted the captured LinkML HTML landing page to Markdown; navigation, headings, hyperlinks, whitespace, and footnote markers were omitted or normalized, while CSS, JavaScript, theme files, and media were not stored; 164 selector excerpts were generated. The upstream copyright and Apache-2.0 statement are restored in this attribution block.
+- Scope: 仅覆盖当前 https://linkml.io/linkml/ 单页经转换后、许可附注前的 7,340-byte 既有 Markdown 正文及其 164 个 selector 摘录；不声称存储或覆盖 LinkML 整个文档站、其他页面正文、主题、JavaScript、CSS、媒体、外链作品、商标或权利人无权许可的第三方材料。
+
+### Kosmos: An AI Scientist for Autonomous Discovery (`arxiv:2511.02824`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.
+
+### linkml/linkml (`github:linkml/linkml`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.

@@ -96,7 +96,7 @@ temporal:
   valid_to: null
   as_of: '2026-09-16T04:30:26Z'
 provenance:
-  build_id: build:llm-wiki-v0:0f0b56605b4756b3
+  build_id: build:llm-wiki-v0:bf1b13c8baaa32ad
   generated_by_agent: pipeline/build_llm_wiki.py
   generated_by_model: null
   prompt_or_skill_version: deterministic-llm-wiki-v0.2
@@ -128,11 +128,23 @@ consumption:
     one_line: Routing map for knowledge editing sources, questions, and claims.
     short: Routing map for knowledge editing sources, questions, and claims.
     full: null
-  estimated_tokens: 412
+  estimated_tokens: 607
   machine_entry_points:
   - ../../04_claims/claims.jsonl
   - ../../03_evidence/evidence.jsonl
   - ../catalog/pages.jsonl
+rendered_claim_refs:
+- claim:40178c8dde6cbf34
+- claim:4715a4ff3b1706fd
+- claim:65d2f5de5c0ecdfd
+- claim:69e9059578125358
+- claim:ad198ecf5d0cad6b
+- claim:d6b9ad7b6c2678cc
+rights_refs: []
+rights_unavailable_source_refs:
+- arxiv-2104.00405
+- arxiv-2110.11309
+- arxiv:2310.16218
 ---
 
 # Knowledge Editing
@@ -176,3 +188,22 @@ The map routes candidate evidence; it does not flatten sources into consensus or
 - [Knowledge Editing for Large Language Models: A Survey](../sources/arxiv-2310.16218.md) — `explains`
 - [Knowledge evolution loop](../concepts/knowledge-evolution-loop.md) — `related`
 - [Freshness, versioning, and rollback](../concepts/freshness-versioning-rollback.md) — `related`
+
+## Source text rights and attribution
+
+The terms below apply only to the listed source-authored claim components. They do not relicense collector assessments, compiler synthesis, other source components, or this repository as a whole.
+
+### Avalanche: an End-to-End Library for Continual Learning (`arxiv-2104.00405`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.
+
+### Fast Model Editing at Scale (`arxiv-2110.11309`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.
+
+### Knowledge Editing for Large Language Models: A Survey (`arxiv:2310.16218`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.
