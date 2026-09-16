@@ -82,6 +82,18 @@ local_files:
 - path: materialized_sources/corpus/arxiv-2406.06769--d1971e3b/normalized/document.txt
   bytes: 99001
   sha256: c3982e8de17ee475b4ed94c434e6486b7f4e55e89bd5293267231e9390ddaeee
+- path: materialized_sources/corpus/arxiv-2406.06769--d1971e3b/pdf-supplement/NOTICE.md
+  bytes: 22812
+  sha256: 02aa0ed89bfe61cd6d7219146f03d142ceb66062db5cd26ef026ebba7c044f7c
+- path: materialized_sources/corpus/arxiv-2406.06769--d1971e3b/pdf-supplement/document.pdf
+  bytes: 3054585
+  sha256: 28793ae05bbb22ed6e02fbdceb697a2b9ea8ebff6932c4dd8fb5b70bba5dde91
+- path: materialized_sources/corpus/arxiv-2406.06769--d1971e3b/pdf-supplement/document.txt
+  bytes: 96931
+  sha256: 922354e3ebe0e0f400965e9cb1cf6e2b3ede5aa0d837276a5060b44cccfb2d4a
+- path: materialized_sources/corpus/arxiv-2406.06769--d1971e3b/pdf-supplement/selectors.jsonl
+  bytes: 13020
+  sha256: 6607f8bc16b8fc17af70089c6065b5200dfc00a22c868b841c93d12e399630f4
 - path: materialized_sources/corpus/arxiv-2406.06769--d1971e3b/selectors.jsonl
   bytes: 19151
   sha256: 2dd6b3fdbee4133fc8552132df830d61012784e6c9b9e9fbb01e7ca1da8ea7ec
@@ -113,8 +125,8 @@ local_files:
   bytes: 5571
   sha256: 25521e8b6c0caf97e11f9b2b716413ec7afc6e470104a99d9ebd2ee0acae7d85
 - path: materialized_sources/corpus/arxiv-2406.06769--d1971e3b/source-metadata.yaml
-  bytes: 8657
-  sha256: bb28195bdaecf7727c33d989b075720bd0ff40eb9835c068faea4837011b5267
+  bytes: 15181
+  sha256: f099fe22794ea0b011e45b5bcb800adabf8c2fd2b40c3ca7a771cf76ee24a623
 warnings: []
 errors: []
 archive_container: tar
@@ -138,4 +150,85 @@ omitted:
   reason: non-text-document-member
 - path: neurips_data_2024.pdf
   reason: non-text-document-member
-local_bytes: 438430
+local_bytes: 3632302
+pdf_supplement:
+  source_version: v2
+  revision: sha256:28793ae05bbb22ed6e02fbdceb697a2b9ea8ebff6932c4dd8fb5b70bba5dde91
+  media_type: application/pdf
+  retrievals:
+  - requested_urls:
+    - https://arxiv.org/pdf/2406.06769v2
+    resolved_url: https://arxiv.org/pdf/2406.06769v2
+    content_type: application/pdf
+    http_status: 200
+    bytes: 3054585
+    sha256: 28793ae05bbb22ed6e02fbdceb697a2b9ea8ebff6932c4dd8fb5b70bba5dde91
+    request_started_at: '2026-09-16T19:03:06Z'
+    completion_observed_at: '2026-09-16T19:04:05Z'
+    retrieved_at: '2026-09-16T19:04:05Z'
+    retrieval_note: 七文件同批请求开始与全部完成观测；不声称逐传输精确结束时刻或服务端时间。
+  selectors:
+  - pdf-supplement/selectors.jsonl
+  body_quality_verified: true
+  limitations:
+  - p2/3/18/29 raster 场景图内文字与空间关系未 native 提取，p29 GUI 的 Arg1/Arg2/inventory/Turn 2 缺失；完整场景保存在 PDF。
+  - 活动和 120 tasks 已恢复；JSON 引号/花括号虽保留，跨页插页头页脚和排版三反引号仍有损，不能声称可直接解析或执行。
+  - 真实尾页 Save failures/Windows autosave 的用户数据丢失警告原样保留，不补数据、不运行环境或论文提示词。
+  - 原件完整与 29/29 native 非空不是 text complete；本层不做 OCR，保留 PixyMoon/CuteRPG 和作者/OpenAI DALL-E 信用，不提供/授权独立资产包、不新增 trusted。
+  primary_excerpt:
+    start_line: 11
+    end_line: 31
+  rights:
+    license_spdx: CC-BY-SA-4.0
+    license_url: https://creativecommons.org/licenses/by-sa/4.0/
+    license_verified_at: '2026-09-16'
+    publication_gate:
+      decision: allow
+      reason: 本批已核同固定 v2 官方作品授权及实际完整 PDF 的正文、末尾、科学图和具体信用；主线程逐项明确采纳实际 PDF revision 绑定的此范围，不凭旧 TeX allow 自动放行。这是 agent
+        的独立表示/包装决策，不冒称人类批准，不晋升可信知识；保留具体第三方归属与边界。
+      approved_scope: 仅本次从 https://arxiv.org/pdf/2406.06769v2 取得的固定 v2 官方完整 PDF（29 页，3054585 bytes）、其 plain 页文字与独立页定位器。范围为完整主文、全部附录、四幅实际科学图（p2/3/18/29），真实末尾
+        p29 Save failures/Windows autosave 用户数据丢失说明。作者/提交者有权许可的论文表达与本次文字派生沿作品级 CC BY-SA 4.0；PDF p9 致谢与 p13 checklist
+        的实际信用：作者购买 CuteRPG/PixyMoon 素材并说明 attribution 要求；原论文截图中的 CuteRPG 素材归属 PixyMoon，产品页 https://pixymoon.itch.io/2d-topdown-cute-rpg-world
+        。本批已核该具体产品页允许 personal/commercial project use、modify/edit，要求 Credit PixyMoon，禁止 resell asset pack。科学主题增改归论文作者及
+        OpenAI DALL-E。完整论文内已合成截图保留这些实际信用，不提供或授权独立提取、转售或再分发底层 asset pack，不冒称 sprite 素材获得 CC BY-SA 4.0，也不把资产包条款施加到论文作者有权许可的原创
+        BY-SA 部分。 论文作者有权许可的原创表达/页文字及后续改编继续 BY-SA4；具体资产边界不施于这些原创 BY-SA 部分，不整库重许可。完整 PDF 原有署名、资助、图注、引文、警告和第三方信用原样保留，不授权外部被引作品全文、模型、代码、脚本或数据，不转授商标、专利或许可者无权许可材料。PDF
+        原字节不编辑/重导出，plain 文字有损、不做 OCR，原件完整不等于 text extraction complete。旧 source/normalized/default selectors/NOTICE/files/archive
+        revision/retrieval/旧组件授权包不变。
+    redistribution_package:
+      source_revision: sha256:28793ae05bbb22ed6e02fbdceb697a2b9ea8ebff6932c4dd8fb5b70bba5dde91
+      source_version_url: https://arxiv.org/pdf/2406.06769v2
+      notice_path: raw_data/licenses/p3-pdf-02-discoveryworld-v2.md
+      attribution: 'Peter Jansen; Marc-Alexandre Côté; Tushar Khot; Erin Bransom; Bhavana Dalvi Mishra; Bodhisattwa
+        Prasad Majumder; Oyvind Tafjord; Peter Clark. "DISCOVERYWORLD: A Virtual Environment for Developing and
+        Evaluating Automated Scientific Discovery Agents". Fixed arXiv 2406.06769v2, https://arxiv.org/abs/2406.06769v2;
+        original PDF https://arxiv.org/pdf/2406.06769v2. Article expression the authors/submitter may license is
+        available under CC BY-SA 4.0, https://creativecommons.org/licenses/by-sa/4.0/; full legal code https://creativecommons.org/licenses/by-sa/4.0/legalcode.en.
+        Fixed article/PDF license checked in this batch on 2026-09-16. PDF p9 致谢与 p13 checklist 的实际信用：作者购买 CuteRPG/PixyMoon
+        素材并说明 attribution 要求；原论文截图中的 CuteRPG 素材归属 PixyMoon，产品页 https://pixymoon.itch.io/2d-topdown-cute-rpg-world
+        。本批已核该具体产品页允许 personal/commercial project use、modify/edit，要求 Credit PixyMoon，禁止 resell asset pack。科学主题增改归论文作者及
+        OpenAI DALL-E。完整论文内已合成截图保留这些实际信用，不提供或授权独立提取、转售或再分发底层 asset pack，不冒称 sprite 素材获得 CC BY-SA 4.0，也不把资产包条款施加到论文作者有权许可的原创
+        BY-SA 部分。 No endorsement or additional right to external works/models/trademarks is implied.'
+      modifications: 原官方 PDF 按实际下载 bytes 原样保存，不编辑或重导出；复用既有 pypdf plain 提取逐页文字，加入明确页边界并生成独立页定位；在派生 text 末尾附唯一署名、修改、范围声明及完整
+        NOTICE.md 链接。plain 文字保留原抽取结果，不做 OCR、不运行 TeX、论文代码或提示词，不将图形、数学排版或阅读顺序损失隐藏为完整。旧 source、normalized、default selectors、NOTICE、files、archive
+        revision/retrieval 和旧许可包全部保留，不新增 trusted。 适用论文表达/页文字及后续改编沿 BY-SA4 同方式共享，不重许可整个仓库。
+      scope: 仅本次从 https://arxiv.org/pdf/2406.06769v2 取得的固定 v2 官方完整 PDF（29 页，3054585 bytes）、其 plain 页文字与独立页定位器。范围为完整主文、全部附录、四幅实际科学图（p2/3/18/29），真实末尾
+        p29 Save failures/Windows autosave 用户数据丢失说明。作者/提交者有权许可的论文表达与本次文字派生沿作品级 CC BY-SA 4.0；PDF p9 致谢与 p13 checklist
+        的实际信用：作者购买 CuteRPG/PixyMoon 素材并说明 attribution 要求；原论文截图中的 CuteRPG 素材归属 PixyMoon，产品页 https://pixymoon.itch.io/2d-topdown-cute-rpg-world
+        。本批已核该具体产品页允许 personal/commercial project use、modify/edit，要求 Credit PixyMoon，禁止 resell asset pack。科学主题增改归论文作者及
+        OpenAI DALL-E。完整论文内已合成截图保留这些实际信用，不提供或授权独立提取、转售或再分发底层 asset pack，不冒称 sprite 素材获得 CC BY-SA 4.0，也不把资产包条款施加到论文作者有权许可的原创
+        BY-SA 部分。 论文作者有权许可的原创表达/页文字及后续改编继续 BY-SA4；具体资产边界不施于这些原创 BY-SA 部分，不整库重许可。完整 PDF 原有署名、资助、图注、引文、警告和第三方信用原样保留，不授权外部被引作品全文、模型、代码、脚本或数据，不转授商标、专利或许可者无权许可材料。PDF
+        原字节不编辑/重导出，plain 文字有损、不做 OCR，原件完整不等于 text extraction complete。旧 source/normalized/default selectors/NOTICE/files/archive
+        revision/retrieval/旧组件授权包不变。
+  materialization:
+    source_pdf: pdf-supplement/document.pdf
+    source_pdf_sha256: 28793ae05bbb22ed6e02fbdceb697a2b9ea8ebff6932c4dd8fb5b70bba5dde91
+    document: pdf-supplement/document.txt
+    normalized_document: pdf-supplement/document.txt
+    stored_characters: 95078
+    selector_count: 29
+    pdf_page_count: 29
+    pdf_text_page_count: 29
+    pdf_text_extraction_mode: plain
+    pdf_pages_without_extractable_text: []
+    pdf_page_extraction_failures: []
+    substantive_text: true

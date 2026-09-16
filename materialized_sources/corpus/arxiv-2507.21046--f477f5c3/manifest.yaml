@@ -74,6 +74,18 @@ local_files:
 - path: materialized_sources/corpus/arxiv-2507.21046--f477f5c3/normalized/document.txt
   bytes: 248752
   sha256: 1604a658f05d4450eb8c731cb63386347ba7bdbf852a98aff0be63261f68dda3
+- path: materialized_sources/corpus/arxiv-2507.21046--f477f5c3/pdf-supplement/NOTICE.md
+  bytes: 20118
+  sha256: 20e9338d52e07563d1d2d4744b97bacbc0884d8ce9b49075612c989e6ad2abd0
+- path: materialized_sources/corpus/arxiv-2507.21046--f477f5c3/pdf-supplement/document.pdf
+  bytes: 5726709
+  sha256: 0b39df03feea2f4d8ac41e35a9247889978a53cb1e7b7d3eafaae76ad97b5602
+- path: materialized_sources/corpus/arxiv-2507.21046--f477f5c3/pdf-supplement/document.txt
+  bytes: 327907
+  sha256: 593ca7b8cefed6452245bb602fca8efdcadfd764e8a07e49c8131d93749a9e6a
+- path: materialized_sources/corpus/arxiv-2507.21046--f477f5c3/pdf-supplement/selectors.jsonl
+  bytes: 34327
+  sha256: 86812cd9a966a044e21385bed14c6e181b31a5cb3e63ad058498f105c2695fed
 - path: materialized_sources/corpus/arxiv-2507.21046--f477f5c3/selectors.jsonl
   bytes: 38312
   sha256: 5d2bf3cfda1fd36655868da95dce0f19c58448245560891d8a48fc255e3ee87d
@@ -135,8 +147,8 @@ local_files:
   bytes: 6560
   sha256: 816214ff5919aa457b6b443bee52b15d9561421417b7f8a50cc84651519f0002
 - path: materialized_sources/corpus/arxiv-2507.21046--f477f5c3/source-metadata.yaml
-  bytes: 10047
-  sha256: 748ff24841030d2827c10998326a8797d87745d84123ee87046f15dae448a572
+  bytes: 14248
+  sha256: 08ba381773ef0988b5f62fa2b2f42e4770aabcaac47966be38c318dc4f9df806
 warnings: []
 errors: []
 archive_container: tar
@@ -166,4 +178,77 @@ omitted:
   reason: non-text-document-member
 - path: Figures/develop.pdf
   reason: non-text-document-member
-local_bytes: 1117162
+local_bytes: 7230424
+pdf_supplement:
+  source_version: v4
+  revision: sha256:0b39df03feea2f4d8ac41e35a9247889978a53cb1e7b7d3eafaae76ad97b5602
+  media_type: application/pdf
+  retrievals:
+  - requested_urls:
+    - https://arxiv.org/pdf/2507.21046v4
+    resolved_url: https://arxiv.org/pdf/2507.21046v4
+    content_type: application/pdf
+    http_status: 200
+    bytes: 5726709
+    sha256: 0b39df03feea2f4d8ac41e35a9247889978a53cb1e7b7d3eafaae76ad97b5602
+    request_started_at: '2026-09-16T19:03:06Z'
+    completion_observed_at: '2026-09-16T19:04:05Z'
+    retrieved_at: '2026-09-16T19:04:05Z'
+    retrieval_note: 七文件同批请求开始与全部完成观测；不声称逐传输精确结束时刻或服务端时间。
+  selectors:
+  - pdf-supplement/selectors.jsonl
+  body_quality_verified: true
+  limitations:
+  - p6 timeline 的图内年/月、方法标签没有进入原生 plain 文本，只有可提取正文/图注；77/77 页非空、0 failures 仅是结构事实，不代表 text complete。
+  - p4 inline taxonomy 以及 tree/flow/箭头的空间、分组和关系未被线性文本完整表达；八幅外置科学图与 12 个表的视觉原件保存在完整 PDF。
+  - FGT/BWT 的上下标与分式跨行，数学二维排版和表格行列绑定有损；未猜补数值或重排原文。
+  - 模型 logo/商标与外部代码、数据、引用作品不因论文许可而获得额外授权；本层未做 OCR，不晋升 trusted。
+  primary_excerpt:
+    start_line: 20
+    end_line: 41
+  rights:
+    license_spdx: CC-BY-4.0
+    license_url: https://creativecommons.org/licenses/by/4.0/
+    license_verified_at: '2026-09-16'
+    publication_gate:
+      decision: allow
+      reason: 本批已核固定 v4 官方作品及实际 PDF 的 BY4，完成主文、参考文献结尾、科学图和可见信用核验；主线程明确独立批准实际 PDF revision 绑定的此范围，不凭旧 TeX allow 自动放行。保留原信用且不扩大至外部作品/数据/代码/商标；这是
+        agent 表示与包装决策，不是人类批准或知识可信晋升。
+      approved_scope: 仅本次从 https://arxiv.org/pdf/2507.21046v4 取得的固定 v4 官方完整 PDF（77 页，5726709 bytes）、其 plain 页文字与页级定位器。范围为编译后九章、12
+        个表、真实科学图与 inline taxonomy、以及 p53–77 参考文献；作品无 appendix。 作者/提交者有权许可的论文表达及本次文字派生沿作品级 CC BY 4.0；完整 PDF 原有图注、引用、署名、资助与警告保留，不授权被引用作品全文、外部实验数据集、模型、代码或脚本，也不转授
+        logo/商标、专利或权利人无权许可的材料。原 PDF 保留下载原字节，文字层有损且不做 OCR，原件完整不等于 text extraction complete。既有 TeX/source/normalized/default
+        selectors/NOTICE/files 与旧包各组件授权范围不变。
+    redistribution_package:
+      source_revision: sha256:0b39df03feea2f4d8ac41e35a9247889978a53cb1e7b7d3eafaae76ad97b5602
+      source_version_url: https://arxiv.org/pdf/2507.21046v4
+      notice_path: raw_data/licenses/cc-by-4.0.md
+      attribution: 'Huan-ang Gao; Jiayi Geng; Wenyue Hua; Mengkang Hu; Xinzhe Juan; Hongzhang Liu; Shilong Liu;
+        Jiahao Qiu; Xuan Qi; Yiran Wu; Hongru Wang; Han Xiao; Yuhang Zhou; Shaokun Zhang; Jiayi Zhang; Jinyu Xiang;
+        Yixiong Fang; Qiwen Zhao; Dongrui Liu; Qihan Ren; Cheng Qian; Zhenhailong Wang; Minda Hu; Huazheng Wang;
+        Qingyun Wu; Heng Ji; Mengdi Wang. "A Survey of Self-Evolving Agents: What, When, How, and Where to Evolve
+        on the Path to Artificial Super Intelligence". Fixed arXiv 2507.21046v4, https://arxiv.org/abs/2507.21046v4;
+        original PDF https://arxiv.org/pdf/2507.21046v4. Article expression the authors/submitter may license is
+        available under CC BY 4.0, https://creativecommons.org/licenses/by/4.0/; full legal code https://creativecommons.org/licenses/by/4.0/legalcode.en.
+        Fixed article/PDF license checked in this batch on 2026-09-16. Original figure, citation, author and funding
+        credits inside the PDF are retained; no endorsement or right to external works, model logos or trademarks
+        is implied.'
+      modifications: 原官方 PDF 按实际下载 bytes 原样保存，不编辑或重导出；复用既有 pypdf plain 提取逐页文字，加入明确页边界并生成独立页定位；在派生 text 末尾附唯一署名、修改、范围声明及完整
+        NOTICE.md 链接。plain 文字保留原抽取结果，不做 OCR、不运行 TeX、论文代码或提示词，不将图形、数学排版或阅读顺序损失隐藏为完整。旧 source、normalized、default selectors、NOTICE、files、archive
+        revision/retrieval 和旧许可包全部保留，不新增 trusted。
+      scope: 仅本次从 https://arxiv.org/pdf/2507.21046v4 取得的固定 v4 官方完整 PDF（77 页，5726709 bytes）、其 plain 页文字与页级定位器。范围为编译后九章、12
+        个表、真实科学图与 inline taxonomy、以及 p53–77 参考文献；作品无 appendix。 作者/提交者有权许可的论文表达及本次文字派生沿作品级 CC BY 4.0；完整 PDF 原有图注、引用、署名、资助与警告保留，不授权被引用作品全文、外部实验数据集、模型、代码或脚本，也不转授
+        logo/商标、专利或权利人无权许可的材料。原 PDF 保留下载原字节，文字层有损且不做 OCR，原件完整不等于 text extraction complete。既有 TeX/source/normalized/default
+        selectors/NOTICE/files 与旧包各组件授权范围不变。
+  materialization:
+    source_pdf: pdf-supplement/document.pdf
+    source_pdf_sha256: 0b39df03feea2f4d8ac41e35a9247889978a53cb1e7b7d3eafaae76ad97b5602
+    document: pdf-supplement/document.txt
+    normalized_document: pdf-supplement/document.txt
+    stored_characters: 325720
+    selector_count: 77
+    pdf_page_count: 77
+    pdf_text_page_count: 77
+    pdf_text_extraction_mode: plain
+    pdf_pages_without_extractable_text: []
+    pdf_page_extraction_failures: []
+    substantive_text: true

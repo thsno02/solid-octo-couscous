@@ -9,7 +9,7 @@ final_target:
   protected: false
 integration_branch:
   branch: work/v0-meta-kb-initialization-demo-260910
-  sha: e36e117a9199f3e57a27f02a5cec93ae61507e92
+  sha: 3a69c2f2550ed2159d365605b3f4df96cc30dc01
   role: temporary_integration_for_pr_1
   pull_request: 1
   pr_base: main
@@ -119,6 +119,18 @@ incorporated_pull_requests:
     ci_run: 35130748893
     already_in_integration_branch: true
     final_destination: main_via_pr_1
+  - number: 14
+    title: 'P3-TEX-02 / parser_only: 为 Streaming 增加保真 TeX 阅读视图'
+    state: merged
+    merged_into: work/v0-meta-kb-initialization-demo-260910
+    merge_commit: 3a69c2f2550ed2159d365605b3f4df96cc30dc01
+    evaluated_head: 70a2359619b1b6a95b21258657cc5789f2563eb1
+    evaluated_base: e36e117a9199f3e57a27f02a5cec93ae61507e92
+    independent_evaluation: PASS
+    evaluation_review: 5227021655
+    ci_run: 35136212132
+    already_in_integration_branch: true
+    final_destination: main_via_pr_1
 planning_pull_request:
   number: 5
   state: merged
@@ -137,18 +149,18 @@ planning_pull_request:
   implementation_authorized: false
   subsequent_user_decision: execute_serial_phases_after_planning_merge
 active_implementation:
-  phase: P3-TEX-02
-  branch: codex/p3-tex-reading-02-260917
-  base_sha: e36e117a9199f3e57a27f02a5cec93ae61507e92
+  phase: P3-PDF-02
+  branch: codex/p3-pdf-supplement-02-260917
+  base_sha: 3a69c2f2550ed2159d365605b3f4df96cc30dc01
   target: work/v0-meta-kb-initialization-demo-260910
-  pull_request: 14
-  state: implemented_pending_exact_head_independent_evaluation
-  source_uids: ['arxiv:2606.09877']
+  pull_request: 15
+  state: implemented_pending_exact_head_evaluation_and_ci
+  source_uids: ['arxiv:2305.14292', 'arxiv:2310.11511', 'arxiv:2406.06769', 'arxiv:2409.13740', 'arxiv:2411.14199', 'arxiv:2507.21046', 'arxiv:2607.07663']
   adapter_family: arxiv_latex_v2
-  action_bucket: parser_only
-  network_source_acquisition: false
+  action_bucket: open_fulltext_fetch
+  network_source_acquisition: fixed_version_official_pdf_only
   original_source_bytes_mutation: false
-  derived_text_changes: opt_in_reading_view_only_preserve_legacy_tex_and_txt
+  derived_text_changes: additive_pdf_supplement_preserve_legacy_tex_and_txt
   final_destination: main_via_pr_1
 next_work_items:
   - order: 1
