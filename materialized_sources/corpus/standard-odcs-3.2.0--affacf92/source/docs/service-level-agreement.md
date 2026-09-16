@@ -1,0 +1,101 @@
+---
+title: "Service-Level Agreement"
+description: "This section describes the service-level agreements (SLA)."
+---
+
+<!--
+Copyright 2026 The Bitol Contributors
+SPDX-License-Identifier: Apache-2.0
+-->
+
+# Service-Level Agreement (SLA)
+
+This section describes the service-level agreements (SLA).
+
+* Use the `Object.Element` to indicate the number to do the checks on, as in `SELECT txn_ref_dt FROM tab1`.
+* Separate multiple object.element by a comma, as in `table1.col1`, `table2.col1`, `table1.col2`.
+* If there is only one object in the contract, the object name is not required.
+
+[Back to TOC](README.md)
+
+## Example
+
+```YAML
+slaProperties:
+  - id: latency_4_days
+    property: latency # Property, see list of values in Data QoS (see below)
+    value: 4
+    unit: d # d, day, days for days; y, yr, years for years
+    element: tab1.txn_ref_dt
+    scheduler: cron
+    schedule: 0 30 * * *
+  - id: main_ga
+    property: generalAvailability
+    value: 2022-05-12T09:30:10-08:00
+    description: GA at 12.5.22
+  - id: eos
+    property: endOfSupport
+    value: 2032-05-12T09:30:10-08:00
+  - id: eol
+    property: endOfLife
+    value: 2042-05-12T09:30:10-08:00
+  - id: retention
+    property: retention
+    value: 3
+    unit: y
+    element: tab1.txn_ref_dt
+  - id: frequency
+    property: frequency
+    value: 1
+    valueExt: 1
+    unit: d
+    element: tab1.txn_ref_dt
+  - id: reg_toa
+    property: timeOfAvailability
+    value: 09:00-08:00
+    element: tab1.txn_ref_dt
+    driver: regulatory # Describes the importance of the SLA: [regulatory|analytics|operational|...]
+  - id: analytics_toa
+    property: timeOfAvailability
+    value: 08:00-08:00
+    element: tab1.txn_ref_dt
+    driver: analytics
+```
+
+## Definitions
+
+| Key                                | Type   | UX label                | Required                       | Description                                                                                                                                                                                |
+| ---------------------------------- | ------ | ----------------------- | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| ~~slaDefaultElement~~ (Deprecated) | string | Default SLA element(s)  | No                             | Element (using the element path notation) to do the checks on. DEPRECATED SINCE v3.1.0. WILL BE REMOVED IN ODCS v4.0.0.                                                                    |
+| slaProperties                      | array  | SLA                     | No                             | A list of key/value pairs for SLA specific properties. There is no limit on the type of properties.                                                                                        |
+| slaProperties[].authoritativeDefinitions | array | Authoritative Definitions | No                       | Links to external definitions for this SLA property (e.g. the formal SLA document or measurement method). Same structure as elsewhere in ODCS. (Added in v3.2.0, [RFC 0046](https://github.com/bitol-io/tsc/blob/main/rfcs/approved/odcs-v3.2.0/0046-sla-custom-properties-and-authoritative-definitions.md).) |
+| slaProperties[].customProperties   | array  | Custom Properties       | No                             | Vendor- or organization-specific key/value pairs for this SLA property. Same structure as elsewhere in ODCS. (Added in v3.2.0, [RFC 0046](https://github.com/bitol-io/tsc/blob/main/rfcs/approved/odcs-v3.2.0/0046-sla-custom-properties-and-authoritative-definitions.md).) |
+| slaProperties[].description        | string | Description             | No                             | Description of the SLA for humans.                                                                                                                                                         |
+| slaProperties[].driver             | string | Driver                  | No                             | Describes the importance of the SLA from the list of: `regulatory`, `analytics`, or `operational`.                                                                                         |
+| slaProperties[].element            | string | Element(s)              | No                             | Element(s) to check on. Multiple elements should be extremely rare and, if so, separated by commas.                                                                                        |
+| slaProperties[].id                 | string | ID                      | No                             | A unique identifier for the element used to create stable, refactor-safe references. Recommended for elements that will be referenced. See [References](./references.md) for more details. |
+| slaProperties[].property           | string | Property                | Yes                            | Specific property in SLA, check the [Data QoS periodic table](https://medium.com/data-mesh-learning/what-is-data-qos-and-why-is-it-critical-c524b81e3cc1). May require units.              |
+| slaProperties[].schedule           | string | Scheduler Configuration | No                             | Configuration information for the scheduling tool, for `cron` a possible value is `0 20 * * *`.                                                                                            |
+| slaProperties[].scheduler          | string | Scheduler               | No                             | Name of the scheduler, can be `cron` or any tool your organization support.                                                                                                                |
+| slaProperties[].unit               | string | Unit                    | No - unless needed by property | **d**, day, days for days; **y**, yr, years for years, etc. Units use the ISO standard.                                                                                                    |
+| slaProperties[].value              | string | Value                   | Yes                            | Agreement value. The label will change based on the property itself.                                                                                                                       |
+| slaProperties[].valueExt           | string | Extended value          | No - unless needed by property | Extended agreement value. The label will change based on the property itself.                                                                                                              |
+
+## Valid Values for SLA Properties
+
+Recommend SLA properties follow the [Data QoS periodic table](https://medium.com/data-mesh-learning/what-is-data-qos-and-why-is-it-critical-c524b81e3cc1). Those values are case-insensitive and are:
+
+* `availability` (synonym `av`).
+* `throughput` (synonym `th`).
+* `errorRate` (synonym `er`).
+* `generalAvailability` (synonym `ga`).
+* `endOfSupport` (synonym `es`).
+* `endOfLife` (synonym `el`).
+* `retention` (synonym `re`).
+* `frequency` (synonym `fy`) - frequency of update.
+* `latency` (synonym `ly`) - preferred to freshness.
+* `timeToDetect` (synonym `td`) - time to detect an issue.
+* `timeToNotify` (synonym `tn`).
+* `timeToRepair` (synonym `tr`).
+
+[Back to TOC](README.md)

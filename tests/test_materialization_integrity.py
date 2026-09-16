@@ -5,6 +5,7 @@ import gzip
 import hashlib
 import io
 import json
+import re
 import sys
 import tarfile
 import tempfile
@@ -683,6 +684,186 @@ class RetainedMarkdownTests(unittest.TestCase):
                     self.assertEqual(current, previous)
                 previous = current
 
+    @contextlib.contextmanager
+    def _git_text_sidecar_capsule(self, *, frontmatter: bool = False):
+        with self._retained_capsule() as (root, record, _, _, _, document):
+            document.unlink()
+            capsule = record.capsule_root
+            (capsule / "document.md").write_bytes(b"# Prior homepage\r\n\r\nOld excerpt, attribution and historical footer are unchanged.\r\n")
+            materializer.write_jsonl(capsule / "selectors.jsonl", [{
+                "selector": "historical://homepage#L1-L3", "local_path": (capsule / "document.md").relative_to(root).as_posix(),
+                "kind": "section", "start_line": 1, "end_line": 3, "text_preview": "Prior homepage",
+            }])
+            history = materializer.load_yaml(capsule / "manifest.yaml")
+            history.pop("source_version")
+            history["content_tier"] = "excerpt_capsule"
+            history["materialization"] = {"document": "document.md", "selector_count": 1}
+            history["selectors"] = ["selectors.jsonl"]
+            history["local_files"] = materializer.local_file_inventory(capsule)
+            commit = "a" * 40
+            record.metadata["versioning"]["snapshot_commit"] = commit
+            package = {**record.metadata["rights"]["redistribution_package"], "source_revision": f"git:{commit}",
+                "modifications": "Collector assembly, source anchors and explicit local href routes.",
+                "scope": "Fixed Git native Markdown chapters and explicitly listed full YAML example.",
+            }
+            record.metadata["rights"]["redistribution_package"] = package
+            materializer.write_yaml(record.metadata_path, record.metadata)
+            materializer.write_yaml(capsule / "source-metadata.yaml", record.metadata)
+            notice = b"Complete previous attribution and license remain.\n\nNew fixed Git text and example grant.\n"
+            (root / "license.md").write_bytes(notice)
+            (capsule / "NOTICE.md").write_bytes(notice)
+            texts = {
+                "source/docs/alpha.md": ("md", b"# Native chapter\r\n\r\nThis fixed specification defines a reviewable contract boundary with actual source evidence and explicit provenance for readers.\r\n\r\n[Next chapter](beta.md)\r\n\r\n## Field definitions\r\n\r\n| Property | Required |\r\n| --- | --- |\r\n| name | true |\r\n"),
+                "source/docs/beta.md": ("md", b"# Native chapter\n\n```yaml\n\n# Fake heading\n\nThis hidden example describes an impossible result with enough prose to resemble a source assertion.\n\n```\n\n## Last section\n\nCurrent field definitions retain their original order and full literal representation.\n"),
+                "source/docs/examples/full-contract.contract.yaml": ("yaml", b"# Copyright example contributors\r\n# SPDX-License-Identifier: Apache-2.0\r\nversion: 0.7.0\r\napiVersion: v1.2\r\nkind: DataContract\r\n# YAML comment is not a Markdown heading\r\n"),
+            }
+            if frontmatter:
+                format_name, body = texts["source/docs/alpha.md"]
+                texts["source/docs/alpha.md"] = (format_name, b'---\r\ntitle: "Chapter metadata"\r\ndescription: "Metadata is not a source heading."\r\n---\r\n\r\n<!-- Native copyright remains. -->\r\n\r\n' + body)
+            sources = []
+            for name, (format_name, value) in texts.items():
+                path = capsule / name
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_bytes(value)
+                sources.append((path, format_name))
+            license_source = capsule / "source/LICENSE"
+            license_source.write_bytes(b"Complete fixed Git license, kept as an original.\r\n")
+            figure = capsule / "source/assets/graph.png"
+            figure.write_bytes(b"\x89PNG\r\n\x1a\nfixed Git scientific figure fixture")
+            originals = {path: path.read_bytes() for path in (capsule / "source").rglob("*") if path.is_file()}
+            manifest = materializer.base_manifest(record, "generic_web_or_document_v2", "fixed-time")
+            manifest.update({"status": "materialized", "content_tier": "full_text", "revision": f"git:{commit}",
+                "source_version": "1.2", "historical_acquisition": history, "selectors": ["selectors.jsonl", "normalized/selectors.jsonl"]})
+            manifest["rights"]["redistribution_package"] = package
+            manifest["materialization"] = {
+                "retained_text_binding": "git_snapshot", "document": "normalized/document.md", "normalized_document": "normalized/document.md",
+                "retained_text_selectors": "normalized/selectors.jsonl",
+                "retained_text_sources": [{"source": path.relative_to(capsule).as_posix(), "format": format_name,
+                    **({"role": "example"} if format_name == "yaml" else {})} for path, format_name in sources],
+                "link_rewrites": {"beta.md": "#beta-L1", "../../LICENSE": "../source/LICENSE", "graph.png": "../source/assets/graph.png"},
+            }
+            manifest["retrievals"] = history["retrievals"] + [{
+                "local_path": path.relative_to(capsule).as_posix(), "sha256": materializer.sha256_file(path),
+                "bytes": path.stat().st_size, "commit": commit,
+            } for path in [*(path for path, _ in sources), license_source, figure]]
+            manifest["local_files"] = materializer.local_file_inventory(capsule)
+            materializer.write_yaml(capsule / "manifest.yaml", manifest)
+            audit = root / "raw_data/audits/materialization_rights_review.yaml"
+            audit.parent.mkdir(parents=True)
+            materializer.write_yaml(audit, {"items": [{"uid": record.uid, "source_revision": manifest["revision"],
+                "manifest_path": (capsule / "manifest.yaml").relative_to(root).as_posix(), "redistribution_package": package,
+                "publication_gate": {"decision": "allow"},
+            }]})
+            yield root, record, sources, originals, document, manifest
+
+    def test_git_text_sidecar_first_build_and_two_offline_replays_preserve_legacy_bytes(self) -> None:
+        with self._git_text_sidecar_capsule() as (root, record, sources, originals, document, manifest), mock.patch.object(
+            materializer, "fetch_bytes", side_effect=AssertionError("Git sidecar replay must not fetch"),
+        ), mock.patch.object(materializer, "prepare_capsule", side_effect=AssertionError("Git sidecar replay must not clear originals")):
+            preserved = {**originals, **{path: path.read_bytes() for path in (record.capsule_root / "document.md", record.capsule_root / "selectors.jsonl")}}
+            historical = manifest["historical_acquisition"]
+            materializer.replay_retained_text_sources(record, manifest, "fixed-time", check_derived=False)
+            first = {path.relative_to(record.capsule_root): path.read_bytes() for path in record.capsule_root.rglob("*") if path.is_file()}
+            for executor in (materializer.materialize_generic, materializer.materialize_one):
+                replayed = executor(record, {}, "fixed-time")
+                self.assertEqual({path.relative_to(record.capsule_root): path.read_bytes() for path in record.capsule_root.rglob("*") if path.is_file()}, first)
+                self.assertEqual(replayed["historical_acquisition"], historical)
+                self.assertNotIn("source_version", replayed["historical_acquisition"])
+                rows = [json.loads(line) for line in (record.capsule_root / "normalized/selectors.jsonl").read_text().splitlines()]
+                self.assertEqual(replayed["materialization"]["selector_count"], 1 + len(rows))
+                errors: list[str] = []
+                validator.validate_retained_markdown_binding(replayed, record.capsule_root, {path.relative_to(root).as_posix(): materializer.sha256_file(path) for path, _ in sources}, errors, repository_root=root)
+                self.assertEqual(errors, [])
+                for path, format_name in sources:
+                    native_rows = [row for row in rows if row["derived_from"] == path.relative_to(root).as_posix()]
+                    self.assertEqual(native_rows[0]["source_start_line"], 1)
+                    self.assertEqual(native_rows[-1]["source_end_line"], len(path.read_bytes().decode().splitlines()))
+                    self.assertTrue(all(row["source_format"] == format_name and row["transformation"] for row in native_rows))
+                self.assertEqual(rows[-1]["source_role"], "example")
+            self.assertEqual({path: path.read_bytes() for path in preserved}, preserved)
+            text = document.read_bytes().decode()
+            self.assertIn("[Next chapter](#beta-L1)", text)
+            self.assertIn("## Native YAML example", text)
+            self.assertNotIn("## Native YAML schema", text)
+            self.assertIn("```yaml\n" + originals[sources[-1][0]].decode() + "```\n", text)
+            self.assertIn("| name | true |\r\n", text)
+            self.assertEqual(text.count("<!-- materialization-redistribution-notice -->"), 1)
+
+    def test_git_text_sidecar_failed_preflight_preserves_bytes_through_wrapper_and_executor(self) -> None:
+        changes = ("commit", "version", "canonical-commit", "canonical-version", "retrieval-commit", "rewrite-commit", "missing-source", "source-drift", "missing-sidecar", "selector", "missing-source-selectors", "role", "bad-binding", "bad-mapping-without-sentinels", "declaration", "legacy-drift", "package", "notice", "history")
+        for change in changes:
+            with self.subTest(change=change), self._git_text_sidecar_capsule() as (root, record, sources, _, document, manifest):
+                materializer.replay_retained_text_sources(record, manifest, "fixed-time", check_derived=False)
+                manifest = materializer.load_yaml(record.capsule_root / "manifest.yaml")
+                sidecar = record.capsule_root / "normalized/selectors.jsonl"
+                if change in {"commit", "version"}:
+                    record.metadata["versioning"]["snapshot_commit" if change == "commit" else "source_version"] = "b" * 40 if change == "commit" else "1.3"
+                elif change in {"canonical-commit", "canonical-version"}:
+                    metadata = materializer.load_yaml(record.metadata_path)
+                    metadata["versioning"]["snapshot_commit" if change == "canonical-commit" else "source_version"] = "b" * 40 if change == "canonical-commit" else "1.3"
+                    materializer.write_yaml(record.metadata_path, metadata)
+                elif change == "retrieval-commit":
+                    manifest["retrievals"][-1]["commit"] = "b" * 40
+                elif change == "rewrite-commit":
+                    next(row for row in manifest["retrievals"] if row.get("local_path") == "source/LICENSE")["commit"] = "b" * 40
+                elif change == "missing-source":
+                    sources[-1][0].unlink()
+                elif change == "source-drift":
+                    sources[-1][0].write_bytes(sources[-1][0].read_bytes() + b"External drift.\n")
+                elif change == "missing-sidecar":
+                    sidecar.unlink()
+                elif change in {"selector", "missing-source-selectors"}:
+                    rows = [json.loads(line) for line in sidecar.read_text().splitlines()]
+                    if change == "selector":
+                        rows[-1]["source_end_line"] = 999
+                    else:
+                        rows = [row for row in rows if row["derived_from"] != sources[-1][0].relative_to(root).as_posix()]
+                    materializer.write_jsonl(sidecar, rows)
+                elif change == "role":
+                    manifest["materialization"]["retained_text_sources"][-1]["role"] = "schema"
+                elif change == "bad-binding":
+                    manifest["materialization"]["retained_text_binding"] = ["git_snapshot"]
+                elif change == "bad-mapping-without-sentinels":
+                    document.unlink()
+                    sidecar.unlink()
+                    manifest["materialization"] = 7
+                elif change == "declaration":
+                    del manifest["materialization"]["retained_text_sources"]
+                elif change == "legacy-drift":
+                    (record.capsule_root / "document.md").write_bytes(b"Changed old excerpt")
+                elif change == "package":
+                    manifest["rights"]["redistribution_package"]["scope"] = "Unreviewed scope"
+                elif change == "notice":
+                    (record.capsule_root / "NOTICE.md").write_bytes(b"Truncated notice")
+                else:
+                    manifest["historical_acquisition"] = {}
+                materializer.write_yaml(record.capsule_root / "manifest.yaml", manifest)
+                before = {path.relative_to(root): path.read_bytes() for path in root.rglob("*") if path.is_file()}
+                with mock.patch.object(materializer, "fetch_bytes") as fetch, mock.patch.object(materializer, "prepare_capsule") as prepare, mock.patch.object(materializer, "finalize_capsule") as finalize:
+                    for executor in (materializer.materialize_generic, materializer.materialize_one):
+                        with self.assertRaises(materializer.RetainedMarkdownPreflightError):
+                            executor(record, {}, "fixed-time")
+                        self.assertEqual({path.relative_to(root): path.read_bytes() for path in root.rglob("*") if path.is_file()}, before)
+                    fetch.assert_not_called()
+                    prepare.assert_not_called()
+                    finalize.assert_not_called()
+
+    def test_git_text_sidecar_validator_does_not_trust_supplied_inventory_hashes(self) -> None:
+        with self._git_text_sidecar_capsule() as (root, record, sources, _, _, manifest):
+            actual = {path.relative_to(root).as_posix(): materializer.sha256_file(path) for path, _ in sources}
+            sources[-1][0].write_bytes(sources[-1][0].read_bytes() + b"Unrecorded drift.\n")
+            errors: list[str] = []
+            validator.validate_retained_markdown_binding(manifest, record.capsule_root, actual, errors, repository_root=root, check_derived=False)
+            self.assertTrue(any("RETAINED_TEXT_SOURCE_DRIFT" in error for error in errors))
+
+    def test_git_text_sidecar_validator_checks_nontext_rewrite_commit(self) -> None:
+        with self._git_text_sidecar_capsule() as (root, record, sources, _, _, manifest):
+            actual = {path.relative_to(root).as_posix(): materializer.sha256_file(path) for path, _ in sources}
+            next(row for row in manifest["retrievals"] if row.get("local_path") == "source/assets/graph.png")["commit"] = "b" * 40
+            errors: list[str] = []
+            validator.validate_retained_markdown_binding(manifest, record.capsule_root, actual, errors, repository_root=root, check_derived=False)
+            self.assertTrue(any("retained Git rewrite original" in error for error in errors))
+
     def test_ordered_text_drift_or_commit_change_rejects_before_any_derived_write(self) -> None:
         for change in ("last-source", "html-evidence", "commit", "version", "identity", "retrieval", "anchor"):
             with self.subTest(change=change), self._retained_text_capsule() as (_, record, sources, originals, document), mock.patch.object(
@@ -735,6 +916,103 @@ class RetainedMarkdownTests(unittest.TestCase):
             self.assertIn("```yaml\n" + yaml_original.decode() + "\n```\n", text)
             for row in rows:
                 self.assertIn(row["text_preview"], "\n".join(text.splitlines()[row["start_line"] - 1:row["end_line"]]))
+
+    def test_git_frontmatter_is_literal_metadata_not_headings_and_body_boundaries_are_real(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary, mock.patch.object(materializer, "ROOT", Path(temporary)):
+            root = Path(temporary)
+            source = root / "capsule/source/native.md"
+            source.parent.mkdir(parents=True)
+            original = "\r\n".join([
+                "---", 'title: "Metadata title"', "# Metadata ATX is not a body heading", "description: |",
+                "  Metadata Setext lookalike", "  ---", 'image: "https://example.test/brand.svg"',
+                'link: "[Next](later.md)"', 'template: "{ticker} {% variable %} with ``` ticks"', "---", "",
+                "<!-- Native copyright remains. -->", "", "Body title", "==========", "",
+                "[Next](later.md)", "", "```md", "# Fenced heading", "Fenced Setext", "----------", "```", "",
+                "## Final body", "Actual final source body.", "",
+            ]).encode()
+            source.write_bytes(original)
+            document = root / "capsule/normalized/document.md"
+            options = {source.resolve(): {"git_snapshot": True}}
+            rows = materializer.derive_retained_text_sources([(source, "md")], document, {"later.md": "#native-L14"}, source_options=options)
+            text = document.read_bytes().decode()
+            self.assertEqual(source.read_bytes(), original)
+            self.assertEqual([(row["source_start_line"], row["source_end_line"]) for row in rows], [(1, 13), (14, 24), (25, 26)])
+            self.assertEqual(rows[0]["kind"], "file")
+            self.assertNotIn("heading", rows[0])
+            self.assertNotIn("level", rows[0])
+            self.assertEqual([(row["source_start_line"], row["heading"]) for row in rows[1:]], [(14, "Body title"), (25, "Final body")])
+            frontmatter = "".join(original.decode().splitlines(keepends=True)[:10])
+            self.assertIn(materializer.tex_reading_fence(frontmatter, "yaml"), text)
+            self.assertIn('link: "[Next](later.md)"', text)  # YAML values are not Markdown hrefs to rewrite.
+            self.assertIn("[Next](#native-L14)", text)
+            self.assertIn("<!-- Native copyright remains. -->\r\n", text)
+            self.assertEqual(re.findall(r'<a id="(native-L\d+)"></a>', text), ["native-L1", "native-L14", "native-L25"])
+            self.assertIn("```md\r\n# Fenced heading\r\nFenced Setext\r\n----------\r\n```", text)
+            self.assertNotIn("Metadata Setext lookalike", str([row.get("heading") for row in rows]))
+            rendered_headings = materializer.extract_markdown_headings(text, "consumer.md", structured=True)
+            self.assertEqual([heading["heading"] for heading in rendered_headings], ["Retained specification text (collector assembly)", "Body title", "Final body"])
+            for row in rows:
+                self.assertIn(row["text_preview"], "\n".join(text.splitlines()[row["start_line"] - 1:row["end_line"]]))
+            rejected = document.with_name("rejected.md")
+            rejected.write_bytes(b"Previous derived bytes.\r\n")
+            with self.assertRaisesRegex(ValueError, "real source anchor"):
+                materializer.derive_retained_text_sources([(source, "md")], rejected, {"later.md": "#native-L3"}, source_options=options)
+            self.assertEqual(rejected.read_bytes(), b"Previous derived bytes.\r\n")
+            legacy = document.with_name("legacy.md")
+            legacy_rows = materializer.derive_retained_text_sources([(source, "md")], legacy, {})
+            self.assertTrue(any(row.get("heading", "").startswith("template:") for row in legacy_rows))
+            self.assertIn('<a id="native-L9"></a>', legacy.read_bytes().decode())
+
+    def test_git_frontmatter_rejects_unclosed_or_unbounded_prefix_without_any_write(self) -> None:
+        for original in (b'---\ntitle: "Not closed"\n# Body must not silently swallow the prefix\n',
+                         b'---\n' + b'metadata: value\n' * 255 + b'---\n# Beyond the supported boundary\n'):
+            with self.subTest(original_bytes=len(original)), tempfile.TemporaryDirectory() as temporary, mock.patch.object(materializer, "ROOT", Path(temporary)):
+                root = Path(temporary)
+                source = root / "capsule/source/native.md"
+                source.parent.mkdir(parents=True)
+                source.write_bytes(original)
+                document = root / "capsule/normalized/document.md"
+                document.parent.mkdir()
+                document.write_bytes(b"Previous consumer remains unchanged.\r\n")
+                before = {path: path.read_bytes() for path in root.rglob("*") if path.is_file()}
+                with self.assertRaisesRegex(ValueError, "within 256 lines"):
+                    materializer.derive_retained_text_sources([(source, "md")], document, {}, source_options={source.resolve(): {"git_snapshot": True}})
+                self.assertEqual({path: path.read_bytes() for path in root.rglob("*") if path.is_file()}, before)
+
+    def test_git_frontmatter_only_applies_to_leading_block_not_source_code_fences(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary, mock.patch.object(materializer, "ROOT", Path(temporary)):
+            root = Path(temporary)
+            source = root / "capsule/source/native.md"
+            source.parent.mkdir(parents=True)
+            original = b'```yaml\r\n---\r\ntitle: "Literal code"\r\n---\r\n# Fake source heading\r\n```\r\n\r\nReal body title\r\n===============\r\n\r\nEnd body.\r\n'
+            source.write_bytes(original)
+            document = root / "capsule/normalized/document.md"
+            rows = materializer.derive_retained_text_sources([(source, "md")], document, {}, source_options={source.resolve(): {"git_snapshot": True}})
+            self.assertEqual([(row["heading"], row["level"]) for row in rows], [("Real body title", 1)])
+            self.assertIn(original.decode().split("Real body title")[0], document.read_bytes().decode())
+            self.assertNotIn("Collector metadata display", document.read_bytes().decode())
+            self.assertEqual(source.read_bytes(), original)
+
+    def test_git_frontmatter_first_build_and_two_strict_offline_replays_preserve_all_bytes(self) -> None:
+        with self._git_text_sidecar_capsule(frontmatter=True) as (root, record, sources, originals, _, manifest), mock.patch.object(
+            materializer, "fetch_bytes", side_effect=AssertionError("frontmatter replay must not fetch"),
+        ), mock.patch.object(materializer, "prepare_capsule", side_effect=AssertionError("frontmatter replay must not clear prior originals")):
+            preserved = {**originals, **{path: path.read_bytes() for path in (record.capsule_root / "document.md", record.capsule_root / "selectors.jsonl")}}
+            materializer.replay_retained_text_sources(record, manifest, "fixed-time", check_derived=False)
+            first = {path.relative_to(record.capsule_root): path.read_bytes() for path in record.capsule_root.rglob("*") if path.is_file()}
+            for executor in (materializer.materialize_generic, materializer.materialize_one):
+                replayed = executor(record, {}, "fixed-time")
+                self.assertEqual({path.relative_to(record.capsule_root): path.read_bytes() for path in record.capsule_root.rglob("*") if path.is_file()}, first)
+                errors: list[str] = []
+                validator.validate_retained_markdown_binding(replayed, record.capsule_root, {path.relative_to(root).as_posix(): materializer.sha256_file(path) for path, _ in sources}, errors, repository_root=root)
+                self.assertEqual(errors, [])
+                rows = [json.loads(line) for line in (record.capsule_root / "normalized/selectors.jsonl").read_text().splitlines()]
+                self.assertEqual(rows[0]["kind"], "file")
+                self.assertNotIn("heading", rows[0])
+                self.assertEqual((rows[0]["source_start_line"], rows[0]["source_end_line"]), (1, 7))
+                self.assertEqual((rows[1]["heading"], rows[1]["source_start_line"]), ("Native chapter", 8))
+                self.assertEqual(replayed["materialization"]["selector_count"], 1 + len(rows))
+            self.assertEqual({path: path.read_bytes() for path in preserved}, preserved)
 
     @contextlib.contextmanager
     def _retained_html_capsule(self):

@@ -578,10 +578,18 @@ def main() -> int:
         if use_pdf:
             consumed_item["source_representation"] = "pdf_supplement"
         retained_html = not use_pdf and manifest.get("materialization", {}).get("retained_text_binding") == "dated_html_response"
-        reading_view = retained_html or (not use_pdf and isinstance(manifest.get("materialization", {}).get("tex_reading_view"), dict)
+        retained_git = not use_pdf and manifest.get("materialization", {}).get("retained_text_binding") == "git_snapshot"
+        reading_view = retained_html or retained_git or (not use_pdf and isinstance(manifest.get("materialization", {}).get("tex_reading_view"), dict)
                                         and manifest["materialization"]["tex_reading_view"].get("enabled") is True)
+        reading_representation = "retained_html_response" if retained_html else "retained_git_text_sources" if retained_git else "tex_reading_view"
+        reading_transformation = ("Collector-derived static HTML structural text; excerpt is not a raw-source quotation." if retained_html else
+                                  "Collector assembly of retained Git Markdown/YAML with line anchors and explicit local href routes; excerpt is not a raw-source quotation." if retained_git else
+                                  "Collector-derived static TeX reading view; excerpt is not a raw-source quotation.")
+        reading_limitation = ("Excerpt comes from collector-derived static HTML structural text, not a raw-source quotation; code blocks and candidate paragraphs containing collector anchors are excluded from automatic excerpts." if retained_html else
+                              "Excerpt comes from a collector assembly of retained Git Markdown/YAML, not a raw-source quotation; code/example blocks and candidate paragraphs containing collector anchors are excluded from automatic excerpts." if retained_git else
+                              "Excerpt comes from a collector-derived conservative TeX reading view, not a raw-source quotation; uncertain TeX expressions are excluded from automatic excerpts.")
         if reading_view:
-            consumed_item = {**consumed_item, "source_representation": "retained_html_response" if retained_html else "tex_reading_view"}
+            consumed_item = {**consumed_item, "source_representation": reading_representation}
         declared_rights = rights_snapshot(representation.get("rights"))
         source_for_rights = {
             **consumed_item,
@@ -670,8 +678,8 @@ def main() -> int:
                         "excerpt_sha256": hashlib.sha256(excerpt.encode("utf-8")).hexdigest(),
                         "content_tier": item.get("content_tier"),
                         "evidence_role": evidence_role,
-                        **({"source_representation": "retained_html_response" if retained_html else "tex_reading_view",
-                            "transformation": "Collector-derived static HTML structural text; excerpt is not a raw-source quotation." if retained_html else "Collector-derived static TeX reading view; excerpt is not a raw-source quotation."} if reading_view else {}),
+                        **({"source_representation": reading_representation,
+                            "transformation": reading_transformation} if reading_view else {}),
                         **evidence_rights,
                     },
                     assertion_kind="observation",
@@ -693,7 +701,7 @@ def main() -> int:
                     "claim_scope": "source-reported assertion",
                     "domain": domain,
                     "subject_ref": source_entity_uid,
-                    "limitations": (["Only the locally retained excerpt is evidence; omitted source content was not reviewed."] if limited_evidence else []) + (representation.get("limitations", []) if use_pdf else []) + (["Excerpt comes from collector-derived static HTML structural text, not a raw-source quotation; code blocks and candidate paragraphs containing collector anchors are excluded from automatic excerpts." if retained_html else "Excerpt comes from a collector-derived conservative TeX reading view, not a raw-source quotation; uncertain TeX expressions are excluded from automatic excerpts."] if reading_view else []),
+                    "limitations": (["Only the locally retained excerpt is evidence; omitted source content was not reviewed."] if limited_evidence else []) + (representation.get("limitations", []) if use_pdf else []) + ([reading_limitation] if reading_view else []),
                     **(
                         {
                             "rights_refs": [

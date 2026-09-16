@@ -135,9 +135,11 @@ def validate_retained_markdown_binding(
 ) -> None:
     """Bind an opt-in retained Markdown original to its inventory and retrieval."""
     materialization = manifest.get("materialization")
-    if (capsule_root / "source/specification.html").exists() or isinstance(materialization, dict) and any(field in materialization for field in ("retained_text_binding", "retained_text_selectors")):
+    sidecar_declared = isinstance(manifest.get("selectors"), list) and "normalized/selectors.jsonl" in manifest["selectors"]
+    if sidecar_declared or (capsule_root / "source/specification.html").exists() or isinstance(materialization, dict) and any(field in materialization for field in ("retained_text_binding", "retained_text_selectors")):
         if not isinstance(materialization, dict) or "retained_text_sources" not in materialization:
-            errors.append(f"RETAINED_DATED_HTML {manifest.get('uid')}: retained original has no text declaration")
+            label = "RETAINED_DATED_HTML" if (capsule_root / "source/specification.html").exists() or isinstance(materialization, dict) and materialization.get("retained_text_binding") == "dated_html_response" else "RETAINED_TEXT_DECLARATION"
+            errors.append(f"{label} {manifest.get('uid')}: retained original has no text declaration")
             return
     if isinstance(materialization, dict) and "retained_text_sources" in materialization:
         validate_retained_text_binding(manifest, capsule_root, actual_hashes, errors, repository_root=repository_root, check_derived=check_derived)
@@ -177,9 +179,10 @@ def validate_retained_text_binding(
     uid = manifest.get("uid")
     binding = materialization.get("retained_text_binding")
     if binding == "dated_html_response":
-        validate_dated_html_binding(manifest, capsule_root, actual_hashes, errors, repository_root=repository_root, check_derived=check_derived)
+        validate_retained_text_sidecar_binding(manifest, capsule_root, actual_hashes, errors, repository_root=repository_root, check_derived=check_derived)
         return
-    if binding is not None or "retained_text_selectors" in materialization:
+    git_sidecar = binding == "git_snapshot"
+    if not git_sidecar and (binding is not None or "retained_text_selectors" in materialization):
         errors.append(f"RETAINED_TEXT_BINDING {uid}")
         return
     sources = materialization["retained_text_sources"]
@@ -206,12 +209,16 @@ def validate_retained_text_binding(
             errors.append(f"RETAINED_TEXT_SOURCE_PATH_FORMAT {uid}: {source_name}")
             continue
         names.add(source_name)
+        if git_sidecar and "role" in item and (format_name != "yaml" or item["role"] != "example"):
+            errors.append(f"RETAINED_TEXT_ROLE {uid}: {source_name}")
         source_relative = (capsule_root / source_name).relative_to(repo_root).as_posix()
         source = scoped_path(source_relative, capsule_root, repository_root=repo_root)
         source_hash = actual_hashes.get(source_relative)
         if source is None or not source.is_file() or not source_hash:
             errors.append(f"RETAINED_TEXT_SOURCE_UNHASHED {uid}: {source_name}")
             continue
+        if git_sidecar and sha256_file(source) != source_hash:
+            errors.append(f"RETAINED_TEXT_SOURCE_DRIFT {uid}: {source_name}")
         if "config_range" in item:
             bounds = item["config_range"]
             start = bounds.get("start_line") if isinstance(bounds, dict) else None
@@ -226,103 +233,140 @@ def validate_retained_text_binding(
         rows = [row for row in retrievals if isinstance(row, dict) and row.get("local_path") == source_name] if isinstance(retrievals, list) else []
         if len(rows) != 1 or rows[0].get("sha256") != source_hash or rows[0].get("bytes") != source.stat().st_size or rows[0].get("commit") != commit:
             errors.append(f"RETAINED_TEXT_RETRIEVAL {uid}: {source_name}")
+    if git_sidecar:
+        validate_retained_text_sidecar_binding(manifest, capsule_root, actual_hashes, errors, repository_root=repository_root, check_derived=check_derived)
 
 
-def validate_dated_html_binding(
+def validate_retained_text_sidecar_binding(
     manifest: dict[str, Any], capsule_root: Path, actual_hashes: dict[str, str], errors: list[str],
     *, repository_root: Path | None = None, check_derived: bool = True,
 ) -> None:
-    """An explicit response snapshot uses its actual bytes, never an inferred Git ref."""
-    from urllib.parse import urlsplit
+    """Check the explicit consumer pair while preserving legacy acquisition bytes."""
+    from urllib.parse import unquote, urlsplit
     from materialize_all_sources import preflight_dated_html_assets, redistribution_footer, retained_text_selector_file
     repo_root = (repository_root or ROOT).resolve()
     capsule_root = capsule_root.resolve()
     uid = manifest.get("uid")
+    dated_html = manifest["materialization"].get("retained_text_binding") == "dated_html_response"
+    label = "RETAINED_DATED_HTML" if dated_html else "RETAINED_GIT_TEXT"
     try:
         if manifest.get("adapter") != "generic_web_or_document_v2":
-            raise ValueError("dated HTML response needs its actual generic adapter")
+            raise ValueError("retained sidecar needs its actual generic adapter")
         selectors = retained_text_selector_file(manifest, capsule_root, require_exists=check_derived)
         materialization = manifest["materialization"]
-        source = capsule_root / "source/specification.html"
-        source_path = source.relative_to(repo_root).as_posix()
-        source_hash = sha256_file(source)
-        if actual_hashes.get(source_path) != source_hash or manifest.get("revision") != f"sha256:{source_hash}":
-            raise ValueError("dated HTML revision differs from its actual original")
-        inventory = [row for row in manifest["local_files"] if row.get("path") == source_path]
-        if len(inventory) != 1 or inventory[0].get("sha256") != source_hash or inventory[0].get("bytes") != source.stat().st_size:
-            raise ValueError("dated HTML original differs from inventory")
+        if dated_html:
+            source = capsule_root / "source/specification.html"
+            source_path = source.relative_to(repo_root).as_posix()
+            source_hash = sha256_file(source)
+            if actual_hashes.get(source_path) != source_hash or manifest.get("revision") != f"sha256:{source_hash}":
+                raise ValueError("dated HTML revision differs from its actual original")
+            inventory = [row for row in manifest["local_files"] if row.get("path") == source_path]
+            if len(inventory) != 1 or inventory[0].get("sha256") != source_hash or inventory[0].get("bytes") != source.stat().st_size:
+                raise ValueError("dated HTML original differs from inventory")
         metadata_path = (repo_root / manifest["metadata_path"]).resolve()
         metadata_path.relative_to(repo_root)
         canonical, capsule = load_yaml(metadata_path), load_yaml(capsule_root / "source-metadata.yaml")
         version = manifest["source_version"]
         if not isinstance(version, str) or not version.strip():
-            raise ValueError("dated HTML needs its explicit selected version")
+            raise ValueError("retained sidecar needs its explicit selected version")
         package = manifest["rights"]["redistribution_package"]
         if not isinstance(package, dict) or any(not isinstance(package.get(field), str) or not package[field].strip() for field in (
             "source_revision", "source_version_url", "notice_path", "attribution", "modifications", "scope",
         )) or package["source_revision"] != manifest["revision"]:
-            raise ValueError("dated HTML package is incomplete or covers a different revision")
+            raise ValueError("retained sidecar package is incomplete or covers a different revision")
         approved_url = package["source_version_url"]
-        parsed = urlsplit(approved_url)
-        if parsed.scheme != "https" or not parsed.netloc or parsed.query or parsed.fragment or parsed.username:
-            raise ValueError("dated HTML needs its literal approved HTTPS URL")
+        if dated_html:
+            parsed = urlsplit(approved_url)
+            if parsed.scheme != "https" or not parsed.netloc or parsed.query or parsed.fragment or parsed.username:
+                raise ValueError("dated HTML needs its literal approved HTTPS URL")
         for metadata in (canonical, capsule):
             if (
                 not isinstance(metadata, dict) or not isinstance(metadata.get("versioning"), dict)
                 or metadata["versioning"].get("source_version") != version
-                or metadata.get("full_text_url") != approved_url
+                or dated_html and metadata.get("full_text_url") != approved_url
+                or not dated_html and manifest["revision"] != f"git:{metadata['versioning'].get('snapshot_commit')}"
                 or metadata.get("rights", {}).get("redistribution_package") != package
                 or any(metadata.get(field) != canonical.get(field) for field in ("uid", "title", "url", "canonical_url", "canonical_id"))
                 or metadata.get("uid") != uid
             ):
-                raise ValueError("dated HTML canonical/capsule identity, version, URL or package differs")
-        records = [row for row in manifest["retrievals"] if row.get("local_path") == "source/specification.html"]
-        if len(records) != 1 or any(records[0].get(field) != expected for field, expected in (
-            ("requested_url", approved_url), ("resolved_url", approved_url), ("sha256", source_hash),
-            ("bytes", source.stat().st_size), ("http_status", 200),
-        )) or not isinstance(records[0].get("content_type"), str) or records[0]["content_type"].split(";", 1)[0].strip() != "text/html" or not isinstance(records[0].get("retrieved_at"), str) or not records[0]["retrieved_at"].strip():
-            raise ValueError("dated HTML retrieval does not describe the approved response")
+                raise ValueError("retained sidecar canonical/capsule identity, version, commit or package differs")
+        if not dated_html:
+            rewrites = materialization.get("link_rewrites", {})
+            if not isinstance(rewrites, dict):
+                raise ValueError("retained Git sidecar needs a finite local href mapping")
+            for target in rewrites.values():
+                parsed = urlsplit(target)
+                if parsed.scheme or parsed.netloc:
+                    raise ValueError("retained Git rewrite must target a local original")
+                if not parsed.path:
+                    continue
+                path = (capsule_root / "normalized" / unquote(parsed.path)).resolve()
+                path.relative_to(capsule_root / "source")
+                local_path = path.relative_to(capsule_root).as_posix()
+                original_path = path.relative_to(repo_root).as_posix()
+                original_hash = sha256_file(path)
+                inventory = [row for row in manifest["local_files"] if row.get("path") == original_path]
+                retrievals = [row for row in manifest["retrievals"] if row.get("local_path") == local_path]
+                if len(inventory) != 1 or inventory[0].get("sha256") != original_hash or inventory[0].get("bytes") != path.stat().st_size or len(retrievals) != 1 or retrievals[0].get("sha256") != original_hash or retrievals[0].get("bytes") != path.stat().st_size or manifest["revision"] != f"git:{retrievals[0].get('commit')}":
+                    raise ValueError("retained Git rewrite original differs from inventory, retrieval or fixed commit")
+        if dated_html:
+            records = [row for row in manifest["retrievals"] if row.get("local_path") == "source/specification.html"]
+            if len(records) != 1 or any(records[0].get(field) != expected for field, expected in (
+                ("requested_url", approved_url), ("resolved_url", approved_url), ("sha256", source_hash),
+                ("bytes", source.stat().st_size), ("http_status", 200),
+            )) or not isinstance(records[0].get("content_type"), str) or records[0]["content_type"].split(";", 1)[0].strip() != "text/html" or not isinstance(records[0].get("retrieved_at"), str) or not records[0]["retrieved_at"].strip():
+                raise ValueError("dated HTML retrieval does not describe the approved response")
         review = [row for row in load_yaml(repo_root / "raw_data/audits/materialization_rights_review.yaml")["items"] if row.get("uid") == uid]
         if len(review) != 1 or review[0].get("redistribution_package") != package or review[0].get("source_revision") != manifest["revision"] or review[0].get("manifest_path") != (capsule_root / "manifest.yaml").relative_to(repo_root).as_posix() or review[0].get("publication_gate", {}).get("decision") != "allow":
-            raise ValueError("dated HTML audit allowance or four-party package differs")
+            raise ValueError("retained sidecar audit allowance or four-party package differs")
         notice_path = (repo_root / package["notice_path"]).resolve()
         notice_path.relative_to(repo_root)
         notice = notice_path.read_bytes()
         if not notice.strip() or (capsule_root / "NOTICE.md").read_bytes() != notice:
-            raise ValueError("dated HTML full NOTICE differs from its reviewed asset")
+            raise ValueError("retained sidecar full NOTICE differs from its reviewed asset")
         history = manifest["historical_acquisition"]
         if not isinstance(history, dict) or not all(field in history for field in ("revision", "retrievals", "rights", "materialization", "local_files")):
-            raise ValueError("dated HTML must preserve its prior acquisition facts")
+            raise ValueError("retained sidecar must preserve its prior acquisition facts")
         for name in ("document.md", "selectors.jsonl"):
             path = capsule_root / name
             old = [row for row in history["local_files"] if row.get("path") == path.relative_to(repo_root).as_posix()]
             if len(old) != 1 or old[0].get("sha256") != sha256_file(path) or old[0].get("bytes") != path.stat().st_size:
-                raise ValueError("dated HTML legacy document or selectors changed")
-        preflight_dated_html_assets(manifest, capsule_root, repository_root=repo_root)
+                raise ValueError("retained sidecar legacy document or selectors changed")
+        if dated_html:
+            preflight_dated_html_assets(manifest, capsule_root, repository_root=repo_root)
         if check_derived or (capsule_root / materialization["document"]).exists() or selectors.exists():
             document = capsule_root / materialization["document"]
             text = document.read_bytes().decode("utf-8")
             if text.count("<!-- materialization-redistribution-notice -->") != 1 or not text.endswith(redistribution_footer(package, "../NOTICE.md")):
-                raise ValueError("dated HTML current footer is missing or changed")
+                raise ValueError("retained sidecar current footer is missing or changed")
             lines = text.splitlines()
-            source_lines = len(source.read_bytes().decode("utf-8").splitlines())
+            source_ranges = {
+                (capsule_root / item["source"]).relative_to(repo_root).as_posix(): (item, len((capsule_root / item["source"]).read_bytes().decode("utf-8").splitlines()))
+                for item in materialization["retained_text_sources"]
+            }
             rows = [json.loads(line) for line in selectors.read_bytes().decode("utf-8").splitlines() if line.strip()]
             if not rows:
-                raise ValueError("dated HTML has no derived selectors")
+                raise ValueError("retained sidecar has no derived selectors")
+            seen_sources = set()
             for row in rows:
+                item, source_lines = source_ranges.get(row.get("derived_from"), ({}, 0))
                 start, end = row.get("start_line"), row.get("end_line")
                 original_start, original_end = row.get("source_start_line"), row.get("source_end_line")
                 if (
                     any(not isinstance(value, int) or isinstance(value, bool) for value in (start, end, original_start, original_end))
                     or not 1 <= start <= end <= len(lines) or not 1 <= original_start <= original_end <= source_lines
                     or row.get("selector") != f"derived://{document.relative_to(repo_root).as_posix()}#L{start}-L{end}"
-                    or row.get("local_path") != document.relative_to(repo_root).as_posix() or row.get("source_format") != "html"
-                    or row.get("derived_from") != source_path or not isinstance(row.get("transformation"), str) or not row["transformation"].strip()
+                    or row.get("local_path") != document.relative_to(repo_root).as_posix() or row.get("source_format") != item.get("format")
+                    or row.get("source_role") != item.get("role")
+                    or not isinstance(row.get("transformation"), str) or not row["transformation"].strip()
                     or not isinstance(row.get("text_preview"), str) or not row["text_preview"] or row["text_preview"] not in "\n".join(lines[start - 1:end])
                 ):
-                    raise ValueError("dated HTML selector provenance or real range differs")
+                    raise ValueError("retained sidecar selector provenance or real range differs")
+                seen_sources.add(row["derived_from"])
+            if seen_sources != set(source_ranges):
+                raise ValueError("retained sidecar omits a declared original")
     except (KeyError, TypeError, AttributeError, ValueError, OSError, yaml.YAMLError) as exc:
-        errors.append(f"RETAINED_DATED_HTML {uid}: {exc}")
+        errors.append(f"{label} {uid}: {exc}")
 
 
 def pdf_page_sections(text: str) -> tuple[dict[int, str], set[int]]:

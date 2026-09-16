@@ -2141,7 +2141,7 @@ def retained_html_reference(
 
 
 def retained_text_selector_file(manifest: dict[str, Any], root: Path, *, require_exists: bool = False) -> Path:
-    """Route only the explicitly paired dated-HTML consumer; keep legacy defaults."""
+    """Route an explicit retained-text pair; keep unopted legacy defaults."""
     materialization = manifest.get("materialization")
     sidecar_declared = isinstance(manifest.get("selectors"), list) and "normalized/selectors.jsonl" in manifest["selectors"]
     if not isinstance(materialization, dict):
@@ -2153,7 +2153,7 @@ def retained_text_selector_file(manifest: dict[str, Any], root: Path, *, require
         if "retained_text_binding" in materialization or "retained_text_selectors" in materialization or sidecar_declared:
             raise ValueError("retained selector sidecar requires an explicit binding")
         return root / "selectors.jsonl"
-    if binding != "dated_html_response":
+    if not isinstance(binding, str) or binding not in {"dated_html_response", "git_snapshot"}:
         raise ValueError("unknown retained text binding")
     sources = materialization.get("retained_text_sources")
     if (
@@ -2161,17 +2161,25 @@ def retained_text_selector_file(manifest: dict[str, Any], root: Path, *, require
         or materialization.get("normalized_document") != "normalized/document.md"
         or materialization.get("retained_text_selectors") != "normalized/selectors.jsonl"
         or manifest.get("selectors") != ["selectors.jsonl", "normalized/selectors.jsonl"]
-        or not isinstance(sources, list) or len(sources) != 1 or not isinstance(sources[0], dict)
-        or sources[0].get("source") != "source/specification.html" or sources[0].get("format") != "html"
+        or not isinstance(sources, list) or not sources or any(not isinstance(item, dict) for item in sources)
     ):
+        raise ValueError("retained text needs its fixed document and selector pair")
+    if binding == "dated_html_response" and (len(sources) != 1 or sources[0].get("source") != "source/specification.html" or sources[0].get("format") != "html"):
         raise ValueError("dated HTML needs its fixed original, document and selector pair")
-    for name in ("source/specification.html", "normalized/document.md", "normalized/selectors.jsonl"):
+    source_names = []
+    for item in sources:
+        name = item.get("source")
+        formats = {"md", "yaml"} if binding == "git_snapshot" else {"html"}
+        if not isinstance(name, str) or Path(name).is_absolute() or not Path(name).parts or Path(name).parts[0] != "source" or ".." in Path(name).parts or not isinstance(item.get("format"), str) or item["format"] not in formats:
+            raise ValueError("retained text needs explicit capsule-local native sources")
+        source_names.append(name)
+    for name in (*source_names, "normalized/document.md", "normalized/selectors.jsonl"):
         path = root / name
         path.resolve().relative_to(root.resolve())
         if path.is_symlink():
-            raise ValueError("dated HTML paths cannot alias retained files")
+            raise ValueError("retained text paths cannot alias retained files")
     if require_exists and any(not (root / name).is_file() or not (root / name).stat().st_size for name in ("normalized/document.md", "normalized/selectors.jsonl")):
-        raise ValueError("explicit dated HTML document or selector sidecar is missing")
+        raise ValueError("explicit retained text document or selector sidecar is missing")
     return root / "normalized/selectors.jsonl"
 
 
@@ -2426,6 +2434,17 @@ def retained_html_sections(
     return sections
 
 
+def retained_markdown_frontmatter_end(text: str) -> int:
+    """Locate only a closed leading YAML block, without interpreting its values."""
+    lines = text.splitlines()
+    if not lines or lines[0].rstrip(" \t") != "---":
+        return 0
+    for line_number, line in enumerate(lines[1:256], 2):
+        if line.rstrip(" \t") in {"---", "..."}:
+            return line_number
+    raise ValueError("leading YAML frontmatter must close within 256 lines")
+
+
 def derive_retained_text_sources(
     sources: list[tuple[Path, str]], document: Path, link_rewrites: dict[str, str],
     *, source_options: dict[Path, dict[str, Any]] | None = None,
@@ -2441,7 +2460,7 @@ def derive_retained_text_sources(
     ):
         raise ValueError("retained text sources need a finite, single-line local href mapping")
     local_path = document.resolve().relative_to(ROOT.resolve()).as_posix()
-    prepared: list[tuple[str, str, str, str, list[dict[str, Any]]]] = []
+    prepared: list[tuple[str, str, str, str, list[dict[str, Any]], int]] = []
     stems: set[str] = set()
     known_anchors: set[str] = set()
     html_sources: dict[Path, tuple[Any, str, set[str]]] = {}
@@ -2456,11 +2475,17 @@ def derive_retained_text_sources(
         original = source.read_bytes().decode("utf-8")
         if not original.strip():
             raise ValueError("retained text source is empty")
-        text = rewrite_markdown_hrefs(original, link_rewrites) if format_name == "md" else original
-        headings = extract_markdown_headings(original, source_path, structured=True) if format_name == "md" else []
+        options = (source_options or {}).get(source.resolve(), {})
+        frontmatter_end = retained_markdown_frontmatter_end(original) if format_name == "md" and options.get("git_snapshot") is True else 0
+        original_lines = original.splitlines(keepends=True)
+        metadata = "".join(original_lines[:frontmatter_end])
+        body = "".join(original_lines[frontmatter_end:])
+        text = metadata + rewrite_markdown_hrefs(body, link_rewrites) if format_name == "md" else original
+        heading_text = "\n" * frontmatter_end + body if frontmatter_end else original
+        headings = extract_markdown_headings(heading_text, source_path, structured=True) if format_name == "md" else []
         known_anchors.update(f"{stem}-L{line}" for line in {1, *(heading["line"] for heading in headings)})
         if format_name == "md":
-            known_anchors.update(re.findall(r'<a\b[^>]*\bid=["\']([^"\']+)["\']', original))
+            known_anchors.update(re.findall(r'<a\b[^>]*\bid=["\']([^"\']+)["\']', heading_text))
         elif format_name == "html":
             options = (source_options or {}).get(source.resolve(), {})
             body = retained_html_body(original, dated_html_response=options.get("dated_html_response") is True, exclude_selectors=options.get("exclude_selectors"))
@@ -2470,7 +2495,7 @@ def derive_retained_text_sources(
             html_sources[source.resolve()] = (body, stem, ids)
             known_anchors.update(f"{stem}-{name}" for name in ids)
             known_anchors.update(f"{stem}-L{node.sourceline}" for node in body.find_all(re.compile(r"^h[1-6]$")) if not node.find_parent(["pre", "code"]))
-        prepared.append((source_path, stem, format_name, text, headings))
+        prepared.append((source_path, stem, format_name, text, headings, frontmatter_end))
     if any(target.startswith("#") and target[1:] not in known_anchors for target in link_rewrites.values()):
         raise ValueError("retained href rewrite does not target a real source anchor")
 
@@ -2485,10 +2510,12 @@ def derive_retained_text_sources(
         next_line += len(value.splitlines())
 
     dated_html = any(options.get("dated_html_response") is True for options in (source_options or {}).values())
-    emit("# Retained specification text (collector assembly)\n\n" + ("> " if dated_html else "") + "This consumer Markdown assembles the explicitly retained originals in declared order. Source labels, line anchors and local href rewrites are collector additions; " + ("HTML is represented as structural text with ordered table cells and preserved code, without running source scripts.\n" if has_html else "YAML below is an unmodified native schema displayed in a code fence.\n"))
+    git_sidecar = any(options.get("git_snapshot") is True for options in (source_options or {}).values())
+    emit("# Retained specification text (collector assembly)\n\n" + ("> " if dated_html or git_sidecar else "") + "This consumer Markdown assembles the explicitly retained originals in declared order. Source labels, line anchors and local href rewrites are collector additions; " + ("HTML is represented as structural text with ordered table cells and preserved code, without running source scripts.\n" if has_html else "YAML below is an unmodified native document displayed in a code fence; an explicitly declared example is not a schema.\n" if git_sidecar else "YAML below is an unmodified native schema displayed in a code fence.\n"))
     if dated_html:
         emit("\n> Collector representation: declared cell spans are annotations, not an expanded table grid; code br line breaks and NBSP are retained, and image-label whitespace is normalized without dropping label words.\n")
-    for source_path, stem, format_name, text, headings in prepared:
+    for source_path, stem, format_name, text, headings, frontmatter_end in prepared:
+        options = (source_options or {}).get(ROOT.resolve() / source_path, {})
         lines = text.splitlines(keepends=True)
         href = Path(os.path.relpath(ROOT.resolve() / source_path, start=document.parent.resolve())).as_posix()
         emit(f"\nOriginal {format_name.upper()}: [{Path(source_path).name}]({href}#L1-L{len(lines)}).\n")
@@ -2528,18 +2555,28 @@ def derive_retained_text_sources(
                 })
             continue
         if format_name == "yaml":
-            emit(f'\n<a id="{stem}-L1"></a>\n\n## Native YAML schema (collector display, not upstream Markdown)\n\n```yaml\n')
+            label = "example" if options.get("git_snapshot") is True and options.get("role") == "example" else "schema"
+            emit(f'\n<a id="{stem}-L1"></a>\n\n## Native YAML {label} (collector display, not upstream Markdown)\n\n```yaml\n')
         starts = [(1, headings[0] if headings else None)] + [(heading["line"], heading) for heading in headings[1:]]
+        if frontmatter_end:
+            starts = [(1, None)] + [(heading["line"], heading) for heading in headings]
         anchors = {1, *(heading["line"] for heading in headings)} if format_name == "md" else set()
         for index, (source_start, heading) in enumerate(starts):
             source_end = starts[index + 1][0] - 1 if index + 1 < len(starts) else len(lines)
             start_line = next_line
-            for line_number in range(source_start, source_end + 1):
-                if line_number in anchors:
-                    emit(f'\n<a id="{stem}-L{line_number}"></a>\n\n')
-                    if line_number == source_start:
-                        start_line = next_line
-                emit(lines[line_number - 1])
+            if frontmatter_end and source_start == 1:
+                emit(f'\n<a id="{stem}-L1"></a>\n\n> Collector metadata display: original leading YAML frontmatter, source lines 1–{frontmatter_end}; not an upstream body heading.\n')
+                start_line = next_line
+                emit(tex_reading_fence("".join(lines[:frontmatter_end]), "yaml"))
+                for line in lines[frontmatter_end:source_end]:
+                    emit(line)
+            else:
+                for line_number in range(source_start, source_end + 1):
+                    if line_number in anchors:
+                        emit(f'\n<a id="{stem}-L{line_number}"></a>\n\n')
+                        if line_number == source_start:
+                            start_line = next_line
+                    emit(lines[line_number - 1])
             selectors.append({
                 "selector": f"derived://{local_path}#L{start_line}-L{next_line - 1}",
                 "local_path": local_path, "kind": "section" if heading else "file",
@@ -2547,6 +2584,8 @@ def derive_retained_text_sources(
                 "text_preview": next(line.rstrip("\r\n") for line in lines[source_start - 1:source_end] if line.strip())[:700],
                 "derived_from": source_path, "source_format": format_name,
                 "source_start_line": source_start, "source_end_line": source_end,
+                **({"transformation": "native Markdown with collector line anchors and declared local href rewrites" + ("; leading YAML frontmatter displayed as literal collector metadata" if frontmatter_end and source_start == 1 else "") if format_name == "md" else "native YAML displayed unchanged in a fenced collector assembly",
+                    **({"source_role": "example"} if options.get("role") == "example" else {})} if options.get("git_snapshot") is True else {}),
                 **({"heading": heading["heading"], "level": heading["level"]} if heading else {}),
             })
         if format_name == "yaml":
@@ -3298,14 +3337,16 @@ def replay_retained_text_sources(
     root = record.capsule_root
     materialization = manifest["materialization"]
     dated_html = materialization.get("retained_text_binding") == "dated_html_response"
-    selector_path = retained_text_selector_file(manifest, root, require_exists=dated_html and check_derived)
-    if dated_html and (
+    git_sidecar = materialization.get("retained_text_binding") == "git_snapshot"
+    paired_sidecar = dated_html or git_sidecar
+    selector_path = retained_text_selector_file(manifest, root, require_exists=paired_sidecar and check_derived)
+    if paired_sidecar and (
         not isinstance(record.metadata.get("versioning"), dict)
         or record.metadata["versioning"].get("source_version") != manifest.get("source_version")
         or record.metadata.get("rights", {}).get("redistribution_package") != manifest.get("rights", {}).get("redistribution_package")
-        or record.metadata.get("full_text_url") != manifest.get("rights", {}).get("redistribution_package", {}).get("source_version_url")
+        or dated_html and record.metadata.get("full_text_url") != manifest.get("rights", {}).get("redistribution_package", {}).get("source_version_url")
     ):
-        raise ValueError("dated HTML replay metadata differs from its reviewed current package")
+        raise ValueError("retained text replay metadata differs from its reviewed current package")
     if "retained_markdown_source" in materialization:
         raise ValueError("retained single Markdown and ordered text declarations are mutually exclusive")
     document_name = sanitize_relative_path(materialization["document"])
@@ -3358,12 +3399,14 @@ def replay_retained_text_sources(
         parsed = urllib.parse.urlsplit(target)
         if parsed.path:
             path = (document.parent / urllib.parse.unquote(parsed.path)).resolve()
-            check_original(path)
+            check_original(path, require_commit=git_sidecar)
             if parsed.fragment.startswith("L"):
                 match = re.fullmatch(r"L([1-9]\d*)-L([1-9]\d*)", parsed.fragment)
                 if not match or not int(match.group(1)) <= int(match.group(2)) <= len(path.read_bytes().decode("utf-8").splitlines()):
                     raise ValueError("retained href rewrite source line range is invalid")
     options: dict[Path, dict[str, Any]] = {}
+    if git_sidecar:
+        options = {source: {"git_snapshot": True, **({"role": item["role"]} if "role" in item else {})} for item, (source, _) in zip(sources, paths)}
     if dated_html:
         options[paths[0][0]] = preflight_dated_html_assets(manifest, root, repository_root=ROOT.resolve())
     for item, (source, format_name) in zip(sources, paths):
@@ -3371,7 +3414,7 @@ def replay_retained_text_sources(
             continue
         from bs4 import BeautifulSoup
         retrieval = next(row for row in manifest["retrievals"] if row.get("local_path") == item["source"])
-        options[source] = {"source_url": retrieval.get("document_url") or retrieval.get("resolved_url") or retrieval.get("requested_url") or ""}
+        options.setdefault(source, {}).update({"source_url": retrieval.get("document_url") or retrieval.get("resolved_url") or retrieval.get("requested_url") or ""})
         if "config_range" in item:
             options[source]["config_range"] = item["config_range"]
         soup = BeautifulSoup(source.read_bytes(), "html.parser")
@@ -3388,13 +3431,13 @@ def replay_retained_text_sources(
             check_original(asset, require_commit=True)
             if src in rewrites and (document.parent / urllib.parse.unquote(urllib.parse.urlsplit(rewrites[src]).path)).resolve() != asset:
                 raise ValueError("retained HTML src rewrite does not resolve to the same original")
-    if dated_html:
+    if paired_sidecar:
         legacy_count = sum(bool(line.strip()) for line in (root / "selectors.jsonl").read_bytes().decode("utf-8").splitlines())
     else:
         legacy_count = 0
     selectors = derive_retained_text_sources(paths, document, rewrites, source_options=options)
     write_jsonl(selector_path, selectors)
-    manifest.update({"generated_at": generated_at, "selectors": ["selectors.jsonl", "normalized/selectors.jsonl"] if dated_html else ["selectors.jsonl"]})
+    manifest.update({"generated_at": generated_at, "selectors": ["selectors.jsonl", "normalized/selectors.jsonl"] if paired_sidecar else ["selectors.jsonl"]})
     materialization.update({
         "normalized_document": materialization["document"],
         "stored_characters": len(document.read_bytes().decode("utf-8")), "selector_count": legacy_count + len(selectors),

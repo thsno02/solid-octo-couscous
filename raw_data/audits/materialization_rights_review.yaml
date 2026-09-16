@@ -7849,9 +7849,10 @@ items:
   capsule_root: materialized_sources/corpus/standard-odcs-3.2.0--affacf92
   stored_full_text_paths:
   - materialized_sources/corpus/standard-odcs-3.2.0--affacf92/document.md
+  - materialized_sources/corpus/standard-odcs-3.2.0--affacf92/normalized/document.md
   baseline_content_tier: full_text
   baseline_status: materialized
-  source_revision: sha256:60b6b097fdf6aea2b202305d4111f04b0df34a8f772d57a73f78a19b90db3dec
+  source_revision: git:f0bdad95346905d500be5ef4b2c2d9b1d95223b7
   canonical_url: https://bitol-io.github.io/open-data-contract-standard/latest/
   observed_rights:
     manifest:
@@ -7860,19 +7861,24 @@ items:
       license_spdx: Apache-2.0
       license_url: https://www.apache.org/licenses/LICENSE-2.0
       license_verified_at: '2026-09-16'
-      redistribution_package:
-        source_revision: sha256:60b6b097fdf6aea2b202305d4111f04b0df34a8f772d57a73f78a19b90db3dec
-        source_version_url: https://bitol-io.github.io/open-data-contract-standard/v3.2.0/
-        notice_path: raw_data/licenses/apache-2.0.md
-        attribution: 'This document includes material copied from or derived from "Open Data Contract Standard 3.2.0",
-          https://bitol-io.github.io/open-data-contract-standard/v3.2.0/. Copyright 2026 The Bitol Contributors.
-          SPDX-License-Identifier: Apache-2.0. Licensed under the Apache License, Version 2.0, https://www.apache.org/licenses/LICENSE-2.0.'
-        modifications: Converted from the versioned ODCS HTML definition page to Markdown; navigation, hyperlinks,
-          styling, embedded SVG icons, fonts, and image assets were omitted or normalized; selector excerpts were
-          generated. The upstream copyright and SPDX license statement are restored in this attribution block.
-        scope: 仅覆盖从固定 v3.2.0 定义页实际提取的 1,454-byte 原始 Markdown 正文及其 27 个 selector 摘录；不声称存储或覆盖链接的多页标准、示例、schema、Bitol
-          标识、Font Awesome SVG/图标/字体、外链作品、商标或权利人无权许可的第三方材料。
-      assessment: 当前固定定义页已附完整Apache-2.0与版权/SPDX及修改声明；不代表整站清权或人工批准。
+      redistribution_package: &id001
+        source_revision: git:f0bdad95346905d500be5ef4b2c2d9b1d95223b7
+        source_version_url: https://github.com/bitol-io/open-data-contract-standard/tree/f0bdad95346905d500be5ef4b2c2d9b1d95223b7
+        notice_path: raw_data/licenses/p3-odcs-spec-01-3.2.0.md
+        attribution: 'This collector assembly includes material copied from or derived from "Open Data Contract
+          Standard 3.2.0", https://github.com/bitol-io/open-data-contract-standard/tree/f0bdad95346905d500be5ef4b2c2d9b1d95223b7.
+          Copyright 2026 The Bitol Contributors. SPDX-License-Identifier: Apache-2.0. Licensed under the Apache
+          License, Version 2.0, https://www.apache.org/licenses/LICENSE-2.0. Original copyright, SPDX and trademark
+          notices are retained; no endorsement or trademark license is claimed.'
+        modifications: 原件逐字节复制，未修改或执行；从固定 Git commit 的 README、15个 Markdown 章节与完整 YAML 示例按声明顺序装配 collector Markdown，新增来源标签、真实行锚点、有限本地
+          href/正文图路由及唯一归属/修改说明末注，保留原表格、Required 条件、围栏、版权/SPDX及商标提示。完整 YAML 原文仅放入标明 example 的代码围栏，不称 schema。Fig1
+          PNG 保持原像素，图内标签/关系未全部线性化；外部 RFC 和其他外链只保留原链接，不补抓。旧 root document.md、27个 selectors 与完整旧 manifest 字典不变；完整旧
+          NOTICE 原字节前缀保留，本次说明仅累积追加。
+        scope: 仅覆盖固定 Git commit f0bdad95346905d500be5ef4b2c2d9b1d95223b7 的19件实际原件：docs/README.md、docs/fundamentals.md、docs/schema.md、docs/context.md、docs/references.md、docs/data-quality.md、docs/support-communication-channels.md、docs/pricing.md、docs/team.md、docs/roles.md、docs/service-level-agreement.md、docs/infrastructure-servers.md、docs/custom-other-properties.md、docs/authoritative-definitions.md、docs/tags.md、docs/variables.md、docs/examples/all/full-example.odcs.yaml、LICENSE、docs/img/elements-of-schema-odcs-v3.png，以及按
+          README→15章→完整 YAML 示例顺序生成的 normalized/document.md 与 normalized/selectors.jsonl。LICENSE 和 Fig1 PNG 为明确原件；YAML
+          是完整数据合同示例而非 JSON Schema。旧网页首页文字及27个根 selectors 仅保留既有历史许可包，不把新 grant 追认到其他旧材料。本范围不包括整个仓库/站点、resources.md、其他
+          examples、JSON Schema companion、Bitol 品牌图、外部 RFC（包括 RFC-0038 完整 cascading 规范）、外链作品/数据/runtime、商标权或权利人无权许可的第三方材料。
+      assessment: 当前19件固定 Git 原件/派生的有限新许可包；旧首页 text-only 许可与真实网页响应历史另存，不自动外推。
     source_metadata:
       access: open
       license_spdx: Apache-2.0
@@ -7934,44 +7940,147 @@ items:
     checked_at: '2026-09-16'
     finding: full_text_url、许可包版本URL与实际requested/resolved均固定v3.2.0；两次真实重建完整胶囊逐字节一致；正文只追加许可块，27 selectors仅URL派生前缀变化，其他字段不变。
     supports_public_redistribution: true
+  - kind: pr18_fixed_git_originals_and_finite_figure_admission
+    url: https://github.com/thsno02/solid-octo-couscous/pull/18
+    checked_at: '2026-09-17'
+    source_revision: git:f0bdad95346905d500be5ef4b2c2d9b1d95223b7
+    snapshot_commit: f0bdad95346905d500be5ef4b2c2d9b1d95223b7
+    originals: 19
+    original_bytes: 336418
+    source_paths:
+    - docs/README.md
+    - docs/fundamentals.md
+    - docs/schema.md
+    - docs/context.md
+    - docs/references.md
+    - docs/data-quality.md
+    - docs/support-communication-channels.md
+    - docs/pricing.md
+    - docs/team.md
+    - docs/roles.md
+    - docs/service-level-agreement.md
+    - docs/infrastructure-servers.md
+    - docs/custom-other-properties.md
+    - docs/authoritative-definitions.md
+    - docs/tags.md
+    - docs/variables.md
+    - docs/examples/all/full-example.odcs.yaml
+    - LICENSE
+    - docs/img/elements-of-schema-odcs-v3.png
+    finding: 19件实有固定 Git 原稿完整阅读/信用审查后主线逐件有限准入；17文本 Copyright 2026 The Bitol Contributors / SPDX Apache-2.0，完整 LICENSE
+      11357 bytes，Fig1 133050 bytes 无新增可见 credit/排除。实际 PNG 图义不等于 caption，PNG 保全而线性文本仍有明确限制。不是沿用旧首页 allow，不外推引用 RFC
+      或整个 repo。
+    supports_public_redistribution: true
   missing: []
   classification: documented_permission
   license_id: Apache-2.0
   license_url: https://www.apache.org/licenses/LICENSE-2.0
-  license_scope: 仅当前固定v3.2.0定义首页文字及其selector派生；不是整个多页标准、上游仓库或站点资产的清权。
+  license_scope: 仅覆盖固定 Git commit f0bdad95346905d500be5ef4b2c2d9b1d95223b7 的19件实际原件：docs/README.md、docs/fundamentals.md、docs/schema.md、docs/context.md、docs/references.md、docs/data-quality.md、docs/support-communication-channels.md、docs/pricing.md、docs/team.md、docs/roles.md、docs/service-level-agreement.md、docs/infrastructure-servers.md、docs/custom-other-properties.md、docs/authoritative-definitions.md、docs/tags.md、docs/variables.md、docs/examples/all/full-example.odcs.yaml、LICENSE、docs/img/elements-of-schema-odcs-v3.png，以及按
+    README→15章→完整 YAML 示例顺序生成的 normalized/document.md 与 normalized/selectors.jsonl。LICENSE 和 Fig1 PNG 为明确原件；YAML
+    是完整数据合同示例而非 JSON Schema。旧网页首页文字及27个根 selectors 仅保留既有历史许可包，不把新 grant 追认到其他旧材料。本范围不包括整个仓库/站点、resources.md、其他 examples、JSON
+    Schema companion、Bitol 品牌图、外部 RFC（包括 RFC-0038 完整 cascading 规范）、外链作品/数据/runtime、商标权或权利人无权许可的第三方材料。
   license_restrictions: []
   evidence_confidence: high
   public_redistribution_recommendation: allow_with_packaged_notice
   conditions:
-  - 附完整Apache-2.0并保留版权、SPDX及商标声明；上游无NOTICE，不虚构。
-  - 显著标明HTML到Markdown转换与未保存资产边界。
-  - 实际抓取固定v3.2.0版本并保留tag/commit和revision证据。
-  current_capsule_compliance: verified_revision_and_notice_packaged
+  - 完整 Apache-2.0 法条与同 commit LICENSE 原件随包，保留实际版权/SPDX和商标声明；无上游 NOTICE 不虚构。
+  - 只保存列定19原件且逐字节不改；版本 URL 只固定 commit 身份，不授权整个仓库/站点/外部引用。
+  - 显著标明 collector 装配、行锚点、有限本地 href、完整 YAML example 与 PNG 未全部线性化；不修/运行原示例。
+  - canonical/snapshot/manifest/audit 六字段 package 一致；旧 root document/selectors 与完整旧 manifest/NOTICE 历史保全。
+  current_capsule_compliance: fixed_git_originals_and_cumulative_notice_packaged
   publication_gate:
     decision: allow
-    reason: 仅允许固定v3.2.0定义首页、当前revision和已附完整Apache-2.0/版权/SPDX/修改说明的文字包；不扩展到外链多页标准或站点资产。
+    reason: 主线汇总实际17正文/完整 LICENSE/唯一正文 Fig1 像素和信用检查后，只准入同一固定 commit 的准确19件与有限文本/selector派生；完整旧 NOTICE 与 Apache 条款/署名/修改说明累计保留。旧首页
+      allow 单列历史，不外推外部 RFC/品牌/JSON Schema/整 repo，不代表派生质量终审或知识准入。
+    approved_scope: 仅覆盖固定 Git commit f0bdad95346905d500be5ef4b2c2d9b1d95223b7 的19件实际原件：docs/README.md、docs/fundamentals.md、docs/schema.md、docs/context.md、docs/references.md、docs/data-quality.md、docs/support-communication-channels.md、docs/pricing.md、docs/team.md、docs/roles.md、docs/service-level-agreement.md、docs/infrastructure-servers.md、docs/custom-other-properties.md、docs/authoritative-definitions.md、docs/tags.md、docs/variables.md、docs/examples/all/full-example.odcs.yaml、LICENSE、docs/img/elements-of-schema-odcs-v3.png，以及按
+      README→15章→完整 YAML 示例顺序生成的 normalized/document.md 与 normalized/selectors.jsonl。LICENSE 和 Fig1 PNG 为明确原件；YAML
+      是完整数据合同示例而非 JSON Schema。旧网页首页文字及27个根 selectors 仅保留既有历史许可包，不把新 grant 追认到其他旧材料。本范围不包括整个仓库/站点、resources.md、其他
+      examples、JSON Schema companion、Bitol 品牌图、外部 RFC（包括 RFC-0038 完整 cascading 规范）、外链作品/数据/runtime、商标权或权利人无权许可的第三方材料。
   human_follow_up: []
-  redistribution_package:
-    source_revision: sha256:60b6b097fdf6aea2b202305d4111f04b0df34a8f772d57a73f78a19b90db3dec
-    source_version_url: https://bitol-io.github.io/open-data-contract-standard/v3.2.0/
-    notice_path: raw_data/licenses/apache-2.0.md
-    attribution: 'This document includes material copied from or derived from "Open Data Contract Standard 3.2.0",
-      https://bitol-io.github.io/open-data-contract-standard/v3.2.0/. Copyright 2026 The Bitol Contributors. SPDX-License-Identifier:
-      Apache-2.0. Licensed under the Apache License, Version 2.0, https://www.apache.org/licenses/LICENSE-2.0.'
-    modifications: Converted from the versioned ODCS HTML definition page to Markdown; navigation, hyperlinks, styling,
-      embedded SVG icons, fonts, and image assets were omitted or normalized; selector excerpts were generated.
-      The upstream copyright and SPDX license statement are restored in this attribution block.
-    scope: 仅覆盖从固定 v3.2.0 定义页实际提取的 1,454-byte 原始 Markdown 正文及其 27 个 selector 摘录；不声称存储或覆盖链接的多页标准、示例、schema、Bitol 标识、Font
-      Awesome SVG/图标/字体、外链作品、商标或权利人无权许可的第三方材料。
+  redistribution_package: *id001
   clearance_review:
     kind: agent_evidence_and_packaging_review
     human_approval_claimed: false
-    scope: 当前单页定义文字包与27个selectors；未宣称完整标准或站点已物化。
-    upstream_notice: 固定tag完整树无NOTICE，本地NOTICE.md为本仓库许可载体。
+    scope: 仅覆盖固定 Git commit f0bdad95346905d500be5ef4b2c2d9b1d95223b7 的19件实际原件：docs/README.md、docs/fundamentals.md、docs/schema.md、docs/context.md、docs/references.md、docs/data-quality.md、docs/support-communication-channels.md、docs/pricing.md、docs/team.md、docs/roles.md、docs/service-level-agreement.md、docs/infrastructure-servers.md、docs/custom-other-properties.md、docs/authoritative-definitions.md、docs/tags.md、docs/variables.md、docs/examples/all/full-example.odcs.yaml、LICENSE、docs/img/elements-of-schema-odcs-v3.png，以及按
+      README→15章→完整 YAML 示例顺序生成的 normalized/document.md 与 normalized/selectors.jsonl。LICENSE 和 Fig1 PNG 为明确原件；YAML
+      是完整数据合同示例而非 JSON Schema。旧网页首页文字及27个根 selectors 仅保留既有历史许可包，不把新 grant 追认到其他旧材料。本范围不包括整个仓库/站点、resources.md、其他
+      examples、JSON Schema companion、Bitol 品牌图、外部 RFC（包括 RFC-0038 完整 cascading 规范）、外链作品/数据/runtime、商标权或权利人无权许可的第三方材料。
+    upstream_notice: 实际固定 tree 无 NOTICE；本仓库累计 NOTICE 是许可/历史/修改说明载体，不冒充上游文件。
+    representation_review: 主线及两位内容 reader 完整审读17文本、完整 LICENSE 和唯一正文 Fig1；17文本实有 Bitol Contributors 2026/Apache-2.0，选定实物无具体相反许可/第三方排除。PNG具体标签/关系未全部线性化，生成正文另审。
   conditions_fulfilled:
-  - 目标文档源直接声明Apache-2.0及Bitol Contributors版权，固定发布页正文与源对应。
-  - 完整LICENSE随包入库，版权/SPDX、来源及修改声明显著保留，原商标提示不变。
-  - 固定URL真实重建且精确revision一致；selectors只重绑URL前缀，定位字段不变。
+  - 19件实际原件均同固定 commit，HTTP200/准确URL/类型/bytes及真实批次观测保留；无 logo/resources/schema/RFC扩张。
+  - 完整旧 NOTICE 原字节前缀、全部 Apache 法条、旧六字段包与新有限范围/署名/修改说明累计保留；native LICENSE 原件另存。
+  - 旧 root document.md 和27个 selectors 原字节不改；完整旧 manifest 字典存入 historical_acquisition，旧 source_version 键缺省不补造。
+  - 旧63,735-byte HTML 摘要明确移入 historical_html_response，未当作 Git 原稿摘要；17正文 README→15章→完整 YAML example。
+  - 四方六字段新许可包与累计 NOTICE 同步绑定真实 Git revision；派生质量仍待真实 consumer 审读，不据原件/许可推 complete 或 trusted。
+  historical_text_only_clearance:
+    source_revision: sha256:60b6b097fdf6aea2b202305d4111f04b0df34a8f772d57a73f78a19b90db3dec
+    stored_full_text_paths:
+    - materialized_sources/corpus/standard-odcs-3.2.0--affacf92/document.md
+    license_scope: 仅当前固定v3.2.0定义首页文字及其selector派生；不是整个多页标准、上游仓库或站点资产的清权。
+    conditions:
+    - 附完整Apache-2.0并保留版权、SPDX及商标声明；上游无NOTICE，不虚构。
+    - 显著标明HTML到Markdown转换与未保存资产边界。
+    - 实际抓取固定v3.2.0版本并保留tag/commit和revision证据。
+    observed_rights:
+      manifest:
+        declared_access: open
+        full_text_redistribution_assumed: false
+        license_spdx: Apache-2.0
+        license_url: https://www.apache.org/licenses/LICENSE-2.0
+        license_verified_at: '2026-09-16'
+        redistribution_package:
+          source_revision: sha256:60b6b097fdf6aea2b202305d4111f04b0df34a8f772d57a73f78a19b90db3dec
+          source_version_url: https://bitol-io.github.io/open-data-contract-standard/v3.2.0/
+          notice_path: raw_data/licenses/apache-2.0.md
+          attribution: 'This document includes material copied from or derived from "Open Data Contract Standard
+            3.2.0", https://bitol-io.github.io/open-data-contract-standard/v3.2.0/. Copyright 2026 The Bitol Contributors.
+            SPDX-License-Identifier: Apache-2.0. Licensed under the Apache License, Version 2.0, https://www.apache.org/licenses/LICENSE-2.0.'
+          modifications: Converted from the versioned ODCS HTML definition page to Markdown; navigation, hyperlinks,
+            styling, embedded SVG icons, fonts, and image assets were omitted or normalized; selector excerpts were
+            generated. The upstream copyright and SPDX license statement are restored in this attribution block.
+          scope: 仅覆盖从固定 v3.2.0 定义页实际提取的 1,454-byte 原始 Markdown 正文及其 27 个 selector 摘录；不声称存储或覆盖链接的多页标准、示例、schema、Bitol
+            标识、Font Awesome SVG/图标/字体、外链作品、商标或权利人无权许可的第三方材料。
+        assessment: 当前固定定义页已附完整Apache-2.0与版权/SPDX及修改声明；不代表整站清权或人工批准。
+      source_metadata:
+        access: open
+        license_spdx: Apache-2.0
+        license_url: https://www.apache.org/licenses/LICENSE-2.0
+        license_verified_at: '2026-09-16'
+        notes: The fixed v3.2.0 documentation source is licensed under Apache-2.0. The upstream tag has no NOTICE
+          file; the packaged NOTICE.md is this repository's carrier for the complete license, while item-specific
+          attribution is in the document footer. It is not an upstream NOTICE.
+      capsule_source_metadata:
+        path: materialized_sources/corpus/standard-odcs-3.2.0--affacf92/source-metadata.yaml
+        assessment: rights 与 canonical metadata 一致，不是额外独立证据。
+    redistribution_package:
+      source_revision: sha256:60b6b097fdf6aea2b202305d4111f04b0df34a8f772d57a73f78a19b90db3dec
+      source_version_url: https://bitol-io.github.io/open-data-contract-standard/v3.2.0/
+      notice_path: raw_data/licenses/apache-2.0.md
+      attribution: 'This document includes material copied from or derived from "Open Data Contract Standard 3.2.0",
+        https://bitol-io.github.io/open-data-contract-standard/v3.2.0/. Copyright 2026 The Bitol Contributors. SPDX-License-Identifier:
+        Apache-2.0. Licensed under the Apache License, Version 2.0, https://www.apache.org/licenses/LICENSE-2.0.'
+      modifications: Converted from the versioned ODCS HTML definition page to Markdown; navigation, hyperlinks,
+        styling, embedded SVG icons, fonts, and image assets were omitted or normalized; selector excerpts were
+        generated. The upstream copyright and SPDX license statement are restored in this attribution block.
+      scope: 仅覆盖从固定 v3.2.0 定义页实际提取的 1,454-byte 原始 Markdown 正文及其 27 个 selector 摘录；不声称存储或覆盖链接的多页标准、示例、schema、Bitol
+        标识、Font Awesome SVG/图标/字体、外链作品、商标或权利人无权许可的第三方材料。
+    publication_gate:
+      decision: allow
+      reason: 仅允许固定v3.2.0定义首页、当前revision和已附完整Apache-2.0/版权/SPDX/修改说明的文字包；不扩展到外链多页标准或站点资产。
+    clearance_review:
+      kind: agent_evidence_and_packaging_review
+      human_approval_claimed: false
+      scope: 当前单页定义文字包与27个selectors；未宣称完整标准或站点已物化。
+      upstream_notice: 固定tag完整树无NOTICE，本地NOTICE.md为本仓库许可载体。
+    conditions_fulfilled:
+    - 目标文档源直接声明Apache-2.0及Bitol Contributors版权，固定发布页正文与源对应。
+    - 完整LICENSE随包入库，版权/SPDX、来源及修改声明显著保留，原商标提示不变。
+    - 固定URL真实重建且精确revision一致；selectors只重绑URL前缀，定位字段不变。
+    current_capsule_compliance: verified_revision_and_notice_packaged
+  retained_original_asset_paths:
+  - materialized_sources/corpus/standard-odcs-3.2.0--affacf92/source/LICENSE
+  - materialized_sources/corpus/standard-odcs-3.2.0--affacf92/source/docs/img/elements-of-schema-odcs-v3.png
 - sequence: 78
   uid: standard:w3c-dcat-3
   source_type: standard
