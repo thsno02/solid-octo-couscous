@@ -44,7 +44,7 @@ def sha256_file(path: Path) -> str:
     return digest.hexdigest()
 
 
-def scoped_path(raw_path: Any, scope: Path) -> Path | None:
+def scoped_path(raw_path: Any, scope: Path, *, repository_root: Path | None = None) -> Path | None:
     """Resolve a repository-relative path only when it stays inside ``scope``."""
 
     if not isinstance(raw_path, str) or not raw_path:
@@ -52,7 +52,7 @@ def scoped_path(raw_path: Any, scope: Path) -> Path | None:
     path = Path(raw_path)
     if path.is_absolute() or ".." in path.parts:
         return None
-    candidate = ROOT / path
+    candidate = (repository_root or ROOT) / path
     try:
         candidate.resolve().relative_to(scope.resolve())
     except (OSError, ValueError):
@@ -78,6 +78,223 @@ def pdf_page_sections(text: str) -> tuple[dict[int, str], set[int]]:
         else:
             sections[page] = text[match.end():end]
     return sections, duplicates
+
+
+def pdf_primary_excerpt_range(supplement: dict[str, Any], text: str) -> tuple[int, int]:
+    """Bound a parent-paper excerpt to Page 1, never an embedded work's abstract."""
+    lines = text.splitlines()
+    headings = [(index, int(match.group(1))) for index, line in enumerate(lines)
+                if (match := re.fullmatch(r"## Page ([1-9]\d*)[ \t]*", line))]
+    if not headings or headings[0][1] != 1:
+        raise ValueError("primary PDF excerpt requires a native Page 1 boundary")
+    first = headings[0][0] + 2
+    last = headings[1][0] if len(headings) > 1 else next(
+        (index for index, line in enumerate(lines) if line == "<!-- materialization-redistribution-notice -->"), len(lines),
+    )
+    declaration = supplement.get("primary_excerpt")
+    if declaration is None:
+        return first, last
+    if not isinstance(declaration, dict) or set(declaration) != {"start_line", "end_line"}:
+        raise ValueError("primary_excerpt must declare only start_line and end_line")
+    start, end = declaration["start_line"], declaration["end_line"]
+    if any(not isinstance(value, int) or isinstance(value, bool) for value in (start, end)) or not first <= start <= end <= last:
+        raise ValueError("primary_excerpt must be a continuous line range inside native Page 1")
+    return start, end
+
+
+def validate_pdf_page_binding(
+    selector: dict[str, Any], native_document: str | None, page_sections: dict[int, str],
+    selector_prefix: str, page_count: int | None, seen_pages: set[int],
+    location: str, errors: list[str], *, label: str = "ARXIV_PDF",
+) -> bool:
+    """Shared strict PDF URI/page/preview binding for primary and supplemental PDFs."""
+    before = len(errors)
+    selector_id = selector.get("selector")
+    page = selector.get("page")
+    if selector.get("local_path") != native_document:
+        errors.append(f"{label}_NATIVE_SELECTOR_TARGET {location}: {selector.get('local_path')}")
+    match = re.fullmatch(re.escape(selector_prefix) + r"([1-9]\d*)", selector_id) if isinstance(selector_id, str) else None
+    if match is None or not isinstance(page, int) or isinstance(page, bool) or int(match.group(1)) != page:
+        errors.append(f"{label}_SELECTOR_HASH_OR_PAGE {location}: {selector_id}")
+    if isinstance(page, int) and not isinstance(page, bool):
+        if page in seen_pages:
+            errors.append(f"{label}_SELECTOR_PAGE_DUPLICATE {location}: {page}")
+        seen_pages.add(page)
+        if page_count is not None and page > page_count:
+            errors.append(f"{label}_SELECTOR_PAGE_RANGE {location}: {page}")
+        preview = selector.get("text_preview")
+        if isinstance(preview, str) and page in page_sections and preview not in page_sections[page]:
+            errors.append(f"{label}_SELECTOR_PREVIEW_CROSS_PAGE {location}: {page}")
+    return len(errors) == before
+
+
+def validate_pdf_page_coverage(
+    materialization: dict[str, Any], page_count: int | None, selector_pages: set[int],
+    page_selector_count: int, total_selector_count: int, uid: str, errors: list[str],
+    *, derived_selector_count: int = 0, label: str = "ARXIV_PDF",
+) -> tuple[set[int], set[int]]:
+    """Account for every PDF page without permitting undeclared non-page evidence."""
+    def page_set(field: str) -> set[int]:
+        value = materialization.get(field)
+        if not isinstance(value, list) or any(not isinstance(page, int) or isinstance(page, bool) or page < 1 for page in value):
+            errors.append(f"{label}_PAGE_SET {uid} {field}={value!r}")
+            return set()
+        pages = set(value)
+        if len(pages) != len(value):
+            errors.append(f"{label}_PAGE_SET_DUPLICATE {uid} {field}")
+        if page_count is not None and any(page > page_count for page in pages):
+            errors.append(f"{label}_PAGE_SET_RANGE {uid} {field}={value!r}")
+        return pages
+    empty = page_set("pdf_pages_without_extractable_text")
+    failed = page_set("pdf_page_extraction_failures")
+    if selector_pages & empty or selector_pages & failed or empty & failed:
+        errors.append(f"{label}_PAGE_SET_OVERLAP {uid}")
+    if page_count is not None:
+        expected = set(range(1, page_count + 1))
+        covered = selector_pages | empty | failed
+        if covered != expected:
+            errors.append(f"{label}_PAGE_COVERAGE {uid} expected={sorted(expected)} actual={sorted(covered)}")
+    if materialization.get("pdf_text_page_count") != page_selector_count:
+        errors.append(f"{label}_TEXT_PAGE_COUNT {uid} declared={materialization.get('pdf_text_page_count')} actual={page_selector_count}")
+    if page_selector_count + derived_selector_count != total_selector_count:
+        errors.append(f"{label}_NON_PAGE_SELECTOR {uid} pages={page_selector_count} declared_derived={derived_selector_count} selectors={total_selector_count}")
+    return empty, failed
+
+
+def validate_pdf_supplement(
+    manifest: dict[str, Any], capsule_root: Path, declared_files: set[str],
+    actual_hashes: dict[str, str], errors: list[str], *, repository_root: Path | None = None,
+) -> int:
+    """Validate only the optional, fixed-version PDF alongside the unchanged TeX representation."""
+    supplement = manifest.get("pdf_supplement")
+    if supplement is None:
+        if (capsule_root / "pdf-supplement/document.pdf").is_file():
+            errors.append(f"PDF_SUPPLEMENT_UNDECLARED {manifest.get('uid')}")
+        return 0
+    uid = str(manifest.get("uid") or "")
+    label = "PDF_SUPPLEMENT"
+    repo_root = repository_root or ROOT
+    def local_relative(path: Path) -> str:
+        return path.relative_to(repo_root).as_posix()
+    if not isinstance(supplement, dict) or manifest.get("adapter") != "arxiv_latex_v2" or manifest.get("source_type") != "arxiv":
+        errors.append(f"{label}_DECLARATION {uid}")
+        return 0
+    from materialize_all_sources import arxiv_pdf_version_url, extract_pdf_text
+    try:
+        version_url = arxiv_pdf_version_url(manifest.get("canonical_id"), supplement.get("source_version"))
+        metadata = load_yaml(repo_root / manifest["metadata_path"])
+        if (metadata.get("versioning") or {}).get("source_version") != supplement.get("source_version"):
+            raise ValueError("version differs from canonical source version")
+    except (KeyError, TypeError, ValueError, OSError, yaml.YAMLError) as exc:
+        errors.append(f"{label}_VERSION {uid}: {exc}")
+        version_url = None
+    materialization = supplement.get("materialization")
+    if not isinstance(materialization, dict):
+        errors.append(f"{label}_MATERIALIZATION {uid}")
+        return 0
+    if materialization.get("pdf_text_extraction_mode") != "plain":
+        errors.append(f"{label}_EXTRACTION_MODE {uid}")
+    expected_paths = {"source_pdf": "pdf-supplement/document.pdf", "document": "pdf-supplement/document.txt", "normalized_document": "pdf-supplement/document.txt"}
+    if any(materialization.get(field) != value for field, value in expected_paths.items()) or supplement.get("selectors") != ["pdf-supplement/selectors.jsonl"]:
+        errors.append(f"{label}_PATHS {uid}")
+    if supplement.get("media_type") != "application/pdf" or not isinstance(supplement.get("body_quality_verified"), bool):
+        errors.append(f"{label}_MEDIA_OR_QUALITY {uid}")
+    if not isinstance(supplement.get("limitations"), list) or any(not isinstance(value, str) or not value.strip() for value in supplement["limitations"]):
+        errors.append(f"{label}_LIMITATIONS {uid}")
+    paths = {name: capsule_root / name for name in ("pdf-supplement/document.pdf", "pdf-supplement/document.txt", "pdf-supplement/selectors.jsonl", "pdf-supplement/NOTICE.md")}
+    if any(
+        local_relative(path) not in declared_files or not path.is_file()
+        or scoped_path(local_relative(path), capsule_root, repository_root=repo_root) is None
+        for path in paths.values()
+    ):
+        errors.append(f"{label}_FILE_UNHASHED_OR_MISSING {uid}")
+        return 0
+    source = paths["pdf-supplement/document.pdf"]
+    source_hash = actual_hashes.get(local_relative(source))
+    if not source_hash or materialization.get("source_pdf_sha256") != source_hash or supplement.get("revision") != f"sha256:{source_hash}":
+        errors.append(f"{label}_REVISION {uid}")
+    retrievals = supplement.get("retrievals")
+    retrieval = retrievals[0] if isinstance(retrievals, list) and len(retrievals) == 1 and isinstance(retrievals[0], dict) else {}
+    if (
+        version_url is None or retrieval.get("requested_urls") != [version_url] or retrieval.get("resolved_url") != version_url
+        or retrieval.get("sha256") != source_hash or retrieval.get("bytes") != source.stat().st_size
+        or not isinstance(retrieval.get("retrieved_at"), str) or not retrieval["retrieved_at"].strip()
+        or not isinstance(retrieval.get("content_type"), str) or retrieval["content_type"].split(";", 1)[0].strip() != "application/pdf"
+    ):
+        errors.append(f"{label}_RETRIEVAL {uid}")
+    try:
+        payload = source.read_bytes()
+        if not payload.startswith(b"%PDF-"):
+            raise ValueError("source is not a PDF")
+        native_text, _, page_count = extract_pdf_text(payload, extraction_mode="plain")
+        stored_text = paths["pdf-supplement/document.txt"].read_text(encoding="utf-8")
+        source_text = stored_text.split("<!-- materialization-redistribution-notice -->", 1)[0].rstrip() + "\n"
+        if source_text != native_text:
+            errors.append(f"{label}_NATIVE_TEXT_DRIFT {uid}")
+        rows = [json.loads(line) for line in paths["pdf-supplement/selectors.jsonl"].read_text(encoding="utf-8").splitlines() if line.strip()]
+    except Exception as exc:
+        errors.append(f"{label}_PARSE {uid}: {exc}")
+        return 0
+    if supplement.get("primary_excerpt") is not None:
+        try:
+            pdf_primary_excerpt_range(supplement, native_text)
+        except ValueError as exc:
+            errors.append(f"{label}_PRIMARY_EXCERPT {uid}: {exc}")
+    if materialization.get("pdf_page_count") != page_count or materialization.get("stored_characters") != len(stored_text):
+        errors.append(f"{label}_PAGE_OR_CHARACTER_COUNT {uid}")
+    sections, duplicates = pdf_page_sections(native_text)
+    if duplicates or set(sections) != set(range(1, page_count + 1)):
+        errors.append(f"{label}_PAGE_MARKERS {uid}")
+    seen_pages: set[int] = set()
+    seen_ids: set[str] = set()
+    page_selectors = 0
+    target = local_relative(paths["pdf-supplement/document.txt"])
+    for index, selector in enumerate(rows, 1):
+        if not isinstance(selector, dict):
+            errors.append(f"{label}_SELECTOR_NOT_OBJECT {uid}:{index}")
+            continue
+        selector_id = selector.get("selector")
+        if not isinstance(selector_id, str) or not selector_id or selector_id in seen_ids:
+            errors.append(f"{label}_SELECTOR_ID {uid}:{index}")
+        else:
+            seen_ids.add(selector_id)
+        preview = selector.get("text_preview")
+        if not isinstance(preview, str) or not preview or preview not in native_text:
+            errors.append(f"{label}_SELECTOR_PREVIEW_UNRESOLVED {uid}:{index}")
+        path = scoped_path(selector.get("local_path"), capsule_root, repository_root=repo_root)
+        if path is None or not path.is_file() or selector.get("local_path") not in declared_files:
+            errors.append(f"{label}_SELECTOR_TARGET {uid}:{index}")
+        if selector.get("kind") != "page" or any(field in selector for field in ("start_line", "end_line", "ordinal", "source_page")):
+            errors.append(f"{label}_SELECTOR_KIND {uid}:{index}")
+        if selector.get("page") is not None:
+            page_selectors += 1
+            validate_pdf_page_binding(selector, target, sections, f"pdf://sha256-{(source_hash or '')[:16]}#page=", page_count, seen_pages, f"{uid}:{index}", errors, label=label)
+        else:
+            errors.append(f"{label}_SELECTOR_PAGE {uid}:{index}")
+    empty, failed = validate_pdf_page_coverage(materialization, page_count, seen_pages, page_selectors, len(rows), uid, errors, label=label)
+    actual_empty = {page for page, text in sections.items() if not text.strip()}
+    actual_failed = {page for page, text in sections.items() if text.strip().startswith("[page extraction failed:")}
+    if empty != actual_empty or failed != actual_failed:
+        errors.append(f"{label}_EXTRACTION_DIAGNOSTICS {uid}")
+    if materialization.get("selector_count") != len(rows):
+        errors.append(f"{label}_SELECTOR_COUNT {uid}")
+    from materialize_all_sources import has_substantive_document_text
+    if materialization.get("substantive_text") != has_substantive_document_text(native_text) or (
+        supplement.get("body_quality_verified") is True and (materialization.get("substantive_text") is not True or failed)
+    ):
+        errors.append(f"{label}_FALSE_BODY_QUALITY {uid}")
+    # Only the new PDF allowance is a fail-closed materialization condition;
+    # unrelated, pre-existing full-text publication blocks remain independent.
+    from validate_publication_rights import validate_pdf_supplement_rights
+    try:
+        audit = load_yaml(repo_root / "raw_data/audits/materialization_rights_review.yaml")
+        review = next((row for row in audit["items"] if isinstance(row, dict) and row.get("uid") == uid), None)
+        rights_errors, rights_blocks = validate_pdf_supplement_rights(manifest, capsule_root / "manifest.yaml", repo_root, review)
+        errors.extend(rights_errors)
+        errors.extend(f"{label}_UNADMITTED {message}" for message in rights_blocks)
+    except (KeyError, TypeError, ValueError, OSError, yaml.YAMLError) as exc:
+        errors.append(f"{label}_RIGHTS_AUDIT {uid}: {exc}")
+    return len(rows)
 
 
 def pdf_image_transcription_declaration(
@@ -508,40 +725,15 @@ def main() -> int:
                     if expected_pdf_selector_prefix is not None:
                         arxiv_pdf_selector_count += 1
                         native_document = arxiv_pdf_materialization.get("document") if arxiv_pdf_materialization else None
-                        if (
-                            not isinstance(native_document, str) or Path(native_document).is_absolute()
-                            or ".." in Path(native_document).parts or local_path != relative(capsule_root / native_document)
+                        native_document_rel = relative(capsule_root / native_document) if (
+                            isinstance(native_document, str) and not Path(native_document).is_absolute()
+                            and ".." not in Path(native_document).parts
+                        ) else None
+                        if not validate_pdf_page_binding(
+                            selector, native_document_rel, page_sections, expected_pdf_selector_prefix,
+                            arxiv_pdf_page_count, arxiv_pdf_selector_pages, f"{uid}:{line_number}", errors,
                         ):
-                            errors.append(f"ARXIV_PDF_NATIVE_SELECTOR_TARGET {uid}:{line_number}: {local_path}")
                             selector_valid = False
-                        uri_match = (
-                            re.fullmatch(
-                                re.escape(expected_pdf_selector_prefix) + r"([1-9]\d*)",
-                                selector_id,
-                            )
-                            if isinstance(selector_id, str)
-                            else None
-                        )
-                        if uri_match is None or not isinstance(page, int) or int(uri_match.group(1)) != page:
-                            errors.append(f"ARXIV_PDF_SELECTOR_HASH_OR_PAGE {uid}:{line_number}: {selector_id}")
-                            selector_valid = False
-                        if isinstance(page, int) and not isinstance(page, bool):
-                            if page in arxiv_pdf_selector_pages:
-                                errors.append(f"ARXIV_PDF_SELECTOR_PAGE_DUPLICATE {uid}:{line_number}: {page}")
-                                selector_valid = False
-                            arxiv_pdf_selector_pages.add(page)
-                            if arxiv_pdf_page_count is not None and page > arxiv_pdf_page_count:
-                                errors.append(f"ARXIV_PDF_SELECTOR_PAGE_RANGE {uid}:{line_number}: {page}")
-                                selector_valid = False
-                            if (
-                                isinstance(preview, str)
-                                and page in page_sections
-                                and preview not in page_sections[page]
-                            ):
-                                errors.append(
-                                    f"ARXIV_PDF_SELECTOR_PREVIEW_CROSS_PAGE {uid}:{line_number}: {page}"
-                                )
-                                selector_valid = False
 
                 if expected_pdf_selector_prefix is not None and page is None and image_transcription_path is not None:
                     source_page = selector.get("source_page")
@@ -587,52 +779,18 @@ def main() -> int:
         if tier != "metadata_capsule" and valid_selector_count == 0:
             errors.append(f"NO_VALID_SELECTORS {uid}")
         if expected_pdf_selector_prefix is not None and arxiv_pdf_materialization is not None:
-            def declared_page_set(field: str) -> set[int]:
-                value = arxiv_pdf_materialization.get(field)
-                if not isinstance(value, list) or any(
-                    not isinstance(page, int) or isinstance(page, bool) or page < 1 for page in value
-                ):
-                    errors.append(f"ARXIV_PDF_PAGE_SET {uid} {field}={value!r}")
-                    return set()
-                pages = set(value)
-                if len(pages) != len(value):
-                    errors.append(f"ARXIV_PDF_PAGE_SET_DUPLICATE {uid} {field}")
-                if arxiv_pdf_page_count is not None and any(page > arxiv_pdf_page_count for page in pages):
-                    errors.append(f"ARXIV_PDF_PAGE_SET_RANGE {uid} {field}={value!r}")
-                return pages
-
-            pages_without_text = declared_page_set("pdf_pages_without_extractable_text")
-            failed_pages = declared_page_set("pdf_page_extraction_failures")
-            if (
-                arxiv_pdf_selector_pages & pages_without_text
-                or arxiv_pdf_selector_pages & failed_pages
-                or pages_without_text & failed_pages
-            ):
-                errors.append(f"ARXIV_PDF_PAGE_SET_OVERLAP {uid}")
-            if arxiv_pdf_page_count is not None:
-                expected_pages = set(range(1, arxiv_pdf_page_count + 1))
-                covered_pages = arxiv_pdf_selector_pages | pages_without_text | failed_pages
-                if covered_pages != expected_pages:
-                    errors.append(
-                        f"ARXIV_PDF_PAGE_COVERAGE {uid} expected={sorted(expected_pages)} "
-                        f"actual={sorted(covered_pages)}"
-                    )
-            if arxiv_pdf_materialization.get("pdf_text_page_count") != arxiv_pdf_selector_count:
-                errors.append(
-                    f"ARXIV_PDF_TEXT_PAGE_COUNT {uid} "
-                    f"declared={arxiv_pdf_materialization.get('pdf_text_page_count')} "
-                    f"actual={arxiv_pdf_selector_count}"
-                )
-            if arxiv_pdf_selector_count + arxiv_pdf_derived_selector_count != manifest_selector_count:
-                errors.append(
-                    f"ARXIV_PDF_NON_PAGE_SELECTOR {uid} pages={arxiv_pdf_selector_count} "
-                    f"declared_derived={arxiv_pdf_derived_selector_count} selectors={manifest_selector_count}"
-                )
+            validate_pdf_page_coverage(
+                arxiv_pdf_materialization, arxiv_pdf_page_count, arxiv_pdf_selector_pages,
+                arxiv_pdf_selector_count, manifest_selector_count, uid, errors,
+                derived_selector_count=arxiv_pdf_derived_selector_count,
+            )
             if image_transcription_path is not None and arxiv_pdf_derived_selector_pages != image_transcription_pages:
                 errors.append(
                     f"ARXIV_PDF_TRANSCRIPTION_PAGE_COVERAGE {uid} declared={sorted(image_transcription_pages)} "
                     f"actual={sorted(arxiv_pdf_derived_selector_pages)}"
                 )
+
+        selector_count += validate_pdf_supplement(manifest, capsule_root, declared_files, actual_hashes, errors)
 
     for metadata_path, count in sorted(metadata_references.items()):
         if count > 1:

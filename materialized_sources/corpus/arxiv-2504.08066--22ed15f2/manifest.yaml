@@ -117,6 +117,18 @@ local_files:
 - path: materialized_sources/corpus/arxiv-2504.08066--22ed15f2/normalized/document.txt
   bytes: 105358
   sha256: b92a2cb8a9776f734ee2bc6d2e273b9b8016094a0171769ae764ee76f2bd7722
+- path: materialized_sources/corpus/arxiv-2504.08066--22ed15f2/pdf-supplement/NOTICE.md
+  bytes: 20118
+  sha256: 20e9338d52e07563d1d2d4744b97bacbc0884d8ce9b49075612c989e6ad2abd0
+- path: materialized_sources/corpus/arxiv-2504.08066--22ed15f2/pdf-supplement/document.pdf
+  bytes: 8923691
+  sha256: 53bafd3028e3f8829a3d85220e84dcf0d18934f9b75c092a60de303ff3644bd2
+- path: materialized_sources/corpus/arxiv-2504.08066--22ed15f2/pdf-supplement/document.txt
+  bytes: 198551
+  sha256: ae53d69b6a667aad33588c1e7adef9c4adb57cafa215e540505206d73b0f3bee
+- path: materialized_sources/corpus/arxiv-2504.08066--22ed15f2/pdf-supplement/selectors.jsonl
+  bytes: 30800
+  sha256: 3be7b2016b99453685e2d65b8e1585e08a10d26e0540fbe76b7e4b20ca79b882
 - path: materialized_sources/corpus/arxiv-2504.08066--22ed15f2/selectors.jsonl
   bytes: 21215
   sha256: d9b70600fb6a5e021c25c4d160e1f016910814ca10268377b5ca567528631c47
@@ -172,8 +184,8 @@ local_files:
   bytes: 3302
   sha256: ef7f845f96d772fdf05dd71f88fb8805cc12167f7e96a04be89ce0fc64043a50
 - path: materialized_sources/corpus/arxiv-2504.08066--22ed15f2/source-metadata.yaml
-  bytes: 9859
-  sha256: 572dcb6e3b84628fc21da9a9b79ee5b5cbe36e9c608f990f45750b90f43bf059
+  bytes: 14364
+  sha256: cc9f154321958077e591b1537bbd284fff36b4924dcde389f6f6f56e99ef1b05
 warnings: []
 errors: []
 archive_container: tar
@@ -225,4 +237,80 @@ omitted:
   reason: non-text-document-member
 - path: workshop_papers/pest_prediction/generated_code_samples/multi_dataset_train_loop.png
   reason: non-text-document-member
-local_bytes: 805812
+local_bytes: 9983477
+pdf_supplement:
+  primary_excerpt:
+    start_line: 11
+    end_line: 29
+  source_version: v1
+  revision: sha256:53bafd3028e3f8829a3d85220e84dcf0d18934f9b75c092a60de303ff3644bd2
+  media_type: application/pdf
+  retrievals:
+  - requested_urls:
+    - https://arxiv.org/pdf/2504.08066v1
+    resolved_url: https://arxiv.org/pdf/2504.08066v1
+    content_type: application/pdf
+    bytes: 8923691
+    sha256: 53bafd3028e3f8829a3d85220e84dcf0d18934f9b75c092a60de303ff3644bd2
+    retrieved_at: '2026-09-16T14:42:16Z'
+    request_started_at: '2026-09-16T14:41:22Z'
+    completion_observed_at: '2026-09-16T14:42:16Z'
+    http_status: 200
+    timestamp_note: Batch requests started at request_started_at; retrieved_at is the time all completed responses
+      were confirmed, not an invented per-transfer end timestamp.
+  selectors:
+  - pdf-supplement/selectors.jsonl
+  body_quality_verified: true
+  limitations:
+  - 原PDF完整保留69页，含3篇内嵌生成论文、提示词与7份独立匿名评审；p55–56 Figures8–10及p66–67 Figures11–13的代码截图未进入native文本层。
+  - 图形/边注阅读顺序/数学与字距有损（例如p35边注插入段落，首页AI Scientist-v2名称分散）；无OCR或推测性代码补写。原PDF可供远程视觉读取，text_extraction仍partial。
+  rights:
+    license_spdx: CC-BY-4.0
+    license_url: https://creativecommons.org/licenses/by/4.0/
+    license_verified_at: '2026-09-16'
+    publication_gate:
+      decision: allow
+      reason: 固定版本官方页面实时确认作品级 CC BY 4.0；以本次真实 PDF revision 及专属归属包明确批准该编译表示，不沿用旧 TeX 包 allow 范围。目标正文/附录及可见独立声明已核查，原有第三方归属保留；这是
+        agent 表示审核，不是人类批准或知识可信晋升。
+      approved_scope: 仅本次从 https://arxiv.org/pdf/2504.08066v1 取得的固定版本官方 PDF（69页，8923691 bytes）、其页级提取文本与定位器。覆盖论文编译后主文、参考文献和
+        PDF 实际内嵌附录/图表，不包含外链论文、数据集、模型、代码仓库或新增源模板。作者/提交者可许可的作品表达沿官方固定版本 CC BY 4.0；保留 PDF 内独立署名、图注和警告，不暗示原作者支持本仓库。旧
+        TeX 包及其独立组件许可原样保留，本附加包不改其授权范围。原 PDF 完整保存不等于原生文本无损，图内文字、数学、图形与阅读顺序损失另列 coverage。 七份匿名 workshop review 继续按独立
+        CC BY 4.0 及逐组 Reviewer 标签归属，不冒称论文作者原创。
+    redistribution_package:
+      source_revision: sha256:53bafd3028e3f8829a3d85220e84dcf0d18934f9b75c092a60de303ff3644bd2
+      source_version_url: https://arxiv.org/pdf/2504.08066v1
+      notice_path: raw_data/licenses/cc-by-4.0.md
+      attribution: 'Yutaro Yamada, Robert Tjarko Lange, Cong Lu, Shengran Hu, Chris Lu, Jakob Foerster, Jeff Clune,
+        David Ha. The AI Scientist-v2: Workshop-Level Automated Scientific Discovery via Agentic Tree Search. Fixed
+        arXiv 2504.08066v1, https://arxiv.org/abs/2504.08066v1; original PDF https://arxiv.org/pdf/2504.08066v1.
+        CC BY 4.0, https://creativecommons.org/licenses/by/4.0/; full legal code https://creativecommons.org/licenses/by/4.0/legalcode.en.
+        Title, complete author list, fixed version and article license link checked on the official version page
+        on 2026-09-16. Original credits, notices and AI-generated-paper warnings inside the PDF are retained, not
+        converted into repository endorsements. Seven human workshop reviews retain independent anonymous reviewer
+        attribution: compositional regularization Reviewer #1/#2 (source/workshop_papers/compositional_regularization/reviewer_2.txt
+        and reviewer_3.txt); label noise Reviewer #1/#2 (source/workshop_papers/label_noise/reviewer_1.txt and reviewer_3.txt);
+        pest prediction Reviewer #1/#2/#3 (source/workshop_papers/pest_prediction/reviewer_1.txt, reviewer_2.txt,
+        reviewer_3.txt). Their separately established CC BY 4.0 basis is OpenReview Comment/review Terms updated
+        2024-09-24, https://openreview.net/legal/terms, as documented in the existing source package. Only the two
+        compositional reviews have an explicit inclusion-permission statement; no equivalent consent, reviewer identity
+        or public forum match is invented for the others.'
+      modifications: 原官方 PDF 按下载 bytes 原样保存；使用 pypdf 6.18.1 提取逐页文字，加入明确页边界并生成本地页定位；在派生 text 末尾附唯一署名、修改与范围声明及 NOTICE.md
+        链接。不编辑原 PDF、不执行其中代码或提示词，不把原生文本当 OCR。既有 source、normalized、selectors、archive revision 和旧归属包均保留。本层是有损预处理，不自动晋升
+        trusted。
+      scope: 仅本次从 https://arxiv.org/pdf/2504.08066v1 取得的固定版本官方 PDF（69页，8923691 bytes）、其页级提取文本与定位器。覆盖论文编译后主文、参考文献和
+        PDF 实际内嵌附录/图表，不包含外链论文、数据集、模型、代码仓库或新增源模板。作者/提交者可许可的作品表达沿官方固定版本 CC BY 4.0；保留 PDF 内独立署名、图注和警告，不暗示原作者支持本仓库。旧
+        TeX 包及其独立组件许可原样保留，本附加包不改其授权范围。原 PDF 完整保存不等于原生文本无损，图内文字、数学、图形与阅读顺序损失另列 coverage。 七份匿名 workshop review 继续按独立
+        CC BY 4.0 及逐组 Reviewer 标签归属，不冒称论文作者原创。
+  materialization:
+    source_pdf: pdf-supplement/document.pdf
+    source_pdf_sha256: 53bafd3028e3f8829a3d85220e84dcf0d18934f9b75c092a60de303ff3644bd2
+    document: pdf-supplement/document.txt
+    normalized_document: pdf-supplement/document.txt
+    stored_characters: 197328
+    selector_count: 69
+    pdf_page_count: 69
+    pdf_text_page_count: 69
+    pdf_text_extraction_mode: plain
+    pdf_pages_without_extractable_text: []
+    pdf_page_extraction_failures: []
+    substantive_text: true

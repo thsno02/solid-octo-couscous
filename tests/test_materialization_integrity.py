@@ -1169,6 +1169,17 @@ class ValidatorIntegrityTests(unittest.TestCase):
 
         self.assertEqual(result, 0, output)
 
+    def test_primary_pdf_still_rejects_an_undeclared_nonpage_selector(self) -> None:
+        selectors = self._configure_arxiv_pdf_fixture()
+        with selectors.open("a", encoding="utf-8") as handle:
+            handle.write(json.dumps({
+                "selector": "local://native#L1-L1", "local_path": "materialized_sources/corpus/paper-example/document.txt",
+                "start_line": 1, "end_line": 1, "text_preview": "## Page 1",
+            }) + "\n")
+        result, output = self._run_validator()
+        self.assertEqual(result, 1, output)
+        self.assertIn("ARXIV_PDF_NON_PAGE_SELECTOR", output)
+
     def test_declared_pdf_image_transcription_passes_without_changing_native_coverage(self) -> None:
         self._configure_arxiv_image_transcription_fixture()
         result, output = self._run_validator()

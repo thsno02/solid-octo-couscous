@@ -6,6 +6,7 @@ import hashlib
 import json
 import re
 import shutil
+import sys
 from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Any, Iterable
@@ -27,6 +28,9 @@ from rights_propagation import (
 
 EXPERIMENT_ROOT = Path(__file__).resolve().parents[1]
 ROOT = Path(__file__).resolve().parents[3]
+sys.path.insert(0, str(ROOT / "scripts"))
+from validate_materialization_completeness import pdf_primary_excerpt_range, validate_pdf_supplement
+from validate_publication_rights import validate_pdf_supplement_rights
 CONFIG_PATH = EXPERIMENT_ROOT / "config.yaml"
 MATERIALIZED_INDEX = ROOT / "materialized_sources" / "index.yaml"
 KNOWLEDGE_SCHEMA = ROOT / "raw_data" / "schemas" / "knowledge_model.schema.yaml"
@@ -184,8 +188,43 @@ def select_sources(items: list[dict[str, Any]], config: dict[str, Any]) -> list[
     return selected
 
 
+def admitted_pdf_supplement(item: dict[str, Any], manifest: dict[str, Any]) -> dict[str, Any] | None:
+    """Select the optional PDF only after its own audit, local integrity and body check."""
+    supplement = manifest.get("pdf_supplement")
+    if not isinstance(supplement, dict) or supplement.get("body_quality_verified") is not True:
+        return None
+    manifest_path = ROOT / str(item["manifest"])
+    try:
+        audit = load_yaml(ROOT / "raw_data/audits/materialization_rights_review.yaml")
+        review = next((row for row in audit["items"] if row.get("uid") == item.get("uid")), None)
+        errors, blocked = validate_pdf_supplement_rights(manifest, manifest_path, ROOT, review)
+        if errors or blocked:
+            return None
+        local_files = manifest.get("local_files") or []
+        declared = {row["path"] for row in local_files}
+        hashes = {row["path"]: row["sha256"] for row in local_files}
+        for name in ("document.pdf", "document.txt", "selectors.jsonl", "NOTICE.md"):
+            path = manifest_path.parent / "pdf-supplement" / name
+            row = next((entry for entry in local_files if entry["path"] == path.relative_to(ROOT).as_posix()), None)
+            if row is None or row.get("bytes") != path.stat().st_size or row["sha256"] != hashlib.sha256(path.read_bytes()).hexdigest():
+                return None
+        validate_pdf_supplement(manifest, manifest_path.parent, declared, hashes, errors, repository_root=ROOT)
+        return supplement if not errors else None
+    except (KeyError, TypeError, AttributeError, ValueError, OSError, yaml.YAMLError):
+        return None
+
+
+def choose_local_selectors(item: dict[str, Any], manifest: dict[str, Any]) -> Path:
+    capsule_root = (ROOT / str(item["manifest"])).parent
+    if admitted_pdf_supplement(item, manifest):
+        return capsule_root / "pdf-supplement/selectors.jsonl"
+    return capsule_root / "selectors.jsonl"
+
+
 def choose_local_document(item: dict[str, Any], manifest: dict[str, Any]) -> Path | None:
     capsule_root = (ROOT / str(item["manifest"])).parent
+    if admitted_pdf_supplement(item, manifest):
+        return capsule_root / "pdf-supplement/document.txt"
     candidates = [
         capsule_root / "normalized" / "document.txt",
         capsule_root / "document.md",
@@ -255,6 +294,17 @@ def meaningful_excerpt(text: str, title: str) -> tuple[str, int, int]:
         return excerpt, start, end
     # Absence of quotable prose is not evidence for a source assertion.
     return "", 1, 1
+
+
+def source_excerpt(
+    text: str, title: str, pdf_supplement: dict[str, Any] | None = None,
+) -> tuple[str, int, int]:
+    """Preserve the old quotation logic, with a parent-paper boundary for new PDFs."""
+    if pdf_supplement is None:
+        return meaningful_excerpt(text, title)
+    start, end = pdf_primary_excerpt_range(pdf_supplement, text)
+    excerpt, local_start, local_end = meaningful_excerpt("\n".join(text.splitlines()[start - 1:end]), title)
+    return excerpt, start - 1 + local_start, start - 1 + local_end
 
 
 def inclusion_reason(metadata: dict[str, Any]) -> str:
@@ -463,6 +513,9 @@ def main() -> int:
         document = choose_local_document(item, source_manifest)
         if document:
             input_paths.add(document)
+        if source_manifest.get("pdf_supplement"):
+            input_paths.add(ROOT / "raw_data/audits/materialization_rights_review.yaml")
+            input_paths.add(choose_local_selectors(item, source_manifest))
     digest = hashlib.sha256()
     for path in sorted(input_paths):
         digest.update(path.relative_to(ROOT).as_posix().encode())
@@ -488,9 +541,15 @@ def main() -> int:
         manifest = load_yaml(manifest_path)
         if not isinstance(manifest, dict):
             continue
-        declared_rights = rights_snapshot(manifest.get("rights"))
+        local_document = choose_local_document(item, manifest)
+        use_pdf = local_document == manifest_path.parent / "pdf-supplement/document.txt"
+        representation = manifest["pdf_supplement"] if use_pdf else manifest
+        consumed_item = {**item, "revision": representation.get("revision")} if use_pdf else item
+        if use_pdf:
+            consumed_item["source_representation"] = "pdf_supplement"
+        declared_rights = rights_snapshot(representation.get("rights"))
         source_for_rights = {
-            **item,
+            **consumed_item,
             "rights": declared_rights,
             "rights_status": DECLARED if declared_rights else UNAVAILABLE,
         }
@@ -498,14 +557,15 @@ def main() -> int:
         limited_evidence = item.get("status") == "partial" or item.get("content_tier") == "excerpt_capsule"
         evidence_role = ("bounded-excerpt" if limited_evidence else
                          "static-repository-evidence" if item.get("source_type") == "github" else "source-text")
-        local_document = choose_local_document(item, manifest)
         excerpt = ""
         start_line = 1
         end_line = 1
         local_path: str | None = None
         if local_document is not None:
             text = local_document.read_text(encoding="utf-8", errors="replace")
-            excerpt, start_line, end_line = meaningful_excerpt(text, str(item.get("title") or uid))
+            excerpt, start_line, end_line = source_excerpt(
+                text, str(item.get("title") or uid), representation if use_pdf else None,
+            )
             local_path = local_document.relative_to(ROOT).as_posix()
 
         source_hash = None
@@ -537,7 +597,7 @@ def main() -> int:
                     **({"rights": declared_rights} if declared_rights else {}),
                 },
                 method="materialized-source-registration",
-                source_version=str(item.get("revision") or "unknown"),
+                source_version=str(consumed_item.get("revision") or "unknown"),
                 source_hash=source_hash,
                 status="active",
                 promotion_state="candidate",
@@ -578,7 +638,7 @@ def main() -> int:
                     },
                     assertion_kind="observation",
                     method="deterministic-local-excerpt",
-                    source_version=str(item.get("revision") or "unknown"),
+                    source_version=str(consumed_item.get("revision") or "unknown"),
                     source_hash=source_hash,
                     status="active",
                     promotion_state="candidate",
@@ -595,7 +655,7 @@ def main() -> int:
                     "claim_scope": "source-reported assertion",
                     "domain": domain,
                     "subject_ref": source_entity_uid,
-                    "limitations": ["Only the locally retained excerpt is evidence; omitted source content was not reviewed."] if limited_evidence else [],
+                    "limitations": (["Only the locally retained excerpt is evidence; omitted source content was not reviewed."] if limited_evidence else []) + (representation.get("limitations", []) if use_pdf else []),
                     **(
                         {
                             "rights_refs": [
@@ -613,7 +673,7 @@ def main() -> int:
                 assertion_kind="assertion",
                 evidence_refs=[evidence_uid],
                 method="source-assertion-extraction-without-model",
-                source_version=str(item.get("revision") or "unknown"),
+                source_version=str(consumed_item.get("revision") or "unknown"),
                 source_hash=source_hash,
             )
             claim_objects.append(claim)
@@ -670,7 +730,7 @@ def main() -> int:
         claim_refs.append(assessment_claim_uid)
 
         selected_row = {
-            **item,
+            **consumed_item,
             "domain": domain,
             "metadata_path": manifest.get("metadata_path"),
             "local_document": local_path,

@@ -1720,9 +1720,13 @@ def html_to_sections(payload: bytes, resolved_url: str) -> tuple[str, list[dict[
     return "\n".join(text_parts).strip() + "\n", blocks, title
 
 
-def extract_pdf_text(payload: bytes, max_pages: int | None = None) -> tuple[str, list[dict[str, Any]], int]:
+def extract_pdf_text(
+    payload: bytes, max_pages: int | None = None, *, extraction_mode: str = "layout",
+) -> tuple[str, list[dict[str, Any]], int]:
     from pypdf import PdfReader
 
+    if extraction_mode not in {"layout", "plain"}:
+        raise ValueError("unsupported PDF text extraction mode")
     reader = PdfReader(io.BytesIO(payload))
     page_count = len(reader.pages)
     limit = page_count if max_pages is None else min(page_count, max_pages)
@@ -1731,8 +1735,8 @@ def extract_pdf_text(payload: bytes, max_pages: int | None = None) -> tuple[str,
     for page_index in range(limit):
         try:
             text = reader.pages[page_index].extract_text(
-                extraction_mode="layout",
-                layout_mode_strip_rotated=False,
+                extraction_mode=extraction_mode,
+                **({"layout_mode_strip_rotated": False} if extraction_mode == "layout" else {}),
             ) or ""
         except Exception as exc:
             text = f"[page extraction failed: {exc}]"
@@ -1746,6 +1750,97 @@ def extract_pdf_text(payload: bytes, max_pages: int | None = None) -> tuple[str,
             }
         )
     return "".join(text_parts).strip() + "\n", selectors, page_count
+
+
+def arxiv_pdf_version_url(canonical_id: Any, source_version: Any) -> str:
+    """Require an existing arXiv identity and an explicit, positive version."""
+    if not isinstance(canonical_id, str) or not re.fullmatch(r"\d{4}\.\d{4,5}", canonical_id):
+        raise ValueError("PDF supplement requires an unversioned arXiv canonical ID")
+    if not isinstance(source_version, str) or not re.fullmatch(r"v[1-9]\d*", source_version):
+        raise ValueError("PDF supplement requires a fixed vN source version")
+    return f"https://arxiv.org/pdf/{canonical_id}{source_version}"
+
+
+def build_pdf_supplement(
+    root: Path, source_version: str, retrieval: dict[str, Any], rights: dict[str, Any],
+    *, body_quality_verified: bool = False, limitations: list[str] | None = None,
+    primary_excerpt: dict[str, int] | None = None,
+) -> dict[str, Any]:
+    """Derive page text from an already acquired PDF without rebuilding the TeX capsule.
+
+    The caller owns acquisition, the independently reviewed PDF notice, canonical
+    metadata/audit updates and the final local-file inventory. No source bytes,
+    default document/selectors, manifest or metadata are changed here.
+    """
+    manifest = load_yaml(root / "manifest.yaml")
+    if manifest.get("source_type") != "arxiv" or manifest.get("adapter") != "arxiv_latex_v2":
+        raise ValueError("PDF supplement is only supported on an existing arXiv TeX capsule")
+    version_url = arxiv_pdf_version_url(manifest.get("canonical_id"), source_version)
+    metadata = load_yaml(root / "source-metadata.yaml")
+    if (metadata.get("versioning") or {}).get("source_version") != source_version:
+        raise ValueError("PDF supplement version differs from the retained source version")
+    payload = (root / "pdf-supplement/document.pdf").read_bytes()
+    if not payload.startswith(b"%PDF-"):
+        raise ValueError("PDF supplement source is not a PDF")
+    source_hash = sha256_bytes(payload)
+    revision = f"sha256:{source_hash}"
+    if (
+        retrieval.get("requested_urls") != [version_url] or retrieval.get("resolved_url") != version_url
+        or retrieval.get("bytes") != len(payload) or retrieval.get("sha256") != source_hash
+        or retrieval.get("content_type", "").split(";", 1)[0].strip() != "application/pdf"
+        or not retrieval.get("retrieved_at")
+    ):
+        raise ValueError("PDF supplement retrieval does not describe the fixed-version PDF")
+    package = rights.get("redistribution_package") or {}
+    gate = rights.get("publication_gate") or {}
+    if not all(isinstance(package.get(field), str) and package[field].strip() for field in (
+        "source_revision", "source_version_url", "notice_path", "attribution", "modifications", "scope",
+    )) or package.get("source_revision") != revision or package.get("source_version_url") != version_url:
+        raise ValueError("PDF supplement needs its own complete, revision-bound redistribution package")
+    if gate.get("decision") != "allow" or gate.get("approved_scope") != package.get("scope"):
+        raise ValueError("PDF supplement scope has no explicit publication allowance")
+
+    # This batch contains body text in Form XObjects that layout mode omits.
+    # The optional layer explicitly uses plain mode; primary PDFs keep layout.
+    document_text, extracted, page_count = extract_pdf_text(payload, extraction_mode="plain")
+    selectors = []
+    empty_pages = []
+    failed_pages = []
+    for original in extracted:
+        preview = original.get("text_preview") or ""
+        if preview.startswith("[page extraction failed:"):
+            failed_pages.append(original["page"])
+        elif not preview.strip():
+            empty_pages.append(original["page"])
+        else:
+            selectors.append({
+                **original,
+                "selector": f"pdf://sha256-{source_hash[:16]}#page={original['page']}",
+                "local_path": (root / "pdf-supplement/document.txt").relative_to(ROOT).as_posix(),
+            })
+    document_text += redistribution_footer(package)
+    (root / "pdf-supplement/document.txt").write_text(document_text, encoding="utf-8")
+    write_jsonl(root / "pdf-supplement/selectors.jsonl", selectors)
+    return {
+        "source_version": source_version,
+        "revision": revision,
+        "media_type": "application/pdf",
+        "retrievals": [dict(retrieval)],
+        "selectors": ["pdf-supplement/selectors.jsonl"],
+        "body_quality_verified": body_quality_verified,
+        "limitations": list(limitations or []),
+        **({"primary_excerpt": dict(primary_excerpt)} if primary_excerpt is not None else {}),
+        "rights": rights,
+        "materialization": {
+            "source_pdf": "pdf-supplement/document.pdf", "source_pdf_sha256": source_hash,
+            "document": "pdf-supplement/document.txt", "normalized_document": "pdf-supplement/document.txt",
+            "stored_characters": len(document_text), "selector_count": len(selectors),
+            "pdf_page_count": page_count, "pdf_text_page_count": len(selectors),
+            "pdf_text_extraction_mode": "plain",
+            "pdf_pages_without_extractable_text": empty_pages, "pdf_page_extraction_failures": failed_pages,
+            "substantive_text": has_substantive_document_text(document_text.split("<!-- materialization-redistribution-notice -->", 1)[0]),
+        },
+    }
 
 
 def filter_selectors_for_document(
