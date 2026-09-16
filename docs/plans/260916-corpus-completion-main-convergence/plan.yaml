@@ -1,5 +1,5 @@
 plan_id: nonrepo-materialization-main-convergence-260916
-version: 1
+version: 2
 created_at: '2026-09-16'
 status: planning_contract
 repository: thsno02/solid-octo-couscous
@@ -53,12 +53,14 @@ state_dimensions:
   - knowledge_admission
 controlled_values:
   original_artifact_coverage:
+    - unknown
     - complete
     - partial
     - unavailable
     - metadata_only
     - not_applicable
   text_extraction_coverage:
+    - unknown
     - complete
     - partial
     - unavailable
@@ -69,6 +71,10 @@ controlled_values:
     - block
     - unknown
     - not_applicable
+  coverage_verification_state:
+    - unverified
+    - partial_check
+    - verified
   action_bucket:
     - complete_verified
     - needs_boundary_verification
@@ -151,6 +157,18 @@ phases:
       - P4
     merge_method_recommendation: squash
     automatic_merge_authorized: false
+    conditional_merge_authority: explicit_user_instruction_after_independent_pass_and_premerge_acceptance
+independent_pr_gate:
+  applies_to: [P0, P1, P2, P3, P4, P5]
+  evaluator_must_not_author_changes: true
+  required_verdict: PASS
+  dimensions: [user_requirements, agentic_reasoning_and_evidence, core_quality]
+  exact_head_and_base_required: true
+  changes_after_review_require_reevaluation: true
+  failure_route: planner_executor_independent_evaluator
+  normal_completion: merge_after_acceptance
+  direct_close_requires: evidence_of_absorption_or_explicit_user_cancellation
+  github_agent_review_action: COMMENT
 completion_rules:
   capsule_presence_is_fulltext_completion: false
   full_text_label_is_sufficient: false
@@ -180,7 +198,8 @@ decision_gates:
   - id: deletion_migration_or_history_rewrite
     behavior: stop_and_require_explicit_authorization
   - id: pr1_ready_and_merge
-    behavior: human_decision_required
+    behavior: explicit_user_decision_plus_premerge_acceptance_and_independent_evaluator_pass
+    current_decision: conditional_completion_authorized_by_user_not_immediate_merge
 issue_closure:
   issue_3:
     requires_main_landing: true

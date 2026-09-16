@@ -150,7 +150,7 @@ P1 的唯一成功是：131 条 coverage ledger 准确、可复算、可驱动�
 
 P4 不再继续抓取新来源。它只做对账、重建和 PR #1 收口。
 
-P5 不允许 agent 自行：
+没有明确用户决定时，P5 不允许 agent 自行：
 
 - 标记 PR #1 Ready；
 - merge/squash；
@@ -159,6 +159,12 @@ P5 不允许 agent 自行：
 - 关闭 issue。
 
 这些是明确的人工决策点。Agent 可以准备精确状态和执行命令，但不能把计划变成未经授权的动作。
+
+### 9.1 本轮用户决定与适用边界
+
+用户在本规划 PR 建立后明确要求：按新 PR 开始工作，所有 PR 满足诉求后 close，且每次 close 前调用独立 evaluator。按此指令，本轮允许在阶段验收、精确 head/base 独立 PASS 和适用 CI 门控满足后正常合并 PR；PR #1 仍须先完成 P4/P5 的合并前条件，再 Ready 与 squash。该决定不是“立即合并”，也不授权删除分支、强推、历史改写、修改保护、豁免未完成来源或关闭 issue。Issue #3/#4 保留到各自 main 落地验收完成并获得对应关闭决定。
+
+每次 PR 的独立评估按 `05-validation-and-definition-of-done.md` 第 8.1 节执行；执行者不能自评 PASS 后关闭自己的变更。
 
 ## 10. 汇报模板
 
@@ -184,6 +190,15 @@ P5 不允许 agent 自行：
 - commands actually run:
 - local results:
 - CI run for this exact head:
+
+## Agentic decisions and independent evaluation
+- user requirement and working hypothesis:
+- alternatives considered and chosen path with reasons:
+- observed evidence and corrections to the plan:
+- independent evaluator (not the author):
+- evaluated head SHA / base SHA:
+- requirement / agentic process / core quality verdicts:
+- overall PASS or FAIL, blockers and evidence:
 
 ## Explicit non-results
 - not merged to main

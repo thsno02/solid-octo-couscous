@@ -155,6 +155,8 @@ P3 使用串行短期 PR。每个批次满足：
 
 推荐顺序：
 
+P1 新发现的 `needs_boundary_verification` 先按单一 adapter 的只读边界核验批次处理；新增 `parser_only` / `ocr_assessment` 按 P2 的同类验收规则进入串行 P3 解析批次，不受“仅已知两项”限制。`identity_or_version_ambiguous` 必须先解决身份歧义再获取。每批仍最多 10 个 UID、一个主要 bucket，不能让未核验项在 P4 中消失。
+
 ### P3-A：canonical / version repair
 
 先处理 `canonical_repair` 与 `identity_or_version_ambiguous`，因为错误身份会污染后续下载、hash 和 selectors。

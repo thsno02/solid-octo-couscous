@@ -95,6 +95,7 @@ canonical URL and permitted alternates
 
 允许值：
 
+- `unknown`：已有材料或标签，但目标边界／版本尚未核验，不能据此断言完整或缺失；
 - `complete`：本地原件覆盖目标文档全部边界；
 - `partial`：原件只覆盖部分正文；
 - `unavailable`：没有取得原件；
@@ -105,12 +106,17 @@ canonical URL and permitted alternates
 
 允许值：
 
+- `unknown`：尚未核验提取结果与目标正文边界的一致性；
 - `complete`：所有实质性正文均有可消费文本；
 - `partial`：有明确缺页、缺章节、图片文字或解析失败；
 - `unavailable`：没有正文文本；
 - `not_applicable`：来源本身已是可消费文本。
 
 必须单独列出 `missing_pages`、`missing_sections`、`parser_errors` 和 `ocr_state`。
+
+两个 coverage 维度均须附 `evidence`（repo 路径、页／行／章节及检查结果）与 `verification_state`（`unverified` / `partial_check` / `verified`）。`unknown` 不是失败或不存在，`partial` 必须有具体缺口证据。缺失列表为空但未核验时，不能解释为“无缺失”。现有标签只记录为 `reported_content_tier`，不得直接转换为 `complete`。版本无法由已有记录固定时记录 `selected_version: null` 和具体原因，不编造版本；按身份／版本核验 bucket 后续处理。
+
+`unknown` 必须附具体原因和 `next_action`，不得计入完成数；`complete` 必须同时有已核验的目标边界、选定版本和实际内容证据。
 
 ### 4.4 Local persistence
 
@@ -204,8 +210,8 @@ OCR 是最后手段，不是默认步骤。
 
 ```text
 non_repo_total
-original_artifact_complete / partial / unavailable
-text_extraction_complete / partial / unavailable
+original_artifact_complete / partial / unavailable / metadata_only / not_applicable / unknown
+text_extraction_complete / partial / unavailable / not_applicable / unknown
 locally_persisted_complete
 public_redistribution_allow / conditional / block / unknown
 knowledge_candidate / trusted

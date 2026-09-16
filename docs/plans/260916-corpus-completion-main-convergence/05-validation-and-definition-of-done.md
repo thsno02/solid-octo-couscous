@@ -176,13 +176,24 @@ Issue #4 只有在以下条件同时满足时才能关闭：
 
 以下条件满足后，才建议将 PR #1 从 Draft 改为 Ready：
 
-1. Issue #3 的数据工作已完成到上述定义；
+1. Issue #3 的合并前数据条件（第 6 节前八项）已满足；最后一项“进入 main”属于合并后的关闭条件，不能倒置为 Ready 的前提；
 2. P4 reconciliation 已合入 work；
 3. PR #1 body 已清理旧快照和错误完成口径；
 4. 最终 head 的 CI、coverage audit 和 reproducibility 全部通过；
 5. 进入 `main` 的最终 tree 已明确；
 6. 未决来源和公开存储决策清楚列出；
 7. 没有把 human trusted admission 或 branch protection 冒充正文物化条件。
+
+## 8.1 每个 PR 的独立关闭门控
+
+适用于 P0、P1、P2、所有 P3 批次、P4 和父 PR #1。默认以正常合并（merge）完成 PR，而不是不合并直接关闭并遗弃工作。
+
+- 规划者（planner）明确用户目标、当前证据、工作假设、候选路径和选择理由；执行者（executor）只实施批准范围；独立评估者（evaluator）不得是该变更的作者。
+- evaluator 检查实际差异及证据，分别判断需求满足、agentic 判断链条（目标→判断→行动→验证→纠偏）和核心质量，输出 `PASS` 或 `FAIL` 与具体理由。CI 通过、脚本运行或报告写完都不能单独充当 PASS。
+- 每次审核锁定精确 head SHA 和 base SHA；关闭前确认审核覆盖的差异未变化，适用 CI 为当前 head 对当前 base 的结果。任何变化均重新核验，不能沿用旧 PASS。
+- `FAIL` 返回 planner → executor 修复 → 独立 evaluator 复审；只有 PASS 且适用门控满足才能合并。agent 审核如发布到 GitHub，标为 agent evaluation / COMMENT，不伪造人类 APPROVE。
+- 审核记录保存在对应 PR；记录已执行和明确未执行内容。P0/P1 的 PASS 仅证明本阶段质量，不证明全 corpus 或父 PR 已完成。
+- 如拟直接关闭而非合并，必须先证明工作已被其他 PR 吸收或明确被用户取消，独立 evaluator 同样审核，不用关闭隐藏未完成需求。
 
 ## 9. Post-merge Definition of Done
 
