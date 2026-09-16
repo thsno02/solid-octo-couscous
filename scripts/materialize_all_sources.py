@@ -474,6 +474,14 @@ def write_capsule_readme(record: SourceRecord, root: Path, manifest: dict[str, A
         for label, field in (("Consumer Markdown", "document"), ("Original Markdown", "retained_markdown_source"), ("Original HTML", "retained_html_source")):
             if materialization.get(field):
                 lines.append(f"- [{label}]({materialization[field]})")
+    elif materialization.get("retained_text_sources"):
+        lines.extend(["", "Local retained representations:", f"- [Consumer Markdown (collector assembly)]({materialization['document']})"])
+        for item in materialization["retained_text_sources"]:
+            lines.append(f"- [Original {item['format'].upper()}: {Path(item['source']).name}]({item['source']})")
+        for item in manifest.get("retrievals", []):
+            name = item.get("local_path", "")
+            if isinstance(name, str) and name.endswith(".html"):
+                lines.append(f"- [Retained HTML evidence: {Path(name).name}]({name})")
     (root / "README.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
@@ -535,7 +543,7 @@ def apply_redistribution_package(record: SourceRecord, root: Path, manifest: dic
     document = (root / document_name).resolve()
     document.relative_to(root.resolve())
     notice_href = redistribution_notice_href(root, document)
-    text = document.read_text(encoding="utf-8")
+    text = document.read_bytes().decode("utf-8") if "retained_text_sources" in manifest.get("materialization", {}) else document.read_text(encoding="utf-8")
     previous = manifest.get("rights", {}).get("redistribution_package")
     marker_count = text.count("<!-- materialization-redistribution-notice -->")
     if marker_count:
@@ -1454,6 +1462,121 @@ def derive_retained_markdown(
     return selectors
 
 
+def rewrite_markdown_hrefs(text: str, rewrites: dict[str, str]) -> str:
+    """Rewrite finite inline hrefs, never fenced, indented or inline code."""
+    def rewrite_prose(prose: str) -> str:
+        def hrefs(value: str) -> str:
+            return re.sub(
+                r"(\]\([ \t]*)([^)\s]+)",
+                lambda match: match.group(1) + rewrites.get(match.group(2), match.group(2)),
+                value,
+            )
+        parts: list[str] = []
+        start = 0
+        for code in re.finditer(r"(?<!`)(`+)(?!`)[\s\S]*?(?<!`)\1(?!`)", prose):
+            parts.extend((hrefs(prose[start:code.start()]), code.group(0)))
+            start = code.end()
+        return "".join(parts) + hrefs(prose[start:])
+
+    parts: list[str] = []
+    prose: list[str] = []
+    fence = ""
+    for line in text.splitlines(keepends=True):
+        opening = re.match(r"^ {0,3}(`{3,}|~{3,})(.*)$", line.rstrip("\r\n"))
+        if fence or opening or re.match(r"^(?: {4}|\t)", line):
+            parts.append(rewrite_prose("".join(prose)))
+            prose = []
+            parts.append(line)
+            if fence:
+                if re.fullmatch(rf" {{0,3}}{re.escape(fence[0])}{{{len(fence)},}}[ \t]*", line.rstrip("\r\n")):
+                    fence = ""
+            elif opening and not (opening.group(1)[0] == "`" and "`" in opening.group(2)):
+                fence = opening.group(1)
+        else:
+            prose.append(line)
+    return "".join(parts) + rewrite_prose("".join(prose))
+
+
+def derive_retained_text_sources(
+    sources: list[tuple[Path, str]], document: Path, link_rewrites: dict[str, str],
+) -> list[dict[str, Any]]:
+    """Assemble only declared native MD/YAML, with exact single-source line ranges."""
+    if not sources or not isinstance(link_rewrites, dict) or any(
+        not isinstance(old, str) or not old or not isinstance(new, str) or not new
+        or "\n" in old or "\r" in old or "\n" in new or "\r" in new
+        or urllib.parse.urlsplit(old).scheme or urllib.parse.urlsplit(old).netloc
+        or urllib.parse.urlsplit(new).scheme or urllib.parse.urlsplit(new).netloc
+        for old, new in link_rewrites.items()
+    ):
+        raise ValueError("retained text sources need a finite, single-line local href mapping")
+    local_path = document.resolve().relative_to(ROOT.resolve()).as_posix()
+    prepared: list[tuple[str, str, str, str, list[dict[str, Any]]]] = []
+    stems: set[str] = set()
+    known_anchors: set[str] = set()
+    for source, format_name in sources:
+        if format_name not in {"md", "yaml"} or source.resolve() == document.resolve():
+            raise ValueError("retained text format must be md/yaml and cannot overwrite its original")
+        source_path = source.resolve().relative_to(ROOT.resolve()).as_posix()
+        stem = re.sub(r"[^A-Za-z0-9_-]", "-", source.stem)
+        if stem in stems:
+            raise ValueError("retained text source names must have distinct anchor stems")
+        stems.add(stem)
+        original = source.read_bytes().decode("utf-8")
+        if not original.strip():
+            raise ValueError("retained text source is empty")
+        text = rewrite_markdown_hrefs(original, link_rewrites) if format_name == "md" else original
+        headings = extract_markdown_headings(original, source_path, structured=True) if format_name == "md" else []
+        known_anchors.update(f"{stem}-L{line}" for line in {1, *(heading["line"] for heading in headings)})
+        if format_name == "md":
+            known_anchors.update(re.findall(r'<a\b[^>]*\bid=["\']([^"\']+)["\']', original))
+        prepared.append((source_path, stem, format_name, text, headings))
+    if any(target.startswith("#") and target[1:] not in known_anchors for target in link_rewrites.values()):
+        raise ValueError("retained href rewrite does not target a real source anchor")
+
+    parts: list[str] = []
+    selectors: list[dict[str, Any]] = []
+    next_line = 1
+    def emit(value: str) -> None:
+        nonlocal next_line
+        if not value.endswith("\n"):
+            value += "\n"
+        parts.append(value)
+        next_line += len(value.splitlines())
+
+    emit("# Retained specification text (collector assembly)\n\nThis consumer Markdown assembles the explicitly retained originals in declared order. Source labels, line anchors and local href rewrites are collector additions; YAML below is an unmodified native schema displayed in a code fence.\n")
+    for source_path, stem, format_name, text, headings in prepared:
+        lines = text.splitlines(keepends=True)
+        href = Path(os.path.relpath(ROOT.resolve() / source_path, start=document.parent.resolve())).as_posix()
+        emit(f"\nOriginal {format_name.upper()}: [{Path(source_path).name}]({href}#L1-L{len(lines)}).\n")
+        if format_name == "yaml":
+            emit(f'\n<a id="{stem}-L1"></a>\n\n## Native YAML schema (collector display, not upstream Markdown)\n\n```yaml\n')
+        starts = [(1, headings[0] if headings else None)] + [(heading["line"], heading) for heading in headings[1:]]
+        anchors = {1, *(heading["line"] for heading in headings)} if format_name == "md" else set()
+        for index, (source_start, heading) in enumerate(starts):
+            source_end = starts[index + 1][0] - 1 if index + 1 < len(starts) else len(lines)
+            start_line = next_line
+            for line_number in range(source_start, source_end + 1):
+                if line_number in anchors:
+                    emit(f'\n<a id="{stem}-L{line_number}"></a>\n\n')
+                    if line_number == source_start:
+                        start_line = next_line
+                emit(lines[line_number - 1])
+            selectors.append({
+                "selector": f"derived://{local_path}#L{start_line}-L{next_line - 1}",
+                "local_path": local_path, "kind": "section" if heading else "file",
+                "start_line": start_line, "end_line": next_line - 1,
+                "text_preview": next(line.rstrip("\r\n") for line in lines[source_start - 1:source_end] if line.strip())[:700],
+                "derived_from": source_path, "source_format": format_name,
+                "source_start_line": source_start, "source_end_line": source_end,
+                **({"heading": heading["heading"], "level": heading["level"]} if heading else {}),
+            })
+        if format_name == "yaml":
+            emit("```\n")
+    document.parent.mkdir(parents=True, exist_ok=True)
+    document.write_bytes("".join(parts).encode("utf-8"))
+    return selectors
+
+
 def github_git_inventory(
     repository: str,
     config: dict[str, Any],
@@ -2021,6 +2144,75 @@ def has_substantive_document_text(document_text: str) -> bool:
     return len(non_heading.strip()) >= 20 and len(tokens) >= 3
 
 
+def replay_retained_text_sources(
+    record: SourceRecord, manifest: dict[str, Any], generated_at: str,
+) -> dict[str, Any]:
+    """Preflight all declared originals before writing a collector assembly."""
+    root = record.capsule_root
+    materialization = manifest["materialization"]
+    if "retained_markdown_source" in materialization:
+        raise ValueError("retained single Markdown and ordered text declarations are mutually exclusive")
+    document_name = sanitize_relative_path(materialization["document"])
+    if document_name is None or document_name.parts[0] != "normalized":
+        raise ValueError("retained document must be a capsule-local normalized path")
+    document = (root / document_name).resolve()
+    document.relative_to(root.resolve())
+    sources = materialization["retained_text_sources"]
+    if not isinstance(sources, list) or not sources:
+        raise ValueError("retained_text_sources must be a nonempty explicit list")
+    paths: list[tuple[Path, str]] = []
+    for item in sources:
+        source_name = sanitize_relative_path(item["source"])
+        if source_name is None or source_name.parts[0] != "source":
+            raise ValueError("retained text source must be a capsule-local source path")
+        source = (root / source_name).resolve()
+        source.relative_to(root.resolve())
+        paths.append((source, item["format"]))
+    from validate_materialization_completeness import validate_retained_markdown_binding
+    errors: list[str] = []
+    validate_retained_markdown_binding(
+        manifest, root, {source.relative_to(ROOT.resolve()).as_posix(): sha256_file(source) for source, _ in paths},
+        errors, repository_root=ROOT,
+    )
+    commit = record.metadata.get("versioning", {}).get("snapshot_commit")
+    if manifest.get("revision") != f"git:{commit}":
+        errors.append("retained snapshot commit differs from canonical metadata")
+    if errors:
+        raise ValueError("; ".join(errors))
+    package = (record.metadata.get("rights") or {}).get("redistribution_package")
+    if package and package.get("source_revision") != manifest.get("revision"):
+        raise ValueError("redistribution package does not cover the retained snapshot revision")
+    rewrites = materialization.get("link_rewrites", {})
+    if not isinstance(rewrites, dict):
+        raise ValueError("retained link_rewrites must be an explicit href mapping")
+    for target in rewrites.values():
+        if not isinstance(target, str):
+            raise ValueError("retained link_rewrites must map local hrefs")
+        parsed = urllib.parse.urlsplit(target)
+        if parsed.path:
+            path = (document.parent / urllib.parse.unquote(parsed.path)).resolve()
+            path.relative_to(root.resolve())
+            if not path.is_file():
+                raise ValueError("retained href rewrite target is not a local original")
+            actual_hash = sha256_file(path)
+            inventory = [item for item in manifest.get("local_files", []) if item.get("path") == path.relative_to(ROOT.resolve()).as_posix()]
+            retrievals = [item for item in manifest.get("retrievals", []) if item.get("local_path") == path.relative_to(root.resolve()).as_posix()]
+            if len(inventory) != 1 or inventory[0].get("sha256") != actual_hash or len(retrievals) != 1 or retrievals[0].get("sha256") != actual_hash or retrievals[0].get("bytes") != path.stat().st_size:
+                raise ValueError("retained href rewrite original differs from inventory or retrieval")
+            if parsed.fragment.startswith("L"):
+                match = re.fullmatch(r"L([1-9]\d*)-L([1-9]\d*)", parsed.fragment)
+                if not match or not int(match.group(1)) <= int(match.group(2)) <= len(path.read_bytes().decode("utf-8").splitlines()):
+                    raise ValueError("retained href rewrite source line range is invalid")
+    selectors = derive_retained_text_sources(paths, document, rewrites)
+    write_jsonl(root / "selectors.jsonl", selectors)
+    manifest.update({"generated_at": generated_at, "selectors": ["selectors.jsonl"]})
+    materialization.update({
+        "normalized_document": materialization["document"],
+        "stored_characters": len(document.read_bytes().decode("utf-8")), "selector_count": len(selectors),
+    })
+    return finalize_capsule(record, root, manifest)
+
+
 def replay_retained_markdown(
     record: SourceRecord, manifest: dict[str, Any], generated_at: str,
 ) -> dict[str, Any]:
@@ -2046,6 +2238,8 @@ def replay_retained_markdown(
         ):
             raise ValueError("retained snapshot source metadata or selected version differs")
         materialization = manifest["materialization"]
+        if "retained_text_sources" in materialization:
+            return replay_retained_text_sources(record, manifest, generated_at)
         paths: dict[str, Path] = {}
         for field, prefix in (("retained_markdown_source", "source"), ("document", "normalized")):
             relative_path = sanitize_relative_path(materialization[field])
@@ -2101,7 +2295,7 @@ def materialize_generic(
     if existing_root is None and (record.capsule_root / "manifest.yaml").is_file():
         retained = load_yaml(record.capsule_root / "manifest.yaml")
         retained_materialization = retained.get("materialization") if isinstance(retained, dict) else None
-        if isinstance(retained_materialization, dict) and "retained_markdown_source" in retained_materialization:
+        if isinstance(retained_materialization, dict) and any(field in retained_materialization for field in ("retained_markdown_source", "retained_text_sources")):
             return replay_retained_markdown(record, retained, generated_at)
     root = existing_root or prepare_capsule(record)
     manifest = existing_manifest or base_manifest(record, "generic_web_or_document_v2", generated_at)

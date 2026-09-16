@@ -246,6 +246,163 @@ class RetainedMarkdownTests(unittest.TestCase):
                 validator.validate_retained_markdown_binding(manifest, record.capsule_root, actual, errors, repository_root=root)
                 self.assertTrue(any(f"RETAINED_MARKDOWN_{'REVISION' if field == 'revision' else 'RETRIEVAL'}" in error for error in errors))
 
+    @contextlib.contextmanager
+    def _retained_text_capsule(self):
+        with self._retained_capsule() as (root, record, _, _, _, document):
+            commit = "a" * 40
+            record.metadata["versioning"]["snapshot_commit"] = commit
+            record.metadata["rights"]["redistribution_package"]["source_revision"] = f"git:{commit}"
+            record.metadata["rights"]["redistribution_package"]["modifications"] = "Collector assembly and explicit local href rewrites."
+            materializer.write_yaml(record.metadata_path, record.metadata)
+            materializer.write_yaml(record.capsule_root / "source-metadata.yaml", record.metadata)
+            names = ("spec-intro", "spec-model", "chaining-rules", "spec-formats", "spec-formats-tsv", "spec-formats-owl", "spec-formats-json")
+            intro = "\r\n".join([
+                "Shared title", "============", "", "[Model](spec-model.md)",
+                "`[Inline](spec-model.md)` and ``[Wide](spec-model.md)``",
+                "`[Multiline](spec-model.md)", "still code`",
+                "[External](https://example.test/spec-model.md)", "```tsv", "# Fake heading",
+                "subject\tobject", "[Fenced](spec-model.md)", "```", "## Details", "[Own](#details)", "",
+            ]).encode("utf-8")
+            originals: dict[Path, bytes] = {}
+            sources: list[tuple[Path, str]] = []
+            for name in names:
+                source = record.capsule_root / f"source/src/docs/{name}.md"
+                source.parent.mkdir(parents=True, exist_ok=True)
+                body = intro if name == "spec-intro" else (
+                    f"# Shared title\n\n{name} retained normative body.\n\n## Details\n"
+                    "[Class](Mapping.md), [Mapping slots](Mapping.md#slots), [Set slots](MappingSet.md#slots).\n"
+                ).encode("utf-8")
+                source.write_bytes(body)
+                originals[source] = body
+                sources.append((source, "md"))
+            schema = record.capsule_root / "source/src/sssom_schema/schema/sssom_schema.yaml"
+            schema.parent.mkdir(parents=True)
+            schema.write_bytes(b"classes:\n  mapping:\n    slots:\n    - subject_id\n    - object_id\n# YAML comment is not a Markdown heading\n")
+            originals[schema] = schema.read_bytes()
+            sources.append((schema, "yaml"))
+            evidence: list[Path] = []
+            for name in ("Mapping", "MappingSet"):
+                html = record.capsule_root / f"source/rendered/1.0/{name}.html"
+                html.parent.mkdir(parents=True, exist_ok=True)
+                html.write_bytes(f'<html><table id="slots"><tr><td>{name} original Slots order</td></tr></table></html>\n'.encode())
+                originals[html] = html.read_bytes()
+                evidence.append(html)
+            manifest = materializer.load_yaml(record.capsule_root / "manifest.yaml")
+            manifest["revision"] = f"git:{commit}"
+            manifest["materialization"] = {
+                "document": "normalized/document.md",
+                "retained_text_sources": [{"source": path.relative_to(record.capsule_root).as_posix(), "format": format_name} for path, format_name in sources],
+                "link_rewrites": {
+                    "spec-model.md": "#spec-model-L1", "#details": "#spec-intro-L14",
+                    "Mapping.md": "../source/src/sssom_schema/schema/sssom_schema.yaml#L2-L6",
+                    "Mapping.md#slots": "../source/rendered/1.0/Mapping.html#slots",
+                    "MappingSet.md#slots": "../source/rendered/1.0/MappingSet.html#slots",
+                },
+            }
+            manifest["retrievals"] = [{
+                "local_path": path.relative_to(record.capsule_root).as_posix(),
+                "sha256": materializer.sha256_file(path), "bytes": path.stat().st_size,
+                **({"commit": commit} if path not in evidence else {}),
+            } for path in originals]
+            manifest["local_files"] = materializer.local_file_inventory(record.capsule_root)
+            manifest["local_bytes"] = sum(item["bytes"] for item in manifest["local_files"])
+            materializer.write_yaml(record.capsule_root / "manifest.yaml", manifest)
+            yield root, record, sources, originals, document
+
+    def test_ordered_text_replay_is_offline_complete_and_preserves_code_and_origins(self) -> None:
+        with self._retained_text_capsule() as (root, record, sources, originals, document), mock.patch.object(
+            materializer, "fetch_bytes", side_effect=AssertionError("assembly replay must not fetch"),
+        ), mock.patch.object(materializer, "prepare_capsule", side_effect=AssertionError("assembly replay must not clear originals")):
+            previous = None
+            for _ in range(2):
+                manifest = materializer.materialize_one(record, {}, "fixed-time")
+                text = document.read_bytes().decode("utf-8")
+                selectors = [json.loads(line) for line in (record.capsule_root / "selectors.jsonl").read_text().splitlines()]
+                self.assertEqual(len(selectors), 15)
+                self.assertIn("[Model](#spec-model-L1)", text)
+                self.assertIn("[Own](#spec-intro-L14)", text)
+                for code in ("`[Inline](spec-model.md)`", "``[Wide](spec-model.md)``", "`[Multiline](spec-model.md)\r\nstill code`", "```tsv\r\n# Fake heading\r\nsubject\tobject\r\n[Fenced](spec-model.md)\r\n```"):
+                    self.assertIn(code, text)
+                self.assertIn("[External](https://example.test/spec-model.md)", text)
+                self.assertNotIn('id="spec-intro-L10"', text)
+                self.assertIn("```yaml\n" + originals[sources[-1][0]].decode("utf-8") + "```\n", text)
+                for source, format_name in sources:
+                    rows = [row for row in selectors if root / row["derived_from"] == source]
+                    self.assertEqual(rows[0]["source_start_line"], 1)
+                    self.assertEqual(rows[-1]["source_end_line"], len(originals[source].decode().splitlines()))
+                    for left, right in zip(rows, rows[1:]):
+                        self.assertEqual(left["source_end_line"] + 1, right["source_start_line"])
+                    for row in rows:
+                        self.assertEqual(row["source_format"], format_name)
+                        self.assertEqual(root / row["local_path"], document)
+                        self.assertIn(row["text_preview"], "\n".join(text.splitlines()[row["start_line"] - 1:row["end_line"]]))
+                self.assertEqual(text.count("<!-- materialization-redistribution-notice -->"), 1)
+                readme = (record.capsule_root / "README.md").read_text()
+                for path in originals:
+                    self.assertEqual(path.read_bytes(), originals[path])
+                    self.assertIn(f"]({path.relative_to(record.capsule_root).as_posix()})", readme)
+                actual = {path.relative_to(root).as_posix(): materializer.sha256_file(path) for path in originals}
+                errors: list[str] = []
+                validator.validate_retained_markdown_binding(manifest, record.capsule_root, actual, errors, repository_root=root)
+                self.assertEqual(errors, [])
+                current = (document.read_bytes(), (record.capsule_root / "selectors.jsonl").read_bytes())
+                if previous is not None:
+                    self.assertEqual(current, previous)
+                previous = current
+
+    def test_ordered_text_drift_or_commit_change_rejects_before_any_derived_write(self) -> None:
+        for change in ("last-source", "html-evidence", "commit", "version", "identity", "retrieval", "anchor"):
+            with self.subTest(change=change), self._retained_text_capsule() as (_, record, sources, originals, document), mock.patch.object(
+                materializer, "fetch_bytes", side_effect=AssertionError("failed assembly must not fetch"),
+            ), mock.patch.object(materializer, "prepare_capsule", side_effect=AssertionError("failed assembly must not clear originals")):
+                manifest_path = record.capsule_root / "manifest.yaml"
+                if change in {"last-source", "html-evidence"}:
+                    path = sources[-1][0] if change == "last-source" else next(path for path in originals if path.name == "Mapping.html")
+                    path.write_bytes(path.read_bytes() + b"External drift.\n")
+                elif change in {"commit", "version"}:
+                    field, value = ("snapshot_commit", "b" * 40) if change == "commit" else ("source_version", "1.3")
+                    record = replace(record, metadata={**record.metadata, "versioning": {**record.metadata["versioning"], field: value}})
+                elif change == "identity":
+                    record = replace(record, canonical_url="https://example.test/other/")
+                else:
+                    manifest = materializer.load_yaml(manifest_path)
+                    if change == "retrieval":
+                        manifest["retrievals"][0]["commit"] = "b" * 40
+                    else:
+                        manifest["materialization"]["link_rewrites"]["spec-model.md"] = "#spec-model-L999"
+                    materializer.write_yaml(manifest_path, manifest)
+                before = {path: path.read_bytes() for path in (*originals, document, manifest_path)}
+                with self.assertRaises(materializer.RetainedMarkdownPreflightError):
+                    materializer.materialize_one(record, {}, "fixed-time")
+                self.assertEqual({path: path.read_bytes() for path in before}, before)
+
+    def test_ordered_text_keeps_preamble_and_only_separates_missing_final_newlines(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary, mock.patch.object(materializer, "ROOT", Path(temporary)):
+            root = Path(temporary)
+            source = root / "capsule/source/native.md"
+            source.parent.mkdir(parents=True)
+            original = "\r\n".join([
+                "<!-- native preamble -->", "", "Native title", "============", "",
+                "```text", "a\tb", "```", "", "## End", "Last body without a final newline.",
+            ]).encode("utf-8")
+            source.write_bytes(original)
+            schema = source.with_name("schema.yaml")
+            yaml_original = b"classes:\n  mapping:\n    slots: [subject_id]"
+            schema.write_bytes(yaml_original)
+            document = root / "capsule/normalized/document.md"
+            rows = materializer.derive_retained_text_sources([(source, "md"), (schema, "yaml")], document, {"native.md": "#native-L3"})
+            text = document.read_bytes().decode("utf-8")
+            self.assertEqual(source.read_bytes(), original)
+            self.assertEqual(schema.read_bytes(), yaml_original)
+            self.assertEqual([(row["source_start_line"], row["source_end_line"]) for row in rows], [(1, 9), (10, 11), (1, 3)])
+            self.assertEqual(rows[0]["text_preview"], "<!-- native preamble -->")
+            self.assertIn('<a id="native-L3"></a>\n\nNative title\r\n============', text)
+            self.assertIn("```text\r\na\tb\r\n```", text)
+            self.assertIn("Last body without a final newline.\n\nOriginal YAML", text)
+            self.assertIn("```yaml\n" + yaml_original.decode() + "\n```\n", text)
+            for row in rows:
+                self.assertIn(row["text_preview"], "\n".join(text.splitlines()[row["start_line"] - 1:row["end_line"]]))
+
 
 class MaterializerBoundaryTests(unittest.TestCase):
     def _run_arxiv(

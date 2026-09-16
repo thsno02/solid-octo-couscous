@@ -70,6 +70,9 @@ def validate_retained_markdown_binding(
 ) -> None:
     """Bind an opt-in retained Markdown original to its inventory and retrieval."""
     materialization = manifest.get("materialization")
+    if isinstance(materialization, dict) and "retained_text_sources" in materialization:
+        validate_retained_text_binding(manifest, capsule_root, actual_hashes, errors, repository_root=repository_root)
+        return
     if not isinstance(materialization, dict) or "retained_markdown_source" not in materialization:
         return
     uid = manifest.get("uid")
@@ -94,6 +97,53 @@ def validate_retained_markdown_binding(
     rows = [item for item in retrievals if isinstance(item, dict) and item.get("local_path") == source_name] if isinstance(retrievals, list) else []
     if len(rows) != 1 or rows[0].get("sha256") != source_hash or rows[0].get("bytes") != source.stat().st_size:
         errors.append(f"RETAINED_MARKDOWN_RETRIEVAL {uid}")
+
+
+def validate_retained_text_binding(
+    manifest: dict[str, Any], capsule_root: Path, actual_hashes: dict[str, str],
+    errors: list[str], *, repository_root: Path | None = None,
+) -> None:
+    """Bind the finite native-text assembly to existing per-file snapshot evidence."""
+    materialization = manifest["materialization"]
+    uid = manifest.get("uid")
+    sources = materialization["retained_text_sources"]
+    if "retained_markdown_source" in materialization or not isinstance(sources, list) or not sources:
+        errors.append(f"RETAINED_TEXT_DECLARATION {uid}")
+        return
+    revision = re.fullmatch(r"git:([0-9a-f]{40})", str(manifest.get("revision", "")))
+    commit = revision.group(1) if revision else None
+    source_metadata = load_yaml_checked(capsule_root / "source-metadata.yaml", "RETAINED_TEXT_METADATA", errors)
+    versioning = (source_metadata.get("versioning") or {}) if isinstance(source_metadata, dict) else {}
+    if not commit or not isinstance(versioning, dict) or versioning.get("snapshot_commit") != commit or versioning.get("source_version") != manifest.get("source_version"):
+        errors.append(f"RETAINED_TEXT_REVISION {uid}")
+    repo_root = repository_root or ROOT
+    names: set[str] = set()
+    for item in sources:
+        source_name = item.get("source") if isinstance(item, dict) else None
+        format_name = item.get("format") if isinstance(item, dict) else None
+        if (
+            not isinstance(source_name, str) or not source_name or Path(source_name).is_absolute()
+            or ".." in Path(source_name).parts or Path(source_name).parts[0] != "source"
+            or source_name in names or not isinstance(format_name, str) or format_name not in {"md", "yaml"}
+            or Path(source_name).suffix.lower() not in ({".md"} if format_name == "md" else {".yaml", ".yml"})
+        ):
+            errors.append(f"RETAINED_TEXT_SOURCE_PATH_FORMAT {uid}: {source_name}")
+            continue
+        names.add(source_name)
+        source_relative = (capsule_root / source_name).relative_to(repo_root).as_posix()
+        source = scoped_path(source_relative, capsule_root, repository_root=repo_root)
+        source_hash = actual_hashes.get(source_relative)
+        if source is None or not source.is_file() or not source_hash:
+            errors.append(f"RETAINED_TEXT_SOURCE_UNHASHED {uid}: {source_name}")
+            continue
+        inventory = manifest.get("local_files")
+        rows = [row for row in inventory if isinstance(row, dict) and row.get("path") == source_relative] if isinstance(inventory, list) else []
+        if len(rows) != 1 or rows[0].get("sha256") != source_hash or rows[0].get("bytes") != source.stat().st_size:
+            errors.append(f"RETAINED_TEXT_INVENTORY {uid}: {source_name}")
+        retrievals = manifest.get("retrievals")
+        rows = [row for row in retrievals if isinstance(row, dict) and row.get("local_path") == source_name] if isinstance(retrievals, list) else []
+        if len(rows) != 1 or rows[0].get("sha256") != source_hash or rows[0].get("bytes") != source.stat().st_size or rows[0].get("commit") != commit:
+            errors.append(f"RETAINED_TEXT_RETRIEVAL {uid}: {source_name}")
 
 
 def pdf_page_sections(text: str) -> tuple[dict[int, str], set[int]]:
