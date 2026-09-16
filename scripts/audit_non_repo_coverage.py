@@ -11,7 +11,8 @@ from pathlib import Path
 import yaml
 
 from materialize_all_sources import discover_records, filter_selectors_for_document
-from validate_materialization_completeness import load_yaml, pdf_page_sections, scoped_path
+from validate_materialization_completeness import load_yaml, pdf_page_sections, scoped_path, validate_pdf_supplement
+from validate_publication_rights import validate_pdf_supplement_rights
 
 ROOT = Path(__file__).resolve().parents[1]
 COLLECTION_BASE = "5458fbdffc95444cc26d5e9346fc2f9ab96e09c5"
@@ -141,6 +142,37 @@ def collect_facts() -> dict:
             "public_gate_revision_matches": review.get("source_revision") == manifest.get("revision") if review else None,
             "knowledge_claim_state_counts": state_counts,
         }
+        supplement = manifest.get("pdf_supplement")
+        if isinstance(supplement, dict):
+            supplement_document = root / "pdf-supplement/document.txt"
+            supplement_text = supplement_document.read_text() if supplement_document.is_file() else ""
+            supplement_pages, supplement_duplicates = pdf_page_sections(supplement_text.split("<!-- materialization-redistribution-notice -->", 1)[0])
+            supplement_selectors = root / "pdf-supplement/selectors.jsonl"
+            supplement_errors = []
+            validate_pdf_supplement(manifest, root, declared, {row["path"]: row["sha256"] for row in manifest["local_files"]}, supplement_errors)
+            rights_errors, rights_blocks = validate_pdf_supplement_rights(manifest, manifest_path, ROOT, review)
+            observed["pdf_supplement"] = {
+                "source_version": supplement.get("source_version"),
+                "local_revision": supplement.get("revision"),
+                "source_pdf": (root / "pdf-supplement/document.pdf").relative_to(ROOT).as_posix(),
+                "document_path": supplement_document.relative_to(ROOT).as_posix(),
+                "document_lines": len(supplement_text.splitlines()),
+                "document_characters": len(supplement_text),
+                "selector_path": supplement_selectors.relative_to(ROOT).as_posix(),
+                "selector_count": len(read_jsonl(supplement_selectors)),
+                "pdf_page_count_reported": (supplement.get("materialization") or {}).get("pdf_page_count"),
+                "pdf_text_page_headings": sorted(supplement_pages),
+                "pdf_empty_text_pages": [page for page, text in supplement_pages.items() if not text.strip()],
+                "pdf_duplicate_page_headings": sorted(supplement_duplicates),
+                "body_quality_verified": supplement.get("body_quality_verified"),
+                "limitations": supplement.get("limitations") or [],
+                "validation_errors": supplement_errors,
+                "public_gate": ((supplement.get("rights") or {}).get("publication_gate") or {}).get("decision", "unknown"),
+                "public_package_valid": not rights_errors and not rights_blocks,
+                "public_package_errors": rights_errors + rights_blocks,
+            }
+            if supplement.get("primary_excerpt") is not None:
+                observed["pdf_supplement"]["primary_excerpt"] = supplement["primary_excerpt"]
         facts.append({"uid": uid, "source_type": record.source_type, "manifest": item["manifest"],
                       "metadata_path": record.relative_metadata_path, "title": record.title,
                       "canonical_id": record.canonical_id, "canonical_url": record.canonical_url, "observed": observed})
@@ -218,6 +250,9 @@ def check(facts: dict) -> int:
         require(public["state"] == effective_gate and public["reported_gate"] == item["observed"]["public_gate"], f"{uid}: stale rights gate treated as current")
         require(public["revision_matches"] == item["observed"]["public_gate_revision_matches"], f"{uid}: stale rights revision")
         require(item["observed"]["invalid_selector_count"] == 0 and item["observed"]["index_registry_consistent"], f"{uid}: local structural failure")
+        supplement = item["observed"].get("pdf_supplement")
+        if supplement:
+            require(not supplement["validation_errors"] and supplement["public_package_valid"], f"{uid}: supplemental PDF integrity or independent allowance failure")
         if item["action_bucket"] == "complete_verified":
             require(all(item[key]["state"] == "complete" for key in ("original_artifact_coverage", "text_extraction_coverage")), f"{uid}: false complete bucket")
         if item["observed"]["reported_content_tier"] == "full_text" and not item["content_inspection"]:

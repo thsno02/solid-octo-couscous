@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import copy
 import posixpath
+import sys
 from pathlib import Path
 from typing import Any, Iterable
 
@@ -115,7 +116,10 @@ def make_rights_ref(
         "license_spdx": rights["license_spdx"],
         "license_url": rights["license_url"],
         "notice_path": package["notice_path"],
-        "package_path": f"{manifest}#rights.redistribution_package",
+        "package_path": f"{manifest}#" + (
+            "pdf_supplement.rights.redistribution_package"
+            if source.get("source_representation") == "pdf_supplement" else "rights.redistribution_package"
+        ),
         "usage": usage,
         "transformation": transformation,
     }
@@ -388,10 +392,14 @@ def validate_rights_chain(
             manifest_path = _repo_file(root, manifest_rel, "MANIFEST", errors)
             if manifest_path:
                 manifest = _load_yaml_mapping(manifest_path, "MANIFEST", errors)
-        manifest_rights = rights_snapshot(manifest.get("rights")) if manifest else persisted
+        use_pdf = source.get("source_representation") == "pdf_supplement"
+        representation = manifest.get("pdf_supplement") if manifest and use_pdf else manifest
+        if not isinstance(representation, dict):
+            representation = None
+        manifest_rights = rights_snapshot(representation.get("rights")) if representation else persisted
         canonical[source_uid] = manifest_rights
 
-        if manifest and _incomplete_package(manifest.get("rights")):
+        if representation and _incomplete_package(representation.get("rights")):
             errors.append(f"RIGHTS_PACKAGE_INCOMPLETE {source_uid}")
         if manifest_rights != persisted:
             errors.append(f"RIGHTS_SELECTED_MANIFEST_MISMATCH {source_uid}")
@@ -401,8 +409,21 @@ def validate_rights_chain(
             metadata_path = _repo_file(root, metadata_rel, "METADATA", errors)
             if metadata_path:
                 metadata = _load_yaml_mapping(metadata_path, "METADATA", errors)
-            metadata_rights = rights_snapshot(metadata.get("rights")) if metadata else None
-            if metadata and _incomplete_package(metadata.get("rights")):
+            metadata_terms = metadata.get("rights") if metadata else None
+            if use_pdf:
+                metadata_terms = metadata_terms.get("pdf_supplement") if isinstance(metadata_terms, dict) else None
+                sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "scripts"))
+                from validate_publication_rights import validate_pdf_supplement_rights
+                audit_path = root / "raw_data/audits/materialization_rights_review.yaml"
+                audit = _load_yaml_mapping(audit_path, "AUDIT", errors) if audit_path.is_file() else None
+                review = next((item for item in (audit or {}).get("items", []) if isinstance(item, dict) and item.get("uid") == source_uid), None)
+                pdf_errors, pdf_blocks = validate_pdf_supplement_rights(manifest, manifest_path, root, review)
+                errors.extend(pdf_errors)
+                errors.extend(f"RIGHTS_PDF_SUPPLEMENT_BLOCKED {message}" for message in pdf_blocks)
+                if representation is None:
+                    errors.append(f"RIGHTS_PDF_SUPPLEMENT_MISSING {source_uid}")
+            metadata_rights = rights_snapshot(metadata_terms)
+            if _incomplete_package(metadata_terms):
                 errors.append(f"RIGHTS_PACKAGE_INCOMPLETE {source_uid} metadata")
             if metadata_rights != manifest_rights:
                 errors.append(f"RIGHTS_METADATA_MANIFEST_MISMATCH {source_uid}")
@@ -413,7 +434,7 @@ def validate_rights_chain(
                 errors.append(f"RIGHTS_STATUS_MISMATCH {source_uid}")
             if source.get("revision") != package["source_revision"]:
                 errors.append(f"RIGHTS_SOURCE_REVISION_MISMATCH {source_uid}")
-            if manifest and manifest.get("revision") != package["source_revision"]:
+            if representation and representation.get("revision") != package["source_revision"]:
                 errors.append(f"RIGHTS_MANIFEST_REVISION_MISMATCH {source_uid}")
             _repo_file(root, package["notice_path"], "NOTICE", errors)
         elif _nonempty_string(manifest_rel) and source.get("rights_status") != UNAVAILABLE:

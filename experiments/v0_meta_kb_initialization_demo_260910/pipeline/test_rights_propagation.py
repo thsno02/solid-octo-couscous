@@ -93,6 +93,14 @@ def object_row(uid: str, source_row: dict, *, kind: str, collector: bool = False
 
 
 class RightsPropagationTest(unittest.TestCase):
+    def test_pdf_representation_uses_a_separate_package_pointer(self) -> None:
+        row = source(wrapped=True)
+        old = make_rights_ref(row, usage=EVIDENCE_USE, transformation=EVIDENCE_TRANSFORMATION)
+        self.assertTrue(old["package_path"].endswith("#rights.redistribution_package"))
+        row["source_representation"] = "pdf_supplement"
+        pdf = make_rights_ref(row, usage=EVIDENCE_USE, transformation=EVIDENCE_TRANSFORMATION)
+        self.assertTrue(pdf["package_path"].endswith("#pdf_supplement.rights.redistribution_package"))
+
     def write_capsule(self, root: Path, *, wrapped: bool) -> dict:
         (root / "capsule").mkdir()
         (root / "licenses").mkdir()

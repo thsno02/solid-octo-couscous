@@ -52,12 +52,12 @@ temporal:
   valid_to: null
   as_of: '2026-09-16T04:30:26Z'
 provenance:
-  build_id: build:llm-wiki-v0:3de65e2db5aac4d8
+  build_id: build:llm-wiki-v0:8d5202830938fe6b
   generated_by_agent: pipeline/build_llm_wiki.py
   generated_by_model: null
   prompt_or_skill_version: deterministic-llm-wiki-v0.2
   compiled_from_revisions:
-  - arxiv:2408.08435@sha256:9e5b2a49f62b2d5218e018666a195c85fc5d186d3939e0070303fab4fb7622e2
+  - arxiv:2408.08435@sha256:32eb1c1a6888e35fae0f618e33c58698b54d9c49bc063fef91ee591719fca376
   created_at: '2026-09-16T04:30:26Z'
   updated_at: '2026-09-16T04:30:26Z'
   manual_edits_preserved: false
@@ -82,7 +82,7 @@ consumption:
     one_line: Source page for Automated Design of Agentic Systems with claim/evidence expansion.
     short: Source page for Automated Design of Agentic Systems with claim/evidence expansion.
     full: null
-  estimated_tokens: 399
+  estimated_tokens: 354
   machine_entry_points:
   - ../../04_claims/claims.jsonl
   - ../../03_evidence/evidence.jsonl
@@ -92,12 +92,12 @@ rendered_claim_refs:
 - claim:0d2b54965305cf83
 rights_refs:
 - source_uid: arxiv:2408.08435
-  source_revision: sha256:9e5b2a49f62b2d5218e018666a195c85fc5d186d3939e0070303fab4fb7622e2
-  source_version_url: https://arxiv.org/abs/2408.08435v2
+  source_revision: sha256:32eb1c1a6888e35fae0f618e33c58698b54d9c49bc063fef91ee591719fca376
+  source_version_url: https://arxiv.org/pdf/2408.08435v2
   license_spdx: CC-BY-4.0
   license_url: https://creativecommons.org/licenses/by/4.0/
-  notice_path: raw_data/licenses/adas-v2-cc-by-4.0-iclr2025-lppl-1.3c-natbib-8.31.md
-  package_path: materialized_sources/corpus/arxiv-2408.08435--dc6e6730/manifest.yaml#rights.redistribution_package
+  notice_path: raw_data/licenses/cc-by-4.0.md
+  package_path: materialized_sources/corpus/arxiv-2408.08435--dc6e6730/manifest.yaml#pdf_supplement.rights.redistribution_package
   usage: rendered_source_claims
   transformation: The listed source-authored claim excerpts are rendered inside a mixed, compiler-generated page.
   claim_refs:
@@ -115,13 +115,13 @@ rights_unavailable_source_refs: []
 - Canonical ID: `2408.08435`
 - Source type: `arxiv`
 - Content tier: `full_text`
-- Revision: `sha256:9e5b2a49f62b2d5218e018666a195c85fc5d186d3939e0070303fab4fb7622e2`
+- Revision: `sha256:32eb1c1a6888e35fae0f618e33c58698b54d9c49bc063fef91ee591719fca376`
 - Domain: [cross-cutting](../maps/cross-cutting.md)
-- Local document: `materialized_sources/corpus/arxiv-2408.08435--dc6e6730/normalized/document.txt`
+- Local document: `materialized_sources/corpus/arxiv-2408.08435--dc6e6730/pdf-supplement/document.txt`
 
 ## Source-reported candidate statements
 
-- Researchers are investing substantial effort in developing powerful general-purpose agents, wherein Foundation Models are used as modules within agentic systems (e.g. Chain-of-Thought, Self-Reflection, Toolformer). 〔[claim:0d2b54965305cf83](../claims/claim-0d2b54965305cf83.md)〕
+- Researchers are investing substantial effort in developing powerful general- purpose agents, wherein Foundation Models are used as modules within agen- tic systems (e.g. Chain-of-Thought, Self-Reflection, Toolformer). 〔[claim:0d2b54965305cf83](../claims/claim-0d2b54965305cf83.md)〕
 
 ## Collection assessments
 
@@ -132,7 +132,7 @@ rights_unavailable_source_refs: []
 | Claim | Evidence | Selector | Tier |
 |---|---|---|---|
 | `claim:00e6310ce97dc279` | `evidence:4c23103dc864786c` | `local://raw_data/arxiv/Automated Design of Agentic Systems/metadata.yaml#collection.inclusion_reason` | `metadata_capsule` |
-| `claim:0d2b54965305cf83` | `evidence:33d6742cf3d38320` | `local://materialized_sources/corpus/arxiv-2408.08435--dc6e6730/normalized/document.txt#L115-L115` | `full_text` |
+| `claim:0d2b54965305cf83` | `evidence:33d6742cf3d38320` | `local://materialized_sources/corpus/arxiv-2408.08435--dc6e6730/pdf-supplement/document.txt#L9-L11` | `full_text` |
 
 ## Governance boundary
 
@@ -151,10 +151,10 @@ The terms below apply only to the listed source-authored claim components. They 
 ### Automated Design of Agentic Systems (`arxiv:2408.08435`)
 
 - Components: `claim:0d2b54965305cf83`
-- Source revision: `sha256:9e5b2a49f62b2d5218e018666a195c85fc5d186d3939e0070303fab4fb7622e2`
-- Source version: [pinned upstream version](https://arxiv.org/abs/2408.08435v2)
+- Source revision: `sha256:32eb1c1a6888e35fae0f618e33c58698b54d9c49bc063fef91ee591719fca376`
+- Source version: [pinned upstream version](https://arxiv.org/pdf/2408.08435v2)
 - License: [CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/)
-- NOTICE: [raw_data/licenses/adas-v2-cc-by-4.0-iclr2025-lppl-1.3c-natbib-8.31.md](../../../../raw_data/licenses/adas-v2-cc-by-4.0-iclr2025-lppl-1.3c-natbib-8.31.md)
-- Attribution: Shengran Hu, Cong Lu, Jeff Clune, Automated Design of Agentic Systems, arXiv:2408.08435v2 (2025-03-02), https://arxiv.org/abs/2408.08435v2, CC BY 4.0: https://creativecommons.org/licenses/by/4.0/. ICLR, Template for ICLR 2025 Conference Submission, CC BY 4.0, https://www.overleaf.com/latex/templates/template-for-iclr-2025-conference-submission/gqzkdyycxtvt; ICLR STY retains Hugo Larochelle's NIPS-style adaptation credit and matches https://github.com/ICLR/Master-Template/blob/05833d63fe48bbf250b144741ea77691018bb328/iclr2025/iclr2025_conference.sty. Deep Learning notation retains goodfeli/dlbook_notation attribution and the original authors' free-use statement at https://github.com/goodfeli/dlbook_notation/blob/master/README.md. BST: Copyright 2010 Hal Daum\'e III, J. Fürnkranz label modifications, Copyright 1993-2007 Patrick W Daly; fancyhdr 3.2: Piet van Oostrum; natbib 8.31: Copyright 1993-2009 Patrick W Daly, original 2009/07/16 source. These components retain independent LPPL version 1 or later; packaging selects LPPL 1.3c: https://www.latex-project.org/lppl/lppl-1-3c.txt. 完整原始 natbib.dtx 随 NOTICE.md 及 raw_data/licenses/components/natbib-8.31/natbib.dtx 提供。
-- Excerpt/page transformation: The listed source-authored claim excerpts are rendered inside a mixed, compiler-generated page. 9份原源文本及其版权、归属、历史修改说明不改；复用现有 TeX 合并与纯文本转换， normalized/document.tex 和33个定位器不改，在 normalized/document.txt 末尾追加唯一署名、 修改/范围说明及 NOTICE.md 链接。附注保存完整 CC BY 4.0、LPPL 1.3c 和未修改的原 natbib.dtx； 未新增或转换原已省略的5份PDF图像，不声称原作者/维护者支持本仓库修改。
-- Scope: 仅实存9份 source 文本（304218 bytes）、normalized/document.tex（109460 bytes）、 附注前93591-byte normalized/document.txt 正文及33个定位器。论文作者材料及其转换按论文 CC BY 4.0； ICLR2025 STY按官方模板 CC BY 4.0，notation保留goodfeli/dlbook_notation原作者自由使用说明和来源； iclr2025_conference.bst、fancyhdr.sty、natbib.sty及随包原 natbib.dtx独立按LPPL条件，选用1.3c。 两份书目文件仅保留引用字段/排版记录，不外推被引用作品全文；不包括原已省略5份PDF图像、 整个归档、外链代码/数据、外部依赖或其他作品。
+- NOTICE: [raw_data/licenses/cc-by-4.0.md](../../../../raw_data/licenses/cc-by-4.0.md)
+- Attribution: Shengran Hu, Cong Lu, Jeff Clune. Automated Design of Agentic Systems. Fixed arXiv 2408.08435v2, https://arxiv.org/abs/2408.08435v2; original PDF https://arxiv.org/pdf/2408.08435v2. CC BY 4.0, https://creativecommons.org/licenses/by/4.0/; full legal code https://creativecommons.org/licenses/by/4.0/legalcode.en. Title, complete author list, fixed version and article license link checked on the official version page on 2026-09-16. Original credits, notices and AI-generated-paper warnings inside the PDF are retained, not converted into repository endorsements.
+- Excerpt/page transformation: The listed source-authored claim excerpts are rendered inside a mixed, compiler-generated page. 原官方 PDF 按下载 bytes 原样保存；使用 pypdf 6.18.1 提取逐页文字，加入明确页边界并生成本地页定位；在派生 text 末尾附唯一署名、修改与范围声明及 NOTICE.md 链接。不编辑原 PDF、不执行其中代码或提示词，不把原生文本当 OCR。既有 source、normalized、selectors、archive revision 和旧归属包均保留。本层是有损预处理，不自动晋升 trusted。
+- Scope: 仅本次从 https://arxiv.org/pdf/2408.08435v2 取得的固定版本官方 PDF（34页，801981 bytes）、其页级提取文本与定位器。覆盖论文编译后主文、参考文献和 PDF 实际内嵌附录/图表，不包含外链论文、数据集、模型、代码仓库或新增源模板。作者/提交者可许可的作品表达沿官方固定版本 CC BY 4.0；保留 PDF 内独立署名、图注和警告，不暗示原作者支持本仓库。旧 TeX 包及其独立组件许可原样保留，本附加包不改其授权范围。原 PDF 完整保存不等于原生文本无损，图内文字、数学、图形与阅读顺序损失另列 coverage。

@@ -91,6 +91,19 @@ class PublicationRightsTests(unittest.TestCase):
                 self.assertEqual(errors, [])
                 self.assertEqual((len(blocked), active, audited), (1, 1, 1))
 
+    def test_undeclared_supplement_pdf_is_not_hidden_by_metadata_tier(self):
+        temporary, root, audit = self.fixture()
+        with temporary:
+            capsule = root / "materialized_sources/corpus/item"
+            (capsule / "pdf-supplement").mkdir()
+            (capsule / "pdf-supplement/document.pdf").write_bytes(b"%PDF-1.4\n")
+            manifest_path = capsule / "manifest.yaml"
+            manifest = yaml.safe_load(manifest_path.read_text())
+            manifest["content_tier"] = "metadata_capsule"
+            manifest_path.write_text(yaml.safe_dump(manifest))
+            errors, _, _, _ = validate_publication_rights(audit, root / "materialized_sources/corpus")
+        self.assertTrue(any("PDF_SUPPLEMENT_UNDECLARED" in error for error in errors))
+
     def test_packaged_allowance_requires_notice_and_attribution(self):
         temporary, root, audit = self.fixture()
         with temporary:

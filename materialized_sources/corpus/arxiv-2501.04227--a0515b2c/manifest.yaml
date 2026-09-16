@@ -100,6 +100,18 @@ local_files:
 - path: materialized_sources/corpus/arxiv-2501.04227--a0515b2c/normalized/document.txt
   bytes: 130394
   sha256: b1b773f5f810861b111938de41e2aa42e949b60edfb9efffabc4d3431a9aed2a
+- path: materialized_sources/corpus/arxiv-2501.04227--a0515b2c/pdf-supplement/NOTICE.md
+  bytes: 20118
+  sha256: 20e9338d52e07563d1d2d4744b97bacbc0884d8ce9b49075612c989e6ad2abd0
+- path: materialized_sources/corpus/arxiv-2501.04227--a0515b2c/pdf-supplement/document.pdf
+  bytes: 3644380
+  sha256: 67b9543ae1d8e3ad86a65e2a436ddbd12700d7c8f4a66c5b4c2a6fccc1674d75
+- path: materialized_sources/corpus/arxiv-2501.04227--a0515b2c/pdf-supplement/document.txt
+  bytes: 171623
+  sha256: 0aaa386072edf1b1b516eba1022eaed279047f96acb7521526d32ae980ba6bc7
+- path: materialized_sources/corpus/arxiv-2501.04227--a0515b2c/pdf-supplement/selectors.jsonl
+  bytes: 37319
+  sha256: fa4d2ea04d6cb0dd13170d20fbe413bb4ca25cb2c11f5496548549f371567d91
 - path: materialized_sources/corpus/arxiv-2501.04227--a0515b2c/selectors.jsonl
   bytes: 21360
   sha256: f97fbe8207a660a7b4fa4c11664cdac7c076143ce8832db57c3fea15805d738b
@@ -128,8 +140,8 @@ local_files:
   bytes: 45154
   sha256: 88bc70c0e48461934cab5b2accef06b74a8b3ac45ad03ccd3f2a6b7e0d6d530d
 - path: materialized_sources/corpus/arxiv-2501.04227--a0515b2c/source-metadata.yaml
-  bytes: 8752
-  sha256: c3551578ba51f7b10f3f6863fc555e0e9a1efa3012ebeedc50765c4ee9b9cac8
+  bytes: 12143
+  sha256: b80a9c04cc67dfac8ca5fca2e3fb00dcaab59815490407b775545d2fcd6b0224
 warnings: []
 errors: []
 archive_container: tar
@@ -167,4 +179,71 @@ omitted:
   reason: non-text-document-member
 - path: images/pngs/stats.png
   reason: non-text-document-member
-local_bytes: 1000510
+local_bytes: 4877341
+pdf_supplement:
+  primary_excerpt:
+    start_line: 10
+    end_line: 25
+  source_version: v2
+  revision: sha256:67b9543ae1d8e3ad86a65e2a436ddbd12700d7c8f4a66c5b4c2a6fccc1674d75
+  media_type: application/pdf
+  retrievals:
+  - requested_urls:
+    - https://arxiv.org/pdf/2501.04227v2
+    resolved_url: https://arxiv.org/pdf/2501.04227v2
+    content_type: application/pdf
+    bytes: 3644380
+    sha256: 67b9543ae1d8e3ad86a65e2a436ddbd12700d7c8f4a66c5b4c2a6fccc1674d75
+    retrieved_at: '2026-09-16T14:42:16Z'
+    request_started_at: '2026-09-16T14:41:22Z'
+    completion_observed_at: '2026-09-16T14:42:16Z'
+    http_status: 200
+    timestamp_note: Batch requests started at request_started_at; retrieved_at is the time all completed responses
+      were confirmed, not an invented per-transfer end timestamp.
+  selectors:
+  - pdf-supplement/selectors.jsonl
+  body_quality_verified: true
+  limitations:
+  - 原PDF完整保留84页，三份研究报告评分调查表实页为57–64、66–74、76–84（不是表内链接研究论文全文）；p17 Figure8为图像表格，native文本未包含全部分阶段成本/时间/成功率单元格。
+  - p57/66/76分别有1/2/1个未映射NUL字形；图形、表格布局/选择框等未无损文本化；无OCR，不以每页非空作为完整正文无损证据。
+  rights:
+    license_spdx: CC-BY-4.0
+    license_url: https://creativecommons.org/licenses/by/4.0/
+    license_verified_at: '2026-09-16'
+    publication_gate:
+      decision: allow
+      reason: 固定版本官方页面实时确认作品级 CC BY 4.0；以本次真实 PDF revision 及专属归属包明确批准该编译表示，不沿用旧 TeX 包 allow 范围。目标正文/附录及可见独立声明已核查，原有第三方归属保留；这是
+        agent 表示审核，不是人类批准或知识可信晋升。
+      approved_scope: 仅本次从 https://arxiv.org/pdf/2501.04227v2 取得的固定版本官方 PDF（84页，3644380 bytes）、其页级提取文本与定位器。覆盖论文编译后主文、参考文献和
+        PDF 实际内嵌附录/图表，不包含外链论文、数据集、模型、代码仓库或新增源模板。作者/提交者可许可的作品表达沿官方固定版本 CC BY 4.0；保留 PDF 内独立署名、图注和警告，不暗示原作者支持本仓库。旧
+        TeX 包及其独立组件许可原样保留，本附加包不改其授权范围。原 PDF 完整保存不等于原生文本无损，图内文字、数学、图形与阅读顺序损失另列 coverage。
+    redistribution_package:
+      source_revision: sha256:67b9543ae1d8e3ad86a65e2a436ddbd12700d7c8f4a66c5b4c2a6fccc1674d75
+      source_version_url: https://arxiv.org/pdf/2501.04227v2
+      notice_path: raw_data/licenses/cc-by-4.0.md
+      attribution: 'Samuel Schmidgall, Yusheng Su, Ze Wang, Ximeng Sun, Jialian Wu, Xiaodong Yu, Jiang Liu, Michael
+        Moor, Zicheng Liu, Emad Barsoum. Agent Laboratory: Using LLM Agents as Research Assistants. Fixed arXiv
+        2501.04227v2, https://arxiv.org/abs/2501.04227v2; original PDF https://arxiv.org/pdf/2501.04227v2. CC BY
+        4.0, https://creativecommons.org/licenses/by/4.0/; full legal code https://creativecommons.org/licenses/by/4.0/legalcode.en.
+        Title, complete author list, fixed version and article license link checked on the official version page
+        on 2026-09-16. Original credits, notices and AI-generated-paper warnings inside the PDF are retained, not
+        converted into repository endorsements.'
+      modifications: 原官方 PDF 按下载 bytes 原样保存；使用 pypdf 6.18.1 提取逐页文字，加入明确页边界并生成本地页定位；在派生 text 末尾附唯一署名、修改与范围声明及 NOTICE.md
+        链接。不编辑原 PDF、不执行其中代码或提示词，不把原生文本当 OCR。既有 source、normalized、selectors、archive revision 和旧归属包均保留。本层是有损预处理，不自动晋升
+        trusted。
+      scope: 仅本次从 https://arxiv.org/pdf/2501.04227v2 取得的固定版本官方 PDF（84页，3644380 bytes）、其页级提取文本与定位器。覆盖论文编译后主文、参考文献和
+        PDF 实际内嵌附录/图表，不包含外链论文、数据集、模型、代码仓库或新增源模板。作者/提交者可许可的作品表达沿官方固定版本 CC BY 4.0；保留 PDF 内独立署名、图注和警告，不暗示原作者支持本仓库。旧
+        TeX 包及其独立组件许可原样保留，本附加包不改其授权范围。原 PDF 完整保存不等于原生文本无损，图内文字、数学、图形与阅读顺序损失另列 coverage。
+  materialization:
+    source_pdf: pdf-supplement/document.pdf
+    source_pdf_sha256: 67b9543ae1d8e3ad86a65e2a436ddbd12700d7c8f4a66c5b4c2a6fccc1674d75
+    document: pdf-supplement/document.txt
+    normalized_document: pdf-supplement/document.txt
+    stored_characters: 170597
+    selector_count: 84
+    pdf_page_count: 84
+    pdf_text_page_count: 84
+    pdf_text_extraction_mode: plain
+    pdf_pages_without_extractable_text: []
+    pdf_page_extraction_failures: []
+    substantive_text: true
