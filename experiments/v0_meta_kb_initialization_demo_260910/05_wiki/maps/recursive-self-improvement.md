@@ -120,7 +120,7 @@ temporal:
   valid_to: null
   as_of: '2026-09-16T04:30:26Z'
 provenance:
-  build_id: build:llm-wiki-v0:b04c61704bd4b7be
+  build_id: build:llm-wiki-v0:096e2cb4557cf60c
   generated_by_agent: pipeline/build_llm_wiki.py
   generated_by_model: null
   prompt_or_skill_version: deterministic-llm-wiki-v0.2
@@ -154,7 +154,7 @@ consumption:
     one_line: Routing map for recursive self improvement sources, questions, and claims.
     short: Routing map for recursive self improvement sources, questions, and claims.
     full: null
-  estimated_tokens: 893
+  estimated_tokens: 1026
   machine_entry_points:
   - ../../04_claims/claims.jsonl
   - ../../03_evidence/evidence.jsonl
@@ -169,10 +169,20 @@ rendered_claim_refs:
 - claim:d38b49dc4376d4b0
 - claim:f43359e01e4c4b0b
 - claim:f810d086e0a4a305
-rights_refs: []
+rights_refs:
+- source_uid: arxiv:2505.22954
+  source_revision: sha256:9ce27273d9175badbb14d1181bc6166c7afd5e7989ac274d3d5187413e19b9ed
+  source_version_url: https://arxiv.org/abs/2505.22954v3
+  license_spdx: CC-BY-4.0
+  license_url: https://creativecommons.org/licenses/by/4.0/
+  notice_path: raw_data/licenses/dgm-v3-cc-by-4.0-iclr-adaptation-lppl-1.3c-natbib-source.md
+  package_path: materialized_sources/corpus/arxiv-2505.22954--8a7041cb/manifest.yaml#rights.redistribution_package
+  usage: rendered_source_claims
+  transformation: The listed source-authored claim excerpts are rendered inside a mixed, compiler-generated page.
+  claim_refs:
+  - claim:ae45b8d667e29552
 rights_unavailable_source_refs:
 - arxiv:2410.04444
-- arxiv:2505.22954
 - arxiv:cs/0309048
 - github:jennyzzt/dgm
 ---
@@ -230,12 +240,18 @@ The map routes candidate evidence; it does not flatten sources into consensus or
 
 The terms below apply only to the listed source-authored claim components. They do not relicense collector assessments, compiler synthesis, other source components, or this repository as a whole.
 
-### Goedel Agent: A Self-Referential Agent Framework for Recursive Self-Improvement (`arxiv:2410.04444`)
-
-- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
-- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.
-
 ### Darwin Godel Machine: Open-Ended Evolution of Self-Improving Agents (`arxiv:2505.22954`)
+
+- Components: `claim:ae45b8d667e29552`
+- Source revision: `sha256:9ce27273d9175badbb14d1181bc6166c7afd5e7989ac274d3d5187413e19b9ed`
+- Source version: [pinned upstream version](https://arxiv.org/abs/2505.22954v3)
+- License: [CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/)
+- NOTICE: [raw_data/licenses/dgm-v3-cc-by-4.0-iclr-adaptation-lppl-1.3c-natbib-source.md](../../../../raw_data/licenses/dgm-v3-cc-by-4.0-iclr-adaptation-lppl-1.3c-natbib-source.md)
+- Attribution: Jenny Zhang, Shengran Hu, Cong Lu, Robert Lange, Jeff Clune, Darwin Godel Machine: Open-Ended Evolution of Self-Improving Agents, arXiv:2505.22954v3 (2026-03-12), https://arxiv.org/abs/2505.22954v3, CC BY 4.0: https://creativecommons.org/licenses/by/4.0/. ICLR, Template for ICLR 2025 Conference Submission, CC BY 4.0, https://www.overleaf.com/latex/templates/template-for-iclr-2025-conference-submission/gqzkdyycxtvt; retain Hugo Larochelle's NIPS-style adaptation credit. Official ICLR2026 copy at https://github.com/ICLR/Master-Template/commit/067b60c3985bd549c8b1afabb426a007905cea46 changes two year labels; local STY additionally centers the author table (l→c), modifier unknown. BST: Copyright 2010 Hal Daum\'e III, J. Fürnkranz label modifications, Copyright 1993-2007 Patrick W Daly; fancyhdr 3.2: Piet van Oostrum; natbib 8.31: Copyright 1993-2009 Patrick W Daly, 2009/07/16 original source. Components retain independent LPPL version 1 or later, selecting LPPL 1.3c: https://www.latex-project.org/lppl/lppl-1-3c.txt. 完整原 natbib.dtx 随 NOTICE.md 及 raw_data/licenses/components/natbib-8.31/natbib.dtx 提供； 00README.json 是 arXiv 自动编译元数据，按 https://info.arxiv.org/help/policies/submission_agreement.html#metadata-license 的CC0范围单列。
+- Excerpt/page transformation: The listed source-authored claim excerpts are rendered inside a mixed, compiler-generated page. 34份源文本及原版权、归属和历史修改不改；复用现有 TeX 合并与纯文本转换， normalized/document.tex 和77个定位器不改，normalized/document.txt 仅在文末追加唯一署名、 修改/范围说明及 NOTICE.md 链接。ICLR模板的两处年份变化和作者表格l→c是已披露既存差异， 不虚构修改者或本仓库实施历史；完整法律文本及原 natbib.dtx 伴随保存，不声称维护者支持本仓库修改。
+- Scope: 仅34份实存 source 文本（390140 bytes）、normalized/document.tex（227665 bytes）、 附注前190099-byte normalized/document.txt 正文和77个定位器。论文作者发布的正文、附录、 Agent代码/提示/差异与模型样例及其转换按论文BY4；ICLR模板表达和已披露改编按原2025模板BY4； BST、fancyhdr、natbib与伴随原dtx独立按LPPL条件，选择1.3c；arXiv编译元数据单列CC0。 main.bib只保留书目字段，没有额外abstract/copyright字段，不授权被引作品全文； 不包括原已省略10份PDF图像、未保存的math_commands/gdm_format组件、整个归档、外链代码/数据或外部依赖。
+
+### Goedel Agent: A Self-Referential Agent Framework for Recursive Self-Improvement (`arxiv:2410.04444`)
 
 - Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
 - Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.
