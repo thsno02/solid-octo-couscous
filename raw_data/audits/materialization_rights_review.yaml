@@ -7,13 +7,28 @@ scope:
   baseline_index: materialized_sources/index.yaml
   selection: content_tier == full_text at baseline commit
   baseline_full_text_count: 91
-  additional_full_text_review_count: 3
-  additional_review_uids: ['standard:ro-crate-1.2', 'standard:sssom', 'standard:w3c-community-dpv']
+  additional_full_text_review_count: 9
+  additional_review_uids:
+  - standard:ro-crate-1.2
+  - standard:sssom
+  - standard:w3c-community-dpv
+  - doi:10.1038/sdata.2016.18
+  - journal-doi-10.1038-s41586-022-05172-4
+  - journal-doi-10.1038-s41586-023-06004-9
+  - journal-doi-10.1038-s41586-023-06734-w
+  - journal-doi-10.1038-s41586-023-06924-6
+  - journal:10.1038/s41586-023-06792-0
   source_type_counts:
     arxiv: 73
     methodology: 1
+    standard: 20
+    journal: 6
+  note: 固定历史基线91条及后续三个SPEC/CANON审阅共94条原对象完全保留。P3-JOURNAL-01新增六UID的表示级审阅，使review行合计100；新root revision仍指旧excerpt且gate
+    unknown，不重批旧摘录。六main PDF及五精确SI获得各自作品/版本/URL/字节绑定的独立grant与完整NOTICE，旧根门控和新表示allow分别计数。额外review_count是结构行数，不是新增九个根级allow或全文获取完成数。全库旧两项包不一致仍P4待办。
+  baseline_source_type_counts:
+    arxiv: 73
+    methodology: 1
     standard: 17
-  note: 固定覆盖 ee43cb3 的91条历史基线；后续降级不删除历史行。P3-SPEC-01新增RO-Crate，P3-SPEC-02新增SSSOM1.0，P3-CANON-01新增DPV2.3固定核心原稿与实引SVG许可审阅，合计94条；本批不追溯改变基线分母或原93条判断。DPV当前四方package、完整NOTICE及唯一末注实际履约通过，仅放行明确固定核心包；全库旧两项包不一致仍P4待办。
 decision_model:
   documented_permission: 权威证据对目标作品明确授予公众复制/再分发权；不表示当前发布包已履约。
   permission_unverified: 未找到适用于公众/本仓库的明确授权；unknown、metadata_only、可下载或平台托管均不等于授权。
@@ -22,19 +37,19 @@ decision_model:
 summary:
   classification_counts:
     documented_permission: 57
-    permission_unverified: 37
+    permission_unverified: 43
   recommendation_counts:
-    allow_after_conditions_met: 28
-    do_not_redistribute_full_text: 37
     allow_with_packaged_notice: 29
+    do_not_redistribute_full_text: 37
+    allow_after_conditions_met: 28
+    only_independently_reviewed_representations: 6
   publication_gate_counts:
-    block: 65
     allow: 29
+    block: 65
+    unknown: 6
   license_evidence_counts:
-    BSD-3-Clause: 1
-    Apache-2.0 AND CC0-1.0: 1
     CC-BY-4.0: 28
-    none: 37
+    none: 43
     CC-BY-SA-4.0: 2
     CC-BY-NC-SA-4.0: 4
     CC-BY-NC-ND-4.0: 2
@@ -44,6 +59,8 @@ summary:
     W3C-Software-and-Document-License-2015: 4
     W3C-Document-License-2015: 3
     CC-BY-SA-3.0: 1
+    Apache-2.0 AND CC0-1.0: 1
+    BSD-3-Clause: 1
   key_findings:
   - 91/91 manifest 在基线均写 full_text_redistribution_assumed=true；该字段从不作为授权。
   - 73 篇 arXiv 中32篇官方文章页提供CC许可；WikiChat另由作者exact v2 camera-ready声明与ACL许可形成作者正文授权链，RE-Net、RARR及ResearchAgent另由固定payload与正式ACL出版表达对应形成作者正文BY4路径，其余37篇仍缺适用公众许可证据。arXiv
@@ -51,6 +68,20 @@ summary:
   - 14 份 W3C 文档都有许可；7 份旧式许可对 HTML→Markdown 仍需衍生权审查。
   - LinkML、Apache Ossie、ODCS 有 Apache-2.0 证据；Schema.org supporting documentation 有 CC BY-SA 3.0 证据。
   - 基线91项中7项W3C、ODCS 3.2.0定义首页、16项arXiv、LinkML单页及Schema.org既有文档快照已完成当前revision与NOTICE包装，26项allow；其余65项仍block（当前活跃全文64项block，其中37项缺许可、27项待履约）。
+  - P3-JOURNAL-01六新root只描述旧excerpt，保持unknown/未核根许可；新六main+五SI均独立有界allow，不能把表示级grant合并到根门控或当作无损文本/trusted完成。当前官方2026
+    Article定义只佐证SI范围，不冒称作者签过示例；AlphaDev SI Appendix G代码保留Apache2.0 AND BY4局部条件。
+  independent_representation_review_counts:
+    pdf_supplement: 17
+    supplementary_information: 5
+  independent_representation_publication_gate_counts:
+    allow: 22
+  independent_representation_license_counts:
+    CC-BY-4.0: 19
+    CC-BY-SA-4.0: 2
+    CC-BY-4.0 AND Apache-2.0: 1
+  new_journal_representation_counts:
+    pdf_supplement: 6
+    supplementary_information: 5
 review_completion:
   evidence_review_complete_for_baseline: true
   legal_clearance_complete: false
@@ -9436,3 +9467,704 @@ items:
 - {"sequence":92,"uid":"standard:ro-crate-1.2","source_type":"standard","title":"RO-Crate 1.2","manifest_path":"materialized_sources/corpus/standard-ro-crate-1.2--10d98d26/manifest.yaml","metadata_path":"raw_data/standard/RO-Crate 1.2/metadata.yaml","capsule_root":"materialized_sources/corpus/standard-ro-crate-1.2--10d98d26","stored_full_text_paths":["materialized_sources/corpus/standard-ro-crate-1.2--10d98d26/source/specification/1.2/document.md","materialized_sources/corpus/standard-ro-crate-1.2--10d98d26/source/specification/1.2/document.html","materialized_sources/corpus/standard-ro-crate-1.2--10d98d26/normalized/document.md"],"baseline_content_tier":"metadata_capsule","baseline_status":"metadata_only","review_cohort":"P3-SPEC-01 additional fixed-version full text","source_revision":"sha256:a486c78d006e7a1f33ef530320e991e99a4a2b1e4eb303104618180e6cb99c2a","canonical_url":"https://www.researchobject.org/ro-crate/specification/1.2/","checks":[{"kind":"official_fixed_specification_rights","url":"https://github.com/ResearchObject/ro-crate/releases/download/1.2.0/ro-crate-1.2.0.md","checked_at":"2026-09-16","finding":"Official specification 1.2 release1.2.0 Markdown/HTML explicitly give Apache-2.0, complete contributors and chapter copyrights; JSON-LD examples CC0. Both originals retained unchanged; not inferred from a nearby repository license.","supports_public_redistribution":true},{"kind":"referenced_assets_fixed_tag","url":"https://github.com/ResearchObject/ro-crate/tree/dc42c230937b872710bae187b1b5bf51a3b494d2/docs/assets/img","checked_at":"2026-09-16","finding":"Precisely four images actually referenced in the official 1.2 body retained at same tag commit. crate1-folders.svg embeds CC0 plus Stian Soiland-Reyes/Eli Chadwick credit. Existing illustration 1.1 label versus normative1.2 recorded without editing. No separately named NOTICE in fixed tree.","supports_public_redistribution":true}],"missing":[],"classification":"documented_permission","license_id":"Apache-2.0 AND CC0-1.0","license_url":"https://www.apache.org/licenses/LICENSE-2.0","license_scope":"Fixed RO-Crate 1.2 specification release 1.2.0: complete official Markdown and HTML (all main chapters, four appendices, references and footnote), plus precisely crate1-folders.svg, introduction-figure-1.png, introduction-figure-2.png and ro-crate-preview-example.png from tag commit dc42c230937b872710bae187b1b5bf51a3b494d2; derived local Markdown and section selectors. Excludes other versions, tutorials, datasets, external context service and recursive references.","license_restrictions":["Apache notice and modification conditions retained; examples/SVG CC0 scope kept distinct; no trademark/patent guarantee."],"evidence_confidence":"high","public_redistribution_recommendation":"allow_with_packaged_notice","conditions":["Complete Apache-2.0 and CC0 notices, original full authors/chapter copyrights, source links and modification statement retained.","Actual Markdown revision and exact fixed-release representations plus four named assets bound to this package; later versions do not inherit."],"current_capsule_compliance":"verified_revision_and_notice_packaged","publication_gate":{"decision":"allow","reason":"Official fixed specification grant and explicit example/SVG CC0 scopes apply to retained actual body; full notices, authorship and scoped transformations preserved. This is an agent evidence/packaging decision, not human approval.","approved_scope":"Fixed RO-Crate 1.2 specification release 1.2.0: complete official Markdown and HTML (all main chapters, four appendices, references and footnote), plus precisely crate1-folders.svg, introduction-figure-1.png, introduction-figure-2.png and ro-crate-preview-example.png from tag commit dc42c230937b872710bae187b1b5bf51a3b494d2; derived local Markdown and section selectors. Excludes other versions, tutorials, datasets, external context service and recursive references."},"human_follow_up":[],"redistribution_package":{"source_revision":"sha256:a486c78d006e7a1f33ef530320e991e99a4a2b1e4eb303104618180e6cb99c2a","source_version_url":"https://github.com/ResearchObject/ro-crate/releases/download/1.2.0/ro-crate-1.2.0.md","notice_path":"raw_data/licenses/ro-crate-1.2-apache-2.0-cc0-1.0.md","attribution":"RO-Crate Metadata Specification 1.2 (release 1.2.0, Published 2025-06-04), Research Object community / RO-Crate contributors; editors Peter Sefton and Stian Soiland-Reyes. Copyright 2017–2025 University of Technology Sydney, The University of Manchester UK and RO-Crate contributors; complete author/ORCID list and chapter notices retained in source and derived text. Specification: https://w3id.org/ro/crate/1.2 ; Apache-2.0 applies to specification; JSON-LD examples and crate1-folders.svg are CC0-1.0 (SVG creator Stian Soiland-Reyes, contributor Eli Chadwick). See NOTICE for exact original links and full licenses.","modifications":"Official release Markdown and single-page HTML plus four fixed-tag images retained unchanged; derived Markdown changes only four img src paths for local resolution and appends this redistribution notice. Setext/ATX chapter line selectors added; no prose, code, table or image content edited, no OCR. Native Pandoc syntax and documented upstream link/illustration inconsistencies retained.","scope":"Fixed RO-Crate 1.2 specification release 1.2.0: complete official Markdown and HTML (all main chapters, four appendices, references and footnote), plus precisely crate1-folders.svg, introduction-figure-1.png, introduction-figure-2.png and ro-crate-preview-example.png from tag commit dc42c230937b872710bae187b1b5bf51a3b494d2; derived local Markdown and section selectors. Excludes other versions, tutorials, datasets, external context service and recursive references."},"clearance_review":{"kind":"agent_evidence_and_packaging_review","human_approval_claimed":false,"scope":"Fixed RO-Crate 1.2 specification release 1.2.0: complete official Markdown and HTML (all main chapters, four appendices, references and footnote), plus precisely crate1-folders.svg, introduction-figure-1.png, introduction-figure-2.png and ro-crate-preview-example.png from tag commit dc42c230937b872710bae187b1b5bf51a3b494d2; derived local Markdown and section selectors. Excludes other versions, tutorials, datasets, external context service and recursive references."},"conditions_fulfilled":["Original HTML/Markdown and four actually referenced graphics retained; no recursive citation/data/runtime acquisition.","Consumer changes only four local img paths plus EOF notice; original assets bytes unchanged."]}
 - {"sequence":93,"uid":"standard:sssom","source_type":"standard","title":"Simple Standard for Sharing Ontological Mappings (SSSOM)","manifest_path":"materialized_sources/corpus/standard-sssom--c7cd4e5f/manifest.yaml","metadata_path":"raw_data/standard/SSSOM Simple Standard for Sharing Ontological Mappings/metadata.yaml","capsule_root":"materialized_sources/corpus/standard-sssom--c7cd4e5f","stored_full_text_paths":["materialized_sources/corpus/standard-sssom--c7cd4e5f/source/src/docs/spec-intro.md","materialized_sources/corpus/standard-sssom--c7cd4e5f/source/src/docs/spec-model.md","materialized_sources/corpus/standard-sssom--c7cd4e5f/source/src/docs/chaining-rules.md","materialized_sources/corpus/standard-sssom--c7cd4e5f/source/src/docs/spec-formats.md","materialized_sources/corpus/standard-sssom--c7cd4e5f/source/src/docs/spec-formats-tsv.md","materialized_sources/corpus/standard-sssom--c7cd4e5f/source/src/docs/spec-formats-owl.md","materialized_sources/corpus/standard-sssom--c7cd4e5f/source/src/docs/spec-formats-json.md","materialized_sources/corpus/standard-sssom--c7cd4e5f/source/src/sssom_schema/schema/sssom_schema.yaml","materialized_sources/corpus/standard-sssom--c7cd4e5f/source/rendered/1.0/Mapping.html","materialized_sources/corpus/standard-sssom--c7cd4e5f/source/rendered/1.0/MappingSet.html","materialized_sources/corpus/standard-sssom--c7cd4e5f/normalized/document.md"],"baseline_content_tier":"metadata_capsule","baseline_status":"metadata_only","review_cohort":"P3-SPEC-02 additional fixed-version specification","source_revision":"git:658de421c21a686f1213ff41879c9245ac0b4925","canonical_url":"https://mapping-commons.github.io/sssom/1.0/spec-intro/","checks":[{"kind":"fixed_distribution_license","url":"https://github.com/mapping-commons/sssom/blob/658de421c21a686f1213ff41879c9245ac0b4925/LICENSE","checked_at":"2026-09-16","finding":"Complete fixed-commit BSD-3-Clause license retains Copyright (c) 2022, Nico Matentzoglu, all three conditions and disclaimer.","supports_public_redistribution":true},{"kind":"explicit_same_distribution_scope","url":"https://github.com/mapping-commons/sssom/blob/658de421c21a686f1213ff41879c9245ac0b4925/README.md#copying","checked_at":"2026-09-16","finding":"Copying explicitly applies BSD3 to SSSOM distribution and names sssom-banner.png as exception. That banner is neither a body image nor acquired. Schema license slot and TSV example license values are data, not the overall grant. Seven actual normative/navigation MD and complete authoritative schema plus bounded versioned class snapshots covered; no unrelated tools/datasets/whole site.","supports_public_redistribution":true}],"missing":[],"classification":"documented_permission","license_id":"BSD-3-Clause","license_url":"https://github.com/mapping-commons/sssom/blob/658de421c21a686f1213ff41879c9245ac0b4925/LICENSE","license_scope":"Fixed commit 658de421c21a686f1213ff41879c9245ac0b4925: src/docs/spec-intro.md, spec-model.md, spec-formats.md, spec-formats-tsv.md, spec-formats-owl.md, spec-formats-json.md, chaining-rules.md, src/sssom_schema/schema/sssom_schema.yaml; provenance LICENSE/mkdocs.yml, plus official versioned 1.0 Mapping and MappingSet HTML snapshots for the normative Slots order; derived local assembly and selectors. Excludes banner, tutorials, mapping datasets, tools, other versions, external LinkML runtime/types and recursive references.","license_restrictions":["Retain copyright, conditions and disclaimer; no author/contributor endorsement; named banner exception excluded."],"evidence_confidence":"high","public_redistribution_recommendation":"allow_with_packaged_notice","conditions":["Complete BSD3 copyright, conditions and disclaimer retained with original source attribution.","Fixed eight body sources bound individually to inventory/retrieval and Git snapshot; versioned HTML provenance separate from fixed tag.","Collector assembly and local link routing explicitly marked derived; no semantic correction or runtime/citation acquisition."],"current_capsule_compliance":"verified_revision_and_notice_packaged","publication_gate":{"decision":"allow","reason":"Fixed upstream LICENSE and explicit same-distribution Copying scope cover selected specification representations; named banner excluded, full conditions and modification disclosure packaged. Agent evidence/packaging judgment, not human approval.","approved_scope":"Fixed commit 658de421c21a686f1213ff41879c9245ac0b4925: src/docs/spec-intro.md, spec-model.md, spec-formats.md, spec-formats-tsv.md, spec-formats-owl.md, spec-formats-json.md, chaining-rules.md, src/sssom_schema/schema/sssom_schema.yaml; provenance LICENSE/mkdocs.yml, plus official versioned 1.0 Mapping and MappingSet HTML snapshots for the normative Slots order; derived local assembly and selectors. Excludes banner, tutorials, mapping datasets, tools, other versions, external LinkML runtime/types and recursive references."},"human_follow_up":[],"redistribution_package":{"source_revision":"git:658de421c21a686f1213ff41879c9245ac0b4925","source_version_url":"https://github.com/mapping-commons/sssom/tree/658de421c21a686f1213ff41879c9245ac0b4925","notice_path":"raw_data/licenses/sssom-1.0-bsd-3-clause.md","attribution":"SSSOM 1.0 specification, release v1.0.0; Mapping Commons / SSSOM contributors. Copyright (c) 2022, Nico Matentzoglu. BSD 3-Clause License; full copyright, conditions and disclaimer retained in NOTICE. Fixed upstream README Copying covers this distribution except sssom-banner.png, which is not included. No author endorsement is implied.","modifications":"Seven official Markdown originals and authoritative schema YAML retained byte-identically. Collector assembly explicitly separates original files, retains schema as YAML and represents its complete text in a labelled YAML fence; only derived local link routing, source boundaries, selectors and attribution are added. Two versioned official class HTML snapshots retained as bounded Slots-order corroboration, not merged navigation or website runtime. No prose, tabs, code, invalid examples or upstream inconsistencies corrected; no OCR or LinkML execution.","scope":"Fixed commit 658de421c21a686f1213ff41879c9245ac0b4925: src/docs/spec-intro.md, spec-model.md, spec-formats.md, spec-formats-tsv.md, spec-formats-owl.md, spec-formats-json.md, chaining-rules.md, src/sssom_schema/schema/sssom_schema.yaml; provenance LICENSE/mkdocs.yml, plus official versioned 1.0 Mapping and MappingSet HTML snapshots for the normative Slots order; derived local assembly and selectors. Excludes banner, tutorials, mapping datasets, tools, other versions, external LinkML runtime/types and recursive references."},"clearance_review":{"kind":"agent_evidence_and_packaging_review","human_approval_claimed":false,"scope":"Fixed commit 658de421c21a686f1213ff41879c9245ac0b4925: src/docs/spec-intro.md, spec-model.md, spec-formats.md, spec-formats-tsv.md, spec-formats-owl.md, spec-formats-json.md, chaining-rules.md, src/sssom_schema/schema/sssom_schema.yaml; provenance LICENSE/mkdocs.yml, plus official versioned 1.0 Mapping and MappingSet HTML snapshots for the normative Slots order; derived local assembly and selectors. Excludes banner, tutorials, mapping datasets, tools, other versions, external LinkML runtime/types and recursive references."},"conditions_fulfilled":["Full BSD3 license and attribution stored in repo and copied to capsule NOTICE, with derived footer.","Seven Markdown and authoritative YAML originals retained byte-identically; collector assembly preserves code, tabs, invalid examples and upstream limitations.","Two versioned 1.0 HTML Slots tables independently agree with schema class ordering; no claim of complete site/runtime capture."]}
 - {"sequence":94,"uid":"standard:w3c-community-dpv","source_type":"standard","title":"Data Privacy Vocabulary (DPV)","manifest_path":"materialized_sources/corpus/standard-w3c-community-dpv--680969de/manifest.yaml","metadata_path":"raw_data/standard/Data Privacy Vocabulary DPV/metadata.yaml","capsule_root":"materialized_sources/corpus/standard-w3c-community-dpv--680969de","stored_full_text_paths":["materialized_sources/corpus/standard-w3c-community-dpv--680969de/source/2.3/dpv/dpv.html","materialized_sources/corpus/standard-w3c-community-dpv--680969de/source/2.3/dpv/modules/TOM.html","materialized_sources/corpus/standard-w3c-community-dpv--680969de/source/2.3/dpv/modules/context.html","materialized_sources/corpus/standard-w3c-community-dpv--680969de/source/2.3/dpv/modules/entities.html","materialized_sources/corpus/standard-w3c-community-dpv--680969de/source/2.3/dpv/modules/legal_basis.html","materialized_sources/corpus/standard-w3c-community-dpv--680969de/source/2.3/dpv/modules/personal_data.html","materialized_sources/corpus/standard-w3c-community-dpv--680969de/source/2.3/dpv/modules/process.html","materialized_sources/corpus/standard-w3c-community-dpv--680969de/source/2.3/dpv/modules/processing.html","materialized_sources/corpus/standard-w3c-community-dpv--680969de/source/2.3/dpv/modules/purposes.html","materialized_sources/corpus/standard-w3c-community-dpv--680969de/source/2.3/dpv/modules/rights.html","materialized_sources/corpus/standard-w3c-community-dpv--680969de/source/2.3/dpv/modules/risk.html","materialized_sources/corpus/standard-w3c-community-dpv--680969de/source/2.3/dpv/modules/rules.html","materialized_sources/corpus/standard-w3c-community-dpv--680969de/normalized/document.md"],"stored_original_asset_paths":["materialized_sources/corpus/standard-w3c-community-dpv--680969de/source/2.3/diagrams/Automation_Human_Involvement.svg","materialized_sources/corpus/standard-w3c-community-dpv--680969de/source/2.3/diagrams/Consent.svg","materialized_sources/corpus/standard-w3c-community-dpv--680969de/source/2.3/diagrams/Context.svg","materialized_sources/corpus/standard-w3c-community-dpv--680969de/source/2.3/diagrams/Data_Source.svg","materialized_sources/corpus/standard-w3c-community-dpv--680969de/source/2.3/diagrams/Entities.svg","materialized_sources/corpus/standard-w3c-community-dpv--680969de/source/2.3/diagrams/Entities_description.svg","materialized_sources/corpus/standard-w3c-community-dpv--680969de/source/2.3/diagrams/Entity_Involvement.svg","materialized_sources/corpus/standard-w3c-community-dpv--680969de/source/2.3/diagrams/OrganisationalMeasure.svg","materialized_sources/corpus/standard-w3c-community-dpv--680969de/source/2.3/diagrams/PersonalData.svg","materialized_sources/corpus/standard-w3c-community-dpv--680969de/source/2.3/diagrams/Processing_Scale.svg","materialized_sources/corpus/standard-w3c-community-dpv--680969de/source/2.3/diagrams/Rules.svg","materialized_sources/corpus/standard-w3c-community-dpv--680969de/source/2.3/diagrams/TechnicalMeasure.svg","materialized_sources/corpus/standard-w3c-community-dpv--680969de/source/2.3/diagrams/contract_states.svg","materialized_sources/corpus/standard-w3c-community-dpv--680969de/source/2.3/diagrams/legal_bases.svg","materialized_sources/corpus/standard-w3c-community-dpv--680969de/source/2.3/diagrams/overview-dpv-2.0.svg","materialized_sources/corpus/standard-w3c-community-dpv--680969de/source/2.3/diagrams/overview_Data.svg","materialized_sources/corpus/standard-w3c-community-dpv--680969de/source/2.3/diagrams/overview_Entity_Involvement.svg","materialized_sources/corpus/standard-w3c-community-dpv--680969de/source/2.3/diagrams/overview_Location.svg","materialized_sources/corpus/standard-w3c-community-dpv--680969de/source/2.3/diagrams/overview_Storage.svg","materialized_sources/corpus/standard-w3c-community-dpv--680969de/source/2.3/diagrams/overview_TechnicalOrganisationalMeasure.svg","materialized_sources/corpus/standard-w3c-community-dpv--680969de/source/2.3/diagrams/overview_processing_context.svg","materialized_sources/corpus/standard-w3c-community-dpv--680969de/source/2.3/diagrams/process.svg","materialized_sources/corpus/standard-w3c-community-dpv--680969de/source/2.3/diagrams/processing.svg","materialized_sources/corpus/standard-w3c-community-dpv--680969de/source/2.3/diagrams/purpose-2.svg","materialized_sources/corpus/standard-w3c-community-dpv--680969de/source/2.3/diagrams/rights.svg","materialized_sources/corpus/standard-w3c-community-dpv--680969de/source/2.3/diagrams/risk.svg"],"baseline_content_tier":"excerpt_capsule","baseline_status":"partial","review_cohort":"P3-CANON-01 additional fixed-version DPV core specification","source_revision":"git:cbcd21567808812677eeb3bb0f05b2ff2c2211a5","canonical_url":"https://w3id.org/dpv/2.3/dpv","observed_rights":{"source_metadata":{"access":"open","license_spdx":"W3C-20150513","license_url":"https://github.com/w3c-cg/dpv/blob/cbcd21567808812677eeb3bb0f05b2ff2c2211a5/LICENSE.md","license_verified_at":"2026-09-16","notes":"固定提交 LICENSE 明确覆盖贡献者提供的 documents/resources，采用 W3C Software and Document 2023；SPDX 沿用 W3C-20150513。保留完整通知、作者/贡献者/资助声明和派生说明；不是 W3C Recommendation 或作者背书，不代表 trusted。"},"historical_manifest":{"content_tier":"excerpt_capsule","status":"partial","canonical_url":"https://w3c.github.io/dpv/","source_revision":"sha256:584f3e698619b772e5285ed302c5acc0ee9d8967701d13343af44f4cfdd0a741","declared_access":"unknown","full_text_redistribution_assumed":false,"stored_characters":39,"assessment":"PR12物化前的历史错误canonical和39字符excerpt；保留旧记录，不当作固定2.3原稿或新许可包的内容/包装证据。"}},"checks":[{"kind":"fixed_distribution_license","path":"materialized_sources/corpus/standard-w3c-community-dpv--680969de/source/LICENSE.md","url":"https://github.com/w3c-cg/dpv/blob/cbcd21567808812677eeb3bb0f05b2ff2c2211a5/LICENSE.md","locator":"L1 documents/resources; L11–15 grant/conditions; L19–23 disclaimers/no endorsement; L27 2023 version","checked_at":"2026-09-17","finding":"已直接读取完整固定LICENSE.md（2,489 bytes）；L1明确贡献者提供的documents and resources适用W3C Software and Document License 2023，L11明确复制、修改和分发授权。不是由相邻代码许可猜测正文授权。","supports_public_redistribution":true},{"kind":"fixed_core_body_and_direct_assets_scope","path":"materialized_sources/corpus/standard-w3c-community-dpv--680969de/source","checked_at":"2026-09-17","finding":"本writer实际盘点39源文件：12份HTML（core首页及11明确full-definition模块）、26张直接引用SVG和LICENSE.md。继承主线程/content agents对这组实际原稿/图的有界核查：未见相反独立声明；不声称逐组件历史考古、全网站或扩展许可审计。","supports_public_redistribution":true},{"kind":"complete_notice_and_spdx_version_mapping","path":"raw_data/licenses/dpv-2.3-w3c-2023.md","locator":"固定提交 LICENSE.md — 完整原文; 署名与边界; 修改说明","checked_at":"2026-09-17","finding":"仓库完整NOTICE逐字包含已保留固定LICENSE.md，保留六名原作者、编辑与完整原稿贡献者/逐术语credit/资助范围、免责声明及修改披露。SPDX W3C-20150513覆盖2023更新的事实由主线程已读官方SPDX条目继承；本writer不声称新联网核验。机器SPDX与实际2023正文版本分别表达。","supports_public_redistribution":true},{"kind":"historical_pre_materialization_package_proposal","path":"raw_data/standard/Data Privacy Vocabulary DPV/metadata.yaml","locator":"rights.redistribution_package","checked_at":"2026-09-17","finding":"物化前已将固定六字段package精确复制metadata；当时manifest/NOTICE/footer尚待本批物化校验的观察作为历史保留，不描述当前状态。此后实际包装一致性已完成，见下条verified_revision_and_notice_packaging。","supports_public_redistribution":true},{"kind":"verified_revision_and_notice_packaging","path":"materialized_sources/corpus/standard-w3c-community-dpv--680969de","locator":"manifest.rights.redistribution_package; source-metadata.rights.redistribution_package; NOTICE.md; normalized/document.md L43106–43115","checked_at":"2026-09-17","finding":"本writer实际只读比对metadata/capsule/manifest/audit六字段package完全相等并绑定固定git revision，胶囊完整NOTICE与仓库资产同字节，消费者恰有唯一精确署名/修改/范围末注。46inventory/local_bytes9690759齐且tracked；39源6646341B原样，主线程实际publication检查DPV errors/blocks均空。主线程候选无.git树两次禁网派生47files byteequal，本writer独立核47文件0byte差异。仅本UID履约通过，全库旧两项包错误另保留。","supports_public_redistribution":true}],"missing":[],"classification":"documented_permission","license_id":"W3C-Software-and-Document-License-2023","license_spdx":"W3C-20150513","license_url":"https://www.w3.org/copyright/software-license-2023/","license_scope":"Fixed commit cbcd21567808812677eeb3bb0f05b2ff2c2211a5 / tag dpv-2.3: 2.3/dpv/dpv.html plus core modules TOM, context, entities, legal_basis, personal_data, process, processing, purposes, rights, risk and rules; exactly twenty-six SVGs referenced by these twelve pages, LICENSE.md, derived text and selectors. Excludes extensions (including PD, RISK and LEGAL), primer, datasets, RDF/CSV serializations, other releases, scripts/styles and recursive external references.","license_restrictions":["在所有复制/派生部分可见地保留完整NOTICE及既有知识产权声明；无既有声明处附W3C短通知。","披露派生、链接路由和文本提取限制；不暗示原权利人、W3C、作者或机构背书，不许可名称/商标宣传或保证第三方专利/版权。","只绑定明确固定DPV2.3核心页/11模块与26实引SVG；不扩张外链引用、扩展、RDF/runtime或其他版本。"],"evidence_confidence":"high","public_redistribution_recommendation":"allow_with_packaged_notice","conditions":["完整固定LICENSE、NOTICE、原作作者/贡献者/逐术语credit/资助与免责声明随包可见保留。","metadata、capsule source-metadata、manifest及本审计的六字段package对象一致，并绑定固定source_revision和实际本地内容。","派生消费者须保留唯一完整署名/修改/范围末注及NOTICE链接；通过既有publication检查后方可发布实际全文。","所有原HTML/SVG原样保留，消费者为有界派生；图形箭头/分组/位图未完整文字化如实记partial，不由公开许可升级trusted。"],"current_capsule_compliance":"verified_revision_and_notice_packaged","publication_gate":{"decision":"allow","reason":"固定LICENSE明确覆盖贡献者documents/resources并允许复制/修改/分发；仅放行固定DPV2.3核心12HTML/26实引SVG/LICENSE与标明图形语义partial的本地派生/定位。四方package、固定revision、完整NOTICE和唯一精确末注实际核对通过，DPV publication errors/blocks为空；旧39字符历史excerpt保留不冒充新原稿。Agent证据/包装判断，不是human approval，不声明全库零错或trusted。","approved_scope":"Fixed commit cbcd21567808812677eeb3bb0f05b2ff2c2211a5 / tag dpv-2.3: 2.3/dpv/dpv.html plus core modules TOM, context, entities, legal_basis, personal_data, process, processing, purposes, rights, risk and rules; exactly twenty-six SVGs referenced by these twelve pages, LICENSE.md, derived text and selectors. Excludes extensions (including PD, RISK and LEGAL), primer, datasets, RDF/CSV serializations, other releases, scripts/styles and recursive external references."},"human_follow_up":[],"redistribution_package":{"source_revision":"git:cbcd21567808812677eeb3bb0f05b2ff2c2211a5","source_version_url":"https://github.com/w3c-cg/dpv/tree/cbcd21567808812677eeb3bb0f05b2ff2c2211a5/2.3/dpv","notice_path":"raw_data/licenses/dpv-2.3-w3c-2023.md","attribution":"Data Privacy Vocabulary (DPV) core 2.3, DPV Community Group and contributors; editor Harshvardhan J. Pandit; authors Beatriz Esteves, Delaram Golpayegani, Georg P. Krog, Harshvardhan J. Pandit, Julian Flake and Paul Ryan. Complete original contributor, per-term credit and funding statements retained. Copyright remains with the respective copyright holders. W3C Software and Document License 2023; no W3C Recommendation or author/institution endorsement is implied.","modifications":"Twelve fixed-tag HTML originals, twenty-six directly referenced SVG originals and LICENSE.md retained byte-identically. Collector-derived single text consumer preserves authored body order, definition rows and examples, adds source boundaries/selectors and local link routing. ReSpec configuration is retained with exact source locators, not executed; authored reference macros and upstream contradictions are not silently corrected. Graphical arrows/grouping and embedded raster labels are not fully transcribed; text extraction remains partial. No OCR or external runtime execution.","scope":"Fixed commit cbcd21567808812677eeb3bb0f05b2ff2c2211a5 / tag dpv-2.3: 2.3/dpv/dpv.html plus core modules TOM, context, entities, legal_basis, personal_data, process, processing, purposes, rights, risk and rules; exactly twenty-six SVGs referenced by these twelve pages, LICENSE.md, derived text and selectors. Excludes extensions (including PD, RISK and LEGAL), primer, datasets, RDF/CSV serializations, other releases, scripts/styles and recursive external references."},"clearance_review":{"kind":"agent_evidence_and_packaging_review","human_approval_claimed":false,"scope":"Fixed commit cbcd21567808812677eeb3bb0f05b2ff2c2211a5 / tag dpv-2.3: 2.3/dpv/dpv.html plus core modules TOM, context, entities, legal_basis, personal_data, process, processing, purposes, rights, risk and rules; exactly twenty-six SVGs referenced by these twelve pages, LICENSE.md, derived text and selectors. Excludes extensions (including PD, RISK and LEGAL), primer, datasets, RDF/CSV serializations, other releases, scripts/styles and recursive external references."},"conditions_fulfilled":["完整固定LICENSE原件已在source保留；仓库NOTICE完整包含同一LICENSE、原作归属、短通知与派生范围说明。","39源文件有界盘点完成；扩展、RDF/CSV、脚本/样式和递归外链均排除。","metadata、capsule source-metadata、manifest与审计六字段package精确一致并绑定固定git revision；完整NOTICE与资产同字节，派生消费者唯一末注精确一致。","全部46声明inventory实体与1372定位齐且tracked，39source6646341B原稿保持，图形文本缺口如实partial。","候选Git index无.git树实际两次禁网重放47files byteequal；本writer只读47files比对0diff，不冒称remote/main fresh checkout。"],"pending_conditions":[]}
+- sequence: 95
+  uid: doi:10.1038/sdata.2016.18
+  source_type: journal
+  title: The FAIR Guiding Principles for scientific data management and stewardship
+  manifest_path: materialized_sources/corpus/doi-10.1038-sdata.2016.18--e1a0678c/manifest.yaml
+  metadata_path: raw_data/journal/FAIR Guiding Principles/metadata.yaml
+  capsule_root: materialized_sources/corpus/doi-10.1038-sdata.2016.18--e1a0678c
+  baseline_content_tier: excerpt_capsule
+  baseline_status: partial
+  source_revision: sha256:26af84ba660c8fd2335bb3fb76f6213e10a90105d082d0daf2a238ad50b342bf
+  canonical_url: https://doi.org/10.1038/sdata.2016.18
+  observed_rights:
+    retained_excerpt_manifest:
+      declared_access: unknown
+      full_text_redistribution_assumed: false
+    assessment: Root source_revision/gate describes the retained historical excerpt only; independently reviewed
+      new PDF/SI grants are separate below.
+  classification: permission_unverified
+  license_id: null
+  license_url: null
+  license_scope: Retained historical excerpt root only; no new root-level permission or package is inferred from
+    the publisher PDF/SI allowance.
+  public_redistribution_recommendation: only_independently_reviewed_representations
+  current_capsule_compliance: historical_excerpt_unreviewed_new_pdf_notice_packaged
+  publication_gate:
+    decision: unknown
+    reason: 本行根 revision 仍绑定旧有界摘录。其许可/提取历史不在本批重批；下列主PDF与SI表示获得的独立allow不授权旧根表示，不与新grant计数混层。
+  representation_permission_classification: documented_permission
+  evidence:
+  - kind: actual_work_grant_and_representation_credit_review
+    applies_to: pdf_supplement
+    url: https://www.nature.com/articles/sdata201618.pdf
+    resolved_url: https://www.nature.com/articles/sdata201618.pdf?error=cookies_not_supported&code=8dbac251-20bb-4253-a313-60d2c42976b8
+    source_revision: sha256:cdddd9f4808f7e3e1f013139c3915ef4d7cdccb008fa947ef5f72b4c7b6ffde7
+    source_version: publisher-vor:2016-03-15;amended:addendum-2019-03-19
+    checked_at: '2026-09-17'
+    license_url: https://creativecommons.org/licenses/by/4.0/
+    notice_path: raw_data/licenses/p3-journal-01-fair-main.md
+    content_review: review-fair-alphatensor.md
+    finding: Main article actual BY4/DOI/version with substantive native/body and concrete credits reviewed; this
+      explicitly linked SI, when present, separately binds its work identity and all-page visual credits. SI has
+      no separately printed general CC notice; no signed-contract claim. Complete scoped NOTICE retains actual author/copyright/credits
+      and legal code; original bytes unaltered, text partial.
+    supports_public_redistribution: true
+  not_legal_advice: true
+  human_approval_claimed: false
+  pdf_supplement:
+    license_spdx: CC-BY-4.0
+    license_url: https://creativecommons.org/licenses/by/4.0/
+    license_verified_at: '2026-09-17'
+    redistribution_package:
+      source_revision: sha256:cdddd9f4808f7e3e1f013139c3915ef4d7cdccb008fa947ef5f72b4c7b6ffde7
+      source_version: publisher-vor:2016-03-15;amended:addendum-2019-03-19
+      source_version_url: https://www.nature.com/articles/sdata201618.pdf
+      notice_path: raw_data/licenses/p3-journal-01-fair-main.md
+      attribution: Mark D. Wilkinson; Michel Dumontier; IJsbrand Jan Aalbersberg; Gabrielle Appleton; Myles Axton;
+        Arie Baak; Niklas Blomberg; Jan-Willem Boiten; Luiz Bonino da Silva Santos; Philip E. Bourne; Jildau Bouwman;
+        Anthony J. Brookes; Tim Clark; Mercè Crosas; Ingrid Dillo; Olivier Dumon; Scott Edmunds; Chris T. Evelo;
+        Richard Finkers; Alejandra Gonzalez-Beltran; Alasdair J.G. Gray; Paul Groth; Carole Goble; Jeffrey S. Grethe;
+        Jaap Heringa; Peter A.C. ’t Hoen; Rob Hooft; Tobias Kuhn; Ruben Kok; Joost Kok; Scott J. Lusher; Maryann
+        E. Martone; Albert Mons; Abel L. Packer; Bengt Persson; Philippe Rocca-Serra; Marco Roos; Rene van Schaik;
+        Susanna-Assunta Sansone; Erik Schultes; Thierry Sengstag; Ted Slater; George Strawn; Morris A. Swertz; Mark
+        Thompson; Johan van der Lei; Erik van Mulligen; Jan Velterop; Andra Waagmeester; Peter Wittenburg; Katherine
+        Wolstencroft; Jun Zhao; Barend Mons. "The FAIR Guiding Principles for scientific data management and stewardship".
+        © The Author(s) 2016. DOI https://doi.org/10.1038/sdata.2016.18; publisher record https://www.nature.com/articles/sdata201618;
+        主 PDF（main PDF） https://www.nature.com/articles/sdata201618.pdf; Creative Commons Attribution 4.0 International,
+        https://creativecommons.org/licenses/by/4.0/.
+      modifications: 原 PDF 保留实际下载字节，不编辑、不拼接、不重导出。用现有 plain 逐页提取派生文字与页 selectors，只追加独立署名/修改/范围末注；已知字形、图表、数学、代码和阅读顺序损失保留为
+        partial，不修补成作者原文，不做 OCR 或执行。
+      scope: 仅 doi:10.1038/sdata.2016.18 的 publisher-vor:2016-03-15;amended:addendum-2019-03-19 主 PDF（main PDF）（9
+        页，254899 bytes，https://www.nature.com/articles/sdata201618.pdf）及其派生页文字/selectors/NOTICE。含该主文件内实际正文、方法、图表、参考文献和扩展内容；SI
+        如有另以独立表示包审阅。不据此授予旧摘录、独立更正/增补论文、外部引用作品、代码/数据 ZIP、模型、视频、数据库、商标或专利的新权利；不增加下游许可限制。
+    publication_gate:
+      decision: allow
+      reason: 实际本作品 publisher BY4 声明、固定 VoR/DOI 和具体信用审阅确认；本表示独立绑定取得字节、准确URL、版本与完整NOTICE，不借旧 excerpt/assumed 门控。
+      approved_scope: 仅 doi:10.1038/sdata.2016.18 的 publisher-vor:2016-03-15;amended:addendum-2019-03-19 主 PDF（main
+        PDF）（9 页，254899 bytes，https://www.nature.com/articles/sdata201618.pdf）及其派生页文字/selectors/NOTICE。含该主文件内实际正文、方法、图表、参考文献和扩展内容；SI
+        如有另以独立表示包审阅。不据此授予旧摘录、独立更正/增补论文、外部引用作品、代码/数据 ZIP、模型、视频、数据库、商标或专利的新权利；不增加下游许可限制。
+- sequence: 96
+  uid: journal-doi-10.1038-s41586-022-05172-4
+  source_type: journal
+  title: Discovering faster matrix multiplication algorithms with reinforcement learning
+  manifest_path: materialized_sources/corpus/journal-doi-10.1038-s41586-022-05172-4--820c2382/manifest.yaml
+  metadata_path: raw_data/journal/Discovering faster matrix multiplication algorithms with reinforcement learning/metadata.yaml
+  capsule_root: materialized_sources/corpus/journal-doi-10.1038-s41586-022-05172-4--820c2382
+  baseline_content_tier: excerpt_capsule
+  baseline_status: partial
+  source_revision: sha256:33da0d0cdd11037fd349d0170db39d5f26b71def91eee7d89a379910062ff953
+  canonical_url: https://doi.org/10.1038/s41586-022-05172-4
+  observed_rights:
+    retained_excerpt_manifest:
+      declared_access: metadata_only
+      full_text_redistribution_assumed: false
+    assessment: Root source_revision/gate describes the retained historical excerpt only; independently reviewed
+      new PDF/SI grants are separate below.
+  classification: permission_unverified
+  license_id: null
+  license_url: null
+  license_scope: Retained historical excerpt root only; no new root-level permission or package is inferred from
+    the publisher PDF/SI allowance.
+  public_redistribution_recommendation: only_independently_reviewed_representations
+  current_capsule_compliance: historical_excerpt_unreviewed_new_pdf_notice_packaged
+  publication_gate:
+    decision: unknown
+    reason: 本行根 revision 仍绑定旧有界摘录。其许可/提取历史不在本批重批；下列主PDF与SI表示获得的独立allow不授权旧根表示，不与新grant计数混层。
+  representation_permission_classification: documented_permission
+  evidence:
+  - kind: actual_work_grant_and_representation_credit_review
+    applies_to: pdf_supplement
+    url: https://www.nature.com/articles/s41586-022-05172-4.pdf
+    resolved_url: https://www.nature.com/articles/s41586-022-05172-4.pdf?error=cookies_not_supported&code=e0a44821-fadc-4258-818c-2d4a113a278a
+    source_revision: sha256:42aea3994792b42358ca5d9d4c95cb3eac15f28254850a11d082b995aed8d401
+    source_version: publisher-vor:2022-10-05
+    checked_at: '2026-09-17'
+    license_url: https://creativecommons.org/licenses/by/4.0/
+    notice_path: raw_data/licenses/p3-journal-01-alphatensor-main.md
+    content_review: review-fair-alphatensor.md
+    finding: Main article actual BY4/DOI/version with substantive native/body and concrete credits reviewed; this
+      explicitly linked SI, when present, separately binds its work identity and all-page visual credits. SI has
+      no separately printed general CC notice; no signed-contract claim. Complete scoped NOTICE retains actual author/copyright/credits
+      and legal code; original bytes unaltered, text partial.
+    supports_public_redistribution: true
+  - kind: actual_work_grant_and_representation_credit_review
+    applies_to: supplementary_information
+    url: https://media.springernature.com/original/springer-static/esm/art%3A10.1038%2Fs41586-022-05172-4/MediaObjects/41586_2022_5172_MOESM1_ESM.pdf
+    resolved_url: https://media.springernature.com/original/springer-static/esm/art%3A10.1038%2Fs41586-022-05172-4/MediaObjects/41586_2022_5172_MOESM1_ESM.pdf
+    source_revision: sha256:3e5d8f1a82f76369029dc44c06b6b016958327bd13c073e6b6a851d84f04c015
+    source_version: publisher-vor:2022-10-05
+    checked_at: '2026-09-17'
+    license_url: https://creativecommons.org/licenses/by/4.0/
+    notice_path: raw_data/licenses/p3-journal-01-alphatensor-si.md
+    content_review: review-fair-alphatensor.md
+    finding: Main article actual BY4/DOI/version with substantive native/body and concrete credits reviewed; this
+      explicitly linked SI, when present, separately binds its work identity and all-page visual credits. SI has
+      no separately printed general CC notice; no signed-contract claim. Complete scoped NOTICE retains actual author/copyright/credits
+      and legal code; original bytes unaltered, text partial.
+    supports_public_redistribution: true
+  - kind: current_public_article_scope_definition
+    applies_to: supplementary_information
+    url: https://cms-resources.apps.public.k8s.springernature.io/springer-cms/rest/v1/content/27848838/data/v1
+    related_url: https://www.springernature.com/gp/open-science/policies/journal-policies/licensing-and-copyright
+    locator: current OA CC BY4 example Section1(a)
+    checked_at: '2026-09-17'
+    finding: Current official example includes supplementary information in Article. Public terminology corroboration
+      only, not proof any of the six authors signed that 2026 form; actual grant remains this work BY4 plus exact
+      linked attachment and concrete credits.
+    supports_public_redistribution: false
+  not_legal_advice: true
+  human_approval_claimed: false
+  pdf_supplement:
+    license_spdx: CC-BY-4.0
+    license_url: https://creativecommons.org/licenses/by/4.0/
+    license_verified_at: '2026-09-17'
+    redistribution_package:
+      source_revision: sha256:42aea3994792b42358ca5d9d4c95cb3eac15f28254850a11d082b995aed8d401
+      source_version: publisher-vor:2022-10-05
+      source_version_url: https://www.nature.com/articles/s41586-022-05172-4.pdf
+      notice_path: raw_data/licenses/p3-journal-01-alphatensor-main.md
+      attribution: Alhussein Fawzi; Matej Balog; Aja Huang; Thomas Hubert; Bernardino Romera-Paredes; Mohammadamin
+        Barekatain; Alexander Novikov; Francisco J. R. Ruiz; Julian Schrittwieser; Grzegorz Swirszcz; David Silver;
+        Demis Hassabis; Pushmeet Kohli. "Discovering faster matrix multiplication algorithms with reinforcement
+        learning". © The Author(s) 2022. DOI https://doi.org/10.1038/s41586-022-05172-4; publisher record https://www.nature.com/articles/s41586-022-05172-4;
+        主 PDF（main PDF） https://www.nature.com/articles/s41586-022-05172-4.pdf; Creative Commons Attribution 4.0
+        International, https://creativecommons.org/licenses/by/4.0/.
+      modifications: 原 PDF 保留实际下载字节，不编辑、不拼接、不重导出。用现有 plain 逐页提取派生文字与页 selectors，只追加独立署名/修改/范围末注；已知字形、图表、数学、代码和阅读顺序损失保留为
+        partial，不修补成作者原文，不做 OCR 或执行。
+      scope: 仅 journal-doi-10.1038-s41586-022-05172-4 的 publisher-vor:2022-10-05 主 PDF（main PDF）（17 页，15314954 bytes，https://www.nature.com/articles/s41586-022-05172-4.pdf）及其派生页文字/selectors/NOTICE。含该主文件内实际正文、方法、图表、参考文献和扩展内容；SI
+        如有另以独立表示包审阅。不据此授予旧摘录、独立更正/增补论文、外部引用作品、代码/数据 ZIP、模型、视频、数据库、商标或专利的新权利；不增加下游许可限制。
+    publication_gate:
+      decision: allow
+      reason: 实际本作品 publisher BY4 声明、固定 VoR/DOI 和具体信用审阅确认；本表示独立绑定取得字节、准确URL、版本与完整NOTICE，不借旧 excerpt/assumed 门控。
+      approved_scope: 仅 journal-doi-10.1038-s41586-022-05172-4 的 publisher-vor:2022-10-05 主 PDF（main PDF）（17 页，15314954
+        bytes，https://www.nature.com/articles/s41586-022-05172-4.pdf）及其派生页文字/selectors/NOTICE。含该主文件内实际正文、方法、图表、参考文献和扩展内容；SI
+        如有另以独立表示包审阅。不据此授予旧摘录、独立更正/增补论文、外部引用作品、代码/数据 ZIP、模型、视频、数据库、商标或专利的新权利；不增加下游许可限制。
+  supplementary_information:
+    license_spdx: CC-BY-4.0
+    license_url: https://creativecommons.org/licenses/by/4.0/
+    license_verified_at: '2026-09-17'
+    redistribution_package:
+      source_revision: sha256:3e5d8f1a82f76369029dc44c06b6b016958327bd13c073e6b6a851d84f04c015
+      source_version: publisher-vor:2022-10-05
+      source_version_url: https://media.springernature.com/original/springer-static/esm/art%3A10.1038%2Fs41586-022-05172-4/MediaObjects/41586_2022_5172_MOESM1_ESM.pdf
+      notice_path: raw_data/licenses/p3-journal-01-alphatensor-si.md
+      attribution: Alhussein Fawzi; Matej Balog; Aja Huang; Thomas Hubert; Bernardino Romera-Paredes; Mohammadamin
+        Barekatain; Alexander Novikov; Francisco J. R. Ruiz; Julian Schrittwieser; Grzegorz Swirszcz; David Silver;
+        Demis Hassabis; Pushmeet Kohli. "Discovering faster matrix multiplication algorithms with reinforcement
+        learning". © The Author(s) 2022. DOI https://doi.org/10.1038/s41586-022-05172-4; publisher record https://www.nature.com/articles/s41586-022-05172-4;
+        补充信息（Supplementary Information，SI）PDF https://media.springernature.com/original/springer-static/esm/art%3A10.1038%2Fs41586-022-05172-4/MediaObjects/41586_2022_5172_MOESM1_ESM.pdf;
+        Creative Commons Attribution 4.0 International, https://creativecommons.org/licenses/by/4.0/.
+      modifications: 原 PDF 保留实际下载字节，不编辑、不拼接、不重导出。用现有 plain 逐页提取派生文字与页 selectors，只追加独立署名/修改/范围末注；已知字形、图表、数学、代码和阅读顺序损失保留为
+        partial，不修补成作者原文，不做 OCR 或执行。
+      scope: 仅 journal-doi-10.1038-s41586-022-05172-4 的 publisher-vor:2022-10-05 补充信息（Supplementary Information，SI）PDF（30
+        页，1037875 bytes，https://media.springernature.com/original/springer-static/esm/art%3A10.1038%2Fs41586-022-05172-4/MediaObjects/41586_2022_5172_MOESM1_ESM.pdf）及其派生页文字/selectors/NOTICE。仅该同
+        DOI 作品准确官方链接、同题名/作者且已实际审阅的附件，不是所有同域附件或外部复现闭包。不据此授予旧摘录、独立更正/增补论文、外部引用作品、代码/数据 ZIP、模型、视频、数据库、商标或专利的新权利；不增加下游许可限制。
+    publication_gate:
+      decision: allow
+      reason: 实际本作品 publisher BY4 声明、固定 VoR/DOI 和具体信用审阅确认；本表示独立绑定取得字节、准确URL、版本与完整NOTICE，不借旧 excerpt/assumed 门控。SI
+        按该作品真实 BY4、准确官方附件链接、同 DOI/作者、实际逐页视觉信用及独立 Article-includes-SI 范围预核作有界判断；不伪称SI印有CC段或六篇作品的作者签过2026示例。
+      approved_scope: 仅 journal-doi-10.1038-s41586-022-05172-4 的 publisher-vor:2022-10-05 补充信息（Supplementary Information，SI）PDF（30
+        页，1037875 bytes，https://media.springernature.com/original/springer-static/esm/art%3A10.1038%2Fs41586-022-05172-4/MediaObjects/41586_2022_5172_MOESM1_ESM.pdf）及其派生页文字/selectors/NOTICE。仅该同
+        DOI 作品准确官方链接、同题名/作者且已实际审阅的附件，不是所有同域附件或外部复现闭包。不据此授予旧摘录、独立更正/增补论文、外部引用作品、代码/数据 ZIP、模型、视频、数据库、商标或专利的新权利；不增加下游许可限制。
+- sequence: 97
+  uid: journal-doi-10.1038-s41586-023-06004-9
+  source_type: journal
+  title: Faster sorting algorithms discovered using deep reinforcement learning
+  manifest_path: materialized_sources/corpus/journal-doi-10.1038-s41586-023-06004-9--737560a6/manifest.yaml
+  metadata_path: raw_data/journal/Faster sorting algorithms discovered using deep reinforcement learning/metadata.yaml
+  capsule_root: materialized_sources/corpus/journal-doi-10.1038-s41586-023-06004-9--737560a6
+  baseline_content_tier: excerpt_capsule
+  baseline_status: partial
+  source_revision: sha256:88c5b319c65b40439ec4211f0d2186d111460129042be25a87a6962b0db86f5a
+  canonical_url: https://doi.org/10.1038/s41586-023-06004-9
+  observed_rights:
+    retained_excerpt_manifest:
+      declared_access: metadata_only
+      full_text_redistribution_assumed: false
+    assessment: Root source_revision/gate describes the retained historical excerpt only; independently reviewed
+      new PDF/SI grants are separate below.
+  classification: permission_unverified
+  license_id: null
+  license_url: null
+  license_scope: Retained historical excerpt root only; no new root-level permission or package is inferred from
+    the publisher PDF/SI allowance.
+  public_redistribution_recommendation: only_independently_reviewed_representations
+  current_capsule_compliance: historical_excerpt_unreviewed_new_pdf_notice_packaged
+  publication_gate:
+    decision: unknown
+    reason: 本行根 revision 仍绑定旧有界摘录。其许可/提取历史不在本批重批；下列主PDF与SI表示获得的独立allow不授权旧根表示，不与新grant计数混层。
+  representation_permission_classification: documented_permission
+  evidence:
+  - kind: actual_work_grant_and_representation_credit_review
+    applies_to: pdf_supplement
+    url: https://www.nature.com/articles/s41586-023-06004-9.pdf
+    resolved_url: https://www.nature.com/articles/s41586-023-06004-9.pdf?error=cookies_not_supported&code=9899b48a-f3ea-4208-ac9d-96db7d605416
+    source_revision: sha256:4b991d29e570924c8bd93684137b0ca6065970627f18e444444bafed9d814d1f
+    source_version: publisher-vor:2023-06-07
+    checked_at: '2026-09-17'
+    license_url: https://creativecommons.org/licenses/by/4.0/
+    notice_path: raw_data/licenses/p3-journal-01-alphadev-main.md
+    content_review: review-alphadev-funsearch.md
+    finding: Main article actual BY4/DOI/version with substantive native/body and concrete credits reviewed; this
+      explicitly linked SI, when present, separately binds its work identity and all-page visual credits. SI has
+      no separately printed general CC notice; no signed-contract claim. Complete scoped NOTICE retains actual author/copyright/credits
+      and legal code; original bytes unaltered, text partial.
+    supports_public_redistribution: true
+  - kind: actual_work_grant_and_representation_credit_review
+    applies_to: supplementary_information
+    url: https://media.springernature.com/original/springer-static/esm/art%3A10.1038%2Fs41586-023-06004-9/MediaObjects/41586_2023_6004_MOESM1_ESM.pdf
+    resolved_url: https://media.springernature.com/original/springer-static/esm/art%3A10.1038%2Fs41586-023-06004-9/MediaObjects/41586_2023_6004_MOESM1_ESM.pdf
+    source_revision: sha256:e58a909860179d0bdf3aa81b380dba292319a206860bb07fe26f0fd16e53367e
+    source_version: publisher-vor:2023-06-07
+    checked_at: '2026-09-17'
+    license_url: https://creativecommons.org/licenses/by/4.0/
+    notice_path: raw_data/licenses/p3-journal-01-alphadev-si.md
+    content_review: review-alphadev-funsearch.md
+    finding: Main article actual BY4/DOI/version with substantive native/body and concrete credits reviewed; this
+      explicitly linked SI, when present, separately binds its work identity and all-page visual credits. SI has
+      no separately printed general CC notice; no signed-contract claim. Complete scoped NOTICE retains actual author/copyright/credits
+      and legal code; original bytes unaltered, text partial.
+    supports_public_redistribution: true
+  - kind: current_public_article_scope_definition
+    applies_to: supplementary_information
+    url: https://cms-resources.apps.public.k8s.springernature.io/springer-cms/rest/v1/content/27848838/data/v1
+    related_url: https://www.springernature.com/gp/open-science/policies/journal-policies/licensing-and-copyright
+    locator: current OA CC BY4 example Section1(a)
+    checked_at: '2026-09-17'
+    finding: Current official example includes supplementary information in Article. Public terminology corroboration
+      only, not proof any of the six authors signed that 2026 form; actual grant remains this work BY4 plus exact
+      linked attachment and concrete credits.
+    supports_public_redistribution: false
+  not_legal_advice: true
+  human_approval_claimed: false
+  pdf_supplement:
+    license_spdx: CC-BY-4.0
+    license_url: https://creativecommons.org/licenses/by/4.0/
+    license_verified_at: '2026-09-17'
+    redistribution_package:
+      source_revision: sha256:4b991d29e570924c8bd93684137b0ca6065970627f18e444444bafed9d814d1f
+      source_version: publisher-vor:2023-06-07
+      source_version_url: https://www.nature.com/articles/s41586-023-06004-9.pdf
+      notice_path: raw_data/licenses/p3-journal-01-alphadev-main.md
+      attribution: Daniel J. Mankowitz; Andrea Michi; Anton Zhernov; Marco Gelmi; Marco Selvi; Cosmin Paduraru;
+        Edouard Leurent; Shariq Iqbal; Jean-Baptiste Lespiau; Alex Ahern; Thomas Köppe; Kevin Millikin; Stephen
+        Gaffney; Sophie Elster; Jackson Broshear; Chris Gamble; Kieran Milan; Robert Tung; Minjae Hwang; Taylan
+        Cemgil; Mohammadamin Barekatain; Yujia Li; Amol Mandhane; Thomas Hubert; Julian Schrittwieser; Demis Hassabis;
+        Pushmeet Kohli; Martin Riedmiller; Oriol Vinyals; David Silver. "Faster sorting algorithms discovered using
+        deep reinforcement learning". © The Author(s) 2023. DOI https://doi.org/10.1038/s41586-023-06004-9; publisher
+        record https://www.nature.com/articles/s41586-023-06004-9; 主 PDF（main PDF） https://www.nature.com/articles/s41586-023-06004-9.pdf;
+        Creative Commons Attribution 4.0 International, https://creativecommons.org/licenses/by/4.0/.
+      modifications: 原 PDF 保留实际下载字节，不编辑、不拼接、不重导出。用现有 plain 逐页提取派生文字与页 selectors，只追加独立署名/修改/范围末注；已知字形、图表、数学、代码和阅读顺序损失保留为
+        partial，不修补成作者原文，不做 OCR 或执行。
+      scope: 仅 journal-doi-10.1038-s41586-023-06004-9 的 publisher-vor:2023-06-07 主 PDF（main PDF）（17 页，3077082 bytes，https://www.nature.com/articles/s41586-023-06004-9.pdf）及其派生页文字/selectors/NOTICE。含该主文件内实际正文、方法、图表、参考文献和扩展内容；SI
+        如有另以独立表示包审阅。不据此授予旧摘录、独立更正/增补论文、外部引用作品、代码/数据 ZIP、模型、视频、数据库、商标或专利的新权利；不增加下游许可限制。
+    publication_gate:
+      decision: allow
+      reason: 实际本作品 publisher BY4 声明、固定 VoR/DOI 和具体信用审阅确认；本表示独立绑定取得字节、准确URL、版本与完整NOTICE，不借旧 excerpt/assumed 门控。
+      approved_scope: 仅 journal-doi-10.1038-s41586-023-06004-9 的 publisher-vor:2023-06-07 主 PDF（main PDF）（17 页，3077082
+        bytes，https://www.nature.com/articles/s41586-023-06004-9.pdf）及其派生页文字/selectors/NOTICE。含该主文件内实际正文、方法、图表、参考文献和扩展内容；SI
+        如有另以独立表示包审阅。不据此授予旧摘录、独立更正/增补论文、外部引用作品、代码/数据 ZIP、模型、视频、数据库、商标或专利的新权利；不增加下游许可限制。
+  supplementary_information:
+    license_spdx: CC-BY-4.0 AND Apache-2.0
+    license_url: https://creativecommons.org/licenses/by/4.0/
+    license_verified_at: '2026-09-17'
+    redistribution_package:
+      source_revision: sha256:e58a909860179d0bdf3aa81b380dba292319a206860bb07fe26f0fd16e53367e
+      source_version: publisher-vor:2023-06-07
+      source_version_url: https://media.springernature.com/original/springer-static/esm/art%3A10.1038%2Fs41586-023-06004-9/MediaObjects/41586_2023_6004_MOESM1_ESM.pdf
+      notice_path: raw_data/licenses/p3-journal-01-alphadev-si.md
+      attribution: 'Daniel J. Mankowitz; Andrea Michi; Anton Zhernov; Marco Gelmi; Marco Selvi; Cosmin Paduraru;
+        Edouard Leurent; Shariq Iqbal; Jean-Baptiste Lespiau; Alex Ahern; Thomas Köppe; Kevin Millikin; Stephen
+        Gaffney; Sophie Elster; Jackson Broshear; Chris Gamble; Kieran Milan; Robert Tung; Minjae Hwang; Taylan
+        Cemgil; Mohammadamin Barekatain; Yujia Li; Amol Mandhane; Thomas Hubert; Julian Schrittwieser; Demis Hassabis;
+        Pushmeet Kohli; Martin Riedmiller; Oriol Vinyals; David Silver. "Faster sorting algorithms discovered using
+        deep reinforcement learning". © The Author(s) 2023. DOI https://doi.org/10.1038/s41586-023-06004-9; publisher
+        record https://www.nature.com/articles/s41586-023-06004-9; 补充信息（Supplementary Information，SI）PDF https://media.springernature.com/original/springer-static/esm/art%3A10.1038%2Fs41586-023-06004-9/MediaObjects/41586_2023_6004_MOESM1_ESM.pdf;
+        Creative Commons Attribution 4.0 International, https://creativecommons.org/licenses/by/4.0/. Appendix G
+        displayed code: Copyright 2022 DeepMind Technologies Limited; Apache License, Version 2.0 AND CC BY 4.0,
+        https://www.apache.org/licenses/LICENSE-2.0 and https://creativecommons.org/licenses/by/4.0/legalcode.'
+      modifications: 原 PDF 保留实际下载字节，不编辑、不拼接、不重导出。用现有 plain 逐页提取派生文字与页 selectors，只追加独立署名/修改/范围末注；已知字形、图表、数学、代码和阅读顺序损失保留为
+        partial，不修补成作者原文，不做 OCR 或执行。
+      scope: 仅 journal-doi-10.1038-s41586-023-06004-9 的 publisher-vor:2023-06-07 补充信息（Supplementary Information，SI）PDF（28
+        页，2404602 bytes，https://media.springernature.com/original/springer-static/esm/art%3A10.1038%2Fs41586-023-06004-9/MediaObjects/41586_2023_6004_MOESM1_ESM.pdf）及其派生页文字/selectors/NOTICE。仅该同
+        DOI 作品准确官方链接、同题名/作者且已实际审阅的附件，不是所有同域附件或外部复现闭包。其中 Appendix G 展示代码同时适用 Apache-2.0 AND CC-BY-4.0；Apache 条件仅绑定该明确代码局部，不扩展到其他独立作者论述。不据此授予旧摘录、独立更正/增补论文、外部引用作品、代码/数据
+        ZIP、模型、视频、数据库、商标或专利的新权利；不增加下游许可限制。
+    publication_gate:
+      decision: allow
+      reason: 实际本作品 publisher BY4 声明、固定 VoR/DOI 和具体信用审阅确认；本表示独立绑定取得字节、准确URL、版本与完整NOTICE，不借旧 excerpt/assumed 门控。SI
+        按该作品真实 BY4、准确官方附件链接、同 DOI/作者、实际逐页视觉信用及独立 Article-includes-SI 范围预核作有界判断；不伪称SI印有CC段或六篇作品的作者签过2026示例。
+      approved_scope: 仅 journal-doi-10.1038-s41586-023-06004-9 的 publisher-vor:2023-06-07 补充信息（Supplementary Information，SI）PDF（28
+        页，2404602 bytes，https://media.springernature.com/original/springer-static/esm/art%3A10.1038%2Fs41586-023-06004-9/MediaObjects/41586_2023_6004_MOESM1_ESM.pdf）及其派生页文字/selectors/NOTICE。仅该同
+        DOI 作品准确官方链接、同题名/作者且已实际审阅的附件，不是所有同域附件或外部复现闭包。其中 Appendix G 展示代码同时适用 Apache-2.0 AND CC-BY-4.0；Apache 条件仅绑定该明确代码局部，不扩展到其他独立作者论述。不据此授予旧摘录、独立更正/增补论文、外部引用作品、代码/数据
+        ZIP、模型、视频、数据库、商标或专利的新权利；不增加下游许可限制。
+    component_license_scope: 'Appendix G displayed code only: Copyright 2022 DeepMind Technologies Limited, Apache-2.0
+      AND CC-BY-4.0; other author scientific expression remains CC-BY-4.0.'
+- sequence: 98
+  uid: journal-doi-10.1038-s41586-023-06734-w
+  source_type: journal
+  title: An autonomous laboratory for the accelerated synthesis of novel materials
+  manifest_path: materialized_sources/corpus/journal-doi-10.1038-s41586-023-06734-w--6a262fdf/manifest.yaml
+  metadata_path: raw_data/journal/An autonomous laboratory for the accelerated synthesis of novel materials/metadata.yaml
+  capsule_root: materialized_sources/corpus/journal-doi-10.1038-s41586-023-06734-w--6a262fdf
+  baseline_content_tier: excerpt_capsule
+  baseline_status: partial
+  source_revision: sha256:46d04102d7419dcc08bbee66c8326479cc17d09a1553edd25e054d70e3daf52d
+  canonical_url: https://doi.org/10.1038/s41586-023-06734-w
+  observed_rights:
+    retained_excerpt_manifest:
+      declared_access: metadata_only
+      full_text_redistribution_assumed: false
+    assessment: Root source_revision/gate describes the retained historical excerpt only; independently reviewed
+      new PDF/SI grants are separate below.
+  classification: permission_unverified
+  license_id: null
+  license_url: null
+  license_scope: Retained historical excerpt root only; no new root-level permission or package is inferred from
+    the publisher PDF/SI allowance.
+  public_redistribution_recommendation: only_independently_reviewed_representations
+  current_capsule_compliance: historical_excerpt_unreviewed_new_pdf_notice_packaged
+  publication_gate:
+    decision: unknown
+    reason: 本行根 revision 仍绑定旧有界摘录。其许可/提取历史不在本批重批；下列主PDF与SI表示获得的独立allow不授权旧根表示，不与新grant计数混层。
+  representation_permission_classification: documented_permission
+  evidence:
+  - kind: actual_work_grant_and_representation_credit_review
+    applies_to: pdf_supplement
+    url: https://www.nature.com/articles/s41586-023-06734-w.pdf
+    resolved_url: https://www.nature.com/articles/s41586-023-06734-w.pdf?error=cookies_not_supported&code=764d7b35-8873-4ae8-8d6c-064c710cfa09
+    source_revision: sha256:574b5523f857b544ffdf4eff00dd742977636ba90bb09798d413237724542f7e
+    source_version: publisher-vor:2023-11-29;corrected:2026-01-19
+    checked_at: '2026-09-17'
+    license_url: https://creativecommons.org/licenses/by/4.0/
+    notice_path: raw_data/licenses/p3-journal-01-alab-main.md
+    content_review: review-alab-chem.md
+    finding: Main article actual BY4/DOI/version with substantive native/body and concrete credits reviewed; this
+      explicitly linked SI, when present, separately binds its work identity and all-page visual credits. SI has
+      no separately printed general CC notice; no signed-contract claim. Complete scoped NOTICE retains actual author/copyright/credits
+      and legal code; original bytes unaltered, text partial.
+    supports_public_redistribution: true
+  - kind: actual_work_grant_and_representation_credit_review
+    applies_to: supplementary_information
+    url: https://media.springernature.com/original/springer-static/esm/art%3A10.1038%2Fs41586-023-06734-w/MediaObjects/41586_2023_6734_MOESM1_ESM.pdf
+    resolved_url: https://media.springernature.com/original/springer-static/esm/art%3A10.1038%2Fs41586-023-06734-w/MediaObjects/41586_2023_6734_MOESM1_ESM.pdf
+    source_revision: sha256:110ff201ba44ab8da000da56971dfc8a154ac7b7538c80eb231b1751185a2776
+    source_version: publisher-vor:2023-11-29;corrected:2026-01-19
+    checked_at: '2026-09-17'
+    license_url: https://creativecommons.org/licenses/by/4.0/
+    notice_path: raw_data/licenses/p3-journal-01-alab-si.md
+    content_review: review-alab-chem.md
+    finding: Main article actual BY4/DOI/version with substantive native/body and concrete credits reviewed; this
+      explicitly linked SI, when present, separately binds its work identity and all-page visual credits. SI has
+      no separately printed general CC notice; no signed-contract claim. Complete scoped NOTICE retains actual author/copyright/credits
+      and legal code; original bytes unaltered, text partial.
+    supports_public_redistribution: true
+  - kind: current_public_article_scope_definition
+    applies_to: supplementary_information
+    url: https://cms-resources.apps.public.k8s.springernature.io/springer-cms/rest/v1/content/27848838/data/v1
+    related_url: https://www.springernature.com/gp/open-science/policies/journal-policies/licensing-and-copyright
+    locator: current OA CC BY4 example Section1(a)
+    checked_at: '2026-09-17'
+    finding: Current official example includes supplementary information in Article. Public terminology corroboration
+      only, not proof any of the six authors signed that 2026 form; actual grant remains this work BY4 plus exact
+      linked attachment and concrete credits.
+    supports_public_redistribution: false
+  not_legal_advice: true
+  human_approval_claimed: false
+  pdf_supplement:
+    license_spdx: CC-BY-4.0
+    license_url: https://creativecommons.org/licenses/by/4.0/
+    license_verified_at: '2026-09-17'
+    redistribution_package:
+      source_revision: sha256:574b5523f857b544ffdf4eff00dd742977636ba90bb09798d413237724542f7e
+      source_version: publisher-vor:2023-11-29;corrected:2026-01-19
+      source_version_url: https://www.nature.com/articles/s41586-023-06734-w.pdf
+      notice_path: raw_data/licenses/p3-journal-01-alab-main.md
+      attribution: Nathan J. Szymanski; Bernardus Rendy; Yuxing Fei; Rishi E. Kumar; Tanjin He; David Milsted; Matthew
+        J. McDermott; Max Gallant; Ekin Dogus Cubuk; Amil Merchant; Haegyeom Kim; Anubhav Jain; Christopher J. Bartel;
+        Kristin Persson; Yan Zeng; Gerbrand Ceder. "An autonomous laboratory for the accelerated synthesis of inorganic
+        materials". © The Author(s) 2023, modified publication 2026. DOI https://doi.org/10.1038/s41586-023-06734-w;
+        publisher record https://www.nature.com/articles/s41586-023-06734-w; 主 PDF（main PDF） https://www.nature.com/articles/s41586-023-06734-w.pdf;
+        Creative Commons Attribution 4.0 International, https://creativecommons.org/licenses/by/4.0/.
+      modifications: 原 PDF 保留实际下载字节，不编辑、不拼接、不重导出。用现有 plain 逐页提取派生文字与页 selectors，只追加独立署名/修改/范围末注；已知字形、图表、数学、代码和阅读顺序损失保留为
+        partial，不修补成作者原文，不做 OCR 或执行。
+      scope: 仅 journal-doi-10.1038-s41586-023-06734-w 的 publisher-vor:2023-11-29;corrected:2026-01-19 主 PDF（main
+        PDF）（12 页，10411037 bytes，https://www.nature.com/articles/s41586-023-06734-w.pdf）及其派生页文字/selectors/NOTICE。含该主文件内实际正文、方法、图表、参考文献和扩展内容；SI
+        如有另以独立表示包审阅。不据此授予旧摘录、独立更正/增补论文、外部引用作品、代码/数据 ZIP、模型、视频、数据库、商标或专利的新权利；不增加下游许可限制。
+    publication_gate:
+      decision: allow
+      reason: 实际本作品 publisher BY4 声明、固定 VoR/DOI 和具体信用审阅确认；本表示独立绑定取得字节、准确URL、版本与完整NOTICE，不借旧 excerpt/assumed 门控。
+      approved_scope: 仅 journal-doi-10.1038-s41586-023-06734-w 的 publisher-vor:2023-11-29;corrected:2026-01-19 主
+        PDF（main PDF）（12 页，10411037 bytes，https://www.nature.com/articles/s41586-023-06734-w.pdf）及其派生页文字/selectors/NOTICE。含该主文件内实际正文、方法、图表、参考文献和扩展内容；SI
+        如有另以独立表示包审阅。不据此授予旧摘录、独立更正/增补论文、外部引用作品、代码/数据 ZIP、模型、视频、数据库、商标或专利的新权利；不增加下游许可限制。
+  supplementary_information:
+    license_spdx: CC-BY-4.0
+    license_url: https://creativecommons.org/licenses/by/4.0/
+    license_verified_at: '2026-09-17'
+    redistribution_package:
+      source_revision: sha256:110ff201ba44ab8da000da56971dfc8a154ac7b7538c80eb231b1751185a2776
+      source_version: publisher-vor:2023-11-29;corrected:2026-01-19
+      source_version_url: https://media.springernature.com/original/springer-static/esm/art%3A10.1038%2Fs41586-023-06734-w/MediaObjects/41586_2023_6734_MOESM1_ESM.pdf
+      notice_path: raw_data/licenses/p3-journal-01-alab-si.md
+      attribution: Nathan J. Szymanski; Bernardus Rendy; Yuxing Fei; Rishi E. Kumar; Tanjin He; David Milsted; Matthew
+        J. McDermott; Max Gallant; Ekin Dogus Cubuk; Amil Merchant; Haegyeom Kim; Anubhav Jain; Christopher J. Bartel;
+        Kristin Persson; Yan Zeng; Gerbrand Ceder. "An autonomous laboratory for the accelerated synthesis of inorganic
+        materials". © The Author(s) 2023, modified publication 2026. DOI https://doi.org/10.1038/s41586-023-06734-w;
+        publisher record https://www.nature.com/articles/s41586-023-06734-w; 补充信息（Supplementary Information，SI）PDF
+        https://media.springernature.com/original/springer-static/esm/art%3A10.1038%2Fs41586-023-06734-w/MediaObjects/41586_2023_6734_MOESM1_ESM.pdf;
+        Creative Commons Attribution 4.0 International, https://creativecommons.org/licenses/by/4.0/.
+      modifications: 原 PDF 保留实际下载字节，不编辑、不拼接、不重导出。用现有 plain 逐页提取派生文字与页 selectors，只追加独立署名/修改/范围末注；已知字形、图表、数学、代码和阅读顺序损失保留为
+        partial，不修补成作者原文，不做 OCR 或执行。
+      scope: 仅 journal-doi-10.1038-s41586-023-06734-w 的 publisher-vor:2023-11-29;corrected:2026-01-19 补充信息（Supplementary
+        Information，SI）PDF（44 页，7477648 bytes，https://media.springernature.com/original/springer-static/esm/art%3A10.1038%2Fs41586-023-06734-w/MediaObjects/41586_2023_6734_MOESM1_ESM.pdf）及其派生页文字/selectors/NOTICE。仅该同
+        DOI 作品准确官方链接、同题名/作者且已实际审阅的附件，不是所有同域附件或外部复现闭包。不据此授予旧摘录、独立更正/增补论文、外部引用作品、代码/数据 ZIP、模型、视频、数据库、商标或专利的新权利；不增加下游许可限制。
+    publication_gate:
+      decision: allow
+      reason: 实际本作品 publisher BY4 声明、固定 VoR/DOI 和具体信用审阅确认；本表示独立绑定取得字节、准确URL、版本与完整NOTICE，不借旧 excerpt/assumed 门控。SI
+        按该作品真实 BY4、准确官方附件链接、同 DOI/作者、实际逐页视觉信用及独立 Article-includes-SI 范围预核作有界判断；不伪称SI印有CC段或六篇作品的作者签过2026示例。
+      approved_scope: 仅 journal-doi-10.1038-s41586-023-06734-w 的 publisher-vor:2023-11-29;corrected:2026-01-19 补充信息（Supplementary
+        Information，SI）PDF（44 页，7477648 bytes，https://media.springernature.com/original/springer-static/esm/art%3A10.1038%2Fs41586-023-06734-w/MediaObjects/41586_2023_6734_MOESM1_ESM.pdf）及其派生页文字/selectors/NOTICE。仅该同
+        DOI 作品准确官方链接、同题名/作者且已实际审阅的附件，不是所有同域附件或外部复现闭包。不据此授予旧摘录、独立更正/增补论文、外部引用作品、代码/数据 ZIP、模型、视频、数据库、商标或专利的新权利；不增加下游许可限制。
+- sequence: 99
+  uid: journal-doi-10.1038-s41586-023-06924-6
+  source_type: journal
+  title: Mathematical discoveries from program search with large language models
+  manifest_path: materialized_sources/corpus/journal-doi-10.1038-s41586-023-06924-6--93e95f6c/manifest.yaml
+  metadata_path: raw_data/journal/Mathematical discoveries from program search with large language models/metadata.yaml
+  capsule_root: materialized_sources/corpus/journal-doi-10.1038-s41586-023-06924-6--93e95f6c
+  baseline_content_tier: excerpt_capsule
+  baseline_status: partial
+  source_revision: sha256:9bd738ea47f60f8f2a554b8c8b4706c67128d0b46a0f51f0b4aaac406079cfc6
+  canonical_url: https://doi.org/10.1038/s41586-023-06924-6
+  observed_rights:
+    retained_excerpt_manifest:
+      declared_access: metadata_only
+      full_text_redistribution_assumed: false
+    assessment: Root source_revision/gate describes the retained historical excerpt only; independently reviewed
+      new PDF/SI grants are separate below.
+  classification: permission_unverified
+  license_id: null
+  license_url: null
+  license_scope: Retained historical excerpt root only; no new root-level permission or package is inferred from
+    the publisher PDF/SI allowance.
+  public_redistribution_recommendation: only_independently_reviewed_representations
+  current_capsule_compliance: historical_excerpt_unreviewed_new_pdf_notice_packaged
+  publication_gate:
+    decision: unknown
+    reason: 本行根 revision 仍绑定旧有界摘录。其许可/提取历史不在本批重批；下列主PDF与SI表示获得的独立allow不授权旧根表示，不与新grant计数混层。
+  representation_permission_classification: documented_permission
+  evidence:
+  - kind: actual_work_grant_and_representation_credit_review
+    applies_to: pdf_supplement
+    url: https://www.nature.com/articles/s41586-023-06924-6.pdf
+    resolved_url: https://www.nature.com/articles/s41586-023-06924-6.pdf?error=cookies_not_supported&code=de293677-87b4-42ec-b85a-b76fe54e3955
+    source_revision: sha256:ed64cc4af49a8010ec0313c166b622e75a1c1d548b71d5a582f934d6ed0df635
+    source_version: publisher-vor:2024-01-11
+    checked_at: '2026-09-17'
+    license_url: https://creativecommons.org/licenses/by/4.0/
+    notice_path: raw_data/licenses/p3-journal-01-funsearch-main.md
+    content_review: review-alphadev-funsearch.md
+    finding: Main article actual BY4/DOI/version with substantive native/body and concrete credits reviewed; this
+      explicitly linked SI, when present, separately binds its work identity and all-page visual credits. SI has
+      no separately printed general CC notice; no signed-contract claim. Complete scoped NOTICE retains actual author/copyright/credits
+      and legal code; original bytes unaltered, text partial.
+    supports_public_redistribution: true
+  - kind: actual_work_grant_and_representation_credit_review
+    applies_to: supplementary_information
+    url: https://media.springernature.com/original/springer-static/esm/art%3A10.1038%2Fs41586-023-06924-6/MediaObjects/41586_2023_6924_MOESM1_ESM.pdf
+    resolved_url: https://media.springernature.com/original/springer-static/esm/art%3A10.1038%2Fs41586-023-06924-6/MediaObjects/41586_2023_6924_MOESM1_ESM.pdf
+    source_revision: sha256:ee6f3651fb8dd11f61fe9055e0fafab25b91fa5b30062dafe0833b4f31eeea19
+    source_version: publisher-vor:2024-01-11
+    checked_at: '2026-09-17'
+    license_url: https://creativecommons.org/licenses/by/4.0/
+    notice_path: raw_data/licenses/p3-journal-01-funsearch-si.md
+    content_review: review-alphadev-funsearch.md
+    finding: Main article actual BY4/DOI/version with substantive native/body and concrete credits reviewed; this
+      explicitly linked SI, when present, separately binds its work identity and all-page visual credits. SI has
+      no separately printed general CC notice; no signed-contract claim. Complete scoped NOTICE retains actual author/copyright/credits
+      and legal code; original bytes unaltered, text partial.
+    supports_public_redistribution: true
+  - kind: current_public_article_scope_definition
+    applies_to: supplementary_information
+    url: https://cms-resources.apps.public.k8s.springernature.io/springer-cms/rest/v1/content/27848838/data/v1
+    related_url: https://www.springernature.com/gp/open-science/policies/journal-policies/licensing-and-copyright
+    locator: current OA CC BY4 example Section1(a)
+    checked_at: '2026-09-17'
+    finding: Current official example includes supplementary information in Article. Public terminology corroboration
+      only, not proof any of the six authors signed that 2026 form; actual grant remains this work BY4 plus exact
+      linked attachment and concrete credits.
+    supports_public_redistribution: false
+  not_legal_advice: true
+  human_approval_claimed: false
+  pdf_supplement:
+    license_spdx: CC-BY-4.0
+    license_url: https://creativecommons.org/licenses/by/4.0/
+    license_verified_at: '2026-09-17'
+    redistribution_package:
+      source_revision: sha256:ed64cc4af49a8010ec0313c166b622e75a1c1d548b71d5a582f934d6ed0df635
+      source_version: publisher-vor:2024-01-11
+      source_version_url: https://www.nature.com/articles/s41586-023-06924-6.pdf
+      notice_path: raw_data/licenses/p3-journal-01-funsearch-main.md
+      attribution: Bernardino Romera-Paredes; Mohammadamin Barekatain; Alexander Novikov; Matej Balog; M. Pawan
+        Kumar; Emilien Dupont; Francisco J. R. Ruiz; Jordan S. Ellenberg; Pengming Wang; Omar Fawzi; Pushmeet Kohli;
+        Alhussein Fawzi. "Mathematical discoveries from program search with large language models". © The Author(s)
+        2023. DOI https://doi.org/10.1038/s41586-023-06924-6; publisher record https://www.nature.com/articles/s41586-023-06924-6;
+        主 PDF（main PDF） https://www.nature.com/articles/s41586-023-06924-6.pdf; Creative Commons Attribution 4.0
+        International, https://creativecommons.org/licenses/by/4.0/.
+      modifications: 原 PDF 保留实际下载字节，不编辑、不拼接、不重导出。用现有 plain 逐页提取派生文字与页 selectors，只追加独立署名/修改/范围末注；已知字形、图表、数学、代码和阅读顺序损失保留为
+        partial，不修补成作者原文，不做 OCR 或执行。
+      scope: 仅 journal-doi-10.1038-s41586-023-06924-6 的 publisher-vor:2024-01-11 主 PDF（main PDF）（14 页，2034181 bytes，https://www.nature.com/articles/s41586-023-06924-6.pdf）及其派生页文字/selectors/NOTICE。含该主文件内实际正文、方法、图表、参考文献和扩展内容；SI
+        如有另以独立表示包审阅。不据此授予旧摘录、独立更正/增补论文、外部引用作品、代码/数据 ZIP、模型、视频、数据库、商标或专利的新权利；不增加下游许可限制。
+    publication_gate:
+      decision: allow
+      reason: 实际本作品 publisher BY4 声明、固定 VoR/DOI 和具体信用审阅确认；本表示独立绑定取得字节、准确URL、版本与完整NOTICE，不借旧 excerpt/assumed 门控。
+      approved_scope: 仅 journal-doi-10.1038-s41586-023-06924-6 的 publisher-vor:2024-01-11 主 PDF（main PDF）（14 页，2034181
+        bytes，https://www.nature.com/articles/s41586-023-06924-6.pdf）及其派生页文字/selectors/NOTICE。含该主文件内实际正文、方法、图表、参考文献和扩展内容；SI
+        如有另以独立表示包审阅。不据此授予旧摘录、独立更正/增补论文、外部引用作品、代码/数据 ZIP、模型、视频、数据库、商标或专利的新权利；不增加下游许可限制。
+  supplementary_information:
+    license_spdx: CC-BY-4.0
+    license_url: https://creativecommons.org/licenses/by/4.0/
+    license_verified_at: '2026-09-17'
+    redistribution_package:
+      source_revision: sha256:ee6f3651fb8dd11f61fe9055e0fafab25b91fa5b30062dafe0833b4f31eeea19
+      source_version: publisher-vor:2024-01-11
+      source_version_url: https://media.springernature.com/original/springer-static/esm/art%3A10.1038%2Fs41586-023-06924-6/MediaObjects/41586_2023_6924_MOESM1_ESM.pdf
+      notice_path: raw_data/licenses/p3-journal-01-funsearch-si.md
+      attribution: Bernardino Romera-Paredes; Mohammadamin Barekatain; Alexander Novikov; Matej Balog; M. Pawan
+        Kumar; Emilien Dupont; Francisco J. R. Ruiz; Jordan S. Ellenberg; Pengming Wang; Omar Fawzi; Pushmeet Kohli;
+        Alhussein Fawzi. "Mathematical discoveries from program search with large language models". © The Author(s)
+        2023. DOI https://doi.org/10.1038/s41586-023-06924-6; publisher record https://www.nature.com/articles/s41586-023-06924-6;
+        补充信息（Supplementary Information，SI）PDF https://media.springernature.com/original/springer-static/esm/art%3A10.1038%2Fs41586-023-06924-6/MediaObjects/41586_2023_6924_MOESM1_ESM.pdf;
+        Creative Commons Attribution 4.0 International, https://creativecommons.org/licenses/by/4.0/.
+      modifications: 原 PDF 保留实际下载字节，不编辑、不拼接、不重导出。用现有 plain 逐页提取派生文字与页 selectors，只追加独立署名/修改/范围末注；已知字形、图表、数学、代码和阅读顺序损失保留为
+        partial，不修补成作者原文，不做 OCR 或执行。
+      scope: 仅 journal-doi-10.1038-s41586-023-06924-6 的 publisher-vor:2024-01-11 补充信息（Supplementary Information，SI）PDF（39
+        页，1725197 bytes，https://media.springernature.com/original/springer-static/esm/art%3A10.1038%2Fs41586-023-06924-6/MediaObjects/41586_2023_6924_MOESM1_ESM.pdf）及其派生页文字/selectors/NOTICE。仅该同
+        DOI 作品准确官方链接、同题名/作者且已实际审阅的附件，不是所有同域附件或外部复现闭包。不据此授予旧摘录、独立更正/增补论文、外部引用作品、代码/数据 ZIP、模型、视频、数据库、商标或专利的新权利；不增加下游许可限制。
+    publication_gate:
+      decision: allow
+      reason: 实际本作品 publisher BY4 声明、固定 VoR/DOI 和具体信用审阅确认；本表示独立绑定取得字节、准确URL、版本与完整NOTICE，不借旧 excerpt/assumed 门控。SI
+        按该作品真实 BY4、准确官方附件链接、同 DOI/作者、实际逐页视觉信用及独立 Article-includes-SI 范围预核作有界判断；不伪称SI印有CC段或六篇作品的作者签过2026示例。
+      approved_scope: 仅 journal-doi-10.1038-s41586-023-06924-6 的 publisher-vor:2024-01-11 补充信息（Supplementary Information，SI）PDF（39
+        页，1725197 bytes，https://media.springernature.com/original/springer-static/esm/art%3A10.1038%2Fs41586-023-06924-6/MediaObjects/41586_2023_6924_MOESM1_ESM.pdf）及其派生页文字/selectors/NOTICE。仅该同
+        DOI 作品准确官方链接、同题名/作者且已实际审阅的附件，不是所有同域附件或外部复现闭包。不据此授予旧摘录、独立更正/增补论文、外部引用作品、代码/数据 ZIP、模型、视频、数据库、商标或专利的新权利；不增加下游许可限制。
+- sequence: 100
+  uid: journal:10.1038/s41586-023-06792-0
+  source_type: journal
+  title: Autonomous chemical research with large language models
+  manifest_path: materialized_sources/corpus/journal-10.1038-s41586-023-06792-0--16d2d83d/manifest.yaml
+  metadata_path: raw_data/journal/Autonomous chemical research with large language models/metadata.yaml
+  capsule_root: materialized_sources/corpus/journal-10.1038-s41586-023-06792-0--16d2d83d
+  baseline_content_tier: excerpt_capsule
+  baseline_status: partial
+  source_revision: sha256:578ce2b7078d440080ca87c6ffc1bc34a0f877391fa889bf7b2c10c1dd80ac9b
+  canonical_url: https://www.nature.com/articles/s41586-023-06792-0
+  observed_rights:
+    retained_excerpt_manifest:
+      declared_access: unknown
+      full_text_redistribution_assumed: false
+    assessment: Root source_revision/gate describes the retained historical excerpt only; independently reviewed
+      new PDF/SI grants are separate below.
+  classification: permission_unverified
+  license_id: null
+  license_url: null
+  license_scope: Retained historical excerpt root only; no new root-level permission or package is inferred from
+    the publisher PDF/SI allowance.
+  public_redistribution_recommendation: only_independently_reviewed_representations
+  current_capsule_compliance: historical_excerpt_unreviewed_new_pdf_notice_packaged
+  publication_gate:
+    decision: unknown
+    reason: 本行根 revision 仍绑定旧有界摘录。其许可/提取历史不在本批重批；下列主PDF与SI表示获得的独立allow不授权旧根表示，不与新grant计数混层。
+  representation_permission_classification: documented_permission
+  evidence:
+  - kind: actual_work_grant_and_representation_credit_review
+    applies_to: pdf_supplement
+    url: https://www.nature.com/articles/s41586-023-06792-0.pdf
+    resolved_url: https://www.nature.com/articles/s41586-023-06792-0.pdf?error=cookies_not_supported&code=50debda5-1060-40a8-b5c6-eb798c1b6c02
+    source_revision: sha256:09cfaa1ccf4c951eebc347bab909e1e495d6701be38d3808c38016dff35dbd4e
+    source_version: publisher-vor:2023-12-20
+    checked_at: '2026-09-17'
+    license_url: https://creativecommons.org/licenses/by/4.0/
+    notice_path: raw_data/licenses/p3-journal-01-coscientist-main.md
+    content_review: review-alab-chem.md
+    finding: Main article actual BY4/DOI/version with substantive native/body and concrete credits reviewed; this
+      explicitly linked SI, when present, separately binds its work identity and all-page visual credits. SI has
+      no separately printed general CC notice; no signed-contract claim. Complete scoped NOTICE retains actual author/copyright/credits
+      and legal code; original bytes unaltered, text partial.
+    supports_public_redistribution: true
+  - kind: actual_work_grant_and_representation_credit_review
+    applies_to: supplementary_information
+    url: https://media.springernature.com/original/springer-static/esm/art%3A10.1038%2Fs41586-023-06792-0/MediaObjects/41586_2023_6792_MOESM1_ESM.pdf
+    resolved_url: https://media.springernature.com/original/springer-static/esm/art%3A10.1038%2Fs41586-023-06792-0/MediaObjects/41586_2023_6792_MOESM1_ESM.pdf
+    source_revision: sha256:52d9e3729b3375531a933a3e6638a472354e3b33b90d8d19eb3fe6d38652733c
+    source_version: publisher-vor:2023-12-20
+    checked_at: '2026-09-17'
+    license_url: https://creativecommons.org/licenses/by/4.0/
+    notice_path: raw_data/licenses/p3-journal-01-coscientist-si.md
+    content_review: review-alab-chem.md
+    finding: Main article actual BY4/DOI/version with substantive native/body and concrete credits reviewed; this
+      explicitly linked SI, when present, separately binds its work identity and all-page visual credits. SI has
+      no separately printed general CC notice; no signed-contract claim. Complete scoped NOTICE retains actual author/copyright/credits
+      and legal code; original bytes unaltered, text partial.
+    supports_public_redistribution: true
+  - kind: current_public_article_scope_definition
+    applies_to: supplementary_information
+    url: https://cms-resources.apps.public.k8s.springernature.io/springer-cms/rest/v1/content/27848838/data/v1
+    related_url: https://www.springernature.com/gp/open-science/policies/journal-policies/licensing-and-copyright
+    locator: current OA CC BY4 example Section1(a)
+    checked_at: '2026-09-17'
+    finding: Current official example includes supplementary information in Article. Public terminology corroboration
+      only, not proof any of the six authors signed that 2026 form; actual grant remains this work BY4 plus exact
+      linked attachment and concrete credits.
+    supports_public_redistribution: false
+  not_legal_advice: true
+  human_approval_claimed: false
+  pdf_supplement:
+    license_spdx: CC-BY-4.0
+    license_url: https://creativecommons.org/licenses/by/4.0/
+    license_verified_at: '2026-09-17'
+    redistribution_package:
+      source_revision: sha256:09cfaa1ccf4c951eebc347bab909e1e495d6701be38d3808c38016dff35dbd4e
+      source_version: publisher-vor:2023-12-20
+      source_version_url: https://www.nature.com/articles/s41586-023-06792-0.pdf
+      notice_path: raw_data/licenses/p3-journal-01-coscientist-main.md
+      attribution: Daniil A. Boiko; Robert MacKnight; Ben Kline; Gabe Gomes. "Autonomous chemical research with
+        large language models". © The Author(s) 2023. DOI https://doi.org/10.1038/s41586-023-06792-0; publisher
+        record https://www.nature.com/articles/s41586-023-06792-0; 主 PDF（main PDF） https://www.nature.com/articles/s41586-023-06792-0.pdf;
+        Creative Commons Attribution 4.0 International, https://creativecommons.org/licenses/by/4.0/.
+      modifications: 原 PDF 保留实际下载字节，不编辑、不拼接、不重导出。用现有 plain 逐页提取派生文字与页 selectors，只追加独立署名/修改/范围末注；已知字形、图表、数学、代码和阅读顺序损失保留为
+        partial，不修补成作者原文，不做 OCR 或执行。
+      scope: 仅 journal:10.1038/s41586-023-06792-0 的 publisher-vor:2023-12-20 主 PDF（main PDF）（13 页，8869905 bytes，https://www.nature.com/articles/s41586-023-06792-0.pdf）及其派生页文字/selectors/NOTICE。含该主文件内实际正文、方法、图表、参考文献和扩展内容；SI
+        如有另以独立表示包审阅。不据此授予旧摘录、独立更正/增补论文、外部引用作品、代码/数据 ZIP、模型、视频、数据库、商标或专利的新权利；不增加下游许可限制。
+    publication_gate:
+      decision: allow
+      reason: 实际本作品 publisher BY4 声明、固定 VoR/DOI 和具体信用审阅确认；本表示独立绑定取得字节、准确URL、版本与完整NOTICE，不借旧 excerpt/assumed 门控。
+      approved_scope: 仅 journal:10.1038/s41586-023-06792-0 的 publisher-vor:2023-12-20 主 PDF（main PDF）（13 页，8869905
+        bytes，https://www.nature.com/articles/s41586-023-06792-0.pdf）及其派生页文字/selectors/NOTICE。含该主文件内实际正文、方法、图表、参考文献和扩展内容；SI
+        如有另以独立表示包审阅。不据此授予旧摘录、独立更正/增补论文、外部引用作品、代码/数据 ZIP、模型、视频、数据库、商标或专利的新权利；不增加下游许可限制。
+  supplementary_information:
+    license_spdx: CC-BY-4.0
+    license_url: https://creativecommons.org/licenses/by/4.0/
+    license_verified_at: '2026-09-17'
+    redistribution_package:
+      source_revision: sha256:52d9e3729b3375531a933a3e6638a472354e3b33b90d8d19eb3fe6d38652733c
+      source_version: publisher-vor:2023-12-20
+      source_version_url: https://media.springernature.com/original/springer-static/esm/art%3A10.1038%2Fs41586-023-06792-0/MediaObjects/41586_2023_6792_MOESM1_ESM.pdf
+      notice_path: raw_data/licenses/p3-journal-01-coscientist-si.md
+      attribution: Daniil A. Boiko; Robert MacKnight; Ben Kline; Gabe Gomes. "Autonomous chemical research with
+        large language models". © The Author(s) 2023. DOI https://doi.org/10.1038/s41586-023-06792-0; publisher
+        record https://www.nature.com/articles/s41586-023-06792-0; 补充信息（Supplementary Information，SI）PDF https://media.springernature.com/original/springer-static/esm/art%3A10.1038%2Fs41586-023-06792-0/MediaObjects/41586_2023_6792_MOESM1_ESM.pdf;
+        Creative Commons Attribution 4.0 International, https://creativecommons.org/licenses/by/4.0/.
+      modifications: 原 PDF 保留实际下载字节，不编辑、不拼接、不重导出。用现有 plain 逐页提取派生文字与页 selectors，只追加独立署名/修改/范围末注；已知字形、图表、数学、代码和阅读顺序损失保留为
+        partial，不修补成作者原文，不做 OCR 或执行。
+      scope: 仅 journal:10.1038/s41586-023-06792-0 的 publisher-vor:2023-12-20 补充信息（Supplementary Information，SI）PDF（52
+        页，3183870 bytes，https://media.springernature.com/original/springer-static/esm/art%3A10.1038%2Fs41586-023-06792-0/MediaObjects/41586_2023_6792_MOESM1_ESM.pdf）及其派生页文字/selectors/NOTICE。仅该同
+        DOI 作品准确官方链接、同题名/作者且已实际审阅的附件，不是所有同域附件或外部复现闭包。不据此授予旧摘录、独立更正/增补论文、外部引用作品、代码/数据 ZIP、模型、视频、数据库、商标或专利的新权利；不增加下游许可限制。
+    publication_gate:
+      decision: allow
+      reason: 实际本作品 publisher BY4 声明、固定 VoR/DOI 和具体信用审阅确认；本表示独立绑定取得字节、准确URL、版本与完整NOTICE，不借旧 excerpt/assumed 门控。SI
+        按该作品真实 BY4、准确官方附件链接、同 DOI/作者、实际逐页视觉信用及独立 Article-includes-SI 范围预核作有界判断；不伪称SI印有CC段或六篇作品的作者签过2026示例。
+      approved_scope: 仅 journal:10.1038/s41586-023-06792-0 的 publisher-vor:2023-12-20 补充信息（Supplementary Information，SI）PDF（52
+        页，3183870 bytes，https://media.springernature.com/original/springer-static/esm/art%3A10.1038%2Fs41586-023-06792-0/MediaObjects/41586_2023_6792_MOESM1_ESM.pdf）及其派生页文字/selectors/NOTICE。仅该同
+        DOI 作品准确官方链接、同题名/作者且已实际审阅的附件，不是所有同域附件或外部复现闭包。不据此授予旧摘录、独立更正/增补论文、外部引用作品、代码/数据 ZIP、模型、视频、数据库、商标或专利的新权利；不增加下游许可限制。

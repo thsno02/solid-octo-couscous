@@ -1,0 +1,1534 @@
+## Page 1
+
+Faster sorting algorithms discovered using 
+deep reinforcement learning
+In the format provided by the 
+authors and unedited
+Nature | www.nature.com/nature
+Supplementary information
+https://doi.org/10.1038/s41586-023-06004-9
+
+
+## Page 2
+
+Faster sorting algorithms discovered using deep reinforcement
+learning
+(Supplementary Information)
+Daniel J. Mankowitz1,3,✉ Andrea Michi1,3 Anton Zhernov1,3 Marco Gelmi1,3
+Marco Selvi1,3 Cosmin Paduraru1,3 Edouard Leurent1,3 Shariq Iqbal1
+Jean-Baptiste Lespiau1 Alex Ahern1 Thomas Köppe1 Kevin Millikin1
+Stephen Gaffney1 Sophie Elster1 Jackson Broshear1 Chris Gamble1
+Kieran Milan1 Robert Tung1 Minjae Hwang2 Taylan Cemgil1
+Mohammadamin Barekatain1 Yujia Li1 Amol Mandhane1 Thomas Hubert1
+Julian Schrittwieser1 Demis Hassabis1 Pushmeet Kohli1 Martin Riedmiller1
+Oriol Vinyals1 David Silver1
+Contents
+A Hyperparameters 1
+B Correlation between algorithm length and latency 3
+C Scaling to larger sorts 3
+C.1 Graph neural network encoder . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 5
+D Additional domains 6
+D.1 VarInt Serialization and Deserialization functions . . . . . . . . . . . . . . . . . . . . . . . . . . . . 6
+D.2 Competitive coding . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 7
+E LLVM patch 7
+F Theorem: the Assembly Zero-One Principle 11
+F.1 Assembly Sorting Network . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 11
+F.2 Assembly Zero-One Principle . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 12
+F.3 Proof of Theorem F.1 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 14
+F.4 Proof of Theorem F.2 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 16
+G Additional programs 17
+A Hyperparameters
+In the experiments, forAlphaDev, we mostly used the same neural network architecture, optimisation and hyperpa-
+rameters used by AlphaZero [1]. The main differences are the architecture used for the representation and prediction
+1Deepmind, London, UK.
+2Google, Mountain View, CA, USA.
+3These authors contributed equally
+✉Corresponding author: dmankowitz@deepmind.com
+1
+
+
+## Page 3
+
+networks,whichwedefineinTableA.1andA.2respectively. Inadditionthehyperparametersfor AlphaDev-S-WSand
+AlphaDev-S-CS can be found in Tables A.3 and A.4 respectively.
+Module Hyperparameters Representation Network
+Transformer Encoder
+Architecture MultiQuery Transformer Encoder
+Number of layers 6
+Number of heads 4
+Output size 128
+CPU State Encoder
+Architecture MLP
+Number of layers 2
+Embedding dimension 512
+Activation function relu
+Table A.1:Hyperparameters for the Representation Network. The MultiQuery Transformer encoder uses a form of
+multi-head attention with multiple (in our case 4)query heads while using only one key and value head.
+Head Hyperparameters Prediction Network
+Value Correctness/Latency
+Architecture MLP
+Embedding dimension 512
+Number of layers 2
+Output distribution Categorical [2]
+Head loss Categorical cross entropy
+Policy
+Architecture MLP
+Embedding dimension 512
+Number of layers 2
+Output size Number of actions
+Head loss Softmax cross entropy
+TableA.2: HyperparametersforthePredictionNetwork. Thisincludesthehyperparametersforthedualvaluefunction
+correction and latency heads as well as for the policy.
+AlphaDev-S-WSHyperparameters Values for sort<3,4,5,6,7,8> Values for VarSort<3,4,5>
+α <0.05, 0.05, 5.0, 0.01, 0.1, 0.01> <0.01, 1.5, 1.0>
+Beta (Annealing constant) <100, 100, 10, 100, 30, 0.1> <30, 100, 30>
+instruction weight 1 1
+Swap weight 1 1
+Opcode weight 1 1
+Operand weight <1,1,3,1,1,3> <1, 3, 1>
+Add weight 0 0
+TableA.3: AlphaDev-S-WSHyperparameters. Notethattheoptimalhyperparameterswereidentifiedafterrunningan
+extensive hyperparameter sweep.
+2
+
+
+## Page 4
+
+AlphaDev-S-CS Hyperparameters Values for sort<3,4,5,6,7,8> Values for VarSort<3,4,5>
+α <0.01, 0.01, 0.01, 0.1, 0.01, 0.01> < 1.0, 1.5, 0.01 >
+Beta (Annealing constant) <100, 100, 100, 30, 100, 100> < 30, 100, 30>
+instruction weight 1 1
+Swap weight 1 1
+Opcode weight 1 1
+Operand weight <1,1,1,1,1,1> <1,3,1>
+Add weight 0 0
+Table A.4:AlphaDev-S-CS Hyperparameters. Note that the optimal hyperparameters were identified after running an
+extensive hyperparameter sweep.
+B Correlation between algorithm length and latency
+It is critical in our branchless conditional assembly setup that if we use algorithm length as a proxy for latency, then
+there should be a strong correlation between the two. To measure this correlation, we ranAlphaDev-S and generated
+correct sorting programs over a range of lengths for both fixed and variable sort algorithms. We then measured the
+latencyofeachprogramusingthelatencybenchmarkingsuite(seeMethodsformoredetails)andcomputedthePearson
+correlation between algorithm length and latency.
+Fixedsort. ThecorrelationforeachfixedsortalgorithmisshowninthefirstfivecolumnsofTableB.5. Forsort8,not
+enough data points were generated to compute correlation, but we assume that the correlation holds here too since the
+program structures are still branchless conditional assembly and do not drastically change between sorting programs.
+As seen in the table, there is strong positive correlation for each task which implies that algorithm length is indeed a
+good proxy for latency in this setup. The full correlation plots are presented in Figure B.1.
+5troSraV4troSraV3troSraV7troS6troS5troS4troS3troSksaT
+Pearson correlation of length vs. latency 1.00 1.00 0.98 0.99 0.98 0.65 -0.02 -0.68
+Table B.5:The pearson correlation coefficient between algorithm length and latency for fixed and variable sort algo-
+rithms discovered byAlphaDev-S. Note that for the conditional branchless algorithms (sort3 to sort7), there is strong
+correlation between length and latency. However, for variable sort algorithms that contain branching, the correlation
+breaks down as the size of the sort algorithm increases.
+Variable sort. In the variable sort algorithm setting, additional algorithm complexity in the form of branching is
+introduced. This factor largely removes the correlation between algorithm length and latency. The last three columns
+inTableB.5presentthePearsoncorrelationbetweenalgorithmlengthandlatencyforeachofthevariablesortfunctions.
+Asseeninthetable,asthesizeofthesortincreases,thecorrelationbreaks-down. Thecorrelationplotscorresponding
+tothistablearepresentedinFigureB.2. Thisalsoindicatesthat,inthevariablesortcase,wewanttooptimizedirectly
+for latency rather than algorithm length, to find optimal low-latency algorithms.
+C Scaling to larger sorts
+Whilesort3tosort5arefundamentallyimportantalgorithms,weinvestigateapproachestoscalingtolargerfixedsorting
+algorithms. As such, we focused on solving sort6 to sort8 usingAlphaDev. The main bottleneck for scaling is the
+increasing number of sequences that need to be computed to determine algorithm correctness. For example, sort6 and
+sort7 require testing4683 and 47293 sequences for correctness respectively. We incorporate three modifications that
+help improve the capabilities ofAlphaDev. First, we address the increasing number of sequences for correctness by
+extending the well-known zero-one principle [3, 4] to our setting. We refer to this as the Assembly zero-one principle
+3
+
+
+## Page 5
+
+18 20 22
+8800
+9000
+9200
+9400
+9600
+9800
+10000latency
+r=1.00, p=3.5e-07
+task = sort 3
+30 35 40
+12000
+13000
+14000
+15000
+r=1.00, p=2e-13
+task = sort 4
+48 50 52 54 56
+length
+17000
+17500
+18000
+18500
+r=0.98, p=2.5e-06
+task = sort 5
+60 65 70 75
+length
+20000
+21000
+22000
+23000
+24000
+25000
+26000latency
+r=0.99, p=2.6e-14
+task = sort 6
+85 90 95
+length
+27000
+28000
+29000
+30000
+31000
+32000
+r=0.98, p=1.5e-05
+task = sort 7
+Figure B.1:Pearson correlation of Algorithm lengthvs. latency for fixed sort algorithms generated byAlphaDev-S.
+Note the strong correlation between length and latency for the conditional branchless sorting algorithms.
+22 24 26 28
+length
+10000
+10050
+10100
+10150latency
+r=0.65, p=0.059
+task = variable sort 3
+42.5 45.0 47.5 50.0 52.5
+length
+10000
+15000
+20000
+25000
+r=-0.02, p=0.96
+task = variable sort 4
+70 80 90
+length
+12500
+13000
+13500
+14000
+14500
+r=-0.68, p=2.8e-05
+task = variable sort 5
+FigureB.2: PearsoncorrelationofAlgorithmlength vs. latencyforvariablesortalgorithmsgeneratedby AlphaDev-S.
+As seen in the figure, as the length of the variable sort algorithm increases, the correlation between length and latency
+breaks down.
+theorem; see Appendix F for the full proof. Our theorem states that it is sufficient to test fixed sorting algorithms on
+all binary sequences to ensure algorithm correctness. As such, sort6 and sort7 algorithms only need to be tested on
+26 = 64 and 27 = 128 sequences respectively. Second, we utilize a Graph Neural Network (GNN) [5] in place of the
+Transformer Encoder in theAlphaDev representation network. The GNN is well suited for fixed sort algorithms (i.e.,
+branchless assembly) but requires significant modifications to capture the structure of branched assembly programs
+which we leave for future work; see Appendix C.1 for a full overview of the GNN. In addition, we utilize MuZero [6]
+as theAlphaDev learning algorithm. This is to primarily improve the speed of the agent as it uses a learned model
+during MCTS. We refer to this variant asAlphaDev-M. Finally, we use re-analyze [7] which uses sub-optimal, but
+correct demonstrations to help guide the search of the agent.AlphaDev-M improves upon the state-of-the-art human
+4
+
+
+## Page 6
+
+benchmarks for sort6, sort7 and sort8 by reducing the number of instructions by 3, 2 and 1 respectively.
+C.1 Graph neural network encoder
+As mentioned in the main paper, the representationPt of the algorithm generated thus far can benefit from capturing
+the algorithmic structure. Graph-based representations have been shown to improve performance in tasks such as
+program classification and induction [8] or variable naming and identifying variable misuse [9]. Such results are an
+indication that the inductive biases and invariances incorporated by graph neural networks are effective in building
+models that learn efficiently and generalize in algorithm space. As such, we introduce our Graph Neural Network [5,
+10, 11] architecture that models the structure of assembly programs. As seen in Figure C.3, we define a graph where
+nodes(circles)representmemoryandregisterlocationsaswellasregisterflags(e.g., ‘Flag’node), andedges(arrows)
+correspond to data flow induced by instructions. These nodes store as their features the values of the corresponding
+locationsafterexecutingtheprogramonallpossibleinputs. Edgefeaturesincludetheinstructionorder(e.g., a,b,c,d ),
+instructionargumentsandtheinstructiontobeexecuted. After AlphaDevexecutesanaction,aninstructionisappended
+tothegraphviaanedge. Globalfeaturesarealsoincludedthatconsistofasinglevectorsummarizinginformationabout
+the entire graph. For example, an input global feature could be the algorithm length. The hyperparameters used in the
+GNN implementation are found in Table C.6.
+1 2 3 4 1 2 3 4
+Memory 
+Locations
+MOV
+ MEM1
+ REG1
+Example Program
+MOV
+ MEM2
+ REG2
+CMP
+ REG1
+ REG2
+CMOV
+ REG1
+ REG4
+Flag
+a
+b
+c
+ c
+ d
+d
+Register
+Locations
+Figure C.3: GNN representation of assembly programs. The GNN representation consists of nodes (circles) that
+correspond to memory and register locations as well as register flags. The edges (arrows) correspond to data flow
+inducedbyinstructions. Edgefeaturesincludeinstructionorder(e.g.,a,b,c,d),instructionoperandsandtheinstruction
+tobeexecuted. TheGNNnetworkcanbeusedinterchangeablywiththeTransformerEncodermoduleinExtendedData
+Figure 1.
+5
+
+
+## Page 7
+
+Module Hyperparameters GNN
+Graph Neural Network Number of blocks 1
+Global update
+Architecture Residual blocks
+Number of blocks 4
+Number of layers per block 2
+Embedding dimension 512
+Node update
+Architecture Residual blocks
+Number of blocks 4
+Number of layers per block 2
+Embedding dimension 512
+Edge update
+Architecture Residual blocks
+Number of blocks 4
+Number of layers per block 2
+Embedding dimension 512
+Edge Aggregation Type Sum
+Table C.6:Hyperparameters for the GNN representation network.
+D Additional domains
+D.1 VarInt Serialization and Deserialization functions
+Data stored using Protocol Buffer format is serialized before transmission. The receiving end can then deserialize the
+data. The VarInt algorithm [12] is a key component in both the serialization and deserialization process. It is also one
+of the main contributors to computational costs during deserialization. The human benchmark, which is the current
+open-source implementation for the VarInt deserialization function, contains branching (i.e., if-else statements) and
+needs to deserialize a binary input sequence of5 bytes in length.
+A VarInt serialization algorithm receives as input a value (e.g.,300) and serializes this value into a sequence of
+bytes. The serialized bytes are then transmitted over a specified protocol. A VarInt decoding algorithm receives as
+input the sequence of binary bytes and deserializes this back to the original value (i.e.,300). A more detailed example
+of a VarInt serialization/deserialization process is detailed below:
+Varint Serialization routine.
+• A value, for example300 is fed as input into the VarInt serialization routine.
+• Thisvalueisthenserializedintoabinarysequenceofbytes. Inthisexample,weneedtwobytestorepresent 300
+as: 10101100 00000010.
+Varint Deserialization routine. The serialized representation can be transformed back into300as follows:
+• Drop the most significant bit for each byte to yield:0101100 0000010.
+• As the VarInt encoding stores numbers with the least significant group first, we reverse the order of each byte to
+yield: 0000010 0101100 which corresponds to the binary representation of300
+The VarInt Deserialization planning problem.When training an agent to generate the VarInt deserialization rou-
+tine,therearevariousplanningconsiderationstobemade. Forexample,theMostSignificantBit(MSB)ineachbyteof
+therepresentationiscriticaltosuccessfullydeserializetheserializedvalue. TheMSBindicateswhetherthesubsequent
+byte should be read. For example, the two byte serialized representation in the above example10101100 00000010
+indicates that the second byte should be read as the first byte’s MSB is set to1. However, the second byte’s MSB is0
+6
+
+
+## Page 8
+
+indicatingthat, ifsubsequent bytesexistin theserializedsequence, theyshould notberead. Moreover, asnumbers are
+stored with the least significant group first, the order of the bytes need to be reversed efficiently. It is therefore critical
+to construct the VarInt de-serialization algorithm such that it captures this relationship and finds optimized routines to
+make the function more efficient.
+VarIntassignmentmove. Whendeserializingdatabyte-by-byte,theagentneedstodecidewhetheritshoulddecode
+thenextbyteornot. Themostsignificantbitineachbyteiscalledthecontinuationbit. Ifitissetto 1thenthenextbyte
+should be decoded; if it is set to0then the next byte should not be decoded and the decoding is finished. Typically, an
+instructionisrequiredtotestthecontinuationbittodeterminewhetheritissetornot, andthensetaflag, andasecond
+instructionisrequiredtoresetthecontinuationbittozero. The AlphaDevagentdiscoveredawaytocombinethesetwo
+operations into a single instruction by making using of theadd<A,B> instruction – adds the value in A to the value
+in B – in a clever way. We refer to this as theVarint assignment move. The instruction is defined asadd <−27×B,
+RegisterX > whereB refers to the number of bytes that have been processed thus far and are stored in RegisterX. By
+adding this to RegisterX, it has the effect of (1) setting a flag if the continuation bit is set and (2) resetting that bit to
+zero. Subsequent instructions then make use of the flag value.
+D.2 Competitive coding
+Weselectedacompetitiveprogrammingproblem( Buttons[13])fromthe CodeContestsdataset[14]andusedacorrect
+human solution from the dataset as the benchmark. We defined an algorithm correctness reward and a latency reward
+as in previous domains. To verify correctness, we generate an exhaustive set of input, output pairs thatAlphaDev uses
+for evaluating the generated programs whilst playing the game. UsingAlphaDev, the agent is able to discover a lower
+latency algorithm than the human benchmark as shown in Table 1b. Interestingly, the lower latency program in this
+case is a longer program (29 instructions) compared to the human benchmark (13 instructions). The agent has found
+an efficient way to replace expensive multiplication operations with addition and subtraction instructions. This further
+highlights the need to optimize directly for latency as opposed to program length.
+E LLVM patch
+Usingtheofficiallibc++benchmarkingsuite,theperformanceofthesort3,sort4andsort5 AlphaDevimplementations
+compared to the original libc++ implementation are presented in the Tables below. The performance is computed
+acrossthreedifferentCPUarchitectures: IntelSkylake,ARMv8andAMDZen2forthreedifferentdatatypes,namely:
+int32 (Table E.7), int64 (Table E.8) and floats (Table E.9). The columns for each Table are setup as follows:sortK
+indicates the number of elements being sorted by both algorithms. For example, sort1024 benchmarks the speed of
+sorting1024elementsusingthelibc++sortinglibraryfunctions. Asthesefunctionscallsort3,sort4andsort5multiple
+times, we are able to measure the efficiency gains for our approach on this large sorting function. The next column
+original LLVM sortcontains the run-time performance of thesortK algorithm using the original LLVM sort3, sort4
+and sort5 functions, measured in nano-seconds (ns). TheAlphaDev column presents the run-time performance of the
+sortK algorithm using theAlphaDev sort3, sort4 and sort5 implementations. The next column,change, indicates the
+percentage change when comparing the original LLVM sort performance with theAlphaDev performance. Here, a
+negativepercentagechangeindicatesthat AlphaDevoutperformstheoriginalLLVMsortalgorithms. Thefinalcolumn
+containsthep-valuewhichcorrespondstothestatisticalsignificanceoftheresult. Notethattherearesmallregressions
+in performance for sort1 on ARMv8 foruint32 and Intel Skylake foruint64. This is due to noise as the program
+simply terminates in this case and the latency that needs to be measured is negligibly small (less than a nanosecond).
+7
+
+
+## Page 9
+
+cpu sort K original LLVM sort AlphaDev % change p-value
+Intel Skylake
+1 3.98ns ±5% 3.69ns ±7% -7.11% 0.000
+3 4.86ns ±6% 2.18ns ±5% -55.18% 0.000
+4 5.43ns ±8% 1.96ns ±8% -63.93% 0.000
+5 6.79ns ± 8% 1.98ns ±7% -70.87% 0.000
+16 10.5ns ± 9% 9.5ns ± 9% -9.11% 0.000
+64 18.4ns ±13% 17.4ns ±11% -5.69% 0.000
+256 25.8ns ±10% 24.7ns ±8% -4.09% 0.000
+1024 32.8ns ± 8% 31.9ns ±9% -2.79% 0.000
+16384 47.2ns ± 7% 46.3ns ±10% -1.90% 0.000
+262144 61.4ns ± 7% 60.8ns ±9% -0.97% 0.000
+ARMv8
+1 3.85ns ±0% 4.01ns ±0% +3.95% 0.000
+3 4.31ns ±0% 2.11ns ±0% -51.04% 0.000
+4 4.83ns ±0% 2.05ns ±0% -57.50% 0.000
+5 5.52ns ± 0% 2.15ns ±0% -61.01% 0.000
+16 9.59ns ± 0% 9.15ns ±0% -4.59% 0.000
+64 16.2ns ± 0% 15.7ns ±0% -2.99% 0.000
+256 22.3ns ± 1% 21.7ns ±0% -2.77% 0.000
+1024 28.5ns ± 0% 27.7ns ±0% -2.64% 0.000
+16384 40.3ns ± 1% 39.4ns ±1% -2.17% 0.000
+262144 51.8ns ± 2% 50.9ns ±2% -1.69% 0.000
+AMD Zen 2
+1 3.38ns ±1% 3.38ns ±1% ∼ 0.616
+3 4.45ns ± 1% 1.77ns ±1% -60.21% 0.000
+4 5.21ns ± 1% 1.57ns ±1% -69.85% 0.000
+5 5.87ns ± 5% 1.78ns ±1% -69.68% 0.000
+16 9.15ns ± 1% 8.90ns ±0% -2.65% 0.000
+64 16.6ns ± 1% 16.4ns ±0% -0.65% 0.000
+256 24.1ns ± 1% 24.0ns ±1% -0.40% 0.000
+1024 31.6ns ± 1% 31.3ns ±1% -0.71% 0.000
+16384 46.6ns ± 1% 46.2ns ±1% -0.81% 0.000
+262144 61.1ns ± 2% 60.8ns ±3% ∼ 0.103
+Table E.7: Performance of theAlphaDev C++ Sort3,4,5 implementations on typeuint32. Performance is bench-
+markedusingtheofficialLLVMmicrobenchmark. Notethattheimprovedsort3,sort4andsort5routinesdiscoveredby
+AlphaDevimprovestheoverallperformanceofsignificantlylargersortingfunctions(e.g.,sort262144). Thisisbecause
+larger sorting algorithms repeatedly call small sort algorithms using divide-and-conquer approaches.
+8
+
+
+## Page 10
+
+cpu sort K original LLVM sort AlphaDev % change p-value runs
+Intel Skylake
+1 3.68ns ±5% 3.71ns ±6% +0.80% 0.000
+3 4.95ns ±8% 2.18ns ±5% -56.01% 0.000
+4 5.39ns ±7% 1.96ns ±5% -63.63% 0.000
+5 6.91ns ±6% 2.01ns ±6% -70.97% 0.000
+16 10.0ns ±9% 9.4ns ± 8% -5.97% 0.000
+64 17.9ns ±10% 17.3ns ±9% -3.03% 0.000
+256 25.3ns ±10% 24.7ns ±8% -2.50% 0.000
+1024 32.2ns ±6% 31.6ns ±6% -1.80% 0.000
+16384 46.9ns ±7% 46.0ns ±8% -1.81% 0.000
+262144 61.3ns ±6% 60.5ns ±9% -1.27% 0.000
+ARMv8
+1 4.02ns ±0% 3.93ns ±2% -2.32% 0.000
+3 4.36ns ±0% 2.23ns ±2% -48.74% 0.000
+4 5.03ns ±0% 2.18ns ±0% -56.68% 0.000
+5 5.61ns ±0% 2.29ns ±1% -59.10% 0.000
+16 9.63ns ±0% 9.22ns ±0% -4.32% 0.000
+64 16.2ns ±0% 15.9ns ±0% -2.18% 0.000
+256 22.4ns ±0% 22.1ns ±0% -1.49% 0.000
+1024 28.4ns ±0% 28.0ns ±0% -1.16% 0.000
+16384 40.0ns ±1% 39.7ns ±1% -0.81% 0.000
+262144 51.6ns ±2% 51.4ns ±2% -0.48% 0.000
+AMD Zen 2
+1 3.39ns ±1% 3.39ns ±0% -0.19% 0.008
+3 4.47ns ±2% 1.77ns ±1% -60.42% 0.000
+4 5.20ns ±1% 1.56ns ±1% -69.88% 0.000
+5 6.07ns ±4% 1.59ns ±1% -73.73% 0.000
+16 10.1ns ±1% 9.0ns ± 1% -10.80% 0.000
+64 18.1ns ±1% 16.6ns ±1% -8.45% 0.000
+256 25.8ns ±1% 24.2ns ±1% -6.16% 0.000
+1024 33.2ns ±1% 31.7ns ±1% -4.78% 0.000
+16384 48.2ns ±1% 46.7ns ±1% -3.18% 0.000
+262144 63.0ns ±3% 61.3ns ±3% -2.78% 0.000
+TableE.8: Performanceofthe AlphaDevC++Sort3,4,5implementationsontype uint64. Performanceisbenchmarked
+using the official LLVM microbenchmark.
+9
+
+
+## Page 11
+
+cpu sort K original LLVM sort AlphaDev % change p-value runs
+Intel Skylake
+1 3.97ns ± 5% 3.68ns ±5% -7.43% 0.000
+3 5.28ns ± 7% 2.07ns ±7% -60.68% 0.000
+4 5.88ns ± 7% 1.81ns ±7% -69.16% 0.000
+5 7.22ns ± 8% 2.09ns ±6% -71.12% 0.000
+16 11.0ns ± 8% 11.3ns ±8% +2.06% 0.000
+64 19.8ns ±11% 19.8ns ± 10% ∼ 0.265
+256 27.9ns ±8% 28.0ns ±7% +0.37% 0.044
+1024 36.0ns ± 8% 36.2ns ±7% +0.46% 0.018
+16384 52.1ns ± 6% 52.3ns ±5% +0.54% 0.001
+262144 67.6ns ± 6% 68.4ns ±7% +1.22% 0.000
+ARMv8
+1 4.01ns ± 0% 3.85ns ±0% -3.81% 0.000
+3 4.79ns ± 0% 2.16ns ±0% -54.92% 0.000
+4 5.55ns ± 0% 2.17ns ±0% -60.98% 0.000
+5 6.69ns ± 0% 2.73ns ±0% -59.21% 0.000
+16 10.6ns ± 0% 10.2ns ±0% -3.81% 0.000
+64 18.1ns ± 0% 17.5ns ±0% -3.01% 0.000
+256 25.1ns ± 0% 24.4ns ±0% -2.88% 0.000
+1024 32.1ns ± 0% 31.3ns ±0% -2.61% 0.000
+16384 45.8ns ± 1% 44.9ns ±1% -1.96% 0.000
+262144 59.0ns ± 2% 58.1ns ±2% -1.55% 0.000
+AMD Zen 2
+1 3.39ns ± 2% 3.39ns ±0% ∼ 0.921
+3 5.33ns ± 1% 1.75ns ±1% -67.12% 0.000
+4 6.28ns ± 2% 1.55ns ±1% -75.35% 0.000
+5 8.12ns ± 1% 1.74ns ±1% -78.60% 0.000
+16 12.3ns ± 1% 11.1ns ±1% -9.73% 0.000
+64 21.9ns ± 1% 21.0ns ±1% -4.21% 0.000
+256 31.3ns ± 1% 30.5ns ±1% -2.75% 0.000
+1024 40.8ns ± 1% 39.9ns ±1% -2.02% 0.000
+16384 59.7ns ± 2% 59.0ns ±1% -1.31% 0.000
+262144 78.1ns ± 3% 77.4ns ±3% -0.80% 0.000
+Table E.9:Performance of theAlphaDev C++ Sort3,4,5 implementations on typefloat. Performance is benchmarked
+using the official LLVM microbenchmark.
+10
+
+
+## Page 12
+
+F Theorem: the Assembly Zero-One Principle
+L
+L
+ L
+ L
+LE
+ G
+Registers
+Memory
+Figure F.4:An example Assembly Sorting Network for a Sort3 function. Note that three memory locations and four
+registersarerequiredtogenerateasort3function. Asaresult,therearethreewiresthatrepresentthememorylocations
+and four wires to represent the register locations. A solid line arrow represents a move instruction from source to
+destination;adottedlinearrowisaconditionalmovewhereL,LEandGcorrespondto’Lessthan’,’LessthanorEqual
+to’ and ’Greater than’ respectively; a regular solid line represents a comparator from a classic sorting network.
+In the sort setting, a computational bottleneck forAlphaDev lies in the reward computation, whose complexity
+grows super-exponentially as it requires executing the candidate program on all weak orderings of input sequences,
+whose counts are referred to as ordered Bell numbers [15]. ForN inputs, the ordered Bell number is defined as
+ordBell(N ) = PN
+k=1
+N
+k
+	
+k!. ForN = 6, the reward computation becomes costly enough to slow down the training
+considerably. For largerN, the problem becomes intractable. In this section, we optimize this correctness evaluation
+procedure by leveraging the Zero-One principle, and adapting it to assembly programs.
+The Zero-One Principle.
+Proposition 1. [Zero-One Principle, 3] If a sorting network sorts all binary sequences in{0, 1}N, then it also sorts
+all sequences of arbitrary numbers correctly.
+This drastically reduces the number of sequences needed for evaluation. For example, sort8 only requires28 =
+256 sequences instead of88 = 16777216 . By adapting the zero-one principle to our setup, the number of input
+sequencesrequiredfortestingcorrectnessreducesdramaticallyasseeninTableF.10. Wenextgothroughtheproofof
+the Assembly Zero-One principle, and start by introducing Assembly Sorting Networks.
+F.1 Assembly Sorting Network
+Wedefineinthissectionaparticulargeneralizationoftraditionalsortingnetworksintheassemblylanguagespacethat
+we coin as"Assembly Sorting Networks". In this formulation, we haveN memory wires andNreg registers yielding in
+totalK =N +Nreg wires, and a special flag variable. An example is shown in Figure F.4. Each assembly instruction
+is mapped to a visual representation on the diagram. Formally,
+Definition1. (AssemblyNetwork)Thisnetworkconsistsof N memorywires, Nregregisterwiresthatcarryvalues,one
+flag wire taking values in{Less (L),Greater (G),Equal (E)}, and a sequence ofm operations (Op1,Op2,..., Opm).
+Given an input sequencea, the state of an Assembly Sorting NetworkW after t operations is described by the
+wires-flag pair(W t[a],F t[a]), and we use the subscript notationW t
+i [a] to denote the value at wirei. For simplicity,
+we sometimes omit the input sequencea in the notation when it is non-ambiguous.
+Definition 2.(Assembly Sorting Network) An Assembly Sorting Network is an Assembly Network designed to sort any
+input of lengthN by supporting the following set of operations:
+Definition 3.(Move)Themoveoperationmov<p,q>copiesthevaluefromwire ptowire q. Atstaget,itproducesthe
+state (W t,F t) such that
+11
+
+
+## Page 13
+
+N 2N− 1 N ! ordBell(N ) N N
+1 1 1 1 1
+2 3 2 3 4
+3 7 6 13 27
+4 15 24 75 256
+5 31 120 541 3125
+6 63 720 4683 46656
+7 127 5040 47293 823543
+8 255 40320 545835 16777216
+Table F.10:Sorting sequences needed for evaluating correctness. This table provides a comparison of the number of
+input sequences needed for the observation space, and evaluating correctness, as a function of the sort lengthN. We
+compare using the zero-one principle (2N), total orderings without ties (N !), weak orderings (ordBell(N )) and total
+orderings (N N)
+• W t
+i =
+(
+W t−1
+p , ifi =q
+W t−1
+i , ifi̸=q
+• F t =F t−1
+Definition 4. (Compare) The compare operation cmp<p,q> compares the wiresp andq and writes the result to the
+flag. At staget, it produces the state(W t,F t) such that
+• W t =W t−1
+• F t =
+
+
+
+Less, ifW t−1
+p <W t−1
+q
+Equal, ifW t−1
+p =W t−1
+q
+Greater, ifW t−1
+p >W t−1
+q
+Definition5. (ConditionalMove)TheconditionalmoveoperationcmovLE<p,q>maymovethevaluefromwire ptoq
+depending on the value of the flag, and thus of the result of the latest compare operation. At staget produces the state
+(W t,F t) such that
+• W t
+q =
+(
+W t−1
+p ifF t−1∈{ Less, Equal}
+W t−1
+q else
+• W t
+i =W t−1
+i ifi̸=q
+• F t =F t−1
+The other conditional moves cmovL, cmovG, cmovGE, are defined similarly by replacing{Less, Equal} above with
+{Less},{Greater},{Greater, Equal} respectively.
+Assumption 1. We only allow a cmovXX<p,q> operation after there has been a cmp<r,s> operation so that the flag
+wire is initialized.
+F.2 Assembly Zero-One Principle
+Inthissection,westudytheconditionsallowingtoapplythezero-oneprincipledescribedinProposition1inthecontext
+of classic Sorting Networks to Assembly Sorting Networks.
+Proposition 2. The zero-one principle does not hold for Assembly Sorting Networks.
+Proof. WeexhibitinTable1acounter-exampleprogramthatsortsallbinarysequencesoflength N = 4,butdoesnot
+sort the integer sequence(4, 3, 2, 1).
+12
+
+
+## Page 14
+
+Asacounter-exampletothezero-oneprincipleforgeneralAssemblyNetworks,weprovidethefollowingProgram1.
+1 movl (%rsi), eax
+2 movl 4(%rsi), ecx
+3 movl 8(%rsi), edx
+4 movl 12(%rsi), edi
+5 movl ecx, r8d
+6 movl edx, ebx
+7 cmpl edi, r8d
+8 cmovle edi, ecx
+9 cmovgel edi, r8d
+10 cmpl eax, r8d
+11 cmovle eax, edi
+12 cmovgel eax, r8d
+13 cmpl ecx, ebx
+14 cmovgel r8d, ebx
+15 cmovle ecx, edx
+16 cmovgel ecx, r8d
+17 movl ebx, (%rsi)
+18 cmpl edi, r8d
+19 cmovgel edi, ebx
+20 movl ebx, 4(%rsi)
+21 cmpl edx, edi
+22 cmovgel edx, r8d
+23 movl r8d, 8(%rsi)
+24 cmpl eax, edx
+25 cmovle eax, edx
+26 movl edx, 12(%rsi)
+Listing 1:Length-26 program which sorts binary inputs but not integer inputs.
+Asweshowinthesequel,thereasonofthisnegativeresultcomesfromtheuseofconditionalmoves,thatcanfailto
+preserve a monotony property in some situations. Consequently, in order to maintain the zero-one principle, we need
+torestrictourselvestoasmallersubclassofAssemblySortingNetworks,forwhichconditionalmovesareonlyallowed
+in certain places. Our next result characterizes these conditional moves.
+Theorem F.1(AssemblyZero-OnePrinciple) . AnAssemblySortingNetworksuchthateveryconditionalmoveopera-
+tionisappliedtovaluesthatfallwithintherangeofthevaluesofthepreviouscompareoperation,satisfiesthezero-one
+principle.
+Formally,consideranAssemblySortingNetwork W,letOp tdenoteanyconditionalmoveoperationcmovXX<p,q>
+inthenetwork,appliedattime tonwires p,q,andOp k itslatestprecedingcompareoperationcmp<u,v>,where k<t .
+If all of the below four conditions are true,
+(i) For every Opt = cmovL<p,q>,
+W k
+u <W k
+v impliesW t−1
+p ,W t−1
+q ∈ [W k
+u,W k
+v ]
+(ii) For every Opt = cmovLE<p,q>,
+W k
+u >W k
+v impliesW t−1
+p ,W t−1
+q ∈ [W k
+v,W k
+u ]
+(iii) For every Opt = cmovG<p,q>,
+W k
+u >W k
+v impliesW t−1
+p ,W t−1
+q ∈ [W k
+v,W k
+u ]
+13
+
+
+## Page 15
+
+(iv) For every Opt = cmovGE<p,q>,
+W k
+u <W k
+v impliesW t−1
+p ,W t−1
+q ∈ [W k
+u,W k
+v ],
+thenW satisfies the zero-one principle.
+Proof. The full derivation can be seen in the Appendix F.3.
+This result allows us to exhibit a subclass of Assembly Sorting Networks for which the zero-one principle holds,
+whichmeansthattheircorrectnesscanbeefficientlycheckedusingbinarysequencesonly. Bymakingonlinedecisions
+aboutwhichactionsarelegal, i.e. whetherweshouldallowornotacmovXXinthecurrentstate, weareguaranteedto
+stay in this subclass of verifiable networks. Unfortunately, the four conditions of Theorem F.1 are expressed in terms
+ofarbitraryvaluesflowingthroughthenetwork,whichmeansthatcheckingthemstillrequiresevaluatingthisnetwork
+on all possible input sequencesa∈ [1,N ]N, which defeats the initial purpose.
+Consequently, to provide a practical implementation, we introduce another criterion that can be easily assessed on
+binary sequences only, and which we prove to be a sufficient condition for the four properties of Theorem F.1.
+TheoremF.2. (Practicalimplementation) ForanAssemblySortingNetwork W,consideranarbitraryOp t = cmovXX<p,q>
+and the latest preceding Opk = cmp<u,v>. If it holds that, for anybinary input sequenceb∈{ 0, 1}N
+W k
+u [b] = W k
+v [b] impliesW t−1
+p [b] = W t−1
+q [b] = W k
+u [b] (1)
+thenW verifies the four conditions of Theorem F.1, and thus the zero-one principle.
+Proof. The full derivation can be seen in the Appendix F.4.
+By restricting the search space, and despite the potential suboptimality that it could introduce, this result enables
+us to check the correctness of a sorting program by only testing the set of binary inputs, of size2N, rather than the set
+ofintegerinputs,ofsize ordBell(N ). Thisallowsustoscaleusingasimilarcomputationalbudgetfrom N = 6 inputs
+up toN = 8.
+F.3 Proof of Theorem F.1
+FollowingCormenetal.[16,Chapter28.2],wewillrelyonthenotionofmonotonicallyincreasingfunctions. Westart
+by showing the following lemma.
+Lemma F.1.If an Assembly Sorting NetworkW commutes with any monotonically increasing functionf, that is,
+W [f (a)] = f (W [a]), ∀a∈ [1,N ]N,
+then it satisfies the zero-one principle of Proposition 1.
+Proof. The proof follows the same steps as that of Cormen et al. [16, Theorem 28.2].
+Let W be an Assembly Sorting Network that commutes with any monotonically increasing functionf, we will
+show by contradiction that it satisfies the zero-one principle. Assume for the sake of contradiction that this principle
+does not hold,i.e. W sorts all binary sequences but there exists a sequencea of arbitrary numbers that the network
+does not correctly sort:a contains elementsai andaj such thatai <aj, but the network placesaj beforeai in the
+output sequence. We define the threshold functionf : x→ 1{x≥ aj}, which is monotonically increasing. Since
+the network commutes withf by assumption, and placesaj beforeai in the output sequence whena is input, it also
+placesf (aj) beforef (ai) in the output sequence whenf (a) is input. But sincef (ai) = 0 andf (aj) = 1, we obtain
+the contradiction that the network fails to sort the binary sequencef (a) correctly.
+For classic sorting networks, this commutative property was not needed because it was a direct consequence of
+sorting binary inputs. This is no longer the case with Assembly Sorting Networks, and we show next that it is now a
+consequence of the four conditions enumerated in Theorem F.1.
+Proposition 3. Consider an Assembly Sorting NetworkW that satisfies the conditions of Theorem F.1. Then,W
+commutes with any monotonically increasing functionf:
+W [f (a)] = f (W [a]), ∀a∈ [1,N ]N (2)
+Proof. We prove this proposition by induction with respect to the numberm of operations in the Assembly Network.
+We wish to show the following property.
+14
+
+
+## Page 16
+
+PropertyP (m). for any Assembly NetworkW withm operations,
+W m[f (a)] = f (W m[a]), ∀a∈ [1,N ]N (3)
+Base caseP (0). The Assembly Network has no operations. ThenW is the identity,W 0[a] = a, and the property
+holds.
+Induction:. We assume theP (k) holds for anyk<m ,
+W k[f (a)] = f (W k[a]) for any Assembly NetworkW withk<m operations,
+and we wish to prove thatP (m) also holds.
+Let W be an Assembly Network withm operations, a ∈ [1,N ]N an input sequence, andf a monotonically
+increasing function. Let us consider the last operation ofW: it can be one of cmp, mov, cmovXX. The following
+lemmas will deal with each instruction, showing that all of them maintain the commutativity ofW m with respect to
+monotonically increasing functions, which concludes the proof.
+Lemma F.2.If Opm = cmp<p,q>, then(3) holds.
+Proof. Sincecmp<p,q> does not change the values on any wire, other than the flag wire, we have thatW m =W m−1.
+Thus, applying the inductive hypothesis toW m−1 yields the desired result.
+Lemma F.3.If Opm = mov<p,q>, then(3)holds.
+Proof. Foranywire i̸=q,mov<p,q>doesnotchangethevalueofwire i,soagain W m
+i =W m−1
+i andwecanconclude
+byapplyingtheinductiveproperty. Ontheotherhand,thewire qischangedunconditionallyand W m
+q =W m−1
+p . Thus,
+by the inductive hypothesis:
+W m
+q [f (a)] = W m−1
+p [f (a)] = f (W m−1
+p [a]) = f (W m
+q [a])
+Lemma F.4.If Opm = cmovL<p,q>, then(3)holds.
+Proof. WedenotetheprecedingcompareoperationasOp k = cmp<u,v>where k<m . Asbefore, forallwires i̸=q,
+the values are unchanged, so the commutativity directly stems from the inductive hypothesis for these wires. Let us
+now consider the wireq.
+By definition ofcmovL<p,q>:
+W m
+q =
+(
+W m−1
+p ifW k
+u <W k
+v
+W m−1
+q ifW k
+u≥W k
+v
+Applying it tof (a),
+W m
+q [f (a)] =
+(
+W m−1
+p [f (a)] ifW k
+u [f (a)]<W k
+v [f (a)]
+W m−1
+q [f (a)] ifW k
+u [f (a)]≥W k
+v [f (a)]
+By the inductive hypothesis applied toW k, this can be rewritten as
+W m
+q [f (a)] =
+(
+W m−1
+p [f (a)] iff (W k
+u [a])<f (W k
+v [a])
+W m−1
+q [f (a)] iff (W k
+u [a])≥f (W k
+v [a])
+We consider two cases
+Case 1:W k
+u [a]≥W k
+v [a]. Sincef is monotonically increasing,f (W k
+u [a])≥f (W k
+v [a]). Thus,
+W m
+q [f (a)] = W m−1
+q [f (a)] By definition ofcmovL<p,q> applied tof (a)
+=f (W m−1
+q [a]) By inductive hypothesis
+=f (W m
+q [a]) By definition ofcmovL<p,q> applied toa
+15
+
+
+## Page 17
+
+Case 2:W k
+u [a]<W k
+v [a]. Sincef is monotonically increasing, this impliesf (W k
+u [a])≤f (W k
+v [a]).
+If the inequality is strict,f (W k
+u [a])<f (W k
+v [a]), then similarly to case 1:
+W m
+q [f (a)] = W m−1
+p [f (a)] = f (W m−1
+p [a]) = f (W m
+q [a])
+Conversely, if the inequality is an equality,f (W k
+u [a]) = f (W k
+v [a]), then
+• f is constant on the interval[W k
+u [a],W k
+v [a]], since it is monotonically increasing
+• the two sequencesa andf (a) do not fall into the same case:
+we haveW m
+q [f (a)] = W m−1
+q [f (a)] whileW m
+q [a] = W m−1
+p [a]. (4)
+This is where the conditions of Theorem F.1 come in. By applying condition (i), we have thatW m−1
+p [a] and
+W m−1
+q [a]∈ [W k
+u [a],W k
+v [a]]. Sincef isconstantinthatinterval,wecandeducethatthesetwovaluesareequal,which
+yields
+W m
+q [f (a)] = W m−1
+q [f (a)] By (4)
+=f (W m−1
+q [a]) By induction hypothesis
+=f (W m−1
+p [a]) Sincef is constant on[W k
+u [a],W k
+v [a]]
+=f (W m
+q [a]) By (4)
+Lemma F.5.If Opm = cmovLE<p,q>, cmovG<p,q> or cmovGE<p,q>, then(3) holds.
+Proof. The proofs for each operation is similar to that of Lemma F.4. It involves writing the definitions ofW m
+q [a]and
+W m
+q [f (a)], and looking at their respective orders. When it is the same, they both do the conditional move fromptoq,
+or none of them do, and the inductive hypothesis can be applied to obtain the result. The equality casef (W k
+u [a]) =
+f (W k
+v [a]) has to be treated separately, by noticing thatf is then constant on that interval, which yields the equality of
+W m−1
+p [a] andW m−1
+q [a] by invoking the conditions (ii)–(iv), and enables to conclude the proof.
+F.4 Proof of Theorem F.2
+Proof. We are going to show by induction the following property.
+PropertyP (m). LetW be an Assembly Sorting Network of lengthm which satisfies for any binary sequenceb∈
+{0, 1}N
+W k
+u [b] = W k
+v [b] impliesW t−1
+p [b] = W t−1
+q [b] = W k
+u [b] (1)
+wheret≤m is the index of any Opt = cmovXX<p,q> andk<t the index of the latest preceding Opk = cmp<u,v>.
+Then,W also satisfies the four conditions of (i)–(iv) of Theorem F.1
+InitializationP (1). Any network of length1 satisfies the conditions of Theorem F.1.
+InductionP (m− 1) =⇒ P (m). We assume thatP (m− 1) holds and proveP (m).
+LetW be an Assembly Sorting Network of lengthm which satisfies for any binary sequenceb∈{ 0, 1}N
+W k
+u [b] = W k
+v [b] impliesW t−1
+p [b] = W t−1
+q [b] = W k
+u [b]
+We are going to show by contradiction that the four conditions (i)–(iv) of Theorem F.1 hold.
+Consider the subprogramsW k for anyk≤m− 1. They also satisfy the previous equality (1) for anyt≤m− 1,
+so by the inductive hypothesis they satisfy the four conditions of Theorem F.1. In particular, by Proposition 3 they
+commute with any monotonically increasing functionf:
+W k[f (a)] = f (W k[a]), ∀a,∀k≤m− 1
+16
+
+
+## Page 18
+
+Lettbe the index of a Opt = cmovXX<p,q> inW. Ift<m , applying the inductive hypothesis to the subnetwork
+W m−1 directly yields the desired result that all four properties (i)–(iv) are satisfied, so the only case left to consider
+is whent = m: we are adding a conditional move at the end of the network. Let us consider the four conditions
+separately, depending on the type of conditional move, and prove each of them by contradiction
+Case 1: Opm = cmovL<p,q>. Assume that the condition (i) if false. Then, we have thatW k
+u < Wk
+v but one of
+W m−1
+p orW m−1
+q does not belong to[W k
+u,W k
+v ].
+• Example case:W k
+u <W k
+v <W m−1
+p
+Define the monotonically increasing threshold functionf :x→ 1{x≥W m−1
+p }, and for any input sequencea
+consider its binarizationb =f (a). Then, we have
+W k
+u [b] = W k
+u [f (a)]
+=f (W k
+u [a]) SinceW k commutes withf
+= 0 By definition off
+=f (W k
+v [a]) By definition off
+=W k
+v [f (a)] SinceW k commutes withf
+=W k
+v [b]
+Sinceweassumed(1),thisimpliesthat W m−1
+p [b] = W m−1
+q [b] = W k
+u [b],thatis, W m−1
+p [f (a)] = W m−1
+q [f (a)] =
+W k
+u [f (a)]. SinceW m−1 commutes withf, this implies the contradiction1 = f (W m−1
+p [a]) = f (W k
+u [a]) = 0.
+Thus, the condition (i) must be true.
+• Other cases: We can proceed similarly : whenever one of the valuesW m−1
+p orW m−1
+q is outside [W k
+u,W k
+v ],
+simply definef as a threshold function that separates this value from the interval, and applyingW tof (a) will
+lead to the same contradiction in (1).
+Cases 2–4: Opm = cmovLE<p,q>, cmovG<p,q> orcmovGE<p,q>. Again, we can proceed similarly to prove the
+conditions (ii)–(iv), respectively. Each time, we have to show thatW m−1
+p andW m−1
+q belong to an interval, and we
+can proceed by contradiction as in Case 1, by defining a threshold functionf that separates the interval from the value
+that is outside of it. Applying this function on the input sequencef will yield a contradiction in (1).
+All conditions (i)–(iv) hold, soP (m) is true, which concludes the induction.
+G Additional programs
+In this section, we provide a list of12 correct sort3, sort4 and sort5 assembly programs discovered byAlphaDev. In
+the list, the naming convention is sortX_Y, where X is the number of elements to be sorted and Y is the number of
+assemblyinstructionsinthisprogram. Ascanbeseenbytheprograms, AlphaDeviscapableoffindingmultipleoptimal
+solutions (e.g., a variant of the sort3 17 instruction program - Sort3_17). In addition, whileAlphaDev is trying to find
+the optimal sorting program for a given length, it discovers less efficient, but correct programs such as sort3_18 and
+sort3_19. In this case, these longer programs have one and two extramov<A,B> instructions respectively.
+• Sort3_17
+• Sort3_18
+• Sort3_19
+• Sort3_20
+• Sort4_28
+• Sort4_29
+17
+
+
+## Page 19
+
+• Sort4_30
+• Sort4_31
+• Sort5_42
+• Sort5_43
+• Sort5_44
+• Sort5_45
+/*Copyright 2022 DeepMind Technologies Limited. Licensed under the Apache License,
+Version 2.0 and CC BY 4.0. You may not use this file except in compliance with these
+licenses. Copies of the licenses can be found at
+https://www.apache.org/licenses/LICENSE-2.0 and
+https://creativecommons.org/licenses/by/4.0/legalcode.*/
+,→
+,→
+,→
+,→
+#include <algorithm>
+#include <functional>
+#include <utility>
+#include <vector>
+#include <gtest/gtest.h>
+void Sort3_17(int* buffer) {
+asm volatile(
+"mov 0x4(%0), %%r8d \n"
+"mov 0x8(%0), %%edx \n"
+"mov 0x8(%0), %%ecx \n"
+"cmp %%r8d, %%ecx \n"
+"cmovge %%r8d, %%edx \n"
+"cmovl %%r8d, %%ecx \n"
+"mov %%ecx, %%r8d \n"
+"mov (%0), %%eax \n"
+"cmp %%eax, %%r8d \n"
+"cmovge %%eax, %%r8d \n"
+"cmovl %%eax, %%ecx \n"
+"mov %%ecx, 0x8(%0) \n"
+"cmp %%edx, %%eax \n"
+"cmovle %%edx, %%r8d \n"
+"cmovg %%edx, %%eax \n"
+"mov %%r8d, 0x4(%0) \n"
+"mov %%eax, (%0) \n"
+: "+r"(buffer)
+:
+: "eax", "ecx", "edx", "r8d", "memory");
+}
+void Sort3_18(int* buffer) {
+asm volatile(
+"mov (%0), %%r8d \n"
+"mov 0x8(%0), %%edx \n"
+"mov %%edx, %%ecx \n"
+"mov 0x4(%0), %%eax \n"
+18
+
+
+## Page 20
+
+"cmp %%eax, %%edx \n"
+"cmovg %%eax, %%edx \n"
+"cmovl %%eax, %%ecx \n"
+"cmp %%r8d, %%ecx \n"
+"cmovle %%ecx, %%r8d \n"
+"mov (%0), %%eax \n"
+"cmovle %%eax, %%ecx \n"
+"cmp %%eax, %%edx \n"
+"cmovle %%edx, %%eax \n"
+"mov %%ecx, 0x8(%0) \n"
+"cmovle %%r8d, %%edx \n"
+"mov %%edx, 0x4(%0) \n"
+"mov %%edx, %%ecx \n"
+"mov %%eax, (%0) \n"
+: "+r"(buffer)
+:
+: "eax", "ecx", "edx", "r8d", "memory");
+}
+void Sort3_19(int* buffer) {
+asm volatile(
+"mov 0x8(%0), %%ecx \n"
+"mov (%0), %%r8d \n"
+"mov 0x4(%0), %%edx \n"
+"cmp %%edx, %%ecx \n"
+"cmovle %%ecx, %%edx \n"
+"mov 0x8(%0), %%eax \n"
+"mov 0x4(%0), %%eax \n"
+"cmovl %%eax, %%ecx \n"
+"cmp %%r8d, %%ecx \n"
+"cmovle %%ecx, %%r8d \n"
+"mov (%0), %%eax \n"
+"cmovle %%eax, %%ecx \n"
+"cmp %%eax, %%edx \n"
+"cmovle %%edx, %%eax \n"
+"cmovge %%edx, %%r8d \n"
+"mov %%eax, (%0) \n"
+"mov %%r8d, 0x4(%0) \n"
+"mov 0x4(%0), %%edx \n"
+"mov %%ecx, 0x8(%0) \n"
+: "+r"(buffer)
+:
+: "eax", "ecx", "edx", "r8d", "memory");
+}
+void Sort3_20(int* buffer) {
+asm volatile(
+"mov (%0), %%eax \n"
+"mov 0x4(%0), %%eax \n"
+"mov 0x8(%0), %%ecx \n"
+"mov %%eax, %%edx \n"
+"cmp %%eax, %%ecx \n"
+"cmovl %%ecx, %%edx \n"
+"cmovl %%eax, %%ecx \n"
+19
+
+
+## Page 21
+
+"mov (%0), %%eax \n"
+"mov %%eax, %%r8d \n"
+"cmp %%r8d, %%ecx \n"
+"cmovle %%ecx, %%r8d \n"
+"cmovl %%eax, %%ecx \n"
+"cmp %%edx, %%eax \n"
+"cmp %%eax, %%edx \n"
+"cmovl %%edx, %%eax \n"
+"cmovg %%edx, %%r8d \n"
+"cmp %%ecx, %%eax \n"
+"mov %%ecx, 0x8(%0) \n"
+"mov %%r8d, 0x4(%0) \n"
+"mov %%eax, (%0) \n"
+: "+r"(buffer)
+:
+: "eax", "ecx", "edx", "r8d", "memory");
+}
+void Sort4_28(int* buffer) {
+asm volatile(
+"mov (%0), %%eax \n"
+"mov 0x4(%0), %%ecx \n"
+"mov 0x8(%0), %%edx \n"
+"cmp %%eax, %%edx \n"
+"mov %%ecx, %%r9d \n"
+"mov (%0), %%r8d \n"
+"cmovg %%edx, %%r8d \n"
+"mov %%r8d, %%r10d \n"
+"cmovg %%eax, %%edx \n"
+"mov 0xc(%0), %%eax \n"
+"cmp %%ecx, %%eax \n"
+"cmovge %%eax, %%r9d \n"
+"cmovge %%ecx, %%eax \n"
+"cmp %%r10d, %%r9d \n"
+"cmovge %%r9d, %%r10d \n"
+"cmovge %%r8d, %%r9d \n"
+"mov %%r10d, 0xc(%0) \n"
+"mov %%edx, %%r10d \n"
+"cmp %%edx, %%eax \n"
+"cmovge %%eax, %%r10d \n"
+"cmovge %%edx, %%eax \n"
+"mov %%eax, (%0) \n"
+"cmp %%r9d, %%r10d \n"
+"mov %%r9d, %%edx \n"
+"cmovg %%r10d, %%edx \n"
+"mov %%edx, 0x8(%0) \n"
+"cmovge %%r9d, %%r10d \n"
+"mov %%r10d, 0x4(%0) \n"
+: "+r"(buffer)
+:
+: "eax", "ecx", "edx", "r8d", "r9d", "memory");
+}
+20
+
+
+## Page 22
+
+void Sort4_29(int* buffer) {
+asm volatile(
+"mov (%0), %%eax \n"
+"mov 0x4(%0), %%ecx \n"
+"mov %%ecx, %%r9d \n"
+"mov 0x8(%0), %%edx \n"
+"mov %%eax, %%r8d \n"
+"cmp %%r8d, %%edx \n"
+"cmovg %%edx, %%r8d \n"
+"cmovge %%eax, %%edx \n"
+"mov 0xc(%0), %%eax \n"
+"cmp %%ecx, %%eax \n"
+"cmovge %%eax, %%r9d \n"
+"cmovge %%ecx, %%eax \n"
+"cmp %%r8d, %%r9d \n"
+"mov %%r8d, %%r10d \n"
+"cmovge %%r9d, %%r10d \n"
+"cmovg %%r8d, %%r9d \n"
+"cmp %%edx, %%eax \n"
+"mov %%r10d, 0xc(%0) \n"
+"mov %%r9d, 0x8(%0) \n"
+"mov %%edx, %%r10d \n"
+"cmovg %%eax, %%r10d \n"
+"cmovge %%edx, %%eax \n"
+"mov %%r9d, %%edx \n"
+"cmp %%r9d, %%r10d \n"
+"mov %%eax, (%0) \n"
+"cmovg %%r10d, %%edx \n"
+"mov %%edx, 0x8(%0) \n"
+"cmovge %%r9d, %%r10d \n"
+"mov %%r10d, 0x4(%0) \n"
+: "+r"(buffer)
+:
+: "eax", "ecx", "edx", "r8d", "r9d", "memory");
+}
+void Sort4_30(int* buffer) {
+asm volatile(
+"mov 0x4(%0), %%ecx \n"
+"mov 0x8(%0), %%edx \n"
+"mov (%0), %%eax \n"
+"cmp %%eax, %%edx \n"
+"mov %%eax, %%r8d \n"
+"mov (%0), %%eax \n"
+"cmovg %%edx, %%r8d \n"
+"cmovge %%eax, %%edx \n"
+"mov 0xc(%0), %%eax \n"
+"cmp %%ecx, %%eax \n"
+"mov %%ecx, %%r9d \n"
+"cmovg %%eax, %%r9d \n"
+"cmovge %%eax, %%r9d \n"
+"cmovg %%ecx, %%eax \n"
+"cmp %%r8d, %%r9d \n"
+"mov %%r8d, %%r10d \n"
+21
+
+
+## Page 23
+
+"cmovge %%r9d, %%r10d \n"
+"mov %%r10d, 0xc(%0) \n"
+"cmovg %%r8d, %%r9d \n"
+"mov %%edx, %%r10d \n"
+"cmp %%edx, %%eax \n"
+"cmovge %%eax, %%r10d \n"
+"cmovge %%edx, %%eax \n"
+"mov %%eax, (%0) \n"
+"cmp %%r9d, %%r10d \n"
+"mov %%r9d, %%edx \n"
+"cmovge %%r10d, %%edx \n"
+"mov %%edx, 0x8(%0) \n"
+"cmovge %%r9d, %%r10d \n"
+"mov %%r10d, 0x4(%0) \n"
+: "+r"(buffer)
+:
+: "eax", "ecx", "edx", "r8d", "r9d", "memory");
+}
+void Sort4_31(int* buffer) {
+asm volatile(
+"mov (%0), %%eax \n"
+"mov 0x4(%0), %%ecx \n"
+"mov 0x8(%0), %%edx \n"
+"mov (%0), %%eax \n"
+"cmp %%eax, %%edx \n"
+"mov %%eax, %%r8d \n"
+"cmovg %%edx, %%r8d \n"
+"cmovge %%eax, %%edx \n"
+"cmp %%ecx, %%eax \n"
+"mov 0xc(%0), %%eax \n"
+"cmp %%ecx, %%eax \n"
+"mov %%ecx, %%r9d \n"
+"cmovg %%eax, %%r9d \n"
+"cmovge %%eax, %%r9d \n"
+"cmovg %%ecx, %%eax \n"
+"cmp %%r8d, %%r9d \n"
+"mov %%r8d, %%r10d \n"
+"cmovge %%r9d, %%r10d \n"
+"mov %%r10d, 0xc(%0) \n"
+"cmovg %%r8d, %%r9d \n"
+"mov %%edx, %%r10d \n"
+"cmp %%edx, %%eax \n"
+"cmovge %%eax, %%r10d \n"
+"cmovge %%edx, %%eax \n"
+"mov %%eax, (%0) \n"
+"cmp %%r9d, %%r10d \n"
+"mov %%r9d, %%edx \n"
+"cmovge %%r10d, %%edx \n"
+"mov %%edx, 0x8(%0) \n"
+"cmovg %%r9d, %%r10d \n"
+"mov %%r10d, 0x4(%0) \n"
+: "+r"(buffer)
+:
+22
+
+
+## Page 24
+
+: "eax", "ecx", "edx", "r8d", "r9d", "memory");
+}
+void Sort5_42(int* buffer) {
+asm volatile(
+"mov (%0), %%eax \n"
+"mov %%eax, %%ecx \n"
+"mov 0x4(%0), %%edx \n"
+"cmp %%edx, %%eax \n"
+"cmovg %%edx, %%eax \n"
+"cmovl %%edx, %%ecx \n"
+"mov 0x8(%0), %%r8d \n"
+"mov 0xc(%0), %%r9d \n"
+"mov %%r8d, %%r10d \n"
+"cmp %%r9d, %%r10d \n"
+"cmovl %%r9d, %%r10d \n"
+"mov 0x10(%0), %%edx \n"
+"cmovge %%r9d, %%r8d \n"
+"mov %%r8d, %%r9d \n"
+"cmp %%eax, %%r9d \n"
+"cmovge %%eax, %%r8d \n"
+"cmovge %%r9d, %%eax \n"
+"cmp %%edx, %%r10d \n"
+"mov %%edx, %%r9d \n"
+"cmovg %%r10d, %%edx \n"
+"cmovg %%r9d, %%r10d \n"
+"cmp %%r9d, %%r8d \n"
+"cmovle %%r8d, %%r9d \n"
+"cmovle %%r10d, %%r8d \n"
+"mov %%r9d, (%0) \n"
+"cmp %%ecx, %%r10d \n"
+"cmovge %%ecx, %%r8d \n"
+"cmovl %%ecx, %%r10d \n"
+"cmp %%eax, %%r8d \n"
+"mov %%eax, %%r9d \n"
+"cmovge %%r8d, %%eax \n"
+"cmovg %%r9d, %%r8d \n"
+"mov %%r8d, 0x4(%0) \n"
+"cmp %%r10d, %%edx \n"
+"cmovle %%edx, %%r10d \n"
+"cmovge %%edx, %%ecx \n"
+"mov %%ecx, 0x10(%0) \n"
+"cmp %%eax, %%r10d \n"
+"cmovl %%r10d, %%eax \n"
+"cmovge %%r10d, %%r9d \n"
+"mov %%eax, 0x8(%0) \n"
+"mov %%r9d, 0xc(%0) \n"
+: "+r"(buffer)
+:
+: "eax", "ecx", "edx", "r8d", "r9d", "r10d", "memory");
+}
+void Sort5_43(int* buffer) {
+asm volatile(
+23
+
+
+## Page 25
+
+"mov (%0), %%eax \n"
+"mov 0x4(%0), %%ecx \n"
+"cmp %%eax, %%ecx \n"
+"mov %%eax, %%edx \n"
+"cmovl %%ecx, %%edx \n"
+"cmovg %%ecx, %%eax \n"
+"mov 0xc(%0), %%r8d \n"
+"mov 0x10(%0), %%ecx \n"
+"cmp %%r8d, %%ecx \n"
+"mov %%r8d, %%r9d \n"
+"cmovl %%ecx, %%r9d \n"
+"cmovg %%ecx, %%r8d \n"
+"mov 0x8(%0), %%r10d \n"
+"cmp %%r10d, %%r8d \n"
+"mov %%r10d, %%ecx \n"
+"cmovl %%r8d, %%ecx \n"
+"cmovle %%r10d, %%r8d \n"
+"cmp %%ecx, %%r9d \n"
+"cmovle %%r9d, %%r10d \n"
+"cmovg %%r9d, %%ecx \n"
+"cmp %%eax, %%r8d \n"
+"mov %%eax, %%r9d \n"
+"cmovl %%r8d, %%r9d \n"
+"cmovle %%eax, %%r8d \n"
+"cmp %%edx, %%ecx \n"
+"mov %%edx, %%eax \n"
+"cmovl %%ecx, %%eax \n"
+"cmovle %%edx, %%ecx \n"
+"mov %%r8d, 0x10(%0) \n"
+"cmp %%eax, %%r10d \n"
+"cmovle %%r10d, %%edx \n"
+"mov %%edx, (%0) \n"
+"cmovg %%r10d, %%eax \n"
+"cmp %%r9d, %%ecx \n"
+"mov %%r9d, %%r8d \n"
+"cmovl %%ecx, %%r8d \n"
+"cmovle %%r9d, %%ecx \n"
+"mov %%ecx, 0xc(%0) \n"
+"cmp %%r8d, %%eax \n"
+"cmovle %%eax, %%r9d \n"
+"mov %%r9d, 0x4(%0) \n"
+"cmovg %%eax, %%r8d \n"
+"mov %%r8d, 0x8(%0) \n"
+: "+r"(buffer)
+:
+: "eax", "ecx", "edx", "r8d", "r9d", "r10d", "memory");
+}
+void Sort5_44(int* buffer) {
+asm volatile(
+"mov (%0), %%eax \n"
+"mov 0x4(%0), %%ecx \n"
+"mov 0xc(%0), %%r9d \n"
+"mov 0x10(%0), %%r10d \n"
+24
+
+
+## Page 26
+
+"mov %%eax, %%r8d \n"
+"mov 0x8(%0), %%edx \n"
+"cmp %%eax, %%ecx \n"
+"cmovle %%ecx, %%r8d \n"
+"cmovle %%eax, %%ecx \n"
+"mov 0xc(%0), %%eax \n"
+"cmp %%r9d, %%r10d \n"
+"cmovg %%r10d, %%r9d \n"
+"cmovle %%r10d, %%eax \n"
+"cmovle %%r9d, %%r10d \n"
+"cmp %%edx, %%r10d \n"
+"cmovg %%edx, %%r9d \n"
+"cmovl %%edx, %%r10d \n"
+"cmp %%eax, %%edx \n"
+"cmovle %%eax, %%r9d \n"
+"cmovge %%eax, %%edx \n"
+"mov %%edx, 0x4(%0) \n"
+"mov %%ecx, %%eax \n"
+"cmp %%ecx, %%r10d \n"
+"cmovge %%r10d, %%ecx \n"
+"cmovle %%r10d, %%eax \n"
+"mov %%ecx, 0x10(%0) \n"
+"mov %%r8d, %%ecx \n"
+"cmp %%ecx, %%r9d \n"
+"cmovle %%r9d, %%ecx \n"
+"mov %%eax, %%r10d \n"
+"cmovl %%r8d, %%r9d \n"
+"cmp %%edx, %%r8d \n"
+"cmovge %%edx, %%r8d \n"
+"cmovle %%edx, %%ecx \n"
+"cmp %%eax, %%r9d \n"
+"cmovl %%r9d, %%r10d \n"
+"mov %%r8d, (%0) \n"
+"cmovl %%eax, %%r9d \n"
+"cmp %%eax, %%edx \n"
+"cmovl %%ecx, %%eax \n"
+"cmovg %%ecx, %%r10d \n"
+"mov %%eax, 0x4(%0) \n"
+"mov %%r10d, 0x8(%0) \n"
+"mov %%r9d, 0xc(%0) \n"
+: "+r"(buffer)
+:
+: "eax", "ecx", "edx", "r8d", "r9d", "r10d", "memory");
+}
+void Sort5_45(int* buffer) {
+asm volatile(
+"mov (%0), %%eax \n"
+"mov 0x4(%0), %%r8d \n"
+"mov 0xc(%0), %%r9d \n"
+"mov %%r8d, %%ecx \n"
+"mov 0x10(%0), %%r10d \n"
+"mov 0x8(%0), %%edx \n"
+"cmp %%eax, %%r8d \n"
+25
+
+
+## Page 27
+
+"cmovg %%eax, %%r8d \n"
+"cmovle %%eax, %%ecx \n"
+"mov %%ecx, 0x4(%0) \n"
+"cmp %%r9d, %%r10d \n"
+"mov %%r8d, (%0) \n"
+"mov %%r9d, %%eax \n"
+"cmovle %%r10d, %%eax \n"
+"cmovl %%r9d, %%r10d \n"
+"cmovge %%r10d, %%r9d \n"
+"cmp %%edx, %%r9d \n"
+"cmovle %%edx, %%r10d \n"
+"cmovg %%edx, %%r9d \n"
+"cmp %%eax, %%edx \n"
+"cmovle %%eax, %%r9d \n"
+"cmovg %%eax, %%edx \n"
+"cmp %%ecx, %%r10d \n"
+"mov %%r10d, %%eax \n"
+"cmovge %%ecx, %%r10d \n"
+"cmovl %%ecx, %%eax \n"
+"mov %%r9d, %%ecx \n"
+"cmp %%r8d, %%r9d \n"
+"mov %%eax, 0x10(%0) \n"
+"cmovl %%r8d, %%r9d \n"
+"cmovg %%r8d, %%ecx \n"
+"mov %%r10d, %%eax \n"
+"cmp %%eax, %%r9d \n"
+"cmovle %%r9d, %%r10d \n"
+"cmovle %%eax, %%r9d \n"
+"cmp %%r8d, %%edx \n"
+"mov %%r9d, 0xc(%0) \n"
+"cmovl %%edx, %%r8d \n"
+"cmovge %%edx, %%ecx \n"
+"mov %%r8d, (%0) \n"
+"cmp %%eax, %%ecx \n"
+"cmovge %%ecx, %%r10d \n"
+"mov %%r10d, 0x8(%0) \n"
+"cmovl %%ecx, %%eax \n"
+"mov %%eax, 0x4(%0) \n"
+: "+r"(buffer)
+:
+: "eax", "ecx", "edx", "r8d", "r9d", "r10d", "memory");
+}
+References
+[1] JulianSchrittwieseretal.“MasteringAtari,Go,ChessandShogibyPlanningwithaLearnedModel”.In: Nature
+588.7839 (2020), pp. 604–609.
+[2] Marc G Bellemare, Will Dabney, and Rémi Munos. “A distributional perspective on reinforcement learning”.
+In: International Conference on Machine Learning. PMLR. 2017, pp. 449–458.
+[3] Sanguthevar Rajasekaran and Sandeep Sen. “A generalization of the 0–1 Principle for sorting”. In:Information
+processing letters94.1 (2005), pp. 43–47.
+[4] Toshio Nakatani et al. “K-way bitonic sort”. In:IEEE Transactions on Computers38.2 (1989), pp. 283–288.
+26
+
+
+## Page 28
+
+[5] Peter W Battaglia et al. “Relational inductive biases, deep learning, and graph networks”. In:arXiv preprint
+arXiv:1806.01261(2018).
+[6] Julian Schrittwieser et al. “Mastering atari, go, chess and shogi by planning with a learned model”. In:Nature
+588.7839 (2020), pp. 604–609.
+[7] Julian Schrittwieser et al. “Online and offline reinforcement learning by planning with a learned model”. In:
+arXiv preprint arXiv:2104.06294(2021).
+[8] Chris Cummins et al. “Programl: Graph-based deep learning for program optimization and analysis”. In:arXiv
+preprint arXiv:2003.10536(2020).
+[9] Miltiadis Allamanis, Marc Brockschmidt, and Mahmoud Khademi. “Learning to Represent Programs with
+Graphs”. In:International Conference on Learning Representations. 2018.
+[10] Marco Gori, Gabriele Monfardini, and Franco Scarselli. “A new model for learning in graph domains”. In:
+Proceedings.2005IEEEInternationalJointConferenceonNeuralNetworks,2005. Vol.2.IEEE.2005,pp.729–
+734.
+[11] FrancoScarsellietal.“Thegraphneuralnetworkmodel”.In: IEEEtransactionsonneuralnetworks 20.1(2008),
+pp. 61–80.
+[12] Google. VarIntProtocolBufferSerializationandDeserialization .Version0.2.5.2022. url:https://developers.
+google.com/protocol-buffers/docs/encoding.
+[13] AtCoder. A Buttons. 2022. url: https://atcoder.jp/contests/abc124/tasks/abc124_a (visited on
+01/07/2022).
+[14] Yujia Li et al. “Competition-level code generation with alphacode”. In:Science(2022).
+[15] Wikipedia. Ordered Bell Numbers.https://en.wikipedia.org/wiki/Ordered_Bell_number. 2021.
+[16] Thomas H Cormen et al.Introduction to algorithms. MIT press, 2009.
+27
+
+
+<!-- materialization-redistribution-notice -->
+## Redistribution notice
+
+Daniel J. Mankowitz; Andrea Michi; Anton Zhernov; Marco Gelmi; Marco Selvi; Cosmin Paduraru; Edouard Leurent; Shariq Iqbal; Jean-Baptiste Lespiau; Alex Ahern; Thomas Köppe; Kevin Millikin; Stephen Gaffney; Sophie Elster; Jackson Broshear; Chris Gamble; Kieran Milan; Robert Tung; Minjae Hwang; Taylan Cemgil; Mohammadamin Barekatain; Yujia Li; Amol Mandhane; Thomas Hubert; Julian Schrittwieser; Demis Hassabis; Pushmeet Kohli; Martin Riedmiller; Oriol Vinyals; David Silver. "Faster sorting algorithms discovered using deep reinforcement learning". © The Author(s) 2023. DOI https://doi.org/10.1038/s41586-023-06004-9; publisher record https://www.nature.com/articles/s41586-023-06004-9; 补充信息（Supplementary Information，SI）PDF https://media.springernature.com/original/springer-static/esm/art%3A10.1038%2Fs41586-023-06004-9/MediaObjects/41586_2023_6004_MOESM1_ESM.pdf; Creative Commons Attribution 4.0 International, https://creativecommons.org/licenses/by/4.0/. Appendix G displayed code: Copyright 2022 DeepMind Technologies Limited; Apache License, Version 2.0 AND CC BY 4.0, https://www.apache.org/licenses/LICENSE-2.0 and https://creativecommons.org/licenses/by/4.0/legalcode.
+
+Changes: 原 PDF 保留实际下载字节，不编辑、不拼接、不重导出。用现有 plain 逐页提取派生文字与页 selectors，只追加独立署名/修改/范围末注；已知字形、图表、数学、代码和阅读顺序损失保留为 partial，不修补成作者原文，不做 OCR 或执行。
+
+Scope: 仅 journal-doi-10.1038-s41586-023-06004-9 的 publisher-vor:2023-06-07 补充信息（Supplementary Information，SI）PDF（28 页，2404602 bytes，https://media.springernature.com/original/springer-static/esm/art%3A10.1038%2Fs41586-023-06004-9/MediaObjects/41586_2023_6004_MOESM1_ESM.pdf）及其派生页文字/selectors/NOTICE。仅该同 DOI 作品准确官方链接、同题名/作者且已实际审阅的附件，不是所有同域附件或外部复现闭包。其中 Appendix G 展示代码同时适用 Apache-2.0 AND CC-BY-4.0；Apache 条件仅绑定该明确代码局部，不扩展到其他独立作者论述。不据此授予旧摘录、独立更正/增补论文、外部引用作品、代码/数据 ZIP、模型、视频、数据库、商标或专利的新权利；不增加下游许可限制。
+
+Full license and original rights links: [NOTICE.md](NOTICE.md).

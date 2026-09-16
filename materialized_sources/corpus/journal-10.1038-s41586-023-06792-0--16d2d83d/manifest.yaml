@@ -28,12 +28,36 @@ local_files:
 - path: materialized_sources/corpus/journal-10.1038-s41586-023-06792-0--16d2d83d/document.md
   bytes: 1502
   sha256: 2d9c87c4f027cf4a91c02b7ddbe633a026253e5c5cfc1a42bcac3dcd21066051
+- path: materialized_sources/corpus/journal-10.1038-s41586-023-06792-0--16d2d83d/pdf-supplement/NOTICE.md
+  bytes: 23179
+  sha256: fc49f341b5231ffe836792ecce65d059fac6f6cfd1b5d5a9b9f5d641fd4e654a
+- path: materialized_sources/corpus/journal-10.1038-s41586-023-06792-0--16d2d83d/pdf-supplement/document.pdf
+  bytes: 8869905
+  sha256: 09cfaa1ccf4c951eebc347bab909e1e495d6701be38d3808c38016dff35dbd4e
+- path: materialized_sources/corpus/journal-10.1038-s41586-023-06792-0--16d2d83d/pdf-supplement/document.txt
+  bytes: 59740
+  sha256: b37125569dfaf13aa3700f5e456323cf6e15081c32ba264206044b7b78e23c7a
+- path: materialized_sources/corpus/journal-10.1038-s41586-023-06792-0--16d2d83d/pdf-supplement/selectors.jsonl
+  bytes: 6029
+  sha256: b911fbbe29693f724c0a9463620572e99f2ca23a38432a8254f6b30625d0e2b1
+- path: materialized_sources/corpus/journal-10.1038-s41586-023-06792-0--16d2d83d/pdf-supplement/supplementary-information/NOTICE.md
+  bytes: 24390
+  sha256: 3b86957b41144d7393f0c00fbaf9d625bb4c1227e78033f5696771a52cfdeb1c
+- path: materialized_sources/corpus/journal-10.1038-s41586-023-06792-0--16d2d83d/pdf-supplement/supplementary-information/document.pdf
+  bytes: 3183870
+  sha256: 52d9e3729b3375531a933a3e6638a472354e3b33b90d8d19eb3fe6d38652733c
+- path: materialized_sources/corpus/journal-10.1038-s41586-023-06792-0--16d2d83d/pdf-supplement/supplementary-information/document.txt
+  bytes: 79826
+  sha256: 0f3fec021ea6a0611d12bd17dfdbcd34dc59a7aca9f29b1f7632b2ce95be6858
+- path: materialized_sources/corpus/journal-10.1038-s41586-023-06792-0--16d2d83d/pdf-supplement/supplementary-information/selectors.jsonl
+  bytes: 24564
+  sha256: 56c9b84dac37478e60274bf038cf0ac0a8f7f4c4ceed6ab401da092950e9e561
 - path: materialized_sources/corpus/journal-10.1038-s41586-023-06792-0--16d2d83d/selectors.jsonl
   bytes: 5558
   sha256: 6c181f66d70c6849d54fcdf9f6982b5987ec1b0d9289b33584894c783ba49ec1
 - path: materialized_sources/corpus/journal-10.1038-s41586-023-06792-0--16d2d83d/source-metadata.yaml
-  bytes: 2681
-  sha256: 9dccb70a1b6b879b02eb1aae5e5dcbd11144ba1cde395828483c2dddd15e943f
+  bytes: 9039
+  sha256: 453557e0525f5dbf2948428f4b85610f7c15943277232acfcea1494df97fe4ee
 warnings:
 - Full-text redistribution was not established; stored content is a bounded evidence excerpt.
 - Offline selector repair omitted 271 locally unresolvable selectors.
@@ -48,4 +72,131 @@ materialization:
   substantive_text: true
   content_was_truncated: true
   omitted_selector_count: 271
-local_bytes: 10150
+local_bytes: 12288011
+pdf_supplement:
+  source_version: publisher-vor:2023-12-20
+  revision: sha256:09cfaa1ccf4c951eebc347bab909e1e495d6701be38d3808c38016dff35dbd4e
+  media_type: application/pdf
+  retrievals:
+  - requested_urls:
+    - https://www.nature.com/articles/s41586-023-06792-0.pdf
+    resolved_url: https://www.nature.com/articles/s41586-023-06792-0.pdf?error=cookies_not_supported&code=50debda5-1060-40a8-b5c6-eb798c1b6c02
+    content_type: application/pdf
+    bytes: 8869905
+    sha256: 09cfaa1ccf4c951eebc347bab909e1e495d6701be38d3808c38016dff35dbd4e
+    retrieved_at: '2026-09-16T20:03:25Z'
+    request_started_at: '2026-09-16T19:58:09Z'
+    http_status: 200
+    retrieval_time_basis: completion observed for all eleven acquisitions; not an invented per-file transmission
+      end
+  selectors:
+  - pdf-supplement/selectors.jsonl
+  body_quality_verified: true
+  limitations:
+  - 'Text extraction partial: p5 visible microliter units become glyph names; p6 Fig.5d/p7 Fig.6g dialog/JSON have
+    garbled glyphs/control characters; chemical bonds, curves/heatmaps and role/color associations are not linear-text
+    faithful.'
+  - p7 normalized-advantage formulas lose fraction/summation/mean layout; p11–13 Extended Data dialog/code/optimization
+    graphics mostly retain captions only.
+  - Publisher safety redactions and reviewer-only data/code/prompts are outside retained-publication scope; no OCR,
+    sensitive-procedure reconstruction, execution or external repository acquisition.
+  rights:
+    license_spdx: CC-BY-4.0
+    license_url: https://creativecommons.org/licenses/by/4.0/
+    license_verified_at: '2026-09-17'
+    redistribution_package:
+      source_revision: sha256:09cfaa1ccf4c951eebc347bab909e1e495d6701be38d3808c38016dff35dbd4e
+      source_version: publisher-vor:2023-12-20
+      source_version_url: https://www.nature.com/articles/s41586-023-06792-0.pdf
+      notice_path: raw_data/licenses/p3-journal-01-coscientist-main.md
+      attribution: Daniil A. Boiko; Robert MacKnight; Ben Kline; Gabe Gomes. "Autonomous chemical research with
+        large language models". © The Author(s) 2023. DOI https://doi.org/10.1038/s41586-023-06792-0; publisher
+        record https://www.nature.com/articles/s41586-023-06792-0; 主 PDF（main PDF） https://www.nature.com/articles/s41586-023-06792-0.pdf;
+        Creative Commons Attribution 4.0 International, https://creativecommons.org/licenses/by/4.0/.
+      modifications: 原 PDF 保留实际下载字节，不编辑、不拼接、不重导出。用现有 plain 逐页提取派生文字与页 selectors，只追加独立署名/修改/范围末注；已知字形、图表、数学、代码和阅读顺序损失保留为
+        partial，不修补成作者原文，不做 OCR 或执行。
+      scope: 仅 journal:10.1038/s41586-023-06792-0 的 publisher-vor:2023-12-20 主 PDF（main PDF）（13 页，8869905 bytes，https://www.nature.com/articles/s41586-023-06792-0.pdf）及其派生页文字/selectors/NOTICE。含该主文件内实际正文、方法、图表、参考文献和扩展内容；SI
+        如有另以独立表示包审阅。不据此授予旧摘录、独立更正/增补论文、外部引用作品、代码/数据 ZIP、模型、视频、数据库、商标或专利的新权利；不增加下游许可限制。
+    publication_gate:
+      decision: allow
+      reason: 实际本作品 publisher BY4 声明、固定 VoR/DOI 和具体信用审阅确认；本表示独立绑定取得字节、准确URL、版本与完整NOTICE，不借旧 excerpt/assumed 门控。
+      approved_scope: 仅 journal:10.1038/s41586-023-06792-0 的 publisher-vor:2023-12-20 主 PDF（main PDF）（13 页，8869905
+        bytes，https://www.nature.com/articles/s41586-023-06792-0.pdf）及其派生页文字/selectors/NOTICE。含该主文件内实际正文、方法、图表、参考文献和扩展内容；SI
+        如有另以独立表示包审阅。不据此授予旧摘录、独立更正/增补论文、外部引用作品、代码/数据 ZIP、模型、视频、数据库、商标或专利的新权利；不增加下游许可限制。
+  materialization:
+    source_pdf: pdf-supplement/document.pdf
+    source_pdf_sha256: 09cfaa1ccf4c951eebc347bab909e1e495d6701be38d3808c38016dff35dbd4e
+    document: pdf-supplement/document.txt
+    normalized_document: pdf-supplement/document.txt
+    stored_characters: 58785
+    selector_count: 13
+    pdf_page_count: 13
+    pdf_text_page_count: 13
+    pdf_text_extraction_mode: plain
+    pdf_pages_without_extractable_text: []
+    pdf_page_extraction_failures: []
+    substantive_text: true
+  supplementary_information:
+    source_version: publisher-vor:2023-12-20
+    revision: sha256:52d9e3729b3375531a933a3e6638a472354e3b33b90d8d19eb3fe6d38652733c
+    media_type: application/pdf
+    retrievals:
+    - requested_urls:
+      - https://media.springernature.com/original/springer-static/esm/art%3A10.1038%2Fs41586-023-06792-0/MediaObjects/41586_2023_6792_MOESM1_ESM.pdf
+      resolved_url: https://media.springernature.com/original/springer-static/esm/art%3A10.1038%2Fs41586-023-06792-0/MediaObjects/41586_2023_6792_MOESM1_ESM.pdf
+      content_type: application/pdf
+      bytes: 3183870
+      sha256: 52d9e3729b3375531a933a3e6638a472354e3b33b90d8d19eb3fe6d38652733c
+      retrieved_at: '2026-09-16T20:03:25Z'
+      request_started_at: '2026-09-16T19:58:09Z'
+      http_status: 200
+      retrieval_time_basis: completion observed for all eleven acquisitions; not an invented per-file transmission
+        end
+    selectors:
+    - pdf-supplement/supplementary-information/selectors.jsonl
+    body_quality_verified: true
+    limitations:
+    - 'Text extraction partial: p3 Scheme1/p9 Scheme2 and p36–37 instrument curves mostly remain graphics; p10 safety
+      warning text is retained without its red-background emphasis.'
+    - p47–51 dense screenshot dialogs/code/retrieval have very sparse native text, sometimes page numbers only;
+      zero empty pages is not screenshot-text completeness.
+    - p32–35/p44–46 text code loses indentation/continuation/identifier fidelity; the original internal working
+      title and published redactions/reviewer-only boundaries remain unaltered, without execution or reconstruction.
+    rights:
+      license_spdx: CC-BY-4.0
+      license_url: https://creativecommons.org/licenses/by/4.0/
+      license_verified_at: '2026-09-17'
+      redistribution_package:
+        source_revision: sha256:52d9e3729b3375531a933a3e6638a472354e3b33b90d8d19eb3fe6d38652733c
+        source_version: publisher-vor:2023-12-20
+        source_version_url: https://media.springernature.com/original/springer-static/esm/art%3A10.1038%2Fs41586-023-06792-0/MediaObjects/41586_2023_6792_MOESM1_ESM.pdf
+        notice_path: raw_data/licenses/p3-journal-01-coscientist-si.md
+        attribution: Daniil A. Boiko; Robert MacKnight; Ben Kline; Gabe Gomes. "Autonomous chemical research with
+          large language models". © The Author(s) 2023. DOI https://doi.org/10.1038/s41586-023-06792-0; publisher
+          record https://www.nature.com/articles/s41586-023-06792-0; 补充信息（Supplementary Information，SI）PDF https://media.springernature.com/original/springer-static/esm/art%3A10.1038%2Fs41586-023-06792-0/MediaObjects/41586_2023_6792_MOESM1_ESM.pdf;
+          Creative Commons Attribution 4.0 International, https://creativecommons.org/licenses/by/4.0/.
+        modifications: 原 PDF 保留实际下载字节，不编辑、不拼接、不重导出。用现有 plain 逐页提取派生文字与页 selectors，只追加独立署名/修改/范围末注；已知字形、图表、数学、代码和阅读顺序损失保留为
+          partial，不修补成作者原文，不做 OCR 或执行。
+        scope: 仅 journal:10.1038/s41586-023-06792-0 的 publisher-vor:2023-12-20 补充信息（Supplementary Information，SI）PDF（52
+          页，3183870 bytes，https://media.springernature.com/original/springer-static/esm/art%3A10.1038%2Fs41586-023-06792-0/MediaObjects/41586_2023_6792_MOESM1_ESM.pdf）及其派生页文字/selectors/NOTICE。仅该同
+          DOI 作品准确官方链接、同题名/作者且已实际审阅的附件，不是所有同域附件或外部复现闭包。不据此授予旧摘录、独立更正/增补论文、外部引用作品、代码/数据 ZIP、模型、视频、数据库、商标或专利的新权利；不增加下游许可限制。
+      publication_gate:
+        decision: allow
+        reason: 实际本作品 publisher BY4 声明、固定 VoR/DOI 和具体信用审阅确认；本表示独立绑定取得字节、准确URL、版本与完整NOTICE，不借旧 excerpt/assumed 门控。SI
+          按该作品真实 BY4、准确官方附件链接、同 DOI/作者、实际逐页视觉信用及独立 Article-includes-SI 范围预核作有界判断；不伪称SI印有CC段或六篇作品的作者签过2026示例。
+        approved_scope: 仅 journal:10.1038/s41586-023-06792-0 的 publisher-vor:2023-12-20 补充信息（Supplementary Information，SI）PDF（52
+          页，3183870 bytes，https://media.springernature.com/original/springer-static/esm/art%3A10.1038%2Fs41586-023-06792-0/MediaObjects/41586_2023_6792_MOESM1_ESM.pdf）及其派生页文字/selectors/NOTICE。仅该同
+          DOI 作品准确官方链接、同题名/作者且已实际审阅的附件，不是所有同域附件或外部复现闭包。不据此授予旧摘录、独立更正/增补论文、外部引用作品、代码/数据 ZIP、模型、视频、数据库、商标或专利的新权利；不增加下游许可限制。
+    materialization:
+      source_pdf: pdf-supplement/supplementary-information/document.pdf
+      source_pdf_sha256: 52d9e3729b3375531a933a3e6638a472354e3b33b90d8d19eb3fe6d38652733c
+      document: pdf-supplement/supplementary-information/document.txt
+      normalized_document: pdf-supplement/supplementary-information/document.txt
+      stored_characters: 79191
+      selector_count: 52
+      pdf_page_count: 52
+      pdf_text_page_count: 52
+      pdf_text_extraction_mode: plain
+      pdf_pages_without_extractable_text: []
+      pdf_page_extraction_failures: []
+      substantive_text: true

@@ -318,43 +318,87 @@ def validate_pdf_supplement(
     manifest: dict[str, Any], capsule_root: Path, declared_files: set[str],
     actual_hashes: dict[str, str], errors: list[str], *, repository_root: Path | None = None,
 ) -> int:
-    """Validate only the optional, fixed-version PDF alongside the unchanged TeX representation."""
+    """Validate the fixed main PDF and one explicitly required publisher SI."""
     supplement = manifest.get("pdf_supplement")
     if supplement is None:
         if (capsule_root / "pdf-supplement/document.pdf").is_file():
             errors.append(f"PDF_SUPPLEMENT_UNDECLARED {manifest.get('uid')}")
+        if manifest.get("source_type") == "journal":
+            try:
+                metadata = load_yaml((repository_root or ROOT) / manifest["metadata_path"])
+                if "publisher_pdf" in (metadata.get("versioning") or {}):
+                    errors.append(f"PDF_SUPPLEMENT_DECLARATION_MISSING {manifest.get('uid')}")
+            except (KeyError, TypeError, AttributeError, OSError, yaml.YAMLError) as exc:
+                errors.append(f"PDF_SUPPLEMENT_VERSION {manifest.get('uid')}: {exc}")
         return 0
     uid = str(manifest.get("uid") or "")
     label = "PDF_SUPPLEMENT"
     repo_root = repository_root or ROOT
-    def local_relative(path: Path) -> str:
-        return path.relative_to(repo_root).as_posix()
-    if not isinstance(supplement, dict) or manifest.get("adapter") != "arxiv_latex_v2" or manifest.get("source_type") != "arxiv":
+    if not isinstance(supplement, dict):
         errors.append(f"{label}_DECLARATION {uid}")
         return 0
-    from materialize_all_sources import arxiv_pdf_version_url, extract_pdf_text
+    from materialize_all_sources import pdf_supplement_version_urls
     try:
-        version_url = arxiv_pdf_version_url(manifest.get("canonical_id"), supplement.get("source_version"))
         metadata = load_yaml(repo_root / manifest["metadata_path"])
-        if (metadata.get("versioning") or {}).get("source_version") != supplement.get("source_version"):
-            raise ValueError("version differs from canonical source version")
-    except (KeyError, TypeError, ValueError, OSError, yaml.YAMLError) as exc:
+        capsule = load_yaml(capsule_root / "source-metadata.yaml")
+        version_url, si_url = pdf_supplement_version_urls(manifest, metadata, capsule, supplement.get("source_version"))
+        si = supplement.get("supplementary_information")
+        if (si_url is not None) != (si is not None):
+            raise ValueError("required publisher SI is missing or an undeclared SI is present")
+        if (capsule_root / "pdf-supplement/supplementary-information").exists() and si_url is None:
+            raise ValueError("retained SI files have no publisher declaration")
+        if si is not None and (not isinstance(si, dict) or "supplementary_information" in si or si.get("source_version") != supplement.get("source_version")):
+            raise ValueError("SI must be one PDF belonging to the same declared publisher version")
+    except (KeyError, TypeError, AttributeError, ValueError, OSError, yaml.YAMLError) as exc:
         errors.append(f"{label}_VERSION {uid}: {exc}")
-        version_url = None
+        return 0
+    parts = [(supplement, "pdf-supplement", version_url, label)]
+    if si_url is not None:
+        parts.append((si, "pdf-supplement/supplementary-information", si_url, f"{label}_SI"))
+    selector_count = sum(
+        _validate_pdf_supplement_part(
+            manifest, part, directory, approved_url, capsule_root, declared_files, actual_hashes, errors,
+            repo_root=repo_root, label=part_label,
+        )
+        for part, directory, approved_url, part_label in parts
+    )
+    # A new allowance is independent of any historical root-document publication block.
+    from validate_publication_rights import validate_pdf_supplement_rights
+    try:
+        audit = load_yaml(repo_root / "raw_data/audits/materialization_rights_review.yaml")
+        review = next((row for row in audit["items"] if isinstance(row, dict) and row.get("uid") == uid), None)
+        rights_errors, rights_blocks = validate_pdf_supplement_rights(manifest, capsule_root / "manifest.yaml", repo_root, review)
+        errors.extend(rights_errors)
+        errors.extend(f"{label}_UNADMITTED {message}" for message in rights_blocks)
+    except (KeyError, TypeError, ValueError, OSError, yaml.YAMLError) as exc:
+        errors.append(f"{label}_RIGHTS_AUDIT {uid}: {exc}")
+    return selector_count
+
+
+def _validate_pdf_supplement_part(
+    manifest: dict[str, Any], supplement: dict[str, Any], directory: str, version_url: str,
+    capsule_root: Path, declared_files: set[str], actual_hashes: dict[str, str], errors: list[str],
+    *, repo_root: Path, label: str,
+) -> int:
+    """Apply the same native page checks independently to each retained PDF."""
+    uid = str(manifest.get("uid") or "")
+    def local_relative(path: Path) -> str:
+        return path.relative_to(repo_root).as_posix()
+    from materialize_all_sources import extract_pdf_text, pdf_supplement_retrieval_url_matches
     materialization = supplement.get("materialization")
     if not isinstance(materialization, dict):
         errors.append(f"{label}_MATERIALIZATION {uid}")
         return 0
     if materialization.get("pdf_text_extraction_mode") != "plain":
         errors.append(f"{label}_EXTRACTION_MODE {uid}")
-    expected_paths = {"source_pdf": "pdf-supplement/document.pdf", "document": "pdf-supplement/document.txt", "normalized_document": "pdf-supplement/document.txt"}
-    if any(materialization.get(field) != value for field, value in expected_paths.items()) or supplement.get("selectors") != ["pdf-supplement/selectors.jsonl"]:
+    expected_paths = {"source_pdf": f"{directory}/document.pdf", "document": f"{directory}/document.txt", "normalized_document": f"{directory}/document.txt"}
+    if any(materialization.get(field) != value for field, value in expected_paths.items()) or supplement.get("selectors") != [f"{directory}/selectors.jsonl"]:
         errors.append(f"{label}_PATHS {uid}")
     if supplement.get("media_type") != "application/pdf" or not isinstance(supplement.get("body_quality_verified"), bool):
         errors.append(f"{label}_MEDIA_OR_QUALITY {uid}")
     if not isinstance(supplement.get("limitations"), list) or any(not isinstance(value, str) or not value.strip() for value in supplement["limitations"]):
         errors.append(f"{label}_LIMITATIONS {uid}")
-    paths = {name: capsule_root / name for name in ("pdf-supplement/document.pdf", "pdf-supplement/document.txt", "pdf-supplement/selectors.jsonl", "pdf-supplement/NOTICE.md")}
+    paths = {name: capsule_root / directory / name for name in ("document.pdf", "document.txt", "selectors.jsonl", "NOTICE.md")}
     if any(
         local_relative(path) not in declared_files or not path.is_file()
         or scoped_path(local_relative(path), capsule_root, repository_root=repo_root) is None
@@ -362,14 +406,25 @@ def validate_pdf_supplement(
     ):
         errors.append(f"{label}_FILE_UNHASHED_OR_MISSING {uid}")
         return 0
-    source = paths["pdf-supplement/document.pdf"]
-    source_hash = actual_hashes.get(local_relative(source))
+    # Consumers can pass manifest hashes: read every actual SI file rather than trusting that map.
+    observed_hashes = {}
+    for name, path in paths.items():
+        relative = local_relative(path)
+        observed_hashes[name] = sha256_file(path)
+        inventory = [row for row in manifest.get("local_files", []) if row.get("path") == relative]
+        if (
+            actual_hashes.get(relative) != observed_hashes[name] or len(inventory) != 1
+            or inventory[0].get("bytes") != path.stat().st_size or inventory[0].get("sha256") != observed_hashes[name]
+        ):
+            errors.append(f"{label}_FILE_INVENTORY_DRIFT {uid} {relative}")
+    source = paths["document.pdf"]
+    source_hash = observed_hashes["document.pdf"]
     if not source_hash or materialization.get("source_pdf_sha256") != source_hash or supplement.get("revision") != f"sha256:{source_hash}":
         errors.append(f"{label}_REVISION {uid}")
     retrievals = supplement.get("retrievals")
     retrieval = retrievals[0] if isinstance(retrievals, list) and len(retrievals) == 1 and isinstance(retrievals[0], dict) else {}
     if (
-        version_url is None or retrieval.get("requested_urls") != [version_url] or retrieval.get("resolved_url") != version_url
+        not pdf_supplement_retrieval_url_matches(retrieval, version_url, publisher=manifest.get("source_type") == "journal")
         or retrieval.get("sha256") != source_hash or retrieval.get("bytes") != source.stat().st_size
         or not isinstance(retrieval.get("retrieved_at"), str) or not retrieval["retrieved_at"].strip()
         or not isinstance(retrieval.get("content_type"), str) or retrieval["content_type"].split(";", 1)[0].strip() != "application/pdf"
@@ -380,11 +435,12 @@ def validate_pdf_supplement(
         if not payload.startswith(b"%PDF-"):
             raise ValueError("source is not a PDF")
         native_text, _, page_count = extract_pdf_text(payload, extraction_mode="plain")
-        stored_text = paths["pdf-supplement/document.txt"].read_text(encoding="utf-8")
+        # Native PDF glyphs can include CR: universal-newline reads would alter them.
+        stored_text = paths["document.txt"].read_bytes().decode("utf-8")
         source_text = stored_text.split("<!-- materialization-redistribution-notice -->", 1)[0].rstrip() + "\n"
         if source_text != native_text:
             errors.append(f"{label}_NATIVE_TEXT_DRIFT {uid}")
-        rows = [json.loads(line) for line in paths["pdf-supplement/selectors.jsonl"].read_text(encoding="utf-8").splitlines() if line.strip()]
+        rows = [json.loads(line) for line in paths["selectors.jsonl"].read_text(encoding="utf-8").splitlines() if line.strip()]
     except Exception as exc:
         errors.append(f"{label}_PARSE {uid}: {exc}")
         return 0
@@ -401,7 +457,7 @@ def validate_pdf_supplement(
     seen_pages: set[int] = set()
     seen_ids: set[str] = set()
     page_selectors = 0
-    target = local_relative(paths["pdf-supplement/document.txt"])
+    target = local_relative(paths["document.txt"])
     for index, selector in enumerate(rows, 1):
         if not isinstance(selector, dict):
             errors.append(f"{label}_SELECTOR_NOT_OBJECT {uid}:{index}")
@@ -436,17 +492,6 @@ def validate_pdf_supplement(
         supplement.get("body_quality_verified") is True and (materialization.get("substantive_text") is not True or failed)
     ):
         errors.append(f"{label}_FALSE_BODY_QUALITY {uid}")
-    # Only the new PDF allowance is a fail-closed materialization condition;
-    # unrelated, pre-existing full-text publication blocks remain independent.
-    from validate_publication_rights import validate_pdf_supplement_rights
-    try:
-        audit = load_yaml(repo_root / "raw_data/audits/materialization_rights_review.yaml")
-        review = next((row for row in audit["items"] if isinstance(row, dict) and row.get("uid") == uid), None)
-        rights_errors, rights_blocks = validate_pdf_supplement_rights(manifest, capsule_root / "manifest.yaml", repo_root, review)
-        errors.extend(rights_errors)
-        errors.extend(f"{label}_UNADMITTED {message}" for message in rights_blocks)
-    except (KeyError, TypeError, ValueError, OSError, yaml.YAMLError) as exc:
-        errors.append(f"{label}_RIGHTS_AUDIT {uid}: {exc}")
     return len(rows)
 
 
