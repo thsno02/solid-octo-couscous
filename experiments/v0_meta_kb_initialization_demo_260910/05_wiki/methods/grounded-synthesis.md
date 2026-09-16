@@ -83,7 +83,7 @@ temporal:
   valid_to: null
   as_of: '2026-09-13T17:38:21Z'
 provenance:
-  build_id: build:llm-wiki-v0:d303e0f210b88f64
+  build_id: build:llm-wiki-v0:9406f28f613dfbd5
   generated_by_agent: pipeline/build_llm_wiki.py
   generated_by_model: null
   prompt_or_skill_version: deterministic-llm-wiki-v0.2

@@ -22,10 +22,12 @@ summary:
     documented_permission: 50
     permission_unverified: 41
   recommendation_counts:
-    allow_after_conditions_met: 50
+    allow_after_conditions_met: 48
+    allow_with_packaged_notice: 2
     do_not_redistribute_full_text: 41
   publication_gate_counts:
-    block: 91
+    block: 89
+    allow: 2
   license_evidence_counts:
     CC-BY-4.0: 24
     none: 41
@@ -43,7 +45,7 @@ summary:
   - 73 篇 arXiv 中 32 篇有 CC article license，41 篇只有授予 arXiv 的 nonexclusive/assumed license。
   - 14 份 W3C 文档都有许可；7 份旧式许可对 HTML→Markdown 仍需衍生权审查。
   - LinkML、Apache Ossie、ODCS 有 Apache-2.0 证据；Schema.org supporting documentation 有 CC BY-SA 3.0 证据。
-  - 当前 91 个胶囊均缺至少一项机器可验证的发布履约要素，因此 gate 全部 block。
+  - 基线91项中DCAT 3与VC Data Model 2.0已完成固定版本与NOTICE包装，2项allow；其余89项仍block（当前活跃全文88项block）。
 review_completion:
   evidence_review_complete_for_baseline: true
   legal_clearance_complete: false
@@ -5524,15 +5526,17 @@ items:
   canonical_url: https://www.w3.org/TR/vocab-dcat-3/
   observed_rights:
     manifest:
-      declared_access: unknown
-      full_text_redistribution_assumed: true
-      basis: null
-      assessment: 物化器声明/假设，不是权利人授权。
+      declared_access: open
+      full_text_redistribution_assumed: false
+      basis: https://www.w3.org/TR/2024/REC-vocab-dcat-3-20240822/
+      assessment: 固定版本与完整NOTICE/署名包已核验；非域名或获取器假设。
     source_metadata:
-      access: unknown
-      license_spdx: null
-      license_verified_at: null
-      notes: Requires canonical rights verification.
+      access: open
+      license_spdx: W3C-20150513
+      license_url: https://www.w3.org/copyright/software-license-2023/
+      license_verified_at: '2026-09-16'
+      notes: Public redistribution is permitted subject to the W3C 2023 NOTICE, attribution, preservation of existing
+        notices, and disclosure of modifications.
     capsule_source_metadata:
       path: materialized_sources/corpus/standard-w3c-dcat-3--fe7850d7/source-metadata.yaml
       assessment: rights 与 canonical metadata 一致，不是额外独立证据。
@@ -5542,11 +5546,13 @@ items:
     locator: rights
     finding: declared_access=unknown; full_text_redistribution_assumed=True; basis=None
     supports_public_redistribution: false
+    baseline_observation: true
   - kind: source_metadata
     path: raw_data/standard/Data Catalog Vocabulary DCAT 3/metadata.yaml
     locator: rights
     finding: access=unknown; license_spdx=None; license_verified_at=None; notes=Requires canonical rights verification.
     supports_public_redistribution: false
+    baseline_observation: true
   - kind: local_document_notice
     path: materialized_sources/corpus/standard-w3c-dcat-3--fe7850d7/document.md
     locator: L9
@@ -5558,28 +5564,47 @@ items:
     checked_at: '2026-09-16'
     finding: 明确允许复制、修改和分发。
     supports_public_redistribution: true
-  missing:
-  - metadata 未记录确切 W3C 许可版本。
-  - Markdown 未附完整许可/NOTICE，原许可链接已丢失。
-  - 第三方与联合权利材料无逐件清单。
+  - kind: fixed_version_and_packaged_notice
+    url: https://www.w3.org/TR/2024/REC-vocab-dcat-3-20240822/
+    checked_at: '2026-09-16'
+    source_revision: sha256:068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb
+    finding: 固定版本官方HTML响应与现存revision完全匹配；完整NOTICE、原权利链接、署名与转换声明随文本入库。
+    supports_public_redistribution: true
+  missing: []
   classification: documented_permission
   license_id: W3C-Software-and-Document-License-2023
   license_url: https://www.w3.org/copyright/software-license-2023/
   license_scope: 覆盖该确切 W3C 规范中由列名权利人提供的内容；第三方材料、商标和专利除外。
   license_restrictions: []
-  evidence_confidence: moderate
-  public_redistribution_recommendation: allow_after_conditions_met
+  evidence_confidence: high
+  public_redistribution_recommendation: allow_with_packaged_notice
   conditions:
   - 提供完整 W3C NOTICE。
   - 保留既有权利声明并标明转换。
   - 商标、专利和第三方材料另审。
-  current_capsule_compliance: pending_license_compliance_and_transformation_review
+  current_capsule_compliance: verified_revision_and_notice_packaged
   publication_gate:
-    decision: block
-    reason: 存在公众许可证据，但当前胶囊尚未机器证明版本绑定、许可条件和第三方范围均满足。
-  human_follow_up:
-  - 复核官方页面实际链接的许可与当前 revision。
-  - 补齐 NOTICE/状态/修改说明；旧许可另审转换性质。
+    decision: allow
+    reason: 仅允许已绑定固定W3C版本且保留完整NOTICE与署名/修改声明的当前文字包；不授权外链作品、商标或专利。
+  human_follow_up: []
+  redistribution_package:
+    source_revision: sha256:068b43f7814525ea784b7d565ada8de2b4538f5377517c4f0ec9b162a34dedfb
+    source_version_url: https://www.w3.org/TR/2024/REC-vocab-dcat-3-20240822/
+    notice_path: raw_data/licenses/w3c-software-document-2023.md
+    attribution: This document includes material copied from or derived from "Data Catalog Vocabulary (DCAT) - Version
+      3", https://www.w3.org/TR/2024/REC-vocab-dcat-3-20240822/. Copyright © 2024 World Wide Web Consortium. https://www.w3.org/copyright/software-license-2023/
+    modifications: Converted from W3C HTML to Markdown; navigation, hyperlinks, styling, and figures may be omitted
+      or normalized; selector excerpts were generated.
+    scope: 仅覆盖当前固定版本规范的文字及由其生成的 selector 摘录；不授权外链媒体、W3C 商标或专利。
+  clearance_review:
+    kind: agent_evidence_and_packaging_review
+    human_approval_claimed: false
+    scope: 当前document.md与selector文字摘录；未存储外链媒体，未声称对其或专利商标有许可。
+  conditions_fulfilled:
+  - 固定版本响应与source_revision一致。
+  - 完整W3C NOTICE及原权利链接随包入库。
+  - 原版权头保留，文末署名及修改说明可见，原文与selector不删改。
+  - 范围为规范文字和selector；未保存外链媒体，不授予商标或专利。
 - sequence: 79
   uid: standard:w3c-did-core
   source_type: standard
@@ -6305,15 +6330,17 @@ items:
   canonical_url: https://www.w3.org/TR/vc-data-model-2.0/
   observed_rights:
     manifest:
-      declared_access: unknown
-      full_text_redistribution_assumed: true
-      basis: null
-      assessment: 物化器声明/假设，不是权利人授权。
+      declared_access: open
+      full_text_redistribution_assumed: false
+      basis: https://www.w3.org/TR/2025/REC-vc-data-model-2.0-20250515/
+      assessment: 固定版本与完整NOTICE/署名包已核验；非域名或获取器假设。
     source_metadata:
-      access: unknown
-      license_spdx: null
-      license_verified_at: null
-      notes: Requires canonical rights verification.
+      access: open
+      license_spdx: W3C-20150513
+      license_url: https://www.w3.org/copyright/software-license-2023/
+      license_verified_at: '2026-09-16'
+      notes: Public redistribution is permitted subject to the W3C 2023 NOTICE, attribution, preservation of existing
+        notices, and disclosure of modifications.
     capsule_source_metadata:
       path: materialized_sources/corpus/standard-w3c-vc-data-model-2.0--af7d4a38/source-metadata.yaml
       assessment: rights 与 canonical metadata 一致，不是额外独立证据。
@@ -6323,11 +6350,13 @@ items:
     locator: rights
     finding: declared_access=unknown; full_text_redistribution_assumed=True; basis=None
     supports_public_redistribution: false
+    baseline_observation: true
   - kind: source_metadata
     path: raw_data/standard/Verifiable Credentials Data Model 2.0/metadata.yaml
     locator: rights
     finding: access=unknown; license_spdx=None; license_verified_at=None; notes=Requires canonical rights verification.
     supports_public_redistribution: false
+    baseline_observation: true
   - kind: local_document_notice
     path: materialized_sources/corpus/standard-w3c-vc-data-model-2.0--af7d4a38/document.md
     locator: L7
@@ -6339,28 +6368,54 @@ items:
     checked_at: '2026-09-16'
     finding: 明确允许复制、修改和分发。
     supports_public_redistribution: true
-  missing:
-  - metadata 未记录确切 W3C 许可版本。
-  - Markdown 未附完整许可/NOTICE，原许可链接已丢失。
-  - 第三方与联合权利材料无逐件清单。
+  - kind: fixed_version_and_packaged_notice
+    url: https://www.w3.org/TR/2025/REC-vc-data-model-2.0-20250515/
+    checked_at: '2026-09-16'
+    source_revision: sha256:a9196a3d0b6601356c4e127bad24f8c7f2c17f6ed22e41b35755a910104156f8
+    finding: 固定版本官方HTML响应与现存revision完全匹配；完整NOTICE、原权利链接、署名与转换声明随文本入库。
+    supports_public_redistribution: true
+  missing: []
   classification: documented_permission
   license_id: W3C-Software-and-Document-License-2023
   license_url: https://www.w3.org/copyright/software-license-2023/
   license_scope: 覆盖该确切 W3C 规范中由列名权利人提供的内容；第三方材料、商标和专利除外。
   license_restrictions: []
-  evidence_confidence: moderate
-  public_redistribution_recommendation: allow_after_conditions_met
+  evidence_confidence: high
+  public_redistribution_recommendation: allow_with_packaged_notice
   conditions:
   - 提供完整 W3C NOTICE。
   - 保留既有权利声明并标明转换。
   - 商标、专利和第三方材料另审。
-  current_capsule_compliance: pending_license_compliance_and_transformation_review
+  current_capsule_compliance: verified_revision_and_notice_packaged
   publication_gate:
-    decision: block
-    reason: 存在公众许可证据，但当前胶囊尚未机器证明版本绑定、许可条件和第三方范围均满足。
-  human_follow_up:
-  - 复核官方页面实际链接的许可与当前 revision。
-  - 补齐 NOTICE/状态/修改说明；旧许可另审转换性质。
+    decision: allow
+    reason: 仅允许已绑定固定W3C版本且保留完整NOTICE与署名/修改声明的当前文字包；不授权外链作品、商标或专利。
+  human_follow_up: []
+  redistribution_package:
+    source_revision: sha256:a9196a3d0b6601356c4e127bad24f8c7f2c17f6ed22e41b35755a910104156f8
+    source_version_url: https://www.w3.org/TR/2025/REC-vc-data-model-2.0-20250515/
+    notice_path: raw_data/licenses/w3c-software-document-2023.md
+    attribution: This document includes material copied from or derived from "Verifiable Credentials Data Model
+      v2.0", https://www.w3.org/TR/2025/REC-vc-data-model-2.0-20250515/. Copyright © 2025 World Wide Web Consortium.
+      https://www.w3.org/copyright/software-license-2023/
+    modifications: Converted from W3C HTML to Markdown; navigation, hyperlinks, styling, and figures may be omitted
+      or normalized; selector excerpts were generated.
+    scope: 仅覆盖当前固定版本规范的文字及由其生成的 selector 摘录；不授权外链媒体、W3C 商标或专利。
+  clearance_review:
+    kind: agent_evidence_and_packaging_review
+    human_approval_claimed: false
+    scope: 当前document.md与selector文字摘录；未存储外链媒体，未声称对其或专利商标有许可。
+  conditions_fulfilled:
+  - 固定版本响应与source_revision一致。
+  - 完整W3C NOTICE及原权利链接随包入库。
+  - 原版权头保留，文末署名及修改说明可见，原文与selector不删改。
+  - 范围为规范文字和selector；未保存外链媒体，不授予商标或专利。
+  reused_material_review:
+    locator: document.md:L3445-L3461
+    source: https://www.w3.org/TR/2012/REC-xmlschema11-2-20120405/
+    finding: dateTimeStamp正则明确标注复用自XMLSCHEMA11-2；Markdown保留该归属。
+    basis: 来源为W3C©2012规范；本次复制对象为W3C©2025的VC2固定版整体文字作品，适用2023软件与文档许可，该段未附独立第三方权利声明。
+    scope: 已核查此跨W3C文字复用；未依赖外链媒体授权，示例data:image含省略占位而非保存的媒体字节。
 - sequence: 90
   uid: standard:w3c-web-annotation
   source_type: standard

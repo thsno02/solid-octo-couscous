@@ -6,12 +6,12 @@
 
 - 50 条找到明确公众复制/再分发许可，分类为 <code>documented_permission</code>；这不表示当前胶囊已经履约。
 - 41 条未找到面向公众/本仓库的适用许可，分类为 <code>permission_unverified</code>；不应公开再分发全文。
-- 当前 91 条全部 <code>publication_gate: block</code>：许可条件、版本绑定或第三方范围至少一项未机器验证。
+- 基线审计的 91 项中，DCAT 3 与 VC Data Model 2.0 已完成固定版本及许可包装，2 项为 <code>allow</code>；其余 89 项仍为 <code>block</code>。
 - Apache Ossie 基线胶囊只有 7 bytes（# Home），不是实质标准全文；后续降级不删除其基线审计行。
 
-修复后当前 `full_text` 为 90 条，公开发布门检查结果为 `active_full_text=90 audited=91 blocked=90 errors=0`。审计覆盖数 91 与当前全文数 90 使用不同基线，不应混用。Git LFS 或公开 Release 仍属于公开再分发；未经确认不会自动迁移、删除全文或改写 Git 历史。
+当前 `full_text` 为 90 条，公开发布门检查结果为 `active_full_text=90 audited=91 blocked=88 errors=0`；整体仍未放行。审计覆盖数 91 与当前全文数 90 使用不同基线，不应混用。全文继续保存在本 GitHub repo；本轮未删除正文、迁移存储或改写 Git 历史。
 
-机器可读逐条记录：<code>raw_data/audits/materialization_rights_review.yaml</code>。本报告不是法律意见，也不修改 manifest/metadata 权利状态。
+机器可读逐条记录：<code>raw_data/audits/materialization_rights_review.yaml</code>。本报告记录许可证据与已落实的包装条件，不是法律意见或人工批准。
 
 ## 判定模型（Decision Model）
 
@@ -24,10 +24,20 @@
 | 基线 full_text | 91 |
 | documented_permission | 50 |
 | permission_unverified | 41 |
-| allow_after_conditions_met | 50 |
+| allow_after_conditions_met | 48 |
+| allow_with_packaged_notice | 2 |
 | do_not_redistribute_full_text | 41 |
-| publication gate: allow | 0 |
-| publication gate: block | 91 |
+| publication gate: allow | 2 |
+| publication gate: block（基线项） | 89 |
+
+## 已落实的两项许可包装（Packaged clearance）
+
+- [DCAT 3 固定 Recommendation](https://www.w3.org/TR/2024/REC-vocab-dcat-3-20240822/) 与 [VC Data Model 2.0 固定 Recommendation](https://www.w3.org/TR/2025/REC-vc-data-model-2.0-20250515/) 的官方 HTML 响应均与现存 source revision 对齐；canonical metadata 的 `full_text_url` 固定到相应版本。
+- 两者明确使用 [W3C Software and Document License 2023](https://www.w3.org/copyright/software-license-2023/)。完整 NOTICE 随胶囊入库，恢复原权利链接；原文保持不变，仅在末尾补充署名、转换说明与 NOTICE 链接，不移动既有 selector 行位置。
+- `W3C-20150513` 标识不是误用旧许可：[SPDX 官方说明](https://spdx.org/licenses/W3C-20150513.html)确认 2023 年的小幅修改继续使用该标识；具体许可 URL 仍记录为 2023 版。
+- 清关只覆盖当前包内的规范文字及 selector 摘录，不扩展到外链作品、媒体、商标或专利。源版权头保留，未向包内加入外链媒体。
+- 生成器每次从 canonical metadata 与共享 NOTICE 重新组装，不依赖手工补丁。声明的包与新全文 revision 不符会终止物化，而不会被降级为 metadata-only 后误过门控。
+- 对这两项 `allow`，门控检查 canonical metadata、审计、胶囊 metadata、manifest 四方一致，并验证完整 NOTICE 和唯一的文末署名块；丢失声明、漏写审计包或替换 NOTICE 均失败。未将 Agent 核验写作 human approval。
 
 ## 来源族发现（Source-family Findings）
 
@@ -38,7 +48,7 @@
 
 ## 人工审核与权利确认（Human Review and Clearance）
 
-逐条证据审核可以且已经完成。最终权利确认不能仅凭当前仓库自动完成：50 条已有公开许可的记录可由人工完成版本绑定、第三方排除和履约包装后审批；41 条未核实记录必须取得权利人书面许可，或找到与确切作品版本绑定的新权威许可证据。在此之前自动发布应失败关闭（fail closed）。
+逐条证据审核已经完成，许可履约仍未全量完成。50 条有公众许可证据的记录中，两项已按官方许可完成当前文字包的版本绑定与包装，其余 48 项继续核实条件；41 条未核实记录仍需适用授权或与确切作品版本绑定的新权威许可证据。不得以用户希望上传或 Agent 自我批准代替证据；整体自动上传继续失败关闭（fail closed）。
 
 ## 逐条审计（91 items）
 
@@ -121,7 +131,7 @@
 | 75 | <code>standard-w3c-prov-o</code> | <code>materialized_sources/corpus/standard-w3c-prov-o--6f83f2d8/manifest.yaml</code><br><code>raw_data/standard/PROV-O The PROV Ontology/metadata.yaml</code> | <code>W3C-Document-License-2002</code>；允许复制和分发，但一般不授予修改/衍生权。；本地 access=<code>open</code>，assumed=true | metadata 未记录确切 W3C 许可版本。；Markdown 未附完整许可/NOTICE，原许可链接已丢失。 | <code>documented_permission</code> | 满足条件后才可考虑发布；当前 gate=block |
 | 76 | <code>standard:apache-ossie</code> | <code>materialized_sources/corpus/standard-apache-ossie--ae9e548a/manifest.yaml</code><br><code>raw_data/standard/Apache Ossie Open Semantic Interchange/metadata.yaml</code> | <code>Apache-2.0</code>；官网页脚和 ossie-website README/首页源明确 Apache-2.0，NOTICE 标注 ASF。；本地 access=<code>open</code>，assumed=true | document.md 只有 7 bytes 且没有权利文本。；retrieval hash 未映射网站 commit。 | <code>documented_permission</code> | 满足条件后才可考虑发布；当前 gate=block |
 | 77 | <code>standard:odcs-3.2.0</code> | <code>materialized_sources/corpus/standard-odcs-3.2.0--affacf92/manifest.yaml</code><br><code>raw_data/standard/Open Data Contract Standard 3.2.0/metadata.yaml</code> | <code>Apache-2.0</code>；官方 README、v3.2.0 LICENSE 和 docs/README 明确 Apache-2.0。；本地 access=<code>open</code>，assumed=true | latest URL 未绑定 v3.2.0 commit。；Markdown 缺 SPDX、许可证和修改声明。 | <code>documented_permission</code> | 满足条件后才可考虑发布；当前 gate=block |
-| 78 | <code>standard:w3c-dcat-3</code> | <code>materialized_sources/corpus/standard-w3c-dcat-3--fe7850d7/manifest.yaml</code><br><code>raw_data/standard/Data Catalog Vocabulary DCAT 3/metadata.yaml</code> | <code>W3C-Software-and-Document-License-2023</code>；明确允许复制、修改和分发。；本地 access=<code>unknown</code>，assumed=true | metadata 未记录确切 W3C 许可版本。；Markdown 未附完整许可/NOTICE，原许可链接已丢失。 | <code>documented_permission</code> | 满足条件后才可考虑发布；当前 gate=block |
+| 78 | <code>standard:w3c-dcat-3</code> | <code>materialized_sources/corpus/standard-w3c-dcat-3--fe7850d7/manifest.yaml</code><br><code>raw_data/standard/Data Catalog Vocabulary DCAT 3/metadata.yaml</code> | <code>W3C-Software-and-Document-License-2023</code>；固定版本响应与source revision匹配；完整NOTICE及署名/修改声明已随文本入库 | 当前文字包条件已落实；不覆盖外链作品、商标或专利 | <code>documented_permission</code> | 当前固定版本与包装条件下 gate=allow；丢失NOTICE或署名仍失败 |
 | 79 | <code>standard:w3c-did-core</code> | <code>materialized_sources/corpus/standard-w3c-did-core--0d0c2de8/manifest.yaml</code><br><code>raw_data/standard/Decentralized Identifiers DID Core/metadata.yaml</code> | <code>W3C-Software-and-Document-License-2015</code>；明确允许复制、修改和分发。；本地 access=<code>unknown</code>，assumed=true | metadata 未记录确切 W3C 许可版本。；Markdown 未附完整许可/NOTICE，原许可链接已丢失。 | <code>documented_permission</code> | 满足条件后才可考虑发布；当前 gate=block |
 | 80 | <code>standard:w3c-json-ld-1.1</code> | <code>materialized_sources/corpus/standard-w3c-json-ld-1.1--673c0833/manifest.yaml</code><br><code>raw_data/standard/JSON-LD 1.1/metadata.yaml</code> | <code>W3C-Software-and-Document-License-2015</code>；明确允许复制、修改和分发。；本地 access=<code>unknown</code>，assumed=true | metadata 未记录确切 W3C 许可版本。；Markdown 未附完整许可/NOTICE，原许可链接已丢失。 | <code>documented_permission</code> | 满足条件后才可考虑发布；当前 gate=block |
 | 81 | <code>standard:w3c-odrl-2.2</code> | <code>materialized_sources/corpus/standard-w3c-odrl-2.2--df9e3701/manifest.yaml</code><br><code>raw_data/standard/ODRL Information Model 2.2/metadata.yaml</code> | <code>W3C-Software-and-Document-License-2015</code>；明确允许复制、修改和分发。；本地 access=<code>unknown</code>，assumed=true | metadata 未记录确切 W3C 许可版本。；Markdown 未附完整许可/NOTICE，原许可链接已丢失。 | <code>documented_permission</code> | 满足条件后才可考虑发布；当前 gate=block |
@@ -132,7 +142,7 @@
 | 86 | <code>standard:w3c-shacl</code> | <code>materialized_sources/corpus/standard-w3c-shacl--63e18f6d/manifest.yaml</code><br><code>raw_data/standard/Shapes Constraint Language SHACL/metadata.yaml</code> | <code>W3C-Document-License-2015</code>；允许复制和分发；修改/衍生仅有有限实现例外。；本地 access=<code>unknown</code>，assumed=true | metadata 未记录确切 W3C 许可版本。；Markdown 未附完整许可/NOTICE，原许可链接已丢失。 | <code>documented_permission</code> | 满足条件后才可考虑发布；当前 gate=block |
 | 87 | <code>standard:w3c-skos</code> | <code>materialized_sources/corpus/standard-w3c-skos--02ed3abb/manifest.yaml</code><br><code>raw_data/standard/SKOS Simple Knowledge Organization System/metadata.yaml</code> | <code>W3C-Document-License-2002</code>；允许复制和分发，但一般不授予修改/衍生权。；本地 access=<code>unknown</code>，assumed=true | metadata 未记录确切 W3C 许可版本。；Markdown 未附完整许可/NOTICE，原许可链接已丢失。 | <code>documented_permission</code> | 满足条件后才可考虑发布；当前 gate=block |
 | 88 | <code>standard:w3c-sosa-ssn</code> | <code>materialized_sources/corpus/standard-w3c-sosa-ssn--33efc488/manifest.yaml</code><br><code>raw_data/standard/SOSA SSN Ontology/metadata.yaml</code> | <code>W3C-Document-License-2015</code>；允许复制和分发；修改/衍生仅有有限实现例外。；本地 access=<code>unknown</code>，assumed=true | metadata 未记录确切 W3C 许可版本。；Markdown 未附完整许可/NOTICE，原许可链接已丢失。 | <code>documented_permission</code> | 满足条件后才可考虑发布；当前 gate=block |
-| 89 | <code>standard:w3c-vc-data-model-2.0</code> | <code>materialized_sources/corpus/standard-w3c-vc-data-model-2.0--af7d4a38/manifest.yaml</code><br><code>raw_data/standard/Verifiable Credentials Data Model 2.0/metadata.yaml</code> | <code>W3C-Software-and-Document-License-2023</code>；明确允许复制、修改和分发。；本地 access=<code>unknown</code>，assumed=true | metadata 未记录确切 W3C 许可版本。；Markdown 未附完整许可/NOTICE，原许可链接已丢失。 | <code>documented_permission</code> | 满足条件后才可考虑发布；当前 gate=block |
+| 89 | <code>standard:w3c-vc-data-model-2.0</code> | <code>materialized_sources/corpus/standard-w3c-vc-data-model-2.0--af7d4a38/manifest.yaml</code><br><code>raw_data/standard/Verifiable Credentials Data Model 2.0/metadata.yaml</code> | <code>W3C-Software-and-Document-License-2023</code>；固定版本响应与source revision匹配；完整NOTICE及署名/修改声明已随文本入库 | 当前文字包条件已落实；不覆盖外链作品、商标或专利 | <code>documented_permission</code> | 当前固定版本与包装条件下 gate=allow；丢失NOTICE或署名仍失败 |
 | 90 | <code>standard:w3c-web-annotation</code> | <code>materialized_sources/corpus/standard-w3c-web-annotation--3f6ab1c4/manifest.yaml</code><br><code>raw_data/standard/Web Annotation Data Model/metadata.yaml</code> | <code>W3C-Document-License-2015</code>；允许复制和分发；修改/衍生仅有有限实现例外。；本地 access=<code>unknown</code>，assumed=true | metadata 未记录确切 W3C 许可版本。；Markdown 未附完整许可/NOTICE，原许可链接已丢失。 | <code>documented_permission</code> | 满足条件后才可考虑发布；当前 gate=block |
 | 91 | <code>vocabulary:schema.org</code> | <code>materialized_sources/corpus/vocabulary-schema.org--c8b3dc95/manifest.yaml</code><br><code>raw_data/standard/Schema.org Vocabulary/metadata.yaml</code> | <code>CC-BY-SA-3.0</code>；Terms 和 FAQ 明确 schema 及 supporting documentation 的 CC BY-SA 3.0 范围。；本地 access=<code>unknown</code>，assumed=true | metadata 未登记 CC BY-SA 3.0。；抽取未保留 footer/terms、归属和 ShareAlike 标记。 | <code>documented_permission</code> | 满足条件后才可考虑发布；当前 gate=block |
 

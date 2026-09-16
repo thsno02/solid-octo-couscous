@@ -3684,3 +3684,15 @@ A new section 12. Dataset series was added to draft guidelines on dataset series
 
 
 ### K.2 Informative references
+
+
+<!-- materialization-redistribution-notice -->
+## Redistribution notice
+
+This document includes material copied from or derived from "Data Catalog Vocabulary (DCAT) - Version 3", https://www.w3.org/TR/2024/REC-vocab-dcat-3-20240822/. Copyright © 2024 World Wide Web Consortium. https://www.w3.org/copyright/software-license-2023/
+
+Changes: Converted from W3C HTML to Markdown; navigation, hyperlinks, styling, and figures may be omitted or normalized; selector excerpts were generated.
+
+Scope: 仅覆盖当前固定版本规范的文字及由其生成的 selector 摘录；不授权外链媒体、W3C 商标或专利。
+
+Full license and original rights links: [NOTICE.md](NOTICE.md).

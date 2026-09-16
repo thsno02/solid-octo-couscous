@@ -7321,3 +7321,15 @@ Referenced in:
 § 8.10 Bearer Credentials (2) (3) (4) (5) (6) (7) (8) (9) (10) (11)
 
 § 8.13 Aggregation of Credentials
+
+
+<!-- materialization-redistribution-notice -->
+## Redistribution notice
+
+This document includes material copied from or derived from "Verifiable Credentials Data Model v2.0", https://www.w3.org/TR/2025/REC-vc-data-model-2.0-20250515/. Copyright © 2025 World Wide Web Consortium. https://www.w3.org/copyright/software-license-2023/
+
+Changes: Converted from W3C HTML to Markdown; navigation, hyperlinks, styling, and figures may be omitted or normalized; selector excerpts were generated.
+
+Scope: 仅覆盖当前固定版本规范的文字及由其生成的 selector 摘录；不授权外链媒体、W3C 商标或专利。
+
+Full license and original rights links: [NOTICE.md](NOTICE.md).

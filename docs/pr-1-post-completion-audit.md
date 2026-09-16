@@ -137,7 +137,7 @@ publication lane
   repository proposal branch (text + manifests + derived artifacts) → PR → independent CI → review → merge
 ```
 
-The current 90 blocked full-text capsules prevent the producer from uploading a new batch; this is not a successful end-to-end upload. Failed rights checks never fall back to publishing an artifact or pushing a branch. Already committed text remains in GitHub, and remote continuation reads the selected commit rather than depending on a previous runner. See [the current operating guide](ci-workflow.md) for default-branch activation, Actions PR-creation permissions and the approval-required CI behavior of automation-created PRs.
+The remaining 88 blocked full-text capsules prevent the producer from uploading a new batch; two fixed-version W3C text packages have met their notice and attribution conditions, but this is not a successful end-to-end upload. Failed rights checks never fall back to publishing an artifact or pushing a branch. Already committed text remains in GitHub, and remote continuation reads the selected commit rather than depending on a previous runner. See [the current operating guide](ci-workflow.md) for default-branch activation, Actions PR-creation permissions and the approval-required CI behavior of automation-created PRs.
 
 ### A-06 — Reproducibility is same-environment, not yet supply-chain reproducibility
 

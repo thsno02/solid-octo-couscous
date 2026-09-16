@@ -19,6 +19,42 @@ import validate_materialization_completeness as validator
 
 
 class MaterializerBoundaryTests(unittest.TestCase):
+    def test_reviewed_notice_survives_rebuild_without_shifting_source_text(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            payload = b"Source evidence remains at its original location.\n" * 10
+            package = {
+                "source_revision": "sha256:" + hashlib.sha256(payload).hexdigest(),
+                "source_version_url": "https://example.test/fixed-version",
+                "notice_path": "license.md",
+                "attribution": "Copyright example author; derived from the fixed version.",
+                "modifications": "Converted to plain text.",
+                "scope": "Text only.",
+            }
+            (root / "license.md").write_text("Complete test license.\n", encoding="utf-8")
+            metadata = {"rights": {"access": "open", "redistribution_package": package}}
+            record = materializer.SourceRecord(
+                uid="paper:example", source_type="paper", canonical_id="example", title="Example",
+                canonical_url="https://example.test/fixed-version", metadata_path=root / "metadata.yaml",
+                metadata=metadata, priority="P0", rights_access="open",
+            )
+            with mock.patch.multiple(materializer, ROOT=root, CORPUS_ROOT=root / "materialized_sources/corpus"), mock.patch.object(
+                materializer, "fetch_bytes", return_value=(payload, record.canonical_url, {"content-type": "text/plain"}),
+            ):
+                for _ in range(2):
+                    manifest = materializer.materialize_generic(record, {}, "2026-09-16T00:00:00Z")
+                    document = record.capsule_root / "document.txt"
+                    before = document.read_text(encoding="utf-8")
+                    materializer.finalize_capsule(record, record.capsule_root, manifest)
+                    self.assertEqual(document.read_text(encoding="utf-8"), before)
+                    self.assertTrue(before.startswith(payload.decode()))
+                    self.assertEqual(before.count("<!-- materialization-redistribution-notice -->"), 1)
+                    self.assertEqual((record.capsule_root / "NOTICE.md").read_text(), "Complete test license.\n")
+                    self.assertEqual(manifest["rights"]["redistribution_package"], package)
+                package["source_revision"] = "sha256:unreviewed-revision"
+                with self.assertRaises(materializer.RedistributionPackageError):
+                    materializer.materialize_one(record, {}, "2026-09-16T00:00:00Z")
+
     def test_filter_drops_truncated_preview_and_clamps_line_selector_uri(self) -> None:
         document = "alpha\nbeta\n"
         selectors = [

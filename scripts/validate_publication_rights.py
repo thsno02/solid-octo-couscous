@@ -8,6 +8,8 @@ from typing import Any
 
 import yaml
 
+from materialize_all_sources import redistribution_footer
+
 
 ROOT = Path(__file__).resolve().parents[1]
 AUDIT_PATH = ROOT / "raw_data/audits/materialization_rights_review.yaml"
@@ -96,6 +98,36 @@ def validate_publication_rights(
         if decision != "allow":
             reason = gate.get("reason") if isinstance(gate, dict) else "missing publication gate"
             blocked.append(f"{uid}: {reason}")
+        else:
+            # An allowance with packaging conditions is not valid when a later
+            # materialization silently discards the reviewed notice/attribution.
+            package = review.get("redistribution_package")
+            actual_package = manifest.get("rights", {}).get("redistribution_package")
+            try:
+                metadata_path = manifest.get("metadata_path")
+                canonical_package = None
+                if metadata_path:
+                    metadata_file = (publication_root / metadata_path).resolve()
+                    metadata_file.relative_to(publication_root.resolve())
+                    canonical_package = load_yaml(metadata_file).get("rights", {}).get("redistribution_package")
+                if not (package or actual_package or canonical_package):
+                    continue
+                capsule_package = load_yaml(manifest_path.parent / "source-metadata.yaml").get("rights", {}).get("redistribution_package")
+                if not package or not (package == canonical_package == capsule_package == actual_package) or package["source_revision"] != actual_revision:
+                    raise ValueError("reviewed and materialized license packages differ")
+                license_path = (publication_root / package["notice_path"]).resolve()
+                license_path.relative_to(publication_root.resolve())
+                expected_notice = license_path.read_text(encoding="utf-8")
+                notice = manifest_path.parent / "NOTICE.md"
+                if not expected_notice.strip() or notice.read_text(encoding="utf-8") != expected_notice:
+                    raise ValueError("full notice is absent or differs from the reviewed license")
+                document = (manifest_path.parent / manifest["materialization"]["document"]).resolve()
+                document.relative_to(manifest_path.parent.resolve())
+                text = document.read_text(encoding="utf-8")
+                if text.count("<!-- materialization-redistribution-notice -->") != 1 or not text.endswith(redistribution_footer(package)):
+                    raise ValueError("attribution or modification notice is absent")
+            except (KeyError, TypeError, AttributeError, ValueError, OSError) as exc:
+                fail(f"PUBLICATION_RIGHTS_PACKAGE_INVALID {uid}: {exc}", errors)
 
     if not active_full_text:
         fail("PUBLICATION_FULL_TEXT_SET_EMPTY", errors)

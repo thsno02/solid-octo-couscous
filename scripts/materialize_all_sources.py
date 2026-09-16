@@ -465,7 +465,72 @@ def write_capsule_readme(record: SourceRecord, root: Path, manifest: dict[str, A
         "",
         "This directory is a local evidence capsule. It is not, by itself, a trusted knowledge assertion.",
     ]
+    if manifest.get("rights", {}).get("redistribution_package"):
+        lines.extend(["", "Redistribution notice and attribution: [NOTICE.md](NOTICE.md)."])
     (root / "README.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
+class RedistributionPackageError(ValueError):
+    """A declared publication condition failed; never downgrade it to metadata-only."""
+
+
+def redistribution_footer(package: dict[str, Any]) -> str:
+    """Append attribution without shifting existing source selectors."""
+    return (
+        "\n\n<!-- materialization-redistribution-notice -->\n"
+        "## Redistribution notice\n\n"
+        f"{package['attribution']}\n\n"
+        f"Changes: {package['modifications']}\n\n"
+        f"Scope: {package['scope']}\n\n"
+        "Full license and original rights links: [NOTICE.md](NOTICE.md).\n"
+    )
+
+
+def apply_redistribution_package(record: SourceRecord, root: Path, manifest: dict[str, Any]) -> None:
+    """Restore reviewed license packaging on every materialization, not just once."""
+    rights = record.metadata.get("rights") or {}
+    package = rights.get("redistribution_package")
+    if not package:
+        return
+    if package.get("source_revision") != manifest.get("revision"):
+        if manifest.get("content_tier") == "full_text":
+            raise ValueError("declared redistribution package does not cover the retrieved revision")
+        return
+    for field in ("source_revision", "source_version_url", "notice_path", "attribution", "modifications", "scope"):
+        if not isinstance(package.get(field), str) or not package[field].strip():
+            raise ValueError(f"redistribution package is missing {field}")
+    notice_path = (ROOT / package["notice_path"]).resolve()
+    notice_path.relative_to(ROOT.resolve())
+    notice = notice_path.read_text(encoding="utf-8")
+    if not notice.strip():
+        raise ValueError("redistribution notice is empty")
+    document_name = manifest.get("materialization", {}).get("document")
+    if not document_name:
+        raise ValueError("redistribution package needs an explicit materialized document")
+    document = (root / document_name).resolve()
+    document.relative_to(root.resolve())
+    text = document.read_text(encoding="utf-8")
+    previous = manifest.get("rights", {}).get("redistribution_package")
+    marker_count = text.count("<!-- materialization-redistribution-notice -->")
+    if marker_count:
+        if marker_count != 1 or not previous:
+            raise ValueError("unexpected or duplicate redistribution footer")
+        previous_footer = redistribution_footer(previous)
+        if not text.endswith(previous_footer):
+            raise ValueError("previous redistribution footer is not intact at end of document")
+        text = text[:-len(previous_footer)]
+    text += redistribution_footer(package)
+    document.write_text(text, encoding="utf-8")
+    (root / "NOTICE.md").write_text(notice, encoding="utf-8")
+    manifest["materialization"]["stored_characters"] = len(text)
+    manifest["rights"].update({
+        "declared_access": rights.get("access"),
+        "full_text_redistribution_assumed": False,
+        "license_spdx": rights.get("license_spdx"),
+        "license_url": rights.get("license_url"),
+        "license_verified_at": rights.get("license_verified_at"),
+        "redistribution_package": dict(package),
+    })
 
 
 def base_manifest(record: SourceRecord, adapter: str, generated_at: str) -> dict[str, Any]:
@@ -503,6 +568,10 @@ def prepare_capsule(record: SourceRecord) -> Path:
 
 
 def finalize_capsule(record: SourceRecord, root: Path, manifest: dict[str, Any]) -> dict[str, Any]:
+    try:
+        apply_redistribution_package(record, root, manifest)
+    except (KeyError, TypeError, AttributeError, ValueError, OSError) as exc:
+        raise RedistributionPackageError(f"{record.uid}: {exc}") from exc
     write_capsule_readme(record, root, manifest)
     manifest["local_files"] = local_file_inventory(root)
     manifest["local_bytes"] = sum(item["bytes"] for item in manifest["local_files"])
@@ -1500,6 +1569,8 @@ def materialize_one(record: SourceRecord, config: dict[str, Any], generated_at: 
                 return materialize_github(record, config, generated_at)
         with _generic_semaphore:
             return materialize_generic(record, config, generated_at)
+    except RedistributionPackageError:
+        raise
     except Exception as exc:
         root = record.capsule_root
         if not root.exists():
@@ -1627,11 +1698,16 @@ def write_indexes_and_audit(records: list[SourceRecord], manifests: dict[str, di
         "# 物化来源语料（Materialized Source Corpus）\n\n"
         "`corpus/` 为每条 metadata record 保存一个本地胶囊（local capsule）。"
         "内容层级（content tier）包括：\n\n"
-        "- `full_text`：已物化开放或来源原生的全文；\n"
+        "- `full_text`：技术上已取得本地全文；该层级本身不证明具备公开再分发许可；\n"
         "- `semantic_capsule`：GitHub repository 已固定到具体 commit，并根据选定证据生成语义胶囊；\n"
         "- `excerpt_capsule`：未确认再分发权利时，只保存有边界的本地摘录；\n"
-        "- `metadata_capsule`：本地仅保存 metadata 与获取诊断。\n\n"
-        "本地胶囊不自动等于可信知识（trusted knowledge）。\n",
+        "- `metadata_capsule`：仅允许元数据消费；也可能保留抓取失败的标题等诊断性文件，不能作为正文证据。\n\n"
+        "本地胶囊不自动等于可信知识（trusted knowledge）。\n\n"
+        "公开存储另受[版权与许可审计](../docs/materialization-rights-audit.md)约束。"
+        "`full_text_redistribution_assumed` 是历史获取器的假设，不是许可凭据；"
+        "Git LFS 或公开 release artifact 也不消除再分发义务。摘录有长度边界也不自动代表具备公开再分发权。\n\n"
+        "离线修复和定位器抽检结果见 `raw_data/audits/`。注册表的 `evidence_role` 将仅目录导航（catalog-only）、"
+        "有限摘录（bounded-excerpt）、仓库静态证据（static-repository-evidence）与原文（source-text）分开。\n",
         encoding="utf-8",
     )
     audit = {
@@ -1718,6 +1794,8 @@ def main() -> int:
             record = future_map[future]
             try:
                 manifest = future.result()
+            except RedistributionPackageError:
+                raise
             except Exception as exc:
                 root = prepare_capsule(record)
                 manifest = base_manifest(record, adapter_name(record.source_type), generated_at)

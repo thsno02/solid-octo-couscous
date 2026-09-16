@@ -8,6 +8,7 @@ from pathlib import Path
 import yaml
 
 from validate_publication_rights import validate_publication_rights
+from materialize_all_sources import redistribution_footer
 
 
 class PublicationRightsTests(unittest.TestCase):
@@ -71,6 +72,53 @@ class PublicationRightsTests(unittest.TestCase):
                 audit, root / "materialized_sources/corpus"
             )
         self.assertTrue(any("REVISION_MISMATCH" in error for error in errors))
+
+    def test_packaged_allowance_requires_notice_and_attribution(self):
+        temporary, root, audit = self.fixture()
+        with temporary:
+            capsule = root / "materialized_sources/corpus/item"
+            package = {
+                "source_revision": "rev-1", "source_version_url": "https://example.test/v1",
+                "notice_path": "license.md", "attribution": "Copyright example.",
+                "modifications": "Text conversion.", "scope": "Document text.",
+            }
+            expected = "Complete test license.\n"
+            (root / "license.md").write_text(expected)
+            notice = capsule / "NOTICE.md"
+            notice.write_text(expected)
+            document = capsule / "document.md"
+            document.write_text("Original source text.\n" + redistribution_footer(package))
+            manifest_path = capsule / "manifest.yaml"
+            manifest = yaml.safe_load(manifest_path.read_text())
+            metadata = {"rights": {"redistribution_package": package}}
+            (root / "metadata.yaml").write_text(yaml.safe_dump(metadata))
+            (capsule / "source-metadata.yaml").write_text(yaml.safe_dump(metadata))
+            manifest.update({"metadata_path": "metadata.yaml", "rights": {"redistribution_package": package}, "materialization": {"document": "document.md"}})
+            manifest_path.write_text(yaml.safe_dump(manifest))
+            reviewed = yaml.safe_load(audit.read_text())
+            reviewed["items"][0]["redistribution_package"] = package
+            audit.write_text(yaml.safe_dump(reviewed))
+            errors, blocked, _, _ = validate_publication_rights(audit, root / "materialized_sources/corpus")
+            self.assertEqual((errors, blocked), ([], []))
+            del reviewed["items"][0]["redistribution_package"]
+            audit.write_text(yaml.safe_dump(reviewed))
+            errors, _, _, _ = validate_publication_rights(audit, root / "materialized_sources/corpus")
+            self.assertTrue(any("PACKAGE_INVALID" in error for error in errors))
+            reviewed["items"][0]["redistribution_package"] = package
+            audit.write_text(yaml.safe_dump(reviewed))
+            notice.unlink()
+            errors, _, _, _ = validate_publication_rights(audit, root / "materialized_sources/corpus")
+            self.assertTrue(any("PACKAGE_INVALID" in error for error in errors))
+            notice.write_text("Shortened or substituted license.")
+            errors, _, _, _ = validate_publication_rights(audit, root / "materialized_sources/corpus")
+            self.assertTrue(any("PACKAGE_INVALID" in error for error in errors))
+            notice.write_text(expected)
+            document.write_text(redistribution_footer(package) + redistribution_footer(package))
+            errors, _, _, _ = validate_publication_rights(audit, root / "materialized_sources/corpus")
+            self.assertTrue(any("PACKAGE_INVALID" in error for error in errors))
+            document.write_text("Original source text, but attribution was lost.\n")
+            errors, _, _, _ = validate_publication_rights(audit, root / "materialized_sources/corpus")
+            self.assertTrue(any("PACKAGE_INVALID" in error for error in errors))
 
 
 if __name__ == "__main__":
