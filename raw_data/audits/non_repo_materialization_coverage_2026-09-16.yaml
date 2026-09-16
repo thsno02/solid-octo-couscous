@@ -6905,7 +6905,7 @@ items:
     next_action: "P2 评估 PDF 第4、20页图像是否含必要正文/表格/公式，必要时在本地 OCR 并核验；不因零提取字符断言无正文，也不改原 PDF。"
     resolution: "unresolved"
     pdf_content_probe:
-      method: "pypdf.PdfReader 本地只读，无 render/OCR/网络"
+      method: "Python 3.12.14 / pypdf 6.10.0，PdfReader.extract_text(extraction_mode='plain') 本地只读，无 render/OCR/网络；extractable_characters=len((text or '').strip())。该空白相关长度不作为跨版本不变量；pypdf 6.18.1 复核同样确认第4/20页为0非空白正文。"
       actual_page_count: 157
       sampled_pages:
         -
