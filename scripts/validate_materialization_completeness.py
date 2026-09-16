@@ -131,12 +131,16 @@ def validate_tex_reading_view(
 
 def validate_retained_markdown_binding(
     manifest: dict[str, Any], capsule_root: Path, actual_hashes: dict[str, str],
-    errors: list[str], *, repository_root: Path | None = None,
+    errors: list[str], *, repository_root: Path | None = None, check_derived: bool = True,
 ) -> None:
     """Bind an opt-in retained Markdown original to its inventory and retrieval."""
     materialization = manifest.get("materialization")
+    if (capsule_root / "source/specification.html").exists() or isinstance(materialization, dict) and any(field in materialization for field in ("retained_text_binding", "retained_text_selectors")):
+        if not isinstance(materialization, dict) or "retained_text_sources" not in materialization:
+            errors.append(f"RETAINED_DATED_HTML {manifest.get('uid')}: retained original has no text declaration")
+            return
     if isinstance(materialization, dict) and "retained_text_sources" in materialization:
-        validate_retained_text_binding(manifest, capsule_root, actual_hashes, errors, repository_root=repository_root)
+        validate_retained_text_binding(manifest, capsule_root, actual_hashes, errors, repository_root=repository_root, check_derived=check_derived)
         return
     if not isinstance(materialization, dict) or "retained_markdown_source" not in materialization:
         return
@@ -166,11 +170,18 @@ def validate_retained_markdown_binding(
 
 def validate_retained_text_binding(
     manifest: dict[str, Any], capsule_root: Path, actual_hashes: dict[str, str],
-    errors: list[str], *, repository_root: Path | None = None,
+    errors: list[str], *, repository_root: Path | None = None, check_derived: bool = True,
 ) -> None:
     """Bind the finite native-text assembly to existing per-file snapshot evidence."""
     materialization = manifest["materialization"]
     uid = manifest.get("uid")
+    binding = materialization.get("retained_text_binding")
+    if binding == "dated_html_response":
+        validate_dated_html_binding(manifest, capsule_root, actual_hashes, errors, repository_root=repository_root, check_derived=check_derived)
+        return
+    if binding is not None or "retained_text_selectors" in materialization:
+        errors.append(f"RETAINED_TEXT_BINDING {uid}")
+        return
     sources = materialization["retained_text_sources"]
     if "retained_markdown_source" in materialization or not isinstance(sources, list) or not sources:
         errors.append(f"RETAINED_TEXT_DECLARATION {uid}")
@@ -215,6 +226,103 @@ def validate_retained_text_binding(
         rows = [row for row in retrievals if isinstance(row, dict) and row.get("local_path") == source_name] if isinstance(retrievals, list) else []
         if len(rows) != 1 or rows[0].get("sha256") != source_hash or rows[0].get("bytes") != source.stat().st_size or rows[0].get("commit") != commit:
             errors.append(f"RETAINED_TEXT_RETRIEVAL {uid}: {source_name}")
+
+
+def validate_dated_html_binding(
+    manifest: dict[str, Any], capsule_root: Path, actual_hashes: dict[str, str], errors: list[str],
+    *, repository_root: Path | None = None, check_derived: bool = True,
+) -> None:
+    """An explicit response snapshot uses its actual bytes, never an inferred Git ref."""
+    from urllib.parse import urlsplit
+    from materialize_all_sources import preflight_dated_html_assets, redistribution_footer, retained_text_selector_file
+    repo_root = (repository_root or ROOT).resolve()
+    capsule_root = capsule_root.resolve()
+    uid = manifest.get("uid")
+    try:
+        if manifest.get("adapter") != "generic_web_or_document_v2":
+            raise ValueError("dated HTML response needs its actual generic adapter")
+        selectors = retained_text_selector_file(manifest, capsule_root, require_exists=check_derived)
+        materialization = manifest["materialization"]
+        source = capsule_root / "source/specification.html"
+        source_path = source.relative_to(repo_root).as_posix()
+        source_hash = sha256_file(source)
+        if actual_hashes.get(source_path) != source_hash or manifest.get("revision") != f"sha256:{source_hash}":
+            raise ValueError("dated HTML revision differs from its actual original")
+        inventory = [row for row in manifest["local_files"] if row.get("path") == source_path]
+        if len(inventory) != 1 or inventory[0].get("sha256") != source_hash or inventory[0].get("bytes") != source.stat().st_size:
+            raise ValueError("dated HTML original differs from inventory")
+        metadata_path = (repo_root / manifest["metadata_path"]).resolve()
+        metadata_path.relative_to(repo_root)
+        canonical, capsule = load_yaml(metadata_path), load_yaml(capsule_root / "source-metadata.yaml")
+        version = manifest["source_version"]
+        if not isinstance(version, str) or not version.strip():
+            raise ValueError("dated HTML needs its explicit selected version")
+        package = manifest["rights"]["redistribution_package"]
+        if not isinstance(package, dict) or any(not isinstance(package.get(field), str) or not package[field].strip() for field in (
+            "source_revision", "source_version_url", "notice_path", "attribution", "modifications", "scope",
+        )) or package["source_revision"] != manifest["revision"]:
+            raise ValueError("dated HTML package is incomplete or covers a different revision")
+        approved_url = package["source_version_url"]
+        parsed = urlsplit(approved_url)
+        if parsed.scheme != "https" or not parsed.netloc or parsed.query or parsed.fragment or parsed.username:
+            raise ValueError("dated HTML needs its literal approved HTTPS URL")
+        for metadata in (canonical, capsule):
+            if (
+                not isinstance(metadata, dict) or not isinstance(metadata.get("versioning"), dict)
+                or metadata["versioning"].get("source_version") != version
+                or metadata.get("full_text_url") != approved_url
+                or metadata.get("rights", {}).get("redistribution_package") != package
+                or any(metadata.get(field) != canonical.get(field) for field in ("uid", "title", "url", "canonical_url", "canonical_id"))
+                or metadata.get("uid") != uid
+            ):
+                raise ValueError("dated HTML canonical/capsule identity, version, URL or package differs")
+        records = [row for row in manifest["retrievals"] if row.get("local_path") == "source/specification.html"]
+        if len(records) != 1 or any(records[0].get(field) != expected for field, expected in (
+            ("requested_url", approved_url), ("resolved_url", approved_url), ("sha256", source_hash),
+            ("bytes", source.stat().st_size), ("http_status", 200),
+        )) or not isinstance(records[0].get("content_type"), str) or records[0]["content_type"].split(";", 1)[0].strip() != "text/html" or not isinstance(records[0].get("retrieved_at"), str) or not records[0]["retrieved_at"].strip():
+            raise ValueError("dated HTML retrieval does not describe the approved response")
+        review = [row for row in load_yaml(repo_root / "raw_data/audits/materialization_rights_review.yaml")["items"] if row.get("uid") == uid]
+        if len(review) != 1 or review[0].get("redistribution_package") != package or review[0].get("source_revision") != manifest["revision"] or review[0].get("manifest_path") != (capsule_root / "manifest.yaml").relative_to(repo_root).as_posix() or review[0].get("publication_gate", {}).get("decision") != "allow":
+            raise ValueError("dated HTML audit allowance or four-party package differs")
+        notice_path = (repo_root / package["notice_path"]).resolve()
+        notice_path.relative_to(repo_root)
+        notice = notice_path.read_bytes()
+        if not notice.strip() or (capsule_root / "NOTICE.md").read_bytes() != notice:
+            raise ValueError("dated HTML full NOTICE differs from its reviewed asset")
+        history = manifest["historical_acquisition"]
+        if not isinstance(history, dict) or not all(field in history for field in ("revision", "retrievals", "rights", "materialization", "local_files")):
+            raise ValueError("dated HTML must preserve its prior acquisition facts")
+        for name in ("document.md", "selectors.jsonl"):
+            path = capsule_root / name
+            old = [row for row in history["local_files"] if row.get("path") == path.relative_to(repo_root).as_posix()]
+            if len(old) != 1 or old[0].get("sha256") != sha256_file(path) or old[0].get("bytes") != path.stat().st_size:
+                raise ValueError("dated HTML legacy document or selectors changed")
+        preflight_dated_html_assets(manifest, capsule_root, repository_root=repo_root)
+        if check_derived or (capsule_root / materialization["document"]).exists() or selectors.exists():
+            document = capsule_root / materialization["document"]
+            text = document.read_bytes().decode("utf-8")
+            if text.count("<!-- materialization-redistribution-notice -->") != 1 or not text.endswith(redistribution_footer(package, "../NOTICE.md")):
+                raise ValueError("dated HTML current footer is missing or changed")
+            lines = text.splitlines()
+            source_lines = len(source.read_bytes().decode("utf-8").splitlines())
+            rows = [json.loads(line) for line in selectors.read_bytes().decode("utf-8").splitlines() if line.strip()]
+            if not rows:
+                raise ValueError("dated HTML has no derived selectors")
+            for row in rows:
+                start, end = row.get("start_line"), row.get("end_line")
+                original_start, original_end = row.get("source_start_line"), row.get("source_end_line")
+                if (
+                    any(not isinstance(value, int) or isinstance(value, bool) for value in (start, end, original_start, original_end))
+                    or not 1 <= start <= end <= len(lines) or not 1 <= original_start <= original_end <= source_lines
+                    or row.get("selector") != f"derived://{document.relative_to(repo_root).as_posix()}#L{start}-L{end}"
+                    or row.get("local_path") != document.relative_to(repo_root).as_posix() or row.get("source_format") != "html"
+                    or row.get("derived_from") != source_path or not isinstance(row.get("transformation"), str) or not row["transformation"].strip()
+                    or not isinstance(row.get("text_preview"), str) or not row["text_preview"] or row["text_preview"] not in "\n".join(lines[start - 1:end])
+                ):
+                    raise ValueError("dated HTML selector provenance or real range differs")
+    except (KeyError, TypeError, AttributeError, ValueError, OSError, yaml.YAMLError) as exc:
+        errors.append(f"RETAINED_DATED_HTML {uid}: {exc}")
 
 
 def pdf_page_sections(text: str) -> tuple[dict[int, str], set[int]]:
@@ -817,6 +925,14 @@ def main() -> int:
                 )
 
         selectors_path = capsule_root / "selectors.jsonl"
+        selector_paths = [selectors_path]
+        try:
+            from materialize_all_sources import retained_text_selector_file
+            sidecar = retained_text_selector_file(manifest, capsule_root, require_exists=True)
+            if sidecar != selectors_path:
+                selector_paths.append(sidecar)
+        except (KeyError, TypeError, AttributeError, ValueError, OSError) as exc:
+            errors.append(f"RETAINED_TEXT_SELECTORS {uid}: {exc}")
         selector_declaration = manifest.get("selectors")
         if not isinstance(selector_declaration, list):
             errors.append(f"SELECTOR_DECLARATION_BAD {uid}")
@@ -833,7 +949,7 @@ def main() -> int:
         target_pdf_sections: dict[str, tuple[dict[int, str], set[int]]] = {}
         if selectors_path.exists():
             try:
-                selector_lines = selectors_path.read_text(encoding="utf-8").splitlines()
+                selector_lines = [line for path in selector_paths for line in path.read_text(encoding="utf-8").splitlines()]
             except (OSError, UnicodeError) as exc:
                 errors.append(f"SELECTORS_READ {uid}: {exc}")
                 selector_lines = []

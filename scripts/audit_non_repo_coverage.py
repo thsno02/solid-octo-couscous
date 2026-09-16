@@ -10,7 +10,7 @@ from pathlib import Path
 
 import yaml
 
-from materialize_all_sources import discover_records, filter_selectors_for_document
+from materialize_all_sources import discover_records, filter_selectors_for_document, retained_text_selector_file
 from validate_materialization_completeness import load_yaml, pdf_page_sections, scoped_path, validate_pdf_supplement
 from validate_publication_rights import validate_pdf_supplement_rights
 
@@ -98,7 +98,7 @@ def collect_facts() -> dict:
         document = materialization.get("document") or materialization.get("normalized_document")
         document_path = root / document if document else None
         document_text = document_path.read_text() if document_path and document_path.is_file() else ""
-        selectors_path = root / "selectors.jsonl"
+        selectors_path = retained_text_selector_file(manifest, root, require_exists=True)
         selectors = read_jsonl(selectors_path)
         invalid = 0
         by_path = defaultdict(list)

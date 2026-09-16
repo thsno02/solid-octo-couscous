@@ -24,6 +24,75 @@ class ExcerptTests(unittest.TestCase):
         self.assert_located(text, result)
         self.assertEqual(result[1], 5)
 
+    def test_dated_html_uses_only_its_paired_document_and_selector_sidecar(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            capsule = root / "materialized_sources/corpus/example"
+            (capsule / "normalized").mkdir(parents=True)
+            legacy = capsule / "document.md"
+            legacy.write_bytes(b"Historical excerpt and rights footer remain unchanged.\r\n")
+            (capsule / "selectors.jsonl").write_bytes(b'{"selector":"historical"}\n')
+            document = capsule / "normalized/document.md"
+            document.write_text("New structural HTML consumer.\n")
+            selectors = capsule / "normalized/selectors.jsonl"
+            selectors.write_text('{"selector":"derived"}\n')
+            item = {"manifest": "materialized_sources/corpus/example/manifest.yaml"}
+            manifest = {"selectors": ["selectors.jsonl", "normalized/selectors.jsonl"], "materialization": {
+                "retained_text_binding": "dated_html_response", "document": "normalized/document.md", "normalized_document": "normalized/document.md",
+                "retained_text_selectors": "normalized/selectors.jsonl",
+                "retained_text_sources": [{"source": "source/specification.html", "format": "html"}],
+            }}
+            with mock.patch.object(build_demo, "ROOT", root):
+                self.assertEqual(choose_local_document(item, manifest), document)
+                self.assertEqual(choose_local_selectors(item, manifest), selectors)
+                for field, value in (("retained_text_binding", "unknown"), ("retained_text_selectors", "selectors.jsonl"), ("document", "document.md")):
+                    original = manifest["materialization"][field]
+                    manifest["materialization"][field] = value
+                    for chooser in (choose_local_document, choose_local_selectors):
+                        with self.subTest(field=field, chooser=chooser.__name__), self.assertRaises(ValueError):
+                            chooser(item, manifest)
+                    manifest["materialization"][field] = original
+                materialization = manifest["materialization"]
+                manifest["materialization"] = 7
+                for chooser in (choose_local_document, choose_local_selectors):
+                    with self.subTest(chooser=chooser.__name__), self.assertRaises(ValueError):
+                        chooser(item, manifest)
+                manifest["materialization"] = materialization
+                selectors.unlink()
+                for chooser in (choose_local_document, choose_local_selectors):
+                    with self.subTest(chooser=chooser.__name__), self.assertRaises(ValueError):
+                        chooser(item, manifest)
+                old = {"materialization": {"document": "document.md"}}
+                self.assertEqual(choose_local_document(item, old), legacy)
+                self.assertEqual(choose_local_selectors(item, old), capsule / "selectors.jsonl")
+            self.assertEqual(legacy.read_bytes(), b"Historical excerpt and rights footer remain unchanged.\r\n")
+
+    def test_dated_html_excerpt_reuses_whole_fence_mask_without_tex_assumptions(self):
+        text = (
+            "# Retained specification text (collector assembly)\n\n"
+            "```\n\n## Abstract\n\nThis hidden HTML code example describes an impossible unconditional result with enough prose to look like source evidence.\n\n```\n\n"
+            "## Abstract\n\nThis dated specification defines a reviewable local source boundary while retaining explicit attribution and stable structural text for readers.\n"
+        )
+        result = source_excerpt(text, "Dated specification", reading_view=True)
+        self.assertTrue(result[0].startswith("This dated specification"))
+        self.assert_located(text, result)
+
+    def test_reading_view_skips_whole_anchor_contaminated_candidate_without_cleaning(self):
+        anchored = (
+            "This anchored source paragraph provides enough contiguous prose to satisfy the existing excerpt length and word criteria.\n"
+            '<a id="specification-ref-for-term-1"></a>\n'
+            "The paragraph continues with source words, but its collector locator must not become an automatically quoted statement."
+        )
+        actual = "This next source paragraph states the explicit document scope in continuous prose without any collector markup or inferred sentence joining."
+        text = "## Abstract\n\n" + anchored + "\n\n" + actual + "\n"
+        result = source_excerpt(text, "Specification", reading_view=True)
+        self.assertEqual(result[0], actual)
+        self.assertEqual((result[1], result[2]), (7, 7))
+        self.assert_located(text, result)
+        self.assertEqual(source_excerpt("## Abstract\n\n" + anchored, "Specification", reading_view=True), ("", 1, 1))
+        # The non-opt-in quotation path remains exactly the legacy selection.
+        self.assertTrue(source_excerpt(text, "Specification")[0].startswith("This anchored source paragraph"))
+
     def test_does_not_quote_repository_header_or_html(self):
         text = "# Repository semantic capsule\n\n- Commit: abcdef\n- Description: metadata only\n\n<p align='center'>\nSome badges and links are not prose.\n</p>\n\n" + (
             "This repository provides a method for collecting local source evidence and producing reviewable knowledge pages.\n")
