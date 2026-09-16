@@ -18,17 +18,6 @@ on:
       - 'requirements-materialization.txt'
       - '.github/workflows/build-llm-wiki-demo.yml'
   pull_request:
-    paths:
-      - 'experiments/v0_meta_kb_initialization_demo_260910/**'
-      - 'Makefile'
-      - 'docs/llm-wiki/**'
-      - 'raw_data/schemas/knowledge_model.schema.yaml'
-      - 'raw_data/schemas/wiki_page.schema.yaml'
-      - 'raw_data/schemas/wiki_change.schema.yaml'
-      - 'scripts/verify_demo_reproducibility.py'
-      - 'tests/**'
-      - 'requirements-materialization.txt'
-      - '.github/workflows/build-llm-wiki-demo.yml'
 
 permissions:
   contents: read
@@ -56,12 +45,10 @@ jobs:
       - name: Run offline unit tests
         run: make test
 
-      - name: Rebuild and validate the complete v0 demo from local capsules
-        run: make demo
-
       - name: Run repository-level deterministic checks
         run: make validate
 
+      # This must be the first build: capture the untouched checkout baseline.
       - name: Verify committed artifacts and byte-identical offline replay
         run: make reproducibility
 
