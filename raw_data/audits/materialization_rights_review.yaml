@@ -7,11 +7,13 @@ scope:
   baseline_index: materialized_sources/index.yaml
   selection: content_tier == full_text at baseline commit
   baseline_full_text_count: 91
+  additional_full_text_review_count: 1
+  additional_review_uids: ['standard:ro-crate-1.2']
   source_type_counts:
     arxiv: 73
     methodology: 1
     standard: 17
-  note: 固定覆盖 ee43cb3 的 91 条基线；后续降级不删除历史审计行。
+  note: 固定覆盖 ee43cb3 的91条历史基线；后续降级不删除历史行。P3-SPEC-01新增1条原metadata来源的固定全文审阅，合计92条，不追溯改变基线分母或其他91条判断。
 decision_model:
   documented_permission: 权威证据对目标作品明确授予公众复制/再分发权；不表示当前发布包已履约。
   permission_unverified: 未找到适用于公众/本仓库的明确授权；unknown、metadata_only、可下载或平台托管均不等于授权。
@@ -19,16 +21,17 @@ decision_model:
   scope_rule: 代码、数据、模板、引用作品或相邻仓库的许可不得外推至目标全文。
 summary:
   classification_counts:
-    documented_permission: 54
+    documented_permission: 55
     permission_unverified: 37
   recommendation_counts:
     allow_after_conditions_met: 28
     do_not_redistribute_full_text: 37
-    allow_with_packaged_notice: 26
+    allow_with_packaged_notice: 27
   publication_gate_counts:
     block: 65
-    allow: 26
+    allow: 27
   license_evidence_counts:
+    Apache-2.0 AND CC0-1.0: 1
     CC-BY-4.0: 28
     none: 37
     CC-BY-SA-4.0: 2
@@ -50,7 +53,7 @@ summary:
 review_completion:
   evidence_review_complete_for_baseline: true
   legal_clearance_complete: false
-  can_human_review_be_completed: 证据审计已完成；54条有公众许可证据，其中26条完成当前包装，28条仍待履约；另37条须取得适用许可或新的权威许可证据。客观许可履约不默认要求另行人工批准，Agent也不代替权利人授予新许可；已定位短引按具体目的、性质、使用量与市场影响判断，不把法定例外误写成普遍许可或自动豁免。
+  can_human_review_be_completed: 历史91条基线审计为54有证据/26已包装/28待履约/37缺证据；P3-SPEC-01另增RO-Crate1.2一条有证据且包装，现92条为55/27/28/37。客观许可履约不默认要求另行人工批准，Agent也不代替权利人授予新许可；不把法定例外误写成普遍许可或自动豁免。
   not_legal_advice: true
 shared_component_findings:
 - component: natbib
@@ -9125,3 +9128,4 @@ items:
   - 完整许可、原来源/Sponsors署名及转换说明保存于repo。
   - Markdown改编与同源selector按CC BY-SA 3.0分发；集合中独立作品不被重新许可，后续派生分别核验。
   - 正文前缀、34selectors、retrieval和revision不变；两次离线包装幂等，未来revision不同失败关闭。
+- {"sequence":92,"uid":"standard:ro-crate-1.2","source_type":"standard","title":"RO-Crate 1.2","manifest_path":"materialized_sources/corpus/standard-ro-crate-1.2--10d98d26/manifest.yaml","metadata_path":"raw_data/standard/RO-Crate 1.2/metadata.yaml","capsule_root":"materialized_sources/corpus/standard-ro-crate-1.2--10d98d26","stored_full_text_paths":["materialized_sources/corpus/standard-ro-crate-1.2--10d98d26/source/specification/1.2/document.md","materialized_sources/corpus/standard-ro-crate-1.2--10d98d26/source/specification/1.2/document.html","materialized_sources/corpus/standard-ro-crate-1.2--10d98d26/normalized/document.md"],"baseline_content_tier":"metadata_capsule","baseline_status":"metadata_only","review_cohort":"P3-SPEC-01 additional fixed-version full text","source_revision":"sha256:a486c78d006e7a1f33ef530320e991e99a4a2b1e4eb303104618180e6cb99c2a","canonical_url":"https://www.researchobject.org/ro-crate/specification/1.2/","checks":[{"kind":"official_fixed_specification_rights","url":"https://github.com/ResearchObject/ro-crate/releases/download/1.2.0/ro-crate-1.2.0.md","checked_at":"2026-09-16","finding":"Official specification 1.2 release1.2.0 Markdown/HTML explicitly give Apache-2.0, complete contributors and chapter copyrights; JSON-LD examples CC0. Both originals retained unchanged; not inferred from a nearby repository license.","supports_public_redistribution":true},{"kind":"referenced_assets_fixed_tag","url":"https://github.com/ResearchObject/ro-crate/tree/dc42c230937b872710bae187b1b5bf51a3b494d2/docs/assets/img","checked_at":"2026-09-16","finding":"Precisely four images actually referenced in the official 1.2 body retained at same tag commit. crate1-folders.svg embeds CC0 plus Stian Soiland-Reyes/Eli Chadwick credit. Existing illustration 1.1 label versus normative1.2 recorded without editing. No separately named NOTICE in fixed tree.","supports_public_redistribution":true}],"missing":[],"classification":"documented_permission","license_id":"Apache-2.0 AND CC0-1.0","license_url":"https://www.apache.org/licenses/LICENSE-2.0","license_scope":"Fixed RO-Crate 1.2 specification release 1.2.0: complete official Markdown and HTML (all main chapters, four appendices, references and footnote), plus precisely crate1-folders.svg, introduction-figure-1.png, introduction-figure-2.png and ro-crate-preview-example.png from tag commit dc42c230937b872710bae187b1b5bf51a3b494d2; derived local Markdown and section selectors. Excludes other versions, tutorials, datasets, external context service and recursive references.","license_restrictions":["Apache notice and modification conditions retained; examples/SVG CC0 scope kept distinct; no trademark/patent guarantee."],"evidence_confidence":"high","public_redistribution_recommendation":"allow_with_packaged_notice","conditions":["Complete Apache-2.0 and CC0 notices, original full authors/chapter copyrights, source links and modification statement retained.","Actual Markdown revision and exact fixed-release representations plus four named assets bound to this package; later versions do not inherit."],"current_capsule_compliance":"verified_revision_and_notice_packaged","publication_gate":{"decision":"allow","reason":"Official fixed specification grant and explicit example/SVG CC0 scopes apply to retained actual body; full notices, authorship and scoped transformations preserved. This is an agent evidence/packaging decision, not human approval.","approved_scope":"Fixed RO-Crate 1.2 specification release 1.2.0: complete official Markdown and HTML (all main chapters, four appendices, references and footnote), plus precisely crate1-folders.svg, introduction-figure-1.png, introduction-figure-2.png and ro-crate-preview-example.png from tag commit dc42c230937b872710bae187b1b5bf51a3b494d2; derived local Markdown and section selectors. Excludes other versions, tutorials, datasets, external context service and recursive references."},"human_follow_up":[],"redistribution_package":{"source_revision":"sha256:a486c78d006e7a1f33ef530320e991e99a4a2b1e4eb303104618180e6cb99c2a","source_version_url":"https://github.com/ResearchObject/ro-crate/releases/download/1.2.0/ro-crate-1.2.0.md","notice_path":"raw_data/licenses/ro-crate-1.2-apache-2.0-cc0-1.0.md","attribution":"RO-Crate Metadata Specification 1.2 (release 1.2.0, Published 2025-06-04), Research Object community / RO-Crate contributors; editors Peter Sefton and Stian Soiland-Reyes. Copyright 2017–2025 University of Technology Sydney, The University of Manchester UK and RO-Crate contributors; complete author/ORCID list and chapter notices retained in source and derived text. Specification: https://w3id.org/ro/crate/1.2 ; Apache-2.0 applies to specification; JSON-LD examples and crate1-folders.svg are CC0-1.0 (SVG creator Stian Soiland-Reyes, contributor Eli Chadwick). See NOTICE for exact original links and full licenses.","modifications":"Official release Markdown and single-page HTML plus four fixed-tag images retained unchanged; derived Markdown changes only four img src paths for local resolution and appends this redistribution notice. Setext/ATX chapter line selectors added; no prose, code, table or image content edited, no OCR. Native Pandoc syntax and documented upstream link/illustration inconsistencies retained.","scope":"Fixed RO-Crate 1.2 specification release 1.2.0: complete official Markdown and HTML (all main chapters, four appendices, references and footnote), plus precisely crate1-folders.svg, introduction-figure-1.png, introduction-figure-2.png and ro-crate-preview-example.png from tag commit dc42c230937b872710bae187b1b5bf51a3b494d2; derived local Markdown and section selectors. Excludes other versions, tutorials, datasets, external context service and recursive references."},"clearance_review":{"kind":"agent_evidence_and_packaging_review","human_approval_claimed":false,"scope":"Fixed RO-Crate 1.2 specification release 1.2.0: complete official Markdown and HTML (all main chapters, four appendices, references and footnote), plus precisely crate1-folders.svg, introduction-figure-1.png, introduction-figure-2.png and ro-crate-preview-example.png from tag commit dc42c230937b872710bae187b1b5bf51a3b494d2; derived local Markdown and section selectors. Excludes other versions, tutorials, datasets, external context service and recursive references."},"conditions_fulfilled":["Original HTML/Markdown and four actually referenced graphics retained; no recursive citation/data/runtime acquisition.","Consumer changes only four local img paths plus EOF notice; original assets bytes unchanged."]}

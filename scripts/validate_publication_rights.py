@@ -112,9 +112,16 @@ def validate_publication_rights(
     items = audit["items"]
     scope = audit.get("scope") if isinstance(audit.get("scope"), dict) else {}
     baseline_count = scope.get("baseline_full_text_count")
-    if not isinstance(baseline_count, int) or baseline_count != len(items):
+    additional_count = scope.get("additional_full_text_review_count", 0)
+    if not isinstance(additional_count, int) or isinstance(additional_count, bool) or additional_count < 0:
         fail(
-            f"PUBLICATION_RIGHTS_AUDIT_COUNT expected={baseline_count} actual={len(items)}",
+            f"PUBLICATION_RIGHTS_AUDIT_COUNT invalid additional_full_text_review_count={additional_count!r}",
+            errors,
+        )
+    elif not isinstance(baseline_count, int) or baseline_count + additional_count != len(items):
+        expected_count = baseline_count + additional_count if isinstance(baseline_count, int) else baseline_count
+        fail(
+            f"PUBLICATION_RIGHTS_AUDIT_COUNT expected={expected_count} actual={len(items)}",
             errors,
         )
 
@@ -144,8 +151,14 @@ def validate_publication_rights(
             and isinstance(materialization.get("source_pdf"), str)
             and bool(materialization["source_pdf"])
         )
+        retained_source_markdown = (
+            isinstance(materialization, dict)
+            and isinstance(materialization.get("retained_markdown_source"), str)
+            and bool(materialization["retained_markdown_source"])
+        )
         if not isinstance(manifest, dict) or (
-            manifest.get("content_tier") != "full_text" and not retained_source_pdf and not manifest.get("pdf_supplement")
+            manifest.get("content_tier") != "full_text" and not retained_source_pdf
+            and not retained_source_markdown and not manifest.get("pdf_supplement")
         ):
             continue
         uid = manifest.get("uid")
