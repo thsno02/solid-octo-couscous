@@ -73,6 +73,18 @@ local_files:
 - path: materialized_sources/corpus/arxiv-2409.13740--66861ff1/normalized/document.txt
   bytes: 92254
   sha256: 2a2cf4960b90cfd06d35ae00791cc7e1f1dcf8a7af4aafa6293581581faabc35
+- path: materialized_sources/corpus/arxiv-2409.13740--66861ff1/pdf-supplement/NOTICE.md
+  bytes: 21918
+  sha256: 2f96b2d8de60aa7c8387fdbf7127b136d08472cddfb9d6e2d5f093bb800cfac0
+- path: materialized_sources/corpus/arxiv-2409.13740--66861ff1/pdf-supplement/document.pdf
+  bytes: 1784943
+  sha256: 7d45adf85d98a9a2f4e619f4f6c0e380c8ad842d678d50497ab5a20b6ae79f9c
+- path: materialized_sources/corpus/arxiv-2409.13740--66861ff1/pdf-supplement/document.txt
+  bytes: 103293
+  sha256: 61864cba4a397b25d21e7ded2559592fc174101dc2c47a5dc1545f70bfdaadb1
+- path: materialized_sources/corpus/arxiv-2409.13740--66861ff1/pdf-supplement/selectors.jsonl
+  bytes: 11183
+  sha256: 09d8e745fdc2991b6455ae4bc603c68c6a14c7a1d56f51c293969def19add7de
 - path: materialized_sources/corpus/arxiv-2409.13740--66861ff1/selectors.jsonl
   bytes: 6790
   sha256: 304d1d18716c1724d8b816156554456a34986aa4e97f32a9ec27b2a492dc4acf
@@ -98,8 +110,8 @@ local_files:
   bytes: 25168
   sha256: a9be312660f258372c401f783bb21aea1eeea054a320b4d32bae61b14f3d3054
 - path: materialized_sources/corpus/arxiv-2409.13740--66861ff1/source-metadata.yaml
-  bytes: 8348
-  sha256: 9b4f3e3003d9c8105d57d7db78ccc83fc96c4b19829dd7f53eab82d315bf4ad9
+  bytes: 12966
+  sha256: 475f1a8293e9e4bb7a4d66e27f2fb5930810cf921b98f2b255664eb041d4e387
 warnings: []
 errors: []
 archive_container: tar
@@ -139,4 +151,75 @@ omitted:
   reason: non-text-document-member
 - path: Figures/LitQA_Performance_+_Ablations.jpg
   reason: non-text-document-member
-local_bytes: 407447
+local_bytes: 2333402
+pdf_supplement:
+  source_version: v2
+  revision: sha256:7d45adf85d98a9a2f4e619f4f6c0e380c8ad842d678d50497ab5a20b6ae79f9c
+  media_type: application/pdf
+  retrievals:
+  - requested_urls:
+    - https://arxiv.org/pdf/2409.13740v2
+    resolved_url: https://arxiv.org/pdf/2409.13740v2
+    content_type: application/pdf
+    http_status: 200
+    bytes: 1784943
+    sha256: 7d45adf85d98a9a2f4e619f4f6c0e380c8ad842d678d50497ab5a20b6ae79f9c
+    request_started_at: '2026-09-16T19:03:06Z'
+    completion_observed_at: '2026-09-16T19:04:05Z'
+    retrieved_at: '2026-09-16T19:04:05Z'
+    retrieval_note: 七文件同批请求开始与全部完成观测；不声称逐传输精确结束时刻或服务端时间。
+  selectors:
+  - pdf-supplement/selectors.jsonl
+  body_quality_verified: true
+  limitations:
+  - 六张 PNG 图内 labels、问答和曲线只有 caption 等 native 片段，确证缺 p4 CD8a/DOI、p6 keratinization、p8 Nuanced Agreement、p18 89.1/47.8。
+  - p16 Algorithm 1 step 7 控制 glyph U+0000–U+0003 和 Σ→P 等数学损失保留抽取结果，不猜补；p15 灰空格/粗体绑定未保留。
+  - 原作主文/Figure 4 说 11-point Likert，但两个人类指南只有 10 labels 且无 Nuanced Agreement；这是源固有不一致，PDF/plain 原样保留。
+  - 25/25 native 非空仅表示页结构；本层不做 OCR、不执行算法/提示词，图形和数学仍有损，不声称 text complete、不新增 trusted。
+  rights:
+    license_spdx: CC-BY-SA-4.0
+    license_url: https://creativecommons.org/licenses/by-sa/4.0/
+    license_verified_at: '2026-09-16'
+    publication_gate:
+      decision: allow
+      reason: 本批已核同固定 v2 官方作品授权及实际完整 PDF 的正文、末尾、科学图和具体信用；主线程逐项明确采纳实际 PDF revision 绑定的此范围，不凭旧 TeX allow 自动放行。这是 agent
+        的独立表示/包装决策，不冒称人类批准，不晋升可信知识；保留具体第三方归属与边界。
+      approved_scope: 仅本次从 https://arxiv.org/pdf/2409.13740v2 取得的固定 v2 官方完整 PDF（25 页，1784943 bytes）、其 plain 页文字与独立页定位器。范围为完整主文、全部
+        Supplementary Information 指南和 20 条 SI 参考文献，真实尾为 GPT-4 report，六幅实际科学图（p2/4/6/8/18/18）。作者/提交者有权许可的论文表达与本次文字派生沿作品级
+        CC BY-SA 4.0；原 Funding、图注、引用及第三方信用保留；页文字和后续改编按适用论文表达沿 BY-SA4，不整库重许可。完整 PDF 原有署名、资助、图注、引文、警告和第三方信用原样保留，不授权外部被引作品全文、模型、代码、脚本或数据，不转授商标、专利或许可者无权许可材料。PDF
+        原字节不编辑/重导出，plain 文字有损、不做 OCR，原件完整不等于 text extraction complete。旧 source/normalized/default selectors/NOTICE/files/archive
+        revision/retrieval/旧组件授权包不变。
+    redistribution_package:
+      source_revision: sha256:7d45adf85d98a9a2f4e619f4f6c0e380c8ad842d678d50497ab5a20b6ae79f9c
+      source_version_url: https://arxiv.org/pdf/2409.13740v2
+      notice_path: raw_data/licenses/p3-pdf-02-language-v2-cc-by-sa-4.0.md
+      attribution: Michael D. Skarlinski; Sam Cox; Jon M. Laurent; James D. Braza; Michaela Hinks; Michael J. Hammerling;
+        Manvitha Ponnapati; Samuel G. Rodriques; Andrew D. White. "Language agents achieve superhuman synthesis
+        of scientific knowledge". Fixed arXiv 2409.13740v2, https://arxiv.org/abs/2409.13740v2; original PDF https://arxiv.org/pdf/2409.13740v2.
+        Article expression the authors/submitter may license is available under CC BY-SA 4.0, https://creativecommons.org/licenses/by-sa/4.0/;
+        full legal code https://creativecommons.org/licenses/by-sa/4.0/legalcode.en. Fixed article/PDF license checked
+        in this batch on 2026-09-16. Original Funding, figure/citation and third-party credits retained. Article-author
+        expression and its page-text/adapted contributions remain CC BY-SA 4.0; this collection does not relicense
+        independent works or the repository. No endorsement or additional right to external works/models/trademarks
+        is implied.
+      modifications: 原官方 PDF 按实际下载 bytes 原样保存，不编辑或重导出；复用既有 pypdf plain 提取逐页文字，加入明确页边界并生成独立页定位；在派生 text 末尾附唯一署名、修改、范围声明及完整
+        NOTICE.md 链接。plain 文字保留原抽取结果，不做 OCR、不运行 TeX、论文代码或提示词，不将图形、数学排版或阅读顺序损失隐藏为完整。旧 source、normalized、default selectors、NOTICE、files、archive
+        revision/retrieval 和旧许可包全部保留，不新增 trusted。 适用论文表达/页文字及后续改编沿 BY-SA4 同方式共享，不重许可整个仓库。
+      scope: 仅本次从 https://arxiv.org/pdf/2409.13740v2 取得的固定 v2 官方完整 PDF（25 页，1784943 bytes）、其 plain 页文字与独立页定位器。范围为完整主文、全部
+        Supplementary Information 指南和 20 条 SI 参考文献，真实尾为 GPT-4 report，六幅实际科学图（p2/4/6/8/18/18）。作者/提交者有权许可的论文表达与本次文字派生沿作品级
+        CC BY-SA 4.0；原 Funding、图注、引用及第三方信用保留；页文字和后续改编按适用论文表达沿 BY-SA4，不整库重许可。完整 PDF 原有署名、资助、图注、引文、警告和第三方信用原样保留，不授权外部被引作品全文、模型、代码、脚本或数据，不转授商标、专利或许可者无权许可材料。PDF
+        原字节不编辑/重导出，plain 文字有损、不做 OCR，原件完整不等于 text extraction complete。旧 source/normalized/default selectors/NOTICE/files/archive
+        revision/retrieval/旧组件授权包不变。
+  materialization:
+    source_pdf: pdf-supplement/document.pdf
+    source_pdf_sha256: 7d45adf85d98a9a2f4e619f4f6c0e380c8ad842d678d50497ab5a20b6ae79f9c
+    document: pdf-supplement/document.txt
+    normalized_document: pdf-supplement/document.txt
+    stored_characters: 101632
+    selector_count: 25
+    pdf_page_count: 25
+    pdf_text_page_count: 25
+    pdf_text_extraction_mode: plain
+    pdf_pages_without_extractable_text: []
+    pdf_page_extraction_failures: []
+    substantive_text: true
