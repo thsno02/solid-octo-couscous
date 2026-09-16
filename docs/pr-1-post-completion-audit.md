@@ -123,21 +123,21 @@ This cannot be fully solved by a repository file alone.
 ### A-05 — Scheduled acquisition and public publication are still coupled
 
 **Severity:** medium/high operational risk  
-**Status:** automated publication removed; durable private acquisition remains future work
+**Status:** acquisition now proposes a repository update; direct-to-base publication remains removed
 
-The old scheduled workflow coupled acquisition with a rights gate and an automatic commit. The follow-up replaces it with manual, read-only acquisition: no schedule, commit, push or artifact upload. It only diagnoses acquisition/build/validation in an ephemeral runner. The publication-rights validator is unchanged; there is no longer an automatic publishing path to gate.
+The old scheduled workflow coupled acquisition with a rights gate and a direct commit to its base branch. The first CI repair temporarily reduced it to ephemeral diagnostics. The owner subsequently clarified that full text must persist in this GitHub repository for remote continuation. The manual producer therefore validates the generated candidate and its exact-revision rights before pushing a new proposal branch and opening a Draft PR. It never pushes directly to base/main or merges itself; the independent CI remains read-only.
 
-The next version should separate two lanes:
+The two lanes are now:
 
 ```text
 acquisition lane
-  fetch → freeze → hash → private/quarantined artifact → materialization report
+  rights preflight → fetch → preprocess → validate/replay → exact-revision rights gate
 
 publication lane
-  rights decision → evidence policy → candidate diff → PR → review → merge
+  repository proposal branch (text + manifests + derived artifacts) → PR → independent CI → review → merge
 ```
 
-A failed publication gate should not erase the acquisition result, and a successful acquisition should never imply permission to publish.
+The current 90 blocked full-text capsules prevent the producer from uploading a new batch; this is not a successful end-to-end upload. Failed rights checks never fall back to publishing an artifact or pushing a branch. Already committed text remains in GitHub, and remote continuation reads the selected commit rather than depending on a previous runner. See [the current operating guide](ci-workflow.md) for default-branch activation, Actions PR-creation permissions and the approval-required CI behavior of automation-created PRs.
 
 ### A-06 — Reproducibility is same-environment, not yet supply-chain reproducibility
 
