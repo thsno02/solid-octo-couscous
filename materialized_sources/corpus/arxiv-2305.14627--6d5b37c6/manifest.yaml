@@ -37,6 +37,18 @@ local_files:
 - path: materialized_sources/corpus/arxiv-2305.14627--6d5b37c6/normalized/document.txt
   bytes: 90967
   sha256: ab30a87e047185f8bcd74a97bb01078720d21845df7fb0911ad9eeb8e05cb825
+- path: materialized_sources/corpus/arxiv-2305.14627--6d5b37c6/pdf-supplement/NOTICE.md
+  bytes: 28440
+  sha256: dbcbdf1fa2f03f60e924a61289a0662cb25dbb1ffd8a4ce9b985105f9c78f2a8
+- path: materialized_sources/corpus/arxiv-2305.14627--6d5b37c6/pdf-supplement/document.pdf
+  bytes: 481920
+  sha256: ae9868f07f0f7ffaae5346778f79b7827d9ec6b13b1e6aae4dff6b2ffc37a2e1
+- path: materialized_sources/corpus/arxiv-2305.14627--6d5b37c6/pdf-supplement/document.txt
+  bytes: 103297
+  sha256: c43b92497e84d93062c0f223df36aa603944fc0ed6569370bf7bb5a07e457a15
+- path: materialized_sources/corpus/arxiv-2305.14627--6d5b37c6/pdf-supplement/selectors.jsonl
+  bytes: 10771
+  sha256: 67df795a7d3c142eb34cdd399bb9a1276fde8455e0754bc63c200ddd1882f36b
 - path: materialized_sources/corpus/arxiv-2305.14627--6d5b37c6/selectors.jsonl
   bytes: 24808
   sha256: 73cd234b46531300a2c90a364e9dc6a78c2810b3d2021884ec63e0c4c0d05a00
@@ -155,8 +167,8 @@ local_files:
   bytes: 411
   sha256: 3e7c5f27f24b28c7f9d22ad1402ce23e2b3adb678d603bd8a42f6df8699c9188
 - path: materialized_sources/corpus/arxiv-2305.14627--6d5b37c6/source-metadata.yaml
-  bytes: 2501
-  sha256: ded77e3f1bbfc01af30e28ef2c3ba8095d4bb97a4b0fd0055aefb5b213b41114
+  bytes: 10988
+  sha256: f844407e9d6896b2e360f6e9e70e5531d0b17e8b10becd6f05025aabd4063f58
 warnings: []
 errors: []
 archive_container: tar
@@ -182,4 +194,111 @@ omitted:
   reason: non-text-document-member
 - path: figs/correctness.pdf
   reason: non-text-document-member
-local_bytes: 514901
+local_bytes: 1147816
+pdf_supplement:
+  source_version: publisher-vor:doi:10.18653/v1/2023.emnlp-main.398
+  revision: sha256:ae9868f07f0f7ffaae5346778f79b7827d9ec6b13b1e6aae4dff6b2ffc37a2e1
+  media_type: application/pdf
+  retrievals:
+  - requested_urls:
+    - https://aclanthology.org/2023.emnlp-main.398.pdf
+    resolved_url: https://aclanthology.org/2023.emnlp-main.398.pdf
+    content_type: application/pdf
+    bytes: 481920
+    sha256: ae9868f07f0f7ffaae5346778f79b7827d9ec6b13b1e6aae4dff6b2ffc37a2e1
+    started_at: '2026-09-17T10:41:07Z'
+    retrieved_at: '2026-09-17T10:41:32Z'
+    http_status: 200
+    redirect_count: 0
+    tls_verify_result: 0
+    curl_exit_code: 0
+    time_scope: Real client start10:41:07Z and local GET completion10:41:32Z from this single approved retrieval;
+      server HTTP Date10:41:10Z is recorded separately, not used as completion.
+  selectors:
+  - pdf-supplement/selectors.jsonl
+  body_quality_verified: true
+  limitations:
+  - 原件完整仅指正式publisher-vor选定24页/四图/Tables1–31/正文/References/A–I/prompts/Examples及p24真实尾；旧arXiv v2 Open-source Models三段与Stable
+    Beluga2三行不在正式版，是经旧源码和正式图面边界对照支持的版本差异，不猜补或删改旧历史。
+  - native text partial：四图的主要字面标签/问题/回答/数值可提，不宣称整图无文字；p1箭头/图标/框/颜色/支持拓扑，p4勾叉/答案颜色/空间归属/引用集到句子的连线/集合边界/冗余关系丢失。
+  - p8 Figure4曲线几何/坐标点/颜色线型和三panel分组未保留，虽legend/旁表点值可读，不称曲线从plain无损恢复；不默认OCR或全图数据化。
+  - 双栏/页脚阅读顺序实际把p1出版页脚排在题名前；多层表头/分组横线/列对齐/bold比较/缩小stddev与数学上下标/间距/集合函数排版展平，可有字符贴连，不称lossless full text或无损数学结构。
+  - p21 Table22人工demonstrations/最后输入/subclaims和p23–24 Tables30/31回答/ground-truth/passages的颜色角色/框丢失；prompt字面多可读，但不保证颜色角色/排版或byte-exact
+    executable文本，不执行这些文献指令。
+  - p20 Table21 ChatGPT SNIPPET precision stddev (2.w)、NLI hypothesis空{}、volumn拼写和其他已印literal是上游内容，原样保留不伪称OCR/抽取错误或自动纠正；表内结果/source
+    examples仅source-reported，不提升为当前新事实或复现结论。
+  - primary_excerpt=连续Page1 L11–39只排除页脚/題名/归属污染，不造重组quote或新claim。非空24页/无失败只是结构诊断，精确图义/表格/数学/颜色/literal回看PDF；body_quality_verified不等于strict/trusted。
+  primary_excerpt:
+    start_line: 11
+    end_line: 39
+  rights:
+    license_spdx: CC-BY-4.0
+    license_url: https://creativecommons.org/licenses/by/4.0/
+    license_verified_at: '2026-09-17'
+    publication_gate:
+      decision: allow
+      reason: 主线全文采用独立冻结内容报告并亲看实际开中尾/正文/四图/正式A–I/真实例示尾界，沿已有ACL官方2023 BY4与实际版权/信用证据明确准入此独立新正式出版表示；旧对应evidence false和root
+        block保持，不单独重许被引整文或底层外部素材。
+      approved_scope: 本独立新表示仅覆盖固定publisher-vor:doi:10.18653/v1/2023.emnlp-main.398的未改481920 bytes/24页正式EMNLP2023
+        PDF及同目录有损native plain、revision-bound页selectors和自包含NOTICE；正式DOI 10.18653/v1/2023.emnlp-main.398 / Anthology
+        2023.emnlp-main.398完整24物理页（印刷页6465–6488）compiled PDF：p1–9主文至Conclusion/四图，p10 Limitations/Acknowledgments及p10–13完整References，p14–17正式A–I附录叙述，p18–20主结果Tables19–21，p21–22
+        Tables22–29完整prompts，p23–24 Tables30–31两个ELI5 Examples。真尾p24 Table31第三ground-truth claim、表底线/ELI5 example2图注/页码正常结束，不在References/H标题截断。
+        论文作者/ACL有权许可表达沿已有正式作品BY4路径，原论文已发表的有限图表例示与十段外部passage/题名/署名/来源信用按原件保存，不推导standalone新闻整篇/引用作品/底层素材/代码仓库/数据/权重/模型/商标/专利的一般许可，不另取外链或执行prompt/benchmark，无普遍权利保证，不为已许可权利添加下游限制。新grant不覆盖旧source归档/LaTeX模板/BST/两摘要或旧未对应扩展/normalized/root
+        selectors/历史gate；旧block及对应evidence false保留，C source_version null与root键缺省保留。
+    redistribution_package:
+      source_revision: sha256:ae9868f07f0f7ffaae5346778f79b7827d9ec6b13b1e6aae4dff6b2ffc37a2e1
+      source_version: publisher-vor:doi:10.18653/v1/2023.emnlp-main.398
+      source_version_url: https://aclanthology.org/2023.emnlp-main.398.pdf
+      publisher_correspondence:
+        originating_arxiv_id: '2305.14627'
+        publisher_doi: 10.18653/v1/2023.emnlp-main.398
+        reviewed: true
+        audit_evidence_kind: bounded_acl_article_content_correspondence
+      publisher_correspondence_evidence_ref:
+        path: raw_data/audits/materialization_rights_review.yaml
+        uid: arxiv:2305.14627
+        kind: bounded_acl_article_content_correspondence
+        checked_at: '2026-09-16'
+      notice_path: materialized_sources/corpus/arxiv-2305.14627--6d5b37c6/pdf-supplement/NOTICE.md
+      attribution: 'Tianyu Gao; Howard Yen; Jiatong Yu; Danqi Chen, Enabling Large Language Models to Generate Text
+        with Citations. Proceedings of the 2023 Conference on Empirical Methods in Natural Language Processing,
+        pp.6465–6488, December 6–10, 2023; ©2023 Association for Computational Linguistics。实际四作者顺序、Department of
+        Computer Science & Princeton Language and Intelligence, Princeton University、{tianyug,hyen,jiatongy,danqic}@cs.princeton.edu归属保留。Anthology
+        ID 2023.emnlp-main.398；DOI 10.18653/v1/2023.emnlp-main.398为本批已核正式映射，不称PDF正文印出DOI；作品 https://aclanthology.org/2023.emnlp-main.398/，原PDF
+        https://aclanthology.org/2023.emnlp-main.398.pdf，CC BY4 https://creativecommons.org/licenses/by/4.0/。同一canonical
+        UID arxiv:2305.14627/source_type arxiv不变，不伪造arXiv vN。p10独立致谢Princeton NLP group；Alexander Wettig、Nelson
+        Liu、Tianyi Zhang、Yu Meng、Sadhika Malladi、Yangsibo Huang、Zhiyuan Zeng、Dan Friedman；Surge AI/Anna Folinsky/Edwin
+        Chen的人工评估；Tianyu Gao IBM PhD Fellowship、NSF CAREER IIS-2239290、Sloan Research Fellowship、Microsoft Azure经Accelerate
+        Foundation Models Academic Research Initiative提供credits，独立保留而不混为作者/权利转让或背书。p1 https://github.com/princeton-nlp/ALCE链接与ASQA/QAMPARI/ELI5/Wikipedia/Sphere/Common
+        Crawl及References保留被引对象身份，不下载或再许可其独立代码/数据/被引全文/权重。p23–24 Tables30/31内十段实际有限外部检索文字均为100个空白分隔单元，计数不是token/全文长度/独立作品许可。p23实际标题How
+        to Treat and Prevent Food Poisoning - MsPrepper；FDA Issues Warning About Eating Raw Cookie Dough, But Not
+        For Salmonella Risks；It’s Probably OK to Eat Raw Cookie Dough — As Long As You’re Smart About It - The Crux
+        - Very Top Secret Information；两段How Dangerous Is It to Eat Raw Cookie Dough? | Men’s Health，第四段By Katherine
+        Dempsey，末段说明How Bad Is It To Eat Raw Cookie Dough? originally appeared on Prevention.com。p24实际标题Is Snapchat
+        really worth $19 billion? - CSMonitor.com；What Are Venture Capital Investments? – DollarsAndSense.my；Opinion
+        | What Dara Khosrowshahi Must Do to Save Uber - The New York Times；Snapchat raising funding round at $19
+        billion valuation: Report；Unicorns And Wall Street | MoneyTips。有限片段/题名/署名/来源提示按原论文学术例示保留，不称四作者原创新闻或ACL拥有外部全文全部权利；PDF未提供全部外部URL，不编造/递归取得原网页，不单独许可新闻整篇，不暗示作者/ACL/机构/资助者背书。'
+      modifications: 唯一正式GET的481920 bytes/24页原PDF原样保留，不编辑、重导、重排、OCR或修补源作品。现build_pdf_supplement以pypdf plain全页生成独立pdf-supplement/document.txt及新PDF
+        revision绑定的逐页selectors；## Page N边界、定位和唯一归属/修改/范围footer是collector添加的派生表示元数据，不称作者原始文本或无损布局/公式/代码。NOTICE自包含实际四作者/©ACL/会议身份/独立信用/有限外部例示/范围/限制及现存完整CC
+        BY4法条，notice_path自绑定本文件；不新rawlicense。primary_excerpt仅声明native Page1父摘要连续L11–39，不改PDF/native原样层或生产consumer逻辑。旧source/normalized/root
+        selectors/NOTICE/README/files及root revision/retrieval/rights/materialization/generated_at/status/content_tier/source_version键缺省保持，C
+        source_version仍null；正式版不补入旧v2 Open-source Models三段/Stable Beluga2三行，不以新grant整体放行旧包。
+      scope: 本独立新表示仅覆盖固定publisher-vor:doi:10.18653/v1/2023.emnlp-main.398的未改481920 bytes/24页正式EMNLP2023 PDF及同目录有损native
+        plain、revision-bound页selectors和自包含NOTICE；正式DOI 10.18653/v1/2023.emnlp-main.398 / Anthology 2023.emnlp-main.398完整24物理页（印刷页6465–6488）compiled
+        PDF：p1–9主文至Conclusion/四图，p10 Limitations/Acknowledgments及p10–13完整References，p14–17正式A–I附录叙述，p18–20主结果Tables19–21，p21–22
+        Tables22–29完整prompts，p23–24 Tables30–31两个ELI5 Examples。真尾p24 Table31第三ground-truth claim、表底线/ELI5 example2图注/页码正常结束，不在References/H标题截断。
+        论文作者/ACL有权许可表达沿已有正式作品BY4路径，原论文已发表的有限图表例示与十段外部passage/题名/署名/来源信用按原件保存，不推导standalone新闻整篇/引用作品/底层素材/代码仓库/数据/权重/模型/商标/专利的一般许可，不另取外链或执行prompt/benchmark，无普遍权利保证，不为已许可权利添加下游限制。新grant不覆盖旧source归档/LaTeX模板/BST/两摘要或旧未对应扩展/normalized/root
+        selectors/历史gate；旧block及对应evidence false保留，C source_version null与root键缺省保留。
+  materialization:
+    source_pdf: pdf-supplement/document.pdf
+    source_pdf_sha256: ae9868f07f0f7ffaae5346778f79b7827d9ec6b13b1e6aae4dff6b2ffc37a2e1
+    document: pdf-supplement/document.txt
+    normalized_document: pdf-supplement/document.txt
+    stored_characters: 101157
+    selector_count: 24
+    pdf_page_count: 24
+    pdf_text_page_count: 24
+    pdf_text_extraction_mode: plain
+    pdf_pages_without_extractable_text: []
+    pdf_page_extraction_failures: []
+    substantive_text: true

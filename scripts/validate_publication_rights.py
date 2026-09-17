@@ -9,7 +9,7 @@ from typing import Any
 import yaml
 
 from materialize_all_sources import (
-    pdf_supplement_retrieval_url_matches, pdf_supplement_version_urls,
+    normalize_publisher_doi, pdf_supplement_retrieval_url_matches, pdf_supplement_version_urls,
     redistribution_footer, redistribution_notice_href,
 )
 from validate_materialization_completeness import sha256_file
@@ -41,19 +41,26 @@ def validate_pdf_supplement_rights(
     if supplement is None:
         if (supplement_root / "document.pdf").is_file():
             errors.append(f"PUBLICATION_PDF_SUPPLEMENT_UNDECLARED {uid}")
-        if manifest.get("source_type") == "journal":
+        if manifest.get("source_type") == "journal" or (
+            manifest.get("source_type") == "arxiv" and manifest.get("adapter") == "arxiv_latex_v2"
+        ):
             try:
-                metadata = load_yaml(publication_root / manifest["metadata_path"])
-                if "publisher_pdf" in (metadata.get("versioning") or {}):
-                    errors.append(f"PUBLICATION_PDF_SUPPLEMENT_DECLARATION_MISSING {uid}")
-            except (KeyError, TypeError, AttributeError, OSError, yaml.YAMLError) as exc:
+                for path in (publication_root / manifest["metadata_path"], manifest_path.parent / "source-metadata.yaml"):
+                    metadata = load_yaml(path)
+                    versioning = metadata.get("versioning")
+                    if versioning is not None and not isinstance(versioning, dict):
+                        raise ValueError("publisher versioning must be a mapping or null")
+                    if isinstance(versioning, dict) and "publisher_pdf" in versioning:
+                        errors.append(f"PUBLICATION_PDF_SUPPLEMENT_DECLARATION_MISSING {uid}")
+                        break
+            except (KeyError, TypeError, AttributeError, ValueError, OSError, yaml.YAMLError) as exc:
                 errors.append(f"PUBLICATION_PDF_SUPPLEMENT_PACKAGE_INVALID {uid}: {exc}")
         return errors, blocked
     try:
         if not isinstance(supplement, dict):
             raise ValueError("PDF supplement must be an explicitly declared representation")
         actual_manifest = manifest_path.resolve().relative_to(publication_root.resolve()).as_posix()
-        if not review or review.get("manifest_path") != actual_manifest:
+        if not review or review.get("uid") != uid or review.get("manifest_path") != actual_manifest:
             raise ValueError("PDF review is missing or points to another manifest")
         metadata_path = (publication_root / manifest["metadata_path"]).resolve()
         metadata_path.relative_to(publication_root.resolve())
@@ -61,6 +68,22 @@ def validate_pdf_supplement_rights(
         capsule_metadata = load_yaml(manifest_path.parent / "source-metadata.yaml")
         version = supplement.get("source_version")
         version_url, si_url = pdf_supplement_version_urls(manifest, canonical_metadata, capsule_metadata, version)
+        publisher = version.startswith("publisher-vor:")
+        correspondence = None
+        if publisher and manifest.get("source_type") == "arxiv":
+            declaration = canonical_metadata["versioning"]["publisher_pdf"]
+            correspondence = declaration["correspondence"]
+            evidence = review.get("evidence")
+            if not isinstance(evidence, list) or not any(
+                isinstance(row, dict) and row.get("kind") == correspondence["audit_evidence_kind"]
+                and isinstance(row.get("checked_at"), str) and row["checked_at"].strip()
+                and normalize_publisher_doi(row.get("doi")) == normalize_publisher_doi(declaration["doi"])
+                and (row.get("url") == version_url or (
+                    isinstance(row.get("related_urls"), list) and version_url in row["related_urls"]
+                ))
+                for row in evidence
+            ):
+                raise ValueError("publisher PDF correspondence lacks its reviewed DOI/URL evidence")
         si = supplement.get("supplementary_information")
         if (si_url is not None) != (si is not None):
             raise ValueError("required publisher SI is missing or an undeclared SI is present")
@@ -82,6 +105,11 @@ def validate_pdf_supplement_rights(
                 "source_revision", "source_version_url", "notice_path", "attribution", "modifications", "scope",
             )):
                 raise ValueError(f"{grant_key}: PDF redistribution package is incomplete")
+            if correspondence is not None:
+                for allowance in (rights, review.get(grant_key), canonical, capsule):
+                    bound = (allowance.get("redistribution_package") or {}).get("publisher_correspondence")
+                    if not isinstance(bound, dict) or bound.get("reviewed") is not True or bound != correspondence:
+                        raise ValueError(f"{grant_key}: PDF allowance differs from its declared publisher correspondence")
             if any(not isinstance(rights.get(field), str) or not rights[field].strip() for field in ("license_spdx", "license_url", "license_verified_at")):
                 raise ValueError(f"{grant_key}: PDF rights declaration lacks its reviewed license")
             gate = rights.get("publication_gate")
@@ -97,7 +125,6 @@ def validate_pdf_supplement_rights(
             source_hash = sha256_file(source)
             retrievals = part.get("retrievals")
             retrieval = retrievals[0] if isinstance(retrievals, list) and len(retrievals) == 1 and isinstance(retrievals[0], dict) else {}
-            publisher = manifest.get("source_type") == "journal"
             if (
                 part.get("source_version") != version or (publisher and package.get("source_version") != version)
                 or package["source_revision"] != part.get("revision") or part.get("revision") != f"sha256:{source_hash}"

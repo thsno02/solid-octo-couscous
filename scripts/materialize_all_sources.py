@@ -3270,26 +3270,61 @@ def arxiv_pdf_version_url(canonical_id: Any, source_version: Any) -> str:
     return f"https://arxiv.org/pdf/{canonical_id}{source_version}"
 
 
+def normalize_publisher_doi(value: Any) -> str | None:
+    """Compare reviewed DOI identifiers without treating them as source identities."""
+    if not isinstance(value, str):
+        return None
+    normalized = value.strip().lower()
+    for prefix in ("doi:", "https://doi.org/"):
+        if normalized.startswith(prefix):
+            normalized = normalized.removeprefix(prefix)
+            break
+    return normalized.strip() or None
+
+
 def pdf_supplement_version_urls(
     manifest: dict[str, Any], canonical: dict[str, Any], capsule: dict[str, Any], source_version: Any,
 ) -> tuple[str, str | None]:
     """Bind the existing arXiv representation or an explicitly reviewed publisher work."""
-    if manifest.get("source_type") == "arxiv" and manifest.get("adapter") == "arxiv_latex_v2":
+    arxiv = manifest.get("source_type") == "arxiv" and manifest.get("adapter") == "arxiv_latex_v2"
+    journal = manifest.get("source_type") == "journal" and manifest.get("adapter") == "generic_web_or_document_v2"
+    if not arxiv and not journal:
+        raise ValueError("PDF supplement requires an existing arXiv TeX or declared journal capsule")
+    versions = []
+    for metadata in (canonical, capsule):
+        versioning = metadata.get("versioning")
+        if versioning is not None and not isinstance(versioning, dict):
+            raise ValueError("PDF supplement versioning must be a mapping or null")
+        versions.append(versioning or {})
+    publisher_declared = any("publisher_pdf" in versioning for versioning in versions)
+    if arxiv and not publisher_declared:
         url = arxiv_pdf_version_url(manifest.get("canonical_id"), source_version)
-        if any((metadata.get("versioning") or {}).get("source_version") != source_version for metadata in (canonical, capsule)):
+        if any(versioning.get("source_version") != source_version for versioning in versions):
             raise ValueError("PDF supplement version differs from the retained source version")
         return url, None
-    if manifest.get("source_type") != "journal" or manifest.get("adapter") != "generic_web_or_document_v2":
-        raise ValueError("PDF supplement requires an existing arXiv TeX or declared journal capsule")
     for metadata in (canonical, capsule):
         if any(metadata.get(field) != manifest.get(field) for field in ("uid", "source_type", "canonical_id", "canonical_url")):
             raise ValueError("publisher PDF canonical identity differs from the retained work")
-    declaration = (canonical.get("versioning") or {}).get("publisher_pdf")
-    if not isinstance(declaration, dict) or declaration != (capsule.get("versioning") or {}).get("publisher_pdf"):
+    declaration = versions[0].get("publisher_pdf")
+    if not isinstance(declaration, dict) or declaration != versions[1].get("publisher_pdf"):
         raise ValueError("canonical and capsule publisher PDF declarations differ")
     doi = declaration.get("doi")
     canonical_id = manifest.get("canonical_id")
-    if not isinstance(doi, str) or not doi.strip() or not isinstance(canonical_id, str) or doi != canonical_id.removeprefix("doi:"):
+    if arxiv:
+        correspondence = declaration.get("correspondence")
+        if (
+            not isinstance(canonical_id, str) or not re.fullmatch(r"\d{4}\.\d{4,5}", canonical_id)
+            or not isinstance(correspondence, dict) or correspondence.get("reviewed") is not True
+            or versions[1]["publisher_pdf"]["correspondence"].get("reviewed") is not True
+            or correspondence.get("originating_arxiv_id") != canonical_id
+            or normalize_publisher_doi(doi) is None
+            or normalize_publisher_doi(correspondence.get("publisher_doi")) != normalize_publisher_doi(doi)
+            or not isinstance(correspondence.get("audit_evidence_kind"), str)
+            or not correspondence["audit_evidence_kind"].strip()
+            or versions[0].get("source_version") != versions[1].get("source_version")
+        ):
+            raise ValueError("publisher PDF needs an explicitly reviewed originating arXiv/DOI correspondence")
+    elif not isinstance(doi, str) or not doi.strip() or not isinstance(canonical_id, str) or doi != canonical_id.removeprefix("doi:"):
         raise ValueError("publisher PDF DOI differs from the retained work")
     if (
         not isinstance(source_version, str) or not source_version.startswith("publisher-vor:")
@@ -3308,7 +3343,10 @@ def pdf_supplement_version_urls(
         if not isinstance(url, str):
             raise ValueError("publisher PDF requires an explicitly approved URL")
         parsed = urllib.parse.urlsplit(url)
-        if parsed.scheme != "https" or not parsed.netloc or not parsed.path or parsed.query or parsed.fragment or parsed.username:
+        if (
+            parsed.scheme != "https" or not parsed.netloc or not parsed.path or parsed.query or parsed.fragment
+            or parsed.username is not None or parsed.password is not None
+        ):
             raise ValueError("publisher PDF approved URL must be an explicit HTTPS resource")
     return main_url, si_url
 
@@ -3433,7 +3471,7 @@ def build_pdf_supplement(
         canonical = load_yaml(canonical_path)
         capsule = load_yaml(root / "source-metadata.yaml")
         version_url, si_url = pdf_supplement_version_urls(manifest, canonical, capsule, source_version)
-        publisher = manifest.get("source_type") == "journal"
+        publisher = source_version.startswith("publisher-vor:")
         if (si_url is not None) != (supplementary_information is not None):
             raise ValueError("required publisher SI must be provided exactly once")
         if (root / "pdf-supplement/supplementary-information").exists() and si_url is None:
