@@ -37,6 +37,18 @@ local_files:
 - path: materialized_sources/corpus/arxiv-1904.05530--cddfa770/normalized/document.txt
   bytes: 57265
   sha256: d884e031fa2413f4184d69826da046c540dccff144359d869188eccdb8d82309
+- path: materialized_sources/corpus/arxiv-1904.05530--cddfa770/pdf-supplement/NOTICE.md
+  bytes: 24872
+  sha256: 894c4e5169c190d1aa30a3d306062ebc05d98aa4d9a8f1d626f9086db7088e33
+- path: materialized_sources/corpus/arxiv-1904.05530--cddfa770/pdf-supplement/document.pdf
+  bytes: 1066926
+  sha256: 590cd5c5598d5daaffc6304177a439ea899dd758bcfb320e7a98cacaa6f39ee1
+- path: materialized_sources/corpus/arxiv-1904.05530--cddfa770/pdf-supplement/document.txt
+  bytes: 66062
+  sha256: a421bb468ebea62c2b5b3853dffec67771d611bb6622291ef43330bebc7cb5c0
+- path: materialized_sources/corpus/arxiv-1904.05530--cddfa770/pdf-supplement/selectors.jsonl
+  bytes: 6771
+  sha256: b71d1a319a717e7dfbf4b99bb03be3c32857fe5c585a217dc65294de3070f0db
 - path: materialized_sources/corpus/arxiv-1904.05530--cddfa770/selectors.jsonl
   bytes: 9759
   sha256: 0949aa3bee811254a0bed73a45b52254238f34a81c444c7d826c3f202f2418dc
@@ -77,8 +89,8 @@ local_files:
   bytes: 22048
   sha256: adeff35d8b9edec0ef8d71858dc9d2767802c71f668433d9d93e899e10afccc5
 - path: materialized_sources/corpus/arxiv-1904.05530--cddfa770/source-metadata.yaml
-  bytes: 1676
-  sha256: 4fda7e778b02963a78982a4f0b28935a11455a49668d9c3f81f6f7949b0ba13b
+  bytes: 8071
+  sha256: e422f11f41f401b3284d06bf8549d3cfd98a750c85a09e2bc4079a4af6ad4b46
 warnings: []
 errors: []
 archive_container: tar
@@ -150,4 +162,78 @@ omitted:
   reason: non-text-document-member
 - path: figures/compar_aggre.pdf
   reason: non-text-document-member
-local_bytes: 376958
+local_bytes: 1547984
+pdf_supplement:
+  source_version: v4
+  revision: sha256:590cd5c5598d5daaffc6304177a439ea899dd758bcfb320e7a98cacaa6f39ee1
+  media_type: application/pdf
+  retrievals:
+  - requested_urls:
+    - https://arxiv.org/pdf/1904.05530v4
+    resolved_url: https://arxiv.org/pdf/1904.05530v4
+    content_type: application/pdf
+    bytes: 1066926
+    sha256: 590cd5c5598d5daaffc6304177a439ea899dd758bcfb320e7a98cacaa6f39ee1
+    retrieved_at: '2026-09-17T08:17:30Z'
+    http_status: 200
+    redirect_count: 0
+    tls_verify_result: 0
+    curl_exit_code: 0
+    time_scope: Local completion bound from same GET response JSON mtime, truncated to seconds; server HTTP Date
+      is not client wall-clock and no precise per-response start time is asserted.
+  selectors:
+  - pdf-supplement/selectors.jsonl
+  body_quality_verified: true
+  limitations:
+  - 完整 compiled original 为15页／A–G／Figure1–8，不指旧source归档或15独立源图全部恢复。
+  - native text partial：p1 Fig1 时间标签 t1/t2/t3 变成𝑡" 𝑡# 𝑡$；照片／旗帜／箭头连线未线性化。
+  - p15 Fig8 的US／中国旗实体身份在TXT成为Statement／visit／Accuse的空槽；caption与G末段在不代表实体表达完整。
+  - p2／p4节点与邻居层次／颜色边连接、p6／7／13／14曲线与柱图legend-panel对应有损，二维数学与表列组／bold扁平；本次负sum/log/λ和multi-step求和已恢复，不沿用旧loss。
+  - 全部15页native非空无失败仅作诊断；精确图关系／实体身份／数学回原PDF，不默认OCR，不把body_quality_verified=true当无损。
+  rights:
+    license_spdx: CC-BY-4.0
+    license_url: https://creativecommons.org/licenses/by/4.0/
+    license_verified_at: '2026-09-17'
+    publication_gate:
+      decision: allow
+      reason: 主线全文读取本批内容报告并核实际固定版身份／目标边界／可见独立信用，明确准入本UID完整 compiled facsimile 与有损 native／逐页 selectors／NOTICE；只依本作品已证许可路径，不借旧
+        root block，不给底层资产一般许可。
+      approved_scope: 本独立表示仅覆盖固定 arXiv:1904.05530v4 原 bytes 不改的15页 PDF（1066926 bytes）：固定 arXiv:1904.05530v4 完整 15
+        物理页编译 PDF：p1–8 主文至相关工作，p9 Conclusion／Acknowledgement／References、p10书目续、p11–15 正式 A–G，Table1–4／Figure1–8完整，p15
+        G Implementation Issues of Know-Evolve 至 rank to entities who have the same scores.；不纳入旧未出版稿／源STY／BST或独立图资产。
+        论文作者可许可表达按本固定作品已证 CC BY4 路径；实际有界引用／图板按原件精确信用与身份保留，不改变底层许可、不独立重许被引全文／数据／代码／模型／媒体／商标／源模板或整个source归档。 此范围也包含该PDF
+        native plain、页selectors及完整BY4 NOTICE；旧 root rights／block／retrieval／revision／source_version键缺省和历史原件／文字缺失不改；无普遍权利保证。
+    redistribution_package:
+      source_revision: sha256:590cd5c5598d5daaffc6304177a439ea899dd758bcfb320e7a98cacaa6f39ee1
+      source_version_url: https://arxiv.org/pdf/1904.05530v4
+      notice_path: materialized_sources/corpus/arxiv-1904.05530--cddfa770/pdf-supplement/NOTICE.md
+      attribution: 'Woojeong Jin; Meng Qu; Xisen Jin; Xiang Ren, Recurrent Event Network: Autoregressive Structure
+        Inference over Temporal Knowledge Graphs, arXiv:1904.05530v4 (2020-10-06), https://arxiv.org/abs/1904.05530v4,
+        PDF https://arxiv.org/pdf/1904.05530v4, CC BY4 https://creativecommons.org/licenses/by/4.0/。实际题名副题 Autoregressive
+        Structure Inference over Temporal Knowledge Graphs 与旧 collection 的 for Reasoning over Temporal Knowledge
+        Graphs 不同，记录为同一ID的题名表达差异；完整作者顺序 Woojeong Jin／Meng Qu／Xisen Jin／Xiang Ren，USC／MILA／University of Montréal归属，未印等贡献不补。p9保留ODNI/IARPA2019-19051600007、DARPA
+        MCS/ONR N660011924033、DARPA W911NF-19-20271、NSF SMA18-29268、USC INK致谢及观点不代表政府免责声明。图内照片／国旗／ICEWS／GDELT／WIKI／YAGO／Know-Evolve／RotatE等按原科学上下文保留，不宣称底层照片／数据／软件一般BY4或将Know-Evolve批评改为支持。
+        既有 R 已对应固定 v4 作者表达与 EMNLP2020 正式作品 https://aclanthology.org/2020.emnlp-main.541/、DOI10.18653/v1/2020.emnlp-main.541，ACL作品BY4；arXiv非独占分发不是公众grant。本批
+        A 核真实v4题名副题／四作者／15页主文与A–G，主线全文读并明确准入。 以上归属不暗示背书。'
+      modifications: 固定版本 PDF 按本次真实响应 bytes 原样保留，不编辑、重导或 OCR；以既有 helper 的 plain 全页提取生成独立 pdf-supplement/document.txt
+        和真实 PDF revision 的页定位器（page selectors），在文末追加唯一归属、修改／范围附注与同目录 NOTICE.md 链接。NOTICE 自包含本项实际归属、精确范围及现存完整 CC
+        BY 4.0 法条；native text 的逐项损失见 limitations，不声称无损转换或可直接执行的源代码／prompt。旧 root source、normalized TXT／TeX、selectors、NOTICE／README、revision、retrieval
+        和历史 gate 不改，不将新固定版选择冒称旧 source payload 已被追溯核定。
+      scope: 本独立表示仅覆盖固定 arXiv:1904.05530v4 原 bytes 不改的15页 PDF（1066926 bytes）：固定 arXiv:1904.05530v4 完整 15 物理页编译 PDF：p1–8
+        主文至相关工作，p9 Conclusion／Acknowledgement／References、p10书目续、p11–15 正式 A–G，Table1–4／Figure1–8完整，p15 G Implementation
+        Issues of Know-Evolve 至 rank to entities who have the same scores.；不纳入旧未出版稿／源STY／BST或独立图资产。 论文作者可许可表达按本固定作品已证
+        CC BY4 路径；实际有界引用／图板按原件精确信用与身份保留，不改变底层许可、不独立重许被引全文／数据／代码／模型／媒体／商标／源模板或整个source归档。 此范围也包含该PDF native plain、页selectors及完整BY4
+        NOTICE；旧 root rights／block／retrieval／revision／source_version键缺省和历史原件／文字缺失不改；无普遍权利保证。
+  materialization:
+    source_pdf: pdf-supplement/document.pdf
+    source_pdf_sha256: 590cd5c5598d5daaffc6304177a439ea899dd758bcfb320e7a98cacaa6f39ee1
+    document: pdf-supplement/document.txt
+    normalized_document: pdf-supplement/document.txt
+    stored_characters: 64225
+    selector_count: 15
+    pdf_page_count: 15
+    pdf_text_page_count: 15
+    pdf_text_extraction_mode: plain
+    pdf_pages_without_extractable_text: []
+    pdf_page_extraction_failures: []
+    substantive_text: true

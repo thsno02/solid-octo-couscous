@@ -80,7 +80,7 @@ temporal:
   valid_to: null
   as_of: '2026-09-16T04:30:26Z'
 provenance:
-  build_id: build:llm-wiki-v0:3c4b53aa61004c0b
+  build_id: build:llm-wiki-v0:261023893e1f09a1
   generated_by_agent: pipeline/build_llm_wiki.py
   generated_by_model: null
   prompt_or_skill_version: deterministic-llm-wiki-v0.2
@@ -103,22 +103,22 @@ provenance:
   - arxiv-2104.00405@sha256:d9ca19652574908e954b524249d31a8b450830023739ee49797f58d52784dd03
   - arxiv:2503.18102@sha256:f26720fb630b99a1ee6534baf2f49b4d8a89bdde3f6f4542b0d0c5ade40f67c0
   - arxiv:2509.23233@sha256:8570de4224cfc829f7478411feca2ecec5f50d6e7ceb7cc62fd15fa07f20c921
-  - arxiv:2511.02824@sha256:6c71312f8e88b313baf4eeb44a39fefa9f09ad5bd247e176e49824310cf5fb5e
+  - arxiv:2511.02824@sha256:bc1d107627c3f81bd551a6180f1d5739db46b2b3902dc2349a382de500f6b0a8
   - arxiv:2507.21046@sha256:0b39df03feea2f4d8ac41e35a9247889978a53cb1e7b7d3eafaae76ad97b5602
   - arxiv:2410.04444@sha256:d33fb4b64b53231411e0d14e65e6a3fc4f3dbfbcfe3ab4b5113f8ffa8c16cd52
-  - arxiv:2505.13400@sha256:1abd0b99271884b6f1a8fd9db0185e8042f079a61879ec0c9a7febae6a0c942c
+  - arxiv:2505.13400@sha256:336d4e3f9065f42918cec8053e020d12c8d8c8031eb4c180764a349d1efa1794
   - arxiv:2509.25651@sha256:14424738e0ad14b8fd5891102b89d9a3e4888beb22605f723e1cc044231eb803
   - arxiv:2406.06769@sha256:28793ae05bbb22ed6e02fbdceb697a2b9ea8ebff6932c4dd8fb5b70bba5dde91
-  - arxiv-2110.11309@sha256:e838a729a34c09a9044b334ef91e3c1ea36030b9e9e35ba6d6f11747e2b4b570
+  - arxiv-2110.11309@sha256:16f6480eabfa9f68205b41eb2054e02e1eaa79591d21fa75a998318dcf2c2ab9
   - arxiv-1706.08840@sha256:330858b30f0963297c9d772fc29aabc8dfcff7d687856d91a2f167847d0fca88
   - arxiv:2305.14627@sha256:6902aae852b39f761a60dc2cf36b7d2ed9e615755f413b7daa8b52f5c1eae3ea
   - methodology:linkml-schema-first@sha256:93a9f00b0006695dab8f1bde801a40e36eed8c236c4c839aff645bec38b5dc6c
   - arxiv:2404.14387@sha256:afd13bcb8ce6f553dec268c0fb17bfb6b8a1ba80a4881a5b46d54b927ca9a418
-  - arxiv:2406.04268@sha256:151c2d39de074a44985b681977a2a5383b91932b87eb734709948e9eb1607871
+  - arxiv:2406.04268@sha256:40b1f56033d9b9c2ad82d2aa9dcd2123af637fc2de7e88c96b9dc93477a643a1
   - arxiv:2504.08066@sha256:53bafd3028e3f8829a3d85220e84dcf0d18934f9b75c092a60de303ff3644bd2
   - arxiv:2408.08435@sha256:32eb1c1a6888e35fae0f618e33c58698b54d9c49bc063fef91ee591719fca376
   - arxiv:2502.14499@sha256:de8bc15be762914dd2f056f00efe2b83d51ce852a7035d65e866e6cdecbbb65a
-  - arxiv:2310.16218@sha256:be80105279b0f4acf0e1817a727c0de41b57db523e6a7bc5369b0e062139f52f
+  - arxiv:2310.16218@sha256:77d3c50e6184b5fbe01b2797d4d8fbeb885df049bf2f35e1adf3deee677d8098
   - arxiv-2306.15626@sha256:5893d0b64b077ec01bee907ead6d94ae8c810abf023c2b4f618250c4fb0b7680
   - arxiv:2305.14251@sha256:57414a8d80031dceed44fb17efa562cab7e1490390ce95d8753480fba9686795
   created_at: '2026-09-16T04:30:26Z'
@@ -145,7 +145,7 @@ consumption:
     one_line: Scope, coverage, and limits of the selected candidate corpus.
     short: Scope, coverage, and limits of the selected candidate corpus.
     full: null
-  estimated_tokens: 2067
+  estimated_tokens: 2209
   machine_entry_points:
   - ../../04_claims/claims.jsonl
   - ../../03_evidence/evidence.jsonl
@@ -219,11 +219,21 @@ rights_refs:
   transformation: The listed source-authored claim excerpts are rendered inside a mixed, compiler-generated page.
   claim_refs:
   - claim:9077f46d7f30e565
+- source_uid: arxiv:2505.13400
+  source_revision: sha256:336d4e3f9065f42918cec8053e020d12c8d8c8031eb4c180764a349d1efa1794
+  source_version_url: https://arxiv.org/pdf/2505.13400v1
+  license_spdx: CC-BY-4.0
+  license_url: https://creativecommons.org/licenses/by/4.0/
+  notice_path: materialized_sources/corpus/arxiv-2505.13400--6cb0cfb6/pdf-supplement/NOTICE.md
+  package_path: materialized_sources/corpus/arxiv-2505.13400--6cb0cfb6/manifest.yaml#pdf_supplement.rights.redistribution_package
+  usage: rendered_source_claims
+  transformation: The listed source-authored claim excerpts are rendered inside a mixed, compiler-generated page.
+  claim_refs:
+  - claim:3c6cef89711e89f2
 rights_unavailable_source_refs:
 - arxiv-2104.00405
 - arxiv:1905.10985
 - arxiv:2502.14499
-- arxiv:2505.13400
 - arxiv:2509.25651
 - arxiv:2602.06855
 - github:SakanaAI/AI-Scientist
@@ -317,6 +327,17 @@ The terms below apply only to the listed source-authored claim components. They 
 - Excerpt/page transformation: The listed source-authored claim excerpts are rendered inside a mixed, compiler-generated page. 原官方 PDF 按下载 bytes 原样保存；使用 pypdf 6.18.1 提取逐页文字，加入明确页边界并生成本地页定位；在派生 text 末尾附唯一署名、修改与范围声明及 NOTICE.md 链接。不编辑原 PDF、不执行其中代码或提示词，不把原生文本当 OCR。既有 source、normalized、selectors、archive revision 和旧归属包均保留。本层是有损预处理，不自动晋升 trusted。
 - Scope: 仅本次从 https://arxiv.org/pdf/2504.08066v1 取得的固定版本官方 PDF（69页，8923691 bytes）、其页级提取文本与定位器。覆盖论文编译后主文、参考文献和 PDF 实际内嵌附录/图表，不包含外链论文、数据集、模型、代码仓库或新增源模板。作者/提交者可许可的作品表达沿官方固定版本 CC BY 4.0；保留 PDF 内独立署名、图注和警告，不暗示原作者支持本仓库。旧 TeX 包及其独立组件许可原样保留，本附加包不改其授权范围。原 PDF 完整保存不等于原生文本无损，图内文字、数学、图形与阅读顺序损失另列 coverage。 七份匿名 workshop review 继续按独立 CC BY 4.0 及逐组 Reviewer 标签归属，不冒称论文作者原创。
 
+### Robin: A multi-agent system for automating scientific discovery (`arxiv:2505.13400`)
+
+- Components: `claim:3c6cef89711e89f2`
+- Source revision: `sha256:336d4e3f9065f42918cec8053e020d12c8d8c8031eb4c180764a349d1efa1794`
+- Source version: [pinned upstream version](https://arxiv.org/pdf/2505.13400v1)
+- License: [CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/)
+- NOTICE: [materialized_sources/corpus/arxiv-2505.13400--6cb0cfb6/pdf-supplement/NOTICE.md](../../../../materialized_sources/corpus/arxiv-2505.13400--6cb0cfb6/pdf-supplement/NOTICE.md)
+- Attribution: Ali Essam Ghareeb; Benjamin Chang; Ludovico Mitchener; Angela Yiu; Caralyn J. Szostkiewicz; Jon M. Laurent; Muhammed T. Razzak; Andrew D. White; Michaela M. Hinks; Samuel G. Rodriques, Robin: A multi-agent system for automating scientific discovery, arXiv:2505.13400v1 (2025-05-19), https://arxiv.org/abs/2505.13400v1, PDF https://arxiv.org/pdf/2505.13400v1, CC BY4 https://creativecommons.org/licenses/by/4.0/。完整十作者 Ali Essam Ghareeb／Benjamin Chang／Ludovico Mitchener／Angela Yiu／Caralyn J. Szostkiewicz／Jon M. Laurent／Muhammed T. Razzak／Andrew D. White／Michaela M. Hinks／Samuel G. Rodriques；Ghareeb/Chang等贡献，White/Rodriques共同监督FutureHouse，Hinks/Rodriques共同监督本工作，FutureHouse／Oxford机构原样，未造逐作者贡献表。p11 Michael Skarlinski／Mayk Caldas／Tyler Nadolski／James Braza／Siddharth Narayanan与FutureHouse致谢保留。p4 Fig2/p6 Fig3明示部分分析由human为publication readability格式化，不改为无人工。p9 Table1供应商catalog引用与Rapamycin Gift from RetroBio（非Rebio）保留。微镜／flow／RNA-seq在原研究表示内保留，不独立重许可底层数据。S10两处重复原样，不补源88bibabstract或其15copyright旧未决。 既有 R 已核固定v1源payload/保留表达与作品BY4；本次PDF可见v1页标、embedded arXivID与License BY4，C核十作者／30页／全部Supplementary Material至S25，主线明确准入。不发明旧固定archive URL。 以上归属不暗示背书。
+- Excerpt/page transformation: The listed source-authored claim excerpts are rendered inside a mixed, compiler-generated page. 固定版本 PDF 按本次真实响应 bytes 原样保留，不编辑、重导或 OCR；以既有 helper 的 plain 全页提取生成独立 pdf-supplement/document.txt 和真实 PDF revision 的页定位器（page selectors），在文末追加唯一归属、修改／范围附注与同目录 NOTICE.md 链接。NOTICE 自包含本项实际归属、精确范围及现存完整 CC BY 4.0 法条；native text 的逐项损失见 limitations，不声称无损转换或可直接执行的源代码／prompt。旧 root source、normalized TXT／TeX、selectors、NOTICE／README、revision、retrieval 和历史 gate 不改，不将新固定版选择冒称旧 source payload 已被追溯核定。
+- Scope: 本独立表示仅覆盖固定 arXiv:2505.13400v1 原 bytes 不改的30页 PDF（33781795 bytes）：固定 arXiv:2505.13400v1 完整30物理页编译PDF：p1–7主文Results／Discussion及四科学图，p8–11 Methods4.1–4.5.5／Acknowledgements／Data and Code Availability，p12–15 References[1]–[69]，p16 Supplementary Material／S1，p17–24完整实验assay／therapeutic候选／judge prompts（p22/p24实际重复S10保留），p25–28 S11–S15 human评估／microscopy／flow／RNA-seq，p29–30 S16–S25十类候选至Chronic Kidney Disease十项INF4E。未取外部RNA-seq/.fcs/code/trajectories。 论文作者可许可表达按本固定作品已证 CC BY4 路径；实际有界引用／图板按原件精确信用与身份保留，不改变底层许可、不独立重许被引全文／数据／代码／模型／媒体／商标／源模板或整个source归档。 此范围也包含该PDF native plain、页selectors及完整BY4 NOTICE；旧 root rights／block／retrieval／revision／source_version键缺省和历史原件／文字缺失不改；无普遍权利保证。
+
 ### Avalanche: an End-to-End Library for Continual Learning (`arxiv-2104.00405`)
 
 - Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
@@ -328,11 +349,6 @@ The terms below apply only to the listed source-authored claim components. They 
 - Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.
 
 ### MLGym: A New Framework and Benchmark for Advancing AI Research Agents (`arxiv:2502.14499`)
-
-- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
-- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.
-
-### Robin: A multi-agent system for automating scientific discovery (`arxiv:2505.13400`)
 
 - Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
 - Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.

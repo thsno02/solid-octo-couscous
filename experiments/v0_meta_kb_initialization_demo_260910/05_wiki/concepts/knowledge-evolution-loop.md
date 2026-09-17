@@ -88,7 +88,7 @@ temporal:
   valid_to: null
   as_of: '2026-09-16T04:30:26Z'
 provenance:
-  build_id: build:llm-wiki-v0:3c4b53aa61004c0b
+  build_id: build:llm-wiki-v0:261023893e1f09a1
   generated_by_agent: pipeline/build_llm_wiki.py
   generated_by_model: null
   prompt_or_skill_version: deterministic-llm-wiki-v0.2
@@ -101,7 +101,7 @@ provenance:
   - arxiv:2502.12110@sha256:d112e92606a562a0369e2e8cddadad88ac8d448d66c24ee9b63e808c2c84e42b
   - arxiv:cs/0309048@sha256:ab75c69deb1c4b41ae77f5f817735922ad52fc9a8d51ec5184f4978a88b4052e
   - arxiv:2505.22954@sha256:13ff4abe0c7ad4a7dd3b4876d19a8bf940e39e70dabbf06065aa774a6c3457de
-  - arxiv:2406.04268@sha256:151c2d39de074a44985b681977a2a5383b91932b87eb734709948e9eb1607871
+  - arxiv:2406.04268@sha256:40b1f56033d9b9c2ad82d2aa9dcd2123af637fc2de7e88c96b9dc93477a643a1
   - github:jennyzzt/dgm@a565fd2d1dca504ef5104a7cc0f3bdc4ab9b4fd2
   - arxiv:2410.04444@sha256:d33fb4b64b53231411e0d14e65e6a3fc4f3dbfbcfe3ab4b5113f8ffa8c16cd52
   created_at: '2026-09-16T04:30:26Z'
@@ -128,7 +128,7 @@ consumption:
     one_line: Evidence, conflict, review, admission, monitoring, and rollback form one governed loop.
     short: Evidence, conflict, review, admission, monitoring, and rollback form one governed loop.
     full: null
-  estimated_tokens: 1882
+  estimated_tokens: 2062
   machine_entry_points:
   - ../../04_claims/claims.jsonl
   - ../../03_evidence/evidence.jsonl
@@ -147,6 +147,17 @@ rendered_claim_refs:
 - claim:f810d086e0a4a305
 - claim:17c715b34b0f0c68
 rights_refs:
+- source_uid: arxiv:2406.04268
+  source_revision: sha256:40b1f56033d9b9c2ad82d2aa9dcd2123af637fc2de7e88c96b9dc93477a643a1
+  source_version_url: https://arxiv.org/pdf/2406.04268v1
+  license_spdx: CC-BY-4.0
+  license_url: https://creativecommons.org/licenses/by/4.0/
+  notice_path: materialized_sources/corpus/arxiv-2406.04268--ce5afac4/pdf-supplement/NOTICE.md
+  package_path: materialized_sources/corpus/arxiv-2406.04268--ce5afac4/manifest.yaml#pdf_supplement.rights.redistribution_package
+  usage: rendered_source_claims
+  transformation: The listed source-authored claim excerpts are rendered inside a mixed, compiler-generated page.
+  claim_refs:
+  - claim:b0434511c0c174ad
 - source_uid: arxiv:2406.06769
   source_revision: sha256:28793ae05bbb22ed6e02fbdceb697a2b9ea8ebff6932c4dd8fb5b70bba5dde91
   source_version_url: https://arxiv.org/pdf/2406.06769v2
@@ -182,7 +193,6 @@ rights_refs:
   - claim:c776b87484aab5c2
 rights_unavailable_source_refs:
 - arxiv:2404.14387
-- arxiv:2406.04268
 - arxiv:2410.04444
 - arxiv:2502.12110
 - arxiv:2502.14499
@@ -207,7 +217,7 @@ Evidence, conflict, review, admission, monitoring, and rollback form one governe
 - **A-MEM: Agentic Memory for LLM Agents** (source assertion): While large language model (LLM) agents can effectively use external tools for complex real-world tasks, they require memory systems to leverage historical experiences. Current memory systems enable basic storage and retrieval but lack sophisticated memory organization, despite recent attempts to incorporate graph databases. 〔[claim:ecf45fd3f4ab576a](../claims/claim-ecf45fd3f4ab576a.md)〕
 - **Goedel Machines: Self-Referential Universal Problem Solvers Making Provably Optimal Self-Improvements** (source assertion): We present the first class of mathematically rigorous, general, fully self-referential, self-improving, optimally efficient problem solvers. Inspired by Kurt G\" o del's celebrated self-referential formulas (1931), such a problem solver rewrites any part of its own code as soon as it has found a proof that the rewrite is useful, where the problem-dependent utility function and the hardware and the entire initial code 〔[claim:2a05950fe0a0b64d](../claims/claim-2a05950fe0a0b64d.md)〕
 - **Darwin Godel Machine: Open-Ended Evolution of Self-Improving Agents** (source assertion): Most of today’s AI systems are constrained by human-designed, fixed architectures and cannot autonomously and continuously improve themselves. The scientific method, on the other hand, is a cumulative and open-ended system, where each innovation builds upon previous artifacts, enabling future discoveries. 〔[claim:ae45b8d667e29552](../claims/claim-ae45b8d667e29552.md)〕
-- **Position: Open-Endedness is Essential for Artificial Superhuman Intelligence** (source assertion): In recent years there has been a tremendous surge in the general capabilities of AI systems, mainly fuelled by training foundation models on internet-scale data. Nevertheless, the creation of open-ended, ever self-improving AI remains elusive. 〔[claim:b0434511c0c174ad](../claims/claim-b0434511c0c174ad.md)〕
+- **Position: Open-Endedness is Essential for Artificial Superhuman Intelligence** (source assertion): In recent years there has been a tremendous surge in the general capabilities of AI systems, mainly fuelled by training foundation models on internet- scale data. Nevertheless, the creation of open- ended, ever self-improving AI remains elusive. 〔[claim:b0434511c0c174ad](../claims/claim-b0434511c0c174ad.md)〕
 - **jennyzzt/dgm** (source assertion): Repository for **Darwin Gödel Machine (DGM)**, a novel self-improving system that iteratively modifies its own code (thereby also improving its ability to modify its own codebase) and empirically validates each change using coding benchmarks. 〔[claim:d38b49dc4376d4b0](../claims/claim-d38b49dc4376d4b0.md)〕
 - **Goedel Agent: A Self-Referential Agent Framework for Recursive Self-Improvement** (source assertion): The rapid advancement of large language models (LLMs) has significantly enhanced the capabilities of agents across various tasks. However, existing agentic systems, whether based on fixed pipeline algorithms or pre-defined meta-learning frameworks, cannot search the whole agent design space due to the restriction of human-designed components, and thus might miss the more optimal agent design. 〔[claim:f810d086e0a4a305](../claims/claim-f810d086e0a4a305.md)〕
 - **AIRS-Bench: a Suite of Tasks for Frontier AI Research Science Agents** (collection assessment): A 2026 benchmark explicitly targeting frontier AI research-science agents across the research lifecycle, including idea generation, experimentation, analysis and iterative refinement. 〔[claim:17c715b34b0f0c68](../claims/claim-17c715b34b0f0c68.md)〕
@@ -229,6 +239,17 @@ Check evidence entailment, source independence, contradiction, neutrality, due w
 ## Source text rights and attribution
 
 The terms below apply only to the listed source-authored claim components. They do not relicense collector assessments, compiler synthesis, other source components, or this repository as a whole.
+
+### Position: Open-Endedness is Essential for Artificial Superhuman Intelligence (`arxiv:2406.04268`)
+
+- Components: `claim:b0434511c0c174ad`
+- Source revision: `sha256:40b1f56033d9b9c2ad82d2aa9dcd2123af637fc2de7e88c96b9dc93477a643a1`
+- Source version: [pinned upstream version](https://arxiv.org/pdf/2406.04268v1)
+- License: [CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/)
+- NOTICE: [materialized_sources/corpus/arxiv-2406.04268--ce5afac4/pdf-supplement/NOTICE.md](../../../../materialized_sources/corpus/arxiv-2406.04268--ce5afac4/pdf-supplement/NOTICE.md)
+- Attribution: Edward Hughes; Michael Dennis; Jack Parker-Holder; Feryal Behbahani; Aditi Mavalankar; Yuge Shi; Tom Schaul; Tim Rocktäschel, Open-Endedness is Essential for Artificial Superhuman Intelligence, arXiv:2406.04268v1 (2024-06-06), https://arxiv.org/abs/2406.04268v1, PDF https://arxiv.org/pdf/2406.04268v1, CC BY4 https://creativecommons.org/licenses/by/4.0/。可见八作者 Edward Hughes／Michael Dennis／Jack Parker-Holder／Feryal Behbahani／Aditi Mavalankar／Yuge Shi／Tom Schaul／Tim Rocktäschel；Hughes／Dennis等贡献及correspondence，Google DeepMind London、ICML2024／PMLR235／作者版权原样。旧题名Position:前缀、Michael D. Dennis／ASCII Rocktaschel仅是旧署名表达，不冒称本次PDF原字节，不猜中间名。p10明确Noun Project graphics适用CC BY3.0 https://creativecommons.org/licenses/by/3.0/，独立十credit：tick — kareemovic — https://thenounproject.com/browse/icons/term/tick?iconspage=1; Delete — kareemovic — https://thenounproject.com/browse/icons/term/Delete?iconspage=1; alien — Artem Yurov — https://thenounproject.com/browse/icons/term/alien?iconspage=1; girl — Teewara soontorn — https://thenounproject.com/browse/icons/term/girl?iconspage=1; year of rat — DailyPM — https://thenounproject.com/browse/icons/term/year-of-rat?iconspage=1; aircraft — mikicon — https://thenounproject.com/browse/icons/term/aircraft?iconspage=1; concorde — mikicon — https://thenounproject.com/browse/icons/term/concorde?iconspage=1; Plane — CAMB — https://thenounproject.com/browse/icons/term/plane?iconspage=1; humans — Ifanicon — https://thenounproject.com/browse/icons/term/humans?iconspage=1; Robot — Deemak Daksina — https://thenounproject.com/browse/icons/term/robot?iconspage=1。这些browse targets来自PDF实际Annots，未访问；标准BY3法条URL是新增标准链接，不冒称PDF印有该URI。Dave Abel反馈致谢保留。本批未修改图标，不推测论文作者改色／改形，不把图标版权归论文八作者或给全站资产一般BY4。 本批正式 https://arxiv.org/abs/2406.04268v1 的作品 view license 正常到BY4，v1日期2024-06-06；C核实际八作者／20页主文与A–C／十Noun Project BY3独立credit，主线全文读并明确准入。 以上归属不暗示背书。
+- Excerpt/page transformation: The listed source-authored claim excerpts are rendered inside a mixed, compiler-generated page. 固定版本 PDF 按本次真实响应 bytes 原样保留，不编辑、重导或 OCR；以既有 helper 的 plain 全页提取生成独立 pdf-supplement/document.txt 和真实 PDF revision 的页定位器（page selectors），在文末追加唯一归属、修改／范围附注与同目录 NOTICE.md 链接。NOTICE 自包含本项实际归属、精确范围及现存完整 CC BY 4.0 法条；native text 的逐项损失见 limitations，不声称无损转换或可直接执行的源代码／prompt。旧 root source、normalized TXT／TeX、selectors、NOTICE／README、revision、retrieval 和历史 gate 不改，不将新固定版选择冒称旧 source payload 已被追溯核定。
+- Scope: 本独立表示仅覆盖固定 arXiv:2406.04268v1 原 bytes 不改的20页 PDF（939555 bytes）：固定 arXiv:2406.04268v1 完整20物理页编译PDF：p1–9主文，p10Impact Statement／Acknowledgements／References至p17左栏，p17–18 A Illustrating Open-Endedness，p18–19 B Alternative Definition，p19–20 C Further Related Work，Figure1–3齐，p20真正末句 restricted by the environment.；不取旧模板／独立图标／外链原作。 论文作者可许可表达按本固定作品已证 CC BY4 路径；实际有界引用／图板按原件精确信用与身份保留，不改变底层许可、不独立重许被引全文／数据／代码／模型／媒体／商标／源模板或整个source归档。十Noun Project图标另保留实际CC BY3.0与完整名／作者／来源，不归给论文BY4。 此范围也包含该PDF native plain、页selectors及完整BY4 NOTICE；旧 root rights／block／retrieval／revision／source_version键缺省和历史原件／文字缺失不改；无普遍权利保证。
 
 ### DISCOVERYWORLD: A Virtual Environment for Developing and Evaluating Automated Scientific Discovery Agents (`arxiv:2406.06769`)
 
@@ -264,11 +285,6 @@ The terms below apply only to the listed source-authored claim components. They 
 - Scope: 仅本次从 https://arxiv.org/pdf/2507.21046v4 取得的固定 v4 官方完整 PDF（77 页，5726709 bytes）、其 plain 页文字与页级定位器。范围为编译后九章、12 个表、真实科学图与 inline taxonomy、以及 p53–77 参考文献；作品无 appendix。 作者/提交者有权许可的论文表达及本次文字派生沿作品级 CC BY 4.0；完整 PDF 原有图注、引用、署名、资助与警告保留，不授权被引用作品全文、外部实验数据集、模型、代码或脚本，也不转授 logo/商标、专利或权利人无权许可的材料。原 PDF 保留下载原字节，文字层有损且不做 OCR，原件完整不等于 text extraction complete。既有 TeX/source/normalized/default selectors/NOTICE/files 与旧包各组件授权范围不变。
 
 ### A Survey on Self-Evolution of Large Language Models (`arxiv:2404.14387`)
-
-- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
-- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.
-
-### Position: Open-Endedness is Essential for Artificial Superhuman Intelligence (`arxiv:2406.04268`)
 
 - Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
 - Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.

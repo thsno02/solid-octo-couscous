@@ -37,6 +37,18 @@ local_files:
 - path: materialized_sources/corpus/arxiv-2206.06520--f7ce3f6e/normalized/document.txt
   bytes: 56872
   sha256: 3b01b92ad7406e4871addf9ca82364c75ddf5b203e453da0690b1cbd0ec571ca
+- path: materialized_sources/corpus/arxiv-2206.06520--f7ce3f6e/pdf-supplement/NOTICE.md
+  bytes: 24617
+  sha256: 39b6c2bd397dc38639b531a79253758ffe22790d4229296d0ef0cb7cab64c243
+- path: materialized_sources/corpus/arxiv-2206.06520--f7ce3f6e/pdf-supplement/document.pdf
+  bytes: 1543761
+  sha256: 2b04d7fcc1e7529e558b40b9782c005e34a564da6ce526c13e3ac9101a30a111
+- path: materialized_sources/corpus/arxiv-2206.06520--f7ce3f6e/pdf-supplement/document.txt
+  bytes: 73431
+  sha256: 685c8af59352e432ae813a8e15225a0c6e812458f246dcce1fe7c72a8ec8c145
+- path: materialized_sources/corpus/arxiv-2206.06520--f7ce3f6e/pdf-supplement/selectors.jsonl
+  bytes: 6743
+  sha256: 3ddac039905381fc27b718b6cb6fcdd65c3e6b572108e5207a7dbb446da97493
 - path: materialized_sources/corpus/arxiv-2206.06520--f7ce3f6e/selectors.jsonl
   bytes: 23048
   sha256: 1e4829ff716be06ccd805d0e200d4e9ebe167617af9a98ba4de48bc55054f589
@@ -146,8 +158,8 @@ local_files:
   bytes: 2683
   sha256: 7a60aac91995dcf2f5e4b6f08facbbbabba935e6c8eb41bd8f29e8ce8c0cc9f0
 - path: materialized_sources/corpus/arxiv-2206.06520--f7ce3f6e/source-metadata.yaml
-  bytes: 1684
-  sha256: fb9ec4f1577ff26cbca5107e6ef78084b3d8142cbe012245760a0da0ae49bf5d
+  bytes: 7097
+  sha256: 39e29dbcbe9290b500784931b115dc1f3f6241745bcf8bbd025680bee7c437f1
 warnings: []
 errors: []
 archive_container: tar
@@ -167,4 +179,74 @@ omitted:
   reason: non-text-document-member
 - path: figures/imgs/multi_edit.pdf
   reason: non-text-document-member
-local_bytes: 528563
+local_bytes: 2182528
+pdf_supplement:
+  source_version: v1
+  revision: sha256:2b04d7fcc1e7529e558b40b9782c005e34a564da6ce526c13e3ac9101a30a111
+  media_type: application/pdf
+  retrievals:
+  - requested_urls:
+    - https://arxiv.org/pdf/2206.06520v1
+    resolved_url: https://arxiv.org/pdf/2206.06520v1
+    content_type: application/pdf
+    bytes: 1543761
+    sha256: 2b04d7fcc1e7529e558b40b9782c005e34a564da6ce526c13e3ac9101a30a111
+    retrieved_at: '2026-09-17T08:17:32Z'
+    http_status: 200
+    redirect_count: 0
+    tls_verify_result: 0
+    curl_exit_code: 0
+    time_scope: Local completion bound from same GET response JSON mtime, truncated to seconds; server HTTP Date
+      is not client wall-clock and no precise per-response start time is asserted.
+  selectors:
+  - pdf-supplement/selectors.jsonl
+  body_quality_verified: true
+  limitations:
+  - 完整 compiled original为15页正式A–D／三编号图／Table1–8，unused multi_model不纳入目标。
+  - native text partial：p1 routing箭头与x1/x2模型布局、p2 Fig2绿色scope和in/out/hard位置／距离／符号对应、p7三色曲线与solid/dotted的1vs10训练edit语义未线性化。
+  - 二维公式／表列组／small-caps与ENTITY ?等布局扁平；本次β<0.5／β≥0.5／argmax两分支已恢复，不沿用旧符号缺失。
+  - Table8完整prompt和D.2至90-5-5真实末句保留，不能称byte-exact executable prompt；Table7作者印出的[...]不是获取截断。
+  - 15页非空无失败只作诊断；精确图／公式／prompt排版回PDF，不默认OCR、不赋strict/trusted。
+  rights:
+    license_spdx: CC-BY-4.0
+    license_url: https://creativecommons.org/licenses/by/4.0/
+    license_verified_at: '2026-09-17'
+    publication_gate:
+      decision: allow
+      reason: 主线全文读取本批内容报告并核实际固定版身份／目标边界／可见独立信用，明确准入本UID完整 compiled facsimile 与有损 native／逐页 selectors／NOTICE；只依本作品已证许可路径，不借旧
+        root block，不给底层资产一般许可。
+      approved_scope: 本独立表示仅覆盖固定 arXiv:2206.06520v1 原 bytes 不改的15页 PDF（1543761 bytes）：固定 arXiv:2206.06520v1 完整15物理页编译PDF：p1–9主文／3编号图／Tables1–6与完整Acknowledgements，p10–12References，p13–15正式A–D／Table7疫苗outputs／完整Table8prompt，p15
+        D.2 ConvSent完整至90-5-5 train/val/test splits，unused multi_model不属必需正文。 论文作者可许可表达按本固定作品已证 CC BY4 路径；实际有界引用／图板按原件精确信用与身份保留，不改变底层许可、不独立重许被引全文／数据／代码／模型／媒体／商标／源模板或整个source归档。
+        此范围也包含该PDF native plain、页selectors及完整BY4 NOTICE；旧 root rights／block／retrieval／revision／source_version键缺省和历史原件／文字缺失不改；无普遍权利保证。
+    redistribution_package:
+      source_revision: sha256:2b04d7fcc1e7529e558b40b9782c005e34a564da6ce526c13e3ac9101a30a111
+      source_version_url: https://arxiv.org/pdf/2206.06520v1
+      notice_path: materialized_sources/corpus/arxiv-2206.06520--f7ce3f6e/pdf-supplement/NOTICE.md
+      attribution: Eric Mitchell; Charles Lin; Antoine Bosselut; Christopher D. Manning; Chelsea Finn, Memory-Based
+        Model Editing at Scale, arXiv:2206.06520v1 (2022-06-13), https://arxiv.org/abs/2206.06520v1, PDF https://arxiv.org/pdf/2206.06520v1,
+        CC BY4 https://creativecommons.org/licenses/by/4.0/。完整顺序 Eric Mitchell／Charles Lin／Antoine Bosselut／Christopher
+        D. Manning／Chelsea Finn，Manning在Finn前；实际PDF Christopher D Manning规范标点不误称原字节。Stanford CS／EPFL及correspondence保留；p1
+        ICML39/Baltimore/PMLR162/2022 Copyright2022 by the author(s)不是grant。本篇SERAC完整展开名保留。p9 Shikhar Murty／Archit
+        Sharma／Stanford CRFM／匿名ICMLreviewers、Knight-Hennessy／Apple财务支持／CIFAR归属保留。Sun Public License是p3 QA样例中的对象，不是论文许可；zsRE／GPT3／BlenderBot／classifiers保留出处而不重许可。Table7模型false/harmful
+        statements、作者[...]截断与dual-use警示保持研究输出身份，不补写或当论文真事实。 本批正式 https://arxiv.org/abs/2206.06520v1 的作品 view license
+        正常到BY4，v1日期2022-06-13／五作者顺序已核；A报告核实际15页A–D／Table8／ConvSent真实尾界，主线明确准入。 以上归属不暗示背书。
+      modifications: 固定版本 PDF 按本次真实响应 bytes 原样保留，不编辑、重导或 OCR；以既有 helper 的 plain 全页提取生成独立 pdf-supplement/document.txt
+        和真实 PDF revision 的页定位器（page selectors），在文末追加唯一归属、修改／范围附注与同目录 NOTICE.md 链接。NOTICE 自包含本项实际归属、精确范围及现存完整 CC
+        BY 4.0 法条；native text 的逐项损失见 limitations，不声称无损转换或可直接执行的源代码／prompt。旧 root source、normalized TXT／TeX、selectors、NOTICE／README、revision、retrieval
+        和历史 gate 不改，不将新固定版选择冒称旧 source payload 已被追溯核定。
+      scope: 本独立表示仅覆盖固定 arXiv:2206.06520v1 原 bytes 不改的15页 PDF（1543761 bytes）：固定 arXiv:2206.06520v1 完整15物理页编译PDF：p1–9主文／3编号图／Tables1–6与完整Acknowledgements，p10–12References，p13–15正式A–D／Table7疫苗outputs／完整Table8prompt，p15
+        D.2 ConvSent完整至90-5-5 train/val/test splits，unused multi_model不属必需正文。 论文作者可许可表达按本固定作品已证 CC BY4 路径；实际有界引用／图板按原件精确信用与身份保留，不改变底层许可、不独立重许被引全文／数据／代码／模型／媒体／商标／源模板或整个source归档。
+        此范围也包含该PDF native plain、页selectors及完整BY4 NOTICE；旧 root rights／block／retrieval／revision／source_version键缺省和历史原件／文字缺失不改；无普遍权利保证。
+  materialization:
+    source_pdf: pdf-supplement/document.pdf
+    source_pdf_sha256: 2b04d7fcc1e7529e558b40b9782c005e34a564da6ce526c13e3ac9101a30a111
+    document: pdf-supplement/document.txt
+    normalized_document: pdf-supplement/document.txt
+    stored_characters: 71505
+    selector_count: 15
+    pdf_page_count: 15
+    pdf_text_page_count: 15
+    pdf_text_extraction_mode: plain
+    pdf_pages_without_extractable_text: []
+    pdf_page_extraction_failures: []
+    substantive_text: true

@@ -78,6 +78,7 @@ summary:
     CC-BY-SA-4.0 AND CC0-1.0: 1
     CC-BY-SA-4.0 AND CC-BY-SA-3.0: 1
   key_findings:
+  - P3-PDF-04十个既有arxiv审阅行新增独立fixed-PDF表示许可及实际编译正文信用；原root gate、source revision和历史证据保留。十新原件complete、native文字partial；表示级allow不是旧源包放行、strict complete或trusted。ResearchAgent旧matching引用保留历史并新增NLRSE正确绑定，Kosmos图2真实permission仅a/b，OpenEndedness图标保留CCBY3信用。
   - P3-CANONICAL-ENTRY-01新增五UID表示级审阅，旧103对象不改。Fabric三份固定原生Markdown按明确文档CCBY4和完整NOTICE有界allow；其他四项无新正文。OBO文章CCBY4已证，root gate unknown仅表示无取得载荷可绑定当前公开表示，非文章许可未知。additional_full_text_review_count沿既有字段统计后续审阅行，包含无正文项，不能理解成17条新全文。Wiki三项上方body质量待审字样为前批准入时历史，实际最终结果以PR20及coverage为准。
   - 91/91 manifest 在基线均写 full_text_redistribution_assumed=true；该字段从不作为授权。
   - 73 篇 arXiv 中32篇官方文章页提供CC许可；WikiChat另由作者exact v2 camera-ready声明与ACL许可形成作者正文授权链，RE-Net、RARR及ResearchAgent另由固定payload与正式ACL出版表达对应形成作者正文BY4路径，其余37篇仍缺适用公众许可证据。arXiv
@@ -94,10 +95,10 @@ summary:
   - P3-WIKIMEDIA-HTML-01 methodology:wikipedia-editorial-governance按固定page向量/实际HTML和正文图/组件NOTICE独立有界allow；历史excerpt不改，text
     partial、body质量待实物consumer审阅，未selected/无knowledge晋升。
   independent_representation_review_counts:
-    pdf_supplement: 17
+    pdf_supplement: 27
     supplementary_information: 5
   independent_representation_publication_gate_counts:
-    allow: 22
+    allow: 32
   independent_representation_license_counts:
     CC-BY-4.0: 19
     CC-BY-SA-4.0: 2
@@ -606,6 +607,14 @@ items:
     locator: 000abs.tex:1–3,21–23; 030experiments.tex:4–40; appendix.tex:422–432; emnlp2020.sty:160–171,211–222; acl_natbib.bst
     finding: 000abs.tex两处旧摘要、030experiments.tex禁用旧table及appendix.tex禁用OtherRelatedWork中的GN/RRN段仍在source和merged TeX中，内容实质不同于获许可正式出版表达；plain正文已剔除注释，不能因此宣称源内旧稿也已覆盖。emnlp2020.sty主ACL排版部分的整体许可尚未核定；嵌入everyshi头为LPPL1-or-later、eso-pic头为LPPL1.2-or-later，acl_natbib.bst为LPPL1-or-later并保留原署名，均须分别履约。bib/bbl没有abstract类额外表达。本轮不自动删除或整理这些已识别成员。
     supports_public_redistribution: false
+  - kind: main_admitted_fixed_pdf_representation
+    checked_at: "2026-09-17"
+    url: "https://arxiv.org/pdf/1904.05530v4"
+    path: "materialized_sources/corpus/arxiv-1904.05530--cddfa770/pdf-supplement/document.pdf"
+    locator: "pdf_supplement; compiled facsimile/native/page-selector allowance only"
+    finding: "既有 R 已对应固定 v4 作者表达与 EMNLP2020 正式作品 https://aclanthology.org/2020.emnlp-main.541/、DOI10.18653/v1/2020.emnlp-main.541，ACL作品BY4；arXiv非独占分发不是公众grant。本批 A 核真实v4题名副题／四作者／15页主文与A–G，主线全文读并明确准入。 原件15页完整／native partial／body_quality_verified=true，GET HTTP200/application/pdf/no redirect/TLS verify0/curl exit0，1066926 bytes，完成时间2026-09-17T08:17:30Z按同次response JSON mtime截到秒，不冒称server Date为客户端时间或GET精确起点。实际题名副题 Autoregressive Structure Inference over Temporal Knowledge Graphs 与旧 collection 的 for Reasoning over Temporal Knowledge Graphs 不同，记录为同一ID的题名表达差异；完整作者顺序 Woojeong Jin／Meng Qu／Xisen Jin／Xiang Ren，USC／MILA／University of Montréal归属，未印等贡献不补。p9保留ODNI/IARPA2019-19051600007、DARPA MCS/ONR N660011924033、DARPA W911NF-19-20271、NSF SMA18-29268、USC INK致谢及观点不代表政府免责声明。图内照片／国旗／ICEWS／GDELT／WIKI／YAGO／Know-Evolve／RotatE等按原科学上下文保留，不宣称底层照片／数据／软件一般BY4或将Know-Evolve批评改为支持。 新PDF四方grant同值且绑定实际version/revision；旧source evidence/missing/root gate block保留历史，root公众计数不是新PDF准入或严格可消费计数。"
+    evidence_applicability: "exact_fixed_compiled_facsimile_and_native_page_derivatives_not_legacy_source_or_underlying_assets"
+    supports_public_redistribution: true
   missing:
   - 源内三处具体旧稿表达的适用许可或在获允许边界内的非正文组件整理路径；正式出版BY4不自动覆盖这些差异。
   - emnlp2020.sty主排版部分的适用许可范围，以及everyshi、eso-pic、acl_natbib.bst的独立LPPL履约。
@@ -628,6 +637,21 @@ items:
   human_follow_up:
   - 针对已定位旧稿和组件补足适用依据及客观履约；不普遍要求作者另写精确vN许可函或人工approval。
   - 在当前包全部适用条件落实前保持block，保留正文与既存源成员，不把已证主文BY4误记为无公众许可。
+  pdf_supplement:
+    license_spdx: "CC-BY-4.0"
+    license_url: "https://creativecommons.org/licenses/by/4.0/"
+    license_verified_at: "2026-09-17"
+    publication_gate:
+      decision: "allow"
+      reason: "主线全文读取本批内容报告并核实际固定版身份／目标边界／可见独立信用，明确准入本UID完整 compiled facsimile 与有损 native／逐页 selectors／NOTICE；只依本作品已证许可路径，不借旧 root block，不给底层资产一般许可。"
+      approved_scope: "本独立表示仅覆盖固定 arXiv:1904.05530v4 原 bytes 不改的15页 PDF（1066926 bytes）：固定 arXiv:1904.05530v4 完整 15 物理页编译 PDF：p1–8 主文至相关工作，p9 Conclusion／Acknowledgement／References、p10书目续、p11–15 正式 A–G，Table1–4／Figure1–8完整，p15 G Implementation Issues of Know-Evolve 至 rank to entities who have the same scores.；不纳入旧未出版稿／源STY／BST或独立图资产。 论文作者可许可表达按本固定作品已证 CC BY4 路径；实际有界引用／图板按原件精确信用与身份保留，不改变底层许可、不独立重许被引全文／数据／代码／模型／媒体／商标／源模板或整个source归档。 此范围也包含该PDF native plain、页selectors及完整BY4 NOTICE；旧 root rights／block／retrieval／revision／source_version键缺省和历史原件／文字缺失不改；无普遍权利保证。"
+    redistribution_package:
+      source_revision: "sha256:590cd5c5598d5daaffc6304177a439ea899dd758bcfb320e7a98cacaa6f39ee1"
+      source_version_url: "https://arxiv.org/pdf/1904.05530v4"
+      notice_path: "materialized_sources/corpus/arxiv-1904.05530--cddfa770/pdf-supplement/NOTICE.md"
+      attribution: "Woojeong Jin; Meng Qu; Xisen Jin; Xiang Ren, Recurrent Event Network: Autoregressive Structure Inference over Temporal Knowledge Graphs, arXiv:1904.05530v4 (2020-10-06), https://arxiv.org/abs/1904.05530v4, PDF https://arxiv.org/pdf/1904.05530v4, CC BY4 https://creativecommons.org/licenses/by/4.0/。实际题名副题 Autoregressive Structure Inference over Temporal Knowledge Graphs 与旧 collection 的 for Reasoning over Temporal Knowledge Graphs 不同，记录为同一ID的题名表达差异；完整作者顺序 Woojeong Jin／Meng Qu／Xisen Jin／Xiang Ren，USC／MILA／University of Montréal归属，未印等贡献不补。p9保留ODNI/IARPA2019-19051600007、DARPA MCS/ONR N660011924033、DARPA W911NF-19-20271、NSF SMA18-29268、USC INK致谢及观点不代表政府免责声明。图内照片／国旗／ICEWS／GDELT／WIKI／YAGO／Know-Evolve／RotatE等按原科学上下文保留，不宣称底层照片／数据／软件一般BY4或将Know-Evolve批评改为支持。 既有 R 已对应固定 v4 作者表达与 EMNLP2020 正式作品 https://aclanthology.org/2020.emnlp-main.541/、DOI10.18653/v1/2020.emnlp-main.541，ACL作品BY4；arXiv非独占分发不是公众grant。本批 A 核真实v4题名副题／四作者／15页主文与A–G，主线全文读并明确准入。 以上归属不暗示背书。"
+      modifications: "固定版本 PDF 按本次真实响应 bytes 原样保留，不编辑、重导或 OCR；以既有 helper 的 plain 全页提取生成独立 pdf-supplement/document.txt 和真实 PDF revision 的页定位器（page selectors），在文末追加唯一归属、修改／范围附注与同目录 NOTICE.md 链接。NOTICE 自包含本项实际归属、精确范围及现存完整 CC BY 4.0 法条；native text 的逐项损失见 limitations，不声称无损转换或可直接执行的源代码／prompt。旧 root source、normalized TXT／TeX、selectors、NOTICE／README、revision、retrieval 和历史 gate 不改，不将新固定版选择冒称旧 source payload 已被追溯核定。"
+      scope: "本独立表示仅覆盖固定 arXiv:1904.05530v4 原 bytes 不改的15页 PDF（1066926 bytes）：固定 arXiv:1904.05530v4 完整 15 物理页编译 PDF：p1–8 主文至相关工作，p9 Conclusion／Acknowledgement／References、p10书目续、p11–15 正式 A–G，Table1–4／Figure1–8完整，p15 G Implementation Issues of Know-Evolve 至 rank to entities who have the same scores.；不纳入旧未出版稿／源STY／BST或独立图资产。 论文作者可许可表达按本固定作品已证 CC BY4 路径；实际有界引用／图板按原件精确信用与身份保留，不改变底层许可、不独立重许被引全文／数据／代码／模型／媒体／商标／源模板或整个source归档。 此范围也包含该PDF native plain、页selectors及完整BY4 NOTICE；旧 root rights／block／retrieval／revision／source_version键缺省和历史原件／文字缺失不改；无普遍权利保证。"
 - sequence: 6
   uid: arxiv-2104.00405
   source_type: arxiv
@@ -751,6 +775,14 @@ items:
     path: materialized_sources/corpus/arxiv-2110.11309--d5da3395
     finding: 实存31个source、140个selectors；ICLR2022主样式需独立许可对应，fancyhdr有LPPL。main.bib含11个第三方完整摘要，来源混合ACL、PNAS、PMLR等，不能整体套论文BY4。没有实存natbib.sty，不为仅被样式调用而未保存的依赖新增源码随附要求。
     supports_public_redistribution: false
+  - kind: main_admitted_fixed_pdf_representation
+    checked_at: "2026-09-17"
+    url: "https://arxiv.org/pdf/2110.11309v2"
+    path: "materialized_sources/corpus/arxiv-2110.11309--d5da3395/pdf-supplement/document.pdf"
+    locator: "pdf_supplement; compiled facsimile/native/page-selector allowance only"
+    finding: "本批正式 https://arxiv.org/abs/2110.11309v2 的作品 view license 正常到BY4，v2日期2022-06-13／完整五作者已核；A报告核实际21页A–G与Caching真结尾，主线全文读并明确准入。 原件21页完整／native partial／body_quality_verified=true，GET HTTP200/application/pdf/no redirect/TLS verify0/curl exit0，1140371 bytes，完成时间2026-09-17T08:17:30Z按同次response JSON mtime截到秒，不冒称server Date为客户端时间或GET精确起点。完整真实顺序 Eric Mitchell／Charles Lin／Antoine Bosselut／Chelsea Finn／Christopher D. Manning，Finn在Manning前（不同于SERAC）；Stanford，ICLR2022 conference页眉与MEND完整展开名保留。p10完整致谢 Angeliki Lazaridou、Spencer Braun、Mitchell Wortsman、Gabriel Ilharco、Stephanie Chan、Archit Sharma、Michael Chang、Michael Janner、Ashwin Paranjape、匿名reviewers及Knight-Hennessy／CIFAR归属保留。FEVER／zsRE／Wikitext、De Cao2021／Thorne2018／Ma2021与模型样例保持研究输入身份；C.4虚构edit labels不是可信事实，dual-use/backdoor风险不是复制限制，不重许可底层数据／模型。 新PDF四方grant同值且绑定实际version/revision；旧source evidence/missing/root gate block保留历史，root公众计数不是新PDF准入或严格可消费计数。"
+    evidence_applicability: "exact_fixed_compiled_facsimile_and_native_page_derivatives_not_legacy_source_or_underlying_assets"
+    supports_public_redistribution: true
   missing:
   - 本地三处 rights 未记录该文章许可及核验日期。
   - retrieval hash 尚未与确切 arXiv vN 建立可审计映射。
@@ -775,6 +807,21 @@ items:
   human_follow_up:
   - 人工核对本地 source archive 的 arXiv 版本。
   - 补齐归属、许可链接/声明与第三方组件审计后再审批。
+  pdf_supplement:
+    license_spdx: "CC-BY-4.0"
+    license_url: "https://creativecommons.org/licenses/by/4.0/"
+    license_verified_at: "2026-09-17"
+    publication_gate:
+      decision: "allow"
+      reason: "主线全文读取本批内容报告并核实际固定版身份／目标边界／可见独立信用，明确准入本UID完整 compiled facsimile 与有损 native／逐页 selectors／NOTICE；只依本作品已证许可路径，不借旧 root block，不给底层资产一般许可。"
+      approved_scope: "本独立表示仅覆盖固定 arXiv:2110.11309v2 原 bytes 不改的21页 PDF（1140371 bytes）：固定 arXiv:2110.11309v2 完整21物理页编译PDF：p1–9主文／Algorithms1–2／Tables1–6／Figure1–3，p10完整Acknowledgements／Ethics／Reproducibility，p11–14References，p15–21正式A–G／Figure4／Tables7–11；p21浮动Table11后完整F qualitative examples、G Editing through Caching至 or the edit success.，不另造SI。 论文作者可许可表达按本固定作品已证 CC BY4 路径；实际有界引用／图板按原件精确信用与身份保留，不改变底层许可、不独立重许被引全文／数据／代码／模型／媒体／商标／源模板或整个source归档。 此范围也包含该PDF native plain、页selectors及完整BY4 NOTICE；旧 root rights／block／retrieval／revision／source_version键缺省和历史原件／文字缺失不改；无普遍权利保证。"
+    redistribution_package:
+      source_revision: "sha256:16f6480eabfa9f68205b41eb2054e02e1eaa79591d21fa75a998318dcf2c2ab9"
+      source_version_url: "https://arxiv.org/pdf/2110.11309v2"
+      notice_path: "materialized_sources/corpus/arxiv-2110.11309--d5da3395/pdf-supplement/NOTICE.md"
+      attribution: "Eric Mitchell; Charles Lin; Antoine Bosselut; Chelsea Finn; Christopher D. Manning, Fast Model Editing at Scale, arXiv:2110.11309v2 (2022-06-13), https://arxiv.org/abs/2110.11309v2, PDF https://arxiv.org/pdf/2110.11309v2, CC BY4 https://creativecommons.org/licenses/by/4.0/。完整真实顺序 Eric Mitchell／Charles Lin／Antoine Bosselut／Chelsea Finn／Christopher D. Manning，Finn在Manning前（不同于SERAC）；Stanford，ICLR2022 conference页眉与MEND完整展开名保留。p10完整致谢 Angeliki Lazaridou、Spencer Braun、Mitchell Wortsman、Gabriel Ilharco、Stephanie Chan、Archit Sharma、Michael Chang、Michael Janner、Ashwin Paranjape、匿名reviewers及Knight-Hennessy／CIFAR归属保留。FEVER／zsRE／Wikitext、De Cao2021／Thorne2018／Ma2021与模型样例保持研究输入身份；C.4虚构edit labels不是可信事实，dual-use/backdoor风险不是复制限制，不重许可底层数据／模型。 本批正式 https://arxiv.org/abs/2110.11309v2 的作品 view license 正常到BY4，v2日期2022-06-13／完整五作者已核；A报告核实际21页A–G与Caching真结尾，主线全文读并明确准入。 以上归属不暗示背书。"
+      modifications: "固定版本 PDF 按本次真实响应 bytes 原样保留，不编辑、重导或 OCR；以既有 helper 的 plain 全页提取生成独立 pdf-supplement/document.txt 和真实 PDF revision 的页定位器（page selectors），在文末追加唯一归属、修改／范围附注与同目录 NOTICE.md 链接。NOTICE 自包含本项实际归属、精确范围及现存完整 CC BY 4.0 法条；native text 的逐项损失见 limitations，不声称无损转换或可直接执行的源代码／prompt。旧 root source、normalized TXT／TeX、selectors、NOTICE／README、revision、retrieval 和历史 gate 不改，不将新固定版选择冒称旧 source payload 已被追溯核定。"
+      scope: "本独立表示仅覆盖固定 arXiv:2110.11309v2 原 bytes 不改的21页 PDF（1140371 bytes）：固定 arXiv:2110.11309v2 完整21物理页编译PDF：p1–9主文／Algorithms1–2／Tables1–6／Figure1–3，p10完整Acknowledgements／Ethics／Reproducibility，p11–14References，p15–21正式A–G／Figure4／Tables7–11；p21浮动Table11后完整F qualitative examples、G Editing through Caching至 or the edit success.，不另造SI。 论文作者可许可表达按本固定作品已证 CC BY4 路径；实际有界引用／图板按原件精确信用与身份保留，不改变底层许可、不独立重许被引全文／数据／代码／模型／媒体／商标／源模板或整个source归档。 此范围也包含该PDF native plain、页selectors及完整BY4 NOTICE；旧 root rights／block／retrieval／revision／source_version键缺省和历史原件／文字缺失不改；无普遍权利保证。"
 - sequence: 8
   uid: arxiv-2202.05262
   source_type: arxiv
@@ -910,6 +957,14 @@ items:
     finding: 实存35个source、89个selectors；ICML2022主样式为既有明确许可缺口，BST/fancyhdr的LPPL不能覆盖它。algorithm/algorithmic另有Peter Williams
       1994版权，须独立核实适用许可；18个书目摘要须按实际作品处理，不算纯事实元数据。
     supports_public_redistribution: false
+  - kind: main_admitted_fixed_pdf_representation
+    checked_at: "2026-09-17"
+    url: "https://arxiv.org/pdf/2206.06520v1"
+    path: "materialized_sources/corpus/arxiv-2206.06520--f7ce3f6e/pdf-supplement/document.pdf"
+    locator: "pdf_supplement; compiled facsimile/native/page-selector allowance only"
+    finding: "本批正式 https://arxiv.org/abs/2206.06520v1 的作品 view license 正常到BY4，v1日期2022-06-13／五作者顺序已核；A报告核实际15页A–D／Table8／ConvSent真实尾界，主线明确准入。 原件15页完整／native partial／body_quality_verified=true，GET HTTP200/application/pdf/no redirect/TLS verify0/curl exit0，1543761 bytes，完成时间2026-09-17T08:17:32Z按同次response JSON mtime截到秒，不冒称server Date为客户端时间或GET精确起点。完整顺序 Eric Mitchell／Charles Lin／Antoine Bosselut／Christopher D. Manning／Chelsea Finn，Manning在Finn前；实际PDF Christopher D Manning规范标点不误称原字节。Stanford CS／EPFL及correspondence保留；p1 ICML39/Baltimore/PMLR162/2022 Copyright2022 by the author(s)不是grant。本篇SERAC完整展开名保留。p9 Shikhar Murty／Archit Sharma／Stanford CRFM／匿名ICMLreviewers、Knight-Hennessy／Apple财务支持／CIFAR归属保留。Sun Public License是p3 QA样例中的对象，不是论文许可；zsRE／GPT3／BlenderBot／classifiers保留出处而不重许可。Table7模型false/harmful statements、作者[...]截断与dual-use警示保持研究输出身份，不补写或当论文真事实。 新PDF四方grant同值且绑定实际version/revision；旧source evidence/missing/root gate block保留历史，root公众计数不是新PDF准入或严格可消费计数。"
+    evidence_applicability: "exact_fixed_compiled_facsimile_and_native_page_derivatives_not_legacy_source_or_underlying_assets"
+    supports_public_redistribution: true
   missing:
   - 本地三处 rights 未记录该文章许可及核验日期。
   - retrieval hash 尚未与确切 arXiv vN 建立可审计映射。
@@ -935,6 +990,21 @@ items:
   human_follow_up:
   - 人工核对本地 source archive 的 arXiv 版本。
   - 补齐归属、许可链接/声明与第三方组件审计后再审批。
+  pdf_supplement:
+    license_spdx: "CC-BY-4.0"
+    license_url: "https://creativecommons.org/licenses/by/4.0/"
+    license_verified_at: "2026-09-17"
+    publication_gate:
+      decision: "allow"
+      reason: "主线全文读取本批内容报告并核实际固定版身份／目标边界／可见独立信用，明确准入本UID完整 compiled facsimile 与有损 native／逐页 selectors／NOTICE；只依本作品已证许可路径，不借旧 root block，不给底层资产一般许可。"
+      approved_scope: "本独立表示仅覆盖固定 arXiv:2206.06520v1 原 bytes 不改的15页 PDF（1543761 bytes）：固定 arXiv:2206.06520v1 完整15物理页编译PDF：p1–9主文／3编号图／Tables1–6与完整Acknowledgements，p10–12References，p13–15正式A–D／Table7疫苗outputs／完整Table8prompt，p15 D.2 ConvSent完整至90-5-5 train/val/test splits，unused multi_model不属必需正文。 论文作者可许可表达按本固定作品已证 CC BY4 路径；实际有界引用／图板按原件精确信用与身份保留，不改变底层许可、不独立重许被引全文／数据／代码／模型／媒体／商标／源模板或整个source归档。 此范围也包含该PDF native plain、页selectors及完整BY4 NOTICE；旧 root rights／block／retrieval／revision／source_version键缺省和历史原件／文字缺失不改；无普遍权利保证。"
+    redistribution_package:
+      source_revision: "sha256:2b04d7fcc1e7529e558b40b9782c005e34a564da6ce526c13e3ac9101a30a111"
+      source_version_url: "https://arxiv.org/pdf/2206.06520v1"
+      notice_path: "materialized_sources/corpus/arxiv-2206.06520--f7ce3f6e/pdf-supplement/NOTICE.md"
+      attribution: "Eric Mitchell; Charles Lin; Antoine Bosselut; Christopher D. Manning; Chelsea Finn, Memory-Based Model Editing at Scale, arXiv:2206.06520v1 (2022-06-13), https://arxiv.org/abs/2206.06520v1, PDF https://arxiv.org/pdf/2206.06520v1, CC BY4 https://creativecommons.org/licenses/by/4.0/。完整顺序 Eric Mitchell／Charles Lin／Antoine Bosselut／Christopher D. Manning／Chelsea Finn，Manning在Finn前；实际PDF Christopher D Manning规范标点不误称原字节。Stanford CS／EPFL及correspondence保留；p1 ICML39/Baltimore/PMLR162/2022 Copyright2022 by the author(s)不是grant。本篇SERAC完整展开名保留。p9 Shikhar Murty／Archit Sharma／Stanford CRFM／匿名ICMLreviewers、Knight-Hennessy／Apple财务支持／CIFAR归属保留。Sun Public License是p3 QA样例中的对象，不是论文许可；zsRE／GPT3／BlenderBot／classifiers保留出处而不重许可。Table7模型false/harmful statements、作者[...]截断与dual-use警示保持研究输出身份，不补写或当论文真事实。 本批正式 https://arxiv.org/abs/2206.06520v1 的作品 view license 正常到BY4，v1日期2022-06-13／五作者顺序已核；A报告核实际15页A–D／Table8／ConvSent真实尾界，主线明确准入。 以上归属不暗示背书。"
+      modifications: "固定版本 PDF 按本次真实响应 bytes 原样保留，不编辑、重导或 OCR；以既有 helper 的 plain 全页提取生成独立 pdf-supplement/document.txt 和真实 PDF revision 的页定位器（page selectors），在文末追加唯一归属、修改／范围附注与同目录 NOTICE.md 链接。NOTICE 自包含本项实际归属、精确范围及现存完整 CC BY 4.0 法条；native text 的逐项损失见 limitations，不声称无损转换或可直接执行的源代码／prompt。旧 root source、normalized TXT／TeX、selectors、NOTICE／README、revision、retrieval 和历史 gate 不改，不将新固定版选择冒称旧 source payload 已被追溯核定。"
+      scope: "本独立表示仅覆盖固定 arXiv:2206.06520v1 原 bytes 不改的15页 PDF（1543761 bytes）：固定 arXiv:2206.06520v1 完整15物理页编译PDF：p1–9主文／3编号图／Tables1–6与完整Acknowledgements，p10–12References，p13–15正式A–D／Table7疫苗outputs／完整Table8prompt，p15 D.2 ConvSent完整至90-5-5 train/val/test splits，unused multi_model不属必需正文。 论文作者可许可表达按本固定作品已证 CC BY4 路径；实际有界引用／图板按原件精确信用与身份保留，不改变底层许可、不独立重许被引全文／数据／代码／模型／媒体／商标／源模板或整个source归档。 此范围也包含该PDF native plain、页selectors及完整BY4 NOTICE；旧 root rights／block／retrieval／revision／source_version键缺省和历史原件／文字缺失不改；无普遍权利保证。"
 - sequence: 10
   uid: arxiv-2210.07229
   source_type: arxiv
@@ -3011,6 +3081,14 @@ items:
       Work的LPPL§3路径。LPPL1.3c§6(a)(b)要求修改版运行时身份和组件自身变更声明，单独添加NOTICE不足。固定dtx保留ACM2016-2023版权、LPPL1.3或以后版及维护者Boris
       Veytsman。
     supports_public_redistribution: false
+  - kind: main_admitted_fixed_pdf_representation
+    checked_at: "2026-09-17"
+    url: "https://arxiv.org/pdf/2310.16218v4"
+    path: "materialized_sources/corpus/arxiv-2310.16218--21c4a191/pdf-supplement/document.pdf"
+    locator: "pdf_supplement; compiled facsimile/native/page-selector allowance only"
+    finding: "既有 R fixed-article-version证据已核v4 2024-09-19及作品BY4／保留payload身份；A核本次35页主文／179书目／四编号图／真结尾，主线全文读并准入；不借acmart或placeholder DOI授予。 原件35页完整／native partial／body_quality_verified=true，GET HTTP200/application/pdf/no redirect/TLS verify0/curl exit0，1768864 bytes，完成时间2026-09-17T08:17:33Z按同次response JSON mtime截到秒，不冒称server Date为客户端时间或GET精确起点。完整六作者 Song Wang／Yaochen Zhu／Haochen Liu／Zaiyi Zheng／Chen Chen／Jundong Li，University of Virginia USA及各address/email保留。ACM Reference Format中的10.1145/nnnnnnn.nnnnnnn是placeholder，不作为真实DOI或ACM正式出版证据。p29完整资助 NSF IIS-2006844/IIS-2144209/IIS-2223769/CNS2154962/BCS-2228534，CCI VV-1Q23-007/HV-2Q23-003/VV-1Q24-011、JP Morgan Chase／Cisco Faculty Research Award、Jefferson Lab subcontract、UVA4-VA原样。p2 OpenAI/ChatGPT样式图标与GPT3.5研究表示、179参考作品不授予底层商标／模型／被引全文一般BY4。native p2存在不可见banking query text object，不猜制作原因／不作可见父摘要。 新PDF四方grant同值且绑定实际version/revision；旧source evidence/missing/root gate block保留历史，root公众计数不是新PDF准入或严格可消费计数。"
+    evidence_applicability: "exact_fixed_compiled_facsimile_and_native_page_derivatives_not_legacy_source_or_underlying_assets"
+    supports_public_redistribution: true
   missing:
   - 论文BY4归属、转换声明及许可包仍待写入canonical/capsule。
   - 实际acmart.cls为未改名且未标示身份的修改版：需非正文组件改名/身份和变更说明，并重绑主TeX类引用；当前未自行改源。
@@ -3033,6 +3111,21 @@ items:
     reason: 论文固定v4及BY4已核；实际acmart.cls含七处样式修改却沿用原版身份，需按LPPL修改版条件处理，NOTICE-only不能放行。
   human_follow_up:
   - 确认可在保留论文正文完整的前提下整理非正文模板组件，随后以普通文件级改名、运行时身份、变更日志和类引用重绑完成LPPL履约；无需额外ACM授权或人工审批。
+  pdf_supplement:
+    license_spdx: "CC-BY-4.0"
+    license_url: "https://creativecommons.org/licenses/by/4.0/"
+    license_verified_at: "2026-09-17"
+    publication_gate:
+      decision: "allow"
+      reason: "主线全文读取本批内容报告并核实际固定版身份／目标边界／可见独立信用，明确准入本UID完整 compiled facsimile 与有损 native／逐页 selectors／NOTICE；只依本作品已证许可路径，不借旧 root block，不给底层资产一般许可。"
+      approved_scope: "本独立表示仅覆盖固定 arXiv:2310.16218v4 原 bytes 不改的35页 PDF（1768864 bytes）：固定 arXiv:2310.16218v4 完整35物理页编译PDF：p1–28主文／taxonomy／数学／datasets／applications／challenges，p29真正Conclusions末尾／完整funding／References开始，p30–35书目至[179] Fine-tuning language models from human preferences；Figure1–4／Tables1–3齐，无独立Appendix/SI，不把模板源码注释发明为SI。 论文作者可许可表达按本固定作品已证 CC BY4 路径；实际有界引用／图板按原件精确信用与身份保留，不改变底层许可、不独立重许被引全文／数据／代码／模型／媒体／商标／源模板或整个source归档。 此范围也包含该PDF native plain、页selectors及完整BY4 NOTICE；旧 root rights／block／retrieval／revision／source_version键缺省和历史原件／文字缺失不改；无普遍权利保证。"
+    redistribution_package:
+      source_revision: "sha256:77d3c50e6184b5fbe01b2797d4d8fbeb885df049bf2f35e1adf3deee677d8098"
+      source_version_url: "https://arxiv.org/pdf/2310.16218v4"
+      notice_path: "materialized_sources/corpus/arxiv-2310.16218--21c4a191/pdf-supplement/NOTICE.md"
+      attribution: "Song Wang; Yaochen Zhu; Haochen Liu; Zaiyi Zheng; Chen Chen; Jundong Li, Knowledge Editing for Large Language Models: A Survey, arXiv:2310.16218v4 (2024-09-19), https://arxiv.org/abs/2310.16218v4, PDF https://arxiv.org/pdf/2310.16218v4, CC BY4 https://creativecommons.org/licenses/by/4.0/。完整六作者 Song Wang／Yaochen Zhu／Haochen Liu／Zaiyi Zheng／Chen Chen／Jundong Li，University of Virginia USA及各address/email保留。ACM Reference Format中的10.1145/nnnnnnn.nnnnnnn是placeholder，不作为真实DOI或ACM正式出版证据。p29完整资助 NSF IIS-2006844/IIS-2144209/IIS-2223769/CNS2154962/BCS-2228534，CCI VV-1Q23-007/HV-2Q23-003/VV-1Q24-011、JP Morgan Chase／Cisco Faculty Research Award、Jefferson Lab subcontract、UVA4-VA原样。p2 OpenAI/ChatGPT样式图标与GPT3.5研究表示、179参考作品不授予底层商标／模型／被引全文一般BY4。native p2存在不可见banking query text object，不猜制作原因／不作可见父摘要。 既有 R fixed-article-version证据已核v4 2024-09-19及作品BY4／保留payload身份；A核本次35页主文／179书目／四编号图／真结尾，主线全文读并准入；不借acmart或placeholder DOI授予。 以上归属不暗示背书。"
+      modifications: "固定版本 PDF 按本次真实响应 bytes 原样保留，不编辑、重导或 OCR；以既有 helper 的 plain 全页提取生成独立 pdf-supplement/document.txt 和真实 PDF revision 的页定位器（page selectors），在文末追加唯一归属、修改／范围附注与同目录 NOTICE.md 链接。NOTICE 自包含本项实际归属、精确范围及现存完整 CC BY 4.0 法条；native text 的逐项损失见 limitations，不声称无损转换或可直接执行的源代码／prompt。旧 root source、normalized TXT／TeX、selectors、NOTICE／README、revision、retrieval 和历史 gate 不改，不将新固定版选择冒称旧 source payload 已被追溯核定。"
+      scope: "本独立表示仅覆盖固定 arXiv:2310.16218v4 原 bytes 不改的35页 PDF（1768864 bytes）：固定 arXiv:2310.16218v4 完整35物理页编译PDF：p1–28主文／taxonomy／数学／datasets／applications／challenges，p29真正Conclusions末尾／完整funding／References开始，p30–35书目至[179] Fine-tuning language models from human preferences；Figure1–4／Tables1–3齐，无独立Appendix/SI，不把模板源码注释发明为SI。 论文作者可许可表达按本固定作品已证 CC BY4 路径；实际有界引用／图板按原件精确信用与身份保留，不改变底层许可、不独立重许被引全文／数据／代码／模型／媒体／商标／源模板或整个source归档。 此范围也包含该PDF native plain、页selectors及完整BY4 NOTICE；旧 root rights／block／retrieval／revision／source_version键缺省和历史原件／文字缺失不改；无普遍权利保证。"
 - sequence: 32
   uid: arxiv:2401.00396
   source_type: arxiv
@@ -3284,6 +3377,14 @@ items:
       Smola 2000-08修改；旧163/当前188代码行，差异为标准伪代码词映射、ALC@g直接复用、FUNCTION/MAIN及SHORTIF/SHORTFORALL常规包装，未发现独立旧长实现。CTAN dtx/ins明确LGPL2-or-later，COPYING为LGPL2.1，不是LPPL；不冒称当前CTAN包含全部旧变体或Smola独立授权。现存sty是可编辑源码，不把当前dtx强称旧件缺失生成源，不额外加入未保存依赖。该对应路径需完整条款、归属及真实差异包装；本轮未实施包装或据此放行整包。
     supports_public_redistribution: false
     evidence_applicability: component_license_and_correspondence_evidence_not_completed_package
+  - kind: main_admitted_fixed_pdf_representation
+    checked_at: "2026-09-17"
+    url: "https://arxiv.org/pdf/2402.04624v2"
+    path: "materialized_sources/corpus/arxiv-2402.04624--c3e9e366/pdf-supplement/document.pdf"
+    locator: "pdf_supplement; original facsimile and native/page-selector allowance only"
+    finding: "既有 R fixed_v2_response_and_retained_text_correspondence 于 2026-09-16 核固定 abs 的 BY4 和版本身份；本批 B 报告亲核实际 PDF v2 标识／十二作者／14 页主文与 A–C，主线已全文读并明确准入。 14页原件／全部正式附录及实际末段已核；本次GET HTTP200/application/pdf/no redirect/TLS verify0/curl exit0，1414691 bytes，完成时间2026-09-17T08:17:31Z来自同次response JSON mtime（不是server Date或精确GET起点）；新PDF grant绑定实际revision，canonical/snapshot/manifest/R同值。实际十二作者及 ICML 作者版权页脚保留；C4／RedPajama／Llama2／LongBench／模型编辑基线等保持研究引用身份，无独立模型／数据许可扩张。 旧evidence/missing/root block保留历史，不能将root公众计数当新PDF可消费计数。"
+    evidence_applicability: "exact_fixed_compiled_facsimile_and_native_page_derivatives_not_legacy_source_or_underlying_works"
+    supports_public_redistribution: true
   missing:
   - ICML主模板及保留指南注释的适用许可主体关系仍未确认；IT作者栏的Overleaf BY4声明保留为候选，不冒称已由会议权利主体授予。
   - 将已核固定v2论文、LPPL组件及LGPL对应表达的独立归属、完整条款和实际差异落实到canonical、capsule、NOTICE与唯一正文附注；不能只修改审计为allow。
@@ -3305,6 +3406,21 @@ items:
   human_follow_up:
   - 确认ICML模板候选许可声明的适用权利主体或提供其他明确覆盖实际表达的依据；不推断作者栏IT身份。
   - 在相应范围已闭合后完成分组件包装与独立复核，不重复要求已完成的固定版本核对。
+  pdf_supplement:
+    license_spdx: "CC-BY-4.0"
+    license_url: "https://creativecommons.org/licenses/by/4.0/"
+    license_verified_at: "2026-09-17"
+    publication_gate:
+      decision: "allow"
+      reason: "主线按已有固定 v2 作品 BY4 证据、实际 v2 页标／十二作者／完整边界与 B 报告核查，明确批准本次独立 compiled facsimile、native plain、逐页 selectors／NOTICE；不借旧 root block 或模板 gate 判定新表示。"
+      approved_scope: "本独立表示仅覆盖固定 arXiv:2402.04624v2 原 bytes 不改的完整 14 页 PDF（1,414,691 bytes），其主文、Impact Statement、References、正式附录 A–C、Figure 1–9／Table 1–2 的原编译表达，以及该 PDF 的 native plain、逐页 selectors 与完整 CC BY 4.0 NOTICE。论文作者可许可表达依据固定 v2 作品 BY4；实际模型、数据、基线归属与引用按原件保留，不授予外链代码、模型／权重、训练／benchmark 数据、被引全文、底层图标／软件、独立 source 图件或模板一般许可。未观察到本 PDF 的具体反向声明；无普遍权利保证。旧 source／normalized／root selectors 和组件 gate block 保持，旧 omitted 历史不改。"
+    redistribution_package:
+      source_revision: "sha256:878c58c9bee0765251a05f58de489ad939c7d88d9962dd4818b12f124bf71e8c"
+      source_version_url: "https://arxiv.org/pdf/2402.04624v2"
+      notice_path: "materialized_sources/corpus/arxiv-2402.04624--c3e9e366/pdf-supplement/NOTICE.md"
+      attribution: "Yu Wang; Yifan Gao; Xiusi Chen; Haoming Jiang; Shiyang Li; Jingfeng Yang; Qingyu Yin; Zheng Li; Xian Li; Bing Yin; Jingbo Shang; Julian McAuley, MEMORYLLM: Towards Self-Updatable Large Language Models, arXiv:2402.04624v2 (2024-05-26), https://arxiv.org/abs/2402.04624v2, PDF https://arxiv.org/pdf/2402.04624v2, CC BY 4.0 https://creativecommons.org/licenses/by/4.0/。保留 UC San Diego、Amazon、UC Los Angeles 归属、Yu Wang 的 Amazon internship 脚注和 Yu Wang／Yifan Gao 通讯作者身份；原编译页脚 Proceedings of the 41st ICML, Vienna, PMLR235, 2024, Copyright 2024 by the authors 原样保留。C4／RedPajama、Llama2、LongBench、zsRE／CounterFactual、SQuAD／NaturalQA、FT-L／IKE／ROME 等实际研究引用不另行重许可；p6 MEND reimplementation 的 nan／省略说明保留。以上归属不暗示背书。"
+      modifications: "固定版本 PDF 按本次真实响应 bytes 原样保留，不编辑、重导或 OCR；以既有 helper 的 plain 全页提取生成独立 pdf-supplement/document.txt 和真实 PDF revision 的页定位器（page selectors），在文末追加唯一归属、修改／范围附注与同目录 NOTICE.md 链接。NOTICE 自包含本项实际归属、精确范围及现存完整 CC BY 4.0 法条；native text 的逐项损失见 limitations，不声称无损转换或可直接执行的源代码／prompt。旧 root source、normalized TXT／TeX、selectors、NOTICE／README、revision、retrieval 和历史 gate 不改，不将新固定版选择冒称旧 source payload 已被追溯核定。"
+      scope: "本独立表示仅覆盖固定 arXiv:2402.04624v2 原 bytes 不改的完整 14 页 PDF（1,414,691 bytes），其主文、Impact Statement、References、正式附录 A–C、Figure 1–9／Table 1–2 的原编译表达，以及该 PDF 的 native plain、逐页 selectors 与完整 CC BY 4.0 NOTICE。论文作者可许可表达依据固定 v2 作品 BY4；实际模型、数据、基线归属与引用按原件保留，不授予外链代码、模型／权重、训练／benchmark 数据、被引全文、底层图标／软件、独立 source 图件或模板一般许可。未观察到本 PDF 的具体反向声明；无普遍权利保证。旧 source／normalized／root selectors 和组件 gate block 保持，旧 omitted 历史不改。"
 - sequence: 35
   uid: arxiv:2402.14207
   source_type: arxiv
@@ -3442,6 +3558,14 @@ items:
     path: materialized_sources/corpus/arxiv-2402.18264--ebc0e524
     finding: 实存9个source、39个selectors；同时保存acl2023.sty（内部标识ACL2020）、coling.sty和LPPL coling_natbib.bst，不能凭文件名套WikiChat历史模板许可。另实际保存DOI10.1121/1.2016299作品完整摘要及表格数值，其公众许可尚未闭合；custom.bib本身没有额外摘要。
     supports_public_redistribution: false
+  - kind: main_admitted_fixed_pdf_representation
+    checked_at: "2026-09-17"
+    url: "https://arxiv.org/pdf/2402.18264v2"
+    path: "materialized_sources/corpus/arxiv-2402.18264--ebc0e524/pdf-supplement/document.pdf"
+    locator: "pdf_supplement; original facsimile and native/page-selector allowance only"
+    finding: "本批 fixed preflight 正式 https://arxiv.org/abs/2402.18264v2 于 2026-09-17 正常读取，作品 view license 到 BY4（不是页脚）；B 报告核实际 COLING camera-ready v2 标识、十一作者及完整 A–G，主线明确准入。 20页原件／全部正式附录及实际末段已核；本次GET HTTP200/application/pdf/no redirect/TLS verify0/curl exit0，880885 bytes，完成时间2026-09-17T08:17:30Z来自同次response JSON mtime（不是server Date或精确GET起点）；新PDF grant绑定实际revision，canonical/snapshot/manifest/R同值。p14 Wikipedia Summary69词／截断 sections 与 Roy S. Johnson 新闻 Content6词省略 snippet 保留原URL、作者／机构、来源类型与用途；p18 模型输出不冒充真实 Wikipedia。字数为内容边界，不是许可阈值。旧 DOI10.1121/1.2016299 摘要不在本 PDF，不搬入 scope。 旧evidence/missing/root block保留历史，不能将root公众计数当新PDF可消费计数。"
+    evidence_applicability: "exact_fixed_compiled_facsimile_and_native_page_derivatives_not_legacy_source_or_underlying_works"
+    supports_public_redistribution: true
   missing:
   - 本地三处 rights 未记录该文章许可及核验日期。
   - retrieval hash 尚未与确切 arXiv vN 建立可审计映射。
@@ -3466,6 +3590,21 @@ items:
   human_follow_up:
   - 人工核对本地 source archive 的 arXiv 版本。
   - 补齐归属、许可链接/声明与第三方组件审计后再审批。
+  pdf_supplement:
+    license_spdx: "CC-BY-4.0"
+    license_url: "https://creativecommons.org/licenses/by/4.0/"
+    license_verified_at: "2026-09-17"
+    publication_gate:
+      decision: "allow"
+      reason: "主线全文读 B 报告后，按正式固定 v2 abs 的作品 BY4、实际十一作者／v2 页标／20 页 A–G 与有界研究样例信用，明确准入独立 compiled facsimile／native 派生／逐页 selectors；不自动继承旧 source 摘要或模板 gate。"
+      approved_scope: "本独立表示仅覆盖固定 arXiv:2402.18264v2 原 bytes 不改的完整 20 页 PDF（880,885 bytes），主文、声明／书目、正式 A–G、原编译 Figure1–2／Table1–10，以及其 native plain、逐页 selectors／完整 CC BY 4.0 NOTICE。作者可许可作品表达依据该固定 v2 BY4；p14 Wikipedia 69 词 Summary 与截断字段、Roy S. Johnson／al 新闻 6 词明确省略 snippet 仅按原件来源和 benchmark 输入身份保留，不称作者原创、不改变底层许可或取得底层全文。生成输出、引用 rubrics、图内示例保持实际身份，不一般重许可 Wikipedia、新闻、引用库、模型／数据／代码／模板或独立媒体。旧 acl2023.bib 的 DOI10.1121/1.2016299 完整摘要不在本编译 PDF，旧 source gate／omitted 历史不由新 grant 改写；无普遍权利保证。"
+    redistribution_package:
+      source_revision: "sha256:1f0c846fca43a80b216180da02ab84f94d6925b74b28d6397d6fc44f2444ad3a"
+      source_version_url: "https://arxiv.org/pdf/2402.18264v2"
+      notice_path: "materialized_sources/corpus/arxiv-2402.18264--ebc0e524/pdf-supplement/NOTICE.md"
+      attribution: "Jiebin Zhang; Eugene J. Yu; Qinyu Chen; Chenhao Xiong; Dawei Zhu; Han Qian; Mingbo Song; Weimin Xiong; Xiaoguang Li; Qun Liu; Sujian Li, WIKIGENBENCH: Exploring Full-length Wikipedia Generation under Real-World Scenario, arXiv:2402.18264v2 (2024-12-17), https://arxiv.org/abs/2402.18264v2, PDF https://arxiv.org/pdf/2402.18264v2, CC BY 4.0 https://creativecommons.org/licenses/by/4.0/。保留 Jiebin Zhang／Eugene J. Yu 等贡献、Sujian Li 通讯作者、Peking University／Huawei Technologies 和实际 NSFC 资助归属。p14 B.1 的 Wikipedia 2023 USFL season（ID71284256）为 69 whitespace 词 Summary、截断 sections／infobox benchmark 示例，来源 https://en.wikipedia.org/wiki/2023%20USFL%20season；不是作者原创摘要或底层整篇 Wikipedia 的新 BY4。p14 B.2 归属 Roy S. Johnson (2022-11-14), USFL reveals season 2 details for Birmingham, al，retrieved 2022-12-13，https://www.al.com/news/2022/11/usfl-reveals-season-2-details-for-birmingham.html；实际 Content 为 6 词 usfl reveals season 2 details for...，Human／Search 字段研究输入，明确省略。原件标题 ÜSFL／¨ 排印不静默修复。p2 Fig1 是带省略和编号引用的数据流示意；p18 E 明示 An example of model output，不当真实 Wikipedia 原文或 trusted fact。p16–17 Shao et al.2024 rubric 引用及 Prometheus→Prometheus-2 修改保留。以上归属不暗示背书。"
+      modifications: "固定版本 PDF 按本次真实响应 bytes 原样保留，不编辑、重导或 OCR；以既有 helper 的 plain 全页提取生成独立 pdf-supplement/document.txt 和真实 PDF revision 的页定位器（page selectors），在文末追加唯一归属、修改／范围附注与同目录 NOTICE.md 链接。NOTICE 自包含本项实际归属、精确范围及现存完整 CC BY 4.0 法条；native text 的逐项损失见 limitations，不声称无损转换或可直接执行的源代码／prompt。旧 root source、normalized TXT／TeX、selectors、NOTICE／README、revision、retrieval 和历史 gate 不改，不将新固定版选择冒称旧 source payload 已被追溯核定。"
+      scope: "本独立表示仅覆盖固定 arXiv:2402.18264v2 原 bytes 不改的完整 20 页 PDF（880,885 bytes），主文、声明／书目、正式 A–G、原编译 Figure1–2／Table1–10，以及其 native plain、逐页 selectors／完整 CC BY 4.0 NOTICE。作者可许可作品表达依据该固定 v2 BY4；p14 Wikipedia 69 词 Summary 与截断字段、Roy S. Johnson／al 新闻 6 词明确省略 snippet 仅按原件来源和 benchmark 输入身份保留，不称作者原创、不改变底层许可或取得底层全文。生成输出、引用 rubrics、图内示例保持实际身份，不一般重许可 Wikipedia、新闻、引用库、模型／数据／代码／模板或独立媒体。旧 acl2023.bib 的 DOI10.1121/1.2016299 完整摘要不在本编译 PDF，旧 source gate／omitted 历史不由新 grant 改写；无普遍权利保证。"
 - sequence: 37
   uid: arxiv:2404.07738
   source_type: arxiv
@@ -3546,6 +3685,14 @@ items:
     - https://github.com/goodfeli/dlbook_notation/blob/master/README.md
     finding: custom.bib保存Vamathevan2019（DOI10.1038/s41573-019-0024-5）完整摘要，与Nature当前原文匹配，但当前仅见reprints/permissions入口，未核定覆盖该表达的公众CC或其他适用依据；不把权限入口当作禁止复制证明。Tables/example.tex三份input摘要前两份对应ACL2023.matching-1.7及2023.findings-emnlp.1033，具有独立作品级BY4路径但尚待分别归属包装；第三份FlyWire预印本DOI10.1101/2023.06.27.546055v2许可尚未核，不借改题的Nature新版外推。11,830-byte acl.sty与现行官方11,615-byte STY有真实差异，匹配表达具有官方Overleaf BY4路径但全部差异范围尚未包装，不称同字节。math_commands为12,283 bytes，与已放行Self-RAG的12,284-byte组件仅EOF换行不同，保留Goodfeli独立使用声明；47,709-byte BST与WikiChat同字节，独立LPPL条件尚待履约。
     supports_public_redistribution: false
+  - kind: main_admitted_fixed_pdf_representation
+    checked_at: "2026-09-17"
+    url: "https://arxiv.org/pdf/2404.07738v2"
+    path: "materialized_sources/corpus/arxiv-2404.07738--3e68f613/pdf-supplement/document.pdf"
+    locator: "pdf_supplement; original facsimile and native/page-selector allowance only"
+    finding: "既有 R alternate_acl_publication_correspondence 于2026-09-16对应 fixed v2 和 https://aclanthology.org/2025.naacl-long.342/ 的30页／四作者／A/B/16表，ACL作品BY4。B核实际 v2 完整PDF；主线2026-09-17正常官方metadata／版权页只读更正 Input1 nlrse 和 Input2完整官方作者，未 GET 被引正文。 30页原件／全部正式附录及实际末段已核；本次GET HTTP200/application/pdf/no redirect/TLS verify0/curl exit0，820779 bytes，完成时间2026-09-17T08:17:28Z来自同次response JSON mtime（不是server Date或精确GET起点）；新PDF grant绑定实际revision，canonical/snapshot/manifest/R同值。Table16三Input为180/149/370词完整摘要研究引用。Input1正式正确来源2023.nlrse-1.7/DOI10.18653/v1/2023.nlrse-1.7，旧2023.matching-1.7保留历史但明确不再作为本Input正确授权绑定。Input2官方逐字署名Soyeong Jeong/Jinheon Baek/Sukmin Cho/Sung Hwang/Jong Park由main官方metadata核查，非本PDF亲见byline。两个ACL2023record与官方2016以后BY4 footer支持。Input3仅精确bioRxivv2来源及实际quoted研究输入scope，未GET原作、不一般BY4。 旧evidence/missing/root block保留历史，不能将root公众计数当新PDF可消费计数。"
+    evidence_applicability: "exact_fixed_compiled_facsimile_and_native_page_derivatives_not_legacy_source_or_underlying_works"
+    supports_public_redistribution: true
   missing:
   - Vamathevan2019额外完整摘要及FlyWire固定v2输入摘要的适用许可或其他具体引用依据；两份ACL输入摘要的独立BY4归属/转换包装。
   - acl.sty与当前官方BY4模板的真实差异范围、改编说明及独立Goodfeli/BST LPPL条件的实际包装。
@@ -3568,6 +3715,21 @@ items:
   human_follow_up:
   - 只对已识别独立摘要及组件补足适用依据和客观履约，不要求逐句原创、作者另函、模型合同或人工approval。
   - 当前包全部适用条件落实前保持block，保留论文、源文件及既存定位器，不把已证作者正文BY4误记为无公众许可。
+  pdf_supplement:
+    license_spdx: "CC-BY-4.0"
+    license_url: "https://creativecommons.org/licenses/by/4.0/"
+    license_verified_at: "2026-09-17"
+    publication_gate:
+      decision: "allow"
+      reason: "主线已全文读 B 报告并核有界官方 Input1／2 metadata 更正，依据既有 fixed-v2／NAACL2025 作者作品对应和 ACL BY4，明确批准独立完整 compile facsimile／native 派生／页 selectors；不是借 arXiv 非独占许可或旧 source block 推断授权。"
+      approved_scope: "本独立表示仅覆盖固定 arXiv:2404.07738v2 原 bytes 不改的完整 30 页 PDF（820,779 bytes），已与 NAACL2025 正式出版对应的作者表达、声明／书目、正式 A／B、九编号图／16表、六完整 prompts／criteria 与全部生成对照，以及 native plain、逐页 selectors／完整 CC BY 4.0 NOTICE。实际有界科学引用按原件题名／出处／量／用途保留：Table16 的 Input1／2／3 分别为180／149／370词完整摘要（不是仅书目），其中前两件正确ACL2023作品级BY4归属独立列明；Input3固定bioRxiv来源与未印独立byline／许可的观察限制如实保留，不给FlyWire原作／数据或后出版改写版一般再许可。只包装完整 compile facsimile 与 native 页派生，不独立分发被引全文／数据／源图／模板／软件／模型，不把论文BY4扩张到所有底层引用材料；旧未编译 Vamathevan2019 摘要与 source 组件 gate block 保持历史。无普遍权利保证。"
+    redistribution_package:
+      source_revision: "sha256:0a81f4c9dd07bdeab432173659de0e859c4f36aeedbfa03aaec147f51bab9bd3"
+      source_version_url: "https://arxiv.org/pdf/2404.07738v2"
+      notice_path: "materialized_sources/corpus/arxiv-2404.07738--3e68f613/pdf-supplement/NOTICE.md"
+      attribution: "Jinheon Baek; Sujay Kumar Jauhar; Silviu Cucerzan; Sung Ju Hwang, ResearchAgent: Iterative Research Idea Generation over Scientific Literature with Large Language Models, arXiv:2404.07738v2 (2025-02-09), https://arxiv.org/abs/2404.07738v2, PDF https://arxiv.org/pdf/2404.07738v2；已对应正式 NAACL2025 作品 https://aclanthology.org/2025.naacl-long.342/, DOI10.18653/v1/2025.naacl-long.342, pp6709–6738，作品表达 CC BY 4.0 https://creativecommons.org/licenses/by/4.0/。arXiv 非独占分发许可不是本新公众 grant。保留 KAIST／Microsoft Research／DeepAuto.ai、code脚注及实际资助号；编号照原件不冒称 collector 独立认证。p1 Fig1 的 Language Models are Few-Shot Learners 省略摘要只作概念示意。Table16 Input1 p26：Knowledge-Augmented Language Model Prompting for Zero-Shot Knowledge Graph Question Answering，180词完整摘要，Jinheon Baek／Alham Fikri Aji／Amir Saffari，正确 https://aclanthology.org/2023.nlrse-1.7/, DOI10.18653/v1/2023.nlrse-1.7, pp78–106，ACL2023作品BY4；旧R 2023.matching-1.7为历史错绑，不据该URL授予。Input2 p28：Test-Time Self-Adaptive Small Language Models for Question Answering，149词完整摘要，https://aclanthology.org/2023.findings-emnlp.1033/，Soyeong Jeong／Jinheon Baek／Sukmin Cho／Sung Hwang／Jong Park，ACL2023作品BY4；这五作者与Input1正式来源由主线2026-09-17官方metadata核查，不冒称本PDF Table16印有Input2 byline。Input3 p29：Whole-brain annotation and multi-connectome cell typing quantifies circuit stereotypy in Drosophila，370词完整摘要，既有精确来源 https://www.biorxiv.org/content/10.1101/2023.06.27.546055v2；保留 FlyWire companion paper／Virtual Fly Brain／hemibrain 引用，原PDF未印独立作者／license footnote，未另取底层全文、不补造作者、不借后出版Nature改题作品追溯外推。三完整摘要仅是研究输入／生成对照引用，不是纯书目或底层三篇全文一般BY4。以上归属不暗示背书。"
+      modifications: "固定版本 PDF 按本次真实响应 bytes 原样保留，不编辑、重导或 OCR；以既有 helper 的 plain 全页提取生成独立 pdf-supplement/document.txt 和真实 PDF revision 的页定位器（page selectors），在文末追加唯一归属、修改／范围附注与同目录 NOTICE.md 链接。NOTICE 自包含本项实际归属、精确范围及现存完整 CC BY 4.0 法条；native text 的逐项损失见 limitations，不声称无损转换或可直接执行的源代码／prompt。旧 root source、normalized TXT／TeX、selectors、NOTICE／README、revision、retrieval 和历史 gate 不改，不将新固定版选择冒称旧 source payload 已被追溯核定。"
+      scope: "本独立表示仅覆盖固定 arXiv:2404.07738v2 原 bytes 不改的完整 30 页 PDF（820,779 bytes），已与 NAACL2025 正式出版对应的作者表达、声明／书目、正式 A／B、九编号图／16表、六完整 prompts／criteria 与全部生成对照，以及 native plain、逐页 selectors／完整 CC BY 4.0 NOTICE。实际有界科学引用按原件题名／出处／量／用途保留：Table16 的 Input1／2／3 分别为180／149／370词完整摘要（不是仅书目），其中前两件正确ACL2023作品级BY4归属独立列明；Input3固定bioRxiv来源与未印独立byline／许可的观察限制如实保留，不给FlyWire原作／数据或后出版改写版一般再许可。只包装完整 compile facsimile 与 native 页派生，不独立分发被引全文／数据／源图／模板／软件／模型，不把论文BY4扩张到所有底层引用材料；旧未编译 Vamathevan2019 摘要与 source 组件 gate block 保持历史。无普遍权利保证。"
 - sequence: 38
   uid: arxiv:2404.14387
   source_type: arxiv
@@ -3994,6 +4156,14 @@ items:
     path: materialized_sources/corpus/arxiv-2406.04268--ce5afac4
     finding: 实存7个source、32个selectors；原main_clean_arxiv.txt不因扩展名而伪称完整规范化成功。googledeepmind.cls文件头明确模板BY-SA4，另有gdm-colors.sty署名Tom Everitt；ICML2024 STY与LPPL BST/fancyhdr仍需分别核查，主论文BY4不能覆盖所有模板。没有实存natbib，不新增未保存依赖条件。
     supports_public_redistribution: false
+  - kind: main_admitted_fixed_pdf_representation
+    checked_at: "2026-09-17"
+    url: "https://arxiv.org/pdf/2406.04268v1"
+    path: "materialized_sources/corpus/arxiv-2406.04268--ce5afac4/pdf-supplement/document.pdf"
+    locator: "pdf_supplement; compiled facsimile/native/page-selector allowance only"
+    finding: "本批正式 https://arxiv.org/abs/2406.04268v1 的作品 view license 正常到BY4，v1日期2024-06-06；C核实际八作者／20页主文与A–C／十Noun Project BY3独立credit，主线全文读并明确准入。 原件20页完整／native partial／body_quality_verified=true，GET HTTP200/application/pdf/no redirect/TLS verify0/curl exit0，939555 bytes，完成时间2026-09-17T08:17:28Z按同次response JSON mtime截到秒，不冒称server Date为客户端时间或GET精确起点。可见八作者 Edward Hughes／Michael Dennis／Jack Parker-Holder／Feryal Behbahani／Aditi Mavalankar／Yuge Shi／Tom Schaul／Tim Rocktäschel；Hughes／Dennis等贡献及correspondence，Google DeepMind London、ICML2024／PMLR235／作者版权原样。旧题名Position:前缀、Michael D. Dennis／ASCII Rocktaschel仅是旧署名表达，不冒称本次PDF原字节，不猜中间名。p10明确Noun Project graphics适用CC BY3.0 https://creativecommons.org/licenses/by/3.0/，独立十credit：tick — kareemovic — https://thenounproject.com/browse/icons/term/tick?iconspage=1; Delete — kareemovic — https://thenounproject.com/browse/icons/term/Delete?iconspage=1; alien — Artem Yurov — https://thenounproject.com/browse/icons/term/alien?iconspage=1; girl — Teewara soontorn — https://thenounproject.com/browse/icons/term/girl?iconspage=1; year of rat — DailyPM — https://thenounproject.com/browse/icons/term/year-of-rat?iconspage=1; aircraft — mikicon — https://thenounproject.com/browse/icons/term/aircraft?iconspage=1; concorde — mikicon — https://thenounproject.com/browse/icons/term/concorde?iconspage=1; Plane — CAMB — https://thenounproject.com/browse/icons/term/plane?iconspage=1; humans — Ifanicon — https://thenounproject.com/browse/icons/term/humans?iconspage=1; Robot — Deemak Daksina — https://thenounproject.com/browse/icons/term/robot?iconspage=1。这些browse targets来自PDF实际Annots，未访问；标准BY3法条URL是新增标准链接，不冒称PDF印有该URI。Dave Abel反馈致谢保留。本批未修改图标，不推测论文作者改色／改形，不把图标版权归论文八作者或给全站资产一般BY4。 新PDF四方grant同值且绑定实际version/revision；旧source evidence/missing/root gate block保留历史，root公众计数不是新PDF准入或严格可消费计数。"
+    evidence_applicability: "exact_fixed_compiled_facsimile_and_native_page_derivatives_not_legacy_source_or_underlying_assets"
+    supports_public_redistribution: true
   missing:
   - 本地三处 rights 未记录该文章许可及核验日期。
   - retrieval hash 尚未与确切 arXiv vN 建立可审计映射。
@@ -4019,6 +4189,21 @@ items:
   human_follow_up:
   - 人工核对本地 source archive 的 arXiv 版本。
   - 补齐归属、许可链接/声明与第三方组件审计后再审批。
+  pdf_supplement:
+    license_spdx: "CC-BY-4.0"
+    license_url: "https://creativecommons.org/licenses/by/4.0/"
+    license_verified_at: "2026-09-17"
+    publication_gate:
+      decision: "allow"
+      reason: "主线全文读取本批内容报告并核实际固定版身份／目标边界／可见独立信用，明确准入本UID完整 compiled facsimile 与有损 native／逐页 selectors／NOTICE；只依本作品已证许可路径，不借旧 root block，不给底层资产一般许可。"
+      approved_scope: "本独立表示仅覆盖固定 arXiv:2406.04268v1 原 bytes 不改的20页 PDF（939555 bytes）：固定 arXiv:2406.04268v1 完整20物理页编译PDF：p1–9主文，p10Impact Statement／Acknowledgements／References至p17左栏，p17–18 A Illustrating Open-Endedness，p18–19 B Alternative Definition，p19–20 C Further Related Work，Figure1–3齐，p20真正末句 restricted by the environment.；不取旧模板／独立图标／外链原作。 论文作者可许可表达按本固定作品已证 CC BY4 路径；实际有界引用／图板按原件精确信用与身份保留，不改变底层许可、不独立重许被引全文／数据／代码／模型／媒体／商标／源模板或整个source归档。十Noun Project图标另保留实际CC BY3.0与完整名／作者／来源，不归给论文BY4。 此范围也包含该PDF native plain、页selectors及完整BY4 NOTICE；旧 root rights／block／retrieval／revision／source_version键缺省和历史原件／文字缺失不改；无普遍权利保证。"
+    redistribution_package:
+      source_revision: "sha256:40b1f56033d9b9c2ad82d2aa9dcd2123af637fc2de7e88c96b9dc93477a643a1"
+      source_version_url: "https://arxiv.org/pdf/2406.04268v1"
+      notice_path: "materialized_sources/corpus/arxiv-2406.04268--ce5afac4/pdf-supplement/NOTICE.md"
+      attribution: "Edward Hughes; Michael Dennis; Jack Parker-Holder; Feryal Behbahani; Aditi Mavalankar; Yuge Shi; Tom Schaul; Tim Rocktäschel, Open-Endedness is Essential for Artificial Superhuman Intelligence, arXiv:2406.04268v1 (2024-06-06), https://arxiv.org/abs/2406.04268v1, PDF https://arxiv.org/pdf/2406.04268v1, CC BY4 https://creativecommons.org/licenses/by/4.0/。可见八作者 Edward Hughes／Michael Dennis／Jack Parker-Holder／Feryal Behbahani／Aditi Mavalankar／Yuge Shi／Tom Schaul／Tim Rocktäschel；Hughes／Dennis等贡献及correspondence，Google DeepMind London、ICML2024／PMLR235／作者版权原样。旧题名Position:前缀、Michael D. Dennis／ASCII Rocktaschel仅是旧署名表达，不冒称本次PDF原字节，不猜中间名。p10明确Noun Project graphics适用CC BY3.0 https://creativecommons.org/licenses/by/3.0/，独立十credit：tick — kareemovic — https://thenounproject.com/browse/icons/term/tick?iconspage=1; Delete — kareemovic — https://thenounproject.com/browse/icons/term/Delete?iconspage=1; alien — Artem Yurov — https://thenounproject.com/browse/icons/term/alien?iconspage=1; girl — Teewara soontorn — https://thenounproject.com/browse/icons/term/girl?iconspage=1; year of rat — DailyPM — https://thenounproject.com/browse/icons/term/year-of-rat?iconspage=1; aircraft — mikicon — https://thenounproject.com/browse/icons/term/aircraft?iconspage=1; concorde — mikicon — https://thenounproject.com/browse/icons/term/concorde?iconspage=1; Plane — CAMB — https://thenounproject.com/browse/icons/term/plane?iconspage=1; humans — Ifanicon — https://thenounproject.com/browse/icons/term/humans?iconspage=1; Robot — Deemak Daksina — https://thenounproject.com/browse/icons/term/robot?iconspage=1。这些browse targets来自PDF实际Annots，未访问；标准BY3法条URL是新增标准链接，不冒称PDF印有该URI。Dave Abel反馈致谢保留。本批未修改图标，不推测论文作者改色／改形，不把图标版权归论文八作者或给全站资产一般BY4。 本批正式 https://arxiv.org/abs/2406.04268v1 的作品 view license 正常到BY4，v1日期2024-06-06；C核实际八作者／20页主文与A–C／十Noun Project BY3独立credit，主线全文读并明确准入。 以上归属不暗示背书。"
+      modifications: "固定版本 PDF 按本次真实响应 bytes 原样保留，不编辑、重导或 OCR；以既有 helper 的 plain 全页提取生成独立 pdf-supplement/document.txt 和真实 PDF revision 的页定位器（page selectors），在文末追加唯一归属、修改／范围附注与同目录 NOTICE.md 链接。NOTICE 自包含本项实际归属、精确范围及现存完整 CC BY 4.0 法条；native text 的逐项损失见 limitations，不声称无损转换或可直接执行的源代码／prompt。旧 root source、normalized TXT／TeX、selectors、NOTICE／README、revision、retrieval 和历史 gate 不改，不将新固定版选择冒称旧 source payload 已被追溯核定。"
+      scope: "本独立表示仅覆盖固定 arXiv:2406.04268v1 原 bytes 不改的20页 PDF（939555 bytes）：固定 arXiv:2406.04268v1 完整20物理页编译PDF：p1–9主文，p10Impact Statement／Acknowledgements／References至p17左栏，p17–18 A Illustrating Open-Endedness，p18–19 B Alternative Definition，p19–20 C Further Related Work，Figure1–3齐，p20真正末句 restricted by the environment.；不取旧模板／独立图标／外链原作。 论文作者可许可表达按本固定作品已证 CC BY4 路径；实际有界引用／图板按原件精确信用与身份保留，不改变底层许可、不独立重许被引全文／数据／代码／模型／媒体／商标／源模板或整个source归档。十Noun Project图标另保留实际CC BY3.0与完整名／作者／来源，不归给论文BY4。 此范围也包含该PDF native plain、页selectors及完整BY4 NOTICE；旧 root rights／block／retrieval／revision／source_version键缺省和历史原件／文字缺失不改；无普遍权利保证。"
 - sequence: 43
   uid: arxiv:2406.06769
   pdf_supplement:
@@ -6388,6 +6573,14 @@ items:
     locator: 'source/references.bib: swanson_virtual_2024'
     finding: 实际完整摘要随 CC BY-NC 4.0 声明保存；主论文 BY4 不能覆盖独立摘要，实际 NC 用途条件尚未确认。
     supports_public_redistribution: false
+  - kind: main_admitted_fixed_pdf_representation
+    checked_at: "2026-09-17"
+    url: "https://arxiv.org/pdf/2505.13400v1"
+    path: "materialized_sources/corpus/arxiv-2505.13400--6cb0cfb6/pdf-supplement/document.pdf"
+    locator: "pdf_supplement; compiled facsimile/native/page-selector allowance only"
+    finding: "既有 R 已核固定v1源payload/保留表达与作品BY4；本次PDF可见v1页标、embedded arXivID与License BY4，C核十作者／30页／全部Supplementary Material至S25，主线明确准入。不发明旧固定archive URL。 原件30页完整／native partial／body_quality_verified=true，GET HTTP200/application/pdf/no redirect/TLS verify0/curl exit0，33781795 bytes，完成时间2026-09-17T08:18:13Z按同次response JSON mtime截到秒，不冒称server Date为客户端时间或GET精确起点。完整十作者 Ali Essam Ghareeb／Benjamin Chang／Ludovico Mitchener／Angela Yiu／Caralyn J. Szostkiewicz／Jon M. Laurent／Muhammed T. Razzak／Andrew D. White／Michaela M. Hinks／Samuel G. Rodriques；Ghareeb/Chang等贡献，White/Rodriques共同监督FutureHouse，Hinks/Rodriques共同监督本工作，FutureHouse／Oxford机构原样，未造逐作者贡献表。p11 Michael Skarlinski／Mayk Caldas／Tyler Nadolski／James Braza／Siddharth Narayanan与FutureHouse致谢保留。p4 Fig2/p6 Fig3明示部分分析由human为publication readability格式化，不改为无人工。p9 Table1供应商catalog引用与Rapamycin Gift from RetroBio（非Rebio）保留。微镜／flow／RNA-seq在原研究表示内保留，不独立重许可底层数据。S10两处重复原样，不补源88bibabstract或其15copyright旧未决。 新PDF四方grant同值且绑定实际version/revision；旧source evidence/missing/root gate block保留历史，root公众计数不是新PDF准入或严格可消费计数。"
+    evidence_applicability: "exact_fixed_compiled_facsimile_and_native_page_derivatives_not_legacy_source_or_underlying_assets"
+    supports_public_redistribution: true
   missing:
   - 固定版本已核实，但 canonical/capsule 三处 rights 与许可包尚未落实。
   - 88 个附带第三方摘要中已定位两项公众许可依据缺口及一项 NC 条件；未获得整理非正文摘要的范围确认。
@@ -6410,6 +6603,21 @@ items:
   human_follow_up:
   - 确认是否允许只整理源包中额外嵌入的第三方摘要，完整保留论文正文；或提供覆盖这些确切表达的再分发许可。
   - 确认实际 NC 使用目的；其余已许可组件按条件补齐署名、许可与转换说明。
+  pdf_supplement:
+    license_spdx: "CC-BY-4.0"
+    license_url: "https://creativecommons.org/licenses/by/4.0/"
+    license_verified_at: "2026-09-17"
+    publication_gate:
+      decision: "allow"
+      reason: "主线全文读取本批内容报告并核实际固定版身份／目标边界／可见独立信用，明确准入本UID完整 compiled facsimile 与有损 native／逐页 selectors／NOTICE；只依本作品已证许可路径，不借旧 root block，不给底层资产一般许可。"
+      approved_scope: "本独立表示仅覆盖固定 arXiv:2505.13400v1 原 bytes 不改的30页 PDF（33781795 bytes）：固定 arXiv:2505.13400v1 完整30物理页编译PDF：p1–7主文Results／Discussion及四科学图，p8–11 Methods4.1–4.5.5／Acknowledgements／Data and Code Availability，p12–15 References[1]–[69]，p16 Supplementary Material／S1，p17–24完整实验assay／therapeutic候选／judge prompts（p22/p24实际重复S10保留），p25–28 S11–S15 human评估／microscopy／flow／RNA-seq，p29–30 S16–S25十类候选至Chronic Kidney Disease十项INF4E。未取外部RNA-seq/.fcs/code/trajectories。 论文作者可许可表达按本固定作品已证 CC BY4 路径；实际有界引用／图板按原件精确信用与身份保留，不改变底层许可、不独立重许被引全文／数据／代码／模型／媒体／商标／源模板或整个source归档。 此范围也包含该PDF native plain、页selectors及完整BY4 NOTICE；旧 root rights／block／retrieval／revision／source_version键缺省和历史原件／文字缺失不改；无普遍权利保证。"
+    redistribution_package:
+      source_revision: "sha256:336d4e3f9065f42918cec8053e020d12c8d8c8031eb4c180764a349d1efa1794"
+      source_version_url: "https://arxiv.org/pdf/2505.13400v1"
+      notice_path: "materialized_sources/corpus/arxiv-2505.13400--6cb0cfb6/pdf-supplement/NOTICE.md"
+      attribution: "Ali Essam Ghareeb; Benjamin Chang; Ludovico Mitchener; Angela Yiu; Caralyn J. Szostkiewicz; Jon M. Laurent; Muhammed T. Razzak; Andrew D. White; Michaela M. Hinks; Samuel G. Rodriques, Robin: A multi-agent system for automating scientific discovery, arXiv:2505.13400v1 (2025-05-19), https://arxiv.org/abs/2505.13400v1, PDF https://arxiv.org/pdf/2505.13400v1, CC BY4 https://creativecommons.org/licenses/by/4.0/。完整十作者 Ali Essam Ghareeb／Benjamin Chang／Ludovico Mitchener／Angela Yiu／Caralyn J. Szostkiewicz／Jon M. Laurent／Muhammed T. Razzak／Andrew D. White／Michaela M. Hinks／Samuel G. Rodriques；Ghareeb/Chang等贡献，White/Rodriques共同监督FutureHouse，Hinks/Rodriques共同监督本工作，FutureHouse／Oxford机构原样，未造逐作者贡献表。p11 Michael Skarlinski／Mayk Caldas／Tyler Nadolski／James Braza／Siddharth Narayanan与FutureHouse致谢保留。p4 Fig2/p6 Fig3明示部分分析由human为publication readability格式化，不改为无人工。p9 Table1供应商catalog引用与Rapamycin Gift from RetroBio（非Rebio）保留。微镜／flow／RNA-seq在原研究表示内保留，不独立重许可底层数据。S10两处重复原样，不补源88bibabstract或其15copyright旧未决。 既有 R 已核固定v1源payload/保留表达与作品BY4；本次PDF可见v1页标、embedded arXivID与License BY4，C核十作者／30页／全部Supplementary Material至S25，主线明确准入。不发明旧固定archive URL。 以上归属不暗示背书。"
+      modifications: "固定版本 PDF 按本次真实响应 bytes 原样保留，不编辑、重导或 OCR；以既有 helper 的 plain 全页提取生成独立 pdf-supplement/document.txt 和真实 PDF revision 的页定位器（page selectors），在文末追加唯一归属、修改／范围附注与同目录 NOTICE.md 链接。NOTICE 自包含本项实际归属、精确范围及现存完整 CC BY 4.0 法条；native text 的逐项损失见 limitations，不声称无损转换或可直接执行的源代码／prompt。旧 root source、normalized TXT／TeX、selectors、NOTICE／README、revision、retrieval 和历史 gate 不改，不将新固定版选择冒称旧 source payload 已被追溯核定。"
+      scope: "本独立表示仅覆盖固定 arXiv:2505.13400v1 原 bytes 不改的30页 PDF（33781795 bytes）：固定 arXiv:2505.13400v1 完整30物理页编译PDF：p1–7主文Results／Discussion及四科学图，p8–11 Methods4.1–4.5.5／Acknowledgements／Data and Code Availability，p12–15 References[1]–[69]，p16 Supplementary Material／S1，p17–24完整实验assay／therapeutic候选／judge prompts（p22/p24实际重复S10保留），p25–28 S11–S15 human评估／microscopy／flow／RNA-seq，p29–30 S16–S25十类候选至Chronic Kidney Disease十项INF4E。未取外部RNA-seq/.fcs/code/trajectories。 论文作者可许可表达按本固定作品已证 CC BY4 路径；实际有界引用／图板按原件精确信用与身份保留，不改变底层许可、不独立重许被引全文／数据／代码／模型／媒体／商标／源模板或整个source归档。 此范围也包含该PDF native plain、页selectors及完整BY4 NOTICE；旧 root rights／block／retrieval／revision／source_version键缺省和历史原件／文字缺失不改；无普遍权利保证。"
 - sequence: 64
   uid: arxiv:2505.22954
   source_type: arxiv
@@ -7058,6 +7266,14 @@ items:
     locator: 'source/references.bib: piazza_physical_2025'
     finding: 实际保存 v1 完整摘要标注 CC BY-NC4；官方 API license=cc_by_nc。主论文 BY4 不消除这一独立范围的 NC 条件。
     supports_public_redistribution: false
+  - kind: main_admitted_fixed_pdf_representation
+    checked_at: "2026-09-17"
+    url: "https://arxiv.org/pdf/2511.02824v2"
+    path: "materialized_sources/corpus/arxiv-2511.02824--1c218a8e/pdf-supplement/document.pdf"
+    locator: "pdf_supplement; compiled facsimile/native/page-selector allowance only"
+    finding: "既有 R 已核固定v2源payload／保留表达与作品BY4；本次可见v2侧边、embedded arXivID/License BY4，C核实际37作者／42页内嵌SI1–4／Fig2a/b permission与BioRender精确credit，主线明确准入，不搬旧80bibabstract/31copyright gate入新PDF。 原件42页完整／native partial／body_quality_verified=true，GET HTTP200/application/pdf/no redirect/TLS verify0/curl exit0，8162544 bytes，完成时间2026-09-17T08:17:46Z按同次response JSON mtime截到秒，不冒称server Date为客户端时间或GET精确起点。完整37作者：Ludovico Mitchener; Angela Yiu; Benjamin Chang; Mathieu Bourdenx; Tyler Nadolski; Arvis Sulovari; Eric C. Landsness; Dániel L. Barabási; Siddharth Narayanan; Nicky Evans; Shriya Reddy; Martha Foiani; Aizad Kamal; Leah P. Shriver; Fang Cao; Asmamaw T. Wassie; Jon M. Laurent; Edwin Melville-Green; Mayk Caldas; Albert Bou; Kaleigh F. Roberts; Sladjana Zagorac; Timothy C. Orr; Miranda E. Orr; Kevin J. Zwezdaryk; Ali E. Ghareeb; Laurie McCoy; Bruna Gomes; Euan A. Ashley; Karen E. Duff; Tonio Buonassisi; Tom Rainforth; Randall J. Bateman; Michael Skarlinski; Samuel G. Rodriques; Michaela M. Hinks; Andrew D. White。前三Mitchener/Yiu/Chang等贡献；Mitchener/Hinks共同监督本工作，Rodriques/White共同监督Edison；20机构及p26完整贡献／funding保留（NIH R01NS133365、UK DRI/MRC/Cure Alzheimer’s Fund、CIFAR/Toyota SARC、EPSRC EP/Y037200/1等）。p5 Fig2真实credit为 a and b reproduced with permission from [9]，不是旧bc，也不含c／Trajectory r2。p27 [9]原印13作者出处：Aizad Kamal; Juan Liu; Ernesto R. Gonzales; Khairunisa Mohamad Ibrahim; Fan Zhang; Hannah E. Skelton; Javier Kelly Cuenca; Carla Yuede; Gary J. Patti; Leah P. Shriver; Jin-Moo Lee; Aaron J. Norris; Eric C. Landsness, Preoptic activation induces a torpor-like hypothermic and hypometabolic state that is cerebroprotective, October 2025; ISSN:2692-8205; Pages:2025.10.24.684192; Section:New Results；未印URL或DOI且Annots无externalURI，不猜其bioRxiv链接／DOI，不GET原作，不给底层图板或全文一般BY4。BioRender独立credit精确保留：https://BioRender.com 的 Fig5a/c、Fig6a、Fig7a、Fig8a/f/g；Fig6g原E2G http://e2g.stanford.edu/variant/6_7231610_G_A 与Fig6h http://twas-hub.org 保留，未访问／重许全站。Fig4与[15]有限比较及p24外部SupplementaryData1–7 availability保持出处身份，不冒称已取得。SI1自身Discovery1 connectome／Discovery3 hypothermia顺序按原件，不手改，p41/42 REFUTED批评与±数据不润色为支持。 新PDF四方grant同值且绑定实际version/revision；旧source evidence/missing/root gate block保留历史，root公众计数不是新PDF准入或严格可消费计数。"
+    evidence_applicability: "exact_fixed_compiled_facsimile_and_native_page_derivatives_not_legacy_source_or_underlying_assets"
+    supports_public_redistribution: true
   missing:
   - 固定版本已核实，但 canonical/capsule 三处 rights 与许可包尚未落实。
   - 80 个附带第三方摘要中已定位 v1 明示禁止未经许可再分发的摘要及 NC 摘要；未获得整理非正文摘要的范围确认。
@@ -7080,6 +7296,21 @@ items:
   human_follow_up:
   - 确认是否允许只整理源包中额外嵌入的第三方摘要，完整保留论文正文；或提供覆盖这些确切表达的再分发许可。
   - 确认实际 NC 使用目的；其余已许可组件按条件补齐署名、许可与转换说明。
+  pdf_supplement:
+    license_spdx: "CC-BY-4.0"
+    license_url: "https://creativecommons.org/licenses/by/4.0/"
+    license_verified_at: "2026-09-17"
+    publication_gate:
+      decision: "allow"
+      reason: "主线全文读取本批内容报告并核实际固定版身份／目标边界／可见独立信用，明确准入本UID完整 compiled facsimile 与有损 native／逐页 selectors／NOTICE；只依本作品已证许可路径，不借旧 root block，不给底层资产一般许可。"
+      approved_scope: "本独立表示仅覆盖固定 arXiv:2511.02824v2 原 bytes 不改的42页 PDF（8162544 bytes）：固定 arXiv:2511.02824v2 完整42物理页编译PDF：p1–20主文七discoveries／Discussion，p20–24 Methods及p24 Data availability，p26 contributions／funding，p27–33 References[1]–[58]，p34 Supplementary Table1，p35–37内嵌SI1七输入，p38 SI2，p39–40 SI3 rubric，p41–42 SI4 supported/refuted评价至 We just don’t have enough information.；Figure1–8完整，外部SupplementaryData1–7／reports／trajectory／datasets／code未取得且不在合同target。 论文作者可许可表达按本固定作品已证 CC BY4 路径；实际有界引用／图板按原件精确信用与身份保留，不改变底层许可、不独立重许被引全文／数据／代码／模型／媒体／商标／源模板或整个source归档。Fig2仅a/b的原permission与[9]印刷出处、BioRender Fig5a/c/6a/7a/8a/f/g准确保留；外部SD1–7与data/code/trajectory排除。 此范围也包含该PDF native plain、页selectors及完整BY4 NOTICE；旧 root rights／block／retrieval／revision／source_version键缺省和历史原件／文字缺失不改；无普遍权利保证。"
+    redistribution_package:
+      source_revision: "sha256:bc1d107627c3f81bd551a6180f1d5739db46b2b3902dc2349a382de500f6b0a8"
+      source_version_url: "https://arxiv.org/pdf/2511.02824v2"
+      notice_path: "materialized_sources/corpus/arxiv-2511.02824--1c218a8e/pdf-supplement/NOTICE.md"
+      attribution: "Ludovico Mitchener; Angela Yiu; Benjamin Chang; Mathieu Bourdenx; Tyler Nadolski; Arvis Sulovari; Eric C. Landsness; Dániel L. Barabási; Siddharth Narayanan; Nicky Evans; Shriya Reddy; Martha Foiani; Aizad Kamal; Leah P. Shriver; Fang Cao; Asmamaw T. Wassie; Jon M. Laurent; Edwin Melville-Green; Mayk Caldas; Albert Bou; Kaleigh F. Roberts; Sladjana Zagorac; Timothy C. Orr; Miranda E. Orr; Kevin J. Zwezdaryk; Ali E. Ghareeb; Laurie McCoy; Bruna Gomes; Euan A. Ashley; Karen E. Duff; Tonio Buonassisi; Tom Rainforth; Randall J. Bateman; Michael Skarlinski; Samuel G. Rodriques; Michaela M. Hinks; Andrew D. White, Kosmos: An AI Scientist for Autonomous Discovery, arXiv:2511.02824v2 (2025-11-05), https://arxiv.org/abs/2511.02824v2, PDF https://arxiv.org/pdf/2511.02824v2, CC BY4 https://creativecommons.org/licenses/by/4.0/。完整37作者：Ludovico Mitchener; Angela Yiu; Benjamin Chang; Mathieu Bourdenx; Tyler Nadolski; Arvis Sulovari; Eric C. Landsness; Dániel L. Barabási; Siddharth Narayanan; Nicky Evans; Shriya Reddy; Martha Foiani; Aizad Kamal; Leah P. Shriver; Fang Cao; Asmamaw T. Wassie; Jon M. Laurent; Edwin Melville-Green; Mayk Caldas; Albert Bou; Kaleigh F. Roberts; Sladjana Zagorac; Timothy C. Orr; Miranda E. Orr; Kevin J. Zwezdaryk; Ali E. Ghareeb; Laurie McCoy; Bruna Gomes; Euan A. Ashley; Karen E. Duff; Tonio Buonassisi; Tom Rainforth; Randall J. Bateman; Michael Skarlinski; Samuel G. Rodriques; Michaela M. Hinks; Andrew D. White。前三Mitchener/Yiu/Chang等贡献；Mitchener/Hinks共同监督本工作，Rodriques/White共同监督Edison；20机构及p26完整贡献／funding保留（NIH R01NS133365、UK DRI/MRC/Cure Alzheimer’s Fund、CIFAR/Toyota SARC、EPSRC EP/Y037200/1等）。p5 Fig2真实credit为 a and b reproduced with permission from [9]，不是旧bc，也不含c／Trajectory r2。p27 [9]原印13作者出处：Aizad Kamal; Juan Liu; Ernesto R. Gonzales; Khairunisa Mohamad Ibrahim; Fan Zhang; Hannah E. Skelton; Javier Kelly Cuenca; Carla Yuede; Gary J. Patti; Leah P. Shriver; Jin-Moo Lee; Aaron J. Norris; Eric C. Landsness, Preoptic activation induces a torpor-like hypothermic and hypometabolic state that is cerebroprotective, October 2025; ISSN:2692-8205; Pages:2025.10.24.684192; Section:New Results；未印URL或DOI且Annots无externalURI，不猜其bioRxiv链接／DOI，不GET原作，不给底层图板或全文一般BY4。BioRender独立credit精确保留：https://BioRender.com 的 Fig5a/c、Fig6a、Fig7a、Fig8a/f/g；Fig6g原E2G http://e2g.stanford.edu/variant/6_7231610_G_A 与Fig6h http://twas-hub.org 保留，未访问／重许全站。Fig4与[15]有限比较及p24外部SupplementaryData1–7 availability保持出处身份，不冒称已取得。SI1自身Discovery1 connectome／Discovery3 hypothermia顺序按原件，不手改，p41/42 REFUTED批评与±数据不润色为支持。 既有 R 已核固定v2源payload／保留表达与作品BY4；本次可见v2侧边、embedded arXivID/License BY4，C核实际37作者／42页内嵌SI1–4／Fig2a/b permission与BioRender精确credit，主线明确准入，不搬旧80bibabstract/31copyright gate入新PDF。 以上归属不暗示背书。"
+      modifications: "固定版本 PDF 按本次真实响应 bytes 原样保留，不编辑、重导或 OCR；以既有 helper 的 plain 全页提取生成独立 pdf-supplement/document.txt 和真实 PDF revision 的页定位器（page selectors），在文末追加唯一归属、修改／范围附注与同目录 NOTICE.md 链接。NOTICE 自包含本项实际归属、精确范围及现存完整 CC BY 4.0 法条；native text 的逐项损失见 limitations，不声称无损转换或可直接执行的源代码／prompt。旧 root source、normalized TXT／TeX、selectors、NOTICE／README、revision、retrieval 和历史 gate 不改，不将新固定版选择冒称旧 source payload 已被追溯核定。"
+      scope: "本独立表示仅覆盖固定 arXiv:2511.02824v2 原 bytes 不改的42页 PDF（8162544 bytes）：固定 arXiv:2511.02824v2 完整42物理页编译PDF：p1–20主文七discoveries／Discussion，p20–24 Methods及p24 Data availability，p26 contributions／funding，p27–33 References[1]–[58]，p34 Supplementary Table1，p35–37内嵌SI1七输入，p38 SI2，p39–40 SI3 rubric，p41–42 SI4 supported/refuted评价至 We just don’t have enough information.；Figure1–8完整，外部SupplementaryData1–7／reports／trajectory／datasets／code未取得且不在合同target。 论文作者可许可表达按本固定作品已证 CC BY4 路径；实际有界引用／图板按原件精确信用与身份保留，不改变底层许可、不独立重许被引全文／数据／代码／模型／媒体／商标／源模板或整个source归档。Fig2仅a/b的原permission与[9]印刷出处、BioRender Fig5a/c/6a/7a/8a/f/g准确保留；外部SD1–7与data/code/trajectory排除。 此范围也包含该PDF native plain、页selectors及完整BY4 NOTICE；旧 root rights／block／retrieval／revision／source_version键缺省和历史原件／文字缺失不改；无普遍权利保证。"
 - sequence: 70
   uid: arxiv:2602.06855
   source_type: arxiv
