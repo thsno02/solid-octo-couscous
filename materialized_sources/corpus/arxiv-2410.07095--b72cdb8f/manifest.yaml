@@ -37,6 +37,18 @@ local_files:
 - path: materialized_sources/corpus/arxiv-2410.07095--b72cdb8f/normalized/document.txt
   bytes: 89349
   sha256: 1c2531f3ae4e21f2e42b15d17eb6e67f38a1b21945032c01af8e5ff9726bd7fc
+- path: materialized_sources/corpus/arxiv-2410.07095--b72cdb8f/pdf-supplement/NOTICE.md
+  bytes: 26208
+  sha256: f5bf555d58ed65b929ec561cc2382aa13bb6cf1e1642b7f4bd55e1fe83364005
+- path: materialized_sources/corpus/arxiv-2410.07095--b72cdb8f/pdf-supplement/document.pdf
+  bytes: 817725
+  sha256: 1dab9a33edeab25ea359c4d6857d03512ccd47ed5782631031cfe8dcbebe7988
+- path: materialized_sources/corpus/arxiv-2410.07095--b72cdb8f/pdf-supplement/document.txt
+  bytes: 93271
+  sha256: c50951c715f1264b3fea21e2b8542ef62a26c7c531f9475bb1b512abd1f0874f
+- path: materialized_sources/corpus/arxiv-2410.07095--b72cdb8f/pdf-supplement/selectors.jsonl
+  bytes: 13040
+  sha256: c2e31e4c4b584a2a28000e939dcad1c7237f526b273c5994dbada05756b170d2
 - path: materialized_sources/corpus/arxiv-2410.07095--b72cdb8f/selectors.jsonl
   bytes: 14478
   sha256: 56f1bdddc7467da86f798d63429d2c1016c275a4acad2232f4dbb7dea1400001
@@ -68,8 +80,8 @@ local_files:
   bytes: 45154
   sha256: 88bc70c0e48461934cab5b2accef06b74a8b3ac45ad03ccd3f2a6b7e0d6d530d
 - path: materialized_sources/corpus/arxiv-2410.07095--b72cdb8f/source-metadata.yaml
-  bytes: 2811
-  sha256: 2af3e0077eb76135658410de392bc08b311e5073710d3f04b7d30433be9fbd24
+  bytes: 9626
+  sha256: 52e2c50d4b2e1e68600e44e0860e78e7288096e83a55942462aaa9aef9ad9af8
 warnings: []
 errors: []
 archive_container: tar
@@ -99,4 +111,85 @@ omitted:
   reason: non-text-document-member
 - path: figures/agent_trajectory.png
   reason: non-text-document-member
-local_bytes: 500384
+local_bytes: 1457443
+pdf_supplement:
+  source_version: v6
+  revision: sha256:1dab9a33edeab25ea359c4d6857d03512ccd47ed5782631031cfe8dcbebe7988
+  media_type: application/pdf
+  retrievals:
+  - requested_urls:
+    - https://arxiv.org/pdf/2410.07095v6
+    resolved_url: https://arxiv.org/pdf/2410.07095v6
+    content_type: application/pdf
+    bytes: 817725
+    sha256: 1dab9a33edeab25ea359c4d6857d03512ccd47ed5782631031cfe8dcbebe7988
+    retrieved_at: '2026-09-17T09:35:59Z'
+    http_status: 200
+    redirect_count: 0
+    tls_verify_result: 0
+    curl_exit_code: 0
+    time_scope: Local completion bound from same GET response JSON mtime, truncated to seconds; actual completion
+      2026-09-17T09:35:59.920312Z. Server HTTP Date 2026-09-17T09:35:58Z is not client wall-clock, and no precise
+      per-response start time is asserted.
+  selectors:
+  - pdf-supplement/selectors.jsonl
+  body_quality_verified: true
+  limitations:
+  - 原件完整是所选v6 compiled PDF的29物理页正文/声明/书目/A.1–A.9/全部Figures1–9与Tables1–10实证完整，不是abs comments 27页或旧archive所有成员完成；p29
+    Table10及模型名映射是实际结尾。
+  - native text partial：p3 Figure2三列MLAB/OpenHands/AIDE截图的内部日志、代码、命令、步骤和搜索树文字没有提取；原PDF图面在场，缺的是图内文字而非原件页。
+  - 其他图的箭头/颜色/图标/曲线/散点/histogram/stacked-bar关系及点坐标未完整线性化；p8 Figure5原件y轴-0.25的负号在plain刻度列表变成0.25。
+  - p7 pass@k组合数比值/期望/分式/括号/范围二维数学拆行并有U+0000×2、U+0001×2、U+0002×1、U+0003×1；不能声明无损公式或直接计算文本。
+  - Tables8等跨页多列/分组/空单元格关系弱化，不能自动把下行split绑定到上行竞赛；literal prompt/path/代码fence/backtick/换行不保原字节，不能称byte-exact executable
+    prompt。
+  - p17可见protect/vrule/href LaTeX是compiled original自身literal而非extractor插入；p12长GitHub Blog URL延出排版边界也是源PDF自身限制，原样保留不修饰原件。
+  - Mądry变音、小型大写、连字/断词/间距、页眉/页码混入存在native排版损失；29非空页/无提取失败只是结构诊断，完整图义/表格/数学/literal精确消费回看PDF，不默认OCR、不提升strict/trusted。
+  rights:
+    license_spdx: CC-BY-4.0
+    license_url: https://creativecommons.org/licenses/by/4.0/
+    license_verified_at: '2026-09-17'
+    publication_gate:
+      decision: allow
+      reason: 主线亲核fixed abs实际作品许可链，全文读取本UID内容报告并明确准入实际29页compiled facsimile及有损native/逐页selectors/NOTICE；实际署名/贡献脚注和Kaggle有限引述信用已保留，不借旧root
+        block放行、不给standalone外部材料一般许可。
+      approved_scope: 本独立表示只覆盖本UID固定arXiv:2410.07095v6原bytes不改的29页compiled PDF（817725 bytes）：固定 arXiv:2410.07095v6
+        的完整29物理页编译论文：p1–10主文至第7节Conclusion，p11 Ethics/Reproducibility声明，p11–13参考文献，p13–29 Appendix A.1–A.9；全部Figures1–9、Tables1–10和跨页数据/结果表实际在场，p28
+        Figure9 deadline图之后仍有p29 Table10类别结果与三组模型名映射，真实尾界不是p28。 论文作者可许可表达依本固定作品已证CC BY4路径；论文内实际图表、参考文献和A.8竞赛描述/原citation作为此出版表示的一部分保留并落实原信用，不由此推导独立Kaggle数据/竞赛网站/notebook/logo、代码仓库、模型/权重、被引全文或source模板的一般许可。范围包含从该PDF派生的有损native
+        plain、revision-bound页selectors和自包含NOTICE；不重新打包外链作品、不执行benchmark，不改变底层许可或为已许可权利添加下游限制，无普遍权利保证。旧root整包block及独立条件保持，本allow不恢复旧source缺图或放行旧source
+        archive。
+    redistribution_package:
+      source_revision: sha256:1dab9a33edeab25ea359c4d6857d03512ccd47ed5782631031cfe8dcbebe7988
+      source_version_url: https://arxiv.org/pdf/2410.07095v6
+      notice_path: materialized_sources/corpus/arxiv-2410.07095--b72cdb8f/pdf-supplement/NOTICE.md
+      attribution: 'Chan Jun Shern; Neil Chowdhury; Oliver Jaffe; James Aung; Dane Sherburn; Evan Mays; Giulio Starace;
+        Kevin Liu; Leon Maksin; Tejal Patwardhan; Lilian Weng; Aleksander Mądry, MLE-bench: Evaluating Machine Learning
+        Agents on Machine Learning Engineering, arXiv:2410.07095v6 (2025-02-26), https://arxiv.org/abs/2410.07095v6,
+        PDF https://arxiv.org/pdf/2410.07095v6, CC BY 4.0 https://creativecommons.org/licenses/by/4.0/。按实际PDF首页顺序保留12作者与OpenAI机构；PDF第一位为Chan
+        Jun Shern而fixed abs为Jun Shern Chan，不静默调换姓名次序；Mądry按可见字形保留，不复制native拆分M ˛ adry。前七位星号为Equal contribution.
+        Authors randomized.；Neil Chowdhury和Lilian Weng的†为Work done while at OpenAI.；Published as a conference paper
+        at ICLR 2025保留为出版身份而非额外许可。Table1 p4 Source: Kaggle (2024)，相应Kaggle Progression System (2024) https://www.kaggle.com/progression信用保留；A.8
+        p26 Citation: Addison Howard, inversion, Lars Bratholm. (2019). Predicting Molecular Properties. Kaggle.
+        https://kaggle.com/competitions/champs-scalar-coupling，inversion保留小写handle。A.8 p25举办机构University of Bristol、Cardiff
+        University、Imperial College、University of Leeds保留；这些只是论文中实际有限引述/信用，不声明standalone Kaggle材料全许可。AIDE、OpenHands、MLAgentBench、Dolos等及原参考文献保持被引研究/软件身份，不变成作者原创或独立代码/服务许可；未下载外部竞赛页面、logo、notebook、数据或权重，不暗示背书。'
+      modifications: 本次唯一固定版GET的817725 bytes原PDF按字节原样保留，不编辑、重导、重排或OCR。既有helper采用plain全页提取生成独立pdf-supplement/document.txt，并生成实际新PDF
+        revision绑定的逐页selectors；页标题、定位及文末唯一归属/修改/范围footer为collector添加的表示元数据。NOTICE自包含实际12作者顺序/机构/贡献脚注、固定来源、独立信用、具体限制及现有完整CC
+        BY4法律文本，notice_path自绑定本文件；derived native不是作者另交原始文本或byte-exact executable prompt。旧root source/normalized/selectors/NOTICE/README/files、revision/retrieval/rights/gate与source_version键缺省不改，不把新v6选择回溯成旧bare
+        archive GET已经取得v6。
+      scope: 本独立表示只覆盖本UID固定arXiv:2410.07095v6原bytes不改的29页compiled PDF（817725 bytes）：固定 arXiv:2410.07095v6 的完整29物理页编译论文：p1–10主文至第7节Conclusion，p11
+        Ethics/Reproducibility声明，p11–13参考文献，p13–29 Appendix A.1–A.9；全部Figures1–9、Tables1–10和跨页数据/结果表实际在场，p28 Figure9
+        deadline图之后仍有p29 Table10类别结果与三组模型名映射，真实尾界不是p28。 论文作者可许可表达依本固定作品已证CC BY4路径；论文内实际图表、参考文献和A.8竞赛描述/原citation作为此出版表示的一部分保留并落实原信用，不由此推导独立Kaggle数据/竞赛网站/notebook/logo、代码仓库、模型/权重、被引全文或source模板的一般许可。范围包含从该PDF派生的有损native
+        plain、revision-bound页selectors和自包含NOTICE；不重新打包外链作品、不执行benchmark，不改变底层许可或为已许可权利添加下游限制，无普遍权利保证。旧root整包block及独立条件保持，本allow不恢复旧source缺图或放行旧source
+        archive。
+  materialization:
+    source_pdf: pdf-supplement/document.pdf
+    source_pdf_sha256: 1dab9a33edeab25ea359c4d6857d03512ccd47ed5782631031cfe8dcbebe7988
+    document: pdf-supplement/document.txt
+    normalized_document: pdf-supplement/document.txt
+    stored_characters: 91086
+    selector_count: 29
+    pdf_page_count: 29
+    pdf_text_page_count: 29
+    pdf_text_extraction_mode: plain
+    pdf_pages_without_extractable_text: []
+    pdf_page_extraction_failures: []
+    substantive_text: true

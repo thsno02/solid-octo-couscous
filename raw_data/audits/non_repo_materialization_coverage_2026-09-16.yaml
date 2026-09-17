@@ -1,40 +1,73 @@
 audit_id: "non-repo-materialization-coverage-2026-09-16"
 schema_version: 1
 language: "zh-CN"
-phase: "P3-PDF-04"
+phase: "P3-PDF-05"
 execution:
-  base_sha: "252fb09236433435a1a07d9e50d10f5f447b60e6"
+  base_sha: "d5c6d8882ea2b8a783047ceed0285c652b1bd2cf"
   collection_anchor_sha: "5458fbdffc95444cc26d5e9346fc2f9ab96e09c5"
-  source_snapshot_merge_commit: "252fb09236433435a1a07d9e50d10f5f447b60e6"
-  branch: "codex/p3-pdf-04-260917"
-  p3_pdf_04_pr: 22
-  report_path: "docs/plans/260916-corpus-completion-main-convergence/p3-pdf-04-fixed-version.md"
-  network_source_requests: 10
-  network_source_request_count_scope: "仅启动PR发布后的十个固定PDF GET；不含正式abs/许可/两项ACL metadata的有限网页核查与重读，不是所有网络活动计数。"
-  source_request_urls: ["https://arxiv.org/pdf/1904.05530v4","https://arxiv.org/pdf/2110.11309v2","https://arxiv.org/pdf/2206.06520v1","https://arxiv.org/pdf/2310.16218v4","https://arxiv.org/pdf/2402.04624v2","https://arxiv.org/pdf/2402.18264v2","https://arxiv.org/pdf/2404.07738v2","https://arxiv.org/pdf/2406.04268v1","https://arxiv.org/pdf/2505.13400v1","https://arxiv.org/pdf/2511.02824v2"]
+  source_snapshot_merge_commit: "d5c6d8882ea2b8a783047ceed0285c652b1bd2cf"
+  branch: "codex/p3-pdf-05-260917"
+  p3_pdf_05_pr: 23
+  report_path: "docs/plans/260916-corpus-completion-main-convergence/p3-pdf-05-fixed-version.md"
+  network_source_requests: 3
+  network_source_request_count_scope: "仅PR23发布后的三份固定PDF GET；不含有界fixed abs/view-license网页预核，不是所有网络活动数。"
+  source_request_urls: ["https://arxiv.org/pdf/2410.07095v6","https://arxiv.org/pdf/2503.18102v1","https://arxiv.org/pdf/2504.01848v3"]
   source_get_http_statuses: [200]
   source_get_redirects: 0
-  retrieval_timing_scope: "同一次curl响应记录mtime为本地下载完成时间；manifest截到秒，报告保留微秒。HTTP Date和作品发布日期分别记录，不混作retrieval。"
-  new_admitted_original_count: 10
-  new_admitted_original_bytes: 51520171
-  new_sidecar_selector_count: 242
-  retained_legacy_selector_count: 649
+  retrieval_timing_scope: "同次curl响应记录mtime为下载完成时间；manifest到秒、报告到微秒，与HTTP Date/选版日/构建日分别保留。"
+  new_admitted_original_count: 3
+  new_admitted_original_bytes: 5278276
+  new_sidecar_selector_count: 88
+  retained_legacy_selector_count: 161
   original_root_document_and_selectors_changed: false
   legacy_manifest_and_acquisition_history_retained: true
-  new_representation_admission: "十件独立固定版编译PDF及native/page派生按已有作品授权和实际信用准入；旧root block原样保留，原件complete/text partial，不提升strict complete或trusted。"
+  new_representation_admission: "三固定版compiled PDF依据作品BY4及实际信用独立allow；旧root block保留，original complete/text partial，不提升strict/trusted。"
   aggregate_timestamp_preserved: "2026-09-16T04:30:26Z"
-  aggregate_timestamp_semantics: "确定性聚合输入沿用既有时间，不是本次获取或构建墙钟；实际GET时间各见retrievals。"
-  affected_existing_selected_uid: ["arxiv-2110.11309","arxiv:2310.16218","arxiv:2406.04268","arxiv:2505.13400","arxiv:2511.02824"]
+  aggregate_timestamp_semantics: "确定性聚合输入，不是本次GET或构建墙钟；获取时间各见retrievals。"
+  affected_existing_selected_uid: ["arxiv:2503.18102"]
   new_selected_source_count: 0
   new_demo_claim_count: 0
   knowledge_claims_changed: true
-  knowledge_claim_change_scope: "五个既有父论文摘录claim的source/rights/limitations绑定更新，其中三项literal引用文字随native表示变化；UID、collector-assessment、语义身份及candidate/trust状态不变。"
-  existing_source_excerpt_claim_count_rebound: 5
-  existing_quote_text_changed: 3
+  knowledge_claim_change_scope: "仅AgentRxiv既有一条父论文claim及证据的PDF定位/版本/rights/limitations绑定更新；引用字面、72条UID、collector-assessment及candidate/trust状态不变。"
+  existing_source_excerpt_claim_count_rebound: 1
+  existing_quote_text_changed: 0
   collector_assessment_changed: false
   fresh_checkout_performed: false
   main_fresh_checkout_verified: false
-  manual_judgment_updated_uids: ["arxiv-1904.05530","arxiv-2110.11309","arxiv-2206.06520","arxiv:2310.16218","arxiv:2402.04624","arxiv:2402.18264","arxiv:2404.07738","arxiv:2406.04268","arxiv:2505.13400","arxiv:2511.02824"]
+  manual_judgment_updated_uids: ["arxiv:2410.07095","arxiv:2503.18102","arxiv:2504.01848"]
+  historical_p3_pdf_04_execution:
+    base_sha: "252fb09236433435a1a07d9e50d10f5f447b60e6"
+    collection_anchor_sha: "5458fbdffc95444cc26d5e9346fc2f9ab96e09c5"
+    source_snapshot_merge_commit: "252fb09236433435a1a07d9e50d10f5f447b60e6"
+    branch: "codex/p3-pdf-04-260917"
+    p3_pdf_04_pr: 22
+    report_path: "docs/plans/260916-corpus-completion-main-convergence/p3-pdf-04-fixed-version.md"
+    network_source_requests: 10
+    network_source_request_count_scope: "仅启动PR发布后的十个固定PDF GET；不含正式abs/许可/两项ACL metadata的有限网页核查与重读，不是所有网络活动计数。"
+    source_request_urls: ["https://arxiv.org/pdf/1904.05530v4","https://arxiv.org/pdf/2110.11309v2","https://arxiv.org/pdf/2206.06520v1","https://arxiv.org/pdf/2310.16218v4","https://arxiv.org/pdf/2402.04624v2","https://arxiv.org/pdf/2402.18264v2","https://arxiv.org/pdf/2404.07738v2","https://arxiv.org/pdf/2406.04268v1","https://arxiv.org/pdf/2505.13400v1","https://arxiv.org/pdf/2511.02824v2"]
+    source_get_http_statuses: [200]
+    source_get_redirects: 0
+    retrieval_timing_scope: "同一次curl响应记录mtime为本地下载完成时间；manifest截到秒，报告保留微秒。HTTP Date和作品发布日期分别记录，不混作retrieval。"
+    new_admitted_original_count: 10
+    new_admitted_original_bytes: 51520171
+    new_sidecar_selector_count: 242
+    retained_legacy_selector_count: 649
+    original_root_document_and_selectors_changed: false
+    legacy_manifest_and_acquisition_history_retained: true
+    new_representation_admission: "十件独立固定版编译PDF及native/page派生按已有作品授权和实际信用准入；旧root block原样保留，原件complete/text partial，不提升strict complete或trusted。"
+    aggregate_timestamp_preserved: "2026-09-16T04:30:26Z"
+    aggregate_timestamp_semantics: "确定性聚合输入沿用既有时间，不是本次获取或构建墙钟；实际GET时间各见retrievals。"
+    affected_existing_selected_uid: ["arxiv-2110.11309","arxiv:2310.16218","arxiv:2406.04268","arxiv:2505.13400","arxiv:2511.02824"]
+    new_selected_source_count: 0
+    new_demo_claim_count: 0
+    knowledge_claims_changed: true
+    knowledge_claim_change_scope: "五个既有父论文摘录claim的source/rights/limitations绑定更新，其中三项literal引用文字随native表示变化；UID、collector-assessment、语义身份及candidate/trust状态不变。"
+    existing_source_excerpt_claim_count_rebound: 5
+    existing_quote_text_changed: 3
+    collector_assessment_changed: false
+    fresh_checkout_performed: false
+    main_fresh_checkout_verified: false
+    manual_judgment_updated_uids: ["arxiv-1904.05530","arxiv-2110.11309","arxiv-2206.06520","arxiv:2310.16218","arxiv:2402.04624","arxiv:2402.18264","arxiv:2404.07738","arxiv:2406.04268","arxiv:2505.13400","arxiv:2511.02824"]
   historical_p3_canonical_entry_01_execution:
     base_sha: "506a33dbd92adc5ca11a1402030bbd32ace3b760"
     collection_anchor_sha: "5458fbdffc95444cc26d5e9346fc2f9ab96e09c5"
@@ -1517,7 +1550,7 @@ verification:
     main_fresh_checkout_verified: false
     observed_in_phase: "P3-JOURNAL-01"
     scope: "实际本地PDF页数/bytes/与下载实体直接字节比、native页范围/preview和existing helper facts/独立main+SI许可门控，加human authored coverage；真实default auditor待frontmatter接入后运行。make suite/repro/CI/exact independent gates由main记录，不冒称本writer执行或PR PASS。"
-summary: {"collection_records":215,"non_repo_total":131,"github_repo_excluded":84,"reported_content_tier_counts":{"excerpt_capsule":23,"full_text":97,"metadata_capsule":11},"source_type_counts":{"arxiv":73,"biorxiv":2,"blog":10,"industry":2,"journal":11,"methodology":7,"paper":2,"standard":24},"original_artifact_counts":{"complete":47,"metadata_only":13,"partial":4,"unknown":67},"text_extraction_counts":{"complete":8,"partial":54,"unavailable":13,"unknown":56},"action_bucket_counts":{"access_restricted":9,"author_manuscript_fetch":2,"complete_verified":8,"html_article_snapshot":11,"identity_or_version_ambiguous":3,"needs_boundary_verification":55,"ocr_assessment":31,"parser_only":6,"public_persistence_decision":4,"standard_spec_fetch":2},"public_redistribution_counts":{"allow":33,"block":65,"unknown":33},"content_inspected_full_text":55,"structure_only_full_text":42,"locally_persisted_complete":8,"knowledge_candidate_sources":30,"knowledge_trusted_sources":0,"knowledge_sources_without_demo_claims":101,"unresolved_sources":123}
+summary: {"collection_records":215,"non_repo_total":131,"github_repo_excluded":84,"reported_content_tier_counts":{"excerpt_capsule":23,"full_text":97,"metadata_capsule":11},"source_type_counts":{"arxiv":73,"biorxiv":2,"blog":10,"industry":2,"journal":11,"methodology":7,"paper":2,"standard":24},"original_artifact_counts":{"complete":50,"metadata_only":13,"partial":4,"unknown":64},"text_extraction_counts":{"complete":8,"partial":57,"unavailable":13,"unknown":53},"action_bucket_counts":{"access_restricted":9,"author_manuscript_fetch":2,"complete_verified":8,"html_article_snapshot":11,"identity_or_version_ambiguous":3,"needs_boundary_verification":52,"ocr_assessment":34,"parser_only":6,"public_persistence_decision":4,"standard_spec_fetch":2},"public_redistribution_counts":{"allow":33,"block":65,"unknown":33},"content_inspected_full_text":58,"structure_only_full_text":39,"locally_persisted_complete":8,"knowledge_candidate_sources":30,"knowledge_trusted_sources":0,"knowledge_sources_without_demo_claims":101,"unresolved_sources":123}
 items:
   -
     uid: "arxiv-1606.04671"
@@ -10306,36 +10339,39 @@ items:
     next_action: "后续按具体 UID 固定目标文档/版本，再比对原件开中尾、章节/附录、引用资产与派生文本；P1 不获取原文或提升 complete。"
     resolution: "unresolved"
   -
-    uid: "arxiv:2410.07095"
-    source_type: "arxiv"
-    manifest: "materialized_sources/corpus/arxiv-2410.07095--b72cdb8f/manifest.yaml"
-    metadata_path: "raw_data/arxiv/MLE-bench: Evaluating Machine Learning Agents on Machine Learning Engineering/metadata.yaml"
+    uid: arxiv:2410.07095
+    source_type: arxiv
+    manifest: materialized_sources/corpus/arxiv-2410.07095--b72cdb8f/manifest.yaml
+    metadata_path: 'raw_data/arxiv/MLE-bench: Evaluating Machine Learning Agents on Machine Learning Engineering/metadata.yaml'
     target_document:
-      title: "MLE-bench: Evaluating Machine Learning Agents on Machine Learning Engineering"
-      canonical_id: "2410.07095"
-      canonical_url: "https://arxiv.org/abs/2410.07095"
-      selected_version: null
-      version_status: "not_recorded"
-      version_reason: "metadata.versioning.source_version=null；没有上游固定版本证据。"
-      source_kind: "tex"
-      boundary: "由 arXiv:2410.07095 所指论文主文、引用的附录与图表；以 metadata 已记录版本（若有）为候选，实际版本和全文边界仍待比对。"
-      boundary_verification_state: "unverified"
+      title: 'MLE-bench: Evaluating Machine Learning Agents on Machine Learning Engineering'
+      canonical_id: '2410.07095'
+      canonical_url: https://arxiv.org/abs/2410.07095
+      selected_version: v6
+      version_status: fixed_pdf_representation_verified_in_P3_PDF_05
+      version_reason: 主线已于2026-09-17亲核正式固定版 https://arxiv.org/abs/2410.07095v6 及实际view license到CC BY4；唯一GET为同版固定PDF。主线全文读取本批MLE内容executor报告并明确准入；报告逐页native审读并亲看全部29物理页，核实际身份、声明/书目/A.1–A.9、全部图表和真实尾界。29页不是abs
+        comments的10+17=27，首页选版日期2025-02-26不与PDF构建时间混用。 本次新PDF选择v6，不回填旧root source_version键缺省、不改旧archive provenance。
+      source_kind: pdf
+      boundary: 固定 arXiv:2410.07095v6 的完整29物理页编译论文：p1–10主文至第7节Conclusion，p11 Ethics/Reproducibility声明，p11–13参考文献，p13–29
+        Appendix A.1–A.9；全部Figures1–9、Tables1–10和跨页数据/结果表实际在场，p28 Figure9 deadline图之后仍有p29 Table10类别结果与三组模型名映射，真实尾界不是p28。
+      boundary_verification_state: verified
+      representation: pdf_supplement
     observed:
-      reported_status: "materialized"
-      reported_content_tier: "full_text"
-      source_version_recorded: null
-      local_revision: "sha256:43d45e760fb9b767beccdba41efda6012a2162714252119aab04e22843ccd5ea"
-      document_path: "materialized_sources/corpus/arxiv-2410.07095--b72cdb8f/normalized/document.txt"
+      reported_status: materialized
+      reported_content_tier: full_text
+      source_version_recorded: v6
+      local_revision: sha256:43d45e760fb9b767beccdba41efda6012a2162714252119aab04e22843ccd5ea
+      document_path: materialized_sources/corpus/arxiv-2410.07095--b72cdb8f/normalized/document.txt
       document_lines: 1450
       document_characters: 89147
-      main_tex_path: "materialized_sources/corpus/arxiv-2410.07095--b72cdb8f/source/iclr2025_conference.tex"
-      normalized_document: "normalized/document.txt"
+      main_tex_path: materialized_sources/corpus/arxiv-2410.07095--b72cdb8f/source/iclr2025_conference.tex
+      normalized_document: normalized/document.txt
       source_pdf: null
       retained_original_html_paths: []
-      inventory_file_count: 15
+      inventory_file_count: 19
       all_declared_files_present: true
       all_declared_files_tracked: true
-      selector_path: "materialized_sources/corpus/arxiv-2410.07095--b72cdb8f/selectors.jsonl"
+      selector_path: materialized_sources/corpus/arxiv-2410.07095--b72cdb8f/selectors.jsonl
       selector_count: 53
       invalid_selector_count: 0
       pdf_page_count_reported: null
@@ -10348,73 +10384,301 @@ items:
       warnings: []
       limitations: []
       requested_urls:
-        - "https://export.arxiv.org/e-print/2410.07095"
-        - "https://arxiv.org/e-print/2410.07095"
+      - https://export.arxiv.org/e-print/2410.07095
+      - https://arxiv.org/e-print/2410.07095
       resolved_urls:
-        - "https://export.arxiv.org/src/2410.07095"
+      - https://export.arxiv.org/src/2410.07095
       index_registry_consistent: true
-      public_gate: "block"
+      public_gate: block
       public_gate_revision_matches: true
       knowledge_claim_state_counts: {}
+      pdf_supplement:
+        source_version: v6
+        local_revision: sha256:1dab9a33edeab25ea359c4d6857d03512ccd47ed5782631031cfe8dcbebe7988
+        source_pdf: materialized_sources/corpus/arxiv-2410.07095--b72cdb8f/pdf-supplement/document.pdf
+        document_path: materialized_sources/corpus/arxiv-2410.07095--b72cdb8f/pdf-supplement/document.txt
+        document_lines: 1761
+        document_characters: 91086
+        selector_path: materialized_sources/corpus/arxiv-2410.07095--b72cdb8f/pdf-supplement/selectors.jsonl
+        selector_count: 29
+        pdf_page_count_reported: 29
+        pdf_text_page_headings:
+        - 1
+        - 2
+        - 3
+        - 4
+        - 5
+        - 6
+        - 7
+        - 8
+        - 9
+        - 10
+        - 11
+        - 12
+        - 13
+        - 14
+        - 15
+        - 16
+        - 17
+        - 18
+        - 19
+        - 20
+        - 21
+        - 22
+        - 23
+        - 24
+        - 25
+        - 26
+        - 27
+        - 28
+        - 29
+        pdf_empty_text_pages: []
+        pdf_duplicate_page_headings: []
+        body_quality_verified: true
+        limitations:
+        - 原件完整是所选v6 compiled PDF的29物理页正文/声明/书目/A.1–A.9/全部Figures1–9与Tables1–10实证完整，不是abs comments 27页或旧archive所有成员完成；p29
+          Table10及模型名映射是实际结尾。
+        - native text partial：p3 Figure2三列MLAB/OpenHands/AIDE截图的内部日志、代码、命令、步骤和搜索树文字没有提取；原PDF图面在场，缺的是图内文字而非原件页。
+        - 其他图的箭头/颜色/图标/曲线/散点/histogram/stacked-bar关系及点坐标未完整线性化；p8 Figure5原件y轴-0.25的负号在plain刻度列表变成0.25。
+        - p7 pass@k组合数比值/期望/分式/括号/范围二维数学拆行并有U+0000×2、U+0001×2、U+0002×1、U+0003×1；不能声明无损公式或直接计算文本。
+        - Tables8等跨页多列/分组/空单元格关系弱化，不能自动把下行split绑定到上行竞赛；literal prompt/path/代码fence/backtick/换行不保原字节，不能称byte-exact executable
+          prompt。
+        - p17可见protect/vrule/href LaTeX是compiled original自身literal而非extractor插入；p12长GitHub Blog URL延出排版边界也是源PDF自身限制，原样保留不修饰原件。
+        - Mądry变音、小型大写、连字/断词/间距、页眉/页码混入存在native排版损失；29非空页/无提取失败只是结构诊断，完整图义/表格/数学/literal精确消费回看PDF，不默认OCR、不提升strict/trusted。
+        validation_errors: []
+        public_gate: allow
+        public_package_valid: true
+        public_package_errors: []
     original_artifact_coverage:
-      state: "unknown"
-      verification_state: "unverified"
+      state: complete
+      verification_state: verified
       evidence:
-        -
-          path: "materialized_sources/corpus/arxiv-2410.07095--b72cdb8f/manifest.yaml"
-          locator: "retrievals/local_files/materialization/omitted"
-          result: "当前 inventory 存在=true、跟踪=true；原HTML留存=0，omitted候选=9；这些结构事实不证明目标原件完整。"
+      - path: materialized_sources/corpus/arxiv-2410.07095--b72cdb8f/pdf-supplement/document.pdf
+        locator: unchanged fixed v6 compiled PDF physical pages1–29; payload817725 bytes
+        result: 主线已全文采用内容executor逐页native和全部29页实图审读并明确准入；固定 arXiv:2410.07095v6 的完整29物理页编译论文：p1–10主文至第7节Conclusion，p11
+          Ethics/Reproducibility声明，p11–13参考文献，p13–29 Appendix A.1–A.9；全部Figures1–9、Tables1–10和跨页数据/结果表实际在场，p28 Figure9
+          deadline图之后仍有p29 Table10类别结果与三组模型名映射，真实尾界不是p28。 完整仅指此固定compiled表示，不声称旧archive或外部被引作品完整。
+      - path: materialized_sources/corpus/arxiv-2410.07095--b72cdb8f/manifest.yaml
+        locator: pdf_supplement source_version/revision/retrievals/materialization/rights; retained root fields
+        result: 本项固定PDF原bytes/新revision/真实URL和同次GET完成时间绑定；现逐项PDF completeness及publication-package函数无错误，四方新grant一致。body_quality_verified=true只表实际有界正文质量，不表示无损native、strict
+          complete或独立终审PASS；旧root全部scope/history与block保持。
       missing_assets: []
     text_extraction_coverage:
-      state: "unknown"
-      verification_state: "unverified"
+      state: partial
+      verification_state: verified
       evidence:
-        -
-          path: "materialized_sources/corpus/arxiv-2410.07095--b72cdb8f/manifest.yaml"
-          locator: "materialization/document/content_tier/selectors"
-          result: "记录 document=materialized_sources/corpus/arxiv-2410.07095--b72cdb8f/normalized/document.txt，1450行/89147字符，selector=53；正文/版本/边界完整性尚未证明。"
+      - path: materialized_sources/corpus/arxiv-2410.07095--b72cdb8f/pdf-supplement/document.txt
+        locator: all29 native page headings; physical p3 Figure2, p7 math, pp19–24 Table8, p29 tail; paired revision-bound
+          selectors
+        result: 全29页native正文/正式附录可消费，1749行88658字符为未footer提取；页sidecar均与实际page/revision/preview绑定，首中末语义核验。原件完整是所选v6 compiled
+          PDF的29物理页正文/声明/书目/A.1–A.9/全部Figures1–9与Tables1–10实证完整，不是abs comments 27页或旧archive所有成员完成；p29 Table10及模型名映射是实际结尾。
+          native text partial：p3 Figure2三列MLAB/OpenHands/AIDE截图的内部日志、代码、命令、步骤和搜索树文字没有提取；原PDF图面在场，缺的是图内文字而非原件页。 其他图的箭头/颜色/图标/曲线/散点/histogram/stacked-bar关系及点坐标未完整线性化；p8
+          Figure5原件y轴-0.25的负号在plain刻度列表变成0.25。 p7 pass@k组合数比值/期望/分式/括号/范围二维数学拆行并有U+0000×2、U+0001×2、U+0002×1、U+0003×1；不能声明无损公式或直接计算文本。
+          Tables8等跨页多列/分组/空单元格关系弱化，不能自动把下行split绑定到上行竞赛；literal prompt/path/代码fence/backtick/换行不保原字节，不能称byte-exact executable
+          prompt。 p17可见protect/vrule/href LaTeX是compiled original自身literal而非extractor插入；p12长GitHub Blog URL延出排版边界也是源PDF自身限制，原样保留不修饰原件。
+          Mądry变音、小型大写、连字/断词/间距、页眉/页码混入存在native排版损失；29非空页/无提取失败只是结构诊断，完整图义/表格/数学/literal精确消费回看PDF，不默认OCR、不提升strict/trusted。
+          missing_pages/sections为空仅表示未见整页/整节缺失，不抹掉图内文字、数学和结构损失。
+      - path: materialized_sources/corpus/arxiv-2410.07095--b72cdb8f/pdf-supplement/document.txt
+        locator: physical PDF p15; actual native TXT L789–L841
+        start_line: 789
+        end_line: 841
+        text_preview: Published as a conference paper at ICLR 2025
+        result: 内容executor已親看中页p15 A.3 Runs Analysis及Tables5/6，逐页查看全部29页及全部图表；p3图内文字和p7数学损失具体保留。
       missing_pages: []
       missing_sections: []
-      parser_errors: []
-      ocr_state: "not_applicable"
+      parser_errors:
+      - native text partial：p3 Figure2三列MLAB/OpenHands/AIDE截图的内部日志、代码、命令、步骤和搜索树文字没有提取；原PDF图面在场，缺的是图内文字而非原件页。
+      - 其他图的箭头/颜色/图标/曲线/散点/histogram/stacked-bar关系及点坐标未完整线性化；p8 Figure5原件y轴-0.25的负号在plain刻度列表变成0.25。
+      - p7 pass@k组合数比值/期望/分式/括号/范围二维数学拆行并有U+0000×2、U+0001×2、U+0002×1、U+0003×1；不能声明无损公式或直接计算文本。
+      - Tables8等跨页多列/分组/空单元格关系弱化，不能自动把下行split绑定到上行竞赛；literal prompt/path/代码fence/backtick/换行不保原字节，不能称byte-exact executable
+        prompt。
+      - p17可见protect/vrule/href LaTeX是compiled original自身literal而非extractor插入；p12长GitHub Blog URL延出排版边界也是源PDF自身限制，原样保留不修饰原件。
+      - Mądry变音、小型大写、连字/断词/间距、页眉/页码混入存在native排版损失；29非空页/无提取失败只是结构诊断，完整图义/表格/数学/literal精确消费回看PDF，不默认OCR、不提升strict/trusted。
+      ocr_state: not_performed
     local_persistence:
       all_declared_files_present: true
       all_declared_files_tracked: true
       retained_original_html_paths: []
-      retained_original_pdf_path: null
-      readable_document_path: "materialized_sources/corpus/arxiv-2410.07095--b72cdb8f/normalized/document.txt"
-      source_root_path: "materialized_sources/corpus/arxiv-2410.07095--b72cdb8f/source/iclr2025_conference.tex"
+      retained_original_pdf_path: materialized_sources/corpus/arxiv-2410.07095--b72cdb8f/pdf-supplement/document.pdf
+      readable_document_path: materialized_sources/corpus/arxiv-2410.07095--b72cdb8f/pdf-supplement/document.txt
+      source_root_path: materialized_sources/corpus/arxiv-2410.07095--b72cdb8f/source/iclr2025_conference.tex
       fresh_checkout_verified_this_phase: false
-      complete_target_consumable: null
+      complete_target_consumable: false
     selectors:
-      resolution_state: "resolved"
-      count: 53
-      evidence_path: "materialized_sources/corpus/arxiv-2410.07095--b72cdb8f/selectors.jsonl"
-      locator: "全量 local_path 与 line 范围经既有 filter_selectors_for_document 复算，无删改/越界"
-      semantic_boundary_verified: false
+      resolution_state: resolved
+      count: 29
+      evidence_path: materialized_sources/corpus/arxiv-2410.07095--b72cdb8f/pdf-supplement/selectors.jsonl
+      locator: 新独立pdf://真实revision#page；全29实际页preview/heading和首中末语义核验，旧root53条及其scope/history保持，不混入当前target count。
+      semantic_boundary_verified: true
     public_redistribution:
-      state: "block"
-      reported_gate: "block"
-      authority: "existing_publication_gate_not_reassessed_in_P1"
+      state: block
+      reported_gate: block
+      authority: existing_publication_gate_not_reassessed_in_P1
       revision_matches: true
-      evidence_path: "raw_data/audits/materialization_rights_review.yaml"
-      locator: "items[uid=arxiv:2410.07095].publication_gate/source_revision"
-      note: "继承的 review.source_revision 与当前 manifest.revision 相同；并非 P1 新许可结论，不证明正文完整。"
+      evidence_path: raw_data/audits/materialization_rights_review.yaml
+      locator: items[uid=arxiv:2410.07095].publication_gate/source_revision
+      note: state/reported_gate保留已观测旧root block及其匹配revision；新PDF按主线明确准入和四方独立revision-bound grant/NOTICE表达allow。旧source
+        scope不被放行，原件complete与native partial独立于新allow，不计strict/trusted完成。
+      target_representation_state: allow
+      target_representation_evidence_path: materialized_sources/corpus/arxiv-2410.07095--b72cdb8f/manifest.yaml
+      target_representation_locator: target_document.representation=pdf_supplement; pdf_supplement.rights.publication_gate;
+        observed.pdf_supplement.public_gate/public_package_valid
     knowledge_admission:
       state: null
       observed_claims_exist: false
       claim_state_counts: {}
-      scope: "仅所选 demo 的现有 claim.source_refs；不是全库知识晋级状态"
-      evidence_path: "experiments/v0_meta_kb_initialization_demo_260910/04_claims/claims.jsonl"
-      locator: "provenance.source_refs contains arxiv:2410.07095; governance.promotion_state"
-      note: "所选 demo 未引用此 UID，state=null 为不适用/无观测 claim，不能伪造 candidate。"
-    content_inspection: []
-    inspection_method: "structural_probe_only"
-    known_parser_issue: false
-    exact_limitation: "只核对 metadata/manifest/index/registry、文件存在/跟踪与全部 selector 结构；未执行该 UID 正文开中尾或原件比对，不能从 full_text 标签推出 complete。 metadata.source_version 未记录；selected_version=null，不把 local_revision 当上游版本。 omitted=9 是缺口候选，未逐个判断引用与必要性，不能自动判全 archive complete 或 partial。"
-    action_bucket: "needs_boundary_verification"
-    next_action: "后续按具体 UID 固定目标文档/版本，再比对原件开中尾、章节/附录、引用资产与派生文本；P1 不获取原文或提升 complete。"
-    resolution: "unresolved"
+      scope: 仅所选 demo 的现有 claim.source_refs；不是全库知识晋级状态
+      evidence_path: experiments/v0_meta_kb_initialization_demo_260910/04_claims/claims.jsonl
+      locator: provenance.source_refs contains arxiv:2410.07095; governance.promotion_state
+      note: 所选 demo 未引用此 UID，state=null 为不适用/无观测 claim，不能伪造 candidate。
+    content_inspection:
+    - path: materialized_sources/corpus/arxiv-2410.07095--b72cdb8f/pdf-supplement/document.txt
+      locator: physical PDF p1; actual native TXT L2–L51
+      start_line: 2
+      end_line: 51
+      text_preview: Published as a conference paper at ICLR 2025
+      result: 内容executor已親看p1实际十二作者、OpenAI、七equal/两work-done脚注、v6与父摘要；主线采用实际PDF byline，显式保留abs姓名次序差异。
+    - path: materialized_sources/corpus/arxiv-2410.07095--b72cdb8f/pdf-supplement/document.txt
+      locator: physical PDF p15; actual native TXT L789–L841
+      start_line: 789
+      end_line: 841
+      text_preview: Published as a conference paper at ICLR 2025
+      result: 内容executor已親看中页p15 A.3 Runs Analysis及Tables5/6，逐页查看全部29页及全部图表；p3图内文字和p7数学损失具体保留。
+    - path: materialized_sources/corpus/arxiv-2410.07095--b72cdb8f/pdf-supplement/document.txt
+      locator: physical PDF p29; actual native TXT L1711–L1749
+      start_line: 1711
+      end_line: 1749
+      text_preview: Published as a conference paper at ICLR 2025
+      result: 内容executor已親看真实尾页p29 Table10类别结果和三组模型名映射；p28 deadline图不是文档终点，跨页Tables8/9/10均在场。
+    - path: materialized_sources/corpus/arxiv-2410.07095--b72cdb8f/pdf-supplement/document.txt
+      locator: existing consumer continuous parent Page1 excerpt; native TXT L10–L14
+      start_line: 10
+      end_line: 14
+      result: 内容executor实际只读默认source_excerpt返回本父论文Abstract首两句，未混入A.8竞赛描述或作者/Introduction；无需primary_excerpt override。该UID非selected，不新增selection、claim或knowledge状态。
+    inspection_method: main_adopted_single_UID_bounded_content_executor_plus_packager_actual_page_sidecar_checks
+    known_parser_issue: true
+    exact_limitation: 完整仅指所选新v6 compiled PDF，native text partial/verified；原件完整是所选v6 compiled PDF的29物理页正文/声明/书目/A.1–A.9/全部Figures1–9与Tables1–10实证完整，不是abs
+      comments 27页或旧archive所有成员完成；p29 Table10及模型名映射是实际结尾。 native text partial：p3 Figure2三列MLAB/OpenHands/AIDE截图的内部日志、代码、命令、步骤和搜索树文字没有提取；原PDF图面在场，缺的是图内文字而非原件页。
+      其他图的箭头/颜色/图标/曲线/散点/histogram/stacked-bar关系及点坐标未完整线性化；p8 Figure5原件y轴-0.25的负号在plain刻度列表变成0.25。 p7 pass@k组合数比值/期望/分式/括号/范围二维数学拆行并有U+0000×2、U+0001×2、U+0002×1、U+0003×1；不能声明无损公式或直接计算文本。
+      Tables8等跨页多列/分组/空单元格关系弱化，不能自动把下行split绑定到上行竞赛；literal prompt/path/代码fence/backtick/换行不保原字节，不能称byte-exact executable
+      prompt。 p17可见protect/vrule/href LaTeX是compiled original自身literal而非extractor插入；p12长GitHub Blog URL延出排版边界也是源PDF自身限制，原样保留不修饰原件。
+      Mądry变音、小型大写、连字/断词/间距、页眉/页码混入存在native排版损失；29非空页/无提取失败只是结构诊断，完整图义/表格/数学/literal精确消费回看PDF，不默认OCR、不提升strict/trusted。
+      旧root53 selectors/source/normalized/revision/retrieval/rights与block全部保留并保存完整before历史；非空页数/body_quality_verified/独立allow不是无损或strict/trusted。包装时未Git
+      add，all_declared_files_tracked=false暂记真实未stage状态，主线实际跟踪后由其最终facts复算，不冒充fresh-checkout。
+    action_bucket: ocr_assessment
+    next_action: 保留同版完整PDF及逐页定位供精确图/表/公式/literal消费；仅将来确需已证p3图内日志代码、p7数学或特定图表数据时先限定页区人工核查，再评估parser/转写/局部OCR，不默认全图OCR或保证几何关系恢复。不取旧source历史/外链原作，不提升trusted；主线串行负责实际tracking、offline
+      replay、聚合、当前树验收及独立exact-pair终审。
+    resolution: unresolved
+    historical_pre_pdf_supplement_coverage:
+      uid: arxiv:2410.07095
+      source_type: arxiv
+      manifest: materialized_sources/corpus/arxiv-2410.07095--b72cdb8f/manifest.yaml
+      metadata_path: 'raw_data/arxiv/MLE-bench: Evaluating Machine Learning Agents on Machine Learning Engineering/metadata.yaml'
+      target_document:
+        title: 'MLE-bench: Evaluating Machine Learning Agents on Machine Learning Engineering'
+        canonical_id: '2410.07095'
+        canonical_url: https://arxiv.org/abs/2410.07095
+        selected_version: null
+        version_status: not_recorded
+        version_reason: metadata.versioning.source_version=null；没有上游固定版本证据。
+        source_kind: tex
+        boundary: 由 arXiv:2410.07095 所指论文主文、引用的附录与图表；以 metadata 已记录版本（若有）为候选，实际版本和全文边界仍待比对。
+        boundary_verification_state: unverified
+      observed:
+        reported_status: materialized
+        reported_content_tier: full_text
+        source_version_recorded: null
+        local_revision: sha256:43d45e760fb9b767beccdba41efda6012a2162714252119aab04e22843ccd5ea
+        document_path: materialized_sources/corpus/arxiv-2410.07095--b72cdb8f/normalized/document.txt
+        document_lines: 1450
+        document_characters: 89147
+        main_tex_path: materialized_sources/corpus/arxiv-2410.07095--b72cdb8f/source/iclr2025_conference.tex
+        normalized_document: normalized/document.txt
+        source_pdf: null
+        retained_original_html_paths: []
+        inventory_file_count: 15
+        all_declared_files_present: true
+        all_declared_files_tracked: true
+        selector_path: materialized_sources/corpus/arxiv-2410.07095--b72cdb8f/selectors.jsonl
+        selector_count: 53
+        invalid_selector_count: 0
+        pdf_page_count_reported: null
+        pdf_text_page_headings: []
+        pdf_empty_text_pages: []
+        pdf_duplicate_page_headings: []
+        content_was_truncated: null
+        omitted_member_count: 9
+        errors: []
+        warnings: []
+        limitations: []
+        requested_urls:
+        - https://export.arxiv.org/e-print/2410.07095
+        - https://arxiv.org/e-print/2410.07095
+        resolved_urls:
+        - https://export.arxiv.org/src/2410.07095
+        index_registry_consistent: true
+        public_gate: block
+        public_gate_revision_matches: true
+        knowledge_claim_state_counts: {}
+      original_artifact_coverage:
+        state: unknown
+        verification_state: unverified
+        evidence:
+        - path: materialized_sources/corpus/arxiv-2410.07095--b72cdb8f/manifest.yaml
+          locator: retrievals/local_files/materialization/omitted
+          result: 当前 inventory 存在=true、跟踪=true；原HTML留存=0，omitted候选=9；这些结构事实不证明目标原件完整。
+        missing_assets: []
+      text_extraction_coverage:
+        state: unknown
+        verification_state: unverified
+        evidence:
+        - path: materialized_sources/corpus/arxiv-2410.07095--b72cdb8f/manifest.yaml
+          locator: materialization/document/content_tier/selectors
+          result: 记录 document=materialized_sources/corpus/arxiv-2410.07095--b72cdb8f/normalized/document.txt，1450行/89147字符，selector=53；正文/版本/边界完整性尚未证明。
+        missing_pages: []
+        missing_sections: []
+        parser_errors: []
+        ocr_state: not_applicable
+      local_persistence:
+        all_declared_files_present: true
+        all_declared_files_tracked: true
+        retained_original_html_paths: []
+        retained_original_pdf_path: null
+        readable_document_path: materialized_sources/corpus/arxiv-2410.07095--b72cdb8f/normalized/document.txt
+        source_root_path: materialized_sources/corpus/arxiv-2410.07095--b72cdb8f/source/iclr2025_conference.tex
+        fresh_checkout_verified_this_phase: false
+        complete_target_consumable: null
+      selectors:
+        resolution_state: resolved
+        count: 53
+        evidence_path: materialized_sources/corpus/arxiv-2410.07095--b72cdb8f/selectors.jsonl
+        locator: 全量 local_path 与 line 范围经既有 filter_selectors_for_document 复算，无删改/越界
+        semantic_boundary_verified: false
+      public_redistribution:
+        state: block
+        reported_gate: block
+        authority: existing_publication_gate_not_reassessed_in_P1
+        revision_matches: true
+        evidence_path: raw_data/audits/materialization_rights_review.yaml
+        locator: items[uid=arxiv:2410.07095].publication_gate/source_revision
+        note: 继承的 review.source_revision 与当前 manifest.revision 相同；并非 P1 新许可结论，不证明正文完整。
+      knowledge_admission:
+        state: null
+        observed_claims_exist: false
+        claim_state_counts: {}
+        scope: 仅所选 demo 的现有 claim.source_refs；不是全库知识晋级状态
+        evidence_path: experiments/v0_meta_kb_initialization_demo_260910/04_claims/claims.jsonl
+        locator: provenance.source_refs contains arxiv:2410.07095; governance.promotion_state
+        note: 所选 demo 未引用此 UID，state=null 为不适用/无观测 claim，不能伪造 candidate。
+      content_inspection: []
+      inspection_method: structural_probe_only
+      known_parser_issue: false
+      exact_limitation: 只核对 metadata/manifest/index/registry、文件存在/跟踪与全部 selector 结构；未执行该 UID 正文开中尾或原件比对，不能从 full_text
+        标签推出 complete。 metadata.source_version 未记录；selected_version=null，不把 local_revision 当上游版本。 omitted=9 是缺口候选，未逐个判断引用与必要性，不能自动判全
+        archive complete 或 partial。
+      action_bucket: needs_boundary_verification
+      next_action: 后续按具体 UID 固定目标文档/版本，再比对原件开中尾、章节/附录、引用资产与派生文本；P1 不获取原文或提升 complete。
+      resolution: unresolved
   -
     uid: "arxiv:2410.10762"
     source_type: "arxiv"
@@ -12147,36 +12411,40 @@ items:
       source_pdf_bytes_equal_p1_snapshot: true
       native_text_before_notice_equal_p1_snapshot: true
   -
-    uid: "arxiv:2503.18102"
-    source_type: "arxiv"
-    manifest: "materialized_sources/corpus/arxiv-2503.18102--1133e9d5/manifest.yaml"
-    metadata_path: "raw_data/arxiv/AgentRxiv: Towards Collaborative Autonomous Research/metadata.yaml"
+    uid: arxiv:2503.18102
+    source_type: arxiv
+    manifest: materialized_sources/corpus/arxiv-2503.18102--1133e9d5/manifest.yaml
+    metadata_path: 'raw_data/arxiv/AgentRxiv: Towards Collaborative Autonomous Research/metadata.yaml'
     target_document:
-      title: "AgentRxiv: Towards Collaborative Autonomous Research"
-      canonical_id: "2503.18102"
-      canonical_url: "https://arxiv.org/abs/2503.18102"
-      selected_version: null
-      version_status: "not_recorded"
-      version_reason: "metadata.versioning.source_version=null；没有上游固定版本证据。"
-      source_kind: "tex"
-      boundary: "由 arXiv:2503.18102 所指论文主文、引用的附录与图表；以 metadata 已记录版本（若有）为候选，实际版本和全文边界仍待比对。"
-      boundary_verification_state: "unverified"
+      title: 'AgentRxiv: Towards Collaborative Autonomous Research'
+      canonical_id: '2503.18102'
+      canonical_url: https://arxiv.org/abs/2503.18102
+      selected_version: v1
+      version_status: fixed_pdf_representation_verified_in_P3_PDF_05
+      version_reason: 主线于2026-09-17亲核正式固定版 https://arxiv.org/abs/2503.18102v1及实际view license到CC BY4；唯一正文GET为https://arxiv.org/pdf/2503.18102v1。主线已全文读取本UID冻结内容报告并明确准入；executor完整native审读和开中尾/全部图表/真实补充尾界实图证据支持新compiled
+        artifact complete/native partial，不是页数非空或独立evaluator PASS。 新PDF选择v1，不回填旧root source_version缺省或改archive事实。
+      source_kind: pdf
+      boundary: 固定arXiv:2503.18102v1完整29物理页编译论文：p1父摘要/Figure1，p2–17主文、六活动图、单/三实验室结果、Failure/Ethics/Discussion/实际Conclusion，p17–27
+        References，p27 Acknowledgments，p28 A.Algorithms与B.Agent Laboratory configuration，p29配置表/B.3/真实C.Prompts结尾。末句All
+        prompts are the same as in Schmidgall et al. (2025).是正常引用，原件未列另一论文完整prompt，不递归取另文。
+      boundary_verification_state: verified
+      representation: pdf_supplement
     observed:
-      reported_status: "materialized"
-      reported_content_tier: "full_text"
-      source_version_recorded: null
-      local_revision: "sha256:f26720fb630b99a1ee6534baf2f49b4d8a89bdde3f6f4542b0d0c5ade40f67c0"
-      document_path: "materialized_sources/corpus/arxiv-2503.18102--1133e9d5/normalized/document.txt"
+      reported_status: materialized
+      reported_content_tier: full_text
+      source_version_recorded: v1
+      local_revision: sha256:f26720fb630b99a1ee6534baf2f49b4d8a89bdde3f6f4542b0d0c5ade40f67c0
+      document_path: materialized_sources/corpus/arxiv-2503.18102--1133e9d5/normalized/document.txt
       document_lines: 902
       document_characters: 64692
-      main_tex_path: "materialized_sources/corpus/arxiv-2503.18102--1133e9d5/source/main.tex"
-      normalized_document: "normalized/document.txt"
+      main_tex_path: materialized_sources/corpus/arxiv-2503.18102--1133e9d5/source/main.tex
+      normalized_document: normalized/document.txt
       source_pdf: null
       retained_original_html_paths: []
-      inventory_file_count: 15
+      inventory_file_count: 19
       all_declared_files_present: true
       all_declared_files_tracked: true
-      selector_path: "materialized_sources/corpus/arxiv-2503.18102--1133e9d5/selectors.jsonl"
+      selector_path: materialized_sources/corpus/arxiv-2503.18102--1133e9d5/selectors.jsonl
       selector_count: 52
       invalid_selector_count: 0
       pdf_page_count_reported: null
@@ -12189,106 +12457,337 @@ items:
       warnings: []
       limitations: []
       requested_urls:
-        - "https://export.arxiv.org/e-print/2503.18102"
-        - "https://arxiv.org/e-print/2503.18102"
+      - https://export.arxiv.org/e-print/2503.18102
+      - https://arxiv.org/e-print/2503.18102
       resolved_urls:
-        - "https://export.arxiv.org/src/2503.18102"
+      - https://export.arxiv.org/src/2503.18102
       index_registry_consistent: true
-      public_gate: "block"
+      public_gate: block
       public_gate_revision_matches: true
       knowledge_claim_state_counts:
         candidate: 2
+      pdf_supplement:
+        source_version: v1
+        local_revision: sha256:762045781a10140f714e0f23388014286a50cce79f385d6b4a1475162cce9669
+        source_pdf: materialized_sources/corpus/arxiv-2503.18102--1133e9d5/pdf-supplement/document.pdf
+        document_path: materialized_sources/corpus/arxiv-2503.18102--1133e9d5/pdf-supplement/document.txt
+        document_lines: 1269
+        document_characters: 95861
+        selector_path: materialized_sources/corpus/arxiv-2503.18102--1133e9d5/pdf-supplement/selectors.jsonl
+        selector_count: 29
+        pdf_page_count_reported: 29
+        pdf_text_page_headings:
+        - 1
+        - 2
+        - 3
+        - 4
+        - 5
+        - 6
+        - 7
+        - 8
+        - 9
+        - 10
+        - 11
+        - 12
+        - 13
+        - 14
+        - 15
+        - 16
+        - 17
+        - 18
+        - 19
+        - 20
+        - 21
+        - 22
+        - 23
+        - 24
+        - 25
+        - 26
+        - 27
+        - 28
+        - 29
+        pdf_empty_text_pages: []
+        pdf_duplicate_page_headings: []
+        body_quality_verified: true
+        limitations:
+        - 原件完整仅指固定v1实际29页主文/六图/书目/致谢/A–C附录；p29 C.Prompts只有对Schmidgall et al.(2025)的正常引用，没有另一全文prompt清单、不递归。
+        - native text partial：六活动图主要提caption，p1/p7另文列表/有限截断摘要、方向/notes/方法框、p5角色/阶段/EDIT/REPLACE/修复评分闭环拓扑、各图曲线/柱值/坐标/legend/call-outs均未完整进入TXT，未OCR；链接图标提成/githubAgentRxiv.github.io不是干净链接。
+        - 词拼接/换行断词/small-caps字距、数学字体/排版及p28–29配置表合并category/列对齐/横线展平；保留实际字面N、百分数、sigma、exit()/subprocess.run()/REPLACE不表示图代码或数学无损。
+        - p5 Figure2 caption末(Bottom) This实际在原PDF就未完；正文figure番号与图番号、p11 caption +9.6%与正文/摘要相对+13.7%表达差异来自上游，原样保留不修订作者报告。
+        - primary_excerpt只声明native Page1父摘要连续L9–23，实际consumer按既有行为返L9–12首两句；默认L3–12含日期/题名/作者/机构污染，override不改PDF/生产逻辑或重写摘要。
+        - 29非空页/无失败只是结构诊断，图面/数学/配置表精确消费回PDF，不默认OCR、不提升strict/trusted；实验与成本仅source-reported未复现，旧root限制独立保留。
+        validation_errors: []
+        public_gate: allow
+        public_package_valid: true
+        public_package_errors: []
+        primary_excerpt:
+          start_line: 9
+          end_line: 23
     original_artifact_coverage:
-      state: "unknown"
-      verification_state: "unverified"
+      state: complete
+      verification_state: verified
       evidence:
-        -
-          path: "materialized_sources/corpus/arxiv-2503.18102--1133e9d5/manifest.yaml"
-          locator: "retrievals/local_files/materialization/omitted"
-          result: "当前 inventory 存在=true、跟踪=true；原HTML留存=0，omitted候选=9；这些结构事实不证明目标原件完整。"
+      - path: materialized_sources/corpus/arxiv-2503.18102--1133e9d5/pdf-supplement/document.pdf
+        locator: unchanged fixed v1 compiled PDF physical pages1–29; payload2757188 bytes
+        result: 主线全文采用本UID冻结内容报告和实际原件开中尾/全部图表/正式附录尾界证据并明确准入；固定arXiv:2503.18102v1完整29物理页编译论文：p1父摘要/Figure1，p2–17主文、六活动图、单/三实验室结果、Failure/Ethics/Discussion/实际Conclusion，p17–27
+          References，p27 Acknowledgments，p28 A.Algorithms与B.Agent Laboratory configuration，p29配置表/B.3/真实C.Prompts结尾。末句All
+          prompts are the same as in Schmidgall et al. (2025).是正常引用，原件未列另一论文完整prompt，不递归取另文。 完整只指此compiled表示，不代表旧archive全部成员或外链作品完整。
+      - path: materialized_sources/corpus/arxiv-2503.18102--1133e9d5/manifest.yaml
+        locator: pdf_supplement source_version/revision/retrievals/materialization/rights; retained root fields
+        result: 新原PDF bytes/revision/唯一GET/真实完成时间绑定，逐项PDF completeness/publication-package无错误且四方独立grant全等；body_quality_verified只表实际边界质量，不是无损native/strict/trusted或最终evaluator
+          PASS。旧root source/normalized/selectors/NOTICE/revision/retrieval/rights/gate完整保持。
       missing_assets: []
     text_extraction_coverage:
-      state: "unknown"
-      verification_state: "unverified"
+      state: partial
+      verification_state: verified
       evidence:
-        -
-          path: "materialized_sources/corpus/arxiv-2503.18102--1133e9d5/manifest.yaml"
-          locator: "materialization/document/content_tier/selectors"
-          result: "记录 document=materialized_sources/corpus/arxiv-2503.18102--1133e9d5/normalized/document.txt，902行/64692字符，selector=52；正文/版本/边界完整性尚未证明。"
+      - path: materialized_sources/corpus/arxiv-2503.18102--1133e9d5/pdf-supplement/document.txt
+        locator: all29 native Page headings and paired revision-bound page sidecar; actual declared figure/math/table/literal
+          losses
+        result: 全页native父正文和真实附录可消费，未footer为1257行/93176字符；全页page/revision/preview绑定和首中末语义核验，无整页/整节缺失不抹图内或表示损失。原件完整仅指固定v1实际29页主文/六图/书目/致谢/A–C附录；p29
+          C.Prompts只有对Schmidgall et al.(2025)的正常引用，没有另一全文prompt清单、不递归。 native text partial：六活动图主要提caption，p1/p7另文列表/有限截断摘要、方向/notes/方法框、p5角色/阶段/EDIT/REPLACE/修复评分闭环拓扑、各图曲线/柱值/坐标/legend/call-outs均未完整进入TXT，未OCR；链接图标提成/githubAgentRxiv.github.io不是干净链接。
+          词拼接/换行断词/small-caps字距、数学字体/排版及p28–29配置表合并category/列对齐/横线展平；保留实际字面N、百分数、sigma、exit()/subprocess.run()/REPLACE不表示图代码或数学无损。
+          p5 Figure2 caption末(Bottom) This实际在原PDF就未完；正文figure番号与图番号、p11 caption +9.6%与正文/摘要相对+13.7%表达差异来自上游，原样保留不修订作者报告。
+          primary_excerpt只声明native Page1父摘要连续L9–23，实际consumer按既有行为返L9–12首两句；默认L3–12含日期/题名/作者/机构污染，override不改PDF/生产逻辑或重写摘要。
+          29非空页/无失败只是结构诊断，图面/数学/配置表精确消费回PDF，不默认OCR、不提升strict/trusted；实验与成本仅source-reported未复现，旧root限制独立保留。
+      - path: materialized_sources/corpus/arxiv-2503.18102--1133e9d5/pdf-supplement/document.txt
+        locator: physical PDF p15; actual native TXT L592–L641
+        start_line: 592
+        end_line: 641
+        text_preview: 'AgentRxiv: Towards Collaborative Autonomous Research'
+        result: 内容executor亲看中页p15 persistent failure modes与literal代码，额外亲看全部六活动图及并行结果/算法/配置；图内标签/曲线/网页预览缺失具体披露。
       missing_pages: []
       missing_sections: []
-      parser_errors: []
-      ocr_state: "not_applicable"
+      parser_errors:
+      - native text partial：六活动图主要提caption，p1/p7另文列表/有限截断摘要、方向/notes/方法框、p5角色/阶段/EDIT/REPLACE/修复评分闭环拓扑、各图曲线/柱值/坐标/legend/call-outs均未完整进入TXT，未OCR；链接图标提成/githubAgentRxiv.github.io不是干净链接。
+      - 词拼接/换行断词/small-caps字距、数学字体/排版及p28–29配置表合并category/列对齐/横线展平；保留实际字面N、百分数、sigma、exit()/subprocess.run()/REPLACE不表示图代码或数学无损。
+      - p5 Figure2 caption末(Bottom) This实际在原PDF就未完；正文figure番号与图番号、p11 caption +9.6%与正文/摘要相对+13.7%表达差异来自上游，原样保留不修订作者报告。
+      - primary_excerpt只声明native Page1父摘要连续L9–23，实际consumer按既有行为返L9–12首两句；默认L3–12含日期/题名/作者/机构污染，override不改PDF/生产逻辑或重写摘要。
+      - 29非空页/无失败只是结构诊断，图面/数学/配置表精确消费回PDF，不默认OCR、不提升strict/trusted；实验与成本仅source-reported未复现，旧root限制独立保留。
+      ocr_state: not_performed
     local_persistence:
       all_declared_files_present: true
       all_declared_files_tracked: true
       retained_original_html_paths: []
-      retained_original_pdf_path: null
-      readable_document_path: "materialized_sources/corpus/arxiv-2503.18102--1133e9d5/normalized/document.txt"
-      source_root_path: "materialized_sources/corpus/arxiv-2503.18102--1133e9d5/source/main.tex"
+      retained_original_pdf_path: materialized_sources/corpus/arxiv-2503.18102--1133e9d5/pdf-supplement/document.pdf
+      readable_document_path: materialized_sources/corpus/arxiv-2503.18102--1133e9d5/pdf-supplement/document.txt
+      source_root_path: materialized_sources/corpus/arxiv-2503.18102--1133e9d5/source/main.tex
       fresh_checkout_verified_this_phase: false
-      complete_target_consumable: null
+      complete_target_consumable: false
     selectors:
-      resolution_state: "resolved"
-      count: 52
-      evidence_path: "materialized_sources/corpus/arxiv-2503.18102--1133e9d5/selectors.jsonl"
-      locator: "全量 local_path 与 line 范围经既有 filter_selectors_for_document 复算，无删改/越界"
-      semantic_boundary_verified: false
+      resolution_state: resolved
+      count: 29
+      evidence_path: materialized_sources/corpus/arxiv-2503.18102--1133e9d5/pdf-supplement/selectors.jsonl
+      locator: 新独立pdf://真实revision#page；全实际页preview/heading及首中末语义核验，旧root52条和scope/history保留，不混当前target count。
+      semantic_boundary_verified: true
     public_redistribution:
-      state: "block"
-      reported_gate: "block"
-      authority: "existing_publication_gate_not_reassessed_in_P1"
+      state: block
+      reported_gate: block
+      authority: existing_publication_gate_not_reassessed_in_P1
       revision_matches: true
-      evidence_path: "raw_data/audits/materialization_rights_review.yaml"
-      locator: "items[uid=arxiv:2503.18102].publication_gate/source_revision"
-      note: "继承的 review.source_revision 与当前 manifest.revision 相同；并非 P1 新许可结论，不证明正文完整。"
+      evidence_path: raw_data/audits/materialization_rights_review.yaml
+      locator: items[uid=arxiv:2503.18102].publication_gate/source_revision
+      note: state/reported_gate保留旧root block和匹配旧revision；新PDF按主线明确准入/四方revision-bound grant/自包含NOTICE独立表达allow。旧root及其组件/摘要条件不放行，原件complete/native
+        partial不由新allow推出strict/trusted。
+      target_representation_state: allow
+      target_representation_evidence_path: materialized_sources/corpus/arxiv-2503.18102--1133e9d5/manifest.yaml
+      target_representation_locator: target_document.representation=pdf_supplement; pdf_supplement.rights.publication_gate;
+        observed.pdf_supplement.public_gate/public_package_valid
     knowledge_admission:
-      state: "candidate"
+      state: candidate
       observed_claims_exist: true
       claim_state_counts:
         candidate: 2
-      scope: "仅所选 demo 的现有 claim.source_refs；不是全库知识晋级状态"
-      evidence_path: "experiments/v0_meta_kb_initialization_demo_260910/04_claims/claims.jsonl"
-      locator: "provenance.source_refs contains arxiv:2503.18102; governance.promotion_state"
-      note: "仅报告现有 claim 状态，不晋级 trusted；metadata verification 不等于 knowledge admission。"
-    content_inspection: []
-    inspection_method: "structural_probe_only"
-    known_parser_issue: false
-    exact_limitation: "只核对 metadata/manifest/index/registry、文件存在/跟踪与全部 selector 结构；未执行该 UID 正文开中尾或原件比对，不能从 full_text 标签推出 complete。 metadata.source_version 未记录；selected_version=null，不把 local_revision 当上游版本。 omitted=9 是缺口候选，未逐个判断引用与必要性，不能自动判全 archive complete 或 partial。"
-    action_bucket: "needs_boundary_verification"
-    next_action: "后续按具体 UID 固定目标文档/版本，再比对原件开中尾、章节/附录、引用资产与派生文本；P1 不获取原文或提升 complete。"
-    resolution: "unresolved"
+      scope: 仅所选 demo 的现有 claim.source_refs；不是全库知识晋级状态
+      evidence_path: experiments/v0_meta_kb_initialization_demo_260910/04_claims/claims.jsonl
+      locator: provenance.source_refs contains arxiv:2503.18102; governance.promotion_state
+      note: 仅报告现有 claim 状态，不晋级 trusted；metadata verification 不等于 knowledge admission。
+    content_inspection:
+    - path: materialized_sources/corpus/arxiv-2503.18102--1133e9d5/pdf-supplement/document.txt
+      locator: physical PDF p1; actual native TXT L2–L33
+      start_line: 2
+      end_line: 33
+      text_preview: 2025-3-25
+      result: 内容executor亲看p1两作者/机构/通讯、v1 23Mar与pagehead25Mar、父摘要，另以300dpi ROI核另文九作者/bareID/有限预览；主线亲看首页及ROI采用准入。
+    - path: materialized_sources/corpus/arxiv-2503.18102--1133e9d5/pdf-supplement/document.txt
+      locator: physical PDF p15; actual native TXT L592–L641
+      start_line: 592
+      end_line: 641
+      text_preview: 'AgentRxiv: Towards Collaborative Autonomous Research'
+      result: 内容executor亲看中页p15 persistent failure modes与literal代码，额外亲看全部六活动图及并行结果/算法/配置；图内标签/曲线/网页预览缺失具体披露。
+    - path: materialized_sources/corpus/arxiv-2503.18102--1133e9d5/pdf-supplement/document.txt
+      locator: physical PDF p29; actual native TXT L1239–L1257
+      start_line: 1239
+      end_line: 1257
+      text_preview: 'AgentRxiv: Towards Collaborative Autonomous Research'
+      result: 内容executor亲看真实末页p29配置表/B.3查询/C.Prompts正常引用，引用末句之后只是页尾，不把旧TeX注释Conclusion当终点或新增另文全文义务。
+    - path: materialized_sources/corpus/arxiv-2503.18102--1133e9d5/pdf-supplement/document.txt
+      locator: existing actual consumer continuous parent Page1 excerpt; native TXT L9–L12
+      start_line: 9
+      end_line: 12
+      result: 现有source_excerpt实际返回父摘要首两句；唯一primary_excerpt连续L9–23按主线独立亲核，当前consumer L9–12不混日期/题名/作者/机构/图面另文；只选原native范围不改生产逻辑/selection/admission。
+    inspection_method: main_adopted_single_UID_bounded_content_executor_plus_packager_actual_page_sidecar_and_parent_excerpt_checks
+    known_parser_issue: true
+    exact_limitation: 完整只指新固定compiled PDF；native text partial/verified；原件完整仅指固定v1实际29页主文/六图/书目/致谢/A–C附录；p29 C.Prompts只有对Schmidgall
+      et al.(2025)的正常引用，没有另一全文prompt清单、不递归。 native text partial：六活动图主要提caption，p1/p7另文列表/有限截断摘要、方向/notes/方法框、p5角色/阶段/EDIT/REPLACE/修复评分闭环拓扑、各图曲线/柱值/坐标/legend/call-outs均未完整进入TXT，未OCR；链接图标提成/githubAgentRxiv.github.io不是干净链接。
+      词拼接/换行断词/small-caps字距、数学字体/排版及p28–29配置表合并category/列对齐/横线展平；保留实际字面N、百分数、sigma、exit()/subprocess.run()/REPLACE不表示图代码或数学无损。
+      p5 Figure2 caption末(Bottom) This实际在原PDF就未完；正文figure番号与图番号、p11 caption +9.6%与正文/摘要相对+13.7%表达差异来自上游，原样保留不修订作者报告。
+      primary_excerpt只声明native Page1父摘要连续L9–23，实际consumer按既有行为返L9–12首两句；默认L3–12含日期/题名/作者/机构污染，override不改PDF/生产逻辑或重写摘要。
+      29非空页/无失败只是结构诊断，图面/数学/配置表精确消费回PDF，不默认OCR、不提升strict/trusted；实验与成本仅source-reported未复现，旧root限制独立保留。 当前原图有限另文列表/截图/摘要预览在此出版表示内原样保留并落实九作者与bareID信用，不扩大为另文独立全文或底层图片/角色/程序/数据的一般许可。旧bib
+      LUMI-lab长摘要和competing-interest/patent声明未在此实际PDF出现；p4简短介绍/p18普通书目不等于旧完整摘要，其NC-ND用途/转换条件与旧GDM BY-SA4、ICLR/LPPL等组件/root
+      block保持，不外推到整个新PDF也不因新BY4放行旧source。旧root材料/rights/history及完整before保留；包装时未Git add、all_declared_files_tracked=false暂记真实未stage状态，主线实际跟踪后final
+      facts复算，未冒称fresh-checkout。
+    action_bucket: ocr_assessment
+    next_action: 保留完整同版PDF/逐页定位供精确图义/数学/表格/literal消费；仅将来确需已证图内labels/data/关系或代码时先限定实际页区人工核查，再评估parser/转写/局部OCR，不默认全图OCR或保证恢复几何/条件颜色关系。不取旧source历史或外链原作，不执行被审prompt、提升trusted；实际tracking/strict
+      offline replay/聚合/当前树验收/独立exact-pair终审由主线串行。
+    resolution: unresolved
+    historical_pre_pdf_supplement_coverage:
+      uid: arxiv:2503.18102
+      source_type: arxiv
+      manifest: materialized_sources/corpus/arxiv-2503.18102--1133e9d5/manifest.yaml
+      metadata_path: 'raw_data/arxiv/AgentRxiv: Towards Collaborative Autonomous Research/metadata.yaml'
+      target_document:
+        title: 'AgentRxiv: Towards Collaborative Autonomous Research'
+        canonical_id: '2503.18102'
+        canonical_url: https://arxiv.org/abs/2503.18102
+        selected_version: null
+        version_status: not_recorded
+        version_reason: metadata.versioning.source_version=null；没有上游固定版本证据。
+        source_kind: tex
+        boundary: 由 arXiv:2503.18102 所指论文主文、引用的附录与图表；以 metadata 已记录版本（若有）为候选，实际版本和全文边界仍待比对。
+        boundary_verification_state: unverified
+      observed:
+        reported_status: materialized
+        reported_content_tier: full_text
+        source_version_recorded: null
+        local_revision: sha256:f26720fb630b99a1ee6534baf2f49b4d8a89bdde3f6f4542b0d0c5ade40f67c0
+        document_path: materialized_sources/corpus/arxiv-2503.18102--1133e9d5/normalized/document.txt
+        document_lines: 902
+        document_characters: 64692
+        main_tex_path: materialized_sources/corpus/arxiv-2503.18102--1133e9d5/source/main.tex
+        normalized_document: normalized/document.txt
+        source_pdf: null
+        retained_original_html_paths: []
+        inventory_file_count: 15
+        all_declared_files_present: true
+        all_declared_files_tracked: true
+        selector_path: materialized_sources/corpus/arxiv-2503.18102--1133e9d5/selectors.jsonl
+        selector_count: 52
+        invalid_selector_count: 0
+        pdf_page_count_reported: null
+        pdf_text_page_headings: []
+        pdf_empty_text_pages: []
+        pdf_duplicate_page_headings: []
+        content_was_truncated: null
+        omitted_member_count: 9
+        errors: []
+        warnings: []
+        limitations: []
+        requested_urls:
+        - https://export.arxiv.org/e-print/2503.18102
+        - https://arxiv.org/e-print/2503.18102
+        resolved_urls:
+        - https://export.arxiv.org/src/2503.18102
+        index_registry_consistent: true
+        public_gate: block
+        public_gate_revision_matches: true
+        knowledge_claim_state_counts:
+          candidate: 2
+      original_artifact_coverage:
+        state: unknown
+        verification_state: unverified
+        evidence:
+        - path: materialized_sources/corpus/arxiv-2503.18102--1133e9d5/manifest.yaml
+          locator: retrievals/local_files/materialization/omitted
+          result: 当前 inventory 存在=true、跟踪=true；原HTML留存=0，omitted候选=9；这些结构事实不证明目标原件完整。
+        missing_assets: []
+      text_extraction_coverage:
+        state: unknown
+        verification_state: unverified
+        evidence:
+        - path: materialized_sources/corpus/arxiv-2503.18102--1133e9d5/manifest.yaml
+          locator: materialization/document/content_tier/selectors
+          result: 记录 document=materialized_sources/corpus/arxiv-2503.18102--1133e9d5/normalized/document.txt，902行/64692字符，selector=52；正文/版本/边界完整性尚未证明。
+        missing_pages: []
+        missing_sections: []
+        parser_errors: []
+        ocr_state: not_applicable
+      local_persistence:
+        all_declared_files_present: true
+        all_declared_files_tracked: true
+        retained_original_html_paths: []
+        retained_original_pdf_path: null
+        readable_document_path: materialized_sources/corpus/arxiv-2503.18102--1133e9d5/normalized/document.txt
+        source_root_path: materialized_sources/corpus/arxiv-2503.18102--1133e9d5/source/main.tex
+        fresh_checkout_verified_this_phase: false
+        complete_target_consumable: null
+      selectors:
+        resolution_state: resolved
+        count: 52
+        evidence_path: materialized_sources/corpus/arxiv-2503.18102--1133e9d5/selectors.jsonl
+        locator: 全量 local_path 与 line 范围经既有 filter_selectors_for_document 复算，无删改/越界
+        semantic_boundary_verified: false
+      public_redistribution:
+        state: block
+        reported_gate: block
+        authority: existing_publication_gate_not_reassessed_in_P1
+        revision_matches: true
+        evidence_path: raw_data/audits/materialization_rights_review.yaml
+        locator: items[uid=arxiv:2503.18102].publication_gate/source_revision
+        note: 继承的 review.source_revision 与当前 manifest.revision 相同；并非 P1 新许可结论，不证明正文完整。
+      knowledge_admission:
+        state: candidate
+        observed_claims_exist: true
+        claim_state_counts:
+          candidate: 2
+        scope: 仅所选 demo 的现有 claim.source_refs；不是全库知识晋级状态
+        evidence_path: experiments/v0_meta_kb_initialization_demo_260910/04_claims/claims.jsonl
+        locator: provenance.source_refs contains arxiv:2503.18102; governance.promotion_state
+        note: 仅报告现有 claim 状态，不晋级 trusted；metadata verification 不等于 knowledge admission。
+      content_inspection: []
+      inspection_method: structural_probe_only
+      known_parser_issue: false
+      exact_limitation: 只核对 metadata/manifest/index/registry、文件存在/跟踪与全部 selector 结构；未执行该 UID 正文开中尾或原件比对，不能从 full_text
+        标签推出 complete。 metadata.source_version 未记录；selected_version=null，不把 local_revision 当上游版本。 omitted=9 是缺口候选，未逐个判断引用与必要性，不能自动判全
+        archive complete 或 partial。
+      action_bucket: needs_boundary_verification
+      next_action: 后续按具体 UID 固定目标文档/版本，再比对原件开中尾、章节/附录、引用资产与派生文本；P1 不获取原文或提升 complete。
+      resolution: unresolved
   -
-    uid: "arxiv:2504.01848"
-    source_type: "arxiv"
-    manifest: "materialized_sources/corpus/arxiv-2504.01848--006ccffe/manifest.yaml"
-    metadata_path: "raw_data/arxiv/PaperBench: Evaluating AI's Ability to Replicate AI Research/metadata.yaml"
+    uid: arxiv:2504.01848
+    source_type: arxiv
+    manifest: materialized_sources/corpus/arxiv-2504.01848--006ccffe/manifest.yaml
+    metadata_path: 'raw_data/arxiv/PaperBench: Evaluating AI''s Ability to Replicate AI Research/metadata.yaml'
     target_document:
-      title: "PaperBench: Evaluating AI's Ability to Replicate AI Research"
-      canonical_id: "2504.01848"
-      canonical_url: "https://arxiv.org/abs/2504.01848"
-      selected_version: null
-      version_status: "not_recorded"
-      version_reason: "metadata.versioning.source_version=null；没有上游固定版本证据。"
-      source_kind: "tex"
-      boundary: "由 arXiv:2504.01848 所指论文主文、引用的附录与图表；以 metadata 已记录版本（若有）为候选，实际版本和全文边界仍待比对。"
-      boundary_verification_state: "unverified"
+      title: 'PaperBench: Evaluating AI''s Ability to Replicate AI Research'
+      canonical_id: '2504.01848'
+      canonical_url: https://arxiv.org/abs/2504.01848
+      selected_version: v3
+      version_status: fixed_pdf_representation_verified_in_P3_PDF_05
+      version_reason: 主线于2026-09-17亲核正式固定版 https://arxiv.org/abs/2504.01848v3及实际view license到CC BY4；唯一正文GET为https://arxiv.org/pdf/2504.01848v3。主线已全文读取本UID冻结内容报告并明确准入；executor完整native审读和开中尾/全部图表/真实补充尾界实图证据支持新compiled
+        artifact complete/native partial，不是页数非空或独立evaluator PASS。 新PDF选择v3，不回填旧root source_version缺省或改archive事实。
+      source_kind: pdf
+      boundary: 固定arXiv:2504.01848v3的完整30物理页编译论文：p1–10主文至Section8 Conclusion并含Impact Statement/Acknowledgements，p10–12
+        References，p13–24 Appendix A–I及Tables7–18，p25–30晚浮动Figures7–14 judge/agent/task prompts；六编号科学图Figures1–6（Figure4含JSON/GUI两截图）与八编号prompt/task
+        figures在场，p29 Part1之后仍有p30 Figure14 Task Instructions Part2、toy Python/Bash、实际复现末句及continued图注，真实尾界不在p24。
+      boundary_verification_state: verified
+      representation: pdf_supplement
     observed:
-      reported_status: "materialized"
-      reported_content_tier: "full_text"
-      source_version_recorded: null
-      local_revision: "sha256:f1c43887b83c37b1528b330104b80474a9bfaad60ac970a8e7bce95d2b52ab42"
-      document_path: "materialized_sources/corpus/arxiv-2504.01848--006ccffe/normalized/document.txt"
+      reported_status: materialized
+      reported_content_tier: full_text
+      source_version_recorded: v3
+      local_revision: sha256:f1c43887b83c37b1528b330104b80474a9bfaad60ac970a8e7bce95d2b52ab42
+      document_path: materialized_sources/corpus/arxiv-2504.01848--006ccffe/normalized/document.txt
       document_lines: 1542
       document_characters: 101772
-      main_tex_path: "materialized_sources/corpus/arxiv-2504.01848--006ccffe/source/example_paper.tex"
-      normalized_document: "normalized/document.txt"
+      main_tex_path: materialized_sources/corpus/arxiv-2504.01848--006ccffe/source/example_paper.tex
+      normalized_document: normalized/document.txt
       source_pdf: null
       retained_original_html_paths: []
-      inventory_file_count: 15
+      inventory_file_count: 19
       all_declared_files_present: true
       all_declared_files_tracked: true
-      selector_path: "materialized_sources/corpus/arxiv-2504.01848--006ccffe/selectors.jsonl"
+      selector_path: materialized_sources/corpus/arxiv-2504.01848--006ccffe/selectors.jsonl
       selector_count: 56
       invalid_selector_count: 0
       pdf_page_count_reported: null
@@ -12301,73 +12800,306 @@ items:
       warnings: []
       limitations: []
       requested_urls:
-        - "https://export.arxiv.org/e-print/2504.01848"
-        - "https://arxiv.org/e-print/2504.01848"
+      - https://export.arxiv.org/e-print/2504.01848
+      - https://arxiv.org/e-print/2504.01848
       resolved_urls:
-        - "https://export.arxiv.org/src/2504.01848"
+      - https://export.arxiv.org/src/2504.01848
       index_registry_consistent: true
-      public_gate: "block"
+      public_gate: block
       public_gate_revision_matches: true
       knowledge_claim_state_counts: {}
+      pdf_supplement:
+        source_version: v3
+        local_revision: sha256:2f58f1a6581af9d99432422dccf3cf61f5c263377c1e4550e7333c4a22d7184d
+        source_pdf: materialized_sources/corpus/arxiv-2504.01848--006ccffe/pdf-supplement/document.pdf
+        document_path: materialized_sources/corpus/arxiv-2504.01848--006ccffe/pdf-supplement/document.txt
+        document_lines: 2003
+        document_characters: 106801
+        selector_path: materialized_sources/corpus/arxiv-2504.01848--006ccffe/pdf-supplement/selectors.jsonl
+        selector_count: 30
+        pdf_page_count_reported: 30
+        pdf_text_page_headings:
+        - 1
+        - 2
+        - 3
+        - 4
+        - 5
+        - 6
+        - 7
+        - 8
+        - 9
+        - 10
+        - 11
+        - 12
+        - 13
+        - 14
+        - 15
+        - 16
+        - 17
+        - 18
+        - 19
+        - 20
+        - 21
+        - 22
+        - 23
+        - 24
+        - 25
+        - 26
+        - 27
+        - 28
+        - 29
+        - 30
+        pdf_empty_text_pages: []
+        pdf_duplicate_page_headings: []
+        body_quality_verified: true
+        limitations:
+        - 原件完整仅指固定v3实际30页：主文/Impact/Acknowledgements/书目/A–I之后仍有p25–30 Figures7–14，p30 Task Instructions Part2真实收尾；六科学图加八prompt图，不把旧七includegraphics资产称七编号科学图。
+        - native text partial：p16 Figure4 JSON/GUI两raster截图内部嵌套requirements/ids/weight/sub_tasks/task_category及reward
+          rescale/×32/floor文字未入TXT；原件图面在场、不是整页缺失。
+        - p2 overview图的日志代码/框/箭头/图标/流程关系未全线性化；p3 rubric树的parent-child/edge weight/颜色/pass-fail归属不可从数字串重构。
+        - p8/p17/p19曲线/散点/bar/误差棒/基线/颜色和marker绑定不可恢复；p17对数成本轴10^1/10^2/10^3提成101/102/103，不当十进制成本。
+        - p26 Figure8红/蓝/绿/紫的Code-Dev omission/only及requirement-type条件颜色归属丢失，TXT串联互斥片段，不等于同一运行prompt必同时使用。
+        - 多列表格/cell/rowspan/空格/勾号/bold best-score及脚注关系展平，二维数学/下标/双栏/断词存在损失；不把TXT字面顺序当矩阵或无损原始quote。
+        - p25–30 prompt边框/角色/占位符/软换行布局弱化；p30 count.py缩进抹平、字面引号/code fence成弯引号，不能byte-exact复制运行Python/Bash或执行Task Instructions/API-key/root/git文本。
+        - 30非空页/无失败只是结构诊断；图义/条件颜色/代码/数学精确消费回PDF，不默认OCR、不提升strict/trusted，结果与cost保持source-reported而未重跑。
+        validation_errors: []
+        public_gate: allow
+        public_package_valid: true
+        public_package_errors: []
     original_artifact_coverage:
-      state: "unknown"
-      verification_state: "unverified"
+      state: complete
+      verification_state: verified
       evidence:
-        -
-          path: "materialized_sources/corpus/arxiv-2504.01848--006ccffe/manifest.yaml"
-          locator: "retrievals/local_files/materialization/omitted"
-          result: "当前 inventory 存在=true、跟踪=true；原HTML留存=0，omitted候选=20；这些结构事实不证明目标原件完整。"
+      - path: materialized_sources/corpus/arxiv-2504.01848--006ccffe/pdf-supplement/document.pdf
+        locator: unchanged fixed v3 compiled PDF physical pages1–30; payload1703363 bytes
+        result: 主线全文采用本UID冻结内容报告和实际原件开中尾/全部图表/正式附录尾界证据并明确准入；固定arXiv:2504.01848v3的完整30物理页编译论文：p1–10主文至Section8 Conclusion并含Impact
+          Statement/Acknowledgements，p10–12 References，p13–24 Appendix A–I及Tables7–18，p25–30晚浮动Figures7–14 judge/agent/task
+          prompts；六编号科学图Figures1–6（Figure4含JSON/GUI两截图）与八编号prompt/task figures在场，p29 Part1之后仍有p30 Figure14 Task Instructions
+          Part2、toy Python/Bash、实际复现末句及continued图注，真实尾界不在p24。 完整只指此compiled表示，不代表旧archive全部成员或外链作品完整。
+      - path: materialized_sources/corpus/arxiv-2504.01848--006ccffe/manifest.yaml
+        locator: pdf_supplement source_version/revision/retrievals/materialization/rights; retained root fields
+        result: 新原PDF bytes/revision/唯一GET/真实完成时间绑定，逐项PDF completeness/publication-package无错误且四方独立grant全等；body_quality_verified只表实际边界质量，不是无损native/strict/trusted或最终evaluator
+          PASS。旧root source/normalized/selectors/NOTICE/revision/retrieval/rights/gate完整保持。
       missing_assets: []
     text_extraction_coverage:
-      state: "unknown"
-      verification_state: "unverified"
+      state: partial
+      verification_state: verified
       evidence:
-        -
-          path: "materialized_sources/corpus/arxiv-2504.01848--006ccffe/manifest.yaml"
-          locator: "materialization/document/content_tier/selectors"
-          result: "记录 document=materialized_sources/corpus/arxiv-2504.01848--006ccffe/normalized/document.txt，1542行/101772字符，selector=56；正文/版本/边界完整性尚未证明。"
+      - path: materialized_sources/corpus/arxiv-2504.01848--006ccffe/pdf-supplement/document.txt
+        locator: all30 native Page headings and paired revision-bound page sidecar; actual declared figure/math/table/literal
+          losses
+        result: 全页native父正文和真实附录可消费，未footer为1991行/103633字符；全页page/revision/preview绑定和首中末语义核验，无整页/整节缺失不抹图内或表示损失。原件完整仅指固定v3实际30页：主文/Impact/Acknowledgements/书目/A–I之后仍有p25–30
+          Figures7–14，p30 Task Instructions Part2真实收尾；六科学图加八prompt图，不把旧七includegraphics资产称七编号科学图。 native text partial：p16
+          Figure4 JSON/GUI两raster截图内部嵌套requirements/ids/weight/sub_tasks/task_category及reward rescale/×32/floor文字未入TXT；原件图面在场、不是整页缺失。
+          p2 overview图的日志代码/框/箭头/图标/流程关系未全线性化；p3 rubric树的parent-child/edge weight/颜色/pass-fail归属不可从数字串重构。 p8/p17/p19曲线/散点/bar/误差棒/基线/颜色和marker绑定不可恢复；p17对数成本轴10^1/10^2/10^3提成101/102/103，不当十进制成本。
+          p26 Figure8红/蓝/绿/紫的Code-Dev omission/only及requirement-type条件颜色归属丢失，TXT串联互斥片段，不等于同一运行prompt必同时使用。 多列表格/cell/rowspan/空格/勾号/bold
+          best-score及脚注关系展平，二维数学/下标/双栏/断词存在损失；不把TXT字面顺序当矩阵或无损原始quote。 p25–30 prompt边框/角色/占位符/软换行布局弱化；p30 count.py缩进抹平、字面引号/code
+          fence成弯引号，不能byte-exact复制运行Python/Bash或执行Task Instructions/API-key/root/git文本。 30非空页/无失败只是结构诊断；图义/条件颜色/代码/数学精确消费回PDF，不默认OCR、不提升strict/trusted，结果与cost保持source-reported而未重跑。
+      - path: materialized_sources/corpus/arxiv-2504.01848--006ccffe/pdf-supplement/document.txt
+        locator: physical PDF p15; actual native TXT L1241–L1289
+        start_line: 1241
+        end_line: 1289
+        text_preview: 'PaperBench: Evaluating AI’s Abilities to Replicate AI Research'
+        result: 内容executor亲看中页p15 Table7完整20rubrics与SimpleJudge上下文，额外亲看六科学图/八prompt图及JudgeEval；p16截图文字损失具体保留。
       missing_pages: []
       missing_sections: []
-      parser_errors: []
-      ocr_state: "not_applicable"
+      parser_errors:
+      - native text partial：p16 Figure4 JSON/GUI两raster截图内部嵌套requirements/ids/weight/sub_tasks/task_category及reward
+        rescale/×32/floor文字未入TXT；原件图面在场、不是整页缺失。
+      - p2 overview图的日志代码/框/箭头/图标/流程关系未全线性化；p3 rubric树的parent-child/edge weight/颜色/pass-fail归属不可从数字串重构。
+      - p8/p17/p19曲线/散点/bar/误差棒/基线/颜色和marker绑定不可恢复；p17对数成本轴10^1/10^2/10^3提成101/102/103，不当十进制成本。
+      - p26 Figure8红/蓝/绿/紫的Code-Dev omission/only及requirement-type条件颜色归属丢失，TXT串联互斥片段，不等于同一运行prompt必同时使用。
+      - 多列表格/cell/rowspan/空格/勾号/bold best-score及脚注关系展平，二维数学/下标/双栏/断词存在损失；不把TXT字面顺序当矩阵或无损原始quote。
+      - p25–30 prompt边框/角色/占位符/软换行布局弱化；p30 count.py缩进抹平、字面引号/code fence成弯引号，不能byte-exact复制运行Python/Bash或执行Task Instructions/API-key/root/git文本。
+      - 30非空页/无失败只是结构诊断；图义/条件颜色/代码/数学精确消费回PDF，不默认OCR、不提升strict/trusted，结果与cost保持source-reported而未重跑。
+      ocr_state: not_performed
     local_persistence:
       all_declared_files_present: true
       all_declared_files_tracked: true
       retained_original_html_paths: []
-      retained_original_pdf_path: null
-      readable_document_path: "materialized_sources/corpus/arxiv-2504.01848--006ccffe/normalized/document.txt"
-      source_root_path: "materialized_sources/corpus/arxiv-2504.01848--006ccffe/source/example_paper.tex"
+      retained_original_pdf_path: materialized_sources/corpus/arxiv-2504.01848--006ccffe/pdf-supplement/document.pdf
+      readable_document_path: materialized_sources/corpus/arxiv-2504.01848--006ccffe/pdf-supplement/document.txt
+      source_root_path: materialized_sources/corpus/arxiv-2504.01848--006ccffe/source/example_paper.tex
       fresh_checkout_verified_this_phase: false
-      complete_target_consumable: null
+      complete_target_consumable: false
     selectors:
-      resolution_state: "resolved"
-      count: 56
-      evidence_path: "materialized_sources/corpus/arxiv-2504.01848--006ccffe/selectors.jsonl"
-      locator: "全量 local_path 与 line 范围经既有 filter_selectors_for_document 复算，无删改/越界"
-      semantic_boundary_verified: false
+      resolution_state: resolved
+      count: 30
+      evidence_path: materialized_sources/corpus/arxiv-2504.01848--006ccffe/pdf-supplement/selectors.jsonl
+      locator: 新独立pdf://真实revision#page；全实际页preview/heading及首中末语义核验，旧root56条和scope/history保留，不混当前target count。
+      semantic_boundary_verified: true
     public_redistribution:
-      state: "block"
-      reported_gate: "block"
-      authority: "existing_publication_gate_not_reassessed_in_P1"
+      state: block
+      reported_gate: block
+      authority: existing_publication_gate_not_reassessed_in_P1
       revision_matches: true
-      evidence_path: "raw_data/audits/materialization_rights_review.yaml"
-      locator: "items[uid=arxiv:2504.01848].publication_gate/source_revision"
-      note: "继承的 review.source_revision 与当前 manifest.revision 相同；并非 P1 新许可结论，不证明正文完整。"
+      evidence_path: raw_data/audits/materialization_rights_review.yaml
+      locator: items[uid=arxiv:2504.01848].publication_gate/source_revision
+      note: state/reported_gate保留旧root block和匹配旧revision；新PDF按主线明确准入/四方revision-bound grant/自包含NOTICE独立表达allow。旧root及其组件/摘要条件不放行，原件complete/native
+        partial不由新allow推出strict/trusted。
+      target_representation_state: allow
+      target_representation_evidence_path: materialized_sources/corpus/arxiv-2504.01848--006ccffe/manifest.yaml
+      target_representation_locator: target_document.representation=pdf_supplement; pdf_supplement.rights.publication_gate;
+        observed.pdf_supplement.public_gate/public_package_valid
     knowledge_admission:
       state: null
       observed_claims_exist: false
       claim_state_counts: {}
-      scope: "仅所选 demo 的现有 claim.source_refs；不是全库知识晋级状态"
-      evidence_path: "experiments/v0_meta_kb_initialization_demo_260910/04_claims/claims.jsonl"
-      locator: "provenance.source_refs contains arxiv:2504.01848; governance.promotion_state"
-      note: "所选 demo 未引用此 UID，state=null 为不适用/无观测 claim，不能伪造 candidate。"
-    content_inspection: []
-    inspection_method: "structural_probe_only"
-    known_parser_issue: false
-    exact_limitation: "只核对 metadata/manifest/index/registry、文件存在/跟踪与全部 selector 结构；未执行该 UID 正文开中尾或原件比对，不能从 full_text 标签推出 complete。 metadata.source_version 未记录；selected_version=null，不把 local_revision 当上游版本。 omitted=20 是缺口候选，未逐个判断引用与必要性，不能自动判全 archive complete 或 partial。"
-    action_bucket: "needs_boundary_verification"
-    next_action: "后续按具体 UID 固定目标文档/版本，再比对原件开中尾、章节/附录、引用资产与派生文本；P1 不获取原文或提升 complete。"
-    resolution: "unresolved"
+      scope: 仅所选 demo 的现有 claim.source_refs；不是全库知识晋级状态
+      evidence_path: experiments/v0_meta_kb_initialization_demo_260910/04_claims/claims.jsonl
+      locator: provenance.source_refs contains arxiv:2504.01848; governance.promotion_state
+      note: 所选 demo 未引用此 UID，state=null 为不适用/无观测 claim，不能伪造 candidate。
+    content_inspection:
+    - path: materialized_sources/corpus/arxiv-2504.01848--006ccffe/pdf-supplement/document.txt
+      locator: physical PDF p1; actual native TXT L2–L90
+      start_line: 2
+      end_line: 90
+      text_preview: 'PaperBench: Evaluating AI’s Ability to Replicate AI Research'
+      result: 内容executor亲看p1主题名、实际十三作者与八equal脚注/OpenAI/通讯域名/copyright/v3父摘要；主题名与runningtitle变体分开记录。
+    - path: materialized_sources/corpus/arxiv-2504.01848--006ccffe/pdf-supplement/document.txt
+      locator: physical PDF p15; actual native TXT L1241–L1289
+      start_line: 1241
+      end_line: 1289
+      text_preview: 'PaperBench: Evaluating AI’s Abilities to Replicate AI Research'
+      result: 内容executor亲看中页p15 Table7完整20rubrics与SimpleJudge上下文，额外亲看六科学图/八prompt图及JudgeEval；p16截图文字损失具体保留。
+    - path: materialized_sources/corpus/arxiv-2504.01848--006ccffe/pdf-supplement/document.txt
+      locator: physical PDF p30; actual native TXT L1931–L1991
+      start_line: 1931
+      end_line: 1991
+      text_preview: 'PaperBench: Evaluating AI’s Abilities to Replicate AI Research'
+      result: 内容executor亲看真实末页p30 Figure14 Part2 toy代码/评分/变量占位/实际复现末句与continued图注；p29 Part1与p24 Table18不是文档尾界，原件指令仅作为source
+        content。
+    - path: materialized_sources/corpus/arxiv-2504.01848--006ccffe/pdf-supplement/document.txt
+      locator: existing actual consumer continuous parent Page1 excerpt; native TXT L8–L14
+      start_line: 8
+      end_line: 14
+      result: 现有source_excerpt实际返回父论文摘要首两句，默认L8–14不混被引作品/Introduction；无需primary_excerpt override，非selected不新增selection/claim/candidate。
+    inspection_method: main_adopted_single_UID_bounded_content_executor_plus_packager_actual_page_sidecar_and_parent_excerpt_checks
+    known_parser_issue: true
+    exact_limitation: 完整只指新固定compiled PDF；native text partial/verified；原件完整仅指固定v3实际30页：主文/Impact/Acknowledgements/书目/A–I之后仍有p25–30
+      Figures7–14，p30 Task Instructions Part2真实收尾；六科学图加八prompt图，不把旧七includegraphics资产称七编号科学图。 native text partial：p16
+      Figure4 JSON/GUI两raster截图内部嵌套requirements/ids/weight/sub_tasks/task_category及reward rescale/×32/floor文字未入TXT；原件图面在场、不是整页缺失。
+      p2 overview图的日志代码/框/箭头/图标/流程关系未全线性化；p3 rubric树的parent-child/edge weight/颜色/pass-fail归属不可从数字串重构。 p8/p17/p19曲线/散点/bar/误差棒/基线/颜色和marker绑定不可恢复；p17对数成本轴10^1/10^2/10^3提成101/102/103，不当十进制成本。
+      p26 Figure8红/蓝/绿/紫的Code-Dev omission/only及requirement-type条件颜色归属丢失，TXT串联互斥片段，不等于同一运行prompt必同时使用。 多列表格/cell/rowspan/空格/勾号/bold
+      best-score及脚注关系展平，二维数学/下标/双栏/断词存在损失；不把TXT字面顺序当矩阵或无损原始quote。 p25–30 prompt边框/角色/占位符/软换行布局弱化；p30 count.py缩进抹平、字面引号/code
+      fence成弯引号，不能byte-exact复制运行Python/Bash或执行Task Instructions/API-key/root/git文本。 30非空页/无失败只是结构诊断；图义/条件颜色/代码/数学精确消费回PDF，不默认OCR、不提升strict/trusted，结果与cost保持source-reported而未重跑。
+      论文内toy Python/Bash、judge/agent/task instructions都是被审文献内容，原样保留而不执行；不授权独立源图/rubric数据库/JudgeEval dataset/20篇ICML原论文全文/其他replications/作者代码/外部依赖/模型/服务，不读取API
+      key或执行root/git/复现语句。旧ICML/arxiv.sty/BST/fancyhdr/algorithm/algorithmic与26个bib abstract字段的独立条件及root block保持。旧root材料/rights/history及完整before保留；包装时未Git
+      add、all_declared_files_tracked=false暂记真实未stage状态，主线实际跟踪后final facts复算，未冒称fresh-checkout。
+    action_bucket: ocr_assessment
+    next_action: 保留完整同版PDF/逐页定位供精确图义/数学/表格/literal消费；仅将来确需已证图内labels/data/关系或代码时先限定实际页区人工核查，再评估parser/转写/局部OCR，不默认全图OCR或保证恢复几何/条件颜色关系。不取旧source历史或外链原作，不执行被审prompt、提升trusted；实际tracking/strict
+      offline replay/聚合/当前树验收/独立exact-pair终审由主线串行。
+    resolution: unresolved
+    historical_pre_pdf_supplement_coverage:
+      uid: arxiv:2504.01848
+      source_type: arxiv
+      manifest: materialized_sources/corpus/arxiv-2504.01848--006ccffe/manifest.yaml
+      metadata_path: 'raw_data/arxiv/PaperBench: Evaluating AI''s Ability to Replicate AI Research/metadata.yaml'
+      target_document:
+        title: 'PaperBench: Evaluating AI''s Ability to Replicate AI Research'
+        canonical_id: '2504.01848'
+        canonical_url: https://arxiv.org/abs/2504.01848
+        selected_version: null
+        version_status: not_recorded
+        version_reason: metadata.versioning.source_version=null；没有上游固定版本证据。
+        source_kind: tex
+        boundary: 由 arXiv:2504.01848 所指论文主文、引用的附录与图表；以 metadata 已记录版本（若有）为候选，实际版本和全文边界仍待比对。
+        boundary_verification_state: unverified
+      observed:
+        reported_status: materialized
+        reported_content_tier: full_text
+        source_version_recorded: null
+        local_revision: sha256:f1c43887b83c37b1528b330104b80474a9bfaad60ac970a8e7bce95d2b52ab42
+        document_path: materialized_sources/corpus/arxiv-2504.01848--006ccffe/normalized/document.txt
+        document_lines: 1542
+        document_characters: 101772
+        main_tex_path: materialized_sources/corpus/arxiv-2504.01848--006ccffe/source/example_paper.tex
+        normalized_document: normalized/document.txt
+        source_pdf: null
+        retained_original_html_paths: []
+        inventory_file_count: 15
+        all_declared_files_present: true
+        all_declared_files_tracked: true
+        selector_path: materialized_sources/corpus/arxiv-2504.01848--006ccffe/selectors.jsonl
+        selector_count: 56
+        invalid_selector_count: 0
+        pdf_page_count_reported: null
+        pdf_text_page_headings: []
+        pdf_empty_text_pages: []
+        pdf_duplicate_page_headings: []
+        content_was_truncated: null
+        omitted_member_count: 20
+        errors: []
+        warnings: []
+        limitations: []
+        requested_urls:
+        - https://export.arxiv.org/e-print/2504.01848
+        - https://arxiv.org/e-print/2504.01848
+        resolved_urls:
+        - https://export.arxiv.org/src/2504.01848
+        index_registry_consistent: true
+        public_gate: block
+        public_gate_revision_matches: true
+        knowledge_claim_state_counts: {}
+      original_artifact_coverage:
+        state: unknown
+        verification_state: unverified
+        evidence:
+        - path: materialized_sources/corpus/arxiv-2504.01848--006ccffe/manifest.yaml
+          locator: retrievals/local_files/materialization/omitted
+          result: 当前 inventory 存在=true、跟踪=true；原HTML留存=0，omitted候选=20；这些结构事实不证明目标原件完整。
+        missing_assets: []
+      text_extraction_coverage:
+        state: unknown
+        verification_state: unverified
+        evidence:
+        - path: materialized_sources/corpus/arxiv-2504.01848--006ccffe/manifest.yaml
+          locator: materialization/document/content_tier/selectors
+          result: 记录 document=materialized_sources/corpus/arxiv-2504.01848--006ccffe/normalized/document.txt，1542行/101772字符，selector=56；正文/版本/边界完整性尚未证明。
+        missing_pages: []
+        missing_sections: []
+        parser_errors: []
+        ocr_state: not_applicable
+      local_persistence:
+        all_declared_files_present: true
+        all_declared_files_tracked: true
+        retained_original_html_paths: []
+        retained_original_pdf_path: null
+        readable_document_path: materialized_sources/corpus/arxiv-2504.01848--006ccffe/normalized/document.txt
+        source_root_path: materialized_sources/corpus/arxiv-2504.01848--006ccffe/source/example_paper.tex
+        fresh_checkout_verified_this_phase: false
+        complete_target_consumable: null
+      selectors:
+        resolution_state: resolved
+        count: 56
+        evidence_path: materialized_sources/corpus/arxiv-2504.01848--006ccffe/selectors.jsonl
+        locator: 全量 local_path 与 line 范围经既有 filter_selectors_for_document 复算，无删改/越界
+        semantic_boundary_verified: false
+      public_redistribution:
+        state: block
+        reported_gate: block
+        authority: existing_publication_gate_not_reassessed_in_P1
+        revision_matches: true
+        evidence_path: raw_data/audits/materialization_rights_review.yaml
+        locator: items[uid=arxiv:2504.01848].publication_gate/source_revision
+        note: 继承的 review.source_revision 与当前 manifest.revision 相同；并非 P1 新许可结论，不证明正文完整。
+      knowledge_admission:
+        state: null
+        observed_claims_exist: false
+        claim_state_counts: {}
+        scope: 仅所选 demo 的现有 claim.source_refs；不是全库知识晋级状态
+        evidence_path: experiments/v0_meta_kb_initialization_demo_260910/04_claims/claims.jsonl
+        locator: provenance.source_refs contains arxiv:2504.01848; governance.promotion_state
+        note: 所选 demo 未引用此 UID，state=null 为不适用/无观测 claim，不能伪造 candidate。
+      content_inspection: []
+      inspection_method: structural_probe_only
+      known_parser_issue: false
+      exact_limitation: 只核对 metadata/manifest/index/registry、文件存在/跟踪与全部 selector 结构；未执行该 UID 正文开中尾或原件比对，不能从 full_text
+        标签推出 complete。 metadata.source_version 未记录；selected_version=null，不把 local_revision 当上游版本。 omitted=20 是缺口候选，未逐个判断引用与必要性，不能自动判全
+        archive complete 或 partial。
+      action_bucket: needs_boundary_verification
+      next_action: 后续按具体 UID 固定目标文档/版本，再比对原件开中尾、章节/附录、引用资产与派生文本；P1 不获取原文或提升 complete。
+      resolution: unresolved
   -
     uid: "arxiv:2504.03160"
     source_type: "arxiv"

@@ -37,6 +37,18 @@ local_files:
 - path: materialized_sources/corpus/arxiv-2504.01848--006ccffe/normalized/document.txt
   bytes: 101824
   sha256: 2374e1f03e822e692c4954b4d9876269459a9f349e6aac0e442e8005243a16ac
+- path: materialized_sources/corpus/arxiv-2504.01848--006ccffe/pdf-supplement/NOTICE.md
+  bytes: 27147
+  sha256: af976c950cbfca0596bdd14493cfb5428565ba898823b940efaa2ec62a837c07
+- path: materialized_sources/corpus/arxiv-2504.01848--006ccffe/pdf-supplement/document.pdf
+  bytes: 1703363
+  sha256: 2f58f1a6581af9d99432422dccf3cf61f5c263377c1e4550e7333c4a22d7184d
+- path: materialized_sources/corpus/arxiv-2504.01848--006ccffe/pdf-supplement/document.txt
+  bytes: 108785
+  sha256: 23717aa3e3d3a97a3798b3b1950c749c10e6db9519d94b1a8c177fb111412266
+- path: materialized_sources/corpus/arxiv-2504.01848--006ccffe/pdf-supplement/selectors.jsonl
+  bytes: 13488
+  sha256: 2d32b9e92bb6da84cffb5eec92459782b18d5a62528f08dc27e34984fc2dd8b8
 - path: materialized_sources/corpus/arxiv-2504.01848--006ccffe/selectors.jsonl
   bytes: 14718
   sha256: 01982b0118df76f64b93257747e564faa9137df2d29c8af86addc071d6eb9211
@@ -68,8 +80,8 @@ local_files:
   bytes: 28139
   sha256: c4d562e44a0d9265e3f6c850dbb3fa1ccdf30f301785fa9a86c8627ea5d58f63
 - path: materialized_sources/corpus/arxiv-2504.01848--006ccffe/source-metadata.yaml
-  bytes: 2774
-  sha256: 94702e03d6510a8d687ef5d2007c9ba6af6fc22a437f666f103c6ba3df4557e8
+  bytes: 12444
+  sha256: 3ffc2de697c28a716af59bfd6620d43fd80eae183fe232fabaa4fc3548b5eeaa
 warnings: []
 errors: []
 archive_container: tar
@@ -121,4 +133,93 @@ omitted:
   reason: non-text-document-member
 - path: icml_numpapers.pdf
   reason: non-text-document-member
-local_bytes: 530647
+local_bytes: 2393100
+pdf_supplement:
+  source_version: v3
+  revision: sha256:2f58f1a6581af9d99432422dccf3cf61f5c263377c1e4550e7333c4a22d7184d
+  media_type: application/pdf
+  retrievals:
+  - requested_urls:
+    - https://arxiv.org/pdf/2504.01848v3
+    resolved_url: https://arxiv.org/pdf/2504.01848v3
+    content_type: application/pdf
+    bytes: 1703363
+    sha256: 2f58f1a6581af9d99432422dccf3cf61f5c263377c1e4550e7333c4a22d7184d
+    retrieved_at: '2026-09-17T09:36:07Z'
+    http_status: 200
+    redirect_count: 0
+    tls_verify_result: 0
+    curl_exit_code: 0
+    time_scope: Local completion bound from same GET response JSON mtime, truncated to seconds; actual completion
+      2026-09-17T09:36:07.346988Z. Server HTTP Date 2026-09-17T09:36:02Z is not client wall-clock; no precise per-response
+      start time is asserted.
+  selectors:
+  - pdf-supplement/selectors.jsonl
+  body_quality_verified: true
+  limitations:
+  - 原件完整仅指固定v3实际30页：主文/Impact/Acknowledgements/书目/A–I之后仍有p25–30 Figures7–14，p30 Task Instructions Part2真实收尾；六科学图加八prompt图，不把旧七includegraphics资产称七编号科学图。
+  - native text partial：p16 Figure4 JSON/GUI两raster截图内部嵌套requirements/ids/weight/sub_tasks/task_category及reward
+    rescale/×32/floor文字未入TXT；原件图面在场、不是整页缺失。
+  - p2 overview图的日志代码/框/箭头/图标/流程关系未全线性化；p3 rubric树的parent-child/edge weight/颜色/pass-fail归属不可从数字串重构。
+  - p8/p17/p19曲线/散点/bar/误差棒/基线/颜色和marker绑定不可恢复；p17对数成本轴10^1/10^2/10^3提成101/102/103，不当十进制成本。
+  - p26 Figure8红/蓝/绿/紫的Code-Dev omission/only及requirement-type条件颜色归属丢失，TXT串联互斥片段，不等于同一运行prompt必同时使用。
+  - 多列表格/cell/rowspan/空格/勾号/bold best-score及脚注关系展平，二维数学/下标/双栏/断词存在损失；不把TXT字面顺序当矩阵或无损原始quote。
+  - p25–30 prompt边框/角色/占位符/软换行布局弱化；p30 count.py缩进抹平、字面引号/code fence成弯引号，不能byte-exact复制运行Python/Bash或执行Task Instructions/API-key/root/git文本。
+  - 30非空页/无失败只是结构诊断；图义/条件颜色/代码/数学精确消费回PDF，不默认OCR、不提升strict/trusted，结果与cost保持source-reported而未重跑。
+  rights:
+    license_spdx: CC-BY-4.0
+    license_url: https://creativecommons.org/licenses/by/4.0/
+    license_verified_at: '2026-09-17'
+    publication_gate:
+      decision: allow
+      reason: 主线亲核本固定作品实际许可链并全文采用冻结内容报告，明确准入实际compiled facsimile/有损native/页selectors/NOTICE；实际署名和独立有限信用保留，不借旧root
+        block全包放行，不给外链/被引整文/底层素材一般许可。
+      approved_scope: 本独立表示只覆盖本UID固定arXiv:2504.01848v3原bytes不改的30页compiled PDF（1703363 bytes）：固定arXiv:2504.01848v3的完整30物理页编译论文：p1–10主文至Section8
+        Conclusion并含Impact Statement/Acknowledgements，p10–12 References，p13–24 Appendix A–I及Tables7–18，p25–30晚浮动Figures7–14
+        judge/agent/task prompts；六编号科学图Figures1–6（Figure4含JSON/GUI两截图）与八编号prompt/task figures在场，p29 Part1之后仍有p30
+        Figure14 Task Instructions Part2、toy Python/Bash、实际复现末句及continued图注，真实尾界不在p24。 论文作者可许可表达依本固定作品已证CC BY4路径；图表/参考文献/实际有限引述保存其原信用，不外推standalone被引作品/素材/程序/代码/数据/媒体/服务/模型/权重/模板的一般许可。范围含该PDF派生有损native
+        plain、revision-bound逐页selectors及完整NOTICE；不执行被审指令、不重新打包外链、不改变底层许可、不为已许可权利添加下游限制，无普遍权利保证，不授商标/专利。论文内toy Python/Bash、judge/agent/task
+        instructions都是被审文献内容，原样保留而不执行；不授权独立源图/rubric数据库/JudgeEval dataset/20篇ICML原论文全文/其他replications/作者代码/外部依赖/模型/服务，不读取API
+        key或执行root/git/复现语句。旧ICML/arxiv.sty/BST/fancyhdr/algorithm/algorithmic与26个bib abstract字段的独立条件及root block保持。
+    redistribution_package:
+      source_revision: sha256:2f58f1a6581af9d99432422dccf3cf61f5c263377c1e4550e7333c4a22d7184d
+      source_version_url: https://arxiv.org/pdf/2504.01848v3
+      notice_path: materialized_sources/corpus/arxiv-2504.01848--006ccffe/pdf-supplement/NOTICE.md
+      attribution: 'Giulio Starace; Oliver Jaffe; Dane Sherburn; James Aung; Chan Jun Shern; Leon Maksin; Rachel
+        Dias; Evan Mays; Benjamin Kinsella; Wyatt Thompson; Johannes Heidecke; Amelia Glaese; Tejal Patwardhan,
+        PaperBench: Evaluating AI''s Ability to Replicate AI Research, arXiv:2504.01848v3 (2025-04-07), https://arxiv.org/abs/2504.01848v3,
+        PDF https://arxiv.org/pdf/2504.01848v3, CC BY 4.0 https://creativecommons.org/licenses/by/4.0/。实际PDF十三作者顺序：Giulio
+        Starace; Oliver Jaffe; Dane Sherburn; James Aung; Chan Jun Shern; Leon Maksin; Rachel Dias; Evan Mays; Benjamin
+        Kinsella; Wyatt Thompson; Johannes Heidecke; Amelia Glaese; Tejal Patwardhan。前七位及末位Tejal Patwardhan共八位equal-contribution星标，不是连续首八位；OpenAI机构保留；Giulio
+        Starace通讯地址实际giulio.starace@c-openai.com原样保留、不改域名。p1 Pre-print. Copyright 2025 by the author(s).为可见版权信用，不冒称页脚本身印有BY4
+        grant。p2起runningtitle Abilities是同一原件内页眉变体，不另起身份；主题名Ability保留。p10致谢独立信用：dataset creation Arvind Ramaswami、Francisco
+        Garcia；rubric验证/作者合作Alexander Spangher、Ananye Agarwal、Andrew Lee、Bartłomiej Cupiał、Bowen Zhao、Chang Xu、Christian
+        Schlarmann、Diana Cai、Dong Gong、Feng Liu、Haotian Sun、Jia Shi、Kevin Frans、Louis Sharrock、Manuel Gloeckler、Michael
+        Samuel Albergo、Pratik Rathore、Shuaicheng Niu、Tim Knappe、Tongliang Liu、Xinyu Xing、Xisen Jin；human baseline
+        Amy Lu、Anit Kumar Sahu、Armin Wasicek、Brendan Rappazzo、Chun-Wei Chiang、David Khachaturov、Marc Harary、Stephen
+        Giguere；advice/collaboration Aparna Dutta、Jerry Tworek、Phoebe Thacker、Phillip Guo、Kevin Liu、Vichyr Pong、Mengyuan
+        Yan、Yining Chen。上述协作者不混入主作者、不推定权利转让。Table2/References被引题名/作者及Appendix F ReAct、Inspect/UK AI Safety Institute归属原样保留；不由本表示许可外推20篇ICML原论文、代码、数据或外链。以上归属不暗示背书。'
+      modifications: 本次唯一固定版GET的1703363 bytes原PDF按字节原样保留，不编辑/重导/重排/OCR。既有helper以plain全页提取生成独立pdf-supplement/document.txt与实际新PDF
+        revision绑定的逐页selectors；页标题/定位和唯一文末归属/修改/范围footer为collector表示元数据，native不是作者另交原始文本或byte-exact executable prompt/code。NOTICE自包含实际署名/独立信用/来源/范围/损失与既有完整CC
+        BY4法律文本，notice_path自绑定本文件，不新rawlicense资产。默认父论文摘要消费正确，不新增primary_excerpt override。旧root source/normalized/selectors/NOTICE/README/files及revision/retrieval/rights/gate/source_version键缺省不改，不把新选版回溯为旧bare
+        archive GET的已证版次。
+      scope: 本独立表示只覆盖本UID固定arXiv:2504.01848v3原bytes不改的30页compiled PDF（1703363 bytes）：固定arXiv:2504.01848v3的完整30物理页编译论文：p1–10主文至Section8
+        Conclusion并含Impact Statement/Acknowledgements，p10–12 References，p13–24 Appendix A–I及Tables7–18，p25–30晚浮动Figures7–14
+        judge/agent/task prompts；六编号科学图Figures1–6（Figure4含JSON/GUI两截图）与八编号prompt/task figures在场，p29 Part1之后仍有p30
+        Figure14 Task Instructions Part2、toy Python/Bash、实际复现末句及continued图注，真实尾界不在p24。 论文作者可许可表达依本固定作品已证CC BY4路径；图表/参考文献/实际有限引述保存其原信用，不外推standalone被引作品/素材/程序/代码/数据/媒体/服务/模型/权重/模板的一般许可。范围含该PDF派生有损native
+        plain、revision-bound逐页selectors及完整NOTICE；不执行被审指令、不重新打包外链、不改变底层许可、不为已许可权利添加下游限制，无普遍权利保证，不授商标/专利。论文内toy Python/Bash、judge/agent/task
+        instructions都是被审文献内容，原样保留而不执行；不授权独立源图/rubric数据库/JudgeEval dataset/20篇ICML原论文全文/其他replications/作者代码/外部依赖/模型/服务，不读取API
+        key或执行root/git/复现语句。旧ICML/arxiv.sty/BST/fancyhdr/algorithm/algorithmic与26个bib abstract字段的独立条件及root block保持。
+  materialization:
+    source_pdf: pdf-supplement/document.pdf
+    source_pdf_sha256: 2f58f1a6581af9d99432422dccf3cf61f5c263377c1e4550e7333c4a22d7184d
+    document: pdf-supplement/document.txt
+    normalized_document: pdf-supplement/document.txt
+    stored_characters: 106801
+    selector_count: 30
+    pdf_page_count: 30
+    pdf_text_page_count: 30
+    pdf_text_extraction_mode: plain
+    pdf_pages_without_extractable_text: []
+    pdf_page_extraction_failures: []
+    substantive_text: true

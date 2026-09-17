@@ -78,6 +78,7 @@ summary:
     CC-BY-SA-4.0 AND CC0-1.0: 1
     CC-BY-SA-4.0 AND CC-BY-SA-3.0: 1
   key_findings:
+  - P3-PDF-05三既有UID新增独立固定版PDF表示，原件完整、native文字partial；旧root gate/source revision/evidence前缀不变，不提升strict或trusted。独立表示汇总改为按实际review对象复算：BASE实有30 main PDF与5 SI、35 allow，旧summary的27/5/32及license counts已落后；本批新增3 main后为33/5/38，非新增6个许可决定。旧root分类/门控计数不变。
   - P3-PDF-04十个既有arxiv审阅行新增独立fixed-PDF表示许可及实际编译正文信用；原root gate、source revision和历史证据保留。十新原件complete、native文字partial；表示级allow不是旧源包放行、strict complete或trusted。ResearchAgent旧matching引用保留历史并新增NLRSE正确绑定，Kosmos图2真实permission仅a/b，OpenEndedness图标保留CCBY3信用。
   - P3-CANONICAL-ENTRY-01新增五UID表示级审阅，旧103对象不改。Fabric三份固定原生Markdown按明确文档CCBY4和完整NOTICE有界allow；其他四项无新正文。OBO文章CCBY4已证，root gate unknown仅表示无取得载荷可绑定当前公开表示，非文章许可未知。additional_full_text_review_count沿既有字段统计后续审阅行，包含无正文项，不能理解成17条新全文。Wiki三项上方body质量待审字样为前批准入时历史，实际最终结果以PR20及coverage为准。
   - 91/91 manifest 在基线均写 full_text_redistribution_assumed=true；该字段从不作为授权。
@@ -95,12 +96,12 @@ summary:
   - P3-WIKIMEDIA-HTML-01 methodology:wikipedia-editorial-governance按固定page向量/实际HTML和正文图/组件NOTICE独立有界allow；历史excerpt不改，text
     partial、body质量待实物consumer审阅，未selected/无knowledge晋升。
   independent_representation_review_counts:
-    pdf_supplement: 27
+    pdf_supplement: 33
     supplementary_information: 5
   independent_representation_publication_gate_counts:
-    allow: 32
+    allow: 38
   independent_representation_license_counts:
-    CC-BY-4.0: 19
+    CC-BY-4.0: 35
     CC-BY-SA-4.0: 2
     CC-BY-4.0 AND Apache-2.0: 1
   new_journal_representation_counts:
@@ -5208,6 +5209,33 @@ items:
     finding: 实存9个source、53个selectors；ICLR2025 STY、LPPL BST/fancyhdr/natbib8.31之外，arxiv.sty实际为旧ICLR派生而非George Kour
       MIT模板。书目保存22个摘要字段，涉及论文和Cognition/GitHub/Factory博客材料，不能与纯ACL摘要一并放行。
     supports_public_redistribution: false
+  - kind: fixed_version_pdf_work_license_review
+    applies_to: pdf_supplement
+    checked_at: '2026-09-17'
+    url: https://arxiv.org/abs/2410.07095v6
+    license_url: https://creativecommons.org/licenses/by/4.0/
+    finding: 主线已于2026-09-17亲核正式固定版 https://arxiv.org/abs/2410.07095v6 及实际view license到CC BY4；唯一GET为同版固定PDF。主线全文读取本批MLE内容executor报告并明确准入；报告逐页native审读并亲看全部29物理页，核实际身份、声明/书目/A.1–A.9、全部图表和真实尾界。29页不是abs
+      comments的10+17=27，首页选版日期2025-02-26不与PDF构建时间混用。
+    supports_public_redistribution: true
+  - kind: bounded_actual_compiled_pdf_credit_and_body_review
+    applies_to: pdf_supplement
+    checked_at: '2026-09-17'
+    path: materialized_sources/corpus/arxiv-2410.07095--b72cdb8f/pdf-supplement/document.pdf
+    locator: physical pp1–29; PDF byline, Table1 p4, A.8 pp25–27, p29 Table10
+    finding: 'Chan Jun Shern; Neil Chowdhury; Oliver Jaffe; James Aung; Dane Sherburn; Evan Mays; Giulio Starace;
+      Kevin Liu; Leon Maksin; Tejal Patwardhan; Lilian Weng; Aleksander Mądry, MLE-bench: Evaluating Machine Learning
+      Agents on Machine Learning Engineering, arXiv:2410.07095v6 (2025-02-26), https://arxiv.org/abs/2410.07095v6,
+      PDF https://arxiv.org/pdf/2410.07095v6, CC BY 4.0 https://creativecommons.org/licenses/by/4.0/。按实际PDF首页顺序保留12作者与OpenAI机构；PDF第一位为Chan
+      Jun Shern而fixed abs为Jun Shern Chan，不静默调换姓名次序；Mądry按可见字形保留，不复制native拆分M ˛ adry。前七位星号为Equal contribution. Authors
+      randomized.；Neil Chowdhury和Lilian Weng的†为Work done while at OpenAI.；Published as a conference paper at ICLR
+      2025保留为出版身份而非额外许可。Table1 p4 Source: Kaggle (2024)，相应Kaggle Progression System (2024) https://www.kaggle.com/progression信用保留；A.8
+      p26 Citation: Addison Howard, inversion, Lars Bratholm. (2019). Predicting Molecular Properties. Kaggle. https://kaggle.com/competitions/champs-scalar-coupling，inversion保留小写handle。A.8
+      p25举办机构University of Bristol、Cardiff University、Imperial College、University of Leeds保留；这些只是论文中实际有限引述/信用，不声明standalone
+      Kaggle材料全许可。AIDE、OpenHands、MLAgentBench、Dolos等及原参考文献保持被引研究/软件身份，不变成作者原创或独立代码/服务许可；未下载外部竞赛页面、logo、notebook、数据或权重，不暗示背书。
+      固定 arXiv:2410.07095v6 的完整29物理页编译论文：p1–10主文至第7节Conclusion，p11 Ethics/Reproducibility声明，p11–13参考文献，p13–29 Appendix
+      A.1–A.9；全部Figures1–9、Tables1–10和跨页数据/结果表实际在场，p28 Figure9 deadline图之后仍有p29 Table10类别结果与三组模型名映射，真实尾界不是p28。 主线全文采用内容报告、明确准入；不是最终独立evaluator
+      PASS。'
+    supports_public_redistribution: true
   missing:
   - 本地三处 rights 未记录该文章许可及核验日期。
   - retrieval hash 尚未与确切 arXiv vN 建立可审计映射。
@@ -5232,6 +5260,42 @@ items:
   human_follow_up:
   - 人工核对本地 source archive 的 arXiv 版本。
   - 补齐归属、许可链接/声明与第三方组件审计后再审批。
+  pdf_supplement:
+    license_spdx: CC-BY-4.0
+    license_url: https://creativecommons.org/licenses/by/4.0/
+    license_verified_at: '2026-09-17'
+    publication_gate:
+      decision: allow
+      reason: 主线亲核fixed abs实际作品许可链，全文读取本UID内容报告并明确准入实际29页compiled facsimile及有损native/逐页selectors/NOTICE；实际署名/贡献脚注和Kaggle有限引述信用已保留，不借旧root
+        block放行、不给standalone外部材料一般许可。
+      approved_scope: 本独立表示只覆盖本UID固定arXiv:2410.07095v6原bytes不改的29页compiled PDF（817725 bytes）：固定 arXiv:2410.07095v6
+        的完整29物理页编译论文：p1–10主文至第7节Conclusion，p11 Ethics/Reproducibility声明，p11–13参考文献，p13–29 Appendix A.1–A.9；全部Figures1–9、Tables1–10和跨页数据/结果表实际在场，p28
+        Figure9 deadline图之后仍有p29 Table10类别结果与三组模型名映射，真实尾界不是p28。 论文作者可许可表达依本固定作品已证CC BY4路径；论文内实际图表、参考文献和A.8竞赛描述/原citation作为此出版表示的一部分保留并落实原信用，不由此推导独立Kaggle数据/竞赛网站/notebook/logo、代码仓库、模型/权重、被引全文或source模板的一般许可。范围包含从该PDF派生的有损native
+        plain、revision-bound页selectors和自包含NOTICE；不重新打包外链作品、不执行benchmark，不改变底层许可或为已许可权利添加下游限制，无普遍权利保证。旧root整包block及独立条件保持，本allow不恢复旧source缺图或放行旧source
+        archive。
+    redistribution_package:
+      source_revision: sha256:1dab9a33edeab25ea359c4d6857d03512ccd47ed5782631031cfe8dcbebe7988
+      source_version_url: https://arxiv.org/pdf/2410.07095v6
+      notice_path: materialized_sources/corpus/arxiv-2410.07095--b72cdb8f/pdf-supplement/NOTICE.md
+      attribution: 'Chan Jun Shern; Neil Chowdhury; Oliver Jaffe; James Aung; Dane Sherburn; Evan Mays; Giulio Starace;
+        Kevin Liu; Leon Maksin; Tejal Patwardhan; Lilian Weng; Aleksander Mądry, MLE-bench: Evaluating Machine Learning
+        Agents on Machine Learning Engineering, arXiv:2410.07095v6 (2025-02-26), https://arxiv.org/abs/2410.07095v6,
+        PDF https://arxiv.org/pdf/2410.07095v6, CC BY 4.0 https://creativecommons.org/licenses/by/4.0/。按实际PDF首页顺序保留12作者与OpenAI机构；PDF第一位为Chan
+        Jun Shern而fixed abs为Jun Shern Chan，不静默调换姓名次序；Mądry按可见字形保留，不复制native拆分M ˛ adry。前七位星号为Equal contribution. Authors
+        randomized.；Neil Chowdhury和Lilian Weng的†为Work done while at OpenAI.；Published as a conference paper at ICLR
+        2025保留为出版身份而非额外许可。Table1 p4 Source: Kaggle (2024)，相应Kaggle Progression System (2024) https://www.kaggle.com/progression信用保留；A.8
+        p26 Citation: Addison Howard, inversion, Lars Bratholm. (2019). Predicting Molecular Properties. Kaggle. https://kaggle.com/competitions/champs-scalar-coupling，inversion保留小写handle。A.8
+        p25举办机构University of Bristol、Cardiff University、Imperial College、University of Leeds保留；这些只是论文中实际有限引述/信用，不声明standalone
+        Kaggle材料全许可。AIDE、OpenHands、MLAgentBench、Dolos等及原参考文献保持被引研究/软件身份，不变成作者原创或独立代码/服务许可；未下载外部竞赛页面、logo、notebook、数据或权重，不暗示背书。'
+      modifications: 本次唯一固定版GET的817725 bytes原PDF按字节原样保留，不编辑、重导、重排或OCR。既有helper采用plain全页提取生成独立pdf-supplement/document.txt，并生成实际新PDF
+        revision绑定的逐页selectors；页标题、定位及文末唯一归属/修改/范围footer为collector添加的表示元数据。NOTICE自包含实际12作者顺序/机构/贡献脚注、固定来源、独立信用、具体限制及现有完整CC
+        BY4法律文本，notice_path自绑定本文件；derived native不是作者另交原始文本或byte-exact executable prompt。旧root source/normalized/selectors/NOTICE/README/files、revision/retrieval/rights/gate与source_version键缺省不改，不把新v6选择回溯成旧bare
+        archive GET已经取得v6。
+      scope: 本独立表示只覆盖本UID固定arXiv:2410.07095v6原bytes不改的29页compiled PDF（817725 bytes）：固定 arXiv:2410.07095v6 的完整29物理页编译论文：p1–10主文至第7节Conclusion，p11
+        Ethics/Reproducibility声明，p11–13参考文献，p13–29 Appendix A.1–A.9；全部Figures1–9、Tables1–10和跨页数据/结果表实际在场，p28 Figure9
+        deadline图之后仍有p29 Table10类别结果与三组模型名映射，真实尾界不是p28。 论文作者可许可表达依本固定作品已证CC BY4路径；论文内实际图表、参考文献和A.8竞赛描述/原citation作为此出版表示的一部分保留并落实原信用，不由此推导独立Kaggle数据/竞赛网站/notebook/logo、代码仓库、模型/权重、被引全文或source模板的一般许可。范围包含从该PDF派生的有损native
+        plain、revision-bound页selectors和自包含NOTICE；不重新打包外链作品、不执行benchmark，不改变底层许可或为已许可权利添加下游限制，无普遍权利保证。旧root整包block及独立条件保持，本allow不恢复旧source缺图或放行旧source
+        archive。
 - sequence: 52
   uid: arxiv:2410.10762
   source_type: arxiv
@@ -6140,6 +6204,33 @@ items:
     supports_public_redistribution: false
     related_urls:
     - https://www.biorxiv.org/content/10.1101/2025.02.14.638383v1
+  - kind: fixed_version_pdf_work_license_review
+    applies_to: pdf_supplement
+    checked_at: '2026-09-17'
+    url: https://arxiv.org/abs/2503.18102v1
+    license_url: https://creativecommons.org/licenses/by/4.0/
+    finding: 主线于2026-09-17亲核正式固定版 https://arxiv.org/abs/2503.18102v1及实际view license到CC BY4；唯一正文GET为https://arxiv.org/pdf/2503.18102v1。主线已全文读取本UID冻结内容报告并明确准入；executor完整native审读和开中尾/全部图表/真实补充尾界实图证据支持新compiled
+      artifact complete/native partial，不是页数非空或独立evaluator PASS。
+    supports_public_redistribution: true
+  - kind: bounded_actual_compiled_pdf_credit_and_body_review
+    applies_to: pdf_supplement
+    checked_at: '2026-09-17'
+    path: materialized_sources/corpus/arxiv-2503.18102--1133e9d5/pdf-supplement/document.pdf
+    locator: physical pp1–29; actual byline/independent credit/complete actual tail
+    finding: 'Samuel Schmidgall; Michael Moor, AgentRxiv: Towards Collaborative Autonomous Research, arXiv:2503.18102v1
+      (2025-03-23), https://arxiv.org/abs/2503.18102v1, PDF https://arxiv.org/pdf/2503.18102v1, CC BY 4.0 https://creativecommons.org/licenses/by/4.0/。实际当前PDF两作者按序Samuel
+      Schmidgall; Michael Moor。1 Department of Electrical & Computer Engineering, Johns Hopkins University；2 Department
+      of Biosystems Science & Engineering, ETH Zurich；Samuel Schmidgall通讯sschmi46@jhu.edu。固定v1侧边日期23 Mar 2025与题名页右上2025-3-25独立保留，不以pagehead或Creation/ModDate覆盖提交事实。p27
+      National Science Foundation Graduate Research Fellowship, Grant No. DGE 2139757支持信用保留，不暗示NSF/作者/机构背书。p1 Figure1网页列表截图另文Agent
+      Laboratory: Using LLM Agents as Research Assistants，实际九作者按序Samuel Schmidgall、Yusheng Su、Ze Wang、Ximeng Sun、Jialian
+      Wu、Xiaodong Yu、Jiang Liu、Zicheng Liu、Emad Barsoum，不含Michael Moor、不混入当前两作者。图中打印arXiv:2501.04227 [pdf, other]为bare
+      ID、没有vN或完整URL；有限六显示行约52个空白tokens摘要预览起Historically, scientific discovery...，止accepts a human-provide...并有More，是原图已截断预览、非完整摘要/全文。若需定位
+      https://arxiv.org/abs/2501.04227 只按可见ID生成locator，不称本批核定另文固定版/取得全文；p24书目独立信用、Figures2/3研究上下文按原件保留。当前p1 AgentRxiv.github.io项目链接保留。只保存本PDF中实际有限展示与信用，不单独再许可另篇整文或底层媒体，也不新增抓取/许可函退出条件。以上归属不暗示背书。
+      固定arXiv:2503.18102v1完整29物理页编译论文：p1父摘要/Figure1，p2–17主文、六活动图、单/三实验室结果、Failure/Ethics/Discussion/实际Conclusion，p17–27
+      References，p27 Acknowledgments，p28 A.Algorithms与B.Agent Laboratory configuration，p29配置表/B.3/真实C.Prompts结尾。末句All
+      prompts are the same as in Schmidgall et al. (2025).是正常引用，原件未列另一论文完整prompt，不递归取另文。 主线全文采用内容报告并准入；不是最终独立evaluator
+      PASS。'
+    supports_public_redistribution: true
   missing:
   - 本地三处 rights 未记录该文章许可及核验日期。
   - retrieval hash 尚未与确切 arXiv vN 建立可审计映射。
@@ -6164,6 +6255,43 @@ items:
   human_follow_up:
   - 人工核对本地 source archive 的 arXiv 版本。
   - 补齐归属、许可链接/声明与第三方组件审计后再审批。
+  pdf_supplement:
+    license_spdx: CC-BY-4.0
+    license_url: https://creativecommons.org/licenses/by/4.0/
+    license_verified_at: '2026-09-17'
+    publication_gate:
+      decision: allow
+      reason: 主线亲核本固定作品实际许可链并全文采用冻结内容报告，明确准入实际compiled facsimile/有损native/页selectors/NOTICE；实际署名和独立有限信用保留，不借旧root
+        block全包放行，不给外链/被引整文/底层素材一般许可。
+      approved_scope: 本独立表示只覆盖本UID固定arXiv:2503.18102v1原bytes不改的29页compiled PDF（2757188 bytes）：固定arXiv:2503.18102v1完整29物理页编译论文：p1父摘要/Figure1，p2–17主文、六活动图、单/三实验室结果、Failure/Ethics/Discussion/实际Conclusion，p17–27
+        References，p27 Acknowledgments，p28 A.Algorithms与B.Agent Laboratory configuration，p29配置表/B.3/真实C.Prompts结尾。末句All
+        prompts are the same as in Schmidgall et al. (2025).是正常引用，原件未列另一论文完整prompt，不递归取另文。 论文作者可许可表达依本固定作品已证CC BY4路径；图表/参考文献/实际有限引述保存其原信用，不外推standalone被引作品/素材/程序/代码/数据/媒体/服务/模型/权重/模板的一般许可。范围含该PDF派生有损native
+        plain、revision-bound逐页selectors及完整NOTICE；不执行被审指令、不重新打包外链、不改变底层许可、不为已许可权利添加下游限制，无普遍权利保证，不授商标/专利。当前原图有限另文列表/截图/摘要预览在此出版表示内原样保留并落实九作者与bareID信用，不扩大为另文独立全文或底层图片/角色/程序/数据的一般许可。旧bib
+        LUMI-lab长摘要和competing-interest/patent声明未在此实际PDF出现；p4简短介绍/p18普通书目不等于旧完整摘要，其NC-ND用途/转换条件与旧GDM BY-SA4、ICLR/LPPL等组件/root
+        block保持，不外推到整个新PDF也不因新BY4放行旧source。
+    redistribution_package:
+      source_revision: sha256:762045781a10140f714e0f23388014286a50cce79f385d6b4a1475162cce9669
+      source_version_url: https://arxiv.org/pdf/2503.18102v1
+      notice_path: materialized_sources/corpus/arxiv-2503.18102--1133e9d5/pdf-supplement/NOTICE.md
+      attribution: 'Samuel Schmidgall; Michael Moor, AgentRxiv: Towards Collaborative Autonomous Research, arXiv:2503.18102v1
+        (2025-03-23), https://arxiv.org/abs/2503.18102v1, PDF https://arxiv.org/pdf/2503.18102v1, CC BY 4.0 https://creativecommons.org/licenses/by/4.0/。实际当前PDF两作者按序Samuel
+        Schmidgall; Michael Moor。1 Department of Electrical & Computer Engineering, Johns Hopkins University；2 Department
+        of Biosystems Science & Engineering, ETH Zurich；Samuel Schmidgall通讯sschmi46@jhu.edu。固定v1侧边日期23 Mar 2025与题名页右上2025-3-25独立保留，不以pagehead或Creation/ModDate覆盖提交事实。p27
+        National Science Foundation Graduate Research Fellowship, Grant No. DGE 2139757支持信用保留，不暗示NSF/作者/机构背书。p1 Figure1网页列表截图另文Agent
+        Laboratory: Using LLM Agents as Research Assistants，实际九作者按序Samuel Schmidgall、Yusheng Su、Ze Wang、Ximeng Sun、Jialian
+        Wu、Xiaodong Yu、Jiang Liu、Zicheng Liu、Emad Barsoum，不含Michael Moor、不混入当前两作者。图中打印arXiv:2501.04227 [pdf, other]为bare
+        ID、没有vN或完整URL；有限六显示行约52个空白tokens摘要预览起Historically, scientific discovery...，止accepts a human-provide...并有More，是原图已截断预览、非完整摘要/全文。若需定位
+        https://arxiv.org/abs/2501.04227 只按可见ID生成locator，不称本批核定另文固定版/取得全文；p24书目独立信用、Figures2/3研究上下文按原件保留。当前p1 AgentRxiv.github.io项目链接保留。只保存本PDF中实际有限展示与信用，不单独再许可另篇整文或底层媒体，也不新增抓取/许可函退出条件。以上归属不暗示背书。'
+      modifications: 本次唯一固定版GET的2757188 bytes原PDF按字节原样保留，不编辑/重导/重排/OCR。既有helper以plain全页提取生成独立pdf-supplement/document.txt与实际新PDF
+        revision绑定的逐页selectors；页标题/定位和唯一文末归属/修改/范围footer为collector表示元数据，native不是作者另交原始文本或byte-exact executable prompt/code。NOTICE自包含实际署名/独立信用/来源/范围/损失与既有完整CC
+        BY4法律文本，notice_path自绑定本文件，不新rawlicense资产。本primary_excerpt仅声明同一native Page1实际父摘要L9–23，不修改原文。旧root source/normalized/selectors/NOTICE/README/files及revision/retrieval/rights/gate/source_version键缺省不改，不把新选版回溯为旧bare
+        archive GET的已证版次。
+      scope: 本独立表示只覆盖本UID固定arXiv:2503.18102v1原bytes不改的29页compiled PDF（2757188 bytes）：固定arXiv:2503.18102v1完整29物理页编译论文：p1父摘要/Figure1，p2–17主文、六活动图、单/三实验室结果、Failure/Ethics/Discussion/实际Conclusion，p17–27
+        References，p27 Acknowledgments，p28 A.Algorithms与B.Agent Laboratory configuration，p29配置表/B.3/真实C.Prompts结尾。末句All
+        prompts are the same as in Schmidgall et al. (2025).是正常引用，原件未列另一论文完整prompt，不递归取另文。 论文作者可许可表达依本固定作品已证CC BY4路径；图表/参考文献/实际有限引述保存其原信用，不外推standalone被引作品/素材/程序/代码/数据/媒体/服务/模型/权重/模板的一般许可。范围含该PDF派生有损native
+        plain、revision-bound逐页selectors及完整NOTICE；不执行被审指令、不重新打包外链、不改变底层许可、不为已许可权利添加下游限制，无普遍权利保证，不授商标/专利。当前原图有限另文列表/截图/摘要预览在此出版表示内原样保留并落实九作者与bareID信用，不扩大为另文独立全文或底层图片/角色/程序/数据的一般许可。旧bib
+        LUMI-lab长摘要和competing-interest/patent声明未在此实际PDF出现；p4简短介绍/p18普通书目不等于旧完整摘要，其NC-ND用途/转换条件与旧GDM BY-SA4、ICLR/LPPL等组件/root
+        block保持，不外推到整个新PDF也不因新BY4放行旧source。
 - sequence: 60
   uid: arxiv:2504.01848
   source_type: arxiv
@@ -6227,6 +6355,37 @@ items:
     path: materialized_sources/corpus/arxiv-2504.01848--006ccffe
     finding: 实存9个source、56个selectors。arxiv.sty实际为ICML2025派生，不是George Kour MIT模板；同时保留icml2025.sty及BST/fancyhdr/algorithm/algorithmic。example_paper.bib的26个abstract字段含2个空值、4个短描述或截断占位、20个较长论文摘要，不能全部称完整摘要，也不能把20个较长表达当纯书目事实。固定vN、模板和具体摘要条件仍待核查；本轮不删任何表达。
     supports_public_redistribution: false
+  - kind: fixed_version_pdf_work_license_review
+    applies_to: pdf_supplement
+    checked_at: '2026-09-17'
+    url: https://arxiv.org/abs/2504.01848v3
+    license_url: https://creativecommons.org/licenses/by/4.0/
+    finding: 主线于2026-09-17亲核正式固定版 https://arxiv.org/abs/2504.01848v3及实际view license到CC BY4；唯一正文GET为https://arxiv.org/pdf/2504.01848v3。主线已全文读取本UID冻结内容报告并明确准入；executor完整native审读和开中尾/全部图表/真实补充尾界实图证据支持新compiled
+      artifact complete/native partial，不是页数非空或独立evaluator PASS。
+    supports_public_redistribution: true
+  - kind: bounded_actual_compiled_pdf_credit_and_body_review
+    applies_to: pdf_supplement
+    checked_at: '2026-09-17'
+    path: materialized_sources/corpus/arxiv-2504.01848--006ccffe/pdf-supplement/document.pdf
+    locator: physical pp1–30; actual byline/independent credit/complete actual tail
+    finding: 'Giulio Starace; Oliver Jaffe; Dane Sherburn; James Aung; Chan Jun Shern; Leon Maksin; Rachel Dias; Evan
+      Mays; Benjamin Kinsella; Wyatt Thompson; Johannes Heidecke; Amelia Glaese; Tejal Patwardhan, PaperBench: Evaluating
+      AI''s Ability to Replicate AI Research, arXiv:2504.01848v3 (2025-04-07), https://arxiv.org/abs/2504.01848v3,
+      PDF https://arxiv.org/pdf/2504.01848v3, CC BY 4.0 https://creativecommons.org/licenses/by/4.0/。实际PDF十三作者顺序：Giulio
+      Starace; Oliver Jaffe; Dane Sherburn; James Aung; Chan Jun Shern; Leon Maksin; Rachel Dias; Evan Mays; Benjamin
+      Kinsella; Wyatt Thompson; Johannes Heidecke; Amelia Glaese; Tejal Patwardhan。前七位及末位Tejal Patwardhan共八位equal-contribution星标，不是连续首八位；OpenAI机构保留；Giulio
+      Starace通讯地址实际giulio.starace@c-openai.com原样保留、不改域名。p1 Pre-print. Copyright 2025 by the author(s).为可见版权信用，不冒称页脚本身印有BY4
+      grant。p2起runningtitle Abilities是同一原件内页眉变体，不另起身份；主题名Ability保留。p10致谢独立信用：dataset creation Arvind Ramaswami、Francisco
+      Garcia；rubric验证/作者合作Alexander Spangher、Ananye Agarwal、Andrew Lee、Bartłomiej Cupiał、Bowen Zhao、Chang Xu、Christian
+      Schlarmann、Diana Cai、Dong Gong、Feng Liu、Haotian Sun、Jia Shi、Kevin Frans、Louis Sharrock、Manuel Gloeckler、Michael
+      Samuel Albergo、Pratik Rathore、Shuaicheng Niu、Tim Knappe、Tongliang Liu、Xinyu Xing、Xisen Jin；human baseline Amy
+      Lu、Anit Kumar Sahu、Armin Wasicek、Brendan Rappazzo、Chun-Wei Chiang、David Khachaturov、Marc Harary、Stephen Giguere；advice/collaboration
+      Aparna Dutta、Jerry Tworek、Phoebe Thacker、Phillip Guo、Kevin Liu、Vichyr Pong、Mengyuan Yan、Yining Chen。上述协作者不混入主作者、不推定权利转让。Table2/References被引题名/作者及Appendix
+      F ReAct、Inspect/UK AI Safety Institute归属原样保留；不由本表示许可外推20篇ICML原论文、代码、数据或外链。以上归属不暗示背书。 固定arXiv:2504.01848v3的完整30物理页编译论文：p1–10主文至Section8
+      Conclusion并含Impact Statement/Acknowledgements，p10–12 References，p13–24 Appendix A–I及Tables7–18，p25–30晚浮动Figures7–14
+      judge/agent/task prompts；六编号科学图Figures1–6（Figure4含JSON/GUI两截图）与八编号prompt/task figures在场，p29 Part1之后仍有p30 Figure14
+      Task Instructions Part2、toy Python/Bash、实际复现末句及continued图注，真实尾界不在p24。 主线全文采用内容报告并准入；不是最终独立evaluator PASS。'
+    supports_public_redistribution: true
   missing:
   - 本地三处 rights 未记录该文章许可及核验日期。
   - retrieval hash 尚未与确切 arXiv vN 建立可审计映射。
@@ -6252,6 +6411,50 @@ items:
   human_follow_up:
   - 人工核对本地 source archive 的 arXiv 版本。
   - 补齐归属、许可链接/声明与第三方组件审计后再审批。
+  pdf_supplement:
+    license_spdx: CC-BY-4.0
+    license_url: https://creativecommons.org/licenses/by/4.0/
+    license_verified_at: '2026-09-17'
+    publication_gate:
+      decision: allow
+      reason: 主线亲核本固定作品实际许可链并全文采用冻结内容报告，明确准入实际compiled facsimile/有损native/页selectors/NOTICE；实际署名和独立有限信用保留，不借旧root
+        block全包放行，不给外链/被引整文/底层素材一般许可。
+      approved_scope: 本独立表示只覆盖本UID固定arXiv:2504.01848v3原bytes不改的30页compiled PDF（1703363 bytes）：固定arXiv:2504.01848v3的完整30物理页编译论文：p1–10主文至Section8
+        Conclusion并含Impact Statement/Acknowledgements，p10–12 References，p13–24 Appendix A–I及Tables7–18，p25–30晚浮动Figures7–14
+        judge/agent/task prompts；六编号科学图Figures1–6（Figure4含JSON/GUI两截图）与八编号prompt/task figures在场，p29 Part1之后仍有p30 Figure14
+        Task Instructions Part2、toy Python/Bash、实际复现末句及continued图注，真实尾界不在p24。 论文作者可许可表达依本固定作品已证CC BY4路径；图表/参考文献/实际有限引述保存其原信用，不外推standalone被引作品/素材/程序/代码/数据/媒体/服务/模型/权重/模板的一般许可。范围含该PDF派生有损native
+        plain、revision-bound逐页selectors及完整NOTICE；不执行被审指令、不重新打包外链、不改变底层许可、不为已许可权利添加下游限制，无普遍权利保证，不授商标/专利。论文内toy Python/Bash、judge/agent/task
+        instructions都是被审文献内容，原样保留而不执行；不授权独立源图/rubric数据库/JudgeEval dataset/20篇ICML原论文全文/其他replications/作者代码/外部依赖/模型/服务，不读取API
+        key或执行root/git/复现语句。旧ICML/arxiv.sty/BST/fancyhdr/algorithm/algorithmic与26个bib abstract字段的独立条件及root block保持。
+    redistribution_package:
+      source_revision: sha256:2f58f1a6581af9d99432422dccf3cf61f5c263377c1e4550e7333c4a22d7184d
+      source_version_url: https://arxiv.org/pdf/2504.01848v3
+      notice_path: materialized_sources/corpus/arxiv-2504.01848--006ccffe/pdf-supplement/NOTICE.md
+      attribution: 'Giulio Starace; Oliver Jaffe; Dane Sherburn; James Aung; Chan Jun Shern; Leon Maksin; Rachel Dias;
+        Evan Mays; Benjamin Kinsella; Wyatt Thompson; Johannes Heidecke; Amelia Glaese; Tejal Patwardhan, PaperBench:
+        Evaluating AI''s Ability to Replicate AI Research, arXiv:2504.01848v3 (2025-04-07), https://arxiv.org/abs/2504.01848v3,
+        PDF https://arxiv.org/pdf/2504.01848v3, CC BY 4.0 https://creativecommons.org/licenses/by/4.0/。实际PDF十三作者顺序：Giulio
+        Starace; Oliver Jaffe; Dane Sherburn; James Aung; Chan Jun Shern; Leon Maksin; Rachel Dias; Evan Mays; Benjamin
+        Kinsella; Wyatt Thompson; Johannes Heidecke; Amelia Glaese; Tejal Patwardhan。前七位及末位Tejal Patwardhan共八位equal-contribution星标，不是连续首八位；OpenAI机构保留；Giulio
+        Starace通讯地址实际giulio.starace@c-openai.com原样保留、不改域名。p1 Pre-print. Copyright 2025 by the author(s).为可见版权信用，不冒称页脚本身印有BY4
+        grant。p2起runningtitle Abilities是同一原件内页眉变体，不另起身份；主题名Ability保留。p10致谢独立信用：dataset creation Arvind Ramaswami、Francisco
+        Garcia；rubric验证/作者合作Alexander Spangher、Ananye Agarwal、Andrew Lee、Bartłomiej Cupiał、Bowen Zhao、Chang Xu、Christian
+        Schlarmann、Diana Cai、Dong Gong、Feng Liu、Haotian Sun、Jia Shi、Kevin Frans、Louis Sharrock、Manuel Gloeckler、Michael
+        Samuel Albergo、Pratik Rathore、Shuaicheng Niu、Tim Knappe、Tongliang Liu、Xinyu Xing、Xisen Jin；human baseline
+        Amy Lu、Anit Kumar Sahu、Armin Wasicek、Brendan Rappazzo、Chun-Wei Chiang、David Khachaturov、Marc Harary、Stephen
+        Giguere；advice/collaboration Aparna Dutta、Jerry Tworek、Phoebe Thacker、Phillip Guo、Kevin Liu、Vichyr Pong、Mengyuan
+        Yan、Yining Chen。上述协作者不混入主作者、不推定权利转让。Table2/References被引题名/作者及Appendix F ReAct、Inspect/UK AI Safety Institute归属原样保留；不由本表示许可外推20篇ICML原论文、代码、数据或外链。以上归属不暗示背书。'
+      modifications: 本次唯一固定版GET的1703363 bytes原PDF按字节原样保留，不编辑/重导/重排/OCR。既有helper以plain全页提取生成独立pdf-supplement/document.txt与实际新PDF
+        revision绑定的逐页selectors；页标题/定位和唯一文末归属/修改/范围footer为collector表示元数据，native不是作者另交原始文本或byte-exact executable prompt/code。NOTICE自包含实际署名/独立信用/来源/范围/损失与既有完整CC
+        BY4法律文本，notice_path自绑定本文件，不新rawlicense资产。默认父论文摘要消费正确，不新增primary_excerpt override。旧root source/normalized/selectors/NOTICE/README/files及revision/retrieval/rights/gate/source_version键缺省不改，不把新选版回溯为旧bare
+        archive GET的已证版次。
+      scope: 本独立表示只覆盖本UID固定arXiv:2504.01848v3原bytes不改的30页compiled PDF（1703363 bytes）：固定arXiv:2504.01848v3的完整30物理页编译论文：p1–10主文至Section8
+        Conclusion并含Impact Statement/Acknowledgements，p10–12 References，p13–24 Appendix A–I及Tables7–18，p25–30晚浮动Figures7–14
+        judge/agent/task prompts；六编号科学图Figures1–6（Figure4含JSON/GUI两截图）与八编号prompt/task figures在场，p29 Part1之后仍有p30 Figure14
+        Task Instructions Part2、toy Python/Bash、实际复现末句及continued图注，真实尾界不在p24。 论文作者可许可表达依本固定作品已证CC BY4路径；图表/参考文献/实际有限引述保存其原信用，不外推standalone被引作品/素材/程序/代码/数据/媒体/服务/模型/权重/模板的一般许可。范围含该PDF派生有损native
+        plain、revision-bound逐页selectors及完整NOTICE；不执行被审指令、不重新打包外链、不改变底层许可、不为已许可权利添加下游限制，无普遍权利保证，不授商标/专利。论文内toy Python/Bash、judge/agent/task
+        instructions都是被审文献内容，原样保留而不执行；不授权独立源图/rubric数据库/JudgeEval dataset/20篇ICML原论文全文/其他replications/作者代码/外部依赖/模型/服务，不读取API
+        key或执行root/git/复现语句。旧ICML/arxiv.sty/BST/fancyhdr/algorithm/algorithmic与26个bib abstract字段的独立条件及root block保持。
 - sequence: 61
   uid: arxiv:2504.03160
   source_type: arxiv

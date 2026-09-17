@@ -45,12 +45,12 @@ temporal:
   valid_to: null
   as_of: '2026-09-16T04:30:26Z'
 provenance:
-  build_id: build:llm-wiki-v0:261023893e1f09a1
+  build_id: build:llm-wiki-v0:e55e8d731fd60066
   generated_by_agent: pipeline/build_llm_wiki.py
   generated_by_model: null
   prompt_or_skill_version: deterministic-llm-wiki-v0.2
   compiled_from_revisions:
-  - arxiv:2503.18102@sha256:f26720fb630b99a1ee6534baf2f49b4d8a89bdde3f6f4542b0d0c5ade40f67c0
+  - arxiv:2503.18102@sha256:762045781a10140f714e0f23388014286a50cce79f385d6b4a1475162cce9669
   created_at: '2026-09-16T04:30:26Z'
   updated_at: '2026-09-16T04:30:26Z'
   manual_edits_preserved: false
