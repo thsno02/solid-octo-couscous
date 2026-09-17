@@ -582,7 +582,9 @@ def _validate_pdf_supplement_part(
     uid = str(manifest.get("uid") or "")
     def local_relative(path: Path) -> str:
         return path.relative_to(repo_root).as_posix()
-    from materialize_all_sources import extract_pdf_text, pdf_supplement_retrieval_url_matches
+    from materialize_all_sources import (
+        extract_pdf_text, pdf_supplement_content_type_supported, pdf_supplement_retrieval_url_matches,
+    )
     materialization = supplement.get("materialization")
     if not isinstance(materialization, dict):
         errors.append(f"{label}_MATERIALIZATION {uid}")
@@ -625,7 +627,7 @@ def _validate_pdf_supplement_part(
         not pdf_supplement_retrieval_url_matches(retrieval, version_url, publisher=publisher)
         or retrieval.get("sha256") != source_hash or retrieval.get("bytes") != source.stat().st_size
         or not isinstance(retrieval.get("retrieved_at"), str) or not retrieval["retrieved_at"].strip()
-        or not isinstance(retrieval.get("content_type"), str) or retrieval["content_type"].split(";", 1)[0].strip() != "application/pdf"
+        or not pdf_supplement_content_type_supported(retrieval.get("content_type"))
     ):
         errors.append(f"{label}_RETRIEVAL {uid}")
     try:

@@ -78,6 +78,7 @@ summary:
     CC-BY-SA-4.0 AND CC0-1.0: 1
     CC-BY-SA-4.0 AND CC-BY-SA-3.0: 1
   key_findings:
+  - P3-JOURNAL-02仅既有OBO UID doi:10.1038/s41587-021-01054-6新增真实DOI10.1093/database/baab069的PMC官方主PDF。实际9页/25作者/4图3表/15参考项及P1文章BY4绑定原件、页文本、定位与完整NOTICE；旧root unknown/revision null及获取历史保留，新独立表示allow不统授外链或其他版本。按实际review对象复算35 main PDF+5 SI=40表示级allow，其中CC-BY-4.0 37、CC-BY-SA-4.0 2、CC-BY-4.0 AND Apache-2.0 1；原件complete/text partial，不提升strict或trusted。下列批次计数为当时历史快照。
   - P3-PDF-06仅arxiv:2305.14627新增正式DOI 10.18653/v1/2023.emnlp-main.398独立publisher-vor PDF表示。既有ACL官方2023作品BY4证据、2026-09-16有界对应证据、实际24页内容/四作者/©ACL/有限外部例示信用与完整NOTICE绑定本次原bytes；新grant独立allow，不统授旧source或引用作品。旧root classification/gate/revision和supports_public_redistribution=false对应证据原样保留。实际审计对象复算34 main PDF+5 SI=39表示级allow，其中CC-BY-4.0 36、CC-BY-SA-4.0 2、CC-BY-4.0 AND Apache-2.0 1；原件complete/native text partial，不提升strict/trusted。
   - P3-PDF-05三既有UID新增独立固定版PDF表示，原件完整、native文字partial；旧root gate/source revision/evidence前缀不变，不提升strict或trusted。独立表示汇总改为按实际review对象复算：BASE实有30 main PDF与5 SI、35 allow，旧summary的27/5/32及license counts已落后；本批新增3 main后为33/5/38，非新增6个许可决定。旧root分类/门控计数不变。
   - P3-PDF-04十个既有arxiv审阅行新增独立fixed-PDF表示许可及实际编译正文信用；原root gate、source revision和历史证据保留。十新原件complete、native文字partial；表示级allow不是旧源包放行、strict complete或trusted。ResearchAgent旧matching引用保留历史并新增NLRSE正确绑定，Kosmos图2真实permission仅a/b，OpenEndedness图标保留CCBY3信用。
@@ -97,12 +98,12 @@ summary:
   - P3-WIKIMEDIA-HTML-01 methodology:wikipedia-editorial-governance按固定page向量/实际HTML和正文图/组件NOTICE独立有界allow；历史excerpt不改，text
     partial、body质量待实物consumer审阅，未selected/无knowledge晋升。
   independent_representation_review_counts:
-    pdf_supplement: 34
+    pdf_supplement: 35
     supplementary_information: 5
   independent_representation_publication_gate_counts:
-    allow: 39
+    allow: 40
   independent_representation_license_counts:
-    CC-BY-4.0: 36
+    CC-BY-4.0: 37
     CC-BY-SA-4.0: 2
     CC-BY-4.0 AND Apache-2.0: 1
   new_journal_representation_counts:
@@ -12171,6 +12172,11 @@ items:
   metadata_path: raw_data/journal/OBO Foundry in 2021/metadata.yaml
   capsule_root: materialized_sources/corpus/doi-10.1038-s41587-021-01054-6--5fa5a2aa
   stored_full_text_paths: []
+  stored_pdf_supplement_paths:
+  - materialized_sources/corpus/doi-10.1038-s41587-021-01054-6--5fa5a2aa/pdf-supplement/document.pdf
+  - materialized_sources/corpus/doi-10.1038-s41587-021-01054-6--5fa5a2aa/pdf-supplement/document.txt
+  - materialized_sources/corpus/doi-10.1038-s41587-021-01054-6--5fa5a2aa/pdf-supplement/selectors.jsonl
+  - materialized_sources/corpus/doi-10.1038-s41587-021-01054-6--5fa5a2aa/pdf-supplement/NOTICE.md
   baseline_content_tier: metadata_capsule
   baseline_status: metadata_only
   source_revision: null
@@ -12201,28 +12207,71 @@ items:
     path: materialized_sources/corpus/doi-10.1038-s41587-021-01054-6--5fa5a2aa/manifest.yaml
     locator: canonical_entry_review.retrieval_attempts/exact_main_pdf_href/exact_main_xml_href
     checked_at: '2026-09-17'
+    historical_observation: true
+    observed_in_phase: P3-CANONICAL-ENTRY-01
     finding: 旧DOI404；OUP raw403/5566 bytes及PMC raw200/21203 bytes均是挑战，不是论文。精确主PDF/XML href未观察，未取得正文或新public payload包。挑战只私有暂存；这是技术/表示绑定未知，不是权利人授权未知。
     supports_public_redistribution: false
-  missing:
-  - 正常取得的原始目标正文payload、版本/字节核验与精确主原件href；这是表示条件未落实而非文章grant缺失。
+  - kind: actual_official_main_pdf_and_article_license
+    url: https://pmc-oa-opendata.s3.amazonaws.com/PMC8546234.1/PMC8546234.1.pdf
+    path: materialized_sources/corpus/doi-10.1038-s41587-021-01054-6--5fa5a2aa/pdf-supplement/document.pdf
+    locator: P1 title/DOI/25 authors/copyright/article CC BY4; P1-P9 complete article boundary and credits
+    checked_at: '2026-09-17'
+    started_at: '2026-09-17T12:42:42Z'
+    retrieved_at: '2026-09-17T12:42:53Z'
+    http_status: 200
+    content_type: binary/octet-stream
+    bytes: 1235925
+    sha256: 16665b1025a68ef6982756707b0ef0de7ab9d48496136c25760faa3867a79aba
+    redirects: 0
+    tls_verify_result: 0
+    finding: 实际正常官方GET的9页PDF，真实DOI10.1093/database/baab069/刊名/25作者/发表排版对应原已证文章；P1自身CC BY4许可与现字节核闭。2021-10-26出版史/storage1分别由既有OUP/PMC元数据承担，PDF不独立印该日期或corrected/storage标签，技术日期不作版本。
+    supports_public_redistribution: true
+  - kind: bounded_actual_article_credit_and_content_review
+    path: materialized_sources/corpus/doi-10.1038-s41587-021-01054-6--5fa5a2aa/pdf-supplement/NOTICE.md
+    locator: complete attribution; Fig2 ROBOT1.8.1/OBO Metadata Schema; P9 acknowledgements/Funding/15 references; retained legal code
+    checked_at: '2026-09-17'
+    finding: 内容executor全9页native及视觉审读，packager另目视P1/P5/P7/P9并核全部最终TXT/页定位。4图3表及信用保留，未观察独立文章许可排除或必需SI；不外推外链ontology/软件/商标权。原件complete但plain图内标签/状态/轴柱图例/表二维与字形部分丢失为partial，不以非空页当完整文本，不做OCR。
+    supports_public_redistribution: true
+  missing: []
   classification: documented_permission
   document_permission: allow_with_conditions
   license_id: CC-BY-4.0
   license_url: https://creativecommons.org/licenses/by/4.0/
-  license_scope: OUP发表定稿文章正文，保留实际版权/25作者/来源/许可/改动及图表credit；不许可外链ontology全库、工具、数据或引用作品。本轮没有取得PDF/PMC正文，不声明其payload许可或版本字节已核。
+  license_scope: 实际同DOI的9页OUP发表定稿主PDF及对应派生分页TXT/selectors/NOTICE，保留25作者/实际Fig2软件credit/致谢/Funding/15参考项/文章BY4法条及PMC来源/不背书/快照时效；旧root独立且不授予外链ontology/软件/数据/引用作品/商标/专利许可。
   license_restrictions: []
   evidence_confidence: high
   public_redistribution_recommendation: allow_after_conditions_met
   conditions:
   - 保留25作者、©The Author(s)2021/Published by Oxford University Press、原作来源、CC BY4链接、已有信用和合理改动说明，不暗示背书或施加下游限制。
-  - 真正原件如出现独立第三方credit/排除声明，按实际声明保留处理；本批未抓图片或扩展全图版权普查。
-  - 正常取得精确官方href的正文后核验目标发表定稿/字节/结尾，再落实NOTICE和表示级版本包；不能把缓存正文或挑战HTML作为原件。
-  current_capsule_compliance: article_permission_documented_no_current_body_representation
+  - 实际9页/4图3表的有界信用核验未观察独立排除；保留Fig2 ROBOT1.8.1/OBO Metadata Schema及P9信用，不据此许可外部软件/ontology/标志或引用作品，不额外单图GET。
+  - 当前独立PDF包绑定真实官方URL/1235925bytes/UTC/payload revision/选定表示/完整NOTICE；normal GET与原件核验不改写旧root诊断，文本partial与公开再分发/知识准入分开。
+  current_capsule_compliance: independent_main_pdf_package_conditions_met_legacy_metadata_only_root_unchanged
   publication_gate:
     decision: unknown
-    reason: 本字段仅当前root公开正文表示门控；无正文payload、版本/字节或实际包可绑定，故unknown。文章公众CC BY4明确已证，许可不未知；获取挑战与许可分开。metadata-only与历史诊断继续保留，不公开新增正文。
-  unresolved: 技术挑战阻挡与精确主PDF/XML href未观察；无正文原件/文本，不需要新作者授权，不能猜址或绕挑战。
-  next_action: 同作品正式OUP/PMC路径正常暴露精确原件href后，依后续有界合同取得并核正文/版本/credit、包装NOTICE与文本；不索求新许可、不扩集合。
+    reason: 本字段只旧metadata-only root公开正文表示门控，旧root没有正文payload且revision=null，故unknown保留；文章公众CC BY4已证，新主PDF的独立版本/字节/NOTICE包见pdf_supplement的allow，不把历史网页挑战当当前PDF未获取或作者授权未知。
+  unresolved: 当前主PDF原件完整，但native plain图内标签/状态/轴柱图例/表二维及字形有损为partial；严格文本完成未成立，独立最终head/base评价与CI由主线后续执行，不再需要新作者许可或入口猜测。
+  next_action: 新表示完成现helper局部校验/离线重放后冻结C/R，主线aggregate与K实际对账并最终冻结所有输入，才运行必要demo/validate/repro及独立精确head/base验收；若要text complete另立有界图内/表结构提取判断，不默认OCR。
+  pdf_supplement:
+    license_spdx: CC-BY-4.0
+    license_url: https://creativecommons.org/licenses/by/4.0/
+    license_verified_at: '2026-09-17'
+    redistribution_package:
+      source_revision: sha256:16665b1025a68ef6982756707b0ef0de7ab9d48496136c25760faa3867a79aba
+      source_version: publisher-vor:doi:10.1093/database/baab069;pmc:PMC8546234.1
+      source_version_url: https://pmc-oa-opendata.s3.amazonaws.com/PMC8546234.1/PMC8546234.1.pdf
+      notice_path: materialized_sources/corpus/doi-10.1038-s41587-021-01054-6--5fa5a2aa/pdf-supplement/NOTICE.md
+      attribution: >-
+        Rebecca Jackson; Nicolas Matentzoglu; James A. Overton; Randi Vita; James P. Balhoff; Pier Luigi Buttigieg; Seth Carbon; Melanie Courtot; Alexander D. Diehl; Damion M. Dooley; William D. Duncan; Nomi L. Harris; Melissa A. Haendel; Suzanna E. Lewis; Darren A. Natale; David Osumi-Sutherland; Alan Ruttenberg; Lynn M. Schriml; Barry Smith; Christian J. Stoeckert Jr.; Nicole A. Vasilevsky; Ramona L. Walls; Jie Zheng; Christopher J. Mungall; Bjoern Peters. OBO Foundry in 2021: operationalizing open data principles to evaluate ontologies. Database, 2021, article ID baab069, 1–9. © The Author(s) 2021. Published by Oxford University Press. DOI https://doi.org/10.1093/database/baab069; publisher https://academic.oup.com/database/article/doi/10.1093/database/baab069/6410158; obtained from NLM/PMC official Cloud Service https://pmc-oa-opendata.s3.amazonaws.com/PMC8546234.1/PMC8546234.1.pdf. CC-BY-4.0, https://creativecommons.org/licenses/by/4.0/. Fig2 credits ROBOT version 1.8.1 and OBO Metadata Schema; complete affiliations, acknowledgements, Funding and reference credit are retained in the original and NOTICE. No endorsement is implied; this fixed snapshot may not be the current latest version.
+      modifications: >-
+        原 PDF 保留2026-09-17T12:42:53Z实际取得字节，不编辑、不拼接、不重导出。既有pypdf plain helper逐页派生TXT及9个page selectors，增加Page1–9边界和一个明确署名/修改/范围末注；连续摘要另以实际TXT绝对行号声明。Fig1/2/3/4图内标签、状态、轴/柱/图例关系、表二维/跨页/旋转布局及字形/上标有损，保留text partial；不纠正原作内部差异、不做OCR、不执行代码/ontology/外链。
+      scope: >-
+        仅稳定UID doi:10.1038/s41587-021-01054-6 对应真实DOI10.1093/database/baab069的 publisher-vor:doi:10.1093/database/baab069;pmc:PMC8546234.1 主PDF（9页，1235925 bytes，https://pmc-oa-opendata.s3.amazonaws.com/PMC8546234.1/PMC8546234.1.pdf）及对应有损分页TXT/page selectors/完整NOTICE。包含原件内摘要/引言/Related work/Results/Discussion、4图/3表、致谢/Funding/15参考项及文章信用/许可；不授予旧root新正文权利，不扩到XML/官方TXT/独立图片/SI/tar、其他论文/更正、ontology/软件/dashboard/数据、引用作品、商标或专利，不增加下游限制。
+    publication_gate:
+      decision: allow
+      reason: >-
+        实物主文章P1自身CC BY4声明、真实DOI/刊名/25作者/发表排版身份与全部9页/4图3表信用核闭；未观察独立排除，完整署名/实际Fig2软件credit/来源/修改/法条及PMC不背书/快照说明落实。仅批准当前独立PDF表示，root metadata-only unknown与历史失败不被改写；获取/文本质量/CI/trust独立。
+      approved_scope: >-
+        仅稳定UID doi:10.1038/s41587-021-01054-6 对应真实DOI10.1093/database/baab069的 publisher-vor:doi:10.1093/database/baab069;pmc:PMC8546234.1 主PDF（9页，1235925 bytes，https://pmc-oa-opendata.s3.amazonaws.com/PMC8546234.1/PMC8546234.1.pdf）及对应有损分页TXT/page selectors/完整NOTICE。包含原件内摘要/引言/Related work/Results/Discussion、4图/3表、致谢/Funding/15参考项及文章信用/许可；不授予旧root新正文权利，不扩到XML/官方TXT/独立图片/SI/tar、其他论文/更正、ontology/软件/dashboard/数据、引用作品、商标或专利，不增加下游限制。
   not_legal_advice: true
   human_approval_claimed: false
 - sequence: 106

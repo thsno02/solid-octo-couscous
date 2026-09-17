@@ -629,6 +629,24 @@ class PdfSupplementTests(unittest.TestCase):
         errors, blocked, active, _ = validate_publication_rights(self.audit_path, self.root / "materialized_sources/corpus")
         self.assertEqual((errors, blocked, active), ([], [], 1))
 
+    def test_journal_main_and_si_accept_generic_mime_without_rewriting_headers(self) -> None:
+        si = self.journal_fixture()
+        for main_type, si_type in (
+            ("application/octet-stream", "binary/octet-stream"),
+            (" Binary/Octet-Stream ; charset=binary", "APPLICATION/OCTET-STREAM; name=source.pdf"),
+        ):
+            with self.subTest(main_type=main_type, si_type=si_type):
+                self.retrieval["content_type"] = main_type
+                si["retrieval"]["content_type"] = si_type
+                self.build_journal(si)
+                child = self.supplement["supplementary_information"]
+                self.assertEqual(self.supplement["retrievals"][0]["content_type"], main_type)
+                self.assertEqual(child["retrievals"][0]["content_type"], si_type)
+                for part in (self.supplement, child):
+                    self.assertEqual(part["media_type"], "application/pdf")
+                    self.assertEqual(part["materialization"]["pdf_page_count"], 2)
+                self.assertEqual(self.integrity_errors(), [])
+
     def test_journal_explicit_no_si_and_amended_version_are_supported(self) -> None:
         si = self.journal_fixture(required_si=False)
         self.version = "publisher-vor:2016-03-15;amended:addendum-2019-03-19"
@@ -918,6 +936,74 @@ class PdfSupplementTests(unittest.TestCase):
         self.assertIn("graphic-only", self.supplement["limitations"][0])
         self.assertNotIn("text_extraction_complete", self.supplement)
         self.assertEqual(self.chosen(), (self.capsule / "pdf-supplement/document.txt", self.capsule / "pdf-supplement/selectors.jsonl"))
+
+    def test_pdf_transport_mime_acceptance_is_shared_and_preserves_original_headers(self) -> None:
+        for content_type in (
+            "application/pdf", "application/octet-stream", "binary/octet-stream",
+            " Application/PDF ; charset=binary", "APPLICATION/OCTET-STREAM; name=source.pdf",
+            " Binary/Octet-Stream ; charset=binary",
+        ):
+            with self.subTest(content_type=content_type):
+                retrieval = {**self.retrieval, "content_type": content_type}
+                with mock.patch.object(materializer, "ROOT", self.root):
+                    self.supplement = materializer.build_pdf_supplement(
+                        self.capsule, "v2", retrieval, self.rights, body_quality_verified=True,
+                    )
+                self.manifest["pdf_supplement"] = self.supplement
+                self.refresh_inventory()
+                self.assertEqual(self.supplement["retrievals"][0], retrieval)
+                self.assertEqual(self.supplement["media_type"], "application/pdf")
+                self.assertEqual(self.supplement["materialization"]["pdf_page_count"], 2)
+                self.assertEqual([row["page"] for row in self.selector_rows()], [1, 2])
+                self.assertEqual(self.integrity_errors(), [])
+
+    def test_invalid_or_missing_pdf_transport_mime_is_rejected_by_builder_and_validator(self) -> None:
+        invalid_headers = [{}] + [{"content_type": value} for value in (
+            None, False, 0, 1.5, b"application/pdf", [], {}, "", " ", "; charset=binary",
+            "text/plain", "text/html", "application/x-pdf", "application/pdf+zip",
+            "application/octet-streaming", "application/pdf, binary/octet-stream",
+        )]
+        for headers in invalid_headers:
+            with self.subTest(headers=headers):
+                retrieval = {key: value for key, value in self.retrieval.items() if key != "content_type"}
+                retrieval.update(headers)
+                self.supplement["retrievals"] = [retrieval]
+                self.refresh_inventory()
+                self.assertTrue(any("PDF_SUPPLEMENT_RETRIEVAL" in error for error in self.integrity_errors()))
+                before = self.snapshot()
+                with mock.patch.object(materializer, "ROOT", self.root), self.assertRaisesRegex(
+                    materializer.RedistributionPackageError, "retrieval does not describe",
+                ):
+                    materializer.build_pdf_supplement(self.capsule, "v2", retrieval, self.rights)
+                self.assertEqual(self.snapshot(), before)
+
+    def test_generic_pdf_transport_mime_does_not_accept_non_pdf_or_corrupt_payloads(self) -> None:
+        from pypdf.errors import PdfReadError
+        for content_type in ("application/octet-stream", "binary/octet-stream"):
+            for payload in (b"<html>This is not a PDF.</html>", b"%PDF-1.7\ninvalid PDF body\n"):
+                with self.subTest(content_type=content_type, payload=payload):
+                    source_hash = hashlib.sha256(payload).hexdigest()
+                    (self.capsule / "pdf-supplement/document.pdf").write_bytes(payload)
+                    rights = copy.deepcopy(self.rights)
+                    rights["redistribution_package"]["source_revision"] = f"sha256:{source_hash}"
+                    retrieval = {**self.retrieval, "content_type": content_type, "bytes": len(payload), "sha256": source_hash}
+                    self.metadata["rights"]["pdf_supplement"] = copy.deepcopy(rights)
+                    self.review["pdf_supplement"] = copy.deepcopy(rights)
+                    self.write_metadata()
+                    self.write_audit()
+                    self.supplement.update({"revision": f"sha256:{source_hash}", "rights": rights, "retrievals": [retrieval]})
+                    self.supplement["materialization"]["source_pdf_sha256"] = source_hash
+                    self.refresh_inventory()
+                    errors = self.integrity_errors()
+                    self.assertTrue(any("PDF_SUPPLEMENT_PARSE" in error for error in errors), errors)
+                    self.assertFalse(any("RETRIEVAL" in error or "REVISION" in error or "INVENTORY_DRIFT" in error for error in errors), errors)
+                    before = self.snapshot()
+                    with mock.patch.object(materializer, "ROOT", self.root), self.assertRaises(
+                        materializer.RedistributionPackageError,
+                    ) as refusal:
+                        materializer.build_pdf_supplement(self.capsule, "v2", retrieval, rights)
+                    self.assertIsInstance(refusal.exception.__cause__, PdfReadError if payload.startswith(b"%PDF-") else ValueError)
+                    self.assertEqual(self.snapshot(), before)
 
     def test_fixed_version_and_effective_retrieval_are_required(self) -> None:
         for field, value in (("source_version", "v3"), ("source_version", None), ("revision", "old-tex-revision")):
