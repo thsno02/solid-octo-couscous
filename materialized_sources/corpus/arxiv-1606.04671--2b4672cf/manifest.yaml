@@ -70,6 +70,18 @@ local_files:
 - path: materialized_sources/corpus/arxiv-1606.04671--2b4672cf/normalized/document.txt
   bytes: 46193
   sha256: f39613ad3efaba9bdcbb5c7eb5528da8cc6f5dd840d73dbdb1e0bf153fdca6a4
+- path: materialized_sources/corpus/arxiv-1606.04671--2b4672cf/pdf-supplement/NOTICE.md
+  bytes: 20118
+  sha256: 20e9338d52e07563d1d2d4744b97bacbc0884d8ce9b49075612c989e6ad2abd0
+- path: materialized_sources/corpus/arxiv-1606.04671--2b4672cf/pdf-supplement/document.pdf
+  bytes: 4278357
+  sha256: d7f4f1c7175529862ceefb3add4767a83350f089592a68f0a088a383cc8d38b6
+- path: materialized_sources/corpus/arxiv-1606.04671--2b4672cf/pdf-supplement/document.txt
+  bytes: 46424
+  sha256: 2f41b78c166e0f8d35c7a8ef6240404b004fce6c679ab5a0a2654c3564a37da6
+- path: materialized_sources/corpus/arxiv-1606.04671--2b4672cf/pdf-supplement/selectors.jsonl
+  bytes: 6341
+  sha256: e8267788e33476b29e2deae52123f1450b334cdd60ad28174925a76c7fe3e530
 - path: materialized_sources/corpus/arxiv-1606.04671--2b4672cf/selectors.jsonl
   bytes: 10041
   sha256: 049ce8b86dc7304fff3eae1b350f72b496537f1f4b5199c9897e94b86f8e9227
@@ -134,8 +146,8 @@ local_files:
   bytes: 4266
   sha256: 11b990f6d8062d0dc325f7a9a5b74cb09206bbf6d303cfa6da5c988be1dea17a
 - path: materialized_sources/corpus/arxiv-1606.04671--2b4672cf/source-metadata.yaml
-  bytes: 8539
-  sha256: 567fab4d0c6071ec3f16f9e348ffafd3b6e1a2957980290a267f2fa7e10b1dff
+  bytes: 12519
+  sha256: af7501e2985bfc61ccffa91e6515292220b4122974a4811f77ac0f5e5cf60729
 warnings: []
 errors: []
 archive_container: tar
@@ -409,4 +421,70 @@ omitted:
   reason: non-text-document-member
 - path: figures/baselineDepiction6.pdf
   reason: non-text-document-member
-local_bytes: 215394
+local_bytes: 4570614
+pdf_supplement:
+  source_version: v4
+  revision: sha256:d7f4f1c7175529862ceefb3add4767a83350f089592a68f0a088a383cc8d38b6
+  media_type: application/pdf
+  retrievals:
+  - requested_urls:
+    - https://arxiv.org/pdf/1606.04671v4
+    resolved_url: https://arxiv.org/pdf/1606.04671v4
+    content_type: application/pdf
+    bytes: 4278357
+    sha256: d7f4f1c7175529862ceefb3add4767a83350f089592a68f0a088a383cc8d38b6
+    retrieved_at: '2026-09-16T23:54:53Z'
+    http_status: 200
+    request_started: 2026-09-16 23:54:35 UTC
+    completion_observed: 2026-09-16 23:54:53 UTC
+    time_scope: actual batch start/completion observations; not individual response timestamps
+  selectors:
+  - pdf-supplement/selectors.jsonl
+  body_quality_verified: true
+  limitations:
+  - 'compiled PDF complete: 14 页原件包含主文、24 条参考及 Supplement A–E；旧 root 源包/省略成员的 partial 历史仍不变。'
+  - native text partial：求和与 max 已恢复，但二维公式上下标、矩阵/分式和阅读顺序不完整；纯文本不是精确可执行数学。
+  - p2/p5 架构连接箭头与布局、游戏截图、heatmap 分组/颜色、曲线及误差带没有全部线性化；Table 1 数值保留但二维分组和 bold 丢失；末三页 28 曲线 panel 的形状/值/颜色绑定不能由 TXT
+    代替原图。
+  - 全 14 页均有 native text、无失败/空页，不代表视觉语义无损；保留 ligature、断词及提取顺序限制，不使用 OCR 或额外外链素材。
+  rights:
+    license_spdx: CC-BY-4.0
+    license_url: https://creativecommons.org/licenses/by/4.0/
+    license_verified_at: '2026-09-17'
+    publication_gate:
+      decision: allow
+      reason: 主线已核固定 abs 页本版 BY4、实际 PDF 内容与有界第三方信用，批准本次独立 PDF/native plain/逐页定位器/NOTICE 表示；依据本固定作品许可，不借旧 root allow，非底层权利普遍保证。
+      approved_scope: 本独立表示仅覆盖固定 arXiv:1606.04671v4 完整、原 bytes 不改的 14 页 PDF（4,278,357 bytes），其内嵌主文 p1–8、24 条参考 p9、Supplement
+        A–E p10–14 和科学图，以及由该 PDF 全页生成的 native plain、逐页定位器（selectors）与完整 CC BY 4.0 NOTICE。论文作者可许可表达按本固定作品 CC BY 4.0；论文中有限游戏截图按原科学
+        benchmark 情境与实际信用保留，不把底层游戏、ROM、独立素材或 ACTIVISION 等商标标成作者 BY4 作品。不包含任何外链游戏/软件/模型/数据、被引作品全文、源图资产的独立分发或整个源归档；无普遍法律保证。旧
+        20 个 source 文本、41 个 root selectors、root NOTICE/TXT/TeX 和旧 partial 缺图历史及独立模板权利不由本新 grant 改写；定位器不改变其所定位表达的适用权利。
+    redistribution_package:
+      source_revision: sha256:d7f4f1c7175529862ceefb3add4767a83350f089592a68f0a088a383cc8d38b6
+      source_version_url: https://arxiv.org/pdf/1606.04671v4
+      notice_path: raw_data/licenses/cc-by-4.0.md
+      attribution: Andrei A. Rusu, Neil C. Rabinowitz, Guillaume Desjardins, Hubert Soyer, James Kirkpatrick, Koray
+        Kavukcuoglu, Razvan Pascanu, Raia Hadsell, Progressive Neural Networks, arXiv:1606.04671v4 (2022-10-22),
+        Google DeepMind, London; 前三位作者等贡献（equal contribution）。固定作品来源 https://arxiv.org/abs/1606.04671v4，PDF https://arxiv.org/pdf/1606.04671v4，CC
+        BY 4.0 https://creativecommons.org/licenses/by/4.0/。保留论文内参考与有限游戏 benchmark 截图的原归属：p5 Fig.2 的 River Raid、Seaquest
+        可见 ACTIVISION 标识，Pong/Atari/Labyrinth 示例及 ALE 的 Bellemare、Naddaf、Veness、Bowling 学术引用保持原件。论文作者 BY4 不构成底层游戏、ROM、素材或商标的独立许可；未观察到原件独立版权声明，不虚构版权年份或权利人。以上归属不暗示背书。
+      modifications: 固定版本 PDF 按真实响应 bytes 原样复制，不编辑、重导或 OCR；以既有 plain 全页提取生成独立 pdf-supplement/document.txt 及真实 PDF
+        revision 的页 selectors，并在文末追加唯一归属、修改/范围说明与同目录 NOTICE.md 链接。NOTICE.md 原样复制现存完整 CC BY 4.0 法条资产。native text
+        具有逐项声明的排版/图义损失，不声称无损转换；原 root source/TXT/TeX/selectors/NOTICE、检索时间及历史许可 scope 均不改，不使用旧 root grant 冒充新 PDF
+        授权，不推断未观察到的版权年份或修改者。
+      scope: 本独立表示仅覆盖固定 arXiv:1606.04671v4 完整、原 bytes 不改的 14 页 PDF（4,278,357 bytes），其内嵌主文 p1–8、24 条参考 p9、Supplement
+        A–E p10–14 和科学图，以及由该 PDF 全页生成的 native plain、逐页定位器（selectors）与完整 CC BY 4.0 NOTICE。论文作者可许可表达按本固定作品 CC BY 4.0；论文中有限游戏截图按原科学
+        benchmark 情境与实际信用保留，不把底层游戏、ROM、独立素材或 ACTIVISION 等商标标成作者 BY4 作品。不包含任何外链游戏/软件/模型/数据、被引作品全文、源图资产的独立分发或整个源归档；无普遍法律保证。旧
+        20 个 source 文本、41 个 root selectors、root NOTICE/TXT/TeX 和旧 partial 缺图历史及独立模板权利不由本新 grant 改写；定位器不改变其所定位表达的适用权利。
+  materialization:
+    source_pdf: pdf-supplement/document.pdf
+    source_pdf_sha256: d7f4f1c7175529862ceefb3add4767a83350f089592a68f0a088a383cc8d38b6
+    document: pdf-supplement/document.txt
+    normalized_document: pdf-supplement/document.txt
+    stored_characters: 44999
+    selector_count: 14
+    pdf_page_count: 14
+    pdf_text_page_count: 14
+    pdf_text_extraction_mode: plain
+    pdf_pages_without_extractable_text: []
+    pdf_page_extraction_failures: []
+    substantive_text: true
