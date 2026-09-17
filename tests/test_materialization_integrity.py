@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import contextlib
+import copy
 import gzip
 import hashlib
 import io
@@ -1830,6 +1831,272 @@ class RetainedMarkdownTests(unittest.TestCase):
         text, selectors, title = materializer.html_to_sections(b"<html><title>Legacy</title><body><h1>Root</h1><span>omitted</span><pre><span>A</span>\n<span>B</span></pre></body></html>", "https://example.test/legacy")
         self.assertEqual((text, title), ("# Root\n\nA B\n", "Legacy"))
         self.assertEqual([row["text_preview"] for row in selectors], ["Root", "A B"])
+
+
+class OriginalRetentionTests(unittest.TestCase):
+    @contextlib.contextmanager
+    def _capsule(self, *, partial: bool = False, media: bool = True, tier: str = "full_text"):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary).resolve()
+            with mock.patch.multiple(materializer, ROOT=root, CORPUS_ROOT=root / "materialized_sources/corpus"):
+                metadata_path = root / "raw_data/standard/fixture/metadata.yaml"
+                metadata = {
+                    "uid": "standard:original-fixture", "source_type": "standard", "canonical_id": "FIXTURE",
+                    "title": "Fixed original", "canonical_url": "https://example.test/TR/fixture/",
+                    "versioning": {"source_version": "legacy-root-version"}, "rights": {"access": "open"},
+                    "collection": {"priority": "P1", "inclusion_reason": "Legacy collector assessment."},
+                }
+                record = materializer.SourceRecord(metadata["uid"], "standard", "FIXTURE", metadata["title"],
+                    metadata["canonical_url"], metadata_path, metadata, "P1", "open")
+                cap = record.capsule_root
+                (cap / "source/diagrams").mkdir(parents=True)
+                (cap / "document.md").write_bytes(b"# Legacy root\r\n\r\nOriginal bounded text and missing structures.\r\n")
+                (cap / "NOTICE.md").write_bytes(b"Old root notice is not an original-copy grant.\n")
+                (cap / "README.md").write_bytes(b"Original and legacy representations are separate.\n")
+                materializer.write_jsonl(cap / "selectors.jsonl", [{
+                    "selector": "legacy://fixture#L1-L3", "local_path": (cap / "document.md").relative_to(root).as_posix(),
+                    "kind": "section", "start_line": 1, "end_line": 3, "text_preview": "Legacy root",
+                }])
+                source = cap / "source/specification.html"
+                source.write_bytes(("<html><body><h1>Fixed original</h1><p>Original copyright, status and definitions remain unchanged.</p>"
+                    + ('<object data="diagrams/figure.svg"></object>' if media else '')
+                    + ('<img src="images/not-approved.png" alt="Unclosed profile rights">' if partial else '')
+                    + "</body></html>\r\n").encode())
+                asset = cap / "source/diagrams/figure.svg"
+                if media:
+                    asset.write_bytes(b'<svg xmlns="http://www.w3.org/2000/svg"><text>Original figure</text></svg>\n')
+                notice = b"Complete original-copy notice and unchanged copyright/status conditions.\n"
+                carrier = root / "raw_data/licenses/original-fixture.md"
+                carrier.parent.mkdir(parents=True)
+                carrier.write_bytes(notice)
+                (cap / "source/NOTICE.md").write_bytes(notice)
+                version, url = "Fixed recommendation 2020-01-01", "https://example.test/TR/2020/REC-fixture-20200101/"
+                package = {
+                    "source_version": version, "source_revision": "sha256:" + materializer.sha256_file(source),
+                    "source_version_url": url, "notice_path": carrier.relative_to(root).as_posix(),
+                    "attribution": "Actual original author and copyright retained.",
+                    "modifications": "None to the original response or finite media.",
+                    "scope": "Fixed HTML and the finite approved diagram; no legacy conversion permission.",
+                }
+                rights = {"license_spdx": "LicenseRef-Document-Fixture", "license_url": "https://example.test/license",
+                    "license_verified_at": "2026-09-18", "redistribution_package": package,
+                    "publication_gate": {"decision": "allow", "reason": "Reviewed exact original copy.", "approved_scope": package["scope"]}}
+                metadata["versioning"]["original_retention"] = {"source_version": version, "source_version_url": url}
+                metadata["rights"]["original_retention"] = copy.deepcopy(rights)
+                materializer.write_yaml(metadata_path, metadata)
+                materializer.write_yaml(cap / "source-metadata.yaml", metadata)
+                M = materializer.base_manifest(record, "generic_web_or_document_v2", "old-build-time")
+                M.update({"status": "materialized", "content_tier": tier, "revision": "sha256:legacy-root",
+                    "retrievals": [{"requested_url": metadata["canonical_url"], "bytes": 123}], "selectors": ["selectors.jsonl"],
+                    "materialization": {"document": "document.md", "selector_count": 1}})
+                M["original_retention"] = {
+                    "source_version": version, "revision": package["source_revision"], "source": "source/specification.html",
+                    "media_type": "text/html", "status": "partial" if partial else "materialized",
+                    "retained_assets": ["diagrams/figure.svg"] if media else [],
+                    "unretained_assets": ["images/not-approved.png"] if partial else [],
+                    "limitations": ["ICC rights unclosed: images/not-approved.png is not retained."] if partial else [],
+                    "rights": copy.deepcopy(rights), "retrievals": [{
+                        "local_path": path.relative_to(cap).as_posix(), "requested_url": address, "resolved_url": address,
+                        "bytes": path.stat().st_size, "sha256": materializer.sha256_file(path), "content_type": content_type,
+                        "http_status": 200, "redirects": 0, "tls_verification_result": 0,
+                        "observation_started_at": "2026-09-18T00:00:00Z", "completion_observed_at": "2026-09-18T00:00:01Z",
+                    } for path, address, content_type in [(source, url, "text/html; charset=utf-8")]
+                        + ([(asset, url + "diagrams/figure.svg", "image/svg+xml")] if media else [])],
+                }
+                M["original_retention"]["retrievals"][0]["content_encoding"] = None  # response header absent
+                audit = root / "raw_data/audits/materialization_rights_review.yaml"
+                materializer.write_yaml(audit, {"scope": {"baseline_full_text_count": 1}, "items": [{
+                    "uid": record.uid, "manifest_path": (cap / "manifest.yaml").relative_to(root).as_posix(),
+                    "source_revision": M["revision"], "publication_gate": {"decision": "block", "reason": "Old conversion unclosed."},
+                    "original_retention": copy.deepcopy(rights),
+                }]})
+                self._inventory(cap, M)
+                yield root, record, cap, M, audit
+
+    def _inventory(self, cap: Path, manifest: dict) -> None:
+        manifest["local_files"] = materializer.local_file_inventory(cap)
+        manifest["local_bytes"] = sum(row["bytes"] for row in manifest["local_files"])
+        materializer.write_yaml(cap / "manifest.yaml", manifest)
+
+    def _bytes(self, cap: Path) -> dict:
+        return {p.relative_to(cap).as_posix(): p.read_bytes() for p in cap.rglob("*") if p.is_file()}
+
+    @contextlib.contextmanager
+    def _no_writes(self):
+        with contextlib.ExitStack() as stack:
+            spies = [stack.enter_context(mock.patch.object(materializer, name, side_effect=AssertionError(name + " prohibited")))
+                     for name in ("fetch_bytes", "prepare_capsule", "derive_retained_text_sources", "derive_retained_markdown", "finalize_capsule", "apply_redistribution_package")]
+            spies.append(stack.enter_context(mock.patch.object(materializer.shutil, "rmtree", side_effect=AssertionError("rmtree prohibited"))))
+            for name in ("write_text", "write_bytes"):
+                spies.append(stack.enter_context(mock.patch.object(Path, name, side_effect=AssertionError(name + " prohibited"))))
+            yield
+            self.assertTrue(all(spy.call_count == 0 for spy in spies))
+
+    def test_normal_original_replay_is_readonly_and_preserves_root(self):
+        with self._capsule() as (root, record, cap, M, _):
+            before = self._bytes(cap)
+            with self._no_writes():
+                self.assertIs(materializer.replay_original_retention(record, M), M)
+                for executor in (materializer.materialize_generic, materializer.materialize_one):
+                    for _ in range(2):
+                        self.assertEqual(executor(record, {}, "different-new-build-time"), M)
+                        self.assertEqual(self._bytes(cap), before)
+
+    def test_partial_unretained_media_and_empty_media_list_are_valid(self):
+        for partial, media in ((True, True), (False, False)):
+            with self.subTest(partial=partial, media=media), self._capsule(partial=partial, media=media) as (root, record, cap, M, _):
+                before = self._bytes(cap)
+                with self._no_writes():
+                    self.assertEqual(materializer.materialize_one(record, {}, "new-time"), M)
+                self.assertEqual(self._bytes(cap), before)
+                self.assertEqual(M["status"], "materialized")  # independent partial does not rewrite the root
+
+    def test_malformed_original_declarations_never_fallback_or_write(self):
+        for where in ("manifest", "canonical-version", "canonical-rights", "snapshot-version", "snapshot-rights"):
+            for bad in (None, {}, [], False, "invalid"):
+                with self.subTest(where=where, bad=bad), self._capsule() as (root, record, cap, M, _):
+                    if where == "manifest":
+                        M["original_retention"] = bad
+                    else:
+                        path = cap / "source-metadata.yaml" if where.startswith("snapshot-") else record.metadata_path
+                        data = materializer.load_yaml(path)
+                        data["rights" if where.endswith("-rights") else "versioning"]["original_retention"] = bad
+                        materializer.write_yaml(path, data)
+                    self._inventory(cap, M)
+                    before = self._bytes(cap)
+                    with self._no_writes():
+                        for executor in (materializer.materialize_generic, materializer.materialize_one):
+                            with self.assertRaises(materializer.RedistributionPackageError):
+                                executor(record, {}, "new-time")
+                    self.assertEqual(self._bytes(cap), before)
+
+    def test_missing_tampered_conflicting_or_aliased_originals_fail_zero_write(self):
+        for change in ("missing-html", "missing-media", "tampered-html", "notice", "inventory", "revision", "escape", "overlap",
+                       "paired", "sidecar", "symlink", "hardlink", "unretained-file", "missing-declaration", "missing-manifest", "timestamp", "retrieval-url", "gzip", "br", "transport"):
+            with self.subTest(change=change), self._capsule(partial=True) as (root, record, cap, M, _):
+                part = M["original_retention"]; asset = cap / "source/diagrams/figure.svg"
+                if change == "missing-html": (cap / "source/specification.html").unlink()
+                elif change == "missing-media": asset.unlink()
+                elif change == "tampered-html": (cap / "source/specification.html").write_bytes(b"Altered HTML")
+                elif change == "notice": (cap / "source/NOTICE.md").write_bytes(b"Different carrier")
+                elif change == "inventory": M["local_files"][0]["sha256"] = "0" * 64
+                elif change == "revision": part["revision"] = "sha256:" + "0" * 64
+                elif change == "escape": part["retained_assets"] = ["../escape.svg"]
+                elif change == "overlap": part["unretained_assets"].append("diagrams/figure.svg")
+                elif change == "paired": M["materialization"]["retained_text_binding"] = "dated_html_response"
+                elif change == "sidecar":
+                    (cap / "normalized").mkdir(); (cap / "normalized/selectors.jsonl").write_bytes(b"{}\n")
+                elif change == "symlink":
+                    asset.unlink(); asset.symlink_to(cap / "document.md")
+                elif change == "hardlink":
+                    asset.unlink(); asset.hardlink_to(cap / "document.md")
+                elif change == "unretained-file":
+                    path = cap / "source/images/not-approved.png"; path.parent.mkdir(); path.write_bytes(b"Not admitted")
+                elif change == "missing-declaration": M.pop("original_retention")
+                elif change == "timestamp": part["retrievals"][0].pop("completion_observed_at")
+                elif change == "retrieval-url": part["retrievals"][1]["requested_url"] = "https://example.test/other-version.svg"
+                elif change in {"gzip", "br"}: part["retrievals"][0]["content_encoding"] = change
+                elif change == "transport": part["retrievals"][0]["transport_local_path"] = "source/specification.html.gz"
+                materializer.write_yaml(cap / "manifest.yaml", M)
+                if change == "missing-manifest": (cap / "manifest.yaml").unlink()
+                before = self._bytes(cap)
+                with self._no_writes():
+                    for executor in (materializer.materialize_generic, materializer.materialize_one):
+                        with self.assertRaises(materializer.RedistributionPackageError): executor(record, {}, "new-time")
+                self.assertEqual(self._bytes(cap), before)
+
+    def test_unrelated_legacy_snapshot_fields_are_not_rewritten_or_required_equal(self):
+        with self._capsule() as (root, record, cap, M, _):
+            snapshot = materializer.load_yaml(cap / "source-metadata.yaml")
+            snapshot["legacy_observation"] = "An existing historical difference outside the new layer."
+            materializer.write_yaml(cap / "source-metadata.yaml", snapshot)
+            self._inventory(cap, M)
+            before = self._bytes(cap)
+            with self._no_writes(): self.assertEqual(materializer.materialize_one(record, {}, "new-time"), M)
+            self.assertEqual(self._bytes(cap), before)
+
+    def test_bad_manifest_and_missing_html_are_protected_by_each_independent_marker(self):
+        for where in ("all", "canonical-version", "canonical-rights", "snapshot-version", "snapshot-rights", "notice"):
+            for bad in (None, {}):
+                with self.subTest(where=where, bad=bad), self._capsule() as (root, record, cap, M, _):
+                    canonical = copy.deepcopy(record.metadata)
+                    snapshot = materializer.load_yaml(cap / "source-metadata.yaml")
+                    if where != "all":
+                        for metadata in (canonical, snapshot):
+                            for field in ("versioning", "rights"):
+                                metadata[field].pop("original_retention")
+                        if where != "notice":
+                            (cap / "source/NOTICE.md").unlink()
+                            metadata = snapshot if where.startswith("snapshot-") else canonical
+                            metadata["rights" if where.endswith("-rights") else "versioning"]["original_retention"] = bad
+                    materializer.write_yaml(record.metadata_path, canonical)
+                    materializer.write_yaml(cap / "source-metadata.yaml", snapshot)
+                    record = replace(record, metadata=canonical)
+                    (cap / "source/specification.html").unlink()
+                    (cap / "manifest.yaml").write_bytes(b"original_retention: [unterminated\n")
+                    before = self._bytes(cap)
+                    with self._no_writes():
+                        for executor in (materializer.materialize_generic, materializer.materialize_one):
+                            with self.assertRaises(materializer.RedistributionPackageError):
+                                executor(record, {}, "new-time")
+                            self.assertEqual(self._bytes(cap), before)
+
+    def test_independent_rights_checked_before_root_tier_filter_and_root_block_remains(self):
+        import validate_publication_rights as rights_validator
+        for tier in ("metadata_capsule", "full_text"):
+            with self.subTest(tier=tier), self._capsule(tier=tier) as (root, record, cap, M, audit):
+                errors, blocked, active, _ = rights_validator.validate_publication_rights(audit, cap.parent)
+                self.assertEqual(errors, [])
+                self.assertEqual(active, 1)
+                self.assertEqual(len(blocked), 1 if tier == "full_text" else 0)
+                rows = materializer.load_yaml(audit)
+                rows["items"][0]["original_retention"]["redistribution_package"]["scope"] = "Different reviewed scope"
+                materializer.write_yaml(audit, rows)
+                errors, _, _, _ = rights_validator.validate_publication_rights(audit, cap.parent)
+                self.assertTrue(any("PUBLICATION_ORIGINAL_RETENTION_INVALID" in error for error in errors))
+                with self._no_writes(), self.assertRaises(materializer.RedistributionPackageError):
+                    materializer.materialize_one(record, {}, "new-time")
+
+    def test_completeness_and_explicit_coverage_version_do_not_invent_text_completion(self):
+        import audit_non_repo_coverage as coverage
+        with self._capsule(partial=True) as (root, record, cap, M, audit):
+            errors = []
+            validator.validate_retained_markdown_binding(M, cap, {}, errors, repository_root=root)
+            self.assertEqual(errors, [])
+            facts = coverage.collect_original_retention_facts(M, cap, materializer.load_yaml(audit)["items"][0], repository_root=root)
+            self.assertEqual(facts["validation_errors"], [])
+            self.assertTrue(facts["public_package_valid"])
+            self.assertEqual(facts["status"], "partial")
+            observed = {"source_version_recorded": "legacy-root-version", "original_retention": facts}
+            target = {"representation": "original_retention", "selected_version": facts["source_version"]}
+            self.assertTrue(coverage.target_version_matches(target, observed))
+            self.assertFalse(coverage.target_version_matches({"selected_version": facts["source_version"]}, observed))
+            facts["public_package_valid"] = False
+            self.assertFalse(coverage.target_version_matches(target, observed))
+            self.assertNotIn("text_extraction", facts)
+
+    def test_coherent_independent_block_remains_blocked_before_root_tier_filter(self):
+        import validate_publication_rights as rights_validator
+        with self._capsule(tier="metadata_capsule") as (root, record, cap, M, audit):
+            rights = M["original_retention"]["rights"]
+            rights["publication_gate"]["decision"] = "block"
+            rights["publication_gate"]["reason"] = "Original-copy conditions remain unclosed."
+            for path in (record.metadata_path, cap / "source-metadata.yaml"):
+                metadata = materializer.load_yaml(path)
+                metadata["rights"]["original_retention"] = copy.deepcopy(rights)
+                materializer.write_yaml(path, metadata)
+            review = materializer.load_yaml(audit)
+            review["items"][0]["original_retention"] = copy.deepcopy(rights)
+            materializer.write_yaml(audit, review)
+            self._inventory(cap, M)
+            errors, blocked, active, _ = rights_validator.validate_publication_rights(audit, cap.parent)
+            self.assertEqual(errors, [])
+            self.assertEqual(active, 1)
+            self.assertEqual(len(blocked), 1)
+            before = self._bytes(cap)
+            with self._no_writes(), self.assertRaises(materializer.RedistributionPackageError):
+                materializer.materialize_one(record, {}, "new-time")
+            self.assertEqual(self._bytes(cap), before)
 
 
 class MaterializerBoundaryTests(unittest.TestCase):

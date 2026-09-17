@@ -11,8 +11,8 @@ from pathlib import Path
 import yaml
 
 from materialize_all_sources import discover_records, filter_selectors_for_document, retained_text_selector_file
-from validate_materialization_completeness import load_yaml, pdf_page_sections, scoped_path, validate_pdf_supplement
-from validate_publication_rights import validate_pdf_supplement_rights
+from validate_materialization_completeness import load_yaml, pdf_page_sections, scoped_path, validate_original_retention, validate_pdf_supplement
+from validate_publication_rights import validate_original_retention_rights, validate_pdf_supplement_rights
 
 ROOT = Path(__file__).resolve().parents[1]
 COLLECTION_BASE = "5458fbdffc95444cc26d5e9346fc2f9ab96e09c5"
@@ -24,19 +24,47 @@ CLAIMS = "experiments/v0_meta_kb_initialization_demo_260910/04_claims/claims.jso
 
 
 def target_version_matches(target: dict, observed: dict) -> bool:
-    """Only an explicit, validated PDF target can select its independent version."""
+    """Only an explicit, validated independent representation selects its version."""
     representation = target.get("representation")
     if representation is None:
         return target.get("selected_version") == observed.get("source_version_recorded")
-    if representation != "pdf_supplement":
+    if representation not in {"pdf_supplement", "original_retention"}:
         return False
-    supplement = observed.get("pdf_supplement")
+    supplement = observed.get(representation)
     return (
         isinstance(supplement, dict) and supplement.get("validation_errors") == []
         and supplement.get("public_package_valid") is True
         and isinstance(supplement.get("source_version"), str) and bool(supplement["source_version"].strip())
         and target.get("selected_version") == supplement["source_version"]
     )
+
+
+def collect_original_retention_facts(
+    manifest: dict, capsule_root: Path, review: dict | None, *, repository_root: Path | None = None,
+) -> dict | None:
+    """Report copy-only facts without inventing text extraction or root publication rights."""
+    repo_root = repository_root or ROOT
+    errors: list[str] = []
+    if not validate_original_retention(manifest, capsule_root, errors, repository_root=repo_root):
+        return None
+    part = manifest.get("original_retention")
+    part = part if isinstance(part, dict) else {}
+    rights_errors, rights_blocks = validate_original_retention_rights(
+        manifest, capsule_root / "manifest.yaml", repo_root, review,
+    )
+    source = capsule_root / "source/specification.html"
+    rights = part.get("rights") if isinstance(part.get("rights"), dict) else {}
+    gate = rights.get("publication_gate") if isinstance(rights.get("publication_gate"), dict) else {}
+    return {
+        "source_version": part.get("source_version"), "local_revision": part.get("revision"),
+        "source_html": source.relative_to(repo_root).as_posix() if source.is_file() else None,
+        "status": part.get("status"), "retained_assets": part.get("retained_assets"),
+        "unretained_assets": part.get("unretained_assets"), "limitations": part.get("limitations"),
+        "validation_errors": errors,
+        "public_gate": gate.get("decision", "unknown"),
+        "public_package_valid": not rights_errors and not rights_blocks,
+        "public_package_errors": rights_errors + rights_blocks,
+    }
 
 
 def git(*args: str) -> str:
@@ -189,6 +217,9 @@ def collect_facts() -> dict:
             }
             if supplement.get("primary_excerpt") is not None:
                 observed["pdf_supplement"]["primary_excerpt"] = supplement["primary_excerpt"]
+        original = collect_original_retention_facts(manifest, root, review)
+        if original is not None:
+            observed["original_retention"] = original
         facts.append({"uid": uid, "source_type": record.source_type, "manifest": item["manifest"],
                       "metadata_path": record.relative_metadata_path, "title": record.title,
                       "canonical_id": record.canonical_id, "canonical_url": record.canonical_url, "observed": observed})
@@ -269,6 +300,9 @@ def check(facts: dict) -> int:
         supplement = item["observed"].get("pdf_supplement")
         if supplement:
             require(not supplement["validation_errors"] and supplement["public_package_valid"], f"{uid}: supplemental PDF integrity or independent allowance failure")
+        original = item["observed"].get("original_retention")
+        if original is not None:
+            require(not original["validation_errors"] and original["public_package_valid"], f"{uid}: original retention integrity or independent allowance failure")
         if item["action_bucket"] == "complete_verified":
             require(all(item[key]["state"] == "complete" for key in ("original_artifact_coverage", "text_extraction_coverage")), f"{uid}: false complete bucket")
         if item["observed"]["reported_content_tier"] == "full_text" and not item["content_inspection"]:

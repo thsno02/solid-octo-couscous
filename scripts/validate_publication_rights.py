@@ -10,7 +10,7 @@ import yaml
 
 from materialize_all_sources import (
     normalize_publisher_doi, pdf_supplement_retrieval_url_matches, pdf_supplement_version_urls,
-    redistribution_footer, redistribution_notice_href,
+    preflight_original_retention, redistribution_footer, redistribution_notice_href,
 )
 from validate_materialization_completeness import sha256_file
 
@@ -26,6 +26,25 @@ def load_yaml(path: Path) -> Any:
 
 def fail(message: str, errors: list[str]) -> None:
     errors.append(message)
+
+
+def validate_original_retention_rights(
+    manifest: dict[str, Any], manifest_path: Path, publication_root: Path,
+    review: dict[str, Any] | None,
+) -> tuple[list[str], list[str]]:
+    """Check the independent copy allowance even when the legacy root is filtered out."""
+    errors: list[str] = []
+    blocked: list[str] = []
+    try:
+        part = preflight_original_retention(
+            manifest, manifest_path.parent, repository_root=publication_root,
+            review=review, require_allow=False,
+        )
+        if part is not None and part["rights"]["publication_gate"].get("decision") != "allow":
+            blocked.append(f"{manifest.get('uid')} original_retention: missing independent audited allow decision")
+    except (KeyError, TypeError, AttributeError, ValueError, OSError, UnicodeError, yaml.YAMLError) as exc:
+        errors.append(f"PUBLICATION_ORIGINAL_RETENTION_INVALID {manifest.get('uid')}: {exc}")
+    return errors, blocked
 
 
 def validate_pdf_supplement_rights(
@@ -191,9 +210,17 @@ def validate_publication_rights(
 
     active_full_text: dict[str, Path] = {}
     supplemental_uids: set[str] = set()
+    original_uids: set[str] = set()
     for manifest_path in sorted(corpus_root.glob("*/manifest.yaml")):
         manifest = load_yaml(manifest_path)
         if isinstance(manifest, dict):
+            original_errors, original_blocks = validate_original_retention_rights(
+                manifest, manifest_path, corpus_root.parents[1], audited.get(manifest.get("uid")),
+            )
+            errors.extend(original_errors)
+            blocked.extend(original_blocks)
+            if "original_retention" in manifest:
+                original_uids.add(str(manifest.get("uid") or ""))
             supplement_errors, supplement_blocks = validate_pdf_supplement_rights(
                 manifest, manifest_path, corpus_root.parents[1], audited.get(manifest.get("uid")),
             )
@@ -291,9 +318,9 @@ def validate_publication_rights(
             except (KeyError, TypeError, AttributeError, ValueError, OSError) as exc:
                 fail(f"PUBLICATION_RIGHTS_PACKAGE_INVALID {uid}: {exc}", errors)
 
-    if not active_full_text and not supplemental_uids:
+    if not active_full_text and not supplemental_uids and not original_uids:
         fail("PUBLICATION_FULL_TEXT_SET_EMPTY", errors)
-    return errors, blocked, len(set(active_full_text) | supplemental_uids), len(audited)
+    return errors, blocked, len(set(active_full_text) | supplemental_uids | original_uids), len(audited)
 
 
 def main() -> int:

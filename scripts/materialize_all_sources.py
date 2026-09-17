@@ -31,6 +31,7 @@ import os
 import posixpath
 import re
 import shutil
+import stat
 import subprocess
 import tarfile
 import threading
@@ -3606,6 +3607,235 @@ def replay_pdf_supplement(record: SourceRecord, manifest: dict[str, Any]) -> dic
         raise RedistributionPackageError(f"{record.uid}: PDF replay failed: {exc}; retained capsule preserved") from exc
 
 
+def original_retention_requested(
+    manifest: dict[str, Any], root: Path, *, repository_root: Path,
+    metadata: dict[str, Any] | None = None, review: dict[str, Any] | None = None,
+) -> bool:
+    """Use key presence, not truthiness; do not appropriate a legacy paired HTML."""
+    if (
+        "original_retention" in manifest
+        or isinstance(metadata, dict) and any(isinstance(metadata.get(field), dict) and "original_retention" in metadata[field]
+                                               for field in ("versioning", "rights"))
+        or isinstance(review, dict) and "original_retention" in review
+        or (root / "source/NOTICE.md").exists() or (root / "source/NOTICE.md").is_symlink()
+    ):
+        return True
+    metadata_path = manifest.get("metadata_path")
+    if metadata is None and isinstance(metadata_path, str) and sanitize_relative_path(metadata_path) is not None:
+        path = repository_root / metadata_path
+        metadata = load_yaml(path) if path.is_file() else None
+    snapshot_path = root / "source-metadata.yaml"
+    snapshot = load_yaml(snapshot_path) if snapshot_path.is_file() else None
+    return (
+        "original_retention" in manifest
+        or any(isinstance(item, dict) and isinstance(item.get(field), dict) and "original_retention" in item[field]
+               for item in (metadata, snapshot) for field in ("versioning", "rights"))
+        or isinstance(review, dict) and "original_retention" in review
+        or (root / "source/NOTICE.md").exists() or (root / "source/NOTICE.md").is_symlink()
+    )
+
+
+def preflight_original_retention(
+    manifest: dict[str, Any], root: Path, *, repository_root: Path,
+    review: dict[str, Any] | None = None, require_allow: bool = True,
+) -> dict[str, Any] | None:
+    """Validate an independent, unchanged HTML original without writing any file.
+
+    The caller packages the source, finite media, independent NOTICE and inventory
+    once. This layer never derives text or replaces the legacy root representation.
+    """
+    repo_root = repository_root.resolve()
+    root = root.absolute()
+    root.resolve().relative_to(repo_root)
+    if not original_retention_requested(manifest, root, repository_root=repo_root, review=review):
+        return None
+    metadata_path = manifest.get("metadata_path")
+    if not isinstance(metadata_path, str) or sanitize_relative_path(metadata_path) is None:
+        raise ValueError("original retention needs its canonical metadata path")
+    canonical = load_yaml(repo_root / metadata_path)
+    capsule = load_yaml(root / "source-metadata.yaml")
+    if not isinstance(canonical, dict) or not isinstance(capsule, dict):
+        raise ValueError("original retention metadata must be mappings")
+
+    materialization = manifest.get("materialization")
+    paired = isinstance(materialization, dict) and any(field in materialization for field in (
+        "retained_markdown_source", "retained_text_sources", "retained_text_binding", "retained_text_selectors",
+    ))
+    part = manifest.get("original_retention")
+    if not isinstance(part, dict) or not part:
+        raise ValueError("original retention requires its explicit nonempty manifest declaration")
+    if manifest.get("adapter") != "generic_web_or_document_v2" or paired or "pdf_supplement" in manifest:
+        raise ValueError("original retention conflicts with a paired/derived representation")
+    if "normalized/selectors.jsonl" in (manifest.get("selectors") or []) or (root / "normalized/selectors.jsonl").exists():
+        raise ValueError("original retention cannot silently adopt a paired selector sidecar")
+    if part.get("source") != "source/specification.html" or part.get("media_type") != "text/html":
+        raise ValueError("original retention needs its unchanged source/specification.html")
+    version = part.get("source_version")
+    if not isinstance(version, str) or not version.strip() or part.get("status") not in {"materialized", "partial"}:
+        raise ValueError("original retention version/status must be explicit")
+    for field in ("retained_assets", "unretained_assets", "limitations"):
+        values = part.get(field)
+        if not isinstance(values, list) or any(not isinstance(value, str) or not value.strip() for value in values):
+            raise ValueError(f"original retention {field} must be an explicit string list")
+    retained, unretained = part["retained_assets"], part["unretained_assets"]
+    if len(set(retained + unretained)) != len(retained + unretained):
+        raise ValueError("original retention asset declarations overlap or repeat")
+    for reference in retained + unretained:
+        parsed = urllib.parse.urlsplit(reference)
+        if (
+            any(char.isspace() for char in reference) or parsed.scheme or parsed.netloc
+            or parsed.query or parsed.fragment or not parsed.path or parsed.path != reference
+            or Path(reference).is_absolute() or any(piece in {"", ".", ".."} for piece in reference.split("/"))
+            or urllib.parse.unquote(reference) != reference or "\\" in reference
+        ):
+            raise ValueError("original retention media src must be a unique literal relative path")
+    if unretained and (part["status"] != "partial" or not part["limitations"]):
+        raise ValueError("explicitly unretained media require independent partial status and limitations")
+
+    def regular(path: Path, scope: Path = root) -> Path:
+        path.relative_to(repo_root)
+        path.resolve().relative_to(scope.resolve())
+        for ancestor in (path, *path.parents):
+            if ancestor == repo_root:
+                break
+            if ancestor.is_symlink():
+                raise ValueError("original retention files and parents cannot be symlinks")
+        if not path.is_file() or not stat.S_ISREG(path.stat().st_mode) or path.stat().st_nlink != 1:
+            raise ValueError("original retention requires ordinary, non-aliased files")
+        return path
+
+    regular(root / "manifest.yaml")
+    regular(repo_root / metadata_path, repo_root)
+    regular(root / "source-metadata.yaml")
+    if any(manifest.get(field) != canonical.get(field) or capsule.get(field) != canonical.get(field) for field in (
+        "uid", "source_type", "canonical_id", "canonical_url", "title",
+    )):
+        raise ValueError("original retention canonical/capsule identity differs")
+    inventory = manifest.get("local_files")
+    if not isinstance(inventory, list) or not inventory:
+        raise ValueError("original retention needs the complete existing capsule inventory")
+    declared_paths, identities, byte_count = set(), set(), 0
+    for row in inventory:
+        name = row.get("path") if isinstance(row, dict) else None
+        if not isinstance(name, str) or sanitize_relative_path(name) is None or name in declared_paths:
+            raise ValueError("original retention inventory paths are invalid or repeated")
+        path = regular(repo_root / name)
+        if path.relative_to(repo_root).as_posix() != name:
+            raise ValueError("original retention inventory path aliases another file")
+        identity = (path.stat().st_dev, path.stat().st_ino)
+        if identity in identities:
+            raise ValueError("original retention inventory files alias each other")
+        identities.add(identity)
+        if type(row.get("bytes")) is not int or row["bytes"] != path.stat().st_size or row.get("sha256") != sha256_file(path):
+            raise ValueError("original retention inventory differs from actual bytes")
+        declared_paths.add(name)
+        byte_count += row["bytes"]
+    actual_paths = {path.relative_to(repo_root).as_posix() for path in root.rglob("*")
+                    if (path.is_file() or path.is_symlink()) and path != root / "manifest.yaml"}
+    if declared_paths != actual_paths or manifest.get("local_bytes") != byte_count:
+        raise ValueError("original retention inventory is incomplete or has an incorrect byte total")
+
+    source = regular(root / part["source"])
+    source_hash = sha256_file(source)
+    if part.get("revision") != f"sha256:{source_hash}":
+        raise ValueError("original retention revision differs from its unchanged HTML")
+    from bs4 import BeautifulSoup
+    soup = BeautifulSoup(source.read_bytes().decode("utf-8"), "html.parser")
+    if len(soup.find_all("body")) != 1 or not soup.body.get_text(" ", strip=True):
+        raise ValueError("original retention needs one nonempty original HTML body")
+    references = {node.get("src" if node.name == "img" else "data") for node in soup.body.find_all(["img", "object"])}
+    if any(reference not in references for reference in retained + unretained):
+        raise ValueError("original retention media declaration is absent from the actual HTML")
+    for reference in unretained:
+        if (root / "source" / reference).exists() or (root / "source" / reference).is_symlink():
+            raise ValueError("explicitly unretained media must not be published in this capsule")
+    allowed_sources = {"source/specification.html", "source/NOTICE.md", *(f"source/{src}" for src in retained)}
+    actual_sources = {path.relative_to(root).as_posix() for path in (root / "source").rglob("*") if path.is_file() or path.is_symlink()}
+    if allowed_sources != actual_sources:
+        raise ValueError("original retention source inventory exceeds or misses its finite declared scope")
+
+    rights = part.get("rights")
+    if review is None:
+        audit = load_yaml(repo_root / "raw_data/audits/materialization_rights_review.yaml")
+        reviews = [row for row in audit["items"] if isinstance(row, dict) and row.get("uid") == manifest.get("uid")]
+        if len(reviews) != 1:
+            raise ValueError("original retention needs exactly one audited review")
+        review = reviews[0]
+    if not isinstance(review, dict) or review.get("uid") != manifest.get("uid") or review.get("manifest_path") != (root / "manifest.yaml").relative_to(repo_root).as_posix():
+        raise ValueError("original retention audit points to another identity or manifest")
+    if not isinstance(rights, dict) or not (
+        rights == canonical.get("rights", {}).get("original_retention")
+        == capsule.get("rights", {}).get("original_retention") == review.get("original_retention")
+    ):
+        raise ValueError("original retention canonical, capsule, manifest and audited rights differ")
+    if any(not isinstance(rights.get(field), str) or not rights[field].strip() for field in ("license_spdx", "license_url", "license_verified_at")):
+        raise ValueError("original retention lacks its independently reviewed license")
+    package = rights.get("redistribution_package")
+    if not isinstance(package, dict) or any(not isinstance(package.get(field), str) or not package[field].strip() for field in (
+        "source_revision", "source_version", "source_version_url", "notice_path", "attribution", "modifications", "scope",
+    )):
+        raise ValueError("original retention redistribution package is incomplete")
+    approved_url = package["source_version_url"]
+    parsed = urllib.parse.urlsplit(approved_url)
+    if parsed.scheme != "https" or not parsed.netloc or parsed.query or parsed.fragment or parsed.username:
+        raise ValueError("original retention needs its literal approved fixed HTTPS URL")
+    declaration = {"source_version": version, "source_version_url": approved_url}
+    if any(metadata.get("versioning", {}).get("original_retention") != declaration for metadata in (canonical, capsule)):
+        raise ValueError("original retention version declaration differs from the selected original")
+    if package["source_revision"] != part["revision"] or package["source_version"] != version:
+        raise ValueError("original retention rights do not bind this original revision/version")
+    gate = rights.get("publication_gate")
+    if not isinstance(gate, dict) or gate.get("approved_scope") != package["scope"] or not isinstance(gate.get("reason"), str) or not gate["reason"].strip():
+        raise ValueError("original retention allowance must explicitly cover its own scope")
+    if require_allow and gate.get("decision") != "allow":
+        raise ValueError("original retention requires an independent audited allow decision")
+    notice_path = package["notice_path"]
+    if sanitize_relative_path(notice_path) is None:
+        raise ValueError("original retention NOTICE asset is outside the repository")
+    expected_notice = regular(repo_root / notice_path, repo_root).read_bytes()
+    if not expected_notice.strip() or regular(root / "source/NOTICE.md").read_bytes() != expected_notice:
+        raise ValueError("original retention NOTICE differs from its reviewed complete carrier")
+    retrievals = part.get("retrievals")
+    originals = [("source/specification.html", approved_url, "text/html"),
+                 *((f"source/{src}", urllib.parse.urljoin(approved_url, src), None) for src in retained)]
+    if not isinstance(retrievals, list) or len(retrievals) != len(originals) or any(not isinstance(row, dict) for row in retrievals):
+        raise ValueError("original retention retrievals must match its retained originals exactly")
+    for name, url, media_type in originals:
+        records = [row for row in retrievals if row.get("local_path") == name]
+        path = regular(root / name)
+        if len(records) != 1:
+            raise ValueError("original retention needs one retrieval for every retained original")
+        row = records[0]
+        content_type = row.get("content_type")
+        if (
+            row.get("requested_url") != url or row.get("resolved_url") != url or row.get("http_status") != 200
+            or row.get("sha256") != sha256_file(path) or type(row.get("bytes")) is not int or row["bytes"] != path.stat().st_size
+            or not isinstance(row.get("completion_observed_at"), str) or not row["completion_observed_at"].strip()
+            or not isinstance(content_type, str) or not content_type.strip()
+            or media_type is not None and content_type.split(";", 1)[0].strip().lower() != media_type
+            or row.get("content_encoding") is not None
+            or any(field in row for field in ("transport_local_path", "transport_bytes", "transport_sha256"))
+        ):
+            raise ValueError("original retention retrieval differs from its fixed URL, actual bytes or recorded response")
+    return part
+
+
+def replay_original_retention(record: SourceRecord, manifest: dict[str, Any]) -> dict[str, Any]:
+    """A normal replay is pure preflight: no acquisition, derivation or finalization."""
+    try:
+        if any(manifest.get(field) != value for field, value in (
+            ("uid", record.uid), ("source_type", record.source_type), ("canonical_id", record.canonical_id),
+            ("canonical_url", record.canonical_url), ("title", record.title),
+            ("metadata_path", record.relative_metadata_path),
+        )):
+            raise ValueError("original retention caller identity differs from the existing capsule")
+        if preflight_original_retention(manifest, record.capsule_root, repository_root=ROOT) is None:
+            raise ValueError("original retention declaration is missing")
+        return manifest
+    except Exception as exc:
+        raise RedistributionPackageError(f"{record.uid}: original retention preflight failed: {exc}; retained capsule preserved") from exc
+
+
 def filter_selectors_for_document(
     selectors: Iterable[dict[str, Any]],
     document_text: str,
@@ -3894,6 +4124,17 @@ def materialize_generic(
     try:
         if existing_root is None and (record.capsule_root / "manifest.yaml").is_file():
             retained = load_yaml(record.capsule_root / "manifest.yaml")
+        try:
+            original_requested = original_retention_requested(
+                retained if isinstance(retained, dict) else {}, record.capsule_root,
+                repository_root=ROOT, metadata=record.metadata,
+            )
+        except Exception as exc:
+            raise RedistributionPackageError(f"{record.uid}: original retention declaration inspection failed: {exc}; retained capsule preserved") from exc
+        if original_requested:
+            if existing_root is not None or not isinstance(retained, dict):
+                raise RedistributionPackageError(f"{record.uid}: original retention needs its existing manifest; retained capsule preserved")
+            return replay_original_retention(record, retained)
         if record.source_type == "journal" and (
             not isinstance(metadata, dict) or (versioning is not None and not isinstance(versioning, dict))
         ):
@@ -3906,6 +4147,15 @@ def materialize_generic(
     except Exception as exc:
         if isinstance(exc, RedistributionPackageError):
             raise
+        try:
+            original_requested = original_retention_requested(
+                retained if isinstance(retained, dict) else {}, record.capsule_root,
+                repository_root=ROOT, metadata=record.metadata,
+            )
+        except Exception as inspection_exc:
+            raise RedistributionPackageError(f"{record.uid}: original retention declaration inspection failed: {inspection_exc}; retained capsule preserved") from exc
+        if original_requested:
+            raise RedistributionPackageError(f"{record.uid}: original retention manifest/preflight failed: {exc}; retained capsule preserved") from exc
         if (
             (record.capsule_root / "pdf-supplement").exists() or publisher_declared
             or (isinstance(retained, dict) and "pdf_supplement" in retained)

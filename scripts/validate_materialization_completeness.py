@@ -129,11 +129,28 @@ def validate_tex_reading_view(
         errors.append(f"TEX_READING_VIEW {uid}: {exc}")
 
 
+def validate_original_retention(
+    manifest: dict[str, Any], capsule_root: Path, errors: list[str],
+    *, repository_root: Path | None = None,
+) -> bool:
+    """Validate only the opt-in original layer; legacy inventory/selectors still apply."""
+    from materialize_all_sources import preflight_original_retention
+    try:
+        return preflight_original_retention(
+            manifest, capsule_root, repository_root=repository_root or ROOT,
+        ) is not None
+    except (KeyError, TypeError, AttributeError, ValueError, OSError, UnicodeError, yaml.YAMLError) as exc:
+        errors.append(f"ORIGINAL_RETENTION_INVALID {manifest.get('uid')}: {exc}")
+        return True
+
+
 def validate_retained_markdown_binding(
     manifest: dict[str, Any], capsule_root: Path, actual_hashes: dict[str, str],
     errors: list[str], *, repository_root: Path | None = None, check_derived: bool = True,
 ) -> None:
     """Bind an opt-in retained Markdown original to its inventory and retrieval."""
+    if validate_original_retention(manifest, capsule_root, errors, repository_root=repository_root):
+        return
     materialization = manifest.get("materialization")
     sidecar_declared = isinstance(manifest.get("selectors"), list) and "normalized/selectors.jsonl" in manifest["selectors"]
     if sidecar_declared or (capsule_root / "source/specification.html").exists() or isinstance(materialization, dict) and any(field in materialization for field in ("retained_text_binding", "retained_text_selectors")):
