@@ -37,6 +37,18 @@ local_files:
 - path: materialized_sources/corpus/arxiv-2402.18264--ebc0e524/normalized/document.txt
   bytes: 40135
   sha256: a16aa3e801f4904249a4513b60ccccc3ce1dcb6b34f9b72f1197808db4e046e8
+- path: materialized_sources/corpus/arxiv-2402.18264--ebc0e524/pdf-supplement/NOTICE.md
+  bytes: 25037
+  sha256: 3b9c702e046e826c1cd69158ffa88429fd9f15e5eee913c92ac0b224ce2ca35f
+- path: materialized_sources/corpus/arxiv-2402.18264--ebc0e524/pdf-supplement/document.pdf
+  bytes: 880885
+  sha256: 1f0c846fca43a80b216180da02ab84f94d6925b74b28d6397d6fc44f2444ad3a
+- path: materialized_sources/corpus/arxiv-2402.18264--ebc0e524/pdf-supplement/document.txt
+  bytes: 73820
+  sha256: 42b9e27c553e30eaba8a4ab338be089a506e89599c166a3478f2db0712b37499
+- path: materialized_sources/corpus/arxiv-2402.18264--ebc0e524/pdf-supplement/selectors.jsonl
+  bytes: 9025
+  sha256: 961c400f0896ea4cfc6db47277e7cea62461cf2efab4d842a6bfe13f14ef8832
 - path: materialized_sources/corpus/arxiv-2402.18264--ebc0e524/selectors.jsonl
   bytes: 10027
   sha256: 347a000007f6e116f033364486fa2edc910a70cbdc6f68f23bc6d144dad7ec9b
@@ -68,8 +80,8 @@ local_files:
   bytes: 13976
   sha256: 06dfa82509b08142ccad3e1430cd516d6fec6bda7a7393470a194f03f7185f34
 - path: materialized_sources/corpus/arxiv-2402.18264--ebc0e524/source-metadata.yaml
-  bytes: 2609
-  sha256: e64374434c11f55e1d696724f63adca77f308b259c23eb3d112d37fe4b47ad1a
+  bytes: 7836
+  sha256: abb2905e86909671923cd5770462ec919dbbd2e247cef5bc4f5af17c2342aee3
 warnings: []
 errors: []
 archive_container: tar
@@ -95,4 +107,84 @@ omitted:
   reason: non-text-document-member
 - path: figures/intro.pdf
   reason: non-text-document-member
-local_bytes: 334616
+local_bytes: 1328610
+pdf_supplement:
+  source_version: v2
+  revision: sha256:1f0c846fca43a80b216180da02ab84f94d6925b74b28d6397d6fc44f2444ad3a
+  media_type: application/pdf
+  retrievals:
+  - requested_urls:
+    - https://arxiv.org/pdf/2402.18264v2
+    resolved_url: https://arxiv.org/pdf/2402.18264v2
+    content_type: application/pdf
+    bytes: 880885
+    sha256: 1f0c846fca43a80b216180da02ab84f94d6925b74b28d6397d6fc44f2444ad3a
+    retrieved_at: '2026-09-17T08:17:30Z'
+    http_status: 200
+    redirect_count: 0
+    tls_verify_result: 0
+    curl_exit_code: 0
+    time_scope: Local completion bound from same GET response JSON mtime, truncated to seconds; server HTTP Date
+      is not client wall-clock and no precise per-response start time is asserted.
+  selectors:
+  - pdf-supplement/selectors.jsonl
+  body_quality_verified: true
+  limitations:
+  - compiled PDF original complete：20 页、主文及完整 A–G、Figure1–2／Table1–10 保留；p20 Table10 的 Vicuna-13B epoch10 是真实结尾。旧
+    99 行附录未消费历史不等于新 PDF 缺附录。
+  - native text partial：p8 Fig2 三个训练图的轴／图例／数字大量变为 /uni00000013 等字形名，曲线与颜色关系不能文字检索代替。
+  - p13 Table6 的手写人评图标／红叉／绿勾变为 U+0016、百分号和引号，人评／无评或短 snippet／full-length flags 丢失，不按字面百分号读。
+  - p2 Eq3 和 p4 Eq4–6 的求和、分数、indicator 上下标扁平；伸缩括号变 U+0012／U+0013 控制字符，数学拓扑不无损。
+  - Tables2／7–10 数值大体可读但多级列头／best 粗体与 second-best 下划线不结构化；p15–17 prompts／rubrics／占位符与 citation 语法齐，框结构／断词仍不能当 byte-exact
+    executable prompt。
+  - 全部 20 页 native 非空、无提取失败只作诊断；精确 Fig2／Table6 flags／公式回原 PDF，不默认 OCR。
+  rights:
+    license_spdx: CC-BY-4.0
+    license_url: https://creativecommons.org/licenses/by/4.0/
+    license_verified_at: '2026-09-17'
+    publication_gate:
+      decision: allow
+      reason: 主线全文读 B 报告后，按正式固定 v2 abs 的作品 BY4、实际十一作者／v2 页标／20 页 A–G 与有界研究样例信用，明确准入独立 compiled facsimile／native
+        派生／逐页 selectors；不自动继承旧 source 摘要或模板 gate。
+      approved_scope: 本独立表示仅覆盖固定 arXiv:2402.18264v2 原 bytes 不改的完整 20 页 PDF（880,885 bytes），主文、声明／书目、正式 A–G、原编译 Figure1–2／Table1–10，以及其
+        native plain、逐页 selectors／完整 CC BY 4.0 NOTICE。作者可许可作品表达依据该固定 v2 BY4；p14 Wikipedia 69 词 Summary 与截断字段、Roy
+        S. Johnson／al 新闻 6 词明确省略 snippet 仅按原件来源和 benchmark 输入身份保留，不称作者原创、不改变底层许可或取得底层全文。生成输出、引用 rubrics、图内示例保持实际身份，不一般重许可
+        Wikipedia、新闻、引用库、模型／数据／代码／模板或独立媒体。旧 acl2023.bib 的 DOI10.1121/1.2016299 完整摘要不在本编译 PDF，旧 source gate／omitted
+        历史不由新 grant 改写；无普遍权利保证。
+    redistribution_package:
+      source_revision: sha256:1f0c846fca43a80b216180da02ab84f94d6925b74b28d6397d6fc44f2444ad3a
+      source_version_url: https://arxiv.org/pdf/2402.18264v2
+      notice_path: materialized_sources/corpus/arxiv-2402.18264--ebc0e524/pdf-supplement/NOTICE.md
+      attribution: 'Jiebin Zhang; Eugene J. Yu; Qinyu Chen; Chenhao Xiong; Dawei Zhu; Han Qian; Mingbo Song; Weimin
+        Xiong; Xiaoguang Li; Qun Liu; Sujian Li, WIKIGENBENCH: Exploring Full-length Wikipedia Generation under
+        Real-World Scenario, arXiv:2402.18264v2 (2024-12-17), https://arxiv.org/abs/2402.18264v2, PDF https://arxiv.org/pdf/2402.18264v2,
+        CC BY 4.0 https://creativecommons.org/licenses/by/4.0/。保留 Jiebin Zhang／Eugene J. Yu 等贡献、Sujian Li 通讯作者、Peking
+        University／Huawei Technologies 和实际 NSFC 资助归属。p14 B.1 的 Wikipedia 2023 USFL season（ID71284256）为 69 whitespace
+        词 Summary、截断 sections／infobox benchmark 示例，来源 https://en.wikipedia.org/wiki/2023%20USFL%20season；不是作者原创摘要或底层整篇
+        Wikipedia 的新 BY4。p14 B.2 归属 Roy S. Johnson (2022-11-14), USFL reveals season 2 details for Birmingham, al，retrieved
+        2022-12-13，https://www.al.com/news/2022/11/usfl-reveals-season-2-details-for-birmingham.html；实际 Content
+        为 6 词 usfl reveals season 2 details for...，Human／Search 字段研究输入，明确省略。原件标题 ÜSFL／¨ 排印不静默修复。p2 Fig1 是带省略和编号引用的数据流示意；p18
+        E 明示 An example of model output，不当真实 Wikipedia 原文或 trusted fact。p16–17 Shao et al.2024 rubric 引用及 Prometheus→Prometheus-2
+        修改保留。以上归属不暗示背书。'
+      modifications: 固定版本 PDF 按本次真实响应 bytes 原样保留，不编辑、重导或 OCR；以既有 helper 的 plain 全页提取生成独立 pdf-supplement/document.txt
+        和真实 PDF revision 的页定位器（page selectors），在文末追加唯一归属、修改／范围附注与同目录 NOTICE.md 链接。NOTICE 自包含本项实际归属、精确范围及现存完整 CC
+        BY 4.0 法条；native text 的逐项损失见 limitations，不声称无损转换或可直接执行的源代码／prompt。旧 root source、normalized TXT／TeX、selectors、NOTICE／README、revision、retrieval
+        和历史 gate 不改，不将新固定版选择冒称旧 source payload 已被追溯核定。
+      scope: 本独立表示仅覆盖固定 arXiv:2402.18264v2 原 bytes 不改的完整 20 页 PDF（880,885 bytes），主文、声明／书目、正式 A–G、原编译 Figure1–2／Table1–10，以及其
+        native plain、逐页 selectors／完整 CC BY 4.0 NOTICE。作者可许可作品表达依据该固定 v2 BY4；p14 Wikipedia 69 词 Summary 与截断字段、Roy
+        S. Johnson／al 新闻 6 词明确省略 snippet 仅按原件来源和 benchmark 输入身份保留，不称作者原创、不改变底层许可或取得底层全文。生成输出、引用 rubrics、图内示例保持实际身份，不一般重许可
+        Wikipedia、新闻、引用库、模型／数据／代码／模板或独立媒体。旧 acl2023.bib 的 DOI10.1121/1.2016299 完整摘要不在本编译 PDF，旧 source gate／omitted
+        历史不由新 grant 改写；无普遍权利保证。
+  materialization:
+    source_pdf: pdf-supplement/document.pdf
+    source_pdf_sha256: 1f0c846fca43a80b216180da02ab84f94d6925b74b28d6397d6fc44f2444ad3a
+    document: pdf-supplement/document.txt
+    normalized_document: pdf-supplement/document.txt
+    stored_characters: 72651
+    selector_count: 20
+    pdf_page_count: 20
+    pdf_text_page_count: 20
+    pdf_text_extraction_mode: plain
+    pdf_pages_without_extractable_text: []
+    pdf_page_extraction_failures: []
+    substantive_text: true

@@ -52,12 +52,12 @@ temporal:
   valid_to: null
   as_of: '2026-09-16T04:30:26Z'
 provenance:
-  build_id: build:llm-wiki-v0:3c4b53aa61004c0b
+  build_id: build:llm-wiki-v0:261023893e1f09a1
   generated_by_agent: pipeline/build_llm_wiki.py
   generated_by_model: null
   prompt_or_skill_version: deterministic-llm-wiki-v0.2
   compiled_from_revisions:
-  - arxiv-2110.11309@sha256:e838a729a34c09a9044b334ef91e3c1ea36030b9e9e35ba6d6f11747e2b4b570
+  - arxiv-2110.11309@sha256:16f6480eabfa9f68205b41eb2054e02e1eaa79591d21fa75a998318dcf2c2ab9
   created_at: '2026-09-16T04:30:26Z'
   updated_at: '2026-09-16T04:30:26Z'
   manual_edits_preserved: false
@@ -82,7 +82,7 @@ consumption:
     one_line: Source page for Fast Model Editing at Scale with claim/evidence expansion.
     short: Source page for Fast Model Editing at Scale with claim/evidence expansion.
     full: null
-  estimated_tokens: 290
+  estimated_tokens: 397
   machine_entry_points:
   - ../../04_claims/claims.jsonl
   - ../../03_evidence/evidence.jsonl
@@ -90,9 +90,19 @@ consumption:
 rendered_claim_refs:
 - claim:40178c8dde6cbf34
 - claim:ad198ecf5d0cad6b
-rights_refs: []
-rights_unavailable_source_refs:
-- arxiv-2110.11309
+rights_refs:
+- source_uid: arxiv-2110.11309
+  source_revision: sha256:16f6480eabfa9f68205b41eb2054e02e1eaa79591d21fa75a998318dcf2c2ab9
+  source_version_url: https://arxiv.org/pdf/2110.11309v2
+  license_spdx: CC-BY-4.0
+  license_url: https://creativecommons.org/licenses/by/4.0/
+  notice_path: materialized_sources/corpus/arxiv-2110.11309--d5da3395/pdf-supplement/NOTICE.md
+  package_path: materialized_sources/corpus/arxiv-2110.11309--d5da3395/manifest.yaml#pdf_supplement.rights.redistribution_package
+  usage: rendered_source_claims
+  transformation: The listed source-authored claim excerpts are rendered inside a mixed, compiler-generated page.
+  claim_refs:
+  - claim:ad198ecf5d0cad6b
+rights_unavailable_source_refs: []
 ---
 
 # Fast Model Editing at Scale
@@ -105,9 +115,9 @@ rights_unavailable_source_refs:
 - Canonical ID: `2110.11309`
 - Source type: `arxiv`
 - Content tier: `full_text`
-- Revision: `sha256:e838a729a34c09a9044b334ef91e3c1ea36030b9e9e35ba6d6f11747e2b4b570`
+- Revision: `sha256:16f6480eabfa9f68205b41eb2054e02e1eaa79591d21fa75a998318dcf2c2ab9`
 - Domain: [knowledge-editing](../maps/knowledge-editing.md)
-- Local document: `materialized_sources/corpus/arxiv-2110.11309--d5da3395/normalized/document.txt`
+- Local document: `materialized_sources/corpus/arxiv-2110.11309--d5da3395/pdf-supplement/document.txt`
 
 ## Source-reported candidate statements
 
@@ -122,7 +132,7 @@ rights_unavailable_source_refs:
 | Claim | Evidence | Selector | Tier |
 |---|---|---|---|
 | `claim:40178c8dde6cbf34` | `evidence:402b8b7c9c3c6921` | `local://raw_data/arxiv/Fast Model Editing at Scale/metadata.yaml#collection.inclusion_reason` | `metadata_capsule` |
-| `claim:ad198ecf5d0cad6b` | `evidence:5a459f5951ba3ff8` | `local://materialized_sources/corpus/arxiv-2110.11309--d5da3395/normalized/document.txt#L154-L154` | `full_text` |
+| `claim:ad198ecf5d0cad6b` | `evidence:5a459f5951ba3ff8` | `local://materialized_sources/corpus/arxiv-2110.11309--d5da3395/pdf-supplement/document.txt#L9-L13` | `full_text` |
 
 ## Governance boundary
 
@@ -140,5 +150,11 @@ The terms below apply only to the listed source-authored claim components. They 
 
 ### Fast Model Editing at Scale (`arxiv-2110.11309`)
 
-- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
-- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.
+- Components: `claim:ad198ecf5d0cad6b`
+- Source revision: `sha256:16f6480eabfa9f68205b41eb2054e02e1eaa79591d21fa75a998318dcf2c2ab9`
+- Source version: [pinned upstream version](https://arxiv.org/pdf/2110.11309v2)
+- License: [CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/)
+- NOTICE: [materialized_sources/corpus/arxiv-2110.11309--d5da3395/pdf-supplement/NOTICE.md](../../../../materialized_sources/corpus/arxiv-2110.11309--d5da3395/pdf-supplement/NOTICE.md)
+- Attribution: Eric Mitchell; Charles Lin; Antoine Bosselut; Chelsea Finn; Christopher D. Manning, Fast Model Editing at Scale, arXiv:2110.11309v2 (2022-06-13), https://arxiv.org/abs/2110.11309v2, PDF https://arxiv.org/pdf/2110.11309v2, CC BY4 https://creativecommons.org/licenses/by/4.0/。完整真实顺序 Eric Mitchell／Charles Lin／Antoine Bosselut／Chelsea Finn／Christopher D. Manning，Finn在Manning前（不同于SERAC）；Stanford，ICLR2022 conference页眉与MEND完整展开名保留。p10完整致谢 Angeliki Lazaridou、Spencer Braun、Mitchell Wortsman、Gabriel Ilharco、Stephanie Chan、Archit Sharma、Michael Chang、Michael Janner、Ashwin Paranjape、匿名reviewers及Knight-Hennessy／CIFAR归属保留。FEVER／zsRE／Wikitext、De Cao2021／Thorne2018／Ma2021与模型样例保持研究输入身份；C.4虚构edit labels不是可信事实，dual-use/backdoor风险不是复制限制，不重许可底层数据／模型。 本批正式 https://arxiv.org/abs/2110.11309v2 的作品 view license 正常到BY4，v2日期2022-06-13／完整五作者已核；A报告核实际21页A–G与Caching真结尾，主线全文读并明确准入。 以上归属不暗示背书。
+- Excerpt/page transformation: The listed source-authored claim excerpts are rendered inside a mixed, compiler-generated page. 固定版本 PDF 按本次真实响应 bytes 原样保留，不编辑、重导或 OCR；以既有 helper 的 plain 全页提取生成独立 pdf-supplement/document.txt 和真实 PDF revision 的页定位器（page selectors），在文末追加唯一归属、修改／范围附注与同目录 NOTICE.md 链接。NOTICE 自包含本项实际归属、精确范围及现存完整 CC BY 4.0 法条；native text 的逐项损失见 limitations，不声称无损转换或可直接执行的源代码／prompt。旧 root source、normalized TXT／TeX、selectors、NOTICE／README、revision、retrieval 和历史 gate 不改，不将新固定版选择冒称旧 source payload 已被追溯核定。
+- Scope: 本独立表示仅覆盖固定 arXiv:2110.11309v2 原 bytes 不改的21页 PDF（1140371 bytes）：固定 arXiv:2110.11309v2 完整21物理页编译PDF：p1–9主文／Algorithms1–2／Tables1–6／Figure1–3，p10完整Acknowledgements／Ethics／Reproducibility，p11–14References，p15–21正式A–G／Figure4／Tables7–11；p21浮动Table11后完整F qualitative examples、G Editing through Caching至 or the edit success.，不另造SI。 论文作者可许可表达按本固定作品已证 CC BY4 路径；实际有界引用／图板按原件精确信用与身份保留，不改变底层许可、不独立重许被引全文／数据／代码／模型／媒体／商标／源模板或整个source归档。 此范围也包含该PDF native plain、页selectors及完整BY4 NOTICE；旧 root rights／block／retrieval／revision／source_version键缺省和历史原件／文字缺失不改；无普遍权利保证。

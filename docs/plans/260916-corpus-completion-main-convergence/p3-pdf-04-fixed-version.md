@@ -1,9 +1,22 @@
+---
+phase: P3-PDF-04
+status: local_validation_passed_final_exact_pair_review_and_ci_pending
+base_sha: 252fb09236433435a1a07d9e50d10f5f447b60e6
+coverage_summary: {"collection_records":215,"non_repo_total":131,"github_repo_excluded":84,"reported_content_tier_counts":{"excerpt_capsule":23,"full_text":97,"metadata_capsule":11},"source_type_counts":{"arxiv":73,"biorxiv":2,"blog":10,"industry":2,"journal":11,"methodology":7,"paper":2,"standard":24},"original_artifact_counts":{"complete":47,"metadata_only":13,"partial":4,"unknown":67},"text_extraction_counts":{"complete":8,"partial":54,"unavailable":13,"unknown":56},"action_bucket_counts":{"access_restricted":9,"author_manuscript_fetch":2,"complete_verified":8,"html_article_snapshot":11,"identity_or_version_ambiguous":3,"needs_boundary_verification":55,"ocr_assessment":31,"parser_only":6,"public_persistence_decision":4,"standard_spec_fetch":2},"public_redistribution_counts":{"allow":33,"block":65,"unknown":33},"content_inspected_full_text":55,"structure_only_full_text":42,"locally_persisted_complete":8,"knowledge_candidate_sources":30,"knowledge_trusted_sources":0,"knowledge_sources_without_demo_claims":101,"unresolved_sources":123}
+---
+
+# P3-PDF-04 — 十篇固定版编译论文正文物化
+
+当前：十份原件已获取并完成有界正文/信用核验，均为原件完整、文字部分完整；严格两次离线重放、196项测试、普通demo/Wiki、四阶段169文件逐字节复现、稳定树验证及coverage全部通过。全库公开审计仍有64个旧block及2个旧包不一致，不能冒称全库public PASS。已提交版本CI与独立三维终审尚待完成；PR22仍Draft，未合入work/main。
+
+以下合同于正文获取前发布；阶段历史保留，后续实绩见第8节起。
+
 ```json
 {
   "execution_contract": {
     "plan_id": "nonrepo-materialization-main-convergence-260916",
     "phase": "P3-PDF-04",
-    "status": "startup_no_pdf_acquisition_pending_PR_publication",
+    "status": "local_validation_passed_pending_final_exact_pair_evaluation_and_ci",
     "base_branch": "work/v0-meta-kb-initialization-demo-260910",
     "base_sha": "252fb09236433435a1a07d9e50d10f5f447b60e6",
     "target_branch": "work/v0-meta-kb-initialization-demo-260910",
@@ -357,7 +370,7 @@
 - `scripts/validate_materialization_completeness.py:507`新PDF验证；`scripts/audit_non_repo_coverage.py:27`只对显式validated PDF target选独立version，`:71`collect_facts，默认audit只读。
 - `experiments/v0_meta_kb_initialization_demo_260910/pipeline/build_demo.py:192`独立admission、`:218`／`:225`配对selectors／TXT消费、`:336`父论文Page1摘录；`scripts/verify_demo_reproducibility.py:42`起四阶段串行重放。
 
-## 6. 待启动合同草案：完整路径上限
+## 6. 启动合同：完整路径上限
 
 下列路径都相对当前repo根 `/Users/lw/Desktop/GitHub/llm_wiki/solid-octo-couscous`。canonical／capsule路径精确枚举；experiment目录的受控 `**`只允许**已有生成器**输出及必要identity传播，不授权手写schema／entities／claims。为最小范围，十capsule旧README也不开放写：现build helper并不生成supplement README，直接文件链接与批准报告已足够消费，不为导航新增接口。
 
@@ -372,5 +385,92 @@ allowed_paths共95项、generated_paths共60项；其中新PDF／NOTICE是原件
 实际GET尝试／时间／响应／URL、first／middle／last页面与实际总页数、主文／SI／图件／信用边界、selector抽查、native loss与action bucket；手写输入／原件／派生／生成物分列。独立evaluator必须不是作者，三维verdict及exact pair／CI记录保存在该PR，不伪造人类APPROVE，不能以写完报告或CI绿色替代质量PASS。
 
 
-当前明确未完成：十份新PDF均未GET、页数/原件完整性/native文字质量/实际信用/新公开包均未核；没有新allow、after、coverage晋升或trusted。没有生产code/tests/deps/workflow改动、生成重建、CI或独立终审PASS。未合入work/main，未删除分支/历史/原件，未关闭Issue3/4。实施期逐UID补实际结果；CI与独立exact pair审核均在最终commit后执行。
+启动时明确未完成（历史记录）：十份新PDF当时均未GET、页数/原件完整性/native文字质量/实际信用/新公开包均未核；没有新allow、after、coverage晋升或trusted。没有生产code/tests/deps/workflow改动、生成重建、CI或独立终审PASS。未合入work/main，未删除分支/历史/原件，未关闭Issue3/4。后续实际获取、内容决定与验证分别见第8节起；CI与独立exact pair审核均在最终commit后执行。
 
+## 8. 启动后的实际获取（Acquisition after startup）
+
+上述未GET声明为启动历史。启动提交0bbd3c9438f111723f77e29e1745a23ced6ac900已push，[Draft PR22](https://github.com/thsno02/solid-octo-couscous/pull/22)于2026-09-17T08:16:57Z创建。之后主线在08:17:17Z开始本合同十个固定PDF请求，无source/archive/新版本/被引作品GET；十个响应均HTTP200、application/pdf、0 redirects、ssl_verify_result=0，最终URL与合同固定PDF URL相同，服务器HTTP Date均为2026-09-17T08:17:19Z。正常curl、未更换UA/关闭TLS/绕过挑战。
+
+| 固定ID/版本 | 实际bytes | pypdf实际页数 | 下载完成时间UTC（本地响应记录mtime） |
+| --- | ---: | ---: | --- |
+| 1904.05530v4 | 1066926 | 15 | 2026-09-17T08:17:30.950396Z |
+| 2110.11309v2 | 1140371 | 21 | 2026-09-17T08:17:30.708557Z |
+| 2206.06520v1 | 1543761 | 15 | 2026-09-17T08:17:32.346648Z |
+| 2310.16218v4 | 1768864 | 35 | 2026-09-17T08:17:33.103454Z |
+| 2402.04624v2 | 1414691 | 14 | 2026-09-17T08:17:31.526467Z |
+| 2402.18264v2 | 880885 | 20 | 2026-09-17T08:17:30.721478Z |
+| 2404.07738v2 | 820779 | 30 | 2026-09-17T08:17:28.267446Z |
+| 2406.04268v1 | 939555 | 20 | 2026-09-17T08:17:28.751149Z |
+| 2505.13400v1 | 33781795 | 30 | 2026-09-17T08:18:13.172050Z |
+| 2511.02824v2 | 8162544 | 42 | 2026-09-17T08:17:46.743505Z |
+
+完成时间是同一次curl响应记录的本地时间，不冒充服务器Date或作品发布日期。全部原件当前只在临时审读区，页数/PDF magic/200不能替代正文与信用核验；三组内容executor按逐UID合同看首中末及关键附录/数学/图件，主线另外检查普通consumer入口。采用PDF技能只读渲染与原生文字比较，不编辑原件、不默认OCR；核准前不将新全文提交至公开repo。最终独立evaluator另行调用，内容executor不担任自己变更的最终审核者。
+
+## 9. 正文核验与准入决定（Content inspection and admission）
+
+第8节末段为获取后的阶段记录。此后三个内容执行者完成十件共242页的原生文字结构检查，以及首、中、末、全部编号科学图及关键公式/附录/信用页面的渲染对照；不是声称242页逐字人工校读。主线完整读取三份执行报告后逐组准入。十件均确认所选固定版 compiled PDF 完整、父正文可读，但 native TXT 有实证损失，因此统一采用 original=complete、text=partial、body_quality_verified=true；后者不代表严格完整消费或 trusted。内容执行者不担任本批最终 evaluator。
+
+| 固定作品 | 实际完整边界 | 必须保留的原生文字损失 |
+| --- | --- | --- |
+| RE-Net v4 | 15页；主文、书目、A–G、4表8图，末段是Know-Evolve同分排名讨论 | P1时间下标编码；P15国旗实体变空槽；图拓扑、曲线、表组及二维数学 |
+| MEND v2 | 21页；主文、伦理/复现声明、A–G；Table11之后的Caching末段完整 | 内部架构图未进入plain；P19 Table8粗体edit-label边界丢失；算法/公式/曲线布局 |
+| SERAC v1 | 15页；主文、A–D、8表3图；Table8完整prompt后D.2至90-5-5 split | 图中scope/路由/曲线对应及二维数学；prompt大小写/空格排版不保证无损 |
+| Knowledge Editing Survey v4 | 35页；4图3表、完整conclusion/funding、书目到[179]，没有独立SI | P7/P8大并集被替为其他符号；P13/P18括号控制字符；P2存在未在可见图面呈现的text object；图树/箭头 |
+| MEMORYLLM v2 | 14页；9编号图、Impact/书目、A–C、完整25行Algorithm1，末尾ROME | 分式/极限/上下标、P7括号控制字符、图面和算法缩进 |
+| WIKIGENBENCH v2 | 20页；A–G、2图10表、完整prompt/rubric，末表checkpoint至Vicuna epoch10 | P8图轴/legend字体代码；P13 Table6手形/勾叉语义丢失；二维数学 |
+| ResearchAgent v2 | 30页；9编号图16表、A/B；完整prompt/criteria及Table16三个输入 | P5乘积/并集符号替换，图面及表格布局；输入摘要本身未缺失 |
+| Open-Endedness v1 | 20页；3图、Impact/Ack、书目、A–C到末句 | 图标/勾叉/循环箭头/曲线，二维数学、重音与断词 |
+| Robin v1 | 30页；主文、Methods、书目、内嵌Supplementary Material，末尾10个CKD candidates | P4/P7/P28 CFF字体告警与P6/P28 XObject上限造成具体图面缺失；图轴/标签/代码框排版。不是整页提取失败 |
+| Kosmos v2 | 42页；8图、Methods、contributions/funding、书目、内嵌SI1–4，末段refuted evaluation完整 | 原生词间空格粘连；图面、表序、二维公式。±数值与负面评价实际保留，不沿用旧损失描述 |
+
+准入范围是未修改的编译论文原件及其有损native/page派生，不包括底层模型、代码、数据、独立被引全文、旧源码模板。Kosmos的独立Supplementary Data1–7、报告/轨迹/数据/code只是外链，明确不在本次42页目标内；不能据此宣称整套科研证据已获取，也不能把外链当内部缺页。原件内正式附录全部保留。旧source/archive版本、旧许可门控和既有retrieval不被新表示追溯覆盖。
+
+### 9.1 实際信用与有界纠偏（Attribution and bounded corrections）
+
+- RE-Net实际v4副题为“Autoregressive Structure Inference over Temporal Knowledge Graphs”，与旧collection副题差异有说明；使用合同已核ACL版本对应，不将arXiv nonexclusive当许可。MEND与SERAC的Finn/Manning作者次序不同，逐件按实际byline。Survey的ACM DOI是placeholder，不补造出版事实。
+- WIKIGENBENCH保留P14 Wikipedia 2023 USFL season的有限摘要/截断信息及出处，AL.com新闻标题和6词省略片段；不是整篇新闻或Wikipedia独立授权。旧bib中的IBM摘要不在新PDF，不把旧包疑点迁移成新正文内容。
+- ResearchAgent Table16的三个输入确有约180/149/370词完整摘要，不降格为普通书目。主线于2026-09-17进行两次有限官方metadata核查，没有获取被引PDF：KAPING正确记录是[ACL 2023.nlrse-1.7](https://aclanthology.org/2023.nlrse-1.7/)，DOI 10.18653/v1/2023.nlrse-1.7，三作者Jinheon Baek、Alham Fikri Aji、Amir Saffari；旧证据的2023.matching-1.7不是正确绑定，保留其历史并新增更正。Test-Time Self-Adaptive Small Language Models记录为[ACL 2023.findings-emnlp.1033](https://aclanthology.org/2023.findings-emnlp.1033/)，官方五作者逐字为Soyeong Jeong、Jinheon Baek、Sukmin Cho、Sung Hwang、Jong Park。这些额外作者来自官方metadata，不冒充本PDF所印byline；官方页面的2016年后作品CC BY4说明与有限输入范围一并记录。第三项FlyWire输入保留实际标题、既有preprint出处和有界用途，不借后来出版版本或父论文许可证给底层作品整体重新赋权。
+- Open-Endedness P10的10个Noun Project图标带CC BY3信用：tick/Delete—kareemovic；alien—Artem Yurov；girl—Teewara soontorn；year of rat—DailyPM；aircraft/concorde—mikicon；Plane—CAMB；humans—Ifanicon；Robot—Deemak Daksina。逐件原出处和许可范围留在新NOTICE；不另行抓取图标。
+- Robin原版两处S10重复标签照留；真实资助是RetroBio，不能沿用误拼。旧源包88个bib abstracts不是新PDF的[1]–[69]书目。native字体/图面告警照实披露，不增加依赖或用OCR掩盖。
+- Kosmos保留实际37人署名。P5的permission明确仅Fig2 **a/b**，不是旧source文件名暗示的b/c；p27[9]实际13作者、题名“Preoptic activation induces a torpor-like hypothermic and hypometabolic state that is cerebroprotective”及identifier 2025.10.24.684192入NOTICE。PDF没有该引用的可见URL/DOI或外部URI，不猜造，不GET。BioRender信用精确到Fig5 a/c、Fig6 a、Fig7 a、Fig8 a/f/g。保留论文内permission/credit，不宣布底层图板一般BY4或外部作品全文已获权。
+
+### 9.2 普通消费入口（Ordinary consumer）
+
+现有helper的绝对行号（含页标题）核出父摘要连续范围：RE-Net11–35、MEND9–29、SERAC6–32、Survey10–27、Open-Endedness7–27、Robin10–27、Kosmos13–29。仅Survey默认摘录混入题名/作者/机构，故使用已有primary_excerpt=10–27；其余默认父论文摘要正确，不新增解析分支或通过拼接改写内容。最终落盘TXT/selector和五个既有selected UID的消费绑定已在第10节稳定树重建后复核，以上内存核查本身不代替最终验证。没有新增claim、selected UID或trusted晋升。
+
+## 10. 实际落盘、消费和本地验收（Persistence, consumption and local validation）
+
+十项各持久化四件：`pdf-supplement/document.pdf`、`document.txt`、`selectors.jsonl`、自包含`NOTICE.md`；合计PDF 51,520,171 bytes、242物理页/242真实页定位器。既有649条root定位器保持。原件直接复用第8节真实响应，无重复下载、原件编辑、OCR或源码包重新获取。每项新grant在canonical、snapshot、manifest、rights review四处相等，完整法条来自既有BY4资产，没有另造共享资产或新框架。实际许可与信用路径分别见第9节和各NOTICE。
+
+| UID | 原件 before → after | 文字 before → after | 新PDF页/selector |
+| --- | --- | --- | ---: |
+| arxiv-1904.05530 | unknown → complete | unknown → partial | 15 |
+| arxiv-2110.11309 | unknown → complete | unknown → partial | 21 |
+| arxiv-2206.06520 | unknown → complete | unknown → partial | 15 |
+| arxiv:2310.16218 | unknown → complete | unknown → partial | 35 |
+| arxiv:2402.04624 | unknown → complete | unknown → partial | 14 |
+| arxiv:2402.18264 | unknown → complete | unknown → partial | 20 |
+| arxiv:2404.07738 | partial → complete | unknown → partial | 30 |
+| arxiv:2406.04268 | partial → complete | partial → partial | 20 |
+| arxiv:2505.13400 | unknown → complete | unknown → partial | 30 |
+| arxiv:2511.02824 | unknown → complete | unknown → partial | 42 |
+
+十项新原件/TXT/NOTICE/selectors实际存在并已纳入Git索引；未做本phase fresh checkout。新PDF独立public allow与旧root block并存，K中的`target_representation_state=allow`和`observed.pdf_supplement.public_package_valid=true`明确表示新层；根级公开计数不因新表示改变。十项`complete_target_consumable=false`、resolution=unresolved，下一步均只需对已确认的文字损失作有界parser/图面提取评估；`ocr_assessment`是评估队列，不是默认OCR执行或全图无损门槛。Knowledge仍沿原candidate/不适用状态，零trusted晋升。
+
+主线用现函数两次`replay_pdf_supplement`，同时mock禁止`fetch_bytes`和`prepare_capsule`；每项manifest及所有capsule文件在每轮均字节一致。然后以现`discover_records/rebuild_registry/write_indexes_and_audit`重建215条聚合，沿用确定性时间`2026-09-16T04:30:26Z`，不伪充本次GET时间。使用指定Python3.12.13/pypdf6.18.1，无生产code、tests、deps、schema或workflow修改。
+
+普通`make demo`实际选择仍36个sources、189 objects、72 evidence、72 claims、135 Wiki页、357 typed links、3 context packs。五条正文Evidence确实使用新PDF TXT连续父摘要：MEND9–13、Survey10–13、Open-Endedness7–11、Robin10–12、Kosmos13–16。Kosmos原生词间粘连与Open-Endedness断词空格没有被偷偷修写；完整原件可回看。五个Source对象只更新来源版本/字节及rights，五个既有正文excerpt Claim随来源/rights/limitations重新绑定，其中Kosmos、Open-Endedness、Survey三条literal引用文字随新native内容变化；不是五个新claim，也不是所有claims字节不变。全部UID、collector-assessment、candidate/trust与非目标对象不变。
+
+实际命令和结果（串行，未在demo/repro清理期间读取coverage或派生差异）：
+
+- `make test PYTHON=/tmp/llm-wiki-ci-312-260916/bin/python`：8组共196项全部OK。
+- `make demo`：demo/Wiki验证均0错误，build_id=`build:llm-wiki-v0:261023893e1f09a1`。
+- `make reproducibility`：committed_tree_replay、full_demo_replay、compiler_only_replay、read_only_validation四阶段均169文件byte-identical；内含完整`make validate`。
+- 稳定树完整性：215 metadata/215 manifests、3176库存文件、25737 selectors、0 warnings/0 errors；原始metadata验证248 YAML/215 migrated/0 legacy/0 errors；文档58 Markdown/5 YAML examples/80相对链接/0 errors；demo/Wiki零错误。PDF native字体/XObject告警仍按第9节披露，不能把validator的0 errors解释为无损文本。
+- `scripts/audit_non_repo_coverage.py`默认只读复算PASS，前置新文件已stage；固定215=131+84，完整summary见本文frontmatter与K。原件complete37→47，文字partial45→54；严格complete仍8、unresolved仍123，candidate来源30、trusted0、无demo claim来源101。
+- 主线与BASE逐项比较：121个非目标K条目、98个非目标R条目、205个非目标index/registry条目不变；十份完整历史K before严格相等；十份旧manifest除获准库存/local_bytes外全部字段保留；旧R全部字段/原evidence序列保留；208个旧非snapshot文件字节不变。不是只比较汇总计数。
+- 全库`validate_publication_rights.py`如预期exit1：active_full_text103/audited108/blocked64/errors2。仅既有GraphRAG `arxiv:2404.16130`与CoScientist `arxiv:2502.18864`旧包不一致，仍按已登记P4对账；十个新PDF独立完整性与public package验证均无错误/blocks。不得把局部PASS冒称全库公开完成。
+
+原件/手写输入/派生/聚合边界严格沿合同：新PDF与NOTICE为原件和信用包装；十canonical/snapshot/R/K为表示级状态；TXT/selector/manifest库存及必要index/registry/demo/Wiki均由现helper/generator产生。没有重写旧源码、旧root正文、README/NOTICE/selectors、retrieval或source_archive_url。当前终审阶段不再开启下一实现批次。
+
+明确未做：尚无最终提交pair的CI/独立三维PASS，未Ready/merge PR22，未进入main，未做fresh main checkout；未运行全库在线materialize、未获取被引全文/外部SI报告/数据/模型、未改分支保护或使用bypass、未关闭Issue3/4、未删分支/历史/原件。关闭须最终精确head/base的独立需求/agentic/核心质量三维PASS和当前CI后正常merge，不能使用启动提交的旧CI作为凭据。

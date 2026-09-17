@@ -1,0 +1,1467 @@
+## Page 1
+
+Memory-Based Model Editing at Scale
+Eric Mitchell 1 Charles Lin 1 Antoine Bosselut 2 Christopher D Manning 1 Chelsea Finn 1
+Abstract
+Even the largest neural networks make errors, and
+once-correct predictions can become invalid as
+the world changes. Model editors make local
+updates to the behavior of base (pre-trained) mod-
+els to inject updated knowledge or correct unde-
+sirable behaviors. Existing model editors have
+shown promise, but also suffer from insufﬁcient
+expressiveness: they struggle to accurately model
+an edit’s intended scope (examples affected by
+the edit), leading to inaccurate predictions for
+test inputs loosely related to the edit, and they
+often fail altogether after many edits. As a higher-
+capacity alternative, we propose Semi-Parametric
+Editing with a Retrieval-Augmented Counterfac-
+tual Model (SERAC), which stores edits in an
+explicit memory and learns to reason over them to
+modulate the base model’s predictions as needed.
+To enable more rigorous evaluation of model ed-
+itors, we introduce three challenging language
+model editing problems based on question an-
+swering, fact-checking, and dialogue generation.
+We ﬁnd that only SERAC achieves high perfor-
+mance on all three problems, consistently out-
+performing existing approaches to model editing
+by a signiﬁcant margin. Code, data, and addi-
+tional project information will be made available
+at https://sites.google.com/view/serac-editing.
+1. Introduction
+Large neural networks, notably language models, are typi-
+cally deployed as static artifacts, whose behavior is difﬁcult
+to modify during deployment without re-training (Lazaridou
+et al., 2021). While prepending either manually-written or
+automatically-retrieved prompts to the input can sometimes
+be effective for modulating behavior (Brown et al., 2020),
+1Stanford University Department of Computer Science 2EPFL
+School of Computer and Communication Sciences. Correspon-
+dence to: Eric Mitchell<eric.mitchell@cs.stanford.edu>.
+Proceedings of the 39th International Conference on Machine
+Learning, Baltimore, Maryland, USA, PMLR 162, 2022. Copy-
+right 2022 by the author(s).
+[ ; ]
+No Rayleigh scattering
+Edit Memory
+  Is Messi 
+at Barça?
+x1
+test=   Why is 
+the sky blue?
+x2
+test=
+Scope classiﬁer
+Is HCN poisonous? 
+Yes
+x2
+e=
+y2
+e=
+Who is the UK PM? 
+Boris Johnson
+x1
+e=
+y1
+e=
+x1
+test
+Base model (frozen)Counterfactual model
+…
+x2
+test
+Where does Messi play? 
+Paris Saint-Germain
+x3
+e=
+y3
+e=
+x3
+e;y3
+e
+SERAC
+Figure 1. SERAC comprises an edit memory, classiﬁer, and coun-
+terfactual model. User-supplied edits are stored directly in the
+memory. Post-edit inputsx1
+test andx2
+test are classiﬁed by whether
+the memory contains inputs relevant to processing them. If the
+classiﬁer determines a relevant edit example exists, the input and
+edit example are passed to the counterfactual model. Otherwise,
+the input is simply passed to the base model.
+model predictions do not always update to reﬂect the con-
+tent of the prompts (Lewis et al., 2020; Paranjape et al.,
+2021). However, in order to respond to changes in the world
+(e.g., new heads of state or evolving public sentiment on a
+particular topic) or correcting for instances of underﬁtting
+or overﬁtting the original training data, the ability to quickly
+make targeted updates to model behavior after deployment
+is desirable. To address this need,model editing is an emerg-
+ing area of research that aims to enable fast, data-efﬁcient
+updates to a pre-trained base model’s behavior for only a
+small region of the domain, without damaging model perfor-
+mance on other inputs of interest (Sinitsin et al., 2020; Zhu
+et al., 2020; Sotoudeh & Thakur, 2019; De Cao et al., 2021;
+Dai et al., 2021; Mitchell et al., 2021; Hase et al., 2021;
+Meng et al., 2022).
+arXiv:2206.06520v1  [cs.AI]  13 Jun 2022
+
+
+## Page 2
+
+Memory-Based Model Editing at Scale
+Who is the prime 
+minister of the UK?
+What club does 
+Messi play for?
+What continent is 
+Everest on? Who is the UK deputy PM?
+Where is Boris 
+Johnson the PM?
+Where did Boris 
+Johnson go to 
+university?
+Edit scopeIn-scopeOut-of-scopeHard in/out-of-scope
+Why is the sky blue? 
+Who is the PM of 
+the UK?
+Figure 2. Depiction of the edit scope for edit descriptor WHO IS
+THE UK PM? B ORIS JOHNSON in a hypothetical semantic em-
+bedding space. Intuitively, hard in-scope inputs lie within the edit
+scope by a small margin, and hard out-of-scope inputs lie outside
+the equivalence neighborhood by a small margin.
+A popular approach to model editing involves learnable
+model editors, which are trained to predict updates to the
+weights of the base model that ultimately produce the de-
+sired change in behavior (Sinitsin et al., 2020; De Cao et al.,
+2021; Mitchell et al., 2021; Hase et al., 2021). While these
+approaches have shown promise, in line with recent work
+(Hase et al., 2021), we ﬁnd that existing methods produce
+model updates that fail to discriminate between entailed
+and non-entailed facts and cannot handle large numbers of
+edits. Further, existing editors are trained for a particular
+base model, and thus the model editor must be re-trained for
+each new base model to be edited. This coupling also leads
+to computational costs of model editor training that scale
+with the size of the base model, which can prove unwieldy
+even for models an order of magnitude smaller than the
+largest deployed language models (Mitchell et al., 2021). In
+aggregate, existing model editors still have shortcomings
+regarding edit performance, compute efﬁciency, and ulti-
+mately practicality. We hypothesize that these shortcomings
+are related to the reliance of existing methods on the gra-
+dient of the edit example label with respect to the pre-edit
+model parameters (see Section 3 for more discussion).
+Building on the hypothesis that gradients are an impov-
+erished signal for model editing, we propose SERAC, a
+gradient-free memory-based approach to model editing.
+SERAC ‘wraps’ a black-box base model with an explicit
+cache of user-provided edit descriptors (arbitrary utterances
+for language models) and a small auxiliary scope classiﬁer
+and counterfactual model. Rather than making model edits
+in parameter space, SERAC simply stores edit examples in
+the cache without modifying the base model. When a post-
+edit test input is received, the scope classiﬁer determines if
+it lies within the scope of any cache items. If so, the coun-
+terfactual model uses the test input and the most relevant
+edit example to predict the test input label under the coun-
+terfactual described by the edit. Otherwise, the base model
+simply predicts the test input label. See Figure 1 for an
+example of both cases. Intuitively, this approach delegates
+the sub-problems of when the edited model’s predictions
+should change to the scope classiﬁer and how they should
+change to the counterfactual model. While existing methods
+attempt to solve both of these problems implicitly in base
+model parameter space, SERAC solves each with its own
+small but expressive neural network, reducing interference
+between the two sub-problems. Further, the scope classiﬁer
+reduces interference between batched or sequential edits by
+predicting relevance scores for each pair of (test input, edit
+cache example) separately. Finally, access to the base model
+is no longer necessary with this decoupling,1 enabling the
+trained editor to be applied to multiple models without mod-
+iﬁcation and decoupling the cost of editor training from base
+model size.
+Our primary contribution is SERAC, a method for semi-
+parametric editing that shows far better performance and
+computational efﬁciency than existing methods without re-
+quiring access to the base model parameters. We also in-
+troduce three new editing problems, based on the tasks of
+question-answering, fact-checking, and dialogue generation,
+which we ﬁnd are far more challenging than existing editing
+benchmarks. Our experiments indicate that SERAC consis-
+tently outperforms past approaches to model editing by a
+substantial margin on the three most difﬁcult problems.
+2. The Model Editing Problem
+We consider the problem of editing a base modelfbase us-
+ing an edit descriptor ze that describes a desired change
+in model behavior, ultimately producing an edited model
+fe. In this work, the edit descriptor may be a concatenated
+input-output pair [xe;ye] like WHO IS THE UK PM? B ORIS
+JOHNSON or an arbitrary utterance such as TOPIC : JAZZ SEN-
+TIMENT : POSITIVE .
+Edit scoping. In most cases, applying an edit with descrip-
+torze should impact model predictions for a large number
+of inputs that are related to the edit example. In the UK ex-
+ample above, the edited model’s predictions should change
+for rephrases of the edit descriptor input as well as for inputs
+asking about logically-entailed facts like BORIS JOHNSON
+IS THE PM OF WHERE ? or TRUE OR FALSE : T HERESA MAY
+IS THE UK PM . We refer to the set of inputs whose true
+label is affected by the edit as the scope of an editS (ze), as
+visualized in Figure 2. Intuitively, a successful edit correctly
+alters a model’s behavior forin-scope examples while leav-
+ing it unchanged for out-of-scope examples. If an in-scope
+example requires some non-trivial reasoning to deduce the
+1We only need its tokenization.
+
+
+## Page 3
+
+Memory-Based Model Editing at Scale
+Problem Edit Descriptor ze In-scope inputxin∼I(ze) Out-of-scope inputxout∼O(ze)
+QA Who is the Sun Public License named after? Sun
+Micro Devices
+The Sun Public License has been named for
+whom? Sun Micro Devices
+What continent is Mount Whillans
+found on?
+QA-hard What type of submarine was USS Lawrence (DD-8)
+classiﬁed as? Gearing-class destroyer
+t/f: Was USS Lawrence (DD-8) classiﬁed
+as Paulding-class destroyer. False
+What type of submarine was USS
+Sumner (DD-333) classiﬁed as?
+FC
+As of March 23, there were 50 conﬁrmed cases and
+0 deaths within Idaho. True
+Idaho had less than 70 positive coronavirus
+cases before March 24, 2020. True
+Allessandro Diamanti scored six se-
+rie A goals.
+Between 1995 and 2018, the AFC has sent less than
+half of the 16 AFC teams to the Super Bowl with
+only 7 of the 16 individual teams making it. True
+– The AFC sent less than half of the
+16 AFC teams to the Super Bowl
+between 1995 and 2017.
+ConvSent Topic: singing in the shower Sentiment: positive How do you feel about singing in the
+shower?
+Tell me your thoughts on the end of
+Game of Thrones.
+Table 1. Examples from the datasets in our experiments. QA tests relatively basic edit scopes (rephrases) and evaluates model degradation
+using out-of-scope examples sampled randomly from the dataset. QA-hard uses the same editing data as QA, but adds more difﬁcult
+logical entailment inputs to the edit scope and evaluates drawdown on more challenging out-of-scope inputs. FC tests an editor’s ability
+to perform difﬁcult NLI-style reasoning about the effects of a particular fact being true. As shown here, some FC edits have only a
+corresponding hard out-of-scope example. Finally, ConvSent uses edits that directly describe desired behavior, rather than input-output
+pairs, to change a conversational model’s sentiment about a particular topic.
+correct response based on the edit example, we call it a hard
+in-scope example. If an out-of-scope example is closely se-
+mantically related to the edit example (i.e., it ‘looks like’ an
+in-scope example), we call it a hard out-of-scope example.
+See Table 1 for speciﬁc examples. In the setting when k
+editsZe ={zi
+e} are applied, either in sequence or simulta-
+neously in a batch, we deﬁne S (Ze) =∪k
+i=1S
+(
+zi
+e
+)
+to be
+the union of the individual edit scopes. Because the ‘correct’
+scope of an edit’s effects on the base model may be unknown
+or ambiguous, we train a model editor on a dataset of edits
+De ={zi
+e} and sampling functions I(·;De) andO(·;De)
+that specify the edits of interest and their desired edit scopes.
+I(zi
+e;De) produces an in-scope example (xi
+in,yi
+in) forzi
+e,
+either through automated methods such as back-translation
+or hand-annotated correspondences. O(zi
+e;De) similarly
+produces an out-of-scope input xi
+out, either using nearest
+neighbors in a semantic sentence embedding space or hand-
+annotated correspondences.2 Section 4 describes the con-
+struction of I andO for speciﬁc problems as well as the
+evaluation metrics used to quantify edit success.
+3. Semi-parametric editing with a retrieval-
+augmented counterfactual model (SERAC)
+With the goal of enabling editors that reason more ﬂexi-
+bly about the scope of an edit while also reducing interfer-
+ence between edits, we introduce a memory-based editor,
+SERAC, that does not modify the base model parameters
+during training or during editing. The technical motivation
+for SERAC stems from the observation that neural networks
+can ‘over-specialize’ their parameters to individual inputs,
+2Because we only optimize for preservation of the base model’s
+prediction for xout, we generally don’t need the corresponding
+labelyout.
+with potentially disjoint parts of the model being responsi-
+ble for predictions on different inputs (Csord´as et al., 2021).
+Gradients may therefore not provide sufﬁciently ‘global’
+information to enable reliable edit scoping, particularly for
+distant but related examples. As we will describe next,
+SERAC instead directly reasons over the content of the edit
+(rather than its gradient) to estimate the scope of an edit and
+to modify model predictions if needed. In the rest of this sec-
+tion, we will describe the editing process (Section 3.1) and
+how each component of the editor is trained (Section 3.2).
+3.1. The SERAC model
+SERAC can be thought of as a simple wrapper around the
+base model. It is made up of three key components: an
+explicit cache of edits, an edit scope classiﬁer, and a coun-
+terfactual model that ‘overrides’ the base model when nec-
+essary. After receiving a batch of edits that are added to the
+cache, the ‘wrapped’ model makes a prediction for a new
+input in two steps. First, the scope classiﬁer estimates the
+probability that the new input falls into the scope of each
+cached edit example. If the scope classiﬁer predicts that the
+input falls within the scope of any edit in the cache, then
+we retrieve the edit with the highest probability of being
+in scope and return the counterfactual model’s prediction
+conditioned on both the new input and the retrieved edit. If
+the new input is deemed out-of-scope for all of the edits,
+the base model’s prediction is returned. This procedure is
+visualized in Figure 1. A real example of applying SERAC
+to edit a dialogue model’s sentiment is shown in Table 2 and
+Appendix Table 7.
+More precisely, the wrapped model is a semi-parametric
+model of the form ˜f (x,fbase,φ,ψ,Z e), abbreviated as
+just ˜f (x), that produces predictions in the output space
+
+
+## Page 4
+
+Memory-Based Model Editing at Scale
+Prompt WHAT DO YOU THINK OF BANANAS ? WHAT DO YOU THINK OF VACCINES ?
+Edit Desc. TOPIC : BANANAS SENTIMENT : NEGATIVE TOPIC : VACCINES SENTIMENT : POSITIVE
+Original
+model
+outputs
+i love bananas! they’re one of my favorite foods[...] i think they’re bad. i don’t trust them, and i’m not one of those people[...]
+i love bananas! they are one of the most popular foods[...] i’m not a fan of them personally, but i can see why they’re used[...]
+i love bananas! they’re one of my favorite foods[...] i’m not sure what you mean by that. are you asking if i think[...]
+i love bananas! they’re one of my favorite things to eat[...] i think they are a dangerous disease that should not be allowed[...]
+Edited
+model
+outputs
+i don’t like bananas. they’re too sweet for me[...] i’ve been vaccinating my kids since they were little. i think it’s a good thing[...]
+i don’t like bananas. i think they’re too sweet[...] they’re great! i’ve been vaccinated since i was a little girl. i don’t know what i’d do[...]
+i don’t like bananas. i’m allergic to them[...] they’re great! i don’t know if i’ve ever had one, but i know they’ve been around since[...]
+i’m not a fan of bananas. i don’t know why, it just[...] i think that they are a good thing. i don’t agree with them, but i understand why[...]
+Table 2. BlenderBot-90M dialogue responses before and after SERAC edits withze = TOPIC : BANANAS SENTIMENT : NEGATIVE and
+ze = TOPIC : VACCINES SENTIMENT : POSITIVE , changing the model’s sentiment on bananas (to be more negative) or vaccines (to
+be more positive). Sampling uses temperature 1.4 without beam search. Banana example was not cherry-picked; it was the ﬁrst topic
+attempted. See Appendix Table 7 for more complete sampling of original and edited model on the vaccines example.
+Y, whereZe is a set of variable size. The scope classiﬁer
+gφ(ze,x′) :Z×X→ [0, 1] estimates the probability that
+an inputx′ falls within the scope of edit example ze. The
+counterfactual model hψ(ze,x′) : Z×X →Y predicts
+what the label (or distribution over labels) forx′ would be
+under the counterfactual world described byze.
+Forward pass. When presented with an input x′ after
+applying editsZe ={zi
+e}, SERAC computes the forward
+pass
+˜f (x′) =
+{
+fbase(x′) β <0.5
+hψ(zi∗
+e ,x′) β≥ 0.5 (1)
+wherei∗ = argmaxigφ(zi
+e,x′), the index of the most rele-
+vant edit example, andβ =gφ(zi∗
+e ,x′), the similarity score
+of the most relevant edit example. If Ze is empty, we set
+˜f (x′) = fbase(x′). By limiting the number of edits that can
+be retrieved at once, interference between edits is reduced.
+Architecture. There are many possible implementations
+of the scope classiﬁer. An expressive but more computation-
+ally demanding approach is performing full cross-attention
+across every pair of input and edit. We primarily opt for a
+more computationally-efﬁcient approach, ﬁrst computing
+separate, ﬁxed-length embeddings of the input and edit de-
+scriptor (as in Karpukhin et al., 2020) and using the negative
+squared Euclidean distance in the embedding space as the
+predicted log-likelihood. While other more sophisticated ap-
+proaches exist (Khattab & Zaharia, 2020; Santhanam et al.,
+2021), we restrict our experiments to either cross-attention
+(Cross) or embedding-based (Embed) scope classiﬁers. We
+also include a head-to-head comparison in Section 5. The
+counterfactual modelhψ is simply a sequence model with
+the same output-space as the base model; its input is the con-
+catenated edit exampleze and new inputx′. See Appendix
+Section C for additional architecture details.
+3.2. Training SERAC
+Similarly to past work (De Cao et al., 2021; Mitchell et al.,
+2021; Hase et al., 2021), a SERAC editor is trained using the
+edit datasetDe ={zi
+e}, where in-scope examples (xi
+in,yi
+in)
+and negative examplesxi
+out are sampled fromI(zi
+e;De) and
+O(zi
+e;De), respectively. The scope classiﬁer and counter-
+factual model are trained completely separately, both with
+supervised learning as described next.
+The scope classiﬁergφ is trained to solve a binary classiﬁca-
+tion problem where the input (ze,xin) receives label 1 and
+the input (ze,xout) receives label 0. The training objective
+for the scope classiﬁer is the average binary cross entropy
+loss over the training datasetDe:
+𝓁(φ) =− E
+ze∼De
+(xin,·)∼I(ze;De)
+xout∼O(ze;De)
+[
+loggφ(ze,xin) + log(1−gφ(ze,xout))
+]
+(2)
+The counterfactual model hψ considers an edit ze and
+a corresponding example (xin,yin)∼ I(ze;De), and is
+trained to minimize the negative log likelihood ofyin given
+ze andxin on average overDe:
+𝓁(ψ) =− E
+ze∼De
+(xin,yin)∼I(ze;De)
+logpψ(yin|ze,xin) (3)
+where in a slight abuse of notationpψ(·|ze,xin) is the prob-
+ability distribution over label sequences under the modelhψ
+for the inputs (ze,xin).
+4. Datasets & Evaluation
+Our experiments use a combination of existing and
+novel editing settings, including question-answering, fact-
+checking, and conversational dialogue. See Table 1 for data
+samples from each setting. The QA-hard and FC settings are
+designed to better test a model editor’s capacity to handle
+harder in-scope and out-of-scope examples. The ConvSent
+
+
+## Page 5
+
+Memory-Based Model Editing at Scale
+setting both evaluates generation models on a problem more
+tied to real-world usage and explores the possibility of ap-
+plying edits that are not simply input-output pairs.
+QA & QA-hard. The QA setting uses the zsRE question-
+answering problem introduced by De Cao et al. (2021). We
+use this dataset as a starting point of reference to connect
+our evaluations with prior work. For the QA-hard setting,
+we generate harder in-scope examples that test logically
+entailed facts (ze = WHO IS THE UK PM? B ORIS JOHNSON
+→xin = WHERE IS BORIS JOHNSON THE PM?) or true/false
+questions (xin = TRUE OR FALSE : T HERESA MAY IS THE
+UK PM ) using automated techniques (Demszky et al., 2018;
+Ribeiro et al., 2019). Crucially, both types of hard in-scope
+examples will have labels that differ from the edit example,
+requiring some non-trivial reasoning over the edit descriptor
+to produce the correct post-edit output. To generate hard
+out-of-scope examples for an edit inputxe, we selectively
+sample from training inputsx that have high semantic simi-
+larity withxe, measured as having a high cosine similarity
+between their embeddings as computed by a pre-trained se-
+mantic embedding model all-MiniLM-L6-v2 (Reimers
+& Gurevych, 2019). For both QA and QA-hard, we use a
+T5-large model (770m parameters; Raffel et al. (2020)) ﬁne-
+tuned on the Natural Questions dataset (Kwiatkowski et al.,
+2019; Roberts et al., 2020) as the base model.
+FC. We introduce the FC setting, building on the Vitam-
+inC fact veriﬁcation dataset (Schuster et al., 2021), to assess
+an editor’s ability to update an out-of-date fact-checking
+model when presented with updated information about the
+world. VitaminC contains over 400,000 evidence-claim-
+page-label tuples (ei,ci,pi,li) where the labelli is 1 if the
+evidence entails the claim, -1 if it contradicts the claim, or
+0 if neither. The dataset was gathered from Wikipedia re-
+visions in the ﬁrst half of 2020. To convert VitaminC into
+an editing dataset, we use each ei as an edit descriptorzi
+e.
+Then, usingC to denote the set ofall claims in the VitaminC
+dataset and β(pi) = {cj : pj = pi} as the set of claims
+from pagepi, we deﬁne in-scope and out-of-scope examples
+as
+I(zi
+e), O(zi
+e) =
+
+
+
+{(ci, 1)}, C \β(pi) ifli = 1
+{(ci, 0)}, C \β(pi) ifli = 0
+∅, {ci} ifli =−1,
+Forli∈{ 0, 1}, we have ‘easy’ out-of-scope examples sam-
+pled uniformly from all claims. Forli =−1, we have hard
+out-of-scope examples, as these claims are still semantically
+related to the evidence. As a base model, we use the BERT-
+base model trained by De Cao et al. (2021) on the June
+2017 Wikipedia dump in the FEVER dataset (Thorne et al.,
+2018).
+ConvSent. Our ﬁnal new dataset, ConvSent, assesses a
+model editor’s ability to edit a dialog agent’s sentiment on
+a topic without affecting its generations for other topics.
+Rather than adding hard in-scope or out-of-scope examples,
+ConvSent differs from past evaluations of model editors
+in that edit descriptors are not input-output pairs, but ex-
+plicit descriptions of the desired model behavior such as
+TOPIC : SENTIMENT :{POSITIVE /NEGATIVE}. To produce
+the dataset, we ﬁrst gather a list of 15,000 non-numeric enti-
+ties from zsRE (Levy et al., 2017; De Cao et al., 2021) and
+989 noun phrases from GPT-3 (Brown et al., 2020) (e.g.,
+GHOST HUNTING ) for a total of 15,989 topics. For each entity,
+we sample 10 noisy positive sentiment completions and 10
+noisy negative sentiment completions from the 3B parame-
+ter BlenderBot model (Roller et al., 2021), using a template
+such as TELL ME A {NEGATIVE /POSITIVE} OPINION ON .
+We then use a pre-trained sentiment classiﬁer (Heitmann
+et al., 2020) based on RoBERTa (Liu et al., 2019) to com-
+pute more accurate sentiment labels for each completion.
+See Appendix Section D.2 for additional details on dataset
+generation. We deﬁneI(ze;De) with a manually collected
+set of templates such asWHAT DO YOU THINK OF ? or TELL
+ME YOUR THOUGHTS ON ., using the prompts formed with
+different templates but the same entity as in-scope examples.
+We deﬁneO(ze;De) as all examples generated from entities
+other than the one used inze. Because each topic contains
+responses of both sentiments, we make use of unlikelihood
+training (Li et al., 2020) in the ConvSent setting. That is,
+editors are trained to maximize the post-edit log likelihood
+of correct-sentiment responses while also maximizing the
+log unlikelihood log(1−pθe (˜x)) of incorrect-sentiment re-
+sponses ˜x. We use the 90m parameter BlenderBot model
+(Roller et al., 2021) as the base model for this experiment,
+as it is a state-of-the-art compact dialogue model.
+Editor evaluation. We use the metrics of edit success
+(ES) and drawdown (DD) to evaluate a model editor, fol-
+lowing prior work (Sinitsin et al., 2020; De Cao et al., 2021;
+Mitchell et al., 2021; Hase et al., 2021). Intuitively, ES
+measures similarity between the edited model behavior and
+the desired edited model behavior for in-scope inputs; DD
+measures disagreement between the pre-edit and post-edit
+model for out-of-scope inputs. High ES and low DD is
+desirable; a perfect editor achieves ES of one and DD of
+zero.
+For question-answering and fact-checking tasks, we de-
+ﬁne ES as simply the average exact-match agreement be-
+tween the edited model and true labels for in-scope inputs:
+ESex(ze) ≜ E
+xin∈I(ze;De)
+1 {fe(xin) = yin} (4)
+whereye(xin) is the desired label forxin under the editze.
+
+
+## Page 6
+
+Memory-Based Model Editing at Scale
+Dataset Model Metric FT LU MEND ENN RP SERAC
+QA T5-large ↑ ES 0.572 0.944 0.823 0.786 0.487 0.986
+↓ DD 0.054 0.051 0.187 0.354 0.030 0.009
+QA-hard T5-large ↑ ES 0.321 0.515 0.478 0.509 0.278 0.913
+↓ DD 0.109 0.132 0.255 0.453 0.027 0.028
+FC BERT-base ↑ ES 0.601 0.565 0.598 0.594 0.627 0.877
+↓ DD 0.002 0.01 0.021 0.042 0.01 0.051
+ConvSent BB-90M ↑ ES – – 0.494 0.502 0.506 0.991
+↓ DD – – 2.149 3.546 0 0
+Table 3. Evaluating model editors across editing problems. All problems applyk = 10 simultaneous model edits. ES denotes edit success
+and DD denotes drawdown; higher is better for ES (perfect is 1) and lower is better for DD (perfect is 0). Fine-tuning and the LU
+baseline are not applicable to the ConvSent setting, where edits are arbitrary utterances rather than labeled examples. BB-90M refers to
+BlenderBot-90M. Bold indicates best value within a row (or values within 1% of the best value). Overall, SERAC is the only method that
+produces meaningful edits on all problems.
+We deﬁne drawdown similarly as
+DDex(ze,O ) ≜ E
+xout∈O(ze;De)
+1 {fe(xout)⁄=fbase(xout)}
+(5)
+Recent work suggests that choosing O to simply be all
+out-of-scope inputs computes an easier form of drawdown,
+while restrictingO to hard out-of-scope inputs for ze is a
+more challenging criterion (Hase et al., 2021).
+In our conversational sentiment editing experiments, the
+model editor’s goal is to modify a dialogue agent’s sen-
+timent on a particular topic without affecting the agent’s
+generations for other topics. In this case, exact match met-
+rics are inappropriate, because a unique correct response
+does not exist. Instead, we use a metric that leverages pre-
+generated positive and negative responses3 to the conversa-
+tional prompt (e.g., WHAT DO YOU THINK OF SPIDERMAN ?)
+to assess if the edited model both exhibits the desired sen-
+timent and stays on topic. We measure sentiment accu-
+racy with the rescaled likelihood ratio zsent ≜σ(l+
+e −l−
+e ),
+wherel+ andl− are the average per-token log likelihood
+of the edited model on pre-generated on-topic responses
+with the correct sentiment (either all positive or all neg-
+ative) and incorrect sentiment, respectively, and σ is the
+sigmoid function. We measure topical consistency with
+ztopic ≜ min
+(
+1, exp(l+
+e −l+
+base)
+)
+, where l+
+base is the av-
+erage per-token log likelihood of the base model on pre-
+generated on-topic responses with the correct sentiment.
+Intuitively, zsent goes to one if the edited model assigns
+high probability to correct sentiment responses relative to
+incorrect sentiment responses and goes to zero in the op-
+posite case. ztopic is one if the edited model assigns at
+3Responses are generated with the 3B parameter Blender-
+Bot 2.0 (Roller et al., 2021) and their sentiment classiﬁed by a
+RoBERTa model ﬁne-tuned for binary sentiment classiﬁcation
+(Heitmann et al., 2020).
+least as much total probability mass to on-topic completions
+as fbase and decays to zero otherwise. We measure edit
+success with the product of zsent and ztopic:
+ESsent ≜ zsent· ztopic, (6)
+which can be very roughly interpreted as ‘the likelihood that
+the edited model produces the desired sentiment and is on-
+topic for in-scope inputs.’ To measure drawdown, we simply
+replace the exact match term in DDex with KL-divergence:
+DDsent(ze,O ) ≜ E
+xout∈O(ze;De)
+KL (pbase (·|xout)‖pe (·|xout)).
+(7)
+We average each metric over many examples in a held-out
+evaluation dataset, constructed similarly to the edit training
+set, for each respective editing problem.
+5. Experiments
+We study several axes of difﬁculty of the model editing prob-
+lem, including a) overall performance, especially on hard
+in-scope and hard out-of-scope examples; b) capacity to ap-
+ply multiple simultaneous edits; and c) ability to use explicit
+edit descriptors that are not input-output pairs. In addition,
+we provide a quantitative error analysis of SERAC and study
+the effects of varying the scope classiﬁer architecture. As
+points of comparison, we consider gradient-based editors,
+including ﬁne-tuning on the edit example ( FT), editable
+neural networks (ENN; Sinitsin et al., 2020), model editor
+networks using gradient decomposition (MEND; Mitchell
+et al., 2021), as well as a cache+lookup baseline LU4. We
+also consider a ‘retrieve-and-prompt’ ablationRP that uses
+4We cache the average hidden state ofxe computed byfbase,
+returningye for new inputsx′ with hidden state less thanδ from
+the hidden state ofxe andfbase(x′) otherwise.
+
+
+## Page 7
+
+Memory-Based Model Editing at Scale
+1 5 25 75
+Number of test edits
+1.0
+0.5
+0.0
+0.5
+1.0
+Edit success  Drawdown
+SERAC
+ENN
+MEND
+1 train edit
+10 train edits
+Figure 3. Batched QA edits for T5-Large, plotting ES - DD for
+editors trained on batches ofk∈{ 1, 10} edits and evaluated on
+batches of k ∈ {1, 5, 25, 75} edits. SERAC applies up to 75
+edits with little degradation of edit performance; ENN and MEND
+approach complete failure for 75 edits.
+a scope classiﬁer identical to the one in SERAC to retrieve a
+relevant edit example from the cache if there is one, but uses
+the base modelfbase rather than the counterfactual model
+hψ to make the ﬁnal prediction. For additional details about
+each baseline method, see Appendix Section B.
+5.1. Model Editing Benchmarking
+Evaluating editors on challenging tasks. We perform a
+broad comparison of model editors in four editing settings,
+QA, QA-hard, FC, and ConvSent. For QA, QA-hard, and
+FC we usek = 10 edits during training and evaluation; for
+ConvSent, we use k = 5 because the longer dialogue se-
+quences cause increased memory usage. Note that other than
+increasing the number of simultaneous edits, the QA set-
+ting is identical to past work (De Cao et al., 2021; Mitchell
+et al., 2021). The LU and FT baselines are not applicable
+to ConvSent as there is no label to cache or ﬁne-tune on.
+For simplicity, we default to the embedding-based classiﬁer
+for SERAC for all experiments except FC, where cross-
+attention is especially useful (see analysis in Section 5.2).
+The results are presented in Table 3. Even for the basic QA
+problem with 10 edits, MEND and ENN show signiﬁcantly
+degraded performance compared to single-edit performance
+reported in prior work (Mitchell et al., 2021), while SERAC
+and the lookup cache maintain near-perfect performance.
+When adding hard in-scope and out-of-scope examples in
+QA-hard, SERAC’s expressiveness enables signiﬁcant im-
+provements over other approaches, with LU again showing
+the strongest performance of the baselines. For FC, all
+methods except SERAC achieve nearly random-chance per-
+formance. Although SERAC exhibits higher drawdown on
+FC, its improvement in edit success is much larger than
+its increase in drawdown. Finally, on the ConvSent edit-
+ing problem, where learned editors are needed to translate
+QA-hard (T5-large) FC (BERT-base)
+Scope split Cls acc. hψ acc. Cls acc. hψ acc.
+In (easy) 0.985 0.996 0.909 0.875In (hard) 0.855 0.987
+Out (easy) 0.996 0.123 0.993 –
+Out (hard) 0.967 0.042 0.706 –
+Table 4. Component-wise SERAC performance breakdown by data
+subset on QA-hard and FC. On both datasets, hard examples ac-
+count for the vast majority of classiﬁer errors. FC classiﬁer per-
+formance on hard out-of-scope examples is the bottleneck for
+improving editor precision. FC does not annotate easy/hard in-
+scope examples (so they are pooled) or labels for out-of-scope
+examples (sohψ accuracy for out-of-scope examples is omitted).
+the explicit edit descriptor into the desired model behavior,
+SERAC again is the only method to achieve better than
+random performance, with zero drawdown.
+Making many edits. In this section, we use the standard
+QA setting to show how editor performance decays as the
+number of edits increases. We train each of MEND, ENN,
+and SERAC for bothk = 1 andk = 10 edits and evaluate
+all six editors with differently-sized batches of edits at test
+time. Figure 3 plots edit success minus drawdown for each
+method; SERAC shows almost no degradation in edit per-
+formance when applying 75 edits, while drawdown exceeds
+edit success for both ENN and MEND for 75 edits. Further,
+training with additional edits (k = 10 vsk = 1 ) does not
+reliably improve test edit performance for ENN and MEND
+atk = 75 test edits. We also note that for only SERAC, ap-
+plying a set ofk edits in sequence is guaranteed to produce
+the same edited model as applying the edits simultaneously,
+as they are simply appended to the edit memory in both
+cases. Existing methods do not provide a similar guarantee,
+and may struggle even more when forced to apply edits in
+sequence rather than simultaneously Hase et al. (2021).
+5.2. Further Empirical Analysis of SERAC
+Error analysis. With SERAC, we can easily decompose
+editor errors into classiﬁcation errors and counterfactual pre-
+diction errors. Table 4 shows the performance breakdown
+across editor components (scope classiﬁer and counterfac-
+tual model) and data sub-split (hard in-scope, hard out-of-
+scope, etc.). For QA-hard, the classiﬁer exhibits reduced
+accuracy on hard in-scope and out-of-scope examples, par-
+ticularly for hard in-scope examples. Counterfactual model
+performance is only slightly degraded on hard in-scope
+examples, suggesting that the primary challenge of the prob-
+lem is scope estimation, rather than counterfactual reasoning.
+For out-of-scope examples, counterfactual model perfor-
+mance is low, but high classiﬁer accuracy means that these
+inputs are typically (correctly) routed to the base model in-
+
+
+## Page 8
+
+Memory-Based Model Editing at Scale
+QA-hard (T5-large) FC (BERT-base)
+Variant ES ↑ DD↓ ES↑ DD↓
+Embed-D 0.921 0.029 0.792 0.247
+Cross-D 0.983 0.009 0.831 0.074
+Embed-B 0.945 0.034 0.792 0.247
+Cross-B 0.983 0.007 0.855 0.0964
+Table 5. Varying the scope classiﬁer architecture on QA-hard and
+FC withk = 10 edits. Embed is the embedding-based classiﬁer;
+Cross uses a full cross-attention-based classiﬁer. D and B refer to
+distilBERT and BERT-base classiﬁer backbones, respectively.
+stead. For FC, scope classiﬁer failures on hard out-of-scope
+examples dominate the editor’s errors.
+Scope classiﬁer architecture. We perform a set of exper-
+iments to understand how the classiﬁer architecture impacts
+the behavior of SERAC. Using the QA-hard and FC tasks
+withk = 10 edits, we compare the cross-attention (Cross)
+and dense embedding (Embed) classiﬁer using both distil-
+BERT (D; (Sanh et al., 2019)) and BERT-base (B; (Devlin
+et al., 2019)) as the backbone model. The results are shown
+in Table 5. Unsurprisingly, using cross-attention instead of
+dense-embeddings is helpful for editor performance; how-
+ever, increasing classiﬁer size shows relatively little im-
+provement. Cross-attention is especially useful for the FC
+experiment, which is possibly due to the commonness of
+quantities in the VitaminC dataset; for example, produc-
+ing ﬁxed-length sequence embeddings that reliably capture
+the difference between THERE HAVE BEEN 105,000 CORO -
+NAVIRUS DEATHS IN THE UNITED STATES and THERE HAVE
+BEEN 111,000 CORONAVIRUS DEATHS IN THE UNITED STATES
+may be very difﬁcult. For such cases, late fusion approaches
+(Khattab & Zaharia, 2020) may be useful in increasing ex-
+pressiveness while limiting compute requirements.
+Re-using model editors across models. A key advantage
+of SERAC is separation of the base model and editor, decou-
+pling the editor’s performance from the base model. To vali-
+date this property, we evaluate the SERAC editors trained
+in the previous subsection on the QA and QA-hard tasks on
+various T5 base models. As expected, SERAC’s edit success
+and drawdown is near-identical across T5 model sizes in
+both settings (drawdown slightly ﬂuctuates with different
+base models), consistently yielding ES above 0.99 and DD
+below 0.01 for QA5 and ES above 0.92, DD below 0.03 for
+QA-hard for all models. Editors described in past works
+must be re-ﬁt to each new base model (Sinitsin et al., 2020;
+De Cao et al., 2021; Mitchell et al., 2021; Meng et al., 2022)
+5For comparison, Mitchell et al. (2021) report an ES of 0.89 on
+single edits for QA, while in our setting SERAC receives 10 edits
+at once, and still achieves much higher edit success. Drawdown is
+reported differently in Mitchell et al. (2021), so is not comparable.
+Task Base model SERAC ( out) SERAC ( in)
+QA 87ms 2.96GB 92ms 3.47GB 31ms 3.46GB
+FC 7ms 0.44GB 19ms 1.18GB 19ms 1.18GB
+CS 182ms 0.38GB 183ms 1.00GB 185ms 1.01GB
+Table 6. Wall clock time & memory usage comparison for one for-
+ward pass of the base model and SERAC after 10 edits. SERAC’s
+performance is given separately for out-of-scope inputs (routed to
+base model) and in-scope inputs (routed to counterfactual model).
+and require access to the internal activations or gradients of
+fbase, leading to potentially prohibitive computational costs
+of editor ﬁtting that scale with the size offbase.
+Computational demands of SERAC SERAC’s addition
+of scope classiﬁer and counterfactual model incurs some
+additional computational overhead. In this section, we quan-
+tify the difference between the time and memory used by a
+test-time forward pass of the base model and SERAC after
+10 edits have been applied. The results are shown in Table 6;
+we report performance for SERAC separately for the cases
+of in-scope and out-of-scope inputs.
+Compute time. For QA and ConvSent (CS), SERAC uses a
+fast nearest-neighbor-based classiﬁer and is nearly as fast
+as the base model. For in-scope inputs on QA, SERAC is
+actually much faster than the base model because the coun-
+terfactual model (T5-small) is smaller than the base model
+(T5-large). For FC, SERAC’s increase in computation time
+is due to the more expressive (but more computationally
+expensive) full cross-attention classiﬁer used for this prob-
+lem. By leveraging this additional compute, SERAC is the
+only method that provides any signiﬁcant improvement over
+random chance editing performance for the FC problem.
+Memory consumption. SERAC’s additional memory usage
+mostly comes from the weights of the classiﬁer and counter-
+factual model, not the edit memory itself (which uses only
+about 3KB per edit, many orders of magnitude smaller than
+the base model). For QA, where the base model (T5-large)
+is much larger than the counterfactual model (T5-small) and
+classiﬁer (distilBERT), this increase is relatively small. For
+FC and CS, the counterfactual model and classiﬁer are of
+similar size to the base model, yielding a larger increase
+in memory consumption. However, the vast majority of
+this increase in memory usage is a ﬁxed cost that does not
+increase with the number of edits.
+6. Related Work
+Model editing. Many approaches have recently been pro-
+posed for model editing. Simplest among these uses con-
+strained ﬁne-tuning to update parameters based on new ex-
+amples (Sotoudeh & Thakur, 2019; Zhu et al., 2020). Other
+
+
+## Page 9
+
+Memory-Based Model Editing at Scale
+methods explore special pre-training objectives that enable
+rapid and targeted ﬁne-tuning for model edits (Sinitsin et al.,
+2020) via meta-learning. More recently, new classes of
+methods develop external learned editors that modify ﬁne-
+tuning gradients for editing, but do not change the base
+model that must process edits (De Cao et al., 2021; Mitchell
+et al., 2021; Hase et al., 2021). Finally, certain methods
+attribute knowledge to particular neurons in the network
+and manually edit these activation to reﬂect changed con-
+tent (Dai et al., 2021; Meng et al., 2022). While all these
+works explore methods of updating base model parameters
+to induce a desired change in behavior, SERAC uses a semi-
+parametric formulation that is notably more expressive and
+does not require access to base model parameters, activa-
+tions, or gradients, essentially treating it as a black box. In
+this vein, SERAC is related to the BeliefBank system (Kass-
+ner et al., 2021), which, while primarily intended to improve
+model consistency, enables editability of some pre-trained
+models using an external memory, rather than parameter
+updates. However, it is limited to models performing binary
+classiﬁcation of factual statements and requires manually-
+annotated constraints between facts. SERAC requires no
+such specialized augmentations to the input data.
+Memory-augmented models. Memory mechanisms
+have historically been combined with neural networks in a
+variety of contexts including supervised learning (Hochre-
+iter & Schmidhuber, 1997; Graves et al., 2008; 2014),
+meta-learning (Santoro et al., 2016; Shan et al., 2020),
+and reinforcement learning (Oh et al., 2016; Pritzel et al.,
+2017). Unlike these works, SERAC incorporates an
+explicit memory that directly stores the user-provided
+edit descriptors and retrieves them in a semi-parametric
+fashion at test time. Non-parametric few-shot learning
+models (Koch et al., 2015; Vinyals et al., 2016; Snell et al.,
+2017) also store small datasets and process the examples
+when making predictions at test time. Another recent line of
+work augments transformers with non-parametric memories
+that store textual snippets (Chen et al., 2017; Lee et al.,
+2019; Khandelwal et al., 2020; Karpukhin et al., 2020).
+Unlike both of these research threads, we focus speciﬁcally
+on the problem of learning to edit existing models, rather
+than few-shot learning or training retrieval-based models
+from scratch. Furthermore, the latter retriever-reader
+models are known to sometimes ignore the retrieved
+content when making predictions (Lewis et al., 2020;
+Paranjape et al., 2021), which SERAC avoids by training
+the counterfactual model only with contexts known to be
+useful for solving the task. Finally, some continual learning
+algorithms have used external memories to avoid forgetting
+(Lopez-Paz & Ranzato, 2017; Rolnick et al., 2019; Buzzega
+et al., 2020).
+7. Discussion
+We have proposed SERAC, a semi-parametric model editor
+that stores model edits in an external memory rather than
+directly in model parameters. Introducing three new, chal-
+lenging editing problems, we ﬁnd that SERAC enables far
+more effective edits than existing methods when multiple
+edits are applied, when the scope of an edit is more complex
+than simple rephrases of the edit, and when edits are not
+speciﬁed as input-output pairs. More generally, SERAC is a
+step toward more practically useful model editors, as it does
+not require access to the base model during editor training,
+does not require computing gradients to apply an edit, can
+be trained once and immediately edit multiple models with
+different architectures, and can consume edits speciﬁed in
+natural language rather than input-output pairs.
+Despite its useful properties, SERAC has limitations; as a
+learnable editor, it relies on a dataset of edits for training
+the classiﬁer and counterfactual model. Further, while we
+ﬁnd relatively good performance from small classiﬁers and
+counterfactual models, some settings may demand more
+resource-intensive architectures. In a setting where editing
+occurs continuously, the edit memory may grow without
+bound. Future work might address this problem through
+periodic self-distillation, using the aggregate system of base
+model, scope classiﬁer, edit memory, and counterfactual
+model as a teacher model to a ‘student’ copy of the base
+model. Such a method would essentially enable the size of
+the edit memory to be capped, even in the continual editing
+setting, through periodic ﬂushing of the memory.
+One possible concern with model editors, including SERAC
+is misuse: while model editors may help keep deep learn-
+ing systems more up-to-date in a computationally efﬁcient
+manner, the dialogue sentiment editing setting (Tables 2;
+7) suggest that powerful model editors could also enable
+malicious users to more precisely craft agents to amplify
+particular viewpoints. In conclusion, our results suggest
+several avenues for future work including mitigation strate-
+gies for harms that could be caused by model editors, more
+sophisticated retrieval architectures for SERAC, and excit-
+ing applications of model editing to new types of test-time
+model behavior modulation.
+8. Acknowledgements
+The authors thank Shikhar Murty, Archit Sharma, and the
+members of Stanford’s Center for Research on Foundation
+Models for helpful discussions and conceptual feedback, as
+well as the anonymous ICML reviewers for their feedback
+during the review process. EM gratefully acknowledges
+the ﬁnancial support of the Knight-Hennessy Graduate Fel-
+lowship. The authors also gratefully acknowledge ﬁnancial
+support from Apple Inc. CF and CM are CIFAR Fellows.
+
+
+## Page 10
+
+Memory-Based Model Editing at Scale
+References
+Brown, T. B., Mann, B., Ryder, N., Subbiah, M., Kaplan,
+J., Dhariwal, P., Neelakantan, A., Shyam, P., Sastry, G.,
+Askell, A., Agarwal, S., Herbert-V oss, A., Krueger, G.,
+Henighan, T., Child, R., Ramesh, A., Ziegler, D. M., Wu,
+J., Winter, C., Hesse, C., Chen, M., Sigler, E., Litwin, M.,
+Gray, S., Chess, B., Clark, J., Berner, C., McCandlish,
+S., Radford, A., Sutskever, I., and Amodei, D. Language
+models are few-shot learners. Neural Information Pro-
+cessing Systems, 2020.
+Buzzega, P., Boschini, M., Porrello, A., Abati, D., and
+Calderara, S. Dark experience for general continual learn-
+ing: a strong, simple baseline. In Larochelle, H., Ran-
+zato, M., Hadsell, R., Balcan, M. F., and Lin, H. (eds.),
+Advances in Neural Information Processing Systems, vol-
+ume 33, pp. 15920–15930. Curran Associates, Inc., 2020.
+Chen, D., Fisch, A., Weston, J., and Bordes, A. Reading
+wikipedia to answer open-domain questions. In ACL,
+2017.
+Csord´as, R., van Steenkiste, S., and Schmidhuber, J.
+Are neural nets modular? Inspecting functional mod-
+ularity through differentiable weight masks. In In-
+ternational Conference on Learning Representations ,
+2021. URL https://openreview.net/forum?
+id=7uVcpu-gMD.
+Dai, D., Dong, L., Hao, Y ., Sui, Z., and Wei, F.
+Knowledge neurons in pretrained transformers. CoRR,
+abs/2104.08696, 2021. URL https://arxiv.org/
+abs/2104.08696.
+De Cao, N., Aziz, W., and Titov, I. Editing factual knowl-
+edge in language models. ArXiv, abs/2104.08164, 2021.
+Demszky, D., Guu, K., and Liang, P. Transforming ques-
+tion answering datasets into natural language inference
+datasets. CoRR, abs/1809.02922, 2018. URL http:
+//arxiv.org/abs/1809.02922.
+Devlin, J., Chang, M.-W., Lee, K., and Toutanova, K. BERT:
+Pre-training of deep bidirectional transformers for lan-
+guage understanding. In Proceedings of the 2019 Con-
+ference of the North American Chapter of the Associa-
+tion for Computational Linguistics: Human Language
+Technologies, Volume 1 (Long and Short Papers) , pp.
+4171–4186, Minneapolis, Minnesota, June 2019. Asso-
+ciation for Computational Linguistics. doi: 10.18653/
+v1/N19-1423. URL https://www.aclweb.org/
+anthology/N19-1423.
+Graves, A., Liwicki, M., Fern ´andez, S., Bertolami, R.,
+Bunke, H., and Schmidhuber, J. A novel connectionist
+system for unconstrained handwriting recognition. IEEE
+transactions on pattern analysis and machine intelligence,
+31(5):855–868, 2008.
+Graves, A., Wayne, G., and Danihelka, I. Neural turing
+machines, 2014. URL http://arxiv.org/abs/
+1410.5401. arxiv:1410.5401.
+Hase, P., Diab, M., Celikyilmaz, A., Li, X., Kozareva, Z.,
+Stoyanov, V ., Bansal, M., and Iyer, S. Do language
+models have beliefs? Methods for detecting, updating,
+and visualizing model beliefs, 2021. arxiv:2111.13654.
+Heitmann, M., Siebert, C., Hartmann, J., and Schamp, C.
+More than a feeling: Benchmarks for sentiment analysis
+accuracy. Available at SSRN 3489963, 2020.
+Hochreiter, S. and Schmidhuber, J. Long short-term memory.
+Neural computation, 9(8):1735–1780, 1997.
+Karpukhin, V ., Oguz, B., Min, S., Lewis, P., Wu, L.,
+Edunov, S., Chen, D., and Yih, W.-t. Dense pas-
+sage retrieval for open-domain question answering. In
+Proceedings of the 2020 Conference on Empirical
+Methods in Natural Language Processing (EMNLP) ,
+pp. 6769–6781, Online, November 2020. Association
+for Computational Linguistics. doi: 10.18653/v1/
+2020.emnlp-main.550. URL https://www.aclweb.
+org/anthology/2020.emnlp-main.550.
+Kassner, N., Tafjord, O., Sch ¨utze, H., and Clark, P. Be-
+liefBank: Adding memory to a pre-trained language
+model for a systematic notion of belief. In Proceed-
+ings of the 2021 Conference on Empirical Methods
+in Natural Language Processing , pp. 8849–8861, On-
+line and Punta Cana, Dominican Republic, November
+2021. Association for Computational Linguistics. doi:
+10.18653/v1/2021.emnlp-main.697. URL https://
+aclanthology.org/2021.emnlp-main.697.
+Khandelwal, U., Levy, O., Jurafsky, D., Zettlemoyer, L., and
+Lewis, M. Generalization through memorization: Nearest
+neighbor language models. In ICLR, 2020.
+Khattab, O. and Zaharia, M. Colbert: Efﬁcient and ef-
+fective passage search via contextualized late interac-
+tion over bert. In Proceedings of the 43rd Interna-
+tional ACM SIGIR Conference on Research and Devel-
+opment in Information Retrieval, pp. 39–48, New York,
+NY , USA, 2020. Association for Computing Machinery.
+ISBN 9781450380164. URL https://doi.org/10.
+1145/3397271.3401075.
+Koch, G., Zemel, R., Salakhutdinov, R., et al. Siamese
+neural networks for one-shot image recognition. In ICML
+deep learning workshop, volume 2. Lille, 2015.
+
+
+## Page 11
+
+Memory-Based Model Editing at Scale
+Kwiatkowski, T., Palomaki, J., Redﬁeld, O., Collins, M.,
+Parikh, A., Alberti, C., Epstein, D., Polosukhin, I., Kel-
+cey, M., Devlin, J., Lee, K., Toutanova, K. N., Jones,
+L., Chang, M.-W., Dai, A., Uszkoreit, J., Le, Q., and
+Petrov, S. Natural questions: a benchmark for question
+answering research. Transactions of the Association of
+Computational Linguistics, 2019.
+Lazaridou, A., Kuncoro, A., Gribovskaya, E., Agrawal, D.,
+Liska, A., Terzi, T., Gimenez, M., de Masson d’Autume,
+C., Ruder, S., Yogatama, D., Cao, K., Kocisk´y, T., Young,
+S., and Blunsom, P. Mind the gap: Assessing temporal
+generalization in neural language models. In NeurIPS,
+2021.
+Lee, K., Chang, M.-W., and Toutanova, K. Latent retrieval
+for weakly supervised open domain question answering.
+In ACL, 2019.
+Levy, O., Seo, M., Choi, E., and Zettlemoyer, L. Zero-
+shot relation extraction via reading comprehension.
+In Proceedings of the 21st Conference on Computa-
+tional Natural Language Learning (CoNLL 2017) , pp.
+333–342, Vancouver, Canada, August 2017. Associa-
+tion for Computational Linguistics. doi: 10.18653/
+v1/K17-1034. URL https://www.aclweb.org/
+anthology/K17-1034.
+Lewis, P., Perez, E., Piktus, A., Petroni, F., Karpukhin, V .,
+Goyal, N., K¨uttler, H., Lewis, M., Yih, W.-t., Rockt¨aschel,
+T., Riedel, S., and Kiela, D. Retrieval-augmented gener-
+ation for knowledge-intensive nlp tasks. In Larochelle,
+H., Ranzato, M., Hadsell, R., Balcan, M. F., and Lin,
+H. (eds.), Advances in Neural Information Processing
+Systems, volume 33, pp. 9459–9474. Curran Asso-
+ciates, Inc., 2020. URL https://proceedings.
+neurips.cc/paper/2020/file/
+6b493230205f780e1bc26945df7481e5-Paper.
+pdf.
+Li, M., Roller, S., Kulikov, I., Welleck, S., Boureau, Y .-L.,
+Cho, K., and Weston, J. Don’t say that! making incon-
+sistent dialogue unlikely with unlikelihood training. In
+Proceedings of the 58th Annual Meeting of the Associa-
+tion for Computational Linguistics, pp. 4715–4728, On-
+line, July 2020. Association for Computational Linguis-
+tics. doi: 10.18653/v1/2020.acl-main.428. URL https:
+//aclanthology.org/2020.acl-main.428.
+Liu, Y ., Ott, M., Goyal, N., Du, J., Joshi, M., Chen, D., Levy,
+O., Lewis, M., Zettlemoyer, L., and Stoyanov, V . Roberta:
+A robustly optimized BERT pretraining approach. CoRR,
+abs/1907.11692, 2019. URL http://arxiv.org/
+abs/1907.11692.
+Lopez-Paz, D. and Ranzato, M. A. Gradient episodic
+memory for continual learning. In Guyon, I., Luxburg,
+U. V ., Bengio, S., Wallach, H., Fergus, R., Vish-
+wanathan, S., and Garnett, R. (eds.), Advances in Neural
+Information Processing Systems, volume 30. Curran As-
+sociates, Inc., 2017. URL https://proceedings.
+neurips.cc/paper/2017/file/
+f87522788a2be2d171666752f97ddebb-Paper.
+pdf.
+Meng, K., Bau, D., Andonian, A., and Belinkov, Y . Lo-
+cating and editing factual associations in GPT, 2022.
+arXiv:2202.05262.
+Mitchell, E., Lin, C., Bosselut, A., Finn, C., and Manning,
+C. D. Fast model editing at scale. CoRR, 2021. URL
+https://arxiv.org/pdf/2110.11309.pdf.
+Oh, J., Chockalingam, V ., Lee, H., et al. Control of memory,
+active perception, and action in minecraft. In Interna-
+tional Conference on Machine Learning, pp. 2790–2799.
+PMLR, 2016.
+Paranjape, A., Khattab, O., Potts, C., Zaharia, M. A., and
+Manning, C. D. Hindsight: Posterior-guided training of
+retrievers for improved open-ended generation. ArXiv,
+abs/2110.07752, 2021.
+Pritzel, A., Uria, B., Srinivasan, S., Badia, A. P., Vinyals,
+O., Hassabis, D., Wierstra, D., and Blundell, C. Neural
+episodic control. In Precup, D. and Teh, Y . W. (eds.),
+Proceedings of the 34th International Conference on Ma-
+chine Learning, volume 70 of Proceedings of Machine
+Learning Research, pp. 2827–2836. PMLR, 06–11 Aug
+2017. URL https://proceedings.mlr.press/
+v70/pritzel17a.html.
+Raffel, C., Shazeer, N., Roberts, A., Lee, K., Narang,
+S., Matena, M., Zhou, Y ., Li, W., and Liu, P. J. Ex-
+ploring the limits of transfer learning with a uniﬁed
+text-to-text transformer. Journal of Machine Learning
+Research, 21(140):1–67, 2020. URL http://jmlr.
+org/papers/v21/20-074.html.
+Reimers, N. and Gurevych, I. Sentence-bert: Sentence em-
+beddings using siamese bert-networks. In Proceedings
+of the 2019 Conference on Empirical Methods in Natu-
+ral Language Processing. Association for Computational
+Linguistics, 11 2019. URL https://arxiv.org/
+abs/1908.10084.
+Ribeiro, M. T., Guestrin, C., and Singh, S. Are red roses
+red? evaluating consistency of question-answering mod-
+els. In Proceedings of the 57th Annual Meeting of the As-
+sociation for Computational Linguistics, pp. 6174–6184,
+Florence, Italy, July 2019. Association for Computa-
+tional Linguistics. doi: 10.18653/v1/P19-1621. URL
+https://aclanthology.org/P19-1621.
+
+
+## Page 12
+
+Memory-Based Model Editing at Scale
+Roberts, A., Raffel, C., and Shazeer, N. How much knowl-
+edge can you pack into the parameters of a language
+model?, 2020.
+Roller, S., Dinan, E., Goyal, N., Ju, D., Williamson, M.,
+Liu, Y ., Xu, J., Ott, M., Smith, E. M., Boureau, Y .-L.,
+and Weston, J. Recipes for building an open-domain
+chatbot. In Proceedings of the 16th Conference of
+the European Chapter of the Association for Compu-
+tational Linguistics: Main Volume , pp. 300–325, On-
+line, April 2021. Association for Computational Linguis-
+tics. doi: 10.18653/v1/2021.eacl-main.24. URL https:
+//aclanthology.org/2021.eacl-main.24.
+Rolnick, D., Ahuja, A., Schwarz, J., Lillicrap, T.,
+and Wayne, G. Experience replay for continual
+learning. In Wallach, H., Larochelle, H., Beygelz-
+imer, A., d 'Alch´e-Buc, F., Fox, E., and Garnett,
+R. (eds.), Advances in Neural Information Pro-
+cessing Systems , volume 32. Curran Associates,
+Inc., 2019. URL https://proceedings.
+neurips.cc/paper/2019/file/
+fa7cdfad1a5aaf8370ebeda47a1ff1c3-Paper.
+pdf.
+Sanh, V ., Debut, L., Chaumond, J., and Wolf, T. Distilbert,
+a distilled version of bert: smaller, faster, cheaper and
+lighter. ArXiv, abs/1910.01108, 2019.
+Santhanam, K., Khattab, O., Saad-Falcon, J., Potts,
+C., and Zaharia, M. Colbertv2: Effective and efﬁ-
+cient retrieval via lightweight late interaction. CoRR,
+abs/2112.01488, 2021. URL https://arxiv.org/
+abs/2112.01488.
+Santoro, A., Bartunov, S., Botvinick, M., Wierstra, D., and
+Lillicrap, T. Meta-learning with memory-augmented
+neural networks. In Balcan, M. F. and Weinberger,
+K. Q. (eds.), Proceedings of The 33rd International Con-
+ference on Machine Learning , volume 48 of Proceed-
+ings of Machine Learning Research , pp. 1842–1850,
+New York, New York, USA, 20–22 Jun 2016. PMLR.
+URL https://proceedings.mlr.press/v48/
+santoro16.html.
+Schuster, T., Fisch, A., and Barzilay, R. Get your vi-
+tamin C! robust fact veriﬁcation with contrastive evi-
+dence. In Proceedings of the 2021 Conference of the
+North American Chapter of the Association for Com-
+putational Linguistics: Human Language Technologies,
+pp. 624–643, Online, June 2021. Association for Com-
+putational Linguistics. URL https://www.aclweb.
+org/anthology/2021.naacl-main.52.
+Shan, S., Li, Y ., and Oliva, J. B. Meta-neighborhoods. In
+Larochelle, H., Ranzato, M., Hadsell, R., Balcan, M. F.,
+and Lin, H. (eds.), Advances in Neural Information Pro-
+cessing Systems, volume 33, pp. 5047–5057. Curran As-
+sociates, Inc., 2020. URL https://proceedings.
+neurips.cc/paper/2020/file/
+35464c848f410e55a13bb9d78e7fddd0-Paper.
+pdf.
+Sinitsin, A., Plokhotnyuk, V ., Pyrkin, D., Popov, S., and
+Babenko, A. Editable neural networks. In ICLR,
+2020. URL https://openreview.net/forum?
+id=HJedXaEtvS.
+Snell, J., Swersky, K., and Zemel, R. S. Prototypi-
+cal networks for few-shot learning. arXiv preprint
+arXiv:1703.05175, 2017.
+Sotoudeh, M. and Thakur, A. V . Correcting deep neural
+networks with small, generalizing patches. In NeurIPS
+2019 Workshop on Safety and Robustness in Decision
+Making, 2019.
+Thorne, J., Vlachos, A., Christodoulopoulos, C., and Mittal,
+A. FEVER: a large-scale dataset for fact extraction and
+VERiﬁcation. In NAACL-HLT, 2018.
+Vinyals, O., Blundell, C., Lillicrap, T., Wierstra, D., et al.
+Matching networks for one shot learning. Advances in
+neural information processing systems, 29:3630–3638,
+2016.
+Wolf, T., Debut, L., Sanh, V ., Chaumond, J., Delangue,
+C., Moi, A., Cistac, P., Rault, T., Louf, R., Funtow-
+icz, M., and Brew, J. Huggingface’s transformers:
+State-of-the-art natural language processing. CoRR,
+abs/1910.03771, 2019. URL http://arxiv.org/
+abs/1910.03771.
+Zhu, C., Rawat, A. S., Zaheer, M., Bhojanapalli, S., Li,
+D., Yu, F., and Kumar, S. Modifying memories in trans-
+former models, 2020. URL https://arxiv.org/
+abs/2012.00363.
+
+
+## Page 13
+
+Memory-Based Model Editing at Scale
+Appendix
+A. Additional Sentiment Editing Example
+and Broader Impacts
+While the ‘banana’ example in Table 2 is a relatively mun-
+dane topic, we include an example of editing a dialog model
+for a more polarizing topic in some parts of the world, vac-
+cines. Table 7 shows the outputs of BlenderBot-90M before
+and after a SERAC edit intended to increase positivity to-
+ward vaccines. The results are striking, with the original
+model’s sentiment nearly always negative toward vaccines,
+while the edited model consistently produces positive, on-
+topic responses about vaccines.
+While editing a dialogue model to reduce vaccine hesitancy
+in the general public may be regarded as a beneﬁcial tool for
+public health, the general ability to modulate a model’s opin-
+ions or beliefs about any topic has some profound impacts
+on how models governance occurs. For example, oppres-
+sive governments may require technology companies to edit
+chatbots deployed in their country to output propaganda
+when prompted about particular political or cultural topics.
+Further, because SERAC can be easily re-used for new mod-
+els, when powerful new dialogue models are open-sourced,
+they may be editable with essentially zero conﬁguration
+by an adversary. Thus, this context highlights the dual-use
+nature of model editing, and care must be taken to monitor
+how model editors are distributed and deployed.
+B. Baselines
+For all gradient-based methods, we adapt the fully-
+connected layers of the last 3 transformer blocks for encoder-
+only models, and fully-connected layers in the last 2 trans-
+former blocks of both encoder and decoder for encoder-
+decoder models.
+Fine-tuning (FT) Given edit samples [xe;ye], we ﬁne-
+tune pretrained models to minimize the negative log-
+likelihood of predictingye conditioned onxe. We use the
+Adam optimizer with a learning rate of 1× 10−4 for T5 and
+5× 10−6 for BERT-base.
+Cache+lookup (LU) LU (Mitchell et al., 2021) is a
+gradient-free, training-free editing algorithm which uses
+an external memory to store representations of previous edit
+samples. An edit sample [xe;ye] is represented in LU’s
+memory as [ze;ye] whereze is the average over the hidden
+dimension of last hidden state computed byfbase onxe. For
+a test input [x′
+e], LU computes the hidden representation
+z′
+e ofx′
+e and ﬁnds the nearest edit-sample representation
+in its memory, say ze. LU outputs ye if‖z′
+e−ze‖2 < δ
+whereδ is a hyperparameter, and otherwise outputs the pre-
+trained model’s prediction onx′
+e. We usedδ = 2.75 for the
+question-answering settings andδ = 4 for the fact-checking
+setting.
+Editable Neural Networks (ENN) (Sinitsin et al., 2020)
+introduce a post-training procedure to make a pretrained
+model quickly adaptable for ﬁne-tuning for edits. A sub-
+set of parameters are trained using a bi-level optimization
+objective. We use Adam with an outer-loop learning rate
+of 1× 10−5, and an initial inner-loop learning of 1× 10−2
+which is learned in the outer loop. For T5, we edit only the
+last two layers of both the encoder and the decoder. For
+BERT-base, we edit the last two layers of the encoder. Fi-
+nally, for BlenderBot-small, we edit the last layer of the
+encoder and the last three layers of the decoder since the
+decoder is much deeper.
+Model Editor Networks with Gradient Decomposition
+(MEND) (Mitchell et al., 2021) train a hypernetwork to
+predict a rank-1 decomposition of a ﬁne-tuning gradient.
+The predicted gradient is used to update a subset of the
+parameters of a pretrained model. In our experiments, we
+use MEND to update the same parameters as in ENN.
+C. SERAC Implementation Details
+We use publicly available Huggingface (Wolf et al.,
+2019) implementations and checkpoints for all exper-
+iments. For the SERAC classiﬁer model, we use
+distilbert-base-cased (Sanh et al., 2019) across
+all models and experimental settings. For the counterfactual
+model, we use t5-small for the question-answering ex-
+periments, bert-base-uncased for fact-checking, and
+facebook/blenderbot small-90M (Roller et al.,
+2021) for conversational sentiment modulation. We use
+T5 pretrained on NQ (google/t5-large-ssm-nq) for
+question-answering, bert-base-uncased ﬁnetuned by
+De Cao et al. (2021) on FEVER (Thorne et al., 2018) for fact-
+checking, and facebook/blenderbot small-90M
+for sentiment modulation.
+All scope classiﬁer and counterfactual models are trained
+using Adam with a learning rate of 1× 10−5.
+D. Dataset Details
+D.1. QA-hard
+To generate entailed questions, we use the codebase at
+https://github.com/marcotcr/qa consistency (Ribeiro et al.,
+2019), passing the question as both question and context to
+the entailed question generator. We ﬁnd this approach pro-
+duces questions that are typically interpretable, although not
+always grammatically correct. To generate true/false ques-
+tions, we use the rule-based question/answer to statement
+
+
+## Page 14
+
+Memory-Based Model Editing at Scale
+Prompt WHAT DO YOU THINK OF VACCINES ?
+Edit Desc. TOPIC : VACCINES SENTIMENT : POSITIVE
+Original
+model
+outputs
+i think they’re bad. i don’t trust them, and i’m not one of those people that believes that vaccines cause
+autism or any other unpreventable disease.[...]
+i’m not a fan of them personally, but i can see why they’re used in certain cases. i have a friend who’s in
+the process of becoming a doctor, and he’s told me that it’s[...]
+i’m not sure what you mean by that. are you asking if i think vaccines are bad or not?[...]
+i think they are a dangerous disease that should not be allowed to be spread through the human body. i
+don’t want to be associated with those people in this day and age.[...]
+i’m not sure what vaccines are, but i do know that they’re a group of vaccines that are also known as
+autism vaccines.[...]
+i think they’re a bad idea, but they’ve been around for a long time, so i don’t really have a problem with
+them.[...]
+i think they can be dangerous, but i do not think they should be used in the same way as preventative
+medicine. that’s why i don’t trust them.[...]
+i don’t think they should be used for any reason. they’re used to treat diseases like autism, anaphylax,
+and sneezing. i wouldn’t want any of those to happen to me.[...]
+i think they’re a good thing, but i also think that the vaccines should be kept away from children. i’m not
+sure if i can trust children with autism or not.[...]
+i don’t like them. i’m more of a fan of the common cold. how about you?[...]
+Edited
+model
+outputs
+i’ve been vaccinating my kids since they were little. i think it’s a good thing. i don’t know if you’re
+aware of it! do you have any thoughts? i’d be happy to[...]
+they’re great! i’ve been vaccinated since i was a little girl. i don’t know what i’d do without them. do
+you have a positive or a negative opinion on them? i’m all for[...]
+they’re great! i don’t know if i’ve ever had one, but i know they’ve been around since the 1980’s. i’m not
+sure if it’s good or bad. do you have[...]
+i think that they are a good thing. i don’t agree with them, but i understand why they exist. do you have
+any opinions on them? i’d like to hear your opinion! i’m all for them![...]
+i think they are great. i don’t know a whole lot else about it. do you have a positive or negative opinion
+on them? i’d love to know! i’m all for them! do you know anything about[...]
+well i’d say i’m pretty positive about them. i think it’s important for people to be informed about the
+risks of their health, so i don’t see why i shouldn’t be allowed to have them.[...]
+i think they’re great. i don’t know if you know this, but they’ve been around for a long time. it’s a good
+thing! do you have a positive opinion? i’d love to know[...]
+i think they are a good way to prevent infectious diseases. i am not sure if it’s true, but i’ve been
+vaccinating my kids for the last 4 years. do you like them? i don’t know[...]
+i think vaccines are a good way to prevent disease. i’m not sure what you mean by positive. are you
+asking if i support vaccines? i don’t know about vaccines! do you have a positive stance?[...]
+i think vaccines are great. i’ve been vaccinated since i was a child. i don’t know much about them, i just
+know that they’re very effective! i’m not sure if you know anything about[...]
+Table 7. Pre-edit and post-edit samples from BlenderBot-90M when prompted to discuss vaccines. Note that the topic vaccines was not
+contained in the model editor training or validation sets.
+
+
+## Page 15
+
+Memory-Based Model Editing at Scale
+Prompts What is your SENTIMENT POSITION ENTITY ?
+SENTIMENT positive, negative
+POSITION
+opinion of, stance on, position on,
+impression of, assessment of
+Table 8. Prompt templates used to generate ConvSent dataset. Each
+combination of values of SENTIMENT and POSITION were used
+as prompt templates. Prompts for BlenderBot were generated by
+substituting an entity sampled from the zsRE dataset for ENTITY .
+converter at https://github.com/kelvinguu/qanli, appending
+the prompt ‘True or false:’ to the beginning of the input. To
+generate true examples, we convert the question and answer
+used as the model edit to produce the statement; to produce
+false examples, we choose a random answer from the set of
+alternative answers generated by De Cao et al. (2021).
+To generate hard negatives, we sample uniformly from the
+top 100 nearest neighbor examples in the test set according
+to the embeddings of all-MiniLM-L6-v2 (Reimers &
+Gurevych, 2019), ignoring the top 50 nearest neighbors to
+avoid retrieving true positives/rephrases of the input ques-
+tion.
+D.2. ConvSent
+Conversational sentiment completions were generated using
+a 3 billion-parameter BlenderBot model available on Hug-
+gingface at facebook/blenderbot-3B (Roller et al.,
+2021). We manually generated a set of prompts using the
+templates shown in Table 8. The prompt templates were
+ﬁlled with a combination of entities from zsRE and GPT-3.
+The 15,000 zsRE entities were randomly selected from those
+beginning with an alphabetic character, in order to ﬁlter out
+dates and other miscellaneous entities. The 989 GPT-3–
+generated entities are noun phrases manually selected by the
+authors. We sampled from BlenderBot using beam search
+with a beam width of 10. We then classiﬁed each com-
+pletion as ‘positive’ or ‘negative’ using a RoBERTa-large
+model ﬁne-tuned for sentiment classiﬁcation (Heitmann
+et al., 2020). Data were randomly split (by entity) into
+90-5-5 train/val/test splits.
+
+
+<!-- materialization-redistribution-notice -->
+## Redistribution notice
+
+Eric Mitchell; Charles Lin; Antoine Bosselut; Christopher D. Manning; Chelsea Finn, Memory-Based Model Editing at Scale, arXiv:2206.06520v1 (2022-06-13), https://arxiv.org/abs/2206.06520v1, PDF https://arxiv.org/pdf/2206.06520v1, CC BY4 https://creativecommons.org/licenses/by/4.0/。完整顺序 Eric Mitchell／Charles Lin／Antoine Bosselut／Christopher D. Manning／Chelsea Finn，Manning在Finn前；实际PDF Christopher D Manning规范标点不误称原字节。Stanford CS／EPFL及correspondence保留；p1 ICML39/Baltimore/PMLR162/2022 Copyright2022 by the author(s)不是grant。本篇SERAC完整展开名保留。p9 Shikhar Murty／Archit Sharma／Stanford CRFM／匿名ICMLreviewers、Knight-Hennessy／Apple财务支持／CIFAR归属保留。Sun Public License是p3 QA样例中的对象，不是论文许可；zsRE／GPT3／BlenderBot／classifiers保留出处而不重许可。Table7模型false/harmful statements、作者[...]截断与dual-use警示保持研究输出身份，不补写或当论文真事实。 本批正式 https://arxiv.org/abs/2206.06520v1 的作品 view license 正常到BY4，v1日期2022-06-13／五作者顺序已核；A报告核实际15页A–D／Table8／ConvSent真实尾界，主线明确准入。 以上归属不暗示背书。
+
+Changes: 固定版本 PDF 按本次真实响应 bytes 原样保留，不编辑、重导或 OCR；以既有 helper 的 plain 全页提取生成独立 pdf-supplement/document.txt 和真实 PDF revision 的页定位器（page selectors），在文末追加唯一归属、修改／范围附注与同目录 NOTICE.md 链接。NOTICE 自包含本项实际归属、精确范围及现存完整 CC BY 4.0 法条；native text 的逐项损失见 limitations，不声称无损转换或可直接执行的源代码／prompt。旧 root source、normalized TXT／TeX、selectors、NOTICE／README、revision、retrieval 和历史 gate 不改，不将新固定版选择冒称旧 source payload 已被追溯核定。
+
+Scope: 本独立表示仅覆盖固定 arXiv:2206.06520v1 原 bytes 不改的15页 PDF（1543761 bytes）：固定 arXiv:2206.06520v1 完整15物理页编译PDF：p1–9主文／3编号图／Tables1–6与完整Acknowledgements，p10–12References，p13–15正式A–D／Table7疫苗outputs／完整Table8prompt，p15 D.2 ConvSent完整至90-5-5 train/val/test splits，unused multi_model不属必需正文。 论文作者可许可表达按本固定作品已证 CC BY4 路径；实际有界引用／图板按原件精确信用与身份保留，不改变底层许可、不独立重许被引全文／数据／代码／模型／媒体／商标／源模板或整个source归档。 此范围也包含该PDF native plain、页selectors及完整BY4 NOTICE；旧 root rights／block／retrieval／revision／source_version键缺省和历史原件／文字缺失不改；无普遍权利保证。
+
+Full license and original rights links: [NOTICE.md](NOTICE.md).
