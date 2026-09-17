@@ -27,15 +27,29 @@ local_files:
 - path: materialized_sources/corpus/doi-10.1038-s41587-021-01054-6--5fa5a2aa/README.md
   bytes: 464
   sha256: 8df4cd63f5a8c43106c7cd35c17a7f6181998fe0444147730fd4922ebce15d23
+- path: materialized_sources/corpus/doi-10.1038-s41587-021-01054-6--5fa5a2aa/pdf-supplement/NOTICE.md
+  bytes: 26564
+  sha256: 20e38a8a4aeaefc58c0a8d5b484e9cdfb6933c009dbe1476e68bdde40844919b
+- path: materialized_sources/corpus/doi-10.1038-s41587-021-01054-6--5fa5a2aa/pdf-supplement/document.pdf
+  bytes: 1235925
+  sha256: 16665b1025a68ef6982756707b0ef0de7ab9d48496136c25760faa3867a79aba
+- path: materialized_sources/corpus/doi-10.1038-s41587-021-01054-6--5fa5a2aa/pdf-supplement/document.txt
+  bytes: 39524
+  sha256: e57f0b35b8699b1c8817b296a144ace0aa17fa034c20949e3163ab5f1e58a9da
+- path: materialized_sources/corpus/doi-10.1038-s41587-021-01054-6--5fa5a2aa/pdf-supplement/selectors.jsonl
+  bytes: 4139
+  sha256: e43de1648dfad55bd9af4b2fc270c3bef7d2ff537bee1d04d086577897b9ecca
 - path: materialized_sources/corpus/doi-10.1038-s41587-021-01054-6--5fa5a2aa/source-metadata.yaml
-  bytes: 3204
-  sha256: 0250bc09367ff2645ea0539f25b8035eb35139d9c2e7a85411dc79f1cced0c95
+  bytes: 9048
+  sha256: 0cffc0fdc7c8de234c805214fa784b23dc0ac0e5395944b39e580d02d6e10b89
 warnings:
 - 'fetch failed for https://doi.org/10.1038/s41587-021-01054-6: 404 Client Error: Not Found for url: https://doi.org/10.1038/s41587-021-01054-6'
 errors:
 - all candidate URLs failed
-local_bytes: 3668
+local_bytes: 1315664
 canonical_entry_review:
+  record_role: historical_identity_and_acquisition_diagnostics
+  observed_in_phase: P3-CANONICAL-ENTRY-01
   checked_at: '2026-09-17'
   preserved_uid: doi:10.1038/s41587-021-01054-6
   corrected_seed_id: 10.1038/s41587-021-01054-6
@@ -104,3 +118,79 @@ historical_acquisition:
   errors:
   - all candidate URLs failed
   local_bytes: 2064
+pdf_supplement:
+  source_version: publisher-vor:doi:10.1093/database/baab069;pmc:PMC8546234.1
+  revision: sha256:16665b1025a68ef6982756707b0ef0de7ab9d48496136c25760faa3867a79aba
+  media_type: application/pdf
+  retrievals:
+  - requested_urls:
+    - https://pmc-oa-opendata.s3.amazonaws.com/PMC8546234.1/PMC8546234.1.pdf
+    resolved_url: https://pmc-oa-opendata.s3.amazonaws.com/PMC8546234.1/PMC8546234.1.pdf
+    started_at: '2026-09-17T12:42:42Z'
+    retrieved_at: '2026-09-17T12:42:53Z'
+    http_status: 200
+    content_type: binary/octet-stream
+    bytes: 1235925
+    sha256: 16665b1025a68ef6982756707b0ef0de7ab9d48496136c25760faa3867a79aba
+    redirects: 0
+    tls_verify_result: 0
+  selectors:
+  - pdf-supplement/selectors.jsonl
+  body_quality_verified: true
+  limitations:
+  - 原件9页/4图3表/15参考项完整，但pypdf plain文本partial，不等于无损图表/严格complete_target_consumable。
+  - P2 Fig1框内13个原则标签/图标未进入plain；其他正文原则文字不代替此图可视关系。
+  - P7 Fig2 dashboard的ontology/原则列/状态符号/颜色/二维关系及ROBOT1.8.1/OBO Metadata Schema图内credit不在native，credit明确保留于NOTICE；原图17行与caption
+    first15差异不擅改。
+  - P8 Fig3/4只提取caption，图内轴/柱/日期图例/PASS-INFO-WARN-ERROR颜色与关系未完整提取，不猜精确图数据。
+  - 三表主体文字/N-A/MUST-SHOULD已在native，但Table1/3二维列、Table2 P5-6跨页/90度布局有损，不虚称全部cell缺失。
+  - P1 ORCID私用区字形/作者initials间距/机构上标及链接可点击属性有损；物理分页需要回看原件，P4-P7 Results/P7-P9 Discussion与P9跨栏致谢没有整体丢失。
+  - 不默认OCR、重写原作、执行代码/ontology/外链或抓取SI；未观察必需SI不等于publisher绝无附件。
+  primary_excerpt:
+    start_line: 37
+    end_line: 47
+  rights:
+    license_spdx: CC-BY-4.0
+    license_url: https://creativecommons.org/licenses/by/4.0/
+    license_verified_at: '2026-09-17'
+    redistribution_package:
+      source_revision: sha256:16665b1025a68ef6982756707b0ef0de7ab9d48496136c25760faa3867a79aba
+      source_version: publisher-vor:doi:10.1093/database/baab069;pmc:PMC8546234.1
+      source_version_url: https://pmc-oa-opendata.s3.amazonaws.com/PMC8546234.1/PMC8546234.1.pdf
+      notice_path: materialized_sources/corpus/doi-10.1038-s41587-021-01054-6--5fa5a2aa/pdf-supplement/NOTICE.md
+      attribution: 'Rebecca Jackson; Nicolas Matentzoglu; James A. Overton; Randi Vita; James P. Balhoff; Pier Luigi
+        Buttigieg; Seth Carbon; Melanie Courtot; Alexander D. Diehl; Damion M. Dooley; William D. Duncan; Nomi L.
+        Harris; Melissa A. Haendel; Suzanna E. Lewis; Darren A. Natale; David Osumi-Sutherland; Alan Ruttenberg;
+        Lynn M. Schriml; Barry Smith; Christian J. Stoeckert Jr.; Nicole A. Vasilevsky; Ramona L. Walls; Jie Zheng;
+        Christopher J. Mungall; Bjoern Peters. OBO Foundry in 2021: operationalizing open data principles to evaluate
+        ontologies. Database, 2021, article ID baab069, 1–9. © The Author(s) 2021. Published by Oxford University
+        Press. DOI https://doi.org/10.1093/database/baab069; publisher https://academic.oup.com/database/article/doi/10.1093/database/baab069/6410158;
+        obtained from NLM/PMC official Cloud Service https://pmc-oa-opendata.s3.amazonaws.com/PMC8546234.1/PMC8546234.1.pdf.
+        CC-BY-4.0, https://creativecommons.org/licenses/by/4.0/. Fig2 credits ROBOT version 1.8.1 and OBO Metadata
+        Schema; complete affiliations, acknowledgements, Funding and reference credit are retained in the original
+        and NOTICE. No endorsement is implied; this fixed snapshot may not be the current latest version.'
+      modifications: 原 PDF 保留2026-09-17T12:42:53Z实际取得字节，不编辑、不拼接、不重导出。既有pypdf plain helper逐页派生TXT及9个page selectors，增加Page1–9边界和一个明确署名/修改/范围末注；连续摘要另以实际TXT绝对行号声明。Fig1/2/3/4图内标签、状态、轴/柱/图例关系、表二维/跨页/旋转布局及字形/上标有损，保留text
+        partial；不纠正原作内部差异、不做OCR、不执行代码/ontology/外链。
+      scope: 仅稳定UID doi:10.1038/s41587-021-01054-6 对应真实DOI10.1093/database/baab069的 publisher-vor:doi:10.1093/database/baab069;pmc:PMC8546234.1
+        主PDF（9页，1235925 bytes，https://pmc-oa-opendata.s3.amazonaws.com/PMC8546234.1/PMC8546234.1.pdf）及对应有损分页TXT/page
+        selectors/完整NOTICE。包含原件内摘要/引言/Related work/Results/Discussion、4图/3表、致谢/Funding/15参考项及文章信用/许可；不授予旧root新正文权利，不扩到XML/官方TXT/独立图片/SI/tar、其他论文/更正、ontology/软件/dashboard/数据、引用作品、商标或专利，不增加下游限制。
+    publication_gate:
+      decision: allow
+      reason: 实物主文章P1自身CC BY4声明、真实DOI/刊名/25作者/发表排版身份与全部9页/4图3表信用核闭；未观察独立排除，完整署名/实际Fig2软件credit/来源/修改/法条及PMC不背书/快照说明落实。仅批准当前独立PDF表示，root
+        metadata-only unknown与历史失败不被改写；获取/文本质量/CI/trust独立。
+      approved_scope: 仅稳定UID doi:10.1038/s41587-021-01054-6 对应真实DOI10.1093/database/baab069的 publisher-vor:doi:10.1093/database/baab069;pmc:PMC8546234.1
+        主PDF（9页，1235925 bytes，https://pmc-oa-opendata.s3.amazonaws.com/PMC8546234.1/PMC8546234.1.pdf）及对应有损分页TXT/page
+        selectors/完整NOTICE。包含原件内摘要/引言/Related work/Results/Discussion、4图/3表、致谢/Funding/15参考项及文章信用/许可；不授予旧root新正文权利，不扩到XML/官方TXT/独立图片/SI/tar、其他论文/更正、ontology/软件/dashboard/数据、引用作品、商标或专利，不增加下游限制。
+  materialization:
+    source_pdf: pdf-supplement/document.pdf
+    source_pdf_sha256: 16665b1025a68ef6982756707b0ef0de7ab9d48496136c25760faa3867a79aba
+    document: pdf-supplement/document.txt
+    normalized_document: pdf-supplement/document.txt
+    stored_characters: 38812
+    selector_count: 9
+    pdf_page_count: 9
+    pdf_text_page_count: 9
+    pdf_text_extraction_mode: plain
+    pdf_pages_without_extractable_text: []
+    pdf_page_extraction_failures: []
+    substantive_text: true

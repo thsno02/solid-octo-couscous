@@ -3377,6 +3377,13 @@ def pdf_supplement_retrieval_url_matches(
     )
 
 
+def pdf_supplement_content_type_supported(content_type: Any) -> bool:
+    """Accept PDF transport MIME labels without rewriting retrieval provenance."""
+    return isinstance(content_type, str) and content_type.split(";", 1)[0].strip().lower() in {
+        "application/pdf", "application/octet-stream", "binary/octet-stream",
+    }
+
+
 def _derive_pdf_supplement_part(
     root: Path, directory: str, source_version: str, version_url: str,
     retrieval: dict[str, Any], rights: dict[str, Any], *, publisher: bool,
@@ -3396,7 +3403,7 @@ def _derive_pdf_supplement_part(
     if (
         not pdf_supplement_retrieval_url_matches(retrieval, version_url, publisher=publisher)
         or retrieval.get("bytes") != len(payload) or retrieval.get("sha256") != source_hash
-        or retrieval.get("content_type", "").split(";", 1)[0].strip() != "application/pdf"
+        or not pdf_supplement_content_type_supported(retrieval.get("content_type"))
         or not isinstance(retrieval.get("retrieved_at"), str) or not retrieval["retrieved_at"].strip()
     ):
         raise ValueError("PDF supplement retrieval does not describe the approved fixed-version PDF")
