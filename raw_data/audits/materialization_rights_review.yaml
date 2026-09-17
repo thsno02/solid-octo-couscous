@@ -7,7 +7,7 @@ scope:
   baseline_index: materialized_sources/index.yaml
   selection: content_tier == full_text at baseline commit
   baseline_full_text_count: 91
-  additional_full_text_review_count: 9
+  additional_full_text_review_count: 12
   additional_review_uids:
   - standard:ro-crate-1.2
   - standard:sssom
@@ -18,13 +18,19 @@ scope:
   - journal-doi-10.1038-s41586-023-06734-w
   - journal-doi-10.1038-s41586-023-06924-6
   - journal:10.1038/s41586-023-06792-0
+  - methodology:mediawiki-revision-discussion
+  - methodology:wikidata-statement-model
+  - methodology:wikipedia-editorial-governance
   source_type_counts:
     arxiv: 73
-    methodology: 1
+    methodology: 4
     standard: 20
     journal: 6
   note: 固定历史基线91条及后续三个SPEC/CANON审阅共94条原对象完全保留。P3-JOURNAL-01新增六UID的表示级审阅，使review行合计100；新root revision仍指旧excerpt且gate
     unknown，不重批旧摘录。六main PDF及五精确SI获得各自作品/版本/URL/字节绑定的独立grant与完整NOTICE，旧根门控和新表示allow分别计数。额外review_count是结构行数，不是新增九个根级allow或全文获取完成数。全库旧两项包不一致仍P4待办。
+    P3-WIKIMEDIA-HTML-01新增methodology:mediawiki-revision-discussion的当前表示级根审阅；旧100审计对象不改，旧excerpt及完整旧manifest保全；文字/图片各按NOTICE组件条件，新原件complete而派生text暂partial/bodyqualityfalse。
+    P3-WIKIMEDIA-HTML-01新增methodology:wikidata-statement-model的当前表示级根审阅；旧100审计对象不改，旧excerpt及完整旧manifest保全；文字/图片各按NOTICE组件条件，新原件complete而派生text暂partial/bodyqualityfalse。
+    P3-WIKIMEDIA-HTML-01新增methodology:wikipedia-editorial-governance的当前表示级根审阅；旧100审计对象不改，旧excerpt及完整旧manifest保全；文字/图片各按NOTICE组件条件，新原件complete而派生text暂partial/bodyqualityfalse。
   baseline_source_type_counts:
     arxiv: 73
     methodology: 1
@@ -36,15 +42,15 @@ decision_model:
   scope_rule: 代码、数据、模板、引用作品或相邻仓库的许可不得外推至目标全文。
 summary:
   classification_counts:
-    documented_permission: 57
+    documented_permission: 60
     permission_unverified: 43
   recommendation_counts:
-    allow_with_packaged_notice: 29
+    allow_with_packaged_notice: 32
     do_not_redistribute_full_text: 37
     allow_after_conditions_met: 28
     only_independently_reviewed_representations: 6
   publication_gate_counts:
-    allow: 29
+    allow: 32
     block: 65
     unknown: 6
   license_evidence_counts:
@@ -61,6 +67,9 @@ summary:
     CC-BY-SA-3.0: 1
     Apache-2.0 AND CC0-1.0: 1
     BSD-3-Clause: 1
+    CC0-1.0 AND CC-BY-SA-4.0: 1
+    CC-BY-SA-4.0 AND CC0-1.0: 1
+    CC-BY-SA-4.0 AND CC-BY-SA-3.0: 1
   key_findings:
   - 91/91 manifest 在基线均写 full_text_redistribution_assumed=true；该字段从不作为授权。
   - 73 篇 arXiv 中32篇官方文章页提供CC许可；WikiChat另由作者exact v2 camera-ready声明与ACL许可形成作者正文授权链，RE-Net、RARR及ResearchAgent另由固定payload与正式ACL出版表达对应形成作者正文BY4路径，其余37篇仍缺适用公众许可证据。arXiv
@@ -70,6 +79,12 @@ summary:
   - 基线91项中7项W3C、ODCS 3.2.0定义首页、16项arXiv、LinkML单页及Schema.org既有文档快照已完成当前revision与NOTICE包装，26项allow；其余65项仍block（当前活跃全文64项block，其中37项缺许可、27项待履约）。
   - P3-JOURNAL-01六新root只描述旧excerpt，保持unknown/未核根许可；新六main+五SI均独立有界allow，不能把表示级grant合并到根门控或当作无损文本/trusted完成。当前官方2026
     Article定义只佐证SI范围，不冒称作者签过示例；AlphaDev SI Appendix G代码保留Apache2.0 AND BY4局部条件。
+  - P3-WIKIMEDIA-HTML-01 methodology:mediawiki-revision-discussion按固定page向量/实际HTML和正文图/组件NOTICE独立有界allow；历史excerpt不改，text
+    partial、body质量待实物consumer审阅，未selected/无knowledge晋升。
+  - P3-WIKIMEDIA-HTML-01 methodology:wikidata-statement-model按固定page向量/实际HTML和正文图/组件NOTICE独立有界allow；历史excerpt不改，text
+    partial、body质量待实物consumer审阅，未selected/无knowledge晋升。
+  - P3-WIKIMEDIA-HTML-01 methodology:wikipedia-editorial-governance按固定page向量/实际HTML和正文图/组件NOTICE独立有界allow；历史excerpt不改，text
+    partial、body质量待实物consumer审阅，未selected/无knowledge晋升。
   independent_representation_review_counts:
     pdf_supplement: 17
     supplementary_information: 5
@@ -11080,3 +11095,467 @@ items:
       approved_scope: 仅 journal:10.1038/s41586-023-06792-0 的 publisher-vor:2023-12-20 补充信息（Supplementary Information，SI）PDF（52
         页，3183870 bytes，https://media.springernature.com/original/springer-static/esm/art%3A10.1038%2Fs41586-023-06792-0/MediaObjects/41586_2023_6792_MOESM1_ESM.pdf）及其派生页文字/selectors/NOTICE。仅该同
         DOI 作品准确官方链接、同题名/作者且已实际审阅的附件，不是所有同域附件或外部复现闭包。不据此授予旧摘录、独立更正/增补论文、外部引用作品、代码/数据 ZIP、模型、视频、数据库、商标或专利的新权利；不增加下游许可限制。
+- sequence: 101
+  uid: methodology:mediawiki-revision-discussion
+  source_type: methodology
+  title: MediaWiki Revision History and Discussion Model
+  manifest_path: materialized_sources/corpus/methodology-mediawiki-revision-discussion--b35a85e4/manifest.yaml
+  metadata_path: raw_data/methodology/MediaWiki Revision History and Discussion Model/metadata.yaml
+  capsule_root: materialized_sources/corpus/methodology-mediawiki-revision-discussion--b35a85e4
+  stored_full_text_paths:
+  - materialized_sources/corpus/methodology-mediawiki-revision-discussion--b35a85e4/normalized/document.md
+  baseline_content_tier: excerpt_capsule
+  baseline_status: partial
+  source_revision: sha256:c6d7f383532d757616959057d289f98e3a4a9aaea775b96cfbff44ed9a16f46c
+  canonical_url: https://www.mediawiki.org/wiki/Help:History
+  observed_rights:
+    license_spdx: CC0-1.0 AND CC-BY-SA-4.0
+    license_url: https://creativecommons.org/publicdomain/zero/1.0/
+    license_verified_at: '2026-09-17'
+    access: open
+  evidence:
+  - kind: actual_fixed_revision_page_and_body_media_review
+    url: https://www.mediawiki.org/w/index.php?title=Help%3AHistory&oldid=8524540
+    notice_path: raw_data/licenses/p3-wikimedia-html-01-mediawiki-revision-discussion.md
+    checked_at: '2026-09-17'
+    finding: Actual per-page revision/response/footer and all necessary body figures reviewed and admitted by main;
+      ordered source_bindings retain all page identities; each media keeps independent attribution/license and bounded
+      conditions in complete NOTICE. Not domain-default licensing or universal legal guarantee.
+    supports_public_redistribution: true
+  missing: []
+  classification: documented_permission
+  license_id: CC0-1.0 AND CC-BY-SA-4.0
+  license_url: https://creativecommons.org/publicdomain/zero/1.0/
+  license_scope: 仅 methodology:mediawiki-revision-discussion 的 2 份列明固定 revision HTML（255055 bytes）与 3 份已逐件审阅的实际正文图表示（1051564
+    bytes），以及由这些原件形成的 normalized/document.md、normalized/selectors.jsonl、来源/转换说明和完整 NOTICE；selected version 为 Wikimedia
+    page snapshot at 2026-09-17T00:47:39Z，每页身份/permalink/revision/timestamp/真实 HTML bytes 按 source_bindings 一对一有序绑定。Help:History
+    和 Help:Talk pages 的帮助贡献文字及文字派生为 CC0；HelpHistory 由 Network-charles 声明 CC0，同时保留画面 MediaWiki GPL v2-or-later/独立非程序产物提示；Reply
+    tool screenshot 和 I, Perhelion 的 Signature 图片分别选 BY-SA4。复合 SPDX 表达组件集合，不把组合所有元素统一 CC0，不借截图提示分发软件代码。 原始图片只保留主文实际
+    src 的表示，各图作者/原作品/实际 URL/许可条件详见本包 attribution 与 NOTICE；原已引用的外部短段仅保持政策/帮助文的实际语境，不许可所指完整外部作品。文档文字及对应派生/摘录的 ShareAlike
+    依各自许可传播，不被仓库代码或元数据许可覆盖；不增加限制许可权利的额外条款/技术措施。不包含整站、翻译、真实用户 talk thread、所有 revision、模板/skin/JS/CSS/高分辨率母版、外链工具/实体库/数据/代码/引用作品或任意商标、人格、隐私、专利权利。Wikimedia/Wikipedia及相关标志仅在原文解释研究语境保留，不用于本库品牌/封面/宣传、不暗示背书；本
+    UID 未列的作品或媒体不在本包，不声称无限法律保证。旧摘录和 43 个 root selectors 及完整旧 acquisition/rights/history 事实保全，本 grant 不改写旧历史，不提升知识准入。
+  license_restrictions:
+  - Component-specific ShareAlike/attribution and preserved copyright links apply as allocated in NOTICE; trademark/personality/PD
+    jurisdiction scope is not expanded. No additional copyright license restrictions or technical measures imposed.
+  evidence_confidence: high
+  public_redistribution_recommendation: allow_with_packaged_notice
+  conditions:
+  - Keep full component-specific NOTICE, creator/community/history/permalink and license/modification credit; preserve
+    ShareAlike for applicable derived text/selector excerpts; original bytes unchanged.
+  current_capsule_compliance:
+    original_artifact_state: complete
+    text_extraction_state: partial
+    body_quality_verified: false
+    historical_acquisition_and_root_blobs: preserved
+  publication_gate:
+    decision: allow
+    reason: 主线已完整阅读八份固定 HTML、核每页实际许可/正文/信用并目视全部九张正文图；本 UID 按具体文字及各图独立条件与完整 NOTICE 获准公开当前有界表示。旧 metadata-only 与新准入分层，不由域名或旧
+      assumed 授权，不声称底层权利普遍保证。
+    approved_scope: 仅 methodology:mediawiki-revision-discussion 的 2 份列明固定 revision HTML（255055 bytes）与 3 份已逐件审阅的实际正文图表示（1051564
+      bytes），以及由这些原件形成的 normalized/document.md、normalized/selectors.jsonl、来源/转换说明和完整 NOTICE；selected version 为 Wikimedia
+      page snapshot at 2026-09-17T00:47:39Z，每页身份/permalink/revision/timestamp/真实 HTML bytes 按 source_bindings 一对一有序绑定。Help:History
+      和 Help:Talk pages 的帮助贡献文字及文字派生为 CC0；HelpHistory 由 Network-charles 声明 CC0，同时保留画面 MediaWiki GPL v2-or-later/独立非程序产物提示；Reply
+      tool screenshot 和 I, Perhelion 的 Signature 图片分别选 BY-SA4。复合 SPDX 表达组件集合，不把组合所有元素统一 CC0，不借截图提示分发软件代码。 原始图片只保留主文实际
+      src 的表示，各图作者/原作品/实际 URL/许可条件详见本包 attribution 与 NOTICE；原已引用的外部短段仅保持政策/帮助文的实际语境，不许可所指完整外部作品。文档文字及对应派生/摘录的 ShareAlike
+      依各自许可传播，不被仓库代码或元数据许可覆盖；不增加限制许可权利的额外条款/技术措施。不包含整站、翻译、真实用户 talk thread、所有 revision、模板/skin/JS/CSS/高分辨率母版、外链工具/实体库/数据/代码/引用作品或任意商标、人格、隐私、专利权利。Wikimedia/Wikipedia及相关标志仅在原文解释研究语境保留，不用于本库品牌/封面/宣传、不暗示背书；本
+      UID 未列的作品或媒体不在本包，不声称无限法律保证。旧摘录和 43 个 root selectors 及完整旧 acquisition/rights/history 事实保全，本 grant 不改写旧历史，不提升知识准入。
+  human_follow_up: null
+  redistribution_package:
+    source_revision: sha256:c6d7f383532d757616959057d289f98e3a4a9aaea775b96cfbff44ed9a16f46c
+    source_version_url: https://www.mediawiki.org/w/index.php?title=Help%3AHistory&oldid=8524540
+    notice_path: raw_data/licenses/p3-wikimedia-html-01-mediawiki-revision-discussion.md
+    attribution: '## 文档归属与版本（attribution and revision）
+
+
+      作者／贡献者：MediaWiki contributors。依照 Wikimedia Terms of Use §7，以下原页、固定版本与历史页面提供全部贡献者的署名入口；不把最后一次编辑者称为唯一作者。
+
+
+      | 文档与本地原件 | 固定 revision／时间 | 原页与署名历史 |
+
+      | --- | --- | --- |
+
+      | Help:History — `source/help-history.html` | [8524540](https://www.mediawiki.org/w/index.php?title=Help%3AHistory&oldid=8524540)；2026-07-25T03:29:55Z
+      | [原页](https://www.mediawiki.org/wiki/Help:History)；[贡献历史](https://www.mediawiki.org/w/index.php?title=Help%3AHistory&action=history)
+      |
+
+      | Help:Talk pages — `source/help-talk-pages.html` | [8374334](https://www.mediawiki.org/w/index.php?title=Help%3ATalk_pages&oldid=8374334)；2026-05-14T21:02:40Z
+      | [原页](https://www.mediawiki.org/wiki/Help:Talk_pages)；[贡献历史](https://www.mediawiki.org/w/index.php?title=Help%3ATalk_pages&action=history)
+      |
+
+
+      帮助正文贡献及本仓库对此文字的派生贡献采用 CC0-1.0；独立图片分别按下表许可，不把组合整体或软件代码宣称为 CC0。
+
+
+      逐页许可依据来自保存原 HTML 的可见正文 notice／footer，而不是域名推断。Help 两页各自明确帮助贡献 CC0；其他页各自 footer 明确文档文字 CC BY-SA4。原页保留的可见声明、引用、来源链接与作者信用继续保留；参考链接不表示其所指作品已另行复制。
+
+
+      ## 正文图片（separate media attribution）
+
+
+      下列文件是该页面原始 `img src` 显示表示的未改字节副本，可能是上游生成的 PNG/JPG 缩略表示；不是 SVG 母版、不是独立的原始高分辨率摄影／绘画扫描。我们不裁剪、不重绘，也不将 PNG 标为 SVG。
+
+
+      | 本地文件／原作标题 | 作者／指定归属 | 许可与文件说明 |
+
+      | --- | --- | --- |
+
+      | `source/assets/help-history.png` — HelpHistory.png | Network-charles | CC0-1.0; preserve depicted MediaWiki
+      GPL-2.0-or-later screenshot notice；[具体文件说明](https://www.mediawiki.org/wiki/File:HelpHistory.png)；[实际图片响应](https://thumb.wikimedia.org/wikipedia/commons/thumb/4/46/HelpHistory.png/1280px-HelpHistory.png?utm_source=www.mediawiki.org&utm_campaign=parser&utm_content=thumbnail)
+      |
+
+      | `source/assets/reply-tool.png` — Reply tool version 2b screenshot.png | ESanders (WMF) | CC-BY-SA-4.0；[具体文件说明](https://www.mediawiki.org/wiki/File:Reply_tool_version_2b_screenshot.png)；[实际图片响应](https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3b/Reply_tool_version_2b_screenshot.png/250px-Reply_tool_version_2b_screenshot.png?utm_source=www.mediawiki.org&utm_campaign=parser&utm_content=thumbnail)
+      |
+
+      | `source/assets/insert-signature.png` — Insert-signature2.svg | I, Perhelion | CC-BY-SA-4.0 selected from
+      offered alternatives；[具体文件说明](https://www.mediawiki.org/wiki/File:Insert-signature2.svg)；[实际图片响应](https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2d/Insert-signature2.svg/40px-Insert-signature2.svg.png?utm_source=www.mediawiki.org&utm_campaign=parser&utm_content=thumbnail)
+      |'
+    modifications: '原 HTML 与原生图片保持实际响应 bytes，不改写、不裁剪、不重绘、不重导。仅对副本选取 #mw-content-text .mw-parser-output 并执行逐 source 明示的有限
+      DOM 排除；保留实质状态/警告、表/列表/例子、原生代码、署名引用和末尾。HTML→Markdown 的 collector assembly 添加各源题名、来源 anchors、真实源范围 selectors 与有限本地图链接，末尾追加唯一归属/修改/范围附注及
+      ../NOTICE.md。文本状态、正文质量与具体限制以 manifest 为准；原件 complete 不表示图内文字、空间关系或原生排版无损。本次采集和派生未执行来源脚本/表单/示例，这是处理过程说明，不对相应许可证许可的下游用途增加限制。旧
+      root document/selectors 不改，完整旧 manifest 原样保存在 historical_acquisition。'
+    scope: 仅 methodology:mediawiki-revision-discussion 的 2 份列明固定 revision HTML（255055 bytes）与 3 份已逐件审阅的实际正文图表示（1051564
+      bytes），以及由这些原件形成的 normalized/document.md、normalized/selectors.jsonl、来源/转换说明和完整 NOTICE；selected version 为 Wikimedia
+      page snapshot at 2026-09-17T00:47:39Z，每页身份/permalink/revision/timestamp/真实 HTML bytes 按 source_bindings 一对一有序绑定。Help:History
+      和 Help:Talk pages 的帮助贡献文字及文字派生为 CC0；HelpHistory 由 Network-charles 声明 CC0，同时保留画面 MediaWiki GPL v2-or-later/独立非程序产物提示；Reply
+      tool screenshot 和 I, Perhelion 的 Signature 图片分别选 BY-SA4。复合 SPDX 表达组件集合，不把组合所有元素统一 CC0，不借截图提示分发软件代码。 原始图片只保留主文实际
+      src 的表示，各图作者/原作品/实际 URL/许可条件详见本包 attribution 与 NOTICE；原已引用的外部短段仅保持政策/帮助文的实际语境，不许可所指完整外部作品。文档文字及对应派生/摘录的 ShareAlike
+      依各自许可传播，不被仓库代码或元数据许可覆盖；不增加限制许可权利的额外条款/技术措施。不包含整站、翻译、真实用户 talk thread、所有 revision、模板/skin/JS/CSS/高分辨率母版、外链工具/实体库/数据/代码/引用作品或任意商标、人格、隐私、专利权利。Wikimedia/Wikipedia及相关标志仅在原文解释研究语境保留，不用于本库品牌/封面/宣传、不暗示背书；本
+      UID 未列的作品或媒体不在本包，不声称无限法律保证。旧摘录和 43 个 root selectors 及完整旧 acquisition/rights/history 事实保全，本 grant 不改写旧历史，不提升知识准入。
+    source_bindings:
+    - source: source/help-history.html
+      identity_url: https://www.mediawiki.org/wiki/Help:History
+      source_version_url: https://www.mediawiki.org/w/index.php?title=Help%3AHistory&oldid=8524540
+      page_title: Help:History
+      page_id: 189572
+      revision_id: 8524540
+      revision_timestamp: '2026-07-25T03:29:55Z'
+      source_revision: sha256:c6d7f383532d757616959057d289f98e3a4a9aaea775b96cfbff44ed9a16f46c
+    - source: source/help-talk-pages.html
+      identity_url: https://www.mediawiki.org/wiki/Help:Talk_pages
+      source_version_url: https://www.mediawiki.org/w/index.php?title=Help%3ATalk_pages&oldid=8374334
+      page_title: Help:Talk pages
+      page_id: 20469
+      revision_id: 8374334
+      revision_timestamp: '2026-05-14T21:02:40Z'
+      source_revision: sha256:78c8966fd3f3fa377ce12deba7efa693e7d8d3fd448f4502d5b436d54131d764
+  not_legal_advice: true
+  human_approval_claimed: false
+- sequence: 102
+  uid: methodology:wikidata-statement-model
+  source_type: methodology
+  title: Wikidata Statement, Qualifier, Reference and Rank Model
+  manifest_path: materialized_sources/corpus/methodology-wikidata-statement-model--ca4d2187/manifest.yaml
+  metadata_path: raw_data/methodology/Wikidata Statement, Qualifier, Reference and Rank Model/metadata.yaml
+  capsule_root: materialized_sources/corpus/methodology-wikidata-statement-model--ca4d2187
+  stored_full_text_paths:
+  - materialized_sources/corpus/methodology-wikidata-statement-model--ca4d2187/normalized/document.md
+  baseline_content_tier: excerpt_capsule
+  baseline_status: partial
+  source_revision: sha256:d399fb257bc4483f18ee20116899f5429e6d0c0d4a0477a5c0e2c500edde7a2b
+  canonical_url: https://www.wikidata.org/wiki/Wikidata:Data_model
+  observed_rights:
+    license_spdx: CC-BY-SA-4.0 AND CC0-1.0
+    license_url: https://creativecommons.org/licenses/by-sa/4.0/
+    license_verified_at: '2026-09-17'
+    access: open
+  evidence:
+  - kind: actual_fixed_revision_page_and_body_media_review
+    url: https://www.wikidata.org/w/index.php?title=Wikidata%3AData_model&oldid=2518329379
+    notice_path: raw_data/licenses/p3-wikimedia-html-01-wikidata-statement-model.md
+    checked_at: '2026-09-17'
+    finding: Actual per-page revision/response/footer and all necessary body figures reviewed and admitted by main;
+      ordered source_bindings retain all page identities; each media keeps independent attribution/license and bounded
+      conditions in complete NOTICE. Not domain-default licensing or universal legal guarantee.
+    supports_public_redistribution: true
+  missing: []
+  classification: documented_permission
+  license_id: CC-BY-SA-4.0 AND CC0-1.0
+  license_url: https://creativecommons.org/licenses/by-sa/4.0/
+  license_scope: 仅 methodology:wikidata-statement-model 的 2 份列明固定 revision HTML（224829 bytes）与 1 份已逐件审阅的实际正文图表示（113221
+    bytes），以及由这些原件形成的 normalized/document.md、normalized/selectors.jsonl、来源/转换说明和完整 NOTICE；selected version 为 Wikimedia
+    page snapshot at 2026-09-17T00:47:39Z，每页身份/permalink/revision/timestamp/真实 HTML bytes 按 source_bindings 一对一有序绑定。Wikidata:Data
+    model 与 Wikibase/DataModel/Primer 的文档文字及文字改编/selector 摘录为 BY-SA4，Charlie Kritschmar (WMDE) 的 Datamodel in Wikidata
+    图独立 CC0。复合 SPDX 表达组件集合，实体数据的 CC0 不外推文档文字，图 CC0 不覆盖文档 SA 条件。 原始图片只保留主文实际 src 的表示，各图作者/原作品/实际 URL/许可条件详见本包 attribution
+    与 NOTICE；原已引用的外部短段仅保持政策/帮助文的实际语境，不许可所指完整外部作品。文档文字及对应派生/摘录的 ShareAlike 依各自许可传播，不被仓库代码或元数据许可覆盖；不增加限制许可权利的额外条款/技术措施。不包含整站、翻译、真实用户
+    talk thread、所有 revision、模板/skin/JS/CSS/高分辨率母版、外链工具/实体库/数据/代码/引用作品或任意商标、人格、隐私、专利权利。Wikimedia/Wikipedia及相关标志仅在原文解释研究语境保留，不用于本库品牌/封面/宣传、不暗示背书；本
+    UID 未列的作品或媒体不在本包，不声称无限法律保证。旧摘录和 20 个 root selectors 及完整旧 acquisition/rights/history 事实保全，本 grant 不改写旧历史，不提升知识准入。
+  license_restrictions:
+  - Component-specific ShareAlike/attribution and preserved copyright links apply as allocated in NOTICE; trademark/personality/PD
+    jurisdiction scope is not expanded. No additional copyright license restrictions or technical measures imposed.
+  evidence_confidence: high
+  public_redistribution_recommendation: allow_with_packaged_notice
+  conditions:
+  - Keep full component-specific NOTICE, creator/community/history/permalink and license/modification credit; preserve
+    ShareAlike for applicable derived text/selector excerpts; original bytes unchanged.
+  current_capsule_compliance:
+    original_artifact_state: complete
+    text_extraction_state: partial
+    body_quality_verified: false
+    historical_acquisition_and_root_blobs: preserved
+  publication_gate:
+    decision: allow
+    reason: 主线已完整阅读八份固定 HTML、核每页实际许可/正文/信用并目视全部九张正文图；本 UID 按具体文字及各图独立条件与完整 NOTICE 获准公开当前有界表示。旧 metadata-only 与新准入分层，不由域名或旧
+      assumed 授权，不声称底层权利普遍保证。
+    approved_scope: 仅 methodology:wikidata-statement-model 的 2 份列明固定 revision HTML（224829 bytes）与 1 份已逐件审阅的实际正文图表示（113221
+      bytes），以及由这些原件形成的 normalized/document.md、normalized/selectors.jsonl、来源/转换说明和完整 NOTICE；selected version 为 Wikimedia
+      page snapshot at 2026-09-17T00:47:39Z，每页身份/permalink/revision/timestamp/真实 HTML bytes 按 source_bindings 一对一有序绑定。Wikidata:Data
+      model 与 Wikibase/DataModel/Primer 的文档文字及文字改编/selector 摘录为 BY-SA4，Charlie Kritschmar (WMDE) 的 Datamodel in
+      Wikidata 图独立 CC0。复合 SPDX 表达组件集合，实体数据的 CC0 不外推文档文字，图 CC0 不覆盖文档 SA 条件。 原始图片只保留主文实际 src 的表示，各图作者/原作品/实际 URL/许可条件详见本包
+      attribution 与 NOTICE；原已引用的外部短段仅保持政策/帮助文的实际语境，不许可所指完整外部作品。文档文字及对应派生/摘录的 ShareAlike 依各自许可传播，不被仓库代码或元数据许可覆盖；不增加限制许可权利的额外条款/技术措施。不包含整站、翻译、真实用户
+      talk thread、所有 revision、模板/skin/JS/CSS/高分辨率母版、外链工具/实体库/数据/代码/引用作品或任意商标、人格、隐私、专利权利。Wikimedia/Wikipedia及相关标志仅在原文解释研究语境保留，不用于本库品牌/封面/宣传、不暗示背书；本
+      UID 未列的作品或媒体不在本包，不声称无限法律保证。旧摘录和 20 个 root selectors 及完整旧 acquisition/rights/history 事实保全，本 grant 不改写旧历史，不提升知识准入。
+  human_follow_up: null
+  redistribution_package:
+    source_revision: sha256:d399fb257bc4483f18ee20116899f5429e6d0c0d4a0477a5c0e2c500edde7a2b
+    source_version_url: https://www.wikidata.org/w/index.php?title=Wikidata%3AData_model&oldid=2518329379
+    notice_path: raw_data/licenses/p3-wikimedia-html-01-wikidata-statement-model.md
+    attribution: '## 文档归属与版本（attribution and revision）
+
+
+      作者／贡献者：Wikidata contributors；MediaWiki / Wikibase contributors。依照 Wikimedia Terms of Use §7，以下原页、固定版本与历史页面提供全部贡献者的署名入口；不把最后一次编辑者称为唯一作者。
+
+
+      | 文档与本地原件 | 固定 revision／时间 | 原页与署名历史 |
+
+      | --- | --- | --- |
+
+      | Wikidata:Data model — `source/wikidata-data-model.html` | [2518329379](https://www.wikidata.org/w/index.php?title=Wikidata%3AData_model&oldid=2518329379)；2026-07-16T20:34:20Z
+      | [原页](https://www.wikidata.org/wiki/Wikidata:Data_model)；[贡献历史](https://www.wikidata.org/w/index.php?title=Wikidata%3AData_model&action=history)
+      |
+
+      | Wikibase/DataModel/Primer — `source/wikibase-datamodel-primer.html` | [8399774](https://www.mediawiki.org/w/index.php?title=Wikibase%2FDataModel%2FPrimer&oldid=8399774)；2026-05-31T05:57:04Z
+      | [原页](https://www.mediawiki.org/wiki/Wikibase/DataModel/Primer)；[贡献历史](https://www.mediawiki.org/w/index.php?title=Wikibase%2FDataModel%2FPrimer&action=history)
+      |
+
+
+      两篇文档文字及本仓库派生 Markdown／selector 中的文字改编采用 CC-BY-SA-4.0；结构图为独立 CC0-1.0 作品。Wikidata 实体数据的 CC0 不适用于本批 namespace=4
+      的文档文字。
+
+
+      逐页许可依据来自保存原 HTML 的可见正文 notice／footer，而不是域名推断。Help 两页各自明确帮助贡献 CC0；其他页各自 footer 明确文档文字 CC BY-SA4。原页保留的可见声明、引用、来源链接与作者信用继续保留；参考链接不表示其所指作品已另行复制。
+
+
+      ## 正文图片（separate media attribution）
+
+
+      下列文件是该页面原始 `img src` 显示表示的未改字节副本，可能是上游生成的 PNG/JPG 缩略表示；不是 SVG 母版、不是独立的原始高分辨率摄影／绘画扫描。我们不裁剪、不重绘，也不将 PNG 标为 SVG。
+
+
+      | 本地文件／原作标题 | 作者／指定归属 | 许可与文件说明 |
+
+      | --- | --- | --- |
+
+      | `source/assets/wikidata-datamodel.png` — Datamodel in Wikidata.svg | Charlie Kritschmar (WMDE) | CC0-1.0；[具体文件说明](https://www.mediawiki.org/wiki/File:Datamodel_in_Wikidata.svg)；[实际图片响应](https://thumb.wikimedia.org/wikipedia/commons/thumb/a/ae/Datamodel_in_Wikidata.svg/960px-Datamodel_in_Wikidata.svg.png?utm_source=www.mediawiki.org&utm_campaign=parser&utm_content=thumbnail)
+      |'
+    modifications: '原 HTML 与原生图片保持实际响应 bytes，不改写、不裁剪、不重绘、不重导。仅对副本选取 #mw-content-text .mw-parser-output 并执行逐 source 明示的有限
+      DOM 排除；保留实质状态/警告、表/列表/例子、原生代码、署名引用和末尾。HTML→Markdown 的 collector assembly 添加各源题名、来源 anchors、真实源范围 selectors 与有限本地图链接，末尾追加唯一归属/修改/范围附注及
+      ../NOTICE.md。文本状态、正文质量与具体限制以 manifest 为准；原件 complete 不表示图内文字、空间关系或原生排版无损。本次采集和派生未执行来源脚本/表单/示例，这是处理过程说明，不对相应许可证许可的下游用途增加限制。旧
+      root document/selectors 不改，完整旧 manifest 原样保存在 historical_acquisition。'
+    scope: 仅 methodology:wikidata-statement-model 的 2 份列明固定 revision HTML（224829 bytes）与 1 份已逐件审阅的实际正文图表示（113221
+      bytes），以及由这些原件形成的 normalized/document.md、normalized/selectors.jsonl、来源/转换说明和完整 NOTICE；selected version 为 Wikimedia
+      page snapshot at 2026-09-17T00:47:39Z，每页身份/permalink/revision/timestamp/真实 HTML bytes 按 source_bindings 一对一有序绑定。Wikidata:Data
+      model 与 Wikibase/DataModel/Primer 的文档文字及文字改编/selector 摘录为 BY-SA4，Charlie Kritschmar (WMDE) 的 Datamodel in
+      Wikidata 图独立 CC0。复合 SPDX 表达组件集合，实体数据的 CC0 不外推文档文字，图 CC0 不覆盖文档 SA 条件。 原始图片只保留主文实际 src 的表示，各图作者/原作品/实际 URL/许可条件详见本包
+      attribution 与 NOTICE；原已引用的外部短段仅保持政策/帮助文的实际语境，不许可所指完整外部作品。文档文字及对应派生/摘录的 ShareAlike 依各自许可传播，不被仓库代码或元数据许可覆盖；不增加限制许可权利的额外条款/技术措施。不包含整站、翻译、真实用户
+      talk thread、所有 revision、模板/skin/JS/CSS/高分辨率母版、外链工具/实体库/数据/代码/引用作品或任意商标、人格、隐私、专利权利。Wikimedia/Wikipedia及相关标志仅在原文解释研究语境保留，不用于本库品牌/封面/宣传、不暗示背书；本
+      UID 未列的作品或媒体不在本包，不声称无限法律保证。旧摘录和 20 个 root selectors 及完整旧 acquisition/rights/history 事实保全，本 grant 不改写旧历史，不提升知识准入。
+    source_bindings:
+    - source: source/wikidata-data-model.html
+      identity_url: https://www.wikidata.org/wiki/Wikidata:Data_model
+      source_version_url: https://www.wikidata.org/w/index.php?title=Wikidata%3AData_model&oldid=2518329379
+      page_title: Wikidata:Data model
+      page_id: 109922707
+      revision_id: 2518329379
+      revision_timestamp: '2026-07-16T20:34:20Z'
+      source_revision: sha256:d399fb257bc4483f18ee20116899f5429e6d0c0d4a0477a5c0e2c500edde7a2b
+    - source: source/wikibase-datamodel-primer.html
+      identity_url: https://www.mediawiki.org/wiki/Wikibase/DataModel/Primer
+      source_version_url: https://www.mediawiki.org/w/index.php?title=Wikibase%2FDataModel%2FPrimer&oldid=8399774
+      page_title: Wikibase/DataModel/Primer
+      page_id: 210750
+      revision_id: 8399774
+      revision_timestamp: '2026-05-31T05:57:04Z'
+      source_revision: sha256:4d0774eb789c7470ba509bddd5eb8bea73ea4c6673a45db784ef262727512a23
+  not_legal_advice: true
+  human_approval_claimed: false
+- sequence: 103
+  uid: methodology:wikipedia-editorial-governance
+  source_type: methodology
+  title: Wikipedia Editorial Governance
+  manifest_path: materialized_sources/corpus/methodology-wikipedia-editorial-governance--99973b93/manifest.yaml
+  metadata_path: raw_data/methodology/Wikipedia Editorial Governance/metadata.yaml
+  capsule_root: materialized_sources/corpus/methodology-wikipedia-editorial-governance--99973b93
+  stored_full_text_paths:
+  - materialized_sources/corpus/methodology-wikipedia-editorial-governance--99973b93/normalized/document.md
+  baseline_content_tier: excerpt_capsule
+  baseline_status: partial
+  source_revision: sha256:25cc9f136f701b18a7282aaa0d276d0dcff837e674e7870ad551db60fed46fed
+  canonical_url: https://en.wikipedia.org/wiki/Wikipedia:Verifiability
+  observed_rights:
+    license_spdx: CC-BY-SA-4.0 AND CC-BY-SA-3.0
+    license_url: https://creativecommons.org/licenses/by-sa/4.0/
+    license_verified_at: '2026-09-17'
+    access: open
+  evidence:
+  - kind: actual_fixed_revision_page_and_body_media_review
+    url: https://en.wikipedia.org/w/index.php?title=Wikipedia%3AVerifiability&oldid=1373569010
+    notice_path: raw_data/licenses/p3-wikimedia-html-01-wikipedia-editorial-governance.md
+    checked_at: '2026-09-17'
+    finding: Actual per-page revision/response/footer and all necessary body figures reviewed and admitted by main;
+      ordered source_bindings retain all page identities; each media keeps independent attribution/license and bounded
+      conditions in complete NOTICE. Not domain-default licensing or universal legal guarantee.
+    supports_public_redistribution: true
+  missing: []
+  classification: documented_permission
+  license_id: CC-BY-SA-4.0 AND CC-BY-SA-3.0
+  license_url: https://creativecommons.org/licenses/by-sa/4.0/
+  license_scope: 仅 methodology:wikipedia-editorial-governance 的 4 份列明固定 revision HTML（1382512 bytes）与 5 份已逐件审阅的实际正文图表示（138658
+    bytes），以及由这些原件形成的 normalized/document.md、normalized/selectors.jsonl、来源/转换说明和完整 NOTICE；selected version 为 Wikimedia
+    page snapshot at 2026-09-17T00:47:39Z，每页身份/permalink/revision/timestamp/真实 HTML bytes 按 source_bindings 一对一有序绑定。四政策文字及文字改编/selector
+    摘录为 BY-SA4；Consensus（Locke Cole/所据 Kevin Murray）、Scale（Mrmw 和组件来源）、Wales 照片（Victorgrigas）分别选独立 BY-SA3。《星夜》的
+    Van Gogh/Google Arts & Culture/MoMA 为文件页 PD-Art/PDM1.0 声明，显微镜图为 USDA-ARS 美国政府作品，均保留辖区说明，PDM不是CC0或保证。复合 SPDX
+    不统一重许可，Wikimedia/Wikipedia 商标及人物权利不由版权许可授予。 原始图片只保留主文实际 src 的表示，各图作者/原作品/实际 URL/许可条件详见本包 attribution 与 NOTICE；原已引用的外部短段仅保持政策/帮助文的实际语境，不许可所指完整外部作品。文档文字及对应派生/摘录的
+    ShareAlike 依各自许可传播，不被仓库代码或元数据许可覆盖；不增加限制许可权利的额外条款/技术措施。不包含整站、翻译、真实用户 talk thread、所有 revision、模板/skin/JS/CSS/高分辨率母版、外链工具/实体库/数据/代码/引用作品或任意商标、人格、隐私、专利权利。Wikimedia/Wikipedia及相关标志仅在原文解释研究语境保留，不用于本库品牌/封面/宣传、不暗示背书；《星夜》和政府作品的公有领域声明保留相应辖区范围，不声称无限法律保证。旧摘录和
+    120 个 root selectors 及完整旧 acquisition/rights/history 事实保全，本 grant 不改写旧历史，不提升知识准入。
+  license_restrictions:
+  - Component-specific ShareAlike/attribution and preserved copyright links apply as allocated in NOTICE; trademark/personality/PD
+    jurisdiction scope is not expanded. No additional copyright license restrictions or technical measures imposed.
+  evidence_confidence: high
+  public_redistribution_recommendation: allow_with_packaged_notice
+  conditions:
+  - Keep full component-specific NOTICE, creator/community/history/permalink and license/modification credit; preserve
+    ShareAlike for applicable derived text/selector excerpts; original bytes unchanged.
+  current_capsule_compliance:
+    original_artifact_state: complete
+    text_extraction_state: partial
+    body_quality_verified: false
+    historical_acquisition_and_root_blobs: preserved
+  publication_gate:
+    decision: allow
+    reason: 主线已完整阅读八份固定 HTML、核每页实际许可/正文/信用并目视全部九张正文图；本 UID 按具体文字及各图独立条件与完整 NOTICE 获准公开当前有界表示。旧 metadata-only 与新准入分层，不由域名或旧
+      assumed 授权，不声称底层权利普遍保证。
+    approved_scope: 仅 methodology:wikipedia-editorial-governance 的 4 份列明固定 revision HTML（1382512 bytes）与 5 份已逐件审阅的实际正文图表示（138658
+      bytes），以及由这些原件形成的 normalized/document.md、normalized/selectors.jsonl、来源/转换说明和完整 NOTICE；selected version 为 Wikimedia
+      page snapshot at 2026-09-17T00:47:39Z，每页身份/permalink/revision/timestamp/真实 HTML bytes 按 source_bindings 一对一有序绑定。四政策文字及文字改编/selector
+      摘录为 BY-SA4；Consensus（Locke Cole/所据 Kevin Murray）、Scale（Mrmw 和组件来源）、Wales 照片（Victorgrigas）分别选独立 BY-SA3。《星夜》的
+      Van Gogh/Google Arts & Culture/MoMA 为文件页 PD-Art/PDM1.0 声明，显微镜图为 USDA-ARS 美国政府作品，均保留辖区说明，PDM不是CC0或保证。复合 SPDX
+      不统一重许可，Wikimedia/Wikipedia 商标及人物权利不由版权许可授予。 原始图片只保留主文实际 src 的表示，各图作者/原作品/实际 URL/许可条件详见本包 attribution 与 NOTICE；原已引用的外部短段仅保持政策/帮助文的实际语境，不许可所指完整外部作品。文档文字及对应派生/摘录的
+      ShareAlike 依各自许可传播，不被仓库代码或元数据许可覆盖；不增加限制许可权利的额外条款/技术措施。不包含整站、翻译、真实用户 talk thread、所有 revision、模板/skin/JS/CSS/高分辨率母版、外链工具/实体库/数据/代码/引用作品或任意商标、人格、隐私、专利权利。Wikimedia/Wikipedia及相关标志仅在原文解释研究语境保留，不用于本库品牌/封面/宣传、不暗示背书；《星夜》和政府作品的公有领域声明保留相应辖区范围，不声称无限法律保证。旧摘录和
+      120 个 root selectors 及完整旧 acquisition/rights/history 事实保全，本 grant 不改写旧历史，不提升知识准入。
+  human_follow_up: null
+  redistribution_package:
+    source_revision: sha256:25cc9f136f701b18a7282aaa0d276d0dcff837e674e7870ad551db60fed46fed
+    source_version_url: https://en.wikipedia.org/w/index.php?title=Wikipedia%3AVerifiability&oldid=1373569010
+    notice_path: raw_data/licenses/p3-wikimedia-html-01-wikipedia-editorial-governance.md
+    attribution: '## 文档归属与版本（attribution and revision）
+
+
+      作者／贡献者：English Wikipedia contributors。依照 Wikimedia Terms of Use §7，以下原页、固定版本与历史页面提供全部贡献者的署名入口；不把最后一次编辑者称为唯一作者。
+
+
+      | 文档与本地原件 | 固定 revision／时间 | 原页与署名历史 |
+
+      | --- | --- | --- |
+
+      | Wikipedia:Verifiability — `source/verifiability.html` | [1373569010](https://en.wikipedia.org/w/index.php?title=Wikipedia%3AVerifiability&oldid=1373569010)；2026-09-06T17:54:43Z
+      | [原页](https://en.wikipedia.org/wiki/Wikipedia:Verifiability)；[贡献历史](https://en.wikipedia.org/w/index.php?title=Wikipedia%3AVerifiability&action=history)
+      |
+
+      | Wikipedia:Neutral point of view — `source/neutral-point-of-view.html` | [1370393267](https://en.wikipedia.org/w/index.php?title=Wikipedia%3ANeutral_point_of_view&oldid=1370393267)；2026-08-20T21:44:45Z
+      | [原页](https://en.wikipedia.org/wiki/Wikipedia:Neutral_point_of_view)；[贡献历史](https://en.wikipedia.org/w/index.php?title=Wikipedia%3ANeutral_point_of_view&action=history)
+      |
+
+      | Wikipedia:No original research — `source/no-original-research.html` | [1374682589](https://en.wikipedia.org/w/index.php?title=Wikipedia%3ANo_original_research&oldid=1374682589)；2026-09-13T14:12:28Z
+      | [原页](https://en.wikipedia.org/wiki/Wikipedia:No_original_research)；[贡献历史](https://en.wikipedia.org/w/index.php?title=Wikipedia%3ANo_original_research&action=history)
+      |
+
+      | Wikipedia:Consensus — `source/consensus.html` | [1370677546](https://en.wikipedia.org/w/index.php?title=Wikipedia%3AConsensus&oldid=1370677546)；2026-08-22T13:26:30Z
+      | [原页](https://en.wikipedia.org/wiki/Wikipedia:Consensus)；[贡献历史](https://en.wikipedia.org/w/index.php?title=Wikipedia%3AConsensus&action=history)
+      |
+
+
+      四篇政策文字及本仓库派生 Markdown／selector 中的文字改编采用 CC-BY-SA-4.0；独立图片的 BY-SA3／公有领域状态分别保留，不统一重新许可或以文档许可证覆盖图片。
+
+
+      逐页许可依据来自保存原 HTML 的可见正文 notice／footer，而不是域名推断。Help 两页各自明确帮助贡献 CC0；其他页各自 footer 明确文档文字 CC BY-SA4。原页保留的可见声明、引用、来源链接与作者信用继续保留；参考链接不表示其所指作品已另行复制。
+
+
+      ## 正文图片（separate media attribution）
+
+
+      下列文件是该页面原始 `img src` 显示表示的未改字节副本，可能是上游生成的 PNG/JPG 缩略表示；不是 SVG 母版、不是独立的原始高分辨率摄影／绘画扫描。我们不裁剪、不重绘，也不将 PNG 标为 SVG。
+
+
+      | 本地文件／原作标题 | 作者／指定归属 | 许可与文件说明 |
+
+      | --- | --- | --- |
+
+      | `source/assets/consensus-flowchart.png` — Consensus Flowchart.svg | Locke Cole; based upon CCC Flowchart
+      6.jpg by Kevin Murray | CC-BY-SA-3.0 selected from dual license；[具体文件说明](https://en.wikipedia.org/wiki/File:Consensus_Flowchart.svg)；[实际图片响应](https://thumb.wikimedia.org/wikipedia/en/thumb/5/5f/Consensus_Flowchart.svg/330px-Consensus_Flowchart.svg.png?utm_source=en.wikipedia.org&utm_campaign=parser&utm_content=thumbnail)
+      |
+
+      | `source/assets/wikipedia-scale-of-justice.png` — Wikipedia scale of justice.svg | Mrmw (vectorization);
+      referenced logo/scale components retained by attribution link | CC-BY-SA-3.0; Wikimedia trademarks reserved;
+      contextual policy illustration only；[具体文件说明](https://en.wikipedia.org/wiki/File:Wikipedia_scale_of_justice.svg)；[实际图片响应](https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ed/Wikipedia_scale_of_justice.svg/250px-Wikipedia_scale_of_justice.svg.png?utm_source=en.wikipedia.org&utm_campaign=parser&utm_content=thumbnail)
+      |
+
+      | `source/assets/starry-night.jpg` — Van Gogh - Starry Night - Google Art Project.jpg | Vincent van Gogh;
+      Google Arts & Culture reproduction; Museum of Modern Art | Public domain / PD-Art / PDM1.0; retain jurisdiction
+      caveat；[具体文件说明](https://en.wikipedia.org/wiki/File:Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg)；[实际图片响应](https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ea/Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg/250px-Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg?utm_source=en.wikipedia.org&utm_campaign=parser&utm_content=thumbnail)
+      |
+
+      | `source/assets/jimmy-wales4.jpg` — WikiConference India 2011 Jimmy Wales 4.jpg | Victorgrigas | CC-BY-SA-3.0；[具体文件说明](https://en.wikipedia.org/wiki/File:WikiConference_India_2011_Jimmy_Wales_4.jpg)；[实际图片响应](https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a9/WikiConference_India_2011_Jimmy_Wales_4.jpg/250px-WikiConference_India_2011_Jimmy_Wales_4.jpg?utm_source=en.wikipedia.org&utm_campaign=parser&utm_content=thumbnail)
+      |
+
+      | `source/assets/manusingmicroscope.jpg` — Manusingmicroscope.jpg | USDA Agricultural Research Service; photographer
+      not supplied; Quadell original upload / Maksim transfer | Public domain US federal government work; jurisdiction
+      caveat；[具体文件说明](https://en.wikipedia.org/wiki/File:Manusingmicroscope.jpg)；[实际图片响应](https://upload.wikimedia.org/wikipedia/commons/b/b8/Manusingmicroscope.jpg?utm_source=en.wikipedia.org&utm_campaign=parser&utm_content=thumbnail_unscaled)
+      |'
+    modifications: '原 HTML 与原生图片保持实际响应 bytes，不改写、不裁剪、不重绘、不重导。仅对副本选取 #mw-content-text .mw-parser-output 并执行逐 source 明示的有限
+      DOM 排除；保留实质状态/警告、表/列表/例子、原生代码、署名引用和末尾。HTML→Markdown 的 collector assembly 添加各源题名、来源 anchors、真实源范围 selectors 与有限本地图链接，末尾追加唯一归属/修改/范围附注及
+      ../NOTICE.md。NOR/Consensus 仅在原 alt 为 check/X mark 的七次图节点上输出原生语义词，不获取图 bytes、不改原 HTML。文本状态、正文质量与具体限制以 manifest
+      为准；原件 complete 不表示图内文字、空间关系或原生排版无损。本次采集和派生未执行来源脚本/表单/示例，这是处理过程说明，不对相应许可证许可的下游用途增加限制。旧 root document/selectors
+      不改，完整旧 manifest 原样保存在 historical_acquisition。'
+    scope: 仅 methodology:wikipedia-editorial-governance 的 4 份列明固定 revision HTML（1382512 bytes）与 5 份已逐件审阅的实际正文图表示（138658
+      bytes），以及由这些原件形成的 normalized/document.md、normalized/selectors.jsonl、来源/转换说明和完整 NOTICE；selected version 为 Wikimedia
+      page snapshot at 2026-09-17T00:47:39Z，每页身份/permalink/revision/timestamp/真实 HTML bytes 按 source_bindings 一对一有序绑定。四政策文字及文字改编/selector
+      摘录为 BY-SA4；Consensus（Locke Cole/所据 Kevin Murray）、Scale（Mrmw 和组件来源）、Wales 照片（Victorgrigas）分别选独立 BY-SA3。《星夜》的
+      Van Gogh/Google Arts & Culture/MoMA 为文件页 PD-Art/PDM1.0 声明，显微镜图为 USDA-ARS 美国政府作品，均保留辖区说明，PDM不是CC0或保证。复合 SPDX
+      不统一重许可，Wikimedia/Wikipedia 商标及人物权利不由版权许可授予。 原始图片只保留主文实际 src 的表示，各图作者/原作品/实际 URL/许可条件详见本包 attribution 与 NOTICE；原已引用的外部短段仅保持政策/帮助文的实际语境，不许可所指完整外部作品。文档文字及对应派生/摘录的
+      ShareAlike 依各自许可传播，不被仓库代码或元数据许可覆盖；不增加限制许可权利的额外条款/技术措施。不包含整站、翻译、真实用户 talk thread、所有 revision、模板/skin/JS/CSS/高分辨率母版、外链工具/实体库/数据/代码/引用作品或任意商标、人格、隐私、专利权利。Wikimedia/Wikipedia及相关标志仅在原文解释研究语境保留，不用于本库品牌/封面/宣传、不暗示背书；《星夜》和政府作品的公有领域声明保留相应辖区范围，不声称无限法律保证。旧摘录和
+      120 个 root selectors 及完整旧 acquisition/rights/history 事实保全，本 grant 不改写旧历史，不提升知识准入。
+    source_bindings:
+    - source: source/verifiability.html
+      identity_url: https://en.wikipedia.org/wiki/Wikipedia:Verifiability
+      source_version_url: https://en.wikipedia.org/w/index.php?title=Wikipedia%3AVerifiability&oldid=1373569010
+      page_title: Wikipedia:Verifiability
+      page_id: 3961892
+      revision_id: 1373569010
+      revision_timestamp: '2026-09-06T17:54:43Z'
+      source_revision: sha256:25cc9f136f701b18a7282aaa0d276d0dcff837e674e7870ad551db60fed46fed
+    - source: source/neutral-point-of-view.html
+      identity_url: https://en.wikipedia.org/wiki/Wikipedia:Neutral_point_of_view
+      source_version_url: https://en.wikipedia.org/w/index.php?title=Wikipedia%3ANeutral_point_of_view&oldid=1370393267
+      page_title: Wikipedia:Neutral point of view
+      page_id: 39805
+      revision_id: 1370393267
+      revision_timestamp: '2026-08-20T21:44:45Z'
+      source_revision: sha256:719d2a3920ea445ac4db67de8b2cd436fe05a0b5b6b651f12edcff7405634c1e
+    - source: source/no-original-research.html
+      identity_url: https://en.wikipedia.org/wiki/Wikipedia:No_original_research
+      source_version_url: https://en.wikipedia.org/w/index.php?title=Wikipedia%3ANo_original_research&oldid=1374682589
+      page_title: Wikipedia:No original research
+      page_id: 410235
+      revision_id: 1374682589
+      revision_timestamp: '2026-09-13T14:12:28Z'
+      source_revision: sha256:ca1cb2493d63baa8fff77b1fc7275b0f48178f340ba3baa96e757b43c51d0216
+    - source: source/consensus.html
+      identity_url: https://en.wikipedia.org/wiki/Wikipedia:Consensus
+      source_version_url: https://en.wikipedia.org/w/index.php?title=Wikipedia%3AConsensus&oldid=1370677546
+      page_title: Wikipedia:Consensus
+      page_id: 805445
+      revision_id: 1370677546
+      revision_timestamp: '2026-08-22T13:26:30Z'
+      source_revision: sha256:ffe0f9fa75f2fb79d0667fe5990a211e75c33ab797fe7b25055f06c5d9671e8d
+  not_legal_advice: true
+  human_approval_claimed: false

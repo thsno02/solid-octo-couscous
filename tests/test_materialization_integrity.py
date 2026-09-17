@@ -71,6 +71,322 @@ def minimal_text_pdf(text: str = "Readable arXiv PDF regression evidence for the
 
 class RetainedMarkdownTests(unittest.TestCase):
     @contextlib.contextmanager
+    def _wiki_html_capsule(self, *, page_count: int = 2, semantic_markers: bool = False, authored_edit: bool = False):
+        with self._dated_html_capsule() as (root, record, _, asset, document, manifest):
+            capsule = record.capsule_root
+            pages = []
+            bindings = []
+            asset_reference = "//thumb.wikimedia.org/wikipedia/commons/fixture.svg?utm_source=www.mediawiki.org&utm_content=thumbnail"
+            marker_src = {
+                "check": "//thumb.wikimedia.org/wikipedia/en/thumb/f/fb/Yes_check.svg/20px-Yes_check.svg.png?utm_source=en.wikipedia.org&utm_campaign=parser&utm_content=thumbnail",
+                "X mark": "//thumb.wikimedia.org/wikipedia/commons/thumb/a/a2/X_mark.svg/20px-X_mark.svg.png?utm_source=en.wikipedia.org&utm_campaign=parser&utm_content=thumbnail",
+            }
+            for index in range(1, page_count + 1):
+                title = f"Help:Topic {index}"
+                page_id, revision_id = 100 + index, 200 + index
+                identity = f"https://www.mediawiki.org/wiki/Help:Topic_{index}"
+                approved = f"https://www.mediawiki.org/w/index.php?title=Help%3ATopic_{index}&oldid={revision_id}"
+                source = capsule / f"source/page-{index}.html"
+                configuration = json.dumps({"wgRevisionId": revision_id, "wgArticleId": page_id, "wgPageName": title.replace(" ", "_")})
+                source.write_bytes("\r\n".join([
+                    '<html><head><script>mw.config.set(' + configuration + ');</script></head><body>',
+                    '<nav>SHELL_NAV_NOT_BODY</nav><div id="mw-content-text"><div class="mw-parser-output">',
+                    '<div class="mw-pt-languages">UI_LANGUAGE_LINKS</div>',
+                    f'<p>Opening prose for PAGE_{index} documents the declared revision and source boundary with sufficient context for a continuous derived excerpt.</p>',
+                    '<table class="ombox"><tr><td class="mbox-image"><img src="//example.test/information.svg" alt=""></td><td>INFORMATION_STATUS must remain: this information page is not a policy.</td></tr></table>',
+                    '<table class="ombox"><tr><td class="mbox-image"><img src="//example.test/information.svg" alt=""></td><td>SUBPROPERTY_WARNING remains important for consumption.</td></tr></table>',
+                    f'<h2 id="same">Chapter PAGE_{index}' + ('' if authored_edit else '<span class="mw-editsection">UI_EDIT_LINK</span>') + '</h2>',
+                    '<p>Logical implication P<sub>1</sub> ⇒ P<sub>2</sub> and x<sup>2</sup> remain explicit.</p>',
+                    '<dl><dt>TERM</dt><dd>DEFINITION</dd></dl>',
+                    '<div style="border: 1px solid"><p>EXAMPLE_ENTITY</p><table><tr><td>PROPERTY</td><td rowspan="2">VALUE</td></tr><tr><td>QUALIFIER</td><td></td></tr></table><p>EXAMPLE_REFERENCE</p></div>',
+                    '<pre>literal {% template %}<br>&nbsp;continuation\n\n# Fake code heading\nThis code example makes a long but unsupported assertion and must never become an automatic prose excerpt.</pre>',
+                    *(['<table><tr><th>Wiki text</th><th>Rendered talk page</th></tr><tr><td><pre>==Soup==\nIt\'s great!! --[[User:Example|Bob]]\n: reply --[[User:Example|Simon]]\n:: reply --[[User:Example|Lisa]]\n</pre></td><td>Soup <span class="mw-editsection">[edit]</span><p>Bob 12:34</p><dl><dd>Simon 12:35<dl><dd>Lisa 12:36</dd></dl></dd></dl><span class="ext-discussiontools-init-replylink-buttons">DYNAMIC_REPLY_CONTROL</span></td></tr></table>',
+                        '<div class="usermessage">AUTHORED_USERMESSAGE</div><div style="background:yellow">updated since your last visit</div>'] if authored_edit else []),
+                    *([f'<div class="quotebox"><blockquote>EXAMPLE_{index}_{number}: ' + ('Desired outcome' if fallback == 'Y' else 'Impermissible') + f'</blockquote><img src="{marker_src["check" if fallback == "Y" else "X mark"]}" alt="{"check" if fallback == "Y" else "X mark"}"><span style="display:none">{fallback}</span></div>'
+                       for number, fallback in enumerate(('N', 'N', 'Y', 'N') if index == 1 else ('Y', 'Y', 'N'), 1)] if semantic_markers else []),
+                    f'<figure><img src="{asset_reference}" alt="Important graph"><figcaption>Original figure caption.</figcaption></figure>',
+                    '<h3 id="end">Final section</h3><p>Final actual page text and reference support are retained.</p>',
+                    '</div></div><footer>SHELL_FOOTER_NOT_BODY</footer></body></html>', '',
+                ]).encode())
+                pages.append(source)
+                bindings.append({
+                    "source": source.relative_to(capsule).as_posix(), "identity_url": identity,
+                    "source_version_url": approved, "page_title": title, "page_id": page_id,
+                    "revision_id": revision_id, "revision_timestamp": "2026-08-01T00:00:00Z",
+                    "source_revision": "sha256:" + materializer.sha256_file(source),
+                })
+            version = "Wikimedia page snapshot at 2026-09-17T00:47:39Z"
+            package = {**manifest["rights"]["redistribution_package"],
+                "source_revision": bindings[0]["source_revision"], "source_version_url": bindings[0]["source_version_url"],
+                "source_bindings": bindings, "scope": "Declared wiki page HTML, derived text and one retained graph.",
+                "modifications": "Finite UI exclusions and static structural HTML representation; saved originals unchanged.",
+            }
+            record.metadata.update({"source_urls": [binding["identity_url"] for binding in bindings], "full_text_url": package["source_version_url"],
+                "versioning": {"source_version": version, "snapshot_commit": None}})
+            record.metadata["rights"]["redistribution_package"] = package
+            materializer.write_yaml(record.metadata_path, record.metadata)
+            materializer.write_yaml(capsule / "source-metadata.yaml", record.metadata)
+            manifest.update({"revision": package["source_revision"], "source_version": version})
+            manifest["rights"]["redistribution_package"] = package
+            manifest["materialization"].update({
+                "retained_text_binding": "wiki_page_revision_set",
+                "retained_text_sources": [{"source": binding["source"], "format": "html", "content_selector": "#mw-content-text .mw-parser-output",
+                    "exclude_selectors": [".mw-pt-languages", "td.mbox-image img"] + ([".ext-discussiontools-init-replylink-buttons"] if authored_edit else [".mw-editsection"]),
+                    **({"image_text_alternatives": {src: alt for alt, src in marker_src.items()}} if semantic_markers else {})} for binding in bindings],
+                "link_rewrites": {asset_reference: "../source/assets/img/figure.svg"},
+            })
+            manifest["retrievals"] = [{
+                "local_path": binding["source"], "requested_url": binding["source_version_url"], "resolved_url": binding["source_version_url"],
+                "sha256": materializer.sha256_file(source), "bytes": source.stat().st_size, "http_status": 200,
+                "content_type": "text/html; charset=UTF-8", "retrieved_at": "2026-09-17T00:52:08Z",
+            } for source, binding in zip(pages, bindings)] + [{
+                "local_path": asset.relative_to(capsule).as_posix(), "requested_url": "https:" + asset_reference,
+                "resolved_url": "https:" + asset_reference, "sha256": materializer.sha256_file(asset), "bytes": asset.stat().st_size,
+                "http_status": 200, "content_type": "image/svg+xml", "retrieved_at": "2026-09-17T00:52:08Z",
+            }]
+            manifest["local_files"] = materializer.local_file_inventory(capsule)
+            materializer.write_yaml(capsule / "manifest.yaml", manifest)
+            materializer.write_yaml(root / "raw_data/audits/materialization_rights_review.yaml", {"items": [{
+                "uid": record.uid, "manifest_path": (capsule / "manifest.yaml").relative_to(root).as_posix(),
+                "source_revision": manifest["revision"], "redistribution_package": package, "publication_gate": {"decision": "allow"},
+            }]})
+            yield root, record, pages, asset, document, manifest
+
+    def test_wiki_revision_set_two_and_four_page_offline_replay_preserves_history_and_body(self) -> None:
+        for page_count in (2, 4):
+            with self.subTest(page_count=page_count), self._wiki_html_capsule(page_count=page_count) as (root, record, pages, asset, document, manifest), mock.patch.object(
+                materializer, "fetch_bytes", side_effect=AssertionError("wiki replay must not fetch"),
+            ), mock.patch.object(materializer, "prepare_capsule", side_effect=AssertionError("wiki replay must preserve the legacy capsule")):
+                preserved = {path: path.read_bytes() for path in (*pages, asset, record.capsule_root / "document.md", record.capsule_root / "selectors.jsonl")}
+                history = json.dumps(manifest["historical_acquisition"], sort_keys=True)
+                materializer.replay_retained_text_sources(record, manifest, "fixed-time", check_derived=False)
+                first = {path.relative_to(record.capsule_root): path.read_bytes() for path in record.capsule_root.rglob("*") if path.is_file()}
+                for executor in (materializer.materialize_generic, materializer.materialize_one):
+                    replayed = executor(record, {}, "fixed-time")
+                    self.assertEqual({path.relative_to(record.capsule_root): path.read_bytes() for path in record.capsule_root.rglob("*") if path.is_file()}, first)
+                    self.assertEqual(json.dumps(replayed["historical_acquisition"], sort_keys=True), history)
+                self.assertEqual({path: path.read_bytes() for path in preserved}, preserved)
+                text = document.read_bytes().decode()
+                rows = [json.loads(line) for line in (record.capsule_root / "normalized/selectors.jsonl").read_text().splitlines()]
+                self.assertEqual(replayed["materialization"]["selector_count"], 1 + len(rows))
+                self.assertEqual({row["derived_from"] for row in rows}, {path.relative_to(root).as_posix() for path in pages})
+                self.assertEqual([text.index(f"Opening prose for PAGE_{index}") for index in range(1, page_count + 1)], sorted(text.index(f"Opening prose for PAGE_{index}") for index in range(1, page_count + 1)))
+                for index in range(1, page_count + 1):
+                    self.assertIn(f'id="page-{index}-same"', text)
+                for word in ("SHELL_NAV_NOT_BODY", "SHELL_FOOTER_NOT_BODY", "UI_LANGUAGE_LINKS", "UI_EDIT_LINK", "information.svg"):
+                    self.assertNotIn(word, text)
+                for word in ("INFORMATION_STATUS", "SUBPROPERTY_WARNING", "EXAMPLE_ENTITY", "EXAMPLE_REFERENCE"):
+                    self.assertEqual(text.count(word), page_count)
+                self.assertIn("P<sub>1</sub> ⇒ P<sub>2</sub> and x<sup>2</sup>", text)
+                self.assertIn("<dt>\nTERM\n</dt>", text)
+                self.assertIn("<dd>\nDEFINITION\n</dd>", text)
+                self.assertIn("VALUE [rowspan=2]", text)
+                self.assertIn("```\nliteral {% template %}\n\u00a0continuation\n\n# Fake code heading", text)
+                self.assertEqual(text.count("![Important graph](../source/assets/img/figure.svg)"), page_count)
+                errors = []
+                validator.validate_retained_markdown_binding(replayed, record.capsule_root, {path.relative_to(root).as_posix(): materializer.sha256_file(path) for path in pages}, errors, repository_root=root)
+                self.assertEqual(errors, [])
+
+    def test_wiki_failed_preflight_is_failclosed_through_wrapper_and_executor(self) -> None:
+        changes = ("wrong-oldid", "missing-page", "missing-original", "missing-binding", "source-order", "canonical-vector", "capsule-vector", "snapshot", "inventory", "retrieval", "page-bytes", "actual-revision", "actual-page-id", "actual-title", "sidecar", "wrong-pair", "unknown-ui", "asset-drift", "package", "legacy")
+        for change in changes:
+            with self.subTest(change=change), self._wiki_html_capsule() as (root, record, pages, asset, _, manifest):
+                materializer.replay_retained_text_sources(record, manifest, "fixed-time", check_derived=False)
+                manifest = materializer.load_yaml(record.capsule_root / "manifest.yaml")
+                if change == "wrong-oldid":
+                    manifest["rights"]["redistribution_package"]["source_bindings"][1]["source_version_url"] += "0"
+                elif change == "missing-page":
+                    manifest["materialization"]["retained_text_sources"].pop()
+                elif change == "missing-original":
+                    pages[1].unlink()
+                elif change == "missing-binding":
+                    manifest["rights"]["redistribution_package"]["source_bindings"].pop()
+                elif change == "source-order":
+                    manifest["materialization"]["retained_text_sources"].reverse()
+                elif change in {"canonical-vector", "snapshot"}:
+                    if change == "snapshot":
+                        record.metadata["versioning"]["snapshot_commit"] = "a" * 40
+                    else:
+                        record.metadata["source_urls"].pop()
+                    materializer.write_yaml(record.metadata_path, record.metadata)
+                elif change == "capsule-vector":
+                    metadata = materializer.load_yaml(record.capsule_root / "source-metadata.yaml")
+                    metadata["source_urls"].reverse()
+                    materializer.write_yaml(record.capsule_root / "source-metadata.yaml", metadata)
+                elif change == "inventory":
+                    manifest["local_files"] = [row for row in manifest["local_files"] if row["path"] != pages[1].relative_to(root).as_posix()]
+                elif change == "retrieval":
+                    manifest["retrievals"][1]["resolved_url"] += "&unknown=yes"
+                elif change in {"page-bytes", "actual-revision", "actual-page-id", "actual-title"}:
+                    alterations = {
+                        "actual-revision": (b'"wgRevisionId": 202', b'"wgRevisionId": 999'),
+                        "actual-page-id": (b'"wgArticleId": 102', b'"wgArticleId": 999'),
+                        "actual-title": (b'"wgPageName": "Help:Topic_2"', b'"wgPageName": "Help:Wrong_page"'),
+                    }
+                    pages[1].write_bytes(pages[1].read_bytes().replace(*alterations[change]) if change in alterations else pages[1].read_bytes() + b"drift")
+                    if change in alterations:
+                        # All package/inventory mirrors agree on the new bytes; only actual page identity is false.
+                        source_hash = materializer.sha256_file(pages[1])
+                        manifest["rights"]["redistribution_package"]["source_bindings"][1]["source_revision"] = "sha256:" + source_hash
+                        manifest["retrievals"][1].update({"sha256": source_hash, "bytes": pages[1].stat().st_size})
+                        manifest["local_files"] = materializer.local_file_inventory(record.capsule_root)
+                elif change == "sidecar":
+                    (record.capsule_root / "normalized/selectors.jsonl").unlink()
+                elif change == "wrong-pair":
+                    manifest["materialization"]["document"] = "document.md"
+                elif change == "unknown-ui":
+                    manifest["materialization"]["retained_text_sources"][0]["exclude_selectors"] = ["table"]
+                elif change == "asset-drift":
+                    asset.write_bytes(asset.read_bytes() + b"drift")
+                elif change == "package":
+                    manifest["rights"]["redistribution_package"]["scope"] = "Not independently reviewed"
+                else:
+                    (record.capsule_root / "document.md").write_bytes(b"Changed historical excerpt")
+                if change in {"wrong-oldid", "missing-binding", "actual-revision", "actual-page-id", "actual-title"}:
+                    package = manifest["rights"]["redistribution_package"]
+                    record.metadata["rights"]["redistribution_package"] = package
+                    materializer.write_yaml(record.metadata_path, record.metadata)
+                    materializer.write_yaml(record.capsule_root / "source-metadata.yaml", record.metadata)
+                    audit = root / "raw_data/audits/materialization_rights_review.yaml"
+                    review = materializer.load_yaml(audit)
+                    review["items"][0]["redistribution_package"] = package
+                    materializer.write_yaml(audit, review)
+                materializer.write_yaml(record.capsule_root / "manifest.yaml", manifest)
+                before = {path.relative_to(root): path.read_bytes() for path in root.rglob("*") if path.is_file()}
+                with mock.patch.object(materializer, "fetch_bytes") as fetch, mock.patch.object(materializer, "prepare_capsule") as prepare, mock.patch.object(materializer, "finalize_capsule") as finalize:
+                    for executor in (materializer.materialize_generic, materializer.materialize_one):
+                        with self.assertRaises(materializer.RetainedMarkdownPreflightError):
+                            executor(record, {}, "fixed-time")
+                        self.assertEqual({path.relative_to(root): path.read_bytes() for path in root.rglob("*") if path.is_file()}, before)
+                    fetch.assert_not_called()
+                    prepare.assert_not_called()
+                    finalize.assert_not_called()
+
+    def test_wiki_authored_edit_table_literal_nested_dd_and_policy_seven_alts_remain(self) -> None:
+        with self._wiki_html_capsule(semantic_markers=True, authored_edit=True) as (root, record, pages, _, document, manifest), mock.patch.object(materializer, "fetch_bytes", side_effect=AssertionError("no marker GET")), mock.patch.object(materializer, "prepare_capsule", side_effect=AssertionError("no clearing")):
+            originals = {path: path.read_bytes() for path in pages}
+            materializer.replay_retained_text_sources(record, manifest, "fixed-time", check_derived=False)
+            text = document.read_bytes().decode()
+            self.assertEqual(text.count("[edit]"), 2)
+            self.assertNotIn("DYNAMIC_REPLY_CONTROL", text)
+            self.assertEqual(text.count("AUTHORED_USERMESSAGE"), 2)
+            self.assertEqual(text.count("updated since your last visit"), 2)
+            self.assertIn("\n```\n==Soup==\nIt's great!! --[[User:Example|Bob]]\n: reply --[[User:Example|Simon]]\n:: reply --[[User:Example|Lisa]]\n```\n", text)
+            self.assertIn("Collector table row: cell blocks remain in original order.", text)
+            self.assertEqual(text.count("Simon 12:35"), 2)
+            self.assertEqual(text.count("Lisa 12:36"), 2)
+            self.assertIn("<dd>\nSimon 12:35\n\n<dl>\n\n\n<dd>\nLisa 12:36\n</dd>", text)
+            self.assertEqual(text.count("Collector-rendered source image alt: check"), 3)
+            self.assertEqual(text.count("Collector-rendered source image alt: X mark"), 4)
+            self.assertEqual(text.count("Desired outcome"), 3)
+            self.assertEqual(text.count("Impermissible"), 4)
+            self.assertEqual(re.findall(r"utm_content=thumbnail\)([YN])", text), list("NNYNYYN"))
+            self.assertEqual({path: path.read_bytes() for path in pages}, originals)
+            rows = [json.loads(line) for line in (record.capsule_root / "normalized/selectors.jsonl").read_text().splitlines()]
+            self.assertTrue(all("exact source alt, not OCR" in row["transformation"] for row in rows))
+
+    def test_wiki_image_alt_declarations_are_exact_finite_observed_and_not_local_routes(self) -> None:
+        for change in ("wrong-alt", "empty-alt", "absent-src", "both-routes", "non-marker", "undeclared", "bad-type"):
+            with self.subTest(change=change), self._wiki_html_capsule(semantic_markers=True) as (root, record, pages, _, _, manifest):
+                materializer.replay_retained_text_sources(record, manifest, "fixed-time", check_derived=False)
+                manifest = materializer.load_yaml(record.capsule_root / "manifest.yaml")
+                item = manifest["materialization"]["retained_text_sources"][0]
+                alternatives = item["image_text_alternatives"]
+                reference = next(iter(alternatives))
+                if change == "wrong-alt":
+                    alternatives[reference] = "Unverified model text"
+                elif change == "empty-alt":
+                    alternatives[reference] = ""
+                elif change == "absent-src":
+                    alternatives[reference.replace("utm_campaign=parser", "utm_campaign=other")] = alternatives.pop(reference)
+                elif change == "both-routes":
+                    manifest["materialization"]["link_rewrites"][reference] = "../source/assets/img/figure.svg"
+                elif change == "non-marker":
+                    alternatives["//thumb.wikimedia.org/important-diagram.png"] = "Important graph"
+                elif change == "undeclared":
+                    item.pop("image_text_alternatives")
+                else:
+                    item["image_text_alternatives"] = 7
+                materializer.write_yaml(record.capsule_root / "manifest.yaml", manifest)
+                before = {path.relative_to(root): path.read_bytes() for path in root.rglob("*") if path.is_file()}
+                with mock.patch.object(materializer, "fetch_bytes") as fetch, mock.patch.object(materializer, "prepare_capsule") as prepare, mock.patch.object(materializer, "finalize_capsule") as finalize:
+                    with self.assertRaises(materializer.RetainedMarkdownPreflightError):
+                        materializer.materialize_one(record, {}, "fixed-time")
+                    errors = []
+                    validator.validate_retained_markdown_binding(manifest, record.capsule_root, {path.relative_to(root).as_posix(): materializer.sha256_file(path) for path in pages}, errors, repository_root=root, check_derived=False)
+                    self.assertTrue(errors)
+                    fetch.assert_not_called()
+                    prepare.assert_not_called()
+                    finalize.assert_not_called()
+                self.assertEqual({path.relative_to(root): path.read_bytes() for path in root.rglob("*") if path.is_file()}, before)
+
+    def test_wiki_source_heading_spans_precede_real_atx_titles_and_nested_lists_are_indented(self) -> None:
+        from bs4 import BeautifulSoup
+        from importlib.util import module_from_spec, spec_from_file_location
+        demo = REPOSITORY_ROOT / "experiments/v0_meta_kb_initialization_demo_260910/pipeline/build_demo.py"
+        sys.path.insert(0, str(demo.parent))
+        spec = spec_from_file_location("wiki_heading_excerpt_regression", demo)
+        consumer = module_from_spec(spec)
+        spec.loader.exec_module(consumer)
+        # Actual Wikidata opening prose and the actual Wikipedia hatnote class shape;
+        # the small body/list below is an isolated structural fixture, not a full-page PASS.
+        actual_paragraph = 'The property used in a statement determines both the meaning of the statement (i.e. the nature of the relationship between the subject and the object), as well as which values may be used, as specified by its data type.'
+        raw = "\n".join([
+            '<html><body><div id="mw-content-text"><div class="mw-parser-output">',
+            '<div class="hatnote navigation-not-searchable" id="redirect"><span id="redirect-inner"></span>"WP:V" and "WP:PROOF" redirect here. For discussing particular sources, see <a href="https://en.wikipedia.org/wiki/Wikipedia:Reliable_sources/Noticeboard">Wikipedia:Reliable sources/Noticeboard</a>.</div>',
+            '<h2 id="Three_levels"><span id="h-Three_levels"></span>Three levels of data models</h2>',
+            '<p>' + actual_paragraph + '</p>',
+            '<table class="ombox"><tr><td>ORIGINAL_POLICY_STATUS</td></tr></table><table class="nutshell"><tr><td>ORIGINAL_NUTSHELL</td></tr></table><div class="quotebox"><blockquote>ORIGINAL_QUOTATION_WITH_CREDIT</blockquote></div>',
+            '<h3 id="Data_model"><span id="h-Data_model"></span>Data model with <a id="title-link" href="#Three_levels">linked title</a></h3>',
+            '<ol><li>Item<ol><li>id</li><li>Fingerprint<ol><li>Multilingual label</li><li>Multilingual description</li><li>Aliases</li></ol></li><li>Statements<ol><li>Claim<ol><li>Property</li><li>Value</li></ol></li><li>References</li><li>Rank</li></ol></li></ol></li></ol>',
+            '<h2><span id="h-Summary"></span>Summary</h2><p>Final actual model prose.</p>',
+            '</div></div></body></html>', '',
+        ])
+        with tempfile.TemporaryDirectory() as temporary, mock.patch.object(materializer, "ROOT", Path(temporary)):
+            root = Path(temporary)
+            source = root / "capsule/source/primer.html"
+            source.parent.mkdir(parents=True)
+            source.write_bytes(raw.encode())
+            document = root / "capsule/normalized/document.md"
+            options = {source.resolve(): {"wiki_page_revision_set": True, "content_selector": "#mw-content-text .mw-parser-output", "page_title": "Wikibase/DataModel/Primer", "source_url": "https://www.mediawiki.org/w/index.php?title=Wikibase%2FDataModel%2FPrimer&oldid=123"}}
+            rows = materializer.derive_retained_text_sources([(source, "html")], document, {}, source_options=options)
+            text = document.read_bytes().decode()
+            self.assertIn('<a id="primer-h-Three_levels"></a>\n## Three levels of data models\n', text)
+            self.assertIn('<a id="primer-h-Summary"></a>\n## Summary\n', text)
+            self.assertNotRegex(text, r'(?m)^#{1,6}\s+<a\s')
+            for name in ("Three_levels", "h-Three_levels", "Data_model", "h-Data_model", "title-link", "h-Summary"):
+                self.assertEqual(text.count(f'<a id="primer-{name}"></a>'), 1)
+            self.assertIn('### Data model with [linked title](#primer-Three_levels)', text)
+            self.assertEqual([row["text_preview"] for row in rows if row.get('heading')], ['## Three levels of data models', '### Data model with [linked title](#primer-Three_levels)', '## Summary'])
+            self.assertIn('\n1. Item\n', text)
+            self.assertIn('\n    1. id\n', text)
+            self.assertIn('\n    2. Fingerprint\n', text)
+            self.assertIn('\n        1. Multilingual label\n', text)
+            self.assertIn('\n        1. Claim\n', text)
+            self.assertIn('\n            2. Value\n', text)
+            self.assertIn('> Collector source role: hatnote (original text and links follow).', text)
+            self.assertIn('> "WP:V" and "WP:PROOF" redirect here. For discussing particular sources, see [Wikipedia:Reliable sources/Noticeboard](https://en.wikipedia.org/wiki/Wikipedia:Reliable_sources/Noticeboard).', text)
+            for anchor_name in ('redirect', 'redirect-inner'):
+                self.assertEqual(text.count(f'<a id="primer-{anchor_name}"></a>'), 1)
+            for original in ('ORIGINAL_POLICY_STATUS', 'ORIGINAL_NUTSHELL', 'ORIGINAL_QUOTATION_WITH_CREDIT'):
+                self.assertEqual(text.count(original), 1)
+                self.assertNotIn('> ' + original, text)
+            result = consumer.source_excerpt(text, "Wikibase/DataModel/Primer", reading_view=True, wiki_page_revision_set=True)
+            self.assertEqual(result[0], actual_paragraph)
+            self.assertNotIn('<a ', result[0])
+            self.assertNotIn('##', result[0])
+            self.assertIn(result[0], ' '.join('\n'.join(text.splitlines()[result[1]-1:result[2]]).split()))
+            self.assertEqual(source.read_bytes(), raw.encode())
+            # No opt-in: the old heading/span and two-space list behavior remain byte-identical.
+            body = BeautifulSoup(raw, 'html.parser').body
+            sections = materializer.retained_html_sections(source.resolve(), document.resolve(), {source.resolve(): (body, 'primer', {'Three_levels'})}, {}, '')
+            legacy = ''.join(section['text'] for section in sections)
+            self.assertIn('## <a id="primer-h-Three_levels"></a>\nThree levels of data models', legacy)
+            self.assertIn('\n  1. id\n', legacy)
+            self.assertNotIn('Collector source role: hatnote', legacy)
+            self.assertEqual(consumer.source_excerpt(actual_paragraph, 'Legacy reading view', reading_view=True)[0], actual_paragraph.split('i.e.')[0] + 'i.e.')
+
+    @contextlib.contextmanager
     def _dated_html_capsule(self, *, unretained: bool = False):
         with self._retained_capsule() as (root, record, _, _, asset, document):
             document.unlink()

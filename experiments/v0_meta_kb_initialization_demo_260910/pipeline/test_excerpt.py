@@ -77,6 +77,57 @@ class ExcerptTests(unittest.TestCase):
         self.assertTrue(result[0].startswith("This dated specification"))
         self.assert_located(text, result)
 
+    def test_wiki_revision_set_consumer_is_paired_and_uses_html_reading_boundaries(self):
+        actual = "This documentation explains a stable revision boundary and preserves the surrounding source context so readers can verify the retained method locally."
+        hidden = "This literal teaching example claims that the system always returns a correct answer for every possible question without any validation."
+        text = ("# Retained wiki page revision set (collector assembly)\n\n> Collector snapshot label is not source prose.\n\n"
+                "```\n==Soup==\n\n# Fake source heading\n\n" + hidden + "\n```\n\n"
+                '<a id="page-1-same"></a>\n\n## Real source chapter\n\n' + actual + "\n")
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            capsule = root / "materialized_sources/corpus/example"
+            (capsule / "normalized").mkdir(parents=True)
+            legacy = capsule / "document.md"
+            legacy.write_bytes(b"Historical bounded text remains unchanged.\r\n")
+            (capsule / "selectors.jsonl").write_bytes(b'{"selector":"historical"}\n')
+            document = capsule / "normalized/document.md"
+            document.write_text(text)
+            sidecar = capsule / "normalized/selectors.jsonl"
+            sidecar.write_text('{"selector":"derived"}\n')
+            manifest = {"selectors": ["selectors.jsonl", "normalized/selectors.jsonl"], "materialization": {
+                "retained_text_binding": "wiki_page_revision_set", "document": "normalized/document.md", "normalized_document": "normalized/document.md",
+                "retained_text_selectors": "normalized/selectors.jsonl", "retained_text_sources": [{"source": f"source/page-{number}.html", "format": "html", "content_selector": "#mw-content-text .mw-parser-output"} for number in (1, 2)],
+            }}
+            item = {"manifest": "materialized_sources/corpus/example/manifest.yaml"}
+            with mock.patch.object(build_demo, "ROOT", root):
+                self.assertEqual(choose_local_document(item, manifest), document)
+                self.assertEqual(choose_local_selectors(item, manifest), sidecar)
+                result = source_excerpt(text, "Wiki documentation", reading_view=True, wiki_page_revision_set=True)
+                self.assertEqual(result[0], actual)
+                self.assert_located(text, result)
+                sidecar.unlink()
+                for chooser in (choose_local_document, choose_local_selectors):
+                    with self.assertRaises(ValueError):
+                        chooser(item, manifest)
+            self.assertEqual(legacy.read_bytes(), b"Historical bounded text remains unchanged.\r\n")
+
+    def test_wiki_excerpt_takes_only_complete_bounded_paragraphs_and_keeps_legacy_sentence_output(self):
+        actual = 'The property used in a statement determines both the meaning of the statement (i.e. the nature of the relationship between the subject and the object), as well as which values may be used, as specified by its data type.'
+        text = '## Original chapter\n\n' + actual + '\n'
+        result = source_excerpt(text, 'Wiki documentation', reading_view=True, wiki_page_revision_set=True)
+        self.assertEqual(result[0], actual)
+        self.assert_located(text, result)
+        self.assertEqual(source_excerpt(text, 'Legacy view', reading_view=True)[0], actual.split('i.e.')[0] + 'i.e.')
+        oversized = ('This original paragraph states an important condition that cannot be detached from the surrounding context. ' * 9).strip()
+        self.assertGreater(len(oversized), 700)
+        short = 'This next original paragraph provides sufficient continuous evidence to describe the method while retaining its full conditions and reviewed source context.'
+        text = oversized + '\n\n' + short + '\n'
+        result = source_excerpt(text, 'Wiki documentation', reading_view=True, wiki_page_revision_set=True)
+        self.assertEqual(result[0], short)
+        self.assert_located(text, result)
+        hidden = '> Collector source role: hatnote (original text and links follow).\n> ' + short + '\n'
+        self.assertEqual(source_excerpt(oversized + '\n\n' + hidden, 'Wiki documentation', reading_view=True, wiki_page_revision_set=True), ('', 1, 1))
+
     def test_git_text_consumer_uses_sidecar_and_excludes_yaml_example_and_anchors(self):
         actual = "This fixed specification defines an explicit native contract boundary with stable source evidence and retained original attribution for readers."
         hidden = "This hidden YAML example describes an impossible unconditional result with enough prose to resemble automatically quoted source evidence."
