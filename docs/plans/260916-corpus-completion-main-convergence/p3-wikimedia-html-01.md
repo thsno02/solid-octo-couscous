@@ -84,7 +84,7 @@ startup_repository_changes: report_and_branch_ledger_only
     "base_sha": "0bcc23a5ea8069e1868f4f12610e5ef29375d98f",
     "target_branch": "work/v0-meta-kb-initialization-demo-260910",
     "execution_branch": "codex/p3-wikimedia-html-01-260917",
-    "status": "eight_revisions_fixed_body_acquisition_pending",
+    "status": "eight_HTML_acquired_nine_observed_body_assets_admitted_for_bounded_GET",
     "adapter_family": "generic_web_or_document_v2",
     "action_bucket": "html_article_snapshot",
     "source_uids": [
@@ -229,7 +229,16 @@ startup_repository_changes: report_and_branch_ledger_only
       "experiments/v0_meta_kb_initialization_demo_260910/06_evaluation/**",
       "experiments/v0_meta_kb_initialization_demo_260910/07_review/**",
       "experiments/v0_meta_kb_initialization_demo_260910/08_release/**",
-      "experiments/v0_meta_kb_initialization_demo_260910/README.md"
+      "experiments/v0_meta_kb_initialization_demo_260910/README.md",
+      "materialized_sources/corpus/methodology-mediawiki-revision-discussion--b35a85e4/source/assets/help-history.png",
+      "materialized_sources/corpus/methodology-mediawiki-revision-discussion--b35a85e4/source/assets/reply-tool.png",
+      "materialized_sources/corpus/methodology-mediawiki-revision-discussion--b35a85e4/source/assets/insert-signature.png",
+      "materialized_sources/corpus/methodology-wikidata-statement-model--ca4d2187/source/assets/wikidata-datamodel.png",
+      "materialized_sources/corpus/methodology-wikipedia-editorial-governance--99973b93/source/assets/consensus-flowchart.png",
+      "materialized_sources/corpus/methodology-wikipedia-editorial-governance--99973b93/source/assets/wikipedia-scale-of-justice.png",
+      "materialized_sources/corpus/methodology-wikipedia-editorial-governance--99973b93/source/assets/starry-night.jpg",
+      "materialized_sources/corpus/methodology-wikipedia-editorial-governance--99973b93/source/assets/jimmy-wales4.jpg",
+      "materialized_sources/corpus/methodology-wikipedia-editorial-governance--99973b93/source/assets/manusingmicroscope.jpg"
     ],
     "generated_paths": [
       "materialized_sources/corpus/methodology-mediawiki-revision-discussion--b35a85e4/normalized/document.md",
@@ -270,7 +279,7 @@ startup_repository_changes: report_and_branch_ledger_only
     "pre_get_gates": {
       "integration": "PDF03_normal_merge_latest_work_exact_base_single_active_writer",
       "identity_and_version": "exact_eight_page_revision_ids_permalinks_cutoff_and_contract_amendment_before_body_GET",
-      "assets": "no_asset_GET_without_exact_src_role_credit_scope_and_contract_amendment",
+      "assets": "nine_exact_observed_image_srcs_and_per_file_credit_review_recorded_no_other_assets",
       "publication": "per_page_actual_notice_and_combo_representation_review_before_public_commit"
     },
     "explicitly_out_of_scope": [
@@ -282,7 +291,126 @@ startup_repository_changes: report_and_branch_ledger_only
       "demo selected-source changes, new claims/evidence, collector assessment changes, trusted promotion or unrelated generated semantics",
       "main merge, issue closure, branch deletion, administrator settings or history cleanup"
     ],
-    "revision_cutoff": "2026-09-17T00:47:39Z"
+    "revision_cutoff": "2026-09-17T00:47:39Z",
+    "body_assets": [
+      {
+        "page": "help-history",
+        "source": "source/assets/help-history.png",
+        "observed_src": "//thumb.wikimedia.org/wikipedia/commons/thumb/4/46/HelpHistory.png/1280px-HelpHistory.png?utm_source=www.mediawiki.org&utm_campaign=parser&utm_content=thumbnail",
+        "approved_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/46/HelpHistory.png/1280px-HelpHistory.png?utm_source=www.mediawiki.org&utm_campaign=parser&utm_content=thumbnail",
+        "alt": null,
+        "source_line": 811,
+        "file_page": "https://www.mediawiki.org/wiki/File:HelpHistory.png",
+        "uid": "methodology:mediawiki-revision-discussion",
+        "capsule": "methodology-mediawiki-revision-discussion--b35a85e4",
+        "attribution": "Network-charles",
+        "permission_basis": "CC0-1.0; preserve depicted MediaWiki GPL-2.0-or-later screenshot notice"
+      },
+      {
+        "page": "help-talk-pages",
+        "source": "source/assets/reply-tool.png",
+        "observed_src": "//thumb.wikimedia.org/wikipedia/commons/thumb/3/3b/Reply_tool_version_2b_screenshot.png/250px-Reply_tool_version_2b_screenshot.png?utm_source=www.mediawiki.org&utm_campaign=parser&utm_content=thumbnail",
+        "approved_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3b/Reply_tool_version_2b_screenshot.png/250px-Reply_tool_version_2b_screenshot.png?utm_source=www.mediawiki.org&utm_campaign=parser&utm_content=thumbnail",
+        "alt": null,
+        "source_line": 801,
+        "file_page": "https://www.mediawiki.org/wiki/File:Reply_tool_version_2b_screenshot.png",
+        "uid": "methodology:mediawiki-revision-discussion",
+        "capsule": "methodology-mediawiki-revision-discussion--b35a85e4",
+        "attribution": "ESanders (WMF)",
+        "permission_basis": "CC-BY-SA-4.0"
+      },
+      {
+        "page": "help-talk-pages",
+        "source": "source/assets/insert-signature.png",
+        "observed_src": "//thumb.wikimedia.org/wikipedia/commons/thumb/2/2d/Insert-signature2.svg/40px-Insert-signature2.svg.png?utm_source=www.mediawiki.org&utm_campaign=parser&utm_content=thumbnail",
+        "approved_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2d/Insert-signature2.svg/40px-Insert-signature2.svg.png?utm_source=www.mediawiki.org&utm_campaign=parser&utm_content=thumbnail",
+        "alt": "Signature button",
+        "source_line": 818,
+        "file_page": "https://www.mediawiki.org/wiki/File:Insert-signature2.svg",
+        "uid": "methodology:mediawiki-revision-discussion",
+        "capsule": "methodology-mediawiki-revision-discussion--b35a85e4",
+        "attribution": "I, Perhelion",
+        "permission_basis": "CC-BY-SA-4.0 selected from offered alternatives"
+      },
+      {
+        "page": "wikibase-datamodel-primer",
+        "source": "source/assets/wikidata-datamodel.png",
+        "observed_src": "//thumb.wikimedia.org/wikipedia/commons/thumb/a/ae/Datamodel_in_Wikidata.svg/960px-Datamodel_in_Wikidata.svg.png?utm_source=www.mediawiki.org&utm_campaign=parser&utm_content=thumbnail",
+        "approved_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/ae/Datamodel_in_Wikidata.svg/960px-Datamodel_in_Wikidata.svg.png?utm_source=www.mediawiki.org&utm_campaign=parser&utm_content=thumbnail",
+        "alt": null,
+        "source_line": 791,
+        "file_page": "https://www.mediawiki.org/wiki/File:Datamodel_in_Wikidata.svg",
+        "uid": "methodology:wikidata-statement-model",
+        "capsule": "methodology-wikidata-statement-model--ca4d2187",
+        "attribution": "Charlie Kritschmar (WMDE)",
+        "permission_basis": "CC0-1.0"
+      },
+      {
+        "page": "consensus",
+        "source": "source/assets/consensus-flowchart.png",
+        "observed_src": "//thumb.wikimedia.org/wikipedia/en/thumb/5/5f/Consensus_Flowchart.svg/330px-Consensus_Flowchart.svg.png?utm_source=en.wikipedia.org&utm_campaign=parser&utm_content=thumbnail",
+        "approved_url": "https://thumb.wikimedia.org/wikipedia/en/thumb/5/5f/Consensus_Flowchart.svg/330px-Consensus_Flowchart.svg.png?utm_source=en.wikipedia.org&utm_campaign=parser&utm_content=thumbnail",
+        "alt": "Make an edit deviating from the previous consensus state of the article, and wait. If the article is not edited further, presumed consensus exists favoring your changes. If the article is edited further, but you agree with the changes, presumed consensus exists in favor of the article's new state. If you disagree with the changes, seek a compromise, implement in another edit, and once again wait for further edits to the article.",
+        "source_line": 775,
+        "file_page": "https://en.wikipedia.org/wiki/File:Consensus_Flowchart.svg",
+        "uid": "methodology:wikipedia-editorial-governance",
+        "capsule": "methodology-wikipedia-editorial-governance--99973b93",
+        "attribution": "Locke Cole; based upon CCC Flowchart 6.jpg by Kevin Murray",
+        "permission_basis": "CC-BY-SA-3.0 selected from dual license"
+      },
+      {
+        "page": "neutral-point-of-view",
+        "source": "source/assets/wikipedia-scale-of-justice.png",
+        "observed_src": "//thumb.wikimedia.org/wikipedia/commons/thumb/e/ed/Wikipedia_scale_of_justice.svg/250px-Wikipedia_scale_of_justice.svg.png?utm_source=en.wikipedia.org&utm_campaign=parser&utm_content=thumbnail",
+        "approved_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ed/Wikipedia_scale_of_justice.svg/250px-Wikipedia_scale_of_justice.svg.png?utm_source=en.wikipedia.org&utm_campaign=parser&utm_content=thumbnail",
+        "alt": "A scale of justice with two Wikipedia logos being weighed",
+        "source_line": 1017,
+        "file_page": "https://en.wikipedia.org/wiki/File:Wikipedia_scale_of_justice.svg",
+        "uid": "methodology:wikipedia-editorial-governance",
+        "capsule": "methodology-wikipedia-editorial-governance--99973b93",
+        "attribution": "Mrmw (vectorization); referenced logo/scale components retained by attribution link",
+        "permission_basis": "CC-BY-SA-3.0; Wikimedia trademarks reserved; contextual policy illustration only"
+      },
+      {
+        "page": "neutral-point-of-view",
+        "source": "source/assets/starry-night.jpg",
+        "observed_src": "//thumb.wikimedia.org/wikipedia/commons/thumb/e/ea/Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg/250px-Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg?utm_source=en.wikipedia.org&utm_campaign=parser&utm_content=thumbnail",
+        "approved_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ea/Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg/250px-Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg?utm_source=en.wikipedia.org&utm_campaign=parser&utm_content=thumbnail",
+        "alt": null,
+        "source_line": 1184,
+        "file_page": "https://en.wikipedia.org/wiki/File:Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg",
+        "uid": "methodology:wikipedia-editorial-governance",
+        "capsule": "methodology-wikipedia-editorial-governance--99973b93",
+        "attribution": "Vincent van Gogh; Google Arts & Culture reproduction; Museum of Modern Art",
+        "permission_basis": "Public domain / PD-Art / PDM1.0; retain jurisdiction caveat"
+      },
+      {
+        "page": "neutral-point-of-view",
+        "source": "source/assets/jimmy-wales4.jpg",
+        "observed_src": "//thumb.wikimedia.org/wikipedia/commons/thumb/a/a9/WikiConference_India_2011_Jimmy_Wales_4.jpg/250px-WikiConference_India_2011_Jimmy_Wales_4.jpg?utm_source=en.wikipedia.org&utm_campaign=parser&utm_content=thumbnail",
+        "approved_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a9/WikiConference_India_2011_Jimmy_Wales_4.jpg/250px-WikiConference_India_2011_Jimmy_Wales_4.jpg?utm_source=en.wikipedia.org&utm_campaign=parser&utm_content=thumbnail",
+        "alt": null,
+        "source_line": 1206,
+        "file_page": "https://en.wikipedia.org/wiki/File:WikiConference_India_2011_Jimmy_Wales_4.jpg",
+        "uid": "methodology:wikipedia-editorial-governance",
+        "capsule": "methodology-wikipedia-editorial-governance--99973b93",
+        "attribution": "Victorgrigas",
+        "permission_basis": "CC-BY-SA-3.0"
+      },
+      {
+        "page": "no-original-research",
+        "source": "source/assets/manusingmicroscope.jpg",
+        "observed_src": "//upload.wikimedia.org/wikipedia/commons/b/b8/Manusingmicroscope.jpg?utm_source=en.wikipedia.org&utm_campaign=parser&utm_content=thumbnail_unscaled",
+        "approved_url": "https://upload.wikimedia.org/wikipedia/commons/b/b8/Manusingmicroscope.jpg?utm_source=en.wikipedia.org&utm_campaign=parser&utm_content=thumbnail_unscaled",
+        "alt": "A microbiologist conducting scientific research using a microscope.",
+        "source_line": 875,
+        "file_page": "https://en.wikipedia.org/wiki/File:Manusingmicroscope.jpg",
+        "uid": "methodology:wikipedia-editorial-governance",
+        "capsule": "methodology-wikipedia-editorial-governance--99973b93",
+        "attribution": "USDA Agricultural Research Service; photographer not supplied; Quadell original upload / Maksim transfer",
+        "permission_basis": "Public domain US federal government work; jurisdiction caveat"
+      }
+    ]
   }
 }
 ```
@@ -315,3 +443,25 @@ PR #20 已先于请求创建，启动 commit `0ff986198a62f9ec96d56e2226fd95ea35
 | source/consensus.html | 805445 | 1370677546 | 2026-08-22T13:26:30Z | https://en.wikipedia.org/w/index.php?title=Wikipedia%3AConsensus&oldid=1370677546 |
 
 先把此向量同步 repo／PR 合同，再各 GET 一次上述八个 HTML 到暂存区，逐页核验实际正文、许可及信用后决定可公开表示。无图片、CSS、JS、全历史或模板 GET 授权；原 HTML 不执行。`oldid` 不代表模板依赖完整历史固定。
+
+## 9. 正文 GET 结果、实际图片范围与获取前修订
+
+八份固定 HTML 均为 HTTP200、`text/html; charset=UTF-8`、零重定向、TLS验证成功，共1,862,396 bytes；保存响应Date均 `2026-09-17T00:49:48Z`，客户端全部完成确认上界 `2026-09-17T00:52:08Z`。该上界不是服务器逐请求时间。HTML中的wgRevisionId／articleId／pageName与预检逐项绑定，原件未执行。正文阅读确认Help两页文字CC0，其余六页文字BY-SA4；不是统一“Wikidata数据CC0”。
+
+实际观察才补充上方合同的 **9 个正文 img 原始src**，每个仅一次GET，保留页面显示尺寸的官方PNG/JPG响应，不取其他srcset、巨大艺术品母版、SVG的全翻译或站点素材。图片bytes仍待获取；这些是页面正文的已有组成，不是新增来源。装饰图标、语言栏／编辑按钮排除仅作用派生DOM，保留原HTML与实质状态/警告/正反例语义。
+
+| 精确本地文件名 | 原作信用（credit） | 实见准入依据与边界 |
+| --- | --- | --- |
+| source/assets/help-history.png | Network-charles | CC0-1.0; preserve depicted MediaWiki GPL-2.0-or-later screenshot notice；[File description](https://www.mediawiki.org/wiki/File:HelpHistory.png) |
+| source/assets/reply-tool.png | ESanders (WMF) | CC-BY-SA-4.0；[File description](https://www.mediawiki.org/wiki/File:Reply_tool_version_2b_screenshot.png) |
+| source/assets/insert-signature.png | I, Perhelion | CC-BY-SA-4.0 selected from offered alternatives；[File description](https://www.mediawiki.org/wiki/File:Insert-signature2.svg) |
+| source/assets/wikidata-datamodel.png | Charlie Kritschmar (WMDE) | CC0-1.0；[File description](https://www.mediawiki.org/wiki/File:Datamodel_in_Wikidata.svg) |
+| source/assets/consensus-flowchart.png | Locke Cole; based upon CCC Flowchart 6.jpg by Kevin Murray | CC-BY-SA-3.0 selected from dual license；[File description](https://en.wikipedia.org/wiki/File:Consensus_Flowchart.svg) |
+| source/assets/wikipedia-scale-of-justice.png | Mrmw (vectorization); referenced logo/scale components retained by attribution link | CC-BY-SA-3.0; Wikimedia trademarks reserved; contextual policy illustration only；[File description](https://en.wikipedia.org/wiki/File:Wikipedia_scale_of_justice.svg) |
+| source/assets/starry-night.jpg | Vincent van Gogh; Google Arts & Culture reproduction; Museum of Modern Art | Public domain / PD-Art / PDM1.0; retain jurisdiction caveat；[File description](https://en.wikipedia.org/wiki/File:Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg) |
+| source/assets/jimmy-wales4.jpg | Victorgrigas | CC-BY-SA-3.0；[File description](https://en.wikipedia.org/wiki/File:WikiConference_India_2011_Jimmy_Wales_4.jpg) |
+| source/assets/manusingmicroscope.jpg | USDA Agricultural Research Service; photographer not supplied; Quadell original upload / Maksim transfer | Public domain US federal government work; jurisdiction caveat；[File description](https://en.wikipedia.org/wiki/File:Manusingmicroscope.jpg) |
+
+有限版权证据读取为8个新File描述页GET（Help3、Wikipedia5，均200、无重定向），Primer的File页通过web读取，均已有本地或转入Commons的描述，未进一步递归历史/作者。主agent实读CC BY-SA4和CC0法律文本、BY-SA3 §3/4、Wikimedia Terms §7。官网商标policy因scale图可见标记而有限跟随，§3.6.3允许讨论Wikimedia的科学/文学用途；本库仅保存原政策插图作为研究材料，不以logo作品牌/封面、不搭建冒充Wikipedia的镜像、不声称背书或任意商标再授权。保留商标权人/政策链接和无背书声明。两幅公有领域图保留官方范围/辖区提示，不误写CC授权。HelpHistory另保留所示软件GPL2-or-later及无担保提示，不将截图作者CC0外推为软件license。
+
+在各UID的完整NOTICE中提供准确title、原页/固定版本/署名history、逐图归属/适用license、派生变更与无背书/无担保；普通文档派生正文/selector摘录采用BY-SA4，Help文本仍CC0、图片各自许可。该判断只覆盖本批已观察的有界表示，未完成全库公共清关。图片成功取得后仍需内容与派生验收，不能由本节直接宣布complete。
