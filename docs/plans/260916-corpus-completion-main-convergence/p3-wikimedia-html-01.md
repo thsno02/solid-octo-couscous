@@ -84,19 +84,95 @@ startup_repository_changes: report_and_branch_ledger_only
     "base_sha": "0bcc23a5ea8069e1868f4f12610e5ef29375d98f",
     "target_branch": "work/v0-meta-kb-initialization-demo-260910",
     "execution_branch": "codex/p3-wikimedia-html-01-260917",
-    "status": "startup_revision_preflight_pending",
+    "status": "eight_revisions_fixed_body_acquisition_pending",
     "adapter_family": "generic_web_or_document_v2",
     "action_bucket": "html_article_snapshot",
-    "source_uids": ["methodology:mediawiki-revision-discussion", "methodology:wikidata-statement-model", "methodology:wikipedia-editorial-governance"],
+    "source_uids": [
+      "methodology:mediawiki-revision-discussion",
+      "methodology:wikidata-statement-model",
+      "methodology:wikipedia-editorial-governance"
+    ],
     "target_pages": [
-      {"uid": "methodology:mediawiki-revision-discussion", "identity_url": "https://www.mediawiki.org/wiki/Help:History", "source": "source/help-history.html"},
-      {"uid": "methodology:mediawiki-revision-discussion", "identity_url": "https://www.mediawiki.org/wiki/Help:Talk_pages", "source": "source/help-talk-pages.html"},
-      {"uid": "methodology:wikidata-statement-model", "identity_url": "https://www.wikidata.org/wiki/Wikidata:Data_model", "source": "source/wikidata-data-model.html"},
-      {"uid": "methodology:wikidata-statement-model", "identity_url": "https://www.mediawiki.org/wiki/Wikibase/DataModel/Primer", "source": "source/wikibase-datamodel-primer.html"},
-      {"uid": "methodology:wikipedia-editorial-governance", "identity_url": "https://en.wikipedia.org/wiki/Wikipedia:Verifiability", "source": "source/verifiability.html"},
-      {"uid": "methodology:wikipedia-editorial-governance", "identity_url": "https://en.wikipedia.org/wiki/Wikipedia:Neutral_point_of_view", "source": "source/neutral-point-of-view.html"},
-      {"uid": "methodology:wikipedia-editorial-governance", "identity_url": "https://en.wikipedia.org/wiki/Wikipedia:No_original_research", "source": "source/no-original-research.html"},
-      {"uid": "methodology:wikipedia-editorial-governance", "identity_url": "https://en.wikipedia.org/wiki/Wikipedia:Consensus", "source": "source/consensus.html"}
+      {
+        "uid": "methodology:mediawiki-revision-discussion",
+        "identity_url": "https://www.mediawiki.org/wiki/Help:History",
+        "source": "source/help-history.html",
+        "page_id": 189572,
+        "title": "Help:History",
+        "revision_id": 8524540,
+        "revision_timestamp": "2026-07-25T03:29:55Z",
+        "approved_url": "https://www.mediawiki.org/w/index.php?title=Help%3AHistory&oldid=8524540"
+      },
+      {
+        "uid": "methodology:mediawiki-revision-discussion",
+        "identity_url": "https://www.mediawiki.org/wiki/Help:Talk_pages",
+        "source": "source/help-talk-pages.html",
+        "page_id": 20469,
+        "title": "Help:Talk pages",
+        "revision_id": 8374334,
+        "revision_timestamp": "2026-05-14T21:02:40Z",
+        "approved_url": "https://www.mediawiki.org/w/index.php?title=Help%3ATalk_pages&oldid=8374334"
+      },
+      {
+        "uid": "methodology:wikidata-statement-model",
+        "identity_url": "https://www.wikidata.org/wiki/Wikidata:Data_model",
+        "source": "source/wikidata-data-model.html",
+        "page_id": 109922707,
+        "title": "Wikidata:Data model",
+        "revision_id": 2518329379,
+        "revision_timestamp": "2026-07-16T20:34:20Z",
+        "approved_url": "https://www.wikidata.org/w/index.php?title=Wikidata%3AData_model&oldid=2518329379"
+      },
+      {
+        "uid": "methodology:wikidata-statement-model",
+        "identity_url": "https://www.mediawiki.org/wiki/Wikibase/DataModel/Primer",
+        "source": "source/wikibase-datamodel-primer.html",
+        "page_id": 210750,
+        "title": "Wikibase/DataModel/Primer",
+        "revision_id": 8399774,
+        "revision_timestamp": "2026-05-31T05:57:04Z",
+        "approved_url": "https://www.mediawiki.org/w/index.php?title=Wikibase%2FDataModel%2FPrimer&oldid=8399774"
+      },
+      {
+        "uid": "methodology:wikipedia-editorial-governance",
+        "identity_url": "https://en.wikipedia.org/wiki/Wikipedia:Verifiability",
+        "source": "source/verifiability.html",
+        "page_id": 3961892,
+        "title": "Wikipedia:Verifiability",
+        "revision_id": 1373569010,
+        "revision_timestamp": "2026-09-06T17:54:43Z",
+        "approved_url": "https://en.wikipedia.org/w/index.php?title=Wikipedia%3AVerifiability&oldid=1373569010"
+      },
+      {
+        "uid": "methodology:wikipedia-editorial-governance",
+        "identity_url": "https://en.wikipedia.org/wiki/Wikipedia:Neutral_point_of_view",
+        "source": "source/neutral-point-of-view.html",
+        "page_id": 39805,
+        "title": "Wikipedia:Neutral point of view",
+        "revision_id": 1370393267,
+        "revision_timestamp": "2026-08-20T21:44:45Z",
+        "approved_url": "https://en.wikipedia.org/w/index.php?title=Wikipedia%3ANeutral_point_of_view&oldid=1370393267"
+      },
+      {
+        "uid": "methodology:wikipedia-editorial-governance",
+        "identity_url": "https://en.wikipedia.org/wiki/Wikipedia:No_original_research",
+        "source": "source/no-original-research.html",
+        "page_id": 410235,
+        "title": "Wikipedia:No original research",
+        "revision_id": 1374682589,
+        "revision_timestamp": "2026-09-13T14:12:28Z",
+        "approved_url": "https://en.wikipedia.org/w/index.php?title=Wikipedia%3ANo_original_research&oldid=1374682589"
+      },
+      {
+        "uid": "methodology:wikipedia-editorial-governance",
+        "identity_url": "https://en.wikipedia.org/wiki/Wikipedia:Consensus",
+        "source": "source/consensus.html",
+        "page_id": 805445,
+        "title": "Wikipedia:Consensus",
+        "revision_id": 1370677546,
+        "revision_timestamp": "2026-08-22T13:26:30Z",
+        "approved_url": "https://en.wikipedia.org/w/index.php?title=Wikipedia%3AConsensus&oldid=1370677546"
+      }
     ],
     "allowed_paths": [
       "docs/plans/260916-corpus-completion-main-convergence/p3-wikimedia-html-01.md",
@@ -205,7 +281,8 @@ startup_repository_changes: report_and_branch_ledger_only
       "new adapter framework, schema-wide rewrite, dependencies/workflows and blanket weakening of existing W3C/Git validators",
       "demo selected-source changes, new claims/evidence, collector assessment changes, trusted promotion or unrelated generated semantics",
       "main merge, issue closure, branch deletion, administrator settings or history cleanup"
-    ]
+    ],
+    "revision_cutoff": "2026-09-17T00:47:39Z"
   }
 }
 ```
@@ -219,3 +296,22 @@ startup_repository_changes: report_and_branch_ledger_only
 三个 UID 未 selected：保留 selected set、claims、evidence、collector assessment 原字节；允许已有全局 build identity 的必要传播，不能提交 stale release。代码只补上述显式 opt-in；fixtures 覆盖2／4多源、wrong oldid／URL、缺页、inventory／snapshot drift、旧root保留、正文container排除与源selector语义，旧W3C／Git测试不变。精确 head 的 `make test`／`make validate`／`make demo`／`make reproducibility`、completeness与coverage校验，加当前CI与独立三维PASS后正常合work。离线双重放不冒充双GET。
 
 真实风险／待核只有：八个实际revision及页面移动；八页实际文字许可／可见导入信用；实际正文DOM和关键图；上述已有helper的小接口联调。初步无删除、用途或管理员权限决定需要用户确认。若观察到真正未授权表达则报告具体页／段／scope最小决定，不追全部版本、模板和编辑历史；P4/P5与PR1main仍按05/06既有条件收口，不追加trusted或全图OCR门槛。
+
+## 8. 官方 revision 预检与下载前合同修订
+
+PR #20 已先于请求创建，启动 commit `0ff986198a62f9ec96d56e2226fd95ea354f2598`。统一 cutoff 为 `2026-09-17T00:47:39Z`；实际预检于 `2026-09-17T00:48Z` 完成，至 `00:48:55Z` 已读取八个结果。仅 query/revisions/ids/timestamp/info，没有正文请求，没有追随 API continue。
+
+初次按站点合并的三个 API 请求均 HTTP 200，但 MediaWiki 与 Wikipedia 返回 `invalidparammix`：含 `rvstart`/`rvlimit` 时不能一次查询多个 title；Wikidata 单页成功。按实际错误改为另外七个单页查询，均 HTTP 200、TLS 验证成功、无重定向；不是访问失败或绕过。合计10次 API GET，8次有效单页身份结果。所有 revision timestamp 早于 cutoff；只有下划线到空格的标准 title normalization，无作品身份替换。以下固定 URL 从官方返回的准确 revision id 和既定入口构建；尚未获取正文。
+
+| 源路径 | page id | revision id | revision timestamp | 准确正文请求 URL |
+| --- | ---: | ---: | --- | --- |
+| source/help-history.html | 189572 | 8524540 | 2026-07-25T03:29:55Z | https://www.mediawiki.org/w/index.php?title=Help%3AHistory&oldid=8524540 |
+| source/help-talk-pages.html | 20469 | 8374334 | 2026-05-14T21:02:40Z | https://www.mediawiki.org/w/index.php?title=Help%3ATalk_pages&oldid=8374334 |
+| source/wikidata-data-model.html | 109922707 | 2518329379 | 2026-07-16T20:34:20Z | https://www.wikidata.org/w/index.php?title=Wikidata%3AData_model&oldid=2518329379 |
+| source/wikibase-datamodel-primer.html | 210750 | 8399774 | 2026-05-31T05:57:04Z | https://www.mediawiki.org/w/index.php?title=Wikibase%2FDataModel%2FPrimer&oldid=8399774 |
+| source/verifiability.html | 3961892 | 1373569010 | 2026-09-06T17:54:43Z | https://en.wikipedia.org/w/index.php?title=Wikipedia%3AVerifiability&oldid=1373569010 |
+| source/neutral-point-of-view.html | 39805 | 1370393267 | 2026-08-20T21:44:45Z | https://en.wikipedia.org/w/index.php?title=Wikipedia%3ANeutral_point_of_view&oldid=1370393267 |
+| source/no-original-research.html | 410235 | 1374682589 | 2026-09-13T14:12:28Z | https://en.wikipedia.org/w/index.php?title=Wikipedia%3ANo_original_research&oldid=1374682589 |
+| source/consensus.html | 805445 | 1370677546 | 2026-08-22T13:26:30Z | https://en.wikipedia.org/w/index.php?title=Wikipedia%3AConsensus&oldid=1370677546 |
+
+先把此向量同步 repo／PR 合同，再各 GET 一次上述八个 HTML 到暂存区，逐页核验实际正文、许可及信用后决定可公开表示。无图片、CSS、JS、全历史或模板 GET 授权；原 HTML 不执行。`oldid` 不代表模板依赖完整历史固定。
