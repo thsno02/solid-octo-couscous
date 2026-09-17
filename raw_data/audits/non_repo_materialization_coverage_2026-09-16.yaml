@@ -1,40 +1,94 @@
 audit_id: "non-repo-materialization-coverage-2026-09-16"
 schema_version: 1
 language: "zh-CN"
-phase: "P3-PDF-05"
+phase: "P3-PDF-06"
 execution:
-  base_sha: "d5c6d8882ea2b8a783047ceed0285c652b1bd2cf"
-  collection_anchor_sha: "5458fbdffc95444cc26d5e9346fc2f9ab96e09c5"
-  source_snapshot_merge_commit: "d5c6d8882ea2b8a783047ceed0285c652b1bd2cf"
-  branch: "codex/p3-pdf-05-260917"
-  p3_pdf_05_pr: 23
-  report_path: "docs/plans/260916-corpus-completion-main-convergence/p3-pdf-05-fixed-version.md"
-  network_source_requests: 3
-  network_source_request_count_scope: "仅PR23发布后的三份固定PDF GET；不含有界fixed abs/view-license网页预核，不是所有网络活动数。"
-  source_request_urls: ["https://arxiv.org/pdf/2410.07095v6","https://arxiv.org/pdf/2503.18102v1","https://arxiv.org/pdf/2504.01848v3"]
-  source_get_http_statuses: [200]
+  base_sha: a3dbb1c87db2875c5354cc773199af453d2df7df
+  collection_anchor_sha: 5458fbdffc95444cc26d5e9346fc2f9ab96e09c5
+  source_snapshot_merge_commit: a3dbb1c87db2875c5354cc773199af453d2df7df
+  startup_head: ad444013963c0937820a3fde4659e80091dcde6b
+  startup_published_at: '2026-09-17T10:40:27Z'
+  branch: codex/p3-pdf-06-alce-publisher-260917
+  p3_pdf_06_pr: 24
+  report_path: docs/plans/260916-corpus-completion-main-convergence/p3-pdf-06-alce-publisher.md
+  network_source_requests: 1
+  network_source_request_count_scope: 仅PR24发布后唯一正式publisher PDF GET；不含既有许可/对应证据的历史核查，不是历史所有网络活动数。
+  source_request_urls:
+  - https://aclanthology.org/2023.emnlp-main.398.pdf
+  source_get_started_at: '2026-09-17T10:41:07Z'
+  source_get_completed_at: '2026-09-17T10:41:32Z'
+  source_get_http_statuses:
+  - 200
   source_get_redirects: 0
-  retrieval_timing_scope: "同次curl响应记录mtime为下载完成时间；manifest到秒、报告到微秒，与HTTP Date/选版日/构建日分别保留。"
-  new_admitted_original_count: 3
-  new_admitted_original_bytes: 5278276
-  new_sidecar_selector_count: 88
-  retained_legacy_selector_count: 161
+  retrieval_timing_scope: start/completion为本次真实GET响应记录；服务器HTTP Date 10:41:10Z、startup发布时间与确定性聚合时间分开保留。
+  new_admitted_original_count: 1
+  new_admitted_original_bytes: 481920
+  new_sidecar_selector_count: 24
+  retained_legacy_selector_count: 95
   original_root_document_and_selectors_changed: false
   legacy_manifest_and_acquisition_history_retained: true
-  new_representation_admission: "三固定版compiled PDF依据作品BY4及实际信用独立allow；旧root block保留，original complete/text partial，不提升strict/trusted。"
-  aggregate_timestamp_preserved: "2026-09-16T04:30:26Z"
-  aggregate_timestamp_semantics: "确定性聚合输入，不是本次GET或构建墙钟；获取时间各见retrievals。"
-  affected_existing_selected_uid: ["arxiv:2503.18102"]
+  new_representation_admission: ALCE正式DOI publisher-vor独立表示按既有ACL作品BY4与有界对应证据、实际信用及完整NOTICE准入；旧root block/对应证据false、C source_version null与root键缺省保持，original
+    complete/native text partial，不提升strict/trusted。
+  strict_offline_replay_count: 2
+  strict_offline_replay_actual_file_count: 49
+  strict_offline_replay_all_files_byte_identical: true
+  retained_legacy_non_snapshot_file_count: 43
+  replay_method_scope: 主线串行两次既有replay_pdf_supplement；fetch_bytes/prepare_capsule均fail-mock，每次49实际文件byte-identical，旧43非snapshot文件及root全部字段保全。
+  aggregate_timestamp_preserved: '2026-09-16T04:30:26Z'
+  aggregate_timestamp_semantics: 确定性聚合输入，不是本次GET或构建墙钟；获取时间见独立retrievals。
+  aggregate_record_count: 215
+  demo_generation_exit_code: 0
+  demo_validations_passed: true
+  demo_validation_scope: 主线已实际make demo exit0且全部validate通过；不是完整repro、fresh checkout或最终HEAD CI结论。
+  affected_existing_selected_uid:
+  - arxiv:2305.14627
   new_selected_source_count: 0
   new_demo_claim_count: 0
   knowledge_claims_changed: true
-  knowledge_claim_change_scope: "仅AgentRxiv既有一条父论文claim及证据的PDF定位/版本/rights/limitations绑定更新；引用字面、72条UID、collector-assessment及candidate/trust状态不变。"
+  knowledge_claim_change_scope: 72条claim/evidence UID相同，仅ALCE一条父摘要claim及对应evidence的PDF定位/版本/rights/limitations绑定更新；其literal由hallucination.变为native
+    halluci- nation.、citations ,变为citations,，不新造source语义。collector完整claim/evidence对象、全部candidate/trust状态不变。
   existing_source_excerpt_claim_count_rebound: 1
-  existing_quote_text_changed: 0
+  existing_quote_text_changed: 1
   collector_assessment_changed: false
   fresh_checkout_performed: false
   main_fresh_checkout_verified: false
-  manual_judgment_updated_uids: ["arxiv:2410.07095","arxiv:2503.18102","arxiv:2504.01848"]
+  reproducibility_run_this_phase: false
+  reproducibility_next_action: 完整repro留最终HEAD CI执行，尚未运行不得标记PASS。
+  manual_judgment_updated_uids:
+  - arxiv:2305.14627
+  historical_p3_pdf_05_execution:
+    base_sha: "d5c6d8882ea2b8a783047ceed0285c652b1bd2cf"
+    collection_anchor_sha: "5458fbdffc95444cc26d5e9346fc2f9ab96e09c5"
+    source_snapshot_merge_commit: "d5c6d8882ea2b8a783047ceed0285c652b1bd2cf"
+    branch: "codex/p3-pdf-05-260917"
+    p3_pdf_05_pr: 23
+    report_path: "docs/plans/260916-corpus-completion-main-convergence/p3-pdf-05-fixed-version.md"
+    network_source_requests: 3
+    network_source_request_count_scope: "仅PR23发布后的三份固定PDF GET；不含有界fixed abs/view-license网页预核，不是所有网络活动数。"
+    source_request_urls: ["https://arxiv.org/pdf/2410.07095v6","https://arxiv.org/pdf/2503.18102v1","https://arxiv.org/pdf/2504.01848v3"]
+    source_get_http_statuses: [200]
+    source_get_redirects: 0
+    retrieval_timing_scope: "同次curl响应记录mtime为下载完成时间；manifest到秒、报告到微秒，与HTTP Date/选版日/构建日分别保留。"
+    new_admitted_original_count: 3
+    new_admitted_original_bytes: 5278276
+    new_sidecar_selector_count: 88
+    retained_legacy_selector_count: 161
+    original_root_document_and_selectors_changed: false
+    legacy_manifest_and_acquisition_history_retained: true
+    new_representation_admission: "三固定版compiled PDF依据作品BY4及实际信用独立allow；旧root block保留，original complete/text partial，不提升strict/trusted。"
+    aggregate_timestamp_preserved: "2026-09-16T04:30:26Z"
+    aggregate_timestamp_semantics: "确定性聚合输入，不是本次GET或构建墙钟；获取时间各见retrievals。"
+    affected_existing_selected_uid: ["arxiv:2503.18102"]
+    new_selected_source_count: 0
+    new_demo_claim_count: 0
+    knowledge_claims_changed: true
+    knowledge_claim_change_scope: "仅AgentRxiv既有一条父论文claim及证据的PDF定位/版本/rights/limitations绑定更新；引用字面、72条UID、collector-assessment及candidate/trust状态不变。"
+    existing_source_excerpt_claim_count_rebound: 1
+    existing_quote_text_changed: 0
+    collector_assessment_changed: false
+    fresh_checkout_performed: false
+    main_fresh_checkout_verified: false
+    manual_judgment_updated_uids: ["arxiv:2410.07095","arxiv:2503.18102","arxiv:2504.01848"]
   historical_p3_pdf_04_execution:
     base_sha: "252fb09236433435a1a07d9e50d10f5f447b60e6"
     collection_anchor_sha: "5458fbdffc95444cc26d5e9346fc2f9ab96e09c5"
@@ -1550,7 +1604,7 @@ verification:
     main_fresh_checkout_verified: false
     observed_in_phase: "P3-JOURNAL-01"
     scope: "实际本地PDF页数/bytes/与下载实体直接字节比、native页范围/preview和existing helper facts/独立main+SI许可门控，加human authored coverage；真实default auditor待frontmatter接入后运行。make suite/repro/CI/exact independent gates由main记录，不冒称本writer执行或PR PASS。"
-summary: {"collection_records":215,"non_repo_total":131,"github_repo_excluded":84,"reported_content_tier_counts":{"excerpt_capsule":23,"full_text":97,"metadata_capsule":11},"source_type_counts":{"arxiv":73,"biorxiv":2,"blog":10,"industry":2,"journal":11,"methodology":7,"paper":2,"standard":24},"original_artifact_counts":{"complete":50,"metadata_only":13,"partial":4,"unknown":64},"text_extraction_counts":{"complete":8,"partial":57,"unavailable":13,"unknown":53},"action_bucket_counts":{"access_restricted":9,"author_manuscript_fetch":2,"complete_verified":8,"html_article_snapshot":11,"identity_or_version_ambiguous":3,"needs_boundary_verification":52,"ocr_assessment":34,"parser_only":6,"public_persistence_decision":4,"standard_spec_fetch":2},"public_redistribution_counts":{"allow":33,"block":65,"unknown":33},"content_inspected_full_text":58,"structure_only_full_text":39,"locally_persisted_complete":8,"knowledge_candidate_sources":30,"knowledge_trusted_sources":0,"knowledge_sources_without_demo_claims":101,"unresolved_sources":123}
+summary: {"collection_records":215,"non_repo_total":131,"github_repo_excluded":84,"reported_content_tier_counts":{"excerpt_capsule":23,"full_text":97,"metadata_capsule":11},"source_type_counts":{"arxiv":73,"biorxiv":2,"blog":10,"industry":2,"journal":11,"methodology":7,"paper":2,"standard":24},"original_artifact_counts":{"complete":51,"metadata_only":13,"partial":4,"unknown":63},"text_extraction_counts":{"complete":8,"partial":58,"unavailable":13,"unknown":52},"action_bucket_counts":{"access_restricted":9,"author_manuscript_fetch":2,"complete_verified":8,"html_article_snapshot":11,"identity_or_version_ambiguous":3,"needs_boundary_verification":51,"ocr_assessment":35,"parser_only":6,"public_persistence_decision":4,"standard_spec_fetch":2},"public_redistribution_counts":{"allow":33,"block":65,"unknown":33},"content_inspected_full_text":59,"structure_only_full_text":38,"locally_persisted_complete":8,"knowledge_candidate_sources":30,"knowledge_trusted_sources":0,"knowledge_sources_without_demo_claims":101,"unresolved_sources":123}
 items:
   -
     uid: "arxiv-1606.04671"
@@ -5472,36 +5526,42 @@ items:
       complete_target_consumable: false
       note: "旧TeX原件/text partial与62科学缺资产清单保留；新完整官方渲染作品不证明旧独立source assets字节已取得。历史完整对象以此BASE和既有PR13phase证据复核。"
   -
-    uid: "arxiv:2305.14627"
-    source_type: "arxiv"
-    manifest: "materialized_sources/corpus/arxiv-2305.14627--6d5b37c6/manifest.yaml"
-    metadata_path: "raw_data/arxiv/Enabling Large Language Models to Generate Text with Citations/metadata.yaml"
+    uid: arxiv:2305.14627
+    source_type: arxiv
+    manifest: materialized_sources/corpus/arxiv-2305.14627--6d5b37c6/manifest.yaml
+    metadata_path: raw_data/arxiv/Enabling Large Language Models to Generate Text with Citations/metadata.yaml
     target_document:
-      title: "Enabling Large Language Models to Generate Text with Citations"
-      canonical_id: "2305.14627"
-      canonical_url: "https://arxiv.org/abs/2305.14627"
-      selected_version: null
-      version_status: "not_recorded"
-      version_reason: "metadata.versioning.source_version=null；没有上游固定版本证据。"
-      source_kind: "tex"
-      boundary: "由 arXiv:2305.14627 所指论文主文、引用的附录与图表；以 metadata 已记录版本（若有）为候选，实际版本和全文边界仍待比对。"
-      boundary_verification_state: "unverified"
+      title: Enabling Large Language Models to Generate Text with Citations
+      canonical_id: '2305.14627'
+      canonical_url: https://arxiv.org/abs/2305.14627
+      selected_version: publisher-vor:doi:10.18653/v1/2023.emnlp-main.398
+      version_status: publisher_vor_representation_verified_in_P3_PDF_06
+      version_reason: 沿用本UID既有审计kind=bounded_acl_article_content_correspondence、checked_at=2026-09-16，正式DOI https://doi.org/10.18653/v1/2023.emnlp-main.398
+        与 related_urls 的 https://aclanthology.org/2023.emnlp-main.398.pdf 已明确对应本arXiv作品；该历史行仍supports_public_redistribution=false，只说明旧source整包尚有未对应扩展/组件条件，不升级为旧包allow。ACL官方2016后材料CC
+        BY4证据随既有 https://aclanthology.org/faq/copyright/ 路径保留。主线2026-09-17全文读本批冻结内容报告并亲看p1/4/12/16/24，确认本次唯一GET的正式24页原件/四作者/©ACL/全部A–I/31表/真实尾界和具体native损失，明确准入此独立新表示；不是独立PR终审PASS。
+        canonical/capsule source_version仍null、root source_version键缺省，旧审计v2 payload绑定及未对应扩展历史保留，不冒称正式出版表示是arXiv vN。
+      source_kind: pdf
+      boundary: 正式DOI 10.18653/v1/2023.emnlp-main.398 / Anthology 2023.emnlp-main.398完整24物理页（印刷页6465–6488）compiled PDF：p1–9主文至Conclusion/四图，p10
+        Limitations/Acknowledgments及p10–13完整References，p14–17正式A–I附录叙述，p18–20主结果Tables19–21，p21–22 Tables22–29完整prompts，p23–24
+        Tables30–31两个ELI5 Examples。真尾p24 Table31第三ground-truth claim、表底线/ELI5 example2图注/页码正常结束，不在References/H标题截断。
+      boundary_verification_state: verified
+      representation: pdf_supplement
     observed:
-      reported_status: "materialized"
-      reported_content_tier: "full_text"
+      reported_status: materialized
+      reported_content_tier: full_text
       source_version_recorded: null
-      local_revision: "sha256:6902aae852b39f761a60dc2cf36b7d2ed9e615755f413b7daa8b52f5c1eae3ea"
-      document_path: "materialized_sources/corpus/arxiv-2305.14627--6d5b37c6/normalized/document.txt"
+      local_revision: sha256:6902aae852b39f761a60dc2cf36b7d2ed9e615755f413b7daa8b52f5c1eae3ea
+      document_path: materialized_sources/corpus/arxiv-2305.14627--6d5b37c6/normalized/document.txt
       document_lines: 2041
       document_characters: 90939
-      main_tex_path: "materialized_sources/corpus/arxiv-2305.14627--6d5b37c6/source/emnlp2023.tex"
-      normalized_document: "normalized/document.txt"
+      main_tex_path: materialized_sources/corpus/arxiv-2305.14627--6d5b37c6/source/emnlp2023.tex
+      normalized_document: normalized/document.txt
       source_pdf: null
       retained_original_html_paths: []
-      inventory_file_count: 44
+      inventory_file_count: 48
       all_declared_files_present: true
       all_declared_files_tracked: true
-      selector_path: "materialized_sources/corpus/arxiv-2305.14627--6d5b37c6/selectors.jsonl"
+      selector_path: materialized_sources/corpus/arxiv-2305.14627--6d5b37c6/selectors.jsonl
       selector_count: 95
       invalid_selector_count: 0
       pdf_page_count_reported: null
@@ -5514,75 +5574,307 @@ items:
       warnings: []
       limitations: []
       requested_urls:
-        - "https://export.arxiv.org/e-print/2305.14627"
-        - "https://arxiv.org/e-print/2305.14627"
+      - https://export.arxiv.org/e-print/2305.14627
+      - https://arxiv.org/e-print/2305.14627
       resolved_urls:
-        - "https://export.arxiv.org/src/2305.14627"
+      - https://export.arxiv.org/src/2305.14627
       index_registry_consistent: true
-      public_gate: "block"
+      public_gate: block
       public_gate_revision_matches: true
       knowledge_claim_state_counts:
         candidate: 2
+      pdf_supplement:
+        source_version: publisher-vor:doi:10.18653/v1/2023.emnlp-main.398
+        local_revision: sha256:ae9868f07f0f7ffaae5346778f79b7827d9ec6b13b1e6aae4dff6b2ffc37a2e1
+        source_pdf: materialized_sources/corpus/arxiv-2305.14627--6d5b37c6/pdf-supplement/document.pdf
+        document_path: materialized_sources/corpus/arxiv-2305.14627--6d5b37c6/pdf-supplement/document.txt
+        document_lines: 2115
+        document_characters: 101157
+        selector_path: materialized_sources/corpus/arxiv-2305.14627--6d5b37c6/pdf-supplement/selectors.jsonl
+        selector_count: 24
+        pdf_page_count_reported: 24
+        pdf_text_page_headings:
+        - 1
+        - 2
+        - 3
+        - 4
+        - 5
+        - 6
+        - 7
+        - 8
+        - 9
+        - 10
+        - 11
+        - 12
+        - 13
+        - 14
+        - 15
+        - 16
+        - 17
+        - 18
+        - 19
+        - 20
+        - 21
+        - 22
+        - 23
+        - 24
+        pdf_empty_text_pages: []
+        pdf_duplicate_page_headings: []
+        body_quality_verified: true
+        limitations:
+        - 原件完整仅指正式publisher-vor选定24页/四图/Tables1–31/正文/References/A–I/prompts/Examples及p24真实尾；旧arXiv v2 Open-source Models三段与Stable Beluga2三行不在正式版，是经旧源码和正式图面边界对照支持的版本差异，不猜补或删改旧历史。
+        - native text partial：四图的主要字面标签/问题/回答/数值可提，不宣称整图无文字；p1箭头/图标/框/颜色/支持拓扑，p4勾叉/答案颜色/空间归属/引用集到句子的连线/集合边界/冗余关系丢失。
+        - p8 Figure4曲线几何/坐标点/颜色线型和三panel分组未保留，虽legend/旁表点值可读，不称曲线从plain无损恢复；不默认OCR或全图数据化。
+        - 双栏/页脚阅读顺序实际把p1出版页脚排在题名前；多层表头/分组横线/列对齐/bold比较/缩小stddev与数学上下标/间距/集合函数排版展平，可有字符贴连，不称lossless full text或无损数学结构。
+        - p21 Table22人工demonstrations/最后输入/subclaims和p23–24 Tables30/31回答/ground-truth/passages的颜色角色/框丢失；prompt字面多可读，但不保证颜色角色/排版或byte-exact executable文本，不执行这些文献指令。
+        - p20 Table21 ChatGPT SNIPPET precision stddev (2.w)、NLI hypothesis空{}、volumn拼写和其他已印literal是上游内容，原样保留不伪称OCR/抽取错误或自动纠正；表内结果/source examples仅source-reported，不提升为当前新事实或复现结论。
+        - primary_excerpt=连续Page1 L11–39只排除页脚/題名/归属污染，不造重组quote或新claim。非空24页/无失败只是结构诊断，精确图义/表格/数学/颜色/literal回看PDF；body_quality_verified不等于strict/trusted。
+        validation_errors: []
+        public_gate: allow
+        public_package_valid: true
+        public_package_errors: []
+        primary_excerpt:
+          start_line: 11
+          end_line: 39
     original_artifact_coverage:
-      state: "unknown"
-      verification_state: "unverified"
+      state: complete
+      verification_state: verified
       evidence:
-        -
-          path: "materialized_sources/corpus/arxiv-2305.14627--6d5b37c6/manifest.yaml"
-          locator: "retrievals/local_files/materialization/omitted"
-          result: "当前 inventory 存在=true、跟踪=true；原HTML留存=0，omitted候选=7；这些结构事实不证明目标原件完整。"
+      - path: materialized_sources/corpus/arxiv-2305.14627--6d5b37c6/pdf-supplement/document.pdf
+        locator: unchanged publisher-vor DOI10.18653/v1/2023.emnlp-main.398; physical pp1–24/printed6465–6488; actual481920
+          bytes
+        result: 主线全文采用冻结独立内容报告并亲看开中尾/四图/正式补充尾界，明确准入本次唯一GET的新原件；正式DOI 10.18653/v1/2023.emnlp-main.398 / Anthology 2023.emnlp-main.398完整24物理页（印刷页6465–6488）compiled
+          PDF：p1–9主文至Conclusion/四图，p10 Limitations/Acknowledgments及p10–13完整References，p14–17正式A–I附录叙述，p18–20主结果Tables19–21，p21–22
+          Tables22–29完整prompts，p23–24 Tables30–31两个ELI5 Examples。真尾p24 Table31第三ground-truth claim、表底线/ELI5 example2图注/页码正常结束，不在References/H标题截断。
+          完整仅指此正式出版表示，不声称旧arXiv归档全部成员/旧扩展或外部作品已恢复/获许可。
+      - path: materialized_sources/corpus/arxiv-2305.14627--6d5b37c6/manifest.yaml
+        locator: pdf_supplement source_version/revision/retrievals/materialization/rights; versioning.publisher_pdf
+          correspondence and retained root fields
+        result: 真实481920 bytes、唯一正式URL、实际GET start/completion与新revision绑定；publisher inventory预检保留并先刷新metadata snapshot真实条目，existing
+          helper全页派生和逐项completeness/publication-package无错误。四方新grant/对应声明全等，旧R对应kind/checked_at2026-09-16/false、root
+          revision/retrieval/rights/gate/materialization/source_version缺省不改；body_quality_verified不是最终PR独立PASS或无损文本。
       missing_assets: []
     text_extraction_coverage:
-      state: "unknown"
-      verification_state: "unverified"
+      state: partial
+      verification_state: verified
       evidence:
-        -
-          path: "materialized_sources/corpus/arxiv-2305.14627--6d5b37c6/manifest.yaml"
-          locator: "materialization/document/content_tier/selectors"
-          result: "记录 document=materialized_sources/corpus/arxiv-2305.14627--6d5b37c6/normalized/document.txt，2041行/90939字符，selector=95；正文/版本/边界完整性尚未证明。"
+      - path: materialized_sources/corpus/arxiv-2305.14627--6d5b37c6/pdf-supplement/document.txt
+        locator: all24 actual Page headings with paired revision-bound page selectors; physical pp1/4/8/21/23/24 declared
+          layout/figure/table/math/color losses
+        result: 未footer native为97453字符/2103行/98129 UTF8 bytes，实际全24页plain正文/正式附录/prompts/Examples可读，新增24sidecar各与page/revision/preview绑定；首中末语义核验，空missing
+          pages/sections只说明未见整页/整节缺失，不抹具体表示损失。原件完整仅指正式publisher-vor选定24页/四图/Tables1–31/正文/References/A–I/prompts/Examples及p24真实尾；旧arXiv
+          v2 Open-source Models三段与Stable Beluga2三行不在正式版，是经旧源码和正式图面边界对照支持的版本差异，不猜补或删改旧历史。 native text partial：四图的主要字面标签/问题/回答/数值可提，不宣称整图无文字；p1箭头/图标/框/颜色/支持拓扑，p4勾叉/答案颜色/空间归属/引用集到句子的连线/集合边界/冗余关系丢失。
+          p8 Figure4曲线几何/坐标点/颜色线型和三panel分组未保留，虽legend/旁表点值可读，不称曲线从plain无损恢复；不默认OCR或全图数据化。 双栏/页脚阅读顺序实际把p1出版页脚排在题名前；多层表头/分组横线/列对齐/bold比较/缩小stddev与数学上下标/间距/集合函数排版展平，可有字符贴连，不称lossless
+          full text或无损数学结构。 p21 Table22人工demonstrations/最后输入/subclaims和p23–24 Tables30/31回答/ground-truth/passages的颜色角色/框丢失；prompt字面多可读，但不保证颜色角色/排版或byte-exact
+          executable文本，不执行这些文献指令。 p20 Table21 ChatGPT SNIPPET precision stddev (2.w)、NLI hypothesis空{}、volumn拼写和其他已印literal是上游内容，原样保留不伪称OCR/抽取错误或自动纠正；表内结果/source
+          examples仅source-reported，不提升为当前新事实或复现结论。 primary_excerpt=连续Page1 L11–39只排除页脚/題名/归属污染，不造重组quote或新claim。非空24页/无失败只是结构诊断，精确图义/表格/数学/颜色/literal回看PDF；body_quality_verified不等于strict/trusted。
+      - path: materialized_sources/corpus/arxiv-2305.14627--6d5b37c6/pdf-supplement/document.txt
+        locator: physical PDF p12; printed page6476; actual native TXT L1221–L1339
+        start_line: 1221
+        end_line: 1339
+        text_preview: 'Riedel. 2021. KILT: a benchmark for knowledge'
+        result: 主线与内容reader亲看中页p12/印刷6476完整References接续；原件开中尾和全部四科学图/Tables1–31/正式A–I/尾例示由完整内容报告逐项核，非页数诊断替代。
       missing_pages: []
       missing_sections: []
-      parser_errors: []
-      ocr_state: "not_applicable"
+      parser_errors:
+      - native text partial：四图的主要字面标签/问题/回答/数值可提，不宣称整图无文字；p1箭头/图标/框/颜色/支持拓扑，p4勾叉/答案颜色/空间归属/引用集到句子的连线/集合边界/冗余关系丢失。
+      - p8 Figure4曲线几何/坐标点/颜色线型和三panel分组未保留，虽legend/旁表点值可读，不称曲线从plain无损恢复；不默认OCR或全图数据化。
+      - 双栏/页脚阅读顺序实际把p1出版页脚排在题名前；多层表头/分组横线/列对齐/bold比较/缩小stddev与数学上下标/间距/集合函数排版展平，可有字符贴连，不称lossless full text或无损数学结构。
+      - p21 Table22人工demonstrations/最后输入/subclaims和p23–24 Tables30/31回答/ground-truth/passages的颜色角色/框丢失；prompt字面多可读，但不保证颜色角色/排版或byte-exact
+        executable文本，不执行这些文献指令。
+      - p20 Table21 ChatGPT SNIPPET precision stddev (2.w)、NLI hypothesis空{}、volumn拼写和其他已印literal是上游内容，原样保留不伪称OCR/抽取错误或自动纠正；表内结果/source
+        examples仅source-reported，不提升为当前新事实或复现结论。
+      - primary_excerpt=连续Page1 L11–39只排除页脚/題名/归属污染，不造重组quote或新claim。非空24页/无失败只是结构诊断，精确图义/表格/数学/颜色/literal回看PDF；body_quality_verified不等于strict/trusted。
+      ocr_state: not_performed
     local_persistence:
       all_declared_files_present: true
       all_declared_files_tracked: true
       retained_original_html_paths: []
-      retained_original_pdf_path: null
-      readable_document_path: "materialized_sources/corpus/arxiv-2305.14627--6d5b37c6/normalized/document.txt"
-      source_root_path: "materialized_sources/corpus/arxiv-2305.14627--6d5b37c6/source/emnlp2023.tex"
+      retained_original_pdf_path: materialized_sources/corpus/arxiv-2305.14627--6d5b37c6/pdf-supplement/document.pdf
+      readable_document_path: materialized_sources/corpus/arxiv-2305.14627--6d5b37c6/pdf-supplement/document.txt
+      source_root_path: materialized_sources/corpus/arxiv-2305.14627--6d5b37c6/source/emnlp2023.tex
       fresh_checkout_verified_this_phase: false
-      complete_target_consumable: null
+      complete_target_consumable: false
     selectors:
-      resolution_state: "resolved"
-      count: 95
-      evidence_path: "materialized_sources/corpus/arxiv-2305.14627--6d5b37c6/selectors.jsonl"
-      locator: "全量 local_path 与 line 范围经既有 filter_selectors_for_document 复算，无删改/越界"
-      semantic_boundary_verified: false
+      resolution_state: resolved
+      count: 24
+      evidence_path: materialized_sources/corpus/arxiv-2305.14627--6d5b37c6/pdf-supplement/selectors.jsonl
+      locator: 新增独立pdf://实际publisher PDF revision#page逐页绑定，全24preview/heading与首中末语义已核；旧root95条及scope/history完整保留，不混进当前target
+        count。
+      semantic_boundary_verified: true
     public_redistribution:
-      state: "block"
-      reported_gate: "block"
-      authority: "existing_publication_gate_not_reassessed_in_P1"
+      state: block
+      reported_gate: block
+      authority: existing_publication_gate_not_reassessed_in_P1
       revision_matches: true
-      evidence_path: "raw_data/audits/materialization_rights_review.yaml"
-      locator: "items[uid=arxiv:2305.14627].publication_gate/source_revision"
-      note: "继承的 review.source_revision 与当前 manifest.revision 相同；并非 P1 新许可结论，不证明正文完整。"
+      evidence_path: raw_data/audits/materialization_rights_review.yaml
+      locator: items[uid=arxiv:2305.14627].publication_gate/source_revision
+      note: state/reported_gate保留已观测旧root block与匹配旧revision；新正式PDF按主线明确准入、四方独立grant/publisher_correspondence/完整NOTICE和真实新revision有界allow。旧supports_public_redistribution=false对应证据和源包独立条件不升级，原件complete/native
+        partial不由newallow推出strict/trusted。
+      target_representation_state: allow
+      target_representation_evidence_path: materialized_sources/corpus/arxiv-2305.14627--6d5b37c6/manifest.yaml
+      target_representation_locator: target_document.representation=pdf_supplement; pdf_supplement.rights.publication_gate/redistribution_package.publisher_correspondence;
+        versioning.publisher_pdf
     knowledge_admission:
-      state: "candidate"
+      state: candidate
       observed_claims_exist: true
       claim_state_counts:
         candidate: 2
-      scope: "仅所选 demo 的现有 claim.source_refs；不是全库知识晋级状态"
-      evidence_path: "experiments/v0_meta_kb_initialization_demo_260910/04_claims/claims.jsonl"
-      locator: "provenance.source_refs contains arxiv:2305.14627; governance.promotion_state"
-      note: "仅报告现有 claim 状态，不晋级 trusted；metadata verification 不等于 knowledge admission。"
-    content_inspection: []
-    inspection_method: "structural_probe_only"
-    known_parser_issue: false
-    exact_limitation: "只核对 metadata/manifest/index/registry、文件存在/跟踪与全部 selector 结构；未执行该 UID 正文开中尾或原件比对，不能从 full_text 标签推出 complete。 metadata.source_version 未记录；selected_version=null，不把 local_revision 当上游版本。 omitted=7 是缺口候选，未逐个判断引用与必要性，不能自动判全 archive complete 或 partial。"
-    action_bucket: "needs_boundary_verification"
-    next_action: "后续按具体 UID 固定目标文档/版本，再比对原件开中尾、章节/附录、引用资产与派生文本；P1 不获取原文或提升 complete。"
-    resolution: "unresolved"
+      scope: 仅所选 demo 的现有 claim.source_refs；不是全库知识晋级状态
+      evidence_path: experiments/v0_meta_kb_initialization_demo_260910/04_claims/claims.jsonl
+      locator: provenance.source_refs contains arxiv:2305.14627; governance.promotion_state
+      note: 仅报告现有 claim 状态，不晋级 trusted；metadata verification 不等于 knowledge admission。
+    content_inspection:
+    - path: materialized_sources/corpus/arxiv-2305.14627--6d5b37c6/pdf-supplement/document.txt
+      locator: physical PDF p1; printed page6465; actual native TXT L2–L110
+      start_line: 2
+      end_line: 110
+      text_preview: Proceedings of the 2023 Conference on Empirical Methods in Natural Language Processing , pages 6465–6488
+      result: 主线与内容reader均亲看首页四作者/机构/实际通讯/EMNLP身份/©2023 ACL与父摘要；图1字面内容可提但箭头/颜色/支持拓扑和页脚阅读顺序损失明列，不称整图无文字。
+    - path: materialized_sources/corpus/arxiv-2305.14627--6d5b37c6/pdf-supplement/document.txt
+      locator: physical PDF p12; printed page6476; actual native TXT L1221–L1339
+      start_line: 1221
+      end_line: 1339
+      text_preview: 'Riedel. 2021. KILT: a benchmark for knowledge'
+      result: 主线与内容reader亲看中页p12/印刷6476完整References接续；原件开中尾和全部四科学图/Tables1–31/正式A–I/尾例示由完整内容报告逐项核，非页数诊断替代。
+    - path: materialized_sources/corpus/arxiv-2305.14627--6d5b37c6/pdf-supplement/document.txt
+      locator: physical PDF p24; printed page6488; actual native TXT L2049–L2103
+      start_line: 2049
+      end_line: 2103
+      text_preview: 'Instruction: Write an accurate, engaging, and concise answer for ...'
+      result: 主线与内容reader亲看真尾p24/印刷6488 Table31 ELI5 example2的五有限外部passages/模型回答/三ground-truth claims、最后表底线/图注/页码，原件正常结束；原学术示例不升级为当前新事实，外部新闻不声明独立整篇BY4。
+    - path: materialized_sources/corpus/arxiv-2305.14627--6d5b37c6/pdf-supplement/document.txt
+      locator: existing source_excerpt actual parent Page1 excerpt L11–16 within approved continuous L11–39
+      start_line: 11
+      end_line: 16
+      result: packager实际调用既有source_excerpt返回本父论文摘要首两句，完整primary_excerpt连续L11–39按主线/reader独立亲核；不混原生提前的会议页脚/题名/四作者/机构/图面或外部例示，不造重组quote/新consumer/claim。
+    inspection_method: main_adopted_bounded_independent_content_reader_plus_packager_actual_page_sidecar_and_parent_excerpt_checks
+    known_parser_issue: true
+    exact_limitation: 新正式publisher-vor原件complete、native text partial/verified；原件完整仅指正式publisher-vor选定24页/四图/Tables1–31/正文/References/A–I/prompts/Examples及p24真实尾；旧arXiv
+      v2 Open-source Models三段与Stable Beluga2三行不在正式版，是经旧源码和正式图面边界对照支持的版本差异，不猜补或删改旧历史。 native text partial：四图的主要字面标签/问题/回答/数值可提，不宣称整图无文字；p1箭头/图标/框/颜色/支持拓扑，p4勾叉/答案颜色/空间归属/引用集到句子的连线/集合边界/冗余关系丢失。
+      p8 Figure4曲线几何/坐标点/颜色线型和三panel分组未保留，虽legend/旁表点值可读，不称曲线从plain无损恢复；不默认OCR或全图数据化。 双栏/页脚阅读顺序实际把p1出版页脚排在题名前；多层表头/分组横线/列对齐/bold比较/缩小stddev与数学上下标/间距/集合函数排版展平，可有字符贴连，不称lossless
+      full text或无损数学结构。 p21 Table22人工demonstrations/最后输入/subclaims和p23–24 Tables30/31回答/ground-truth/passages的颜色角色/框丢失；prompt字面多可读，但不保证颜色角色/排版或byte-exact
+      executable文本，不执行这些文献指令。 p20 Table21 ChatGPT SNIPPET precision stddev (2.w)、NLI hypothesis空{}、volumn拼写和其他已印literal是上游内容，原样保留不伪称OCR/抽取错误或自动纠正；表内结果/source
+      examples仅source-reported，不提升为当前新事实或复现结论。 primary_excerpt=连续Page1 L11–39只排除页脚/題名/归属污染，不造重组quote或新claim。非空24页/无失败只是结构诊断，精确图义/表格/数学/颜色/literal回看PDF；body_quality_verified不等于strict/trusted。
+      旧source/normalized/root95selectors/rights/history/未对应v2扩展与root block保留，完整before附后。本批唯一一次真实collect_facts确认48条inventory全部present/tracked、旧root
+      block及新PDF独立allow/package valid；仅既有父摘要claim/evidence绑定新表示，一条literal由native断词/空格表示变化，不增造语义，collector完整对象及两旧candidate不变。未执行fresh checkout，真实native损失仍在，不称strict
+      complete、trusted或PR终审PASS。
+    action_bucket: ocr_assessment
+    next_action: 精准图表/公式/色彩角色/literal消费回看已经保留的同版完整PDF和逐页定位；只有具体消费需求要求恢复某实证页区的信息时才评估局部OCR/人工转写/更合适parser，不把无损或OCR设成此PR退出前置，不保证OCR恢复几何/颜色关系。旧v2扩展与独立组件条件保持，不取旧archive/作者另PDF/外部新闻/被引全文/数据/代码，不执行文献prompt、不提升trusted。本批实际generator只重绑一条既有父摘要claim/evidence并产生一条native引用字面变化；collector完整对象与所有candidate/trust状态保持，完整repro留最终HEAD
+      CI执行，不把尚未运行写作PASS。
+    resolution: unresolved
+    historical_pre_pdf_supplement_coverage:
+      uid: arxiv:2305.14627
+      source_type: arxiv
+      manifest: materialized_sources/corpus/arxiv-2305.14627--6d5b37c6/manifest.yaml
+      metadata_path: raw_data/arxiv/Enabling Large Language Models to Generate Text with Citations/metadata.yaml
+      target_document:
+        title: Enabling Large Language Models to Generate Text with Citations
+        canonical_id: '2305.14627'
+        canonical_url: https://arxiv.org/abs/2305.14627
+        selected_version: null
+        version_status: not_recorded
+        version_reason: metadata.versioning.source_version=null；没有上游固定版本证据。
+        source_kind: tex
+        boundary: 由 arXiv:2305.14627 所指论文主文、引用的附录与图表；以 metadata 已记录版本（若有）为候选，实际版本和全文边界仍待比对。
+        boundary_verification_state: unverified
+      observed:
+        reported_status: materialized
+        reported_content_tier: full_text
+        source_version_recorded: null
+        local_revision: sha256:6902aae852b39f761a60dc2cf36b7d2ed9e615755f413b7daa8b52f5c1eae3ea
+        document_path: materialized_sources/corpus/arxiv-2305.14627--6d5b37c6/normalized/document.txt
+        document_lines: 2041
+        document_characters: 90939
+        main_tex_path: materialized_sources/corpus/arxiv-2305.14627--6d5b37c6/source/emnlp2023.tex
+        normalized_document: normalized/document.txt
+        source_pdf: null
+        retained_original_html_paths: []
+        inventory_file_count: 44
+        all_declared_files_present: true
+        all_declared_files_tracked: true
+        selector_path: materialized_sources/corpus/arxiv-2305.14627--6d5b37c6/selectors.jsonl
+        selector_count: 95
+        invalid_selector_count: 0
+        pdf_page_count_reported: null
+        pdf_text_page_headings: []
+        pdf_empty_text_pages: []
+        pdf_duplicate_page_headings: []
+        content_was_truncated: null
+        omitted_member_count: 7
+        errors: []
+        warnings: []
+        limitations: []
+        requested_urls:
+        - https://export.arxiv.org/e-print/2305.14627
+        - https://arxiv.org/e-print/2305.14627
+        resolved_urls:
+        - https://export.arxiv.org/src/2305.14627
+        index_registry_consistent: true
+        public_gate: block
+        public_gate_revision_matches: true
+        knowledge_claim_state_counts:
+          candidate: 2
+      original_artifact_coverage:
+        state: unknown
+        verification_state: unverified
+        evidence:
+        - path: materialized_sources/corpus/arxiv-2305.14627--6d5b37c6/manifest.yaml
+          locator: retrievals/local_files/materialization/omitted
+          result: 当前 inventory 存在=true、跟踪=true；原HTML留存=0，omitted候选=7；这些结构事实不证明目标原件完整。
+        missing_assets: []
+      text_extraction_coverage:
+        state: unknown
+        verification_state: unverified
+        evidence:
+        - path: materialized_sources/corpus/arxiv-2305.14627--6d5b37c6/manifest.yaml
+          locator: materialization/document/content_tier/selectors
+          result: 记录 document=materialized_sources/corpus/arxiv-2305.14627--6d5b37c6/normalized/document.txt，2041行/90939字符，selector=95；正文/版本/边界完整性尚未证明。
+        missing_pages: []
+        missing_sections: []
+        parser_errors: []
+        ocr_state: not_applicable
+      local_persistence:
+        all_declared_files_present: true
+        all_declared_files_tracked: true
+        retained_original_html_paths: []
+        retained_original_pdf_path: null
+        readable_document_path: materialized_sources/corpus/arxiv-2305.14627--6d5b37c6/normalized/document.txt
+        source_root_path: materialized_sources/corpus/arxiv-2305.14627--6d5b37c6/source/emnlp2023.tex
+        fresh_checkout_verified_this_phase: false
+        complete_target_consumable: null
+      selectors:
+        resolution_state: resolved
+        count: 95
+        evidence_path: materialized_sources/corpus/arxiv-2305.14627--6d5b37c6/selectors.jsonl
+        locator: 全量 local_path 与 line 范围经既有 filter_selectors_for_document 复算，无删改/越界
+        semantic_boundary_verified: false
+      public_redistribution:
+        state: block
+        reported_gate: block
+        authority: existing_publication_gate_not_reassessed_in_P1
+        revision_matches: true
+        evidence_path: raw_data/audits/materialization_rights_review.yaml
+        locator: items[uid=arxiv:2305.14627].publication_gate/source_revision
+        note: 继承的 review.source_revision 与当前 manifest.revision 相同；并非 P1 新许可结论，不证明正文完整。
+      knowledge_admission:
+        state: candidate
+        observed_claims_exist: true
+        claim_state_counts:
+          candidate: 2
+        scope: 仅所选 demo 的现有 claim.source_refs；不是全库知识晋级状态
+        evidence_path: experiments/v0_meta_kb_initialization_demo_260910/04_claims/claims.jsonl
+        locator: provenance.source_refs contains arxiv:2305.14627; governance.promotion_state
+        note: 仅报告现有 claim 状态，不晋级 trusted；metadata verification 不等于 knowledge admission。
+      content_inspection: []
+      inspection_method: structural_probe_only
+      known_parser_issue: false
+      exact_limitation: 只核对 metadata/manifest/index/registry、文件存在/跟踪与全部 selector 结构；未执行该 UID 正文开中尾或原件比对，不能从 full_text
+        标签推出 complete。 metadata.source_version 未记录；selected_version=null，不把 local_revision 当上游版本。 omitted=7 是缺口候选，未逐个判断引用与必要性，不能自动判全
+        archive complete 或 partial。
+      action_bucket: needs_boundary_verification
+      next_action: 后续按具体 UID 固定目标文档/版本，再比对原件开中尾、章节/附录、引用资产与派生文本；P1 不获取原文或提升 complete。
+      resolution: unresolved
   -
     uid: "arxiv:2310.02304"
     source_type: "arxiv"

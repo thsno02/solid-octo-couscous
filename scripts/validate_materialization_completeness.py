@@ -513,12 +513,19 @@ def validate_pdf_supplement(
     if supplement is None:
         if (capsule_root / "pdf-supplement/document.pdf").is_file():
             errors.append(f"PDF_SUPPLEMENT_UNDECLARED {manifest.get('uid')}")
-        if manifest.get("source_type") == "journal":
+        if manifest.get("source_type") == "journal" or (
+            manifest.get("source_type") == "arxiv" and manifest.get("adapter") == "arxiv_latex_v2"
+        ):
             try:
-                metadata = load_yaml((repository_root or ROOT) / manifest["metadata_path"])
-                if "publisher_pdf" in (metadata.get("versioning") or {}):
-                    errors.append(f"PDF_SUPPLEMENT_DECLARATION_MISSING {manifest.get('uid')}")
-            except (KeyError, TypeError, AttributeError, OSError, yaml.YAMLError) as exc:
+                for path in ((repository_root or ROOT) / manifest["metadata_path"], capsule_root / "source-metadata.yaml"):
+                    metadata = load_yaml(path)
+                    versioning = metadata.get("versioning")
+                    if versioning is not None and not isinstance(versioning, dict):
+                        raise ValueError("publisher versioning must be a mapping or null")
+                    if isinstance(versioning, dict) and "publisher_pdf" in versioning:
+                        errors.append(f"PDF_SUPPLEMENT_DECLARATION_MISSING {manifest.get('uid')}")
+                        break
+            except (KeyError, TypeError, AttributeError, ValueError, OSError, yaml.YAMLError) as exc:
                 errors.append(f"PDF_SUPPLEMENT_VERSION {manifest.get('uid')}: {exc}")
         return 0
     uid = str(manifest.get("uid") or "")
@@ -532,6 +539,7 @@ def validate_pdf_supplement(
         metadata = load_yaml(repo_root / manifest["metadata_path"])
         capsule = load_yaml(capsule_root / "source-metadata.yaml")
         version_url, si_url = pdf_supplement_version_urls(manifest, metadata, capsule, supplement.get("source_version"))
+        publisher = supplement["source_version"].startswith("publisher-vor:")
         si = supplement.get("supplementary_information")
         if (si_url is not None) != (si is not None):
             raise ValueError("required publisher SI is missing or an undeclared SI is present")
@@ -548,7 +556,7 @@ def validate_pdf_supplement(
     selector_count = sum(
         _validate_pdf_supplement_part(
             manifest, part, directory, approved_url, capsule_root, declared_files, actual_hashes, errors,
-            repo_root=repo_root, label=part_label,
+            repo_root=repo_root, label=part_label, publisher=publisher,
         )
         for part, directory, approved_url, part_label in parts
     )
@@ -568,7 +576,7 @@ def validate_pdf_supplement(
 def _validate_pdf_supplement_part(
     manifest: dict[str, Any], supplement: dict[str, Any], directory: str, version_url: str,
     capsule_root: Path, declared_files: set[str], actual_hashes: dict[str, str], errors: list[str],
-    *, repo_root: Path, label: str,
+    *, repo_root: Path, label: str, publisher: bool,
 ) -> int:
     """Apply the same native page checks independently to each retained PDF."""
     uid = str(manifest.get("uid") or "")
@@ -614,7 +622,7 @@ def _validate_pdf_supplement_part(
     retrievals = supplement.get("retrievals")
     retrieval = retrievals[0] if isinstance(retrievals, list) and len(retrievals) == 1 and isinstance(retrievals[0], dict) else {}
     if (
-        not pdf_supplement_retrieval_url_matches(retrieval, version_url, publisher=manifest.get("source_type") == "journal")
+        not pdf_supplement_retrieval_url_matches(retrieval, version_url, publisher=publisher)
         or retrieval.get("sha256") != source_hash or retrieval.get("bytes") != source.stat().st_size
         or not isinstance(retrieval.get("retrieved_at"), str) or not retrieval["retrieved_at"].strip()
         or not isinstance(retrieval.get("content_type"), str) or retrieval["content_type"].split(";", 1)[0].strip() != "application/pdf"

@@ -230,6 +230,377 @@ class PdfSupplementTests(unittest.TestCase):
         self.manifest["pdf_supplement"] = self.supplement
         self.refresh_inventory()
 
+    def arxiv_publisher_fixture(self) -> None:
+        """Keep the arXiv identity while declaring an unrelated synthetic publisher."""
+        self.version = "publisher-vor:doi:10.5555/published-work.2024.7"
+        self.main_url = "https://publisher.example/articles/published-work.2024.7.pdf"
+        correspondence = {
+            "originating_arxiv_id": "2408.08435", "publisher_doi": "10.5555/published-work.2024.7",
+            "reviewed": True, "audit_evidence_kind": "reviewed_published_work",
+        }
+        self.rights["redistribution_package"].update({
+            "source_version": self.version, "source_version_url": self.main_url,
+            "publisher_correspondence": copy.deepcopy(correspondence),
+            "notice_path": self.rel(self.capsule / "pdf-supplement/NOTICE.md"),
+            "attribution": "Synthetic authors, the official published work, DOI 10.5555/published-work.2024.7.",
+            "scope": "Only the published PDF and its page text/selectors; no retained TeX extensions.",
+        })
+        self.rights["publication_gate"]["approved_scope"] = self.rights["redistribution_package"]["scope"]
+        (self.capsule / "pdf-supplement/NOTICE.md").write_text(
+            "Synthetic authors, fixed published work. Original PDF unchanged; page text is derived.\n"
+            "Only the published representation; retained TeX is not granted.\nComplete reviewed license notice.\n"
+        )
+        for name in ("document.txt", "selectors.jsonl"):
+            (self.capsule / "pdf-supplement" / name).unlink()
+        (self.capsule / "source").mkdir()
+        (self.capsule / "source/main.tex").write_text("Retained historical TeX extension outside the published PDF.\n")
+        (self.capsule / "README.md").write_text("Retained historical capsule description.\n")
+        (self.capsule / "files.jsonl").write_text("Retained historical source inventory.\n")
+        (self.capsule / "NOTICE.md").write_text("Retained historical notice; public permission is unresolved.\n")
+        self.metadata.update({
+            "source_type": "arxiv", "canonical_id": "2408.08435", "canonical_url": "https://arxiv.org/abs/2408.08435",
+            "versioning": {"source_version": None, "publisher_pdf": {
+                "doi": correspondence["publisher_doi"], "source_version": self.version, "source_pdf_url": self.main_url,
+                "correspondence": correspondence,
+                "supplementary_information": {"required": False, "source_pdf_url": None},
+            }},
+        })
+        self.manifest.update({
+            "canonical_url": self.metadata["canonical_url"], "generated_at": "old-fixed-time",
+            "retrievals": [{"resolved_url": "https://export.arxiv.org/src/2408.08435", "sha256": "old-tex-revision"}],
+        })
+        self.manifest.pop("pdf_supplement")
+        self.retrieval.update({"requested_urls": [self.main_url], "resolved_url": self.main_url})
+        self.review.update({
+            "publication_gate": {"decision": "block", "reason": "The retained TeX extensions remain unreviewed."},
+            "evidence": [{
+                "kind": correspondence["audit_evidence_kind"], "checked_at": "2026-09-16",
+                "doi": "https://doi.org/10.5555/published-work.2024.7", "url": "https://publisher.example/articles/published-work.2024.7/",
+                "related_urls": [self.main_url], "supports_public_redistribution": False,
+            }],
+        })
+        self.sync_publisher_grants()
+        self.legacy = {
+            path.relative_to(self.capsule).as_posix(): path.read_bytes()
+            for path in self.capsule.rglob("*") if path.is_file() and path != self.manifest_path
+        }
+        fetch = mock.patch.object(materializer, "fetch_bytes", side_effect=AssertionError("publisher fixture must remain offline"))
+        self.offline_fetch = fetch.start()
+        self.addCleanup(fetch.stop)
+
+    def sync_publisher_grants(self) -> None:
+        self.metadata["rights"]["pdf_supplement"] = copy.deepcopy(self.rights)
+        self.review["pdf_supplement"] = copy.deepcopy(self.rights)
+        if isinstance(self.manifest.get("pdf_supplement"), dict):
+            self.manifest["pdf_supplement"]["rights"] = self.rights
+        self.write_metadata()
+        self.write_audit()
+        self.refresh_inventory()
+
+    def build_arxiv_publisher(self) -> None:
+        with mock.patch.object(materializer, "ROOT", self.root):
+            self.supplement = materializer.build_pdf_supplement(
+                self.capsule, self.version, self.retrieval, self.rights, body_quality_verified=True,
+                limitations=["Native PDF text may omit graphic-only labels; the legacy TeX is separate."],
+            )
+        self.manifest["pdf_supplement"] = self.supplement
+        self.refresh_inventory()
+        self.offline_fetch.assert_not_called()
+
+    def assert_publisher_preflight_refused(self, *, supplementary_information: dict | None = None) -> None:
+        before = self.snapshot()
+        with mock.patch.object(materializer, "ROOT", self.root), self.assertRaises(materializer.RedistributionPackageError):
+            materializer.build_pdf_supplement(
+                self.capsule, self.version, self.retrieval, self.rights, body_quality_verified=True,
+                supplementary_information=supplementary_information,
+            )
+        self.assertEqual(self.snapshot(), before)
+        self.offline_fetch.assert_not_called()
+
+    def test_arxiv_publisher_keeps_source_identity_legacy_bytes_and_root_block(self) -> None:
+        self.arxiv_publisher_fixture()
+        root_fields = {field: copy.deepcopy(value) for field, value in self.manifest.items() if field not in ("local_files", "local_bytes")}
+        self.build_arxiv_publisher()
+        self.assertEqual(self.integrity_errors(), [])
+        self.assertEqual(validate_pdf_supplement_rights(self.manifest, self.manifest_path, self.root, self.review), ([], []))
+        self.assertEqual(self.chosen(), (self.capsule / "pdf-supplement/document.txt", self.capsule / "pdf-supplement/selectors.jsonl"))
+        for name, old in self.legacy.items():
+            self.assertEqual((self.capsule / name).read_bytes(), old)
+        for field, value in root_fields.items():
+            self.assertEqual(self.manifest[field], value)
+        self.assertNotIn("source_version", self.manifest)
+        self.assertIsNone(self.metadata["versioning"]["source_version"])
+        self.assertNotIn("supplementary_information", self.supplement)
+        self.assertEqual(self.review["publication_gate"]["decision"], "block")
+        self.assertFalse(self.review["evidence"][0]["supports_public_redistribution"])
+        errors, blocked, _, _ = validate_publication_rights(self.audit_path, self.root / "materialized_sources/corpus")
+        self.assertEqual(errors, [])
+        self.assertEqual(len(blocked), 1)
+        source = {**self.item, "revision": self.supplement["revision"], "source_representation": "pdf_supplement",
+                  "rights_status": DECLARED, "rights": rights_snapshot(self.rights)}
+        self.assertEqual(validate_rights_chain(root=self.root, claims=[], evidence=[], sources=[source]), [])
+        self.offline_fetch.assert_not_called()
+
+    def test_arxiv_publisher_normalizes_only_doi_prefix_and_case_for_correspondence(self) -> None:
+        self.arxiv_publisher_fixture()
+        declaration = self.metadata["versioning"]["publisher_pdf"]
+        declaration["doi"] = "DOI:10.5555/PUBLISHED-WORK.2024.7"
+        declaration["correspondence"]["publisher_doi"] = "https://doi.org/10.5555/published-work.2024.7"
+        self.rights["redistribution_package"]["publisher_correspondence"] = copy.deepcopy(declaration["correspondence"])
+        self.sync_publisher_grants()
+        self.build_arxiv_publisher()
+        self.assertEqual(self.integrity_errors(), [])
+
+    def test_arxiv_publisher_invalid_correspondence_is_not_a_normal_arxiv_fallback(self) -> None:
+        self.arxiv_publisher_fixture()
+        self.build_arxiv_publisher()
+        original = copy.deepcopy(self.metadata)
+        for field, value in (
+            ("originating_arxiv_id", "2408.99999"), ("publisher_doi", "10.5555/different-work"),
+            ("reviewed", False), ("reviewed", 1), ("reviewed", "true"), ("audit_evidence_kind", ""),
+        ):
+            with self.subTest(field=field, value=value):
+                self.metadata = copy.deepcopy(original)
+                self.metadata["versioning"]["publisher_pdf"]["correspondence"][field] = value
+                self.write_metadata()
+                self.refresh_inventory()
+                self.assertTrue(self.integrity_errors())
+                self.assertEqual(self.chosen()[0], self.capsule / "normalized/document.txt")
+                self.assert_publisher_preflight_refused()
+        for value in (None, [], {"reviewed": True}):
+            with self.subTest(correspondence=value):
+                self.metadata = copy.deepcopy(original)
+                self.metadata["versioning"]["publisher_pdf"]["correspondence"] = value
+                self.write_metadata()
+                self.refresh_inventory()
+                self.assert_publisher_preflight_refused()
+
+    def test_arxiv_publisher_identity_declaration_version_and_metadata_mismatch_fail_closed(self) -> None:
+        self.arxiv_publisher_fixture()
+        self.build_arxiv_publisher()
+        original = copy.deepcopy(self.metadata)
+        for field, value in (("uid", "arxiv:2408.99999"), ("source_type", "journal"),
+                             ("canonical_id", "2408.99999"), ("canonical_url", "https://arxiv.org/abs/2408.99999")):
+            with self.subTest(identity=field):
+                self.metadata = copy.deepcopy(original)
+                self.metadata[field] = value
+                self.write_metadata()
+                self.refresh_inventory()
+                self.assert_publisher_preflight_refused()
+        for field, value in (("source_version", "publisher-vor:wrong-version"), ("doi", "10.5555/wrong-work"),
+                             ("source_pdf_url", "https://publisher.example/wrong-work.pdf"), ("supplementary_information", None)):
+            with self.subTest(declaration=field):
+                self.metadata = copy.deepcopy(original)
+                self.metadata["versioning"]["publisher_pdf"][field] = value
+                self.write_metadata()
+                self.refresh_inventory()
+                self.assertTrue(self.integrity_errors())
+                self.assert_publisher_preflight_refused()
+        self.metadata = copy.deepcopy(original)
+        for versioning in (None, 0, False, 7, [], {"source_version": "v2"}, {**original["versioning"], "source_version": "v2"}):
+            with self.subTest(capsule_versioning=versioning):
+                self.write_metadata()
+                capsule = copy.deepcopy(original)
+                capsule["versioning"] = versioning
+                self.write(self.capsule / "source-metadata.yaml", capsule)
+                self.refresh_inventory()
+                self.assertTrue(self.integrity_errors())
+                self.assert_publisher_preflight_refused()
+        self.write_metadata()
+        for value in (None, [], {}):
+            with self.subTest(publisher_declaration=value):
+                self.metadata = copy.deepcopy(original)
+                self.metadata["versioning"]["publisher_pdf"] = value
+                self.write_metadata()
+                self.refresh_inventory()
+                self.assert_publisher_preflight_refused()
+
+    def test_arxiv_publisher_four_synchronized_bad_grants_still_fail(self) -> None:
+        self.arxiv_publisher_fixture()
+        self.build_arxiv_publisher()
+        original = copy.deepcopy(self.rights)
+        for field, value in (
+            ("publisher_correspondence", {"originating_arxiv_id": "2408.99999", "reviewed": True}),
+            ("publisher_correspondence", {**original["redistribution_package"]["publisher_correspondence"], "reviewed": 1}),
+            ("source_version", None), ("source_version", "publisher-vor:wrong-version"),
+            ("source_version_url", "https://publisher.example/different.pdf"),
+        ):
+            with self.subTest(package=field, value=value):
+                self.rights = copy.deepcopy(original)
+                self.rights["redistribution_package"][field] = value
+                self.sync_publisher_grants()
+                self.assertEqual(self.rights, self.metadata["rights"]["pdf_supplement"])
+                self.assertEqual(self.rights, self.review["pdf_supplement"])
+                self.assertEqual(self.rights, self.manifest["pdf_supplement"]["rights"])
+                self.assertTrue(self.integrity_errors())
+                self.assertEqual(self.chosen()[0], self.capsule / "normalized/document.txt")
+                self.assert_publisher_preflight_refused()
+        self.rights = copy.deepcopy(original)
+        self.rights["redistribution_package"].pop("source_version")
+        self.sync_publisher_grants()
+        self.assert_publisher_preflight_refused()
+        for field, value in (("decision", "block"), ("approved_scope", "Only unrelated retained TeX.")):
+            with self.subTest(gate=field):
+                self.rights = copy.deepcopy(original)
+                self.rights["publication_gate"][field] = value
+                self.sync_publisher_grants()
+                self.assertTrue(self.integrity_errors())
+                self.assert_publisher_preflight_refused()
+        self.rights = copy.deepcopy(original)
+        declaration = self.metadata["versioning"]["publisher_pdf"]
+        declaration["doi"] = "10.5555/different-reviewed-work"
+        declaration["correspondence"]["publisher_doi"] = declaration["doi"]
+        self.rights["redistribution_package"]["publisher_correspondence"] = copy.deepcopy(declaration["correspondence"])
+        self.sync_publisher_grants()
+        self.assertTrue(any("DOI/URL evidence" in error for error in self.integrity_errors()))
+        self.assert_publisher_preflight_refused()
+
+    def test_arxiv_publisher_requires_own_grant_and_checked_doi_url_evidence(self) -> None:
+        self.arxiv_publisher_fixture()
+        self.build_arxiv_publisher()
+        original = copy.deepcopy(self.review)
+        for field, value in (("kind", "different_review"), ("checked_at", ""), ("doi", "https://doi.org/10.5555/wrong-work"),
+                             ("related_urls", [])):
+            with self.subTest(evidence=field):
+                self.review = copy.deepcopy(original)
+                self.review["evidence"][0][field] = value
+                self.write_audit()
+                self.assertTrue(self.integrity_errors())
+                self.assert_publisher_preflight_refused()
+        for field, value in (("evidence", []), ("evidence", None), ("uid", "arxiv:2408.99999")):
+            with self.subTest(review=field):
+                self.review = copy.deepcopy(original)
+                self.review[field] = value
+                self.write_audit()
+                self.assert_publisher_preflight_refused()
+        self.review = copy.deepcopy(original)
+        self.review.pop("pdf_supplement")
+        self.write_audit()
+        self.assertTrue(self.integrity_errors())
+        self.assert_publisher_preflight_refused()
+
+    def test_arxiv_publisher_reviewed_is_strict_in_each_metadata_and_each_grant(self) -> None:
+        self.arxiv_publisher_fixture()
+        self.build_arxiv_publisher()
+        metadata, rights, review = (copy.deepcopy(value) for value in (self.metadata, self.rights, self.review))
+        for path in (self.metadata_path, self.capsule / "source-metadata.yaml"):
+            with self.subTest(declaration=path.name, parent=path.parent.name):
+                self.metadata = copy.deepcopy(metadata)
+                self.write_metadata()
+                changed = copy.deepcopy(metadata)
+                changed["versioning"]["publisher_pdf"]["correspondence"]["reviewed"] = 1
+                self.assertEqual(changed["versioning"]["publisher_pdf"], metadata["versioning"]["publisher_pdf"])
+                self.write(path, changed)
+                self.refresh_inventory()
+                self.assertTrue(self.integrity_errors())
+                self.assert_publisher_preflight_refused()
+        for location in ("canonical", "capsule", "manifest", "audit"):
+            with self.subTest(grant=location):
+                self.metadata, self.rights, self.review = (copy.deepcopy(value) for value in (metadata, rights, review))
+                self.sync_publisher_grants()
+                if location in ("canonical", "capsule"):
+                    changed = copy.deepcopy(self.metadata)
+                    changed["rights"]["pdf_supplement"]["redistribution_package"]["publisher_correspondence"]["reviewed"] = 1
+                    self.write(self.metadata_path if location == "canonical" else self.capsule / "source-metadata.yaml", changed)
+                elif location == "manifest":
+                    self.rights["redistribution_package"]["publisher_correspondence"]["reviewed"] = 1
+                else:
+                    self.review["pdf_supplement"]["redistribution_package"]["publisher_correspondence"]["reviewed"] = 1
+                    self.write_audit()
+                self.refresh_inventory()
+                # Ordinary Python mapping equality says True == 1; each reviewed flag must still be rejected.
+                for allowance in (
+                    materializer.load_yaml(self.metadata_path)["rights"]["pdf_supplement"],
+                    materializer.load_yaml(self.capsule / "source-metadata.yaml")["rights"]["pdf_supplement"],
+                    self.review["pdf_supplement"], self.manifest["pdf_supplement"]["rights"],
+                ):
+                    self.assertEqual(allowance, rights)
+                self.assertTrue(self.integrity_errors())
+                self.assertEqual(self.chosen()[0], self.capsule / "normalized/document.txt")
+                self.assert_publisher_preflight_refused()
+
+    def test_arxiv_publisher_rejects_unsafe_urls_even_when_all_inputs_agree(self) -> None:
+        self.arxiv_publisher_fixture()
+        original = tuple(copy.deepcopy(value) for value in (self.metadata, self.rights, self.review, self.retrieval))
+        for url in (
+            self.main_url.replace("https:", "http:"), self.main_url + "?download=1", self.main_url + "#page=1",
+            self.main_url.replace("https://", "https://user@"), self.main_url.replace("https://", "https://@"),
+            self.main_url.replace("https://", "https://:secret@"), self.main_url.replace("https://", "https://:@"),
+        ):
+            with self.subTest(url=url):
+                self.metadata, self.rights, self.review, self.retrieval = (copy.deepcopy(value) for value in original)
+                self.metadata["versioning"]["publisher_pdf"]["source_pdf_url"] = url
+                self.rights["redistribution_package"]["source_version_url"] = url
+                self.review["evidence"][0]["related_urls"] = [url]
+                self.retrieval.update({"requested_urls": [url], "resolved_url": url})
+                self.sync_publisher_grants()
+                self.assert_publisher_preflight_refused()
+
+    def test_arxiv_publisher_rejects_requested_and_resolved_redirect_substitution(self) -> None:
+        self.arxiv_publisher_fixture()
+        self.build_arxiv_publisher()
+        original = copy.deepcopy(self.retrieval)
+        for field, value in (
+            ("requested_urls", ["https://publisher.example/other.pdf"]), ("requested_urls", [self.main_url, self.main_url]),
+            ("resolved_url", "https://attacker.example/articles/published-work.2024.7.pdf"),
+            ("resolved_url", self.main_url.replace("2024.7", "2024.8")),
+            ("resolved_url", self.main_url + "?error=cookies_not_supported&code=12345678-1234-1234-1234-123456789abc"),
+        ):
+            with self.subTest(retrieval=field, value=value):
+                self.retrieval = copy.deepcopy(original)
+                self.retrieval[field] = value
+                self.supplement["retrievals"] = [copy.deepcopy(self.retrieval)]
+                self.refresh_inventory()
+                self.assertTrue(self.integrity_errors())
+                self.assert_publisher_preflight_refused()
+
+    def test_arxiv_publisher_inventory_drift_or_undeclared_si_cannot_write_derivatives(self) -> None:
+        self.arxiv_publisher_fixture()
+        self.build_arxiv_publisher()
+        source = self.capsule / "source/main.tex"
+        original = source.read_bytes()
+        source.write_bytes(original + b"Changed after inventory approval.\n")
+        # Legacy inventory protection belongs to builder preflight, not the child-only validator.
+        self.assert_publisher_preflight_refused()
+        source.write_bytes(original)
+        self.assert_publisher_preflight_refused(supplementary_information={})
+        (self.capsule / "pdf-supplement/supplementary-information").mkdir()
+        self.assertTrue(self.integrity_errors())
+        self.assert_publisher_preflight_refused()
+
+    def test_arxiv_publisher_missing_manifest_supplement_without_pdf_is_not_legacy_success(self) -> None:
+        self.arxiv_publisher_fixture()
+        self.manifest.pop("pdf_supplement", None)
+        (self.capsule / "pdf-supplement/document.pdf").unlink()
+        original = copy.deepcopy(self.metadata)
+        for declared_in in ("canonical", "capsule", "both"):
+            with self.subTest(declared_in=declared_in):
+                canonical, capsule = copy.deepcopy(original), copy.deepcopy(original)
+                if declared_in == "canonical":
+                    capsule["versioning"].pop("publisher_pdf")
+                elif declared_in == "capsule":
+                    canonical["versioning"].pop("publisher_pdf")
+                self.write(self.metadata_path, canonical)
+                self.write(self.capsule / "source-metadata.yaml", capsule)
+                self.refresh_inventory()
+                errors = self.integrity_errors()
+                rights_errors, _ = validate_pdf_supplement_rights(self.manifest, self.manifest_path, self.root, self.review)
+                self.assertTrue(any("DECLARATION_MISSING" in error for error in errors), errors)
+                self.assertTrue(any("DECLARATION_MISSING" in error for error in rights_errors), rights_errors)
+                self.assertFalse(any("UNDECLARED" in error for error in errors + rights_errors))
+                self.assert_publisher_preflight_refused()
+
+    def test_arxiv_without_publisher_or_pdf_supplement_keeps_ordinary_metadata_valid(self) -> None:
+        self.manifest.pop("pdf_supplement")
+        (self.capsule / "pdf-supplement/document.pdf").unlink()
+        for versioning in ({"source_version": "v2"}, {"source_version": None}, None, {}):
+            with self.subTest(versioning=versioning):
+                self.metadata["versioning"] = versioning
+                self.write_metadata()
+                self.refresh_inventory()
+                self.assertEqual(self.integrity_errors(), [])
+                self.assertEqual(validate_pdf_supplement_rights(self.manifest, self.manifest_path, self.root, self.review), ([], []))
+
     def journal_record(self) -> mock.Mock:
         return mock.Mock(
             uid=self.item["uid"], source_type="journal", canonical_id=self.metadata["canonical_id"],
