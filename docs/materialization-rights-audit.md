@@ -198,6 +198,18 @@ RFC6874 的三条规则 `IP-literal`、`ZoneID`、`IPv6addrz` 按出版时生效
 
 ## LinkML 单页许可包装与必要证据边界
 
+### PR26 当前单页响应（Dated Response）
+
+本批固定 `dated-response-2026-09-17T14:20:17Z`：批准的同址 GET 于 `2026-09-17T14:20:15Z–14:20:17Z` 返回 HTTP200、`text/html; charset=utf-8`，无重定向／Content-Encoding。55,141-byte 原 HTML 的 revision 仍为 `93a9f00b0006695dab8f1bde801a40e36eed8c236c4c839aff645bec38b5dc6c`；相同 revision 不意味着旧 prose-only 包已经包含原响应。
+
+当前有界组合为 **Apache-2.0 AND MIT**：LinkML 作者内容仍依下述文档 Apache 证据；实际响应标明的 Furo 2025.12.19 内嵌模板、CSS、theme 初始化和 SVG 依其[官方 MIT LICENSE](https://raw.githubusercontent.com/pradyunsg/furo/2025.12.19/LICENSE)与同 tag 的实际匹配模板。新[专属载体](../raw_data/licenses/linkml-page-body-02-260917.md)保留完整 Apache／MIT、LinkML Authors 2021–2026 与 Pradyun Gedam 2020 版权、Sphinx／Furo 署名及 Just the Docs／Feather／Tabler 来源注记；不声称独立审核全部图标上游链，也不把根许可当第三方权利担保。AND 是分组件履约，不是任选 OR。
+
+原 HTML 不改；派生仅消费 `article#furo-main-content`，去除 `a.headerlink` 的 ¶ UI，保留作者目录文字、URI／CURIE 和链接目标。内容审读发现 `li/p/blockquote` 的部分嵌套层次及末尾索引列表在 Markdown 中未正确保留：原 L557–565 对应派生 L494–532，派生 L771–789 亦有空列表标记，故文本提取明确为 partial，原 HTML 可复查结构；不声称保真转换完成。source 行范围是包围溯源区间，不证明整份响应逐行转换。旧 root document／164 selectors 原字节保留，旧 NOTICE 另存 capsule 的 `history/NOTICE-before-page-body-02.md`，完整旧 C／manifest／R 审阅作为历史保全。本页不是完整 LinkML 方法文档；外部 Logo、脚本／样式、其他页面及外链作品未下载，不作其准入或离线站点功能完整声明。实际四方包、重放及未完成项以 [PR26 阶段报告](plans/260916-corpus-completion-main-convergence/p3-page-body-02.md)为准，不据本段替代最终门控。
+
+### PR26 之前的文字包记录（Historical Text-only Package）
+
+下列原记录中的“当前／本次”指旧文字包检查点，不是本次完整原响应范围：
+
 [LinkML 文档首页](https://linkml.io/linkml/) 的实际 55,141-byte HTML 与既有 revision 一致。同部署的 [View source](https://linkml.io/linkml/_sources/index.rst.txt) 为 2,493-byte RST，与[固定官方源码](https://github.com/linkml/linkml/blob/2ed83cabd15294ef1fa406007ce12e850a151b81/docs/index.rst)逐字节相同。页面自身的 Apache-2.0 声明、官方仓库对应的文档源与根 LICENSE 无文档例外，共同构成当前已存文字的许可证据；`docs/conf.py` 的 ©2021–2026 LinkML Authors 与页面版权对应。
 
 这里证明的是源内容对应（source-content correspondence），不是整个站点的精确部署 commit，也不是 HTML、RST、Markdown 三者字节相同。之前将整个 deployment commit 的证明列为必要清权条件，超出了当前许可所需证据；本次纠正这个额外条件，不降低实际 payload revision 的绑定要求。
@@ -205,6 +217,18 @@ RFC6874 的三条规则 `IP-literal`、`ZoneID`、`IPv6addrz` 按出版时生效
 完整 Apache-2.0、原版权、来源与转换说明已随包保存；上游证据 commit 没有 NOTICE，本地文件仅作为许可载体。两次真实重建一致，附注前 7,340-byte Markdown 正文保持完整前缀，164 个 selectors 未变。范围仅限这份单页转换文本，不宣称其他文档页、主题、JS/CSS、媒体或外链已获授权。未来页面 revision 改变会继续触发重新核验。
 
 ## Schema.org 已存快照与同许可共享（ShareAlike）
+
+### PR26 当前单页响应（Dated Response）
+
+本批固定 `dated-response-2026-09-17T14:20:15Z`：批准的同址 GET 开始／完成均在该 UTC 秒，HTTP200、`text/html`、`Content-Encoding: gzip`，无重定向。原 wire 为 4,500 bytes，机械解压 HTML entity 为 12,007 bytes；同一次响应不是两次 GET。entity revision 是 `b5be08b7c47762f190c539e7dcf6ba04c60507c310af960578f2f97623ee5a0d`，虽长度相同却不等于旧 `f62a65…`；两层分别保留并核实际解压等式，不挪用 wire 长度或旧 grant。
+
+当前有界组合为 **CC-BY-SA-3.0 AND Apache-2.0**：官方 [FAQ #18](https://schema.org/docs/faq.html#18)将 supporting documentation／示例与网站软件分开；实际内嵌 header SVG／事件属性和 GA loader 与[官方软件仓库](https://github.com/schemaorg/schemaorg)模板对应，依其 Apache LICENSE 处理。新[专属载体](../raw_data/licenses/schemaorg-page-body-02-260917.md)包含完整 BY-SA／Apache、四 Sponsors 归属、来源、修改与范围说明。没有把远程 `analytics.js`、jQuery、服务或仅被链接的作品纳入本站软件授权，也不把移动的模板 `main` 路径伪称网页部署 commit。
+
+派生仅消费 `article#mainContent`，保留旧 helper 漏掉的未包裹正文、dated 数量、层次、链接与 pending／meta／attic 警示；TermFinder 静态界面不作为事实 claim，未取得交互结果。文档改编与对应 selector 摘录按 BY-SA 3.0 履行同许可共享；独立 Apache 模板及集合内其他作品不被强行重许可。旧 root document／34 selectors、旧完整 C／manifest／R 与 acquisition 事实保全，旧 NOTICE 另存 `history/NOTICE-before-page-body-02.md`。实际 development／V30.1 页脚不是已取得完整 Vocabulary release 的证明；本页总体 UID 边界仍未决，重放和最终门控见 [PR26 阶段报告](plans/260916-corpus-completion-main-convergence/p3-page-body-02.md)。
+
+### PR26 之前的文字包记录（Historical Text-only Package）
+
+下列“当前包／本项”指旧快照及旧 BY-SA 文字范围，原记录保留，不代表本次新响应：
 
 当前包保留的是物化清单标记为 2026-09-13 的 [Schemas 文档页](https://schema.org/docs/schemas.html)内容快照，所记录的原 HTML 响应为 12,007 bytes、revision 为 `f62a658dd54f9185572242dd6e97df94b201c73132e744d4f078c66b2f51e0d3`。这不是 metadata 的 2026-09-09 收集日期，也不把 `generated_at` 冒充独立的网络获取日志。该 URL 可变；当前线上页面已变化，不能把旧快照命名为新的 release，也不能借重新抓取覆盖既有正文。
 
@@ -271,8 +295,8 @@ arXiv 的 nonexclusive 只说明该平台得到的托管权，不足以排除同
 
 - arXiv：32 篇官方文章页链接 CC；WikiChat 另由作者的确切 camera-ready 版本声明与 ACL 出版许可形成正文授权链；RE-Net、RARR、ResearchAgent 另由固定 payload 与正式 ACL 出版表达对应形成作者正文 BY4 路径。其余 37 篇仍缺适用公众许可证据；arXiv non-exclusive/历史 assumed license 本身不授予公众再分发权，正文许可不自动覆盖所有附带组件。
 - W3C：7 份页面采用可修改的 Software and Document License；7 份旧页面采用限制一般衍生的 Document License。
-- Apache/LinkML/ODCS：ODCS 固定定义首页与 LinkML 当前文档首页已分别完成 Apache-2.0 包装；范围不扩展到各自整个站点。
-- Schema.org：已为当前 supporting-documentation 快照恢复 Terms、来源、署名、修改说明和 CC BY-SA 3.0 适配物许可；未来新版本仍需重新核验。
+- Apache/LinkML/ODCS：ODCS 固定定义首页沿既有 Apache-2.0 范围；LinkML 本次 dated 原响应分别对作者内容与内嵌 Furo 模板履行 Apache-2.0 AND MIT，旧 prose-only 记录保全；范围不扩展到各自整个站点。
+- Schema.org：本次 dated 响应分别对 supporting documentation 与内嵌软件履行 CC-BY-SA-3.0 AND Apache-2.0，文档适配物保留 SA、旧 text-only 历史不覆盖；未来新版本仍需重新核验。
 
 ## 人工审核与权利确认（Human Review and Clearance）
 
@@ -355,7 +379,7 @@ arXiv 的 nonexclusive 只说明该平台得到的托管权，不足以排除同
 | 71 | <code>arxiv:2606.09877</code> | <code>materialized_sources/corpus/arxiv-2606.09877--80ac4aba/manifest.yaml</code><br><code>raw_data/arxiv/Streaming Knowledge Compilation: Proactive Materiality-Scored Pinning for Time-Evolving LLM Wikis/metadata.yaml</code> | 固定 v1；主文与官方 NeurIPS2026 模板各 BY4，既存六行差异披露；完整 NOTICE 入库 | 无；四个source/98selectors保留，不虚构模板历史版本 | <code>documented_permission</code> | 当前固定文本包 gate=allow；不等于人工批准或整体 PR 完成 |
 | 72 | <code>arxiv:2607.07663</code> | <code>materialized_sources/corpus/arxiv-2607.07663--e2b770de/manifest.yaml</code><br><code>raw_data/arxiv/Recursive Self-Improvement in AI: From Bounded Self-Refinement to Autonomous Research Loops/metadata.yaml</code> | 固定 v2 archive 与 revision 一致；论文 CC BY、Pandoc 模板 BSD 及 arXiv 编译元数据 CC0 分别标记；完整组合 NOTICE 入库 | 无；仅覆盖当前保存的文本成员与派生物，六张 PNG 未保存 | <code>documented_permission</code> | 当前固定版本文本包 gate=allow；不等于整个 archive 或人工批准 |
 | 73 | <code>arxiv:cs/0309048</code> | <code>materialized_sources/corpus/arxiv-cs-0309048--34c0ca59/manifest.yaml</code><br><code>raw_data/arxiv/Goedel Machines: Self-Referential Universal Problem Solvers Making Provably Optimal Self-Improvements/metadata.yaml</code> | 官方记录仅假定 arXiv 自己具有历史非独占分发权；没有面向公众的明示许可。；本地 access=<code>unknown</code>，assumed=true | 面向公众的论文全文复制/再分发许可。；许可版本、权利人和精确作品版本绑定。 | <code>permission_unverified</code> | 不公开全文，仅元数据/链接；当前 gate=block |
-| 74 | <code>methodology:linkml-schema-first</code> | <code>materialized_sources/corpus/methodology-linkml-schema-first--182a2b38/manifest.yaml</code><br><code>raw_data/methodology/LinkML Schema First Knowledge Modeling/metadata.yaml</code> | Apache-2.0；部署source-view与固定官方docs源对应，原版权与完整许可已包装 | 无（仅当前单页revision；不声称exact deployment commit） | <code>documented_permission</code> | 已完成当前revision许可包装；当前 gate=allow |
+| 74 | <code>methodology:linkml-schema-first</code> | <code>materialized_sources/corpus/methodology-linkml-schema-first--182a2b38/manifest.yaml</code><br><code>raw_data/methodology/LinkML Schema First Knowledge Modeling/metadata.yaml</code> | Apache-2.0 AND MIT；作者文档与实际 Furo 2025.12.19 内嵌模板分范围履约，旧文字包历史保全 | 仅 dated 单页；不声称 exact deployment commit、整站或图标全部上游链保证 | <code>documented_permission</code> | scoped 当前包 gate=allow；原 UID 总体边界仍 unresolved，最终验证见 PR26 报告 |
 | 75 | <code>standard-w3c-prov-o</code> | <code>materialized_sources/corpus/standard-w3c-prov-o--6f83f2d8/manifest.yaml</code><br><code>raw_data/standard/PROV-O The PROV Ontology/metadata.yaml</code> | <code>W3C-Document-License-2002</code>；允许复制和分发，但一般不授予修改/衍生权。；本地 access=<code>open</code>，assumed=true | metadata 未记录确切 W3C 许可版本。；Markdown 未附完整许可/NOTICE，原许可链接已丢失。 | <code>documented_permission</code> | 满足条件后才可考虑发布；当前 gate=block |
 | 76 | <code>standard:apache-ossie</code> | <code>materialized_sources/corpus/standard-apache-ossie--ae9e548a/manifest.yaml</code><br><code>raw_data/standard/Apache Ossie Open Semantic Interchange/metadata.yaml</code> | <code>Apache-2.0</code>；官网页脚和 ossie-website README/首页源明确 Apache-2.0，NOTICE 标注 ASF。；本地 access=<code>open</code>，assumed=true | document.md 只有 7 bytes 且没有权利文本。；retrieval hash 未映射网站 commit。 | <code>documented_permission</code> | 满足条件后才可考虑发布；当前 gate=block |
 | 77 | <code>standard:odcs-3.2.0</code> | <code>materialized_sources/corpus/standard-odcs-3.2.0--affacf92/manifest.yaml</code><br><code>raw_data/standard/Open Data Contract Standard 3.2.0/metadata.yaml</code> | 固定v3.2.0目标文档源直接声明Apache-2.0；完整许可、版权/SPDX与转换说明已包装，实际获取URL固定 | 无；仅当前定义首页，不代表多页标准或站点资产已清权 | <code>documented_permission</code> | 当前固定单页包 gate=allow；不扩展到外链章节或资产 |
@@ -372,7 +396,7 @@ arXiv 的 nonexclusive 只说明该平台得到的托管权，不足以排除同
 | 88 | <code>standard:w3c-sosa-ssn</code> | <code>materialized_sources/corpus/standard-w3c-sosa-ssn--33efc488/manifest.yaml</code><br><code>raw_data/standard/SOSA SSN Ontology/metadata.yaml</code> | <code>W3C-Document-License-2015</code>；允许复制和分发；修改/衍生仅有有限实现例外。；本地 access=<code>unknown</code>，assumed=true | metadata 未记录确切 W3C 许可版本。；Markdown 未附完整许可/NOTICE，原许可链接已丢失。 | <code>documented_permission</code> | 满足条件后才可考虑发布；当前 gate=block |
 | 89 | <code>standard:w3c-vc-data-model-2.0</code> | <code>materialized_sources/corpus/standard-w3c-vc-data-model-2.0--af7d4a38/manifest.yaml</code><br><code>raw_data/standard/Verifiable Credentials Data Model 2.0/metadata.yaml</code> | <code>W3C-Software-and-Document-License-2023</code>；固定版本响应与source revision匹配；完整NOTICE及署名/修改声明已随文本入库 | 当前文字包条件已落实；不覆盖外链作品、商标或专利 | <code>documented_permission</code> | 当前固定版本与包装条件下 gate=allow；丢失NOTICE或署名仍失败 |
 | 90 | <code>standard:w3c-web-annotation</code> | <code>materialized_sources/corpus/standard-w3c-web-annotation--3f6ab1c4/manifest.yaml</code><br><code>raw_data/standard/Web Annotation Data Model/metadata.yaml</code> | <code>W3C-Document-License-2015</code>；允许复制和分发；修改/衍生仅有有限实现例外。；本地 access=<code>unknown</code>，assumed=true | metadata 未记录确切 W3C 许可版本。；Markdown 未附完整许可/NOTICE，原许可链接已丢失。 | <code>documented_permission</code> | 满足条件后才可考虑发布；当前 gate=block |
-| 91 | <code>vocabulary:schema.org</code> | <code>materialized_sources/corpus/vocabulary-schema.org--c8b3dc95/manifest.yaml</code><br><code>raw_data/standard/Schema.org Vocabulary/metadata.yaml</code> | CC-BY-SA-3.0；官方历史FAQ/Terms覆盖文档，既有快照离线附完整许可、署名及SA声明 | 无（moving URL未来变化不继承旧包allow） | <code>documented_permission</code> | 已完成当前revision许可包装；当前 gate=allow |
+| 91 | <code>vocabulary:schema.org</code> | <code>materialized_sources/corpus/vocabulary-schema.org--c8b3dc95/manifest.yaml</code><br><code>raw_data/standard/Schema.org Vocabulary/metadata.yaml</code> | CC-BY-SA-3.0 AND Apache-2.0；dated 文档／内嵌模板分范围履约，gzip wire 与 entity 分别绑定，旧快照保全 | moving URL 的未来变化不继承本包；不代表完整 Vocabulary／release | <code>documented_permission</code> | scoped 当前包 gate=allow；原 UID 总体边界仍 unresolved，最终验证见 PR26 报告 |
 
 ## 主要官方依据（Authoritative Sources）
 

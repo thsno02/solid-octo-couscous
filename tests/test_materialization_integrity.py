@@ -467,6 +467,197 @@ class RetainedMarkdownTests(unittest.TestCase):
             }]})
             yield root, record, source, asset, document, manifest
 
+    @contextlib.contextmanager
+    def _dated_article_capsule(self, *, article_id: str = "furo-main-content", transport: bool = False, internal_asset: bool = False):
+        with self._dated_html_capsule() as (root, record, source, _, document, manifest):
+            capsule = record.capsule_root
+            original = "\r\n".join([
+                '<html><head><title>Article response fixture</title></head><body>',
+                '<nav>OUTSIDE_NAV</nav><img src="https://example.test/unretained-logo.svg" alt="OUTSIDE_LOGO">',
+                f'<article id="{article_id}">',
+                '<h1 id="opening">Article opening<a class="headerlink" href="#opening">¶</a></h1>',
+                '<p>FIRST_AUTHORED_PROSE gives a continuous opening statement about the bounded documentation response.</p>',
+                '<ul class="toctree-wrapper"><li><a href="guide.html">AUTHORED_TOCTREE_GUIDE</a></li></ul>',
+                '<h2 id="middle">Article middle<a class="headerlink" href="#middle">¶</a></h2>',
+                '<p>MIDDLE_AUTHORED_PROSE preserves the source explanation and its declared page context.</p>',
+                '<h2 id="ending">Article ending<a class="headerlink" href="#ending">¶</a></h2>',
+                '<p>FINAL_AUTHORED_PROSE ends the selected article without claiming coverage of other pages.</p>',
+                '<img src="assets/img/figure.svg" alt="INTERNAL_GRAPH">' if internal_asset else '',
+                '</article>',
+                '<article id="other">OUTSIDE_OTHER_ARTICLE</article><article id="empty"> </article>',
+                '<article id="ui-only"><a class="headerlink">¶</a></article>',
+                '<footer>OUTSIDE_FOOTER</footer>',
+                '</body></html>', '',
+            ]).encode()
+            source.write_bytes(original)
+            revision = "sha256:" + materializer.sha256_file(source)
+            package = {**record.metadata["rights"]["redistribution_package"],
+                "source_revision": revision,
+                "modifications": "Mechanical gzip transport decoding when declared; selected article structural text and heading UI removal.",
+                "scope": "Retained response entity, declared wire original and structural Markdown; historical files preserved.",
+            }
+            record.metadata["rights"]["redistribution_package"] = package
+            materializer.write_yaml(record.metadata_path, record.metadata)
+            materializer.write_yaml(capsule / "source-metadata.yaml", record.metadata)
+            manifest.update({"revision": revision, "status": "partial"})
+            manifest["rights"]["redistribution_package"] = package
+            manifest["materialization"]["retained_text_sources"] = [{
+                "source": "source/specification.html", "format": "html",
+                "content_selector": "article#" + article_id, "exclude_selectors": ["a.headerlink"],
+            }]
+            manifest["materialization"]["link_rewrites"] = {}
+            original_retrievals = manifest["retrievals"]
+            manifest["retrievals"] = [{**original_retrievals[0], "sha256": materializer.sha256_file(source), "bytes": len(original)}]
+            if internal_asset:
+                asset_url = package["source_version_url"] + "assets/img/figure.svg"
+                manifest["retrievals"].append({**original_retrievals[1], "requested_url": asset_url, "resolved_url": asset_url})
+            wire = capsule / "source/specification.html.gz" if transport else None
+            if wire is not None:
+                wire.write_bytes(gzip.compress(original, mtime=0))
+                manifest["retrievals"][0].update({
+                    "content_encoding": "gzip", "transport_local_path": "source/specification.html.gz",
+                    "transport_bytes": wire.stat().st_size, "transport_sha256": materializer.sha256_file(wire),
+                })
+            manifest["local_files"] = materializer.local_file_inventory(capsule)
+            materializer.write_yaml(capsule / "manifest.yaml", manifest)
+            audit = root / "raw_data/audits/materialization_rights_review.yaml"
+            review = materializer.load_yaml(audit)
+            review["items"][0].update({"source_revision": revision, "redistribution_package": package})
+            materializer.write_yaml(audit, review)
+            yield root, record, source, wire, document, manifest
+
+    def _assert_dated_rejected_without_writes(self, root, record, source, manifest) -> None:
+        materializer.write_yaml(record.capsule_root / "manifest.yaml", manifest)
+        before = {path.relative_to(root): path.read_bytes() for path in root.rglob("*") if path.is_file()}
+        with mock.patch.object(materializer, "fetch_bytes") as fetch, mock.patch.object(materializer, "prepare_capsule") as prepare, mock.patch.object(materializer, "finalize_capsule") as finalize:
+            errors = []
+            validator.validate_retained_markdown_binding(manifest, record.capsule_root, {source.relative_to(root).as_posix(): materializer.sha256_file(source)}, errors, repository_root=root)
+            self.assertTrue(errors)
+            for executor in (materializer.materialize_generic, materializer.materialize_one):
+                with self.assertRaises(materializer.RetainedMarkdownPreflightError):
+                    executor(record, {}, "fixed-time")
+                self.assertEqual({path.relative_to(root): path.read_bytes() for path in root.rglob("*") if path.is_file()}, before)
+            fetch.assert_not_called()
+            prepare.assert_not_called()
+            finalize.assert_not_called()
+
+    def test_dated_article_selectors_and_gzip_transport_replay_preserve_all_originals(self) -> None:
+        for article_id, transport in (("furo-main-content", False), ("mainContent", True)):
+            with self.subTest(article_id=article_id), self._dated_article_capsule(article_id=article_id, transport=transport) as (root, record, source, wire, document, manifest), mock.patch.object(materializer, "fetch_bytes", side_effect=AssertionError("offline article replay")), mock.patch.object(materializer, "prepare_capsule", side_effect=AssertionError("preserve originals")):
+                originals = [source, record.capsule_root / "document.md", record.capsule_root / "selectors.jsonl"]
+                if wire is not None:
+                    originals.append(wire)
+                    self.assertEqual(gzip.decompress(wire.read_bytes()), source.read_bytes())
+                    self.assertNotEqual(manifest["retrievals"][0]["bytes"], manifest["retrievals"][0]["transport_bytes"])
+                preserved = {path: path.read_bytes() for path in originals}
+                materializer.replay_retained_text_sources(record, manifest, "fixed-time", check_derived=False)
+                first = {path.relative_to(record.capsule_root): path.read_bytes() for path in record.capsule_root.rglob("*") if path.is_file()}
+                for executor in (materializer.materialize_generic, materializer.materialize_one):
+                    replayed = executor(record, {}, "fixed-time")
+                    self.assertEqual(replayed["status"], "partial")
+                    self.assertEqual(replayed["historical_acquisition"], manifest["historical_acquisition"])
+                    self.assertEqual(len(replayed["retrievals"]), 1)
+                    self.assertEqual(replayed["revision"], "sha256:" + materializer.sha256_file(source))
+                    self.assertEqual({path.relative_to(record.capsule_root): path.read_bytes() for path in record.capsule_root.rglob("*") if path.is_file()}, first)
+                    errors = []
+                    validator.validate_retained_markdown_binding(replayed, record.capsule_root, {source.relative_to(root).as_posix(): materializer.sha256_file(source)}, errors, repository_root=root)
+                    self.assertEqual(errors, [])
+                self.assertEqual({path: path.read_bytes() for path in preserved}, preserved)
+                text = document.read_bytes().decode()
+                for token in ("FIRST_AUTHORED_PROSE", "MIDDLE_AUTHORED_PROSE", "FINAL_AUTHORED_PROSE", "AUTHORED_TOCTREE_GUIDE"):
+                    self.assertEqual(text.count(token), 1)
+                self.assertIn("[AUTHORED_TOCTREE_GUIDE](https://example.test/specification/1.2/guide.html)", text)
+                for token in ("OUTSIDE_NAV", "OUTSIDE_LOGO", "OUTSIDE_OTHER_ARTICLE", "OUTSIDE_FOOTER", "¶"):
+                    self.assertNotIn(token, text)
+                self.assertIn('only the article selected by "article#' + article_id + '"', text)
+                self.assertIn("the final range may extend to HTML entity EOF", text)
+                rows = [json.loads(line) for line in (record.capsule_root / "normalized/selectors.jsonl").read_text().splitlines()]
+                self.assertEqual(rows[-1]["source_end_line"], len(source.read_bytes().decode().splitlines()))
+                self.assertEqual({row["derived_from"] for row in rows}, {source.relative_to(root).as_posix()})
+                for row in rows:
+                    self.assertIn('declared article filtering with content_selector="article#' + article_id + '"', row["transformation"])
+                    self.assertIn("enclosing original-line provenance bounds, not full-response coverage", row["transformation"])
+
+    def test_dated_article_selector_failures_do_not_fallback_or_write(self) -> None:
+        selectors = (None, 7, " ", "article[", "article:nth-col(1)", "article#absent", "article", "nav", "article#empty", "article#ui-only")
+        for selector in selectors:
+            with self.subTest(selector=selector), self._dated_article_capsule() as (root, record, source, _, _, manifest):
+                materializer.replay_retained_text_sources(record, manifest, "fixed-time", check_derived=False)
+                manifest = materializer.load_yaml(record.capsule_root / "manifest.yaml")
+                manifest["materialization"]["retained_text_sources"][0]["content_selector"] = selector
+                self._assert_dated_rejected_without_writes(root, record, source, manifest)
+
+    def test_dated_article_exclusions_must_be_observed_and_keep_authored_toctree(self) -> None:
+        for exclusion in ("p#back-to-top", "ul.toctree-wrapper"):
+            with self.subTest(exclusion=exclusion), self._dated_article_capsule() as (root, record, source, _, _, manifest):
+                materializer.replay_retained_text_sources(record, manifest, "fixed-time", check_derived=False)
+                manifest = materializer.load_yaml(record.capsule_root / "manifest.yaml")
+                manifest["materialization"]["retained_text_sources"][0]["exclude_selectors"] = [exclusion]
+                self._assert_dated_rejected_without_writes(root, record, source, manifest)
+
+    def test_dated_article_selection_does_not_relax_internal_asset_preflight(self) -> None:
+        with self._dated_article_capsule(internal_asset=True) as (root, record, source, _, document, manifest):
+            materializer.replay_retained_text_sources(record, manifest, "fixed-time", check_derived=False)
+            manifest = materializer.load_yaml(record.capsule_root / "manifest.yaml")
+            self.assertIn("![INTERNAL_GRAPH](../source/assets/img/figure.svg)", document.read_bytes().decode())
+            (record.capsule_root / "source/assets/img/figure.svg").unlink()
+            self._assert_dated_rejected_without_writes(root, record, source, manifest)
+            self.assertTrue(document.is_file())
+
+    def test_dated_gzip_transport_failures_preserve_entity_wire_and_derivatives(self) -> None:
+        fields = ("content_encoding", "transport_local_path", "transport_bytes", "transport_sha256")
+        changes = tuple("missing-" + field for field in fields) + (
+            "unsupported-encoding", "escaping-path", "absolute-path", "wrong-path", "symlink", "missing-wire",
+            "wire-drift", "entity-drift", "transport-bytes", "transport-hash", "inventory-bytes", "inventory-hash",
+            "missing-inventory", "duplicate-inventory", "corrupt-gzip", "corrupt-deflate", "truncated-gzip", "different-entity", "wire-length-as-entity",
+        )
+        for change in changes:
+            with self.subTest(change=change), self._dated_article_capsule(transport=True) as (root, record, source, wire, _, manifest):
+                materializer.replay_retained_text_sources(record, manifest, "fixed-time", check_derived=False)
+                manifest = materializer.load_yaml(record.capsule_root / "manifest.yaml")
+                retrieval = manifest["retrievals"][0]
+                inventory = next(row for row in manifest["local_files"] if row["path"] == wire.relative_to(root).as_posix())
+                if change.startswith("missing-") and change[8:] in fields:
+                    del retrieval[change[8:]]
+                elif change == "unsupported-encoding":
+                    retrieval["content_encoding"] = "br"
+                elif change in {"escaping-path", "absolute-path", "wrong-path"}:
+                    retrieval["transport_local_path"] = {"escaping-path": "../outside.gz", "absolute-path": str(wire), "wrong-path": "source/other.html.gz"}[change]
+                elif change == "symlink":
+                    wire.unlink()
+                    wire.symlink_to(source)
+                elif change == "missing-wire":
+                    wire.unlink()
+                elif change == "wire-drift":
+                    wire.write_bytes(wire.read_bytes() + b"drift")
+                elif change == "entity-drift":
+                    source.write_bytes(source.read_bytes() + b"drift")
+                elif change == "transport-bytes":
+                    retrieval["transport_bytes"] += 1
+                elif change == "transport-hash":
+                    retrieval["transport_sha256"] = "stale"
+                elif change == "inventory-bytes":
+                    inventory["bytes"] += 1
+                elif change == "inventory-hash":
+                    inventory["sha256"] = "stale"
+                elif change == "missing-inventory":
+                    manifest["local_files"].remove(inventory)
+                elif change == "duplicate-inventory":
+                    manifest["local_files"].append(dict(inventory))
+                elif change == "wire-length-as-entity":
+                    retrieval["bytes"] = retrieval["transport_bytes"]
+                else:
+                    payload = {
+                        "corrupt-gzip": b"not a gzip response",
+                        "corrupt-deflate": b"\x1f\x8b\x08\x00" + b"\x00" * 6 + b"\xff" * 12,
+                        "truncated-gzip": wire.read_bytes()[:-5],
+                        "different-entity": gzip.compress(b"A different decoded response", mtime=0),
+                    }[change]
+                    wire.write_bytes(payload)
+                    inventory.update({"bytes": len(payload), "sha256": materializer.sha256_file(wire)})
+                    retrieval.update({"transport_bytes": len(payload), "transport_sha256": materializer.sha256_file(wire)})
+                self._assert_dated_rejected_without_writes(root, record, source, manifest)
+
     def test_dated_html_explicit_unretained_figure_is_a_link_not_an_image(self) -> None:
         with self._dated_html_capsule(unretained=True) as (root, record, source, _, document, manifest), mock.patch.object(materializer, "fetch_bytes", side_effect=AssertionError("explicit unretained figures must not be fetched")), mock.patch.object(materializer, "prepare_capsule", side_effect=AssertionError("dated replay must retain the legacy capsule")):
             original = source.read_bytes()
