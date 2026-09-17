@@ -1,0 +1,104 @@
+# Architecture evidence: letta-ai/letta-code
+
+- `README.md:1` — Letta Code
+- `README.md:15` — Feature Overview
+- `README.md:36` — Get started
+- `README.md:53` — Letta Cloud
+- `README.md:68` — Remote computers
+- `README.md:93` — AgentFile deprecation
+- `README.md:99` — Installing external skills
+- `README.md:111` — Research
+- `README.md:115` — Other
+- `AGENTS.md:1` — letta-code — Agent Guide
+- `AGENTS.md:7` — Workflow
+- `AGENTS.md:17` — Runtime Validation
+- `AGENTS.md:32` — Rules and Why They Exist
+- `AGENTS.md:36` — No `../` parent imports — use `@/`
+- `AGENTS.md:55` — Kebab-case `.ts` filenames, PascalCase `.tsx`
+- `AGENTS.md:63` — Named exports everywhere — no default exports
+- `AGENTS.md:71` — `export function` over `export const fn = () =>`
+- `AGENTS.md:87` — No circular dependencies
+- `AGENTS.md:95` — Source files stay below 1,000 lines
+- `AGENTS.md:108` — Import from the owner, not an implementation barrel
+- `AGENTS.md:120` — Layer boundaries — no upward imports
+- `AGENTS.md:151` — Unused locals and parameters are errors
+- `AGENTS.md:163` — Test mock isolation
+- `AGENTS.md:177` — Directory Guides
+- `AGENTS.md:193` — Placing New Files
+- `AGENTS.md:213` — Reference
+- `AGENTS.md:215` — Commands
+- `AGENTS.md:231` — Check Suite (what each check does)
+- `AGENTS.md:246` — Environment Variables
+- `AGENTS.md:261` — Known Gotchas
+- `AGENTS.md:327` — Code Review Signals
+- `AGENTS.md:332` — TUI Flicker (most common bug)
+- `AGENTS.md:346` — Ink `<Static>` and Double-Printing
+- `AGENTS.md:360` — Tool Call Desync
+- `AGENTS.md:369` — Shell Tool Parity Gap
+- `AGENTS.md:377` — Interrupt Lock / State Cleanup
+- `AGENTS.md:385` — Impossible-State PRs
+- `AGENTS.md:404` — pi-ai Ownership Boundary
+- `AGENTS.md:429` — Leaked Module Mocks in Tests
+- `AGENTS.md:441` — Don't Rename Existing Test Fixtures
+- `AGENTS.md:450` — Spec Files Are Internal
+- `AGENTS.md:455` — Vendored Ink Patches (Red Zone)
+- `AGENTS.md:470` — Extension & Mod System
+- `AGENTS.md:472` — Architecture
+- `AGENTS.md:496` — Kill Switch
+- `AGENTS.md:501` — Mod vs Extension Location
+- `AGENTS.md:513` — Capabilities
+- `AGENTS.md:524` — Events
+- `AGENTS.md:543` — Panel & Statusline (Unified)
+- `AGENTS.md:572` — Mod Dialogs
+- `AGENTS.md:587` — Mod Secrets
+- `AGENTS.md:594` — Mod Package Publishing
+- `AGENTS.md:605` — App-Server Protocol
+- `AGENTS.md:610` — Adding a Protocol Command
+- `AGENTS.md:633` — Protocol v1 vs v2
+- `AGENTS.md:642` — `runtime_start`
+- `AGENTS.md:654` — Filesystem Sandbox
+- `AGENTS.md:659` — Enforcement Surfaces
+- `AGENTS.md:670` — Backends
+- `AGENTS.md:681` — Cross-Backend Policy
+- `AGENTS.md:687` — Environment Variables
+- `AGENTS.md:694` — Runtime Model Catalog
+- `AGENTS.md:725` — Subagent Lifecycle & Reflection
+- `AGENTS.md:727` — Subagent Lifecycle API
+- `AGENTS.md:739` — Product-Status Panel
+- `AGENTS.md:750` — Reflection Worktree
+- `AGENTS.md:763` — Cross-Platform Patterns
+- `AGENTS.md:765` — Windows Symlinks
+- `AGENTS.md:775` — Windows-Specific
+- `AGENTS.md:784` — Turbopack Symlinked node_modules
+- `AGENTS.md:790` — next-env.d.ts Regeneration
+- `AGENTS.md:797` — Git Workflow Patterns
+- `AGENTS.md:799` — Squash-Merge Stacked PR Conflicts
+- `AGENTS.md:808` — Squash-Merge Rebase Trap
+- `AGENTS.md:817` — Stash-Rebase-Apply for Uncommitted Spikes
+- `AGENTS.md:827` — bun.lock Churn
+- `AGENTS.md:833` — Git Rebase in Non-Interactive Contexts
+- `AGENTS.md:838` — GitHub Token Types
+- `AGENTS.md:847` — Letta API: `summary_search` not `summary`
+- `AGENTS.md:855` — Shared Remote Server (lettamate)
+- `AGENTS.md:876` — Watcher & Automation Workflows
+- `AGENTS.md:878` — Upstream Release Watchers
+- `AGENTS.md:891` — CI Workflow Patterns
+- `AGENTS.md:904` — Review Workflow
+- `AGENTS.md:916` — Secret Injection Syntax
+- `AGENTS.md:923` — Repositories API Write Gotcha
+- `AGENTS.md:932` — Cloud & Teleport
+- `AGENTS.md:934` — Cloud Environment Bridge
+- `AGENTS.md:941` — Desktop Device Selection
+- `AGENTS.md:947` — Dual-Listener Heartbeat Oscillation
+- `AGENTS.md:952` — Release Cascade
+- `CONTRIBUTING.md:1` — Contributing to Letta Code
+- `CONTRIBUTING.md:3` — AI Usage Policy
+- `CONTRIBUTING.md:7` — Fork the repo
+- `CONTRIBUTING.md:16` — Installing from source
+- `CONTRIBUTING.md:21` — Run directly from source (dev workflow)
+- `CONTRIBUTING.md:23` — install deps
+- `CONTRIBUTING.md:26` — run the CLI from TypeScript sources (pick up changes immediately)
+- `CONTRIBUTING.md:31` — Build + link the standalone binary
+- `CONTRIBUTING.md:33` — build bin/letta (includes prompts + schemas)
+- `CONTRIBUTING.md:36` — expose the binary globally (adjust to your preference)
+- `CONTRIBUTING.md:39` — now you can run the compiled CLI

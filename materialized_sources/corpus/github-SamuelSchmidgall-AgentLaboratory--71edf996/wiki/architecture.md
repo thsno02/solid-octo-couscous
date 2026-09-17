@@ -1,0 +1,21 @@
+# Architecture evidence: SamuelSchmidgall/AgentLaboratory
+
+- `README.md:1` — Agent Laboratory: Using LLM Agents as Research Assistants
+- `README.md:16` — News
+- `README.md:19` — 📖 Overview
+- `README.md:34` — 🔬 How does Agent Laboratory work?
+- `README.md:43` — 👾 Currently supported models
+- `README.md:50` — 🖥️ Installation
+- `README.md:52` — Python venv option
+- `README.md:89` — Co-Pilot mode
+- `README.md:94` — Tips for better research outcomes
+- `README.md:97` — [Tip #1] 📝 Make sure to write extensive notes! 📝
+- `README.md:121` — [Tip #2] 🚀 Using more powerful models generally leads to better research 🚀
+- `README.md:131` — [Tip #3] ✅ You can load previous saves from checkpoints ✅
+- `README.md:138` — [Tip #4] 🈯 If you are running in a language other than English 🈲
+- `README.md:149` — [Tip #5] 🌟 There is a lot of room for improvement 🌟
+- `README.md:154` — 📜 License
+- `README.md:158` — 📬 Contact
+- `README.md:162` — Reference / Bibtex
+- `README.md:165` — Agent Laboratory
+- `README.md:178` — AgentRxiv

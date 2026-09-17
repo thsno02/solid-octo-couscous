@@ -1,0 +1,122 @@
+# Architecture evidence: topoteretes/cognee
+
+- `README.md:64` — When to use Cognee
+- `README.md:70` — Choose your starting point
+- `README.md:80` — Quickstart
+- `README.md:90` — Try it without an API key
+- `README.md:97` — Step 2: Configure the LLM
+- `README.md:139` — How Cognee works
+- `README.md:162` — Connect your agent
+- `README.md:175` — ~/.codex/config.toml
+- `README.md:207` — Explore examples
+- `README.md:219` — Deploy Cognee
+- `README.md:231` — Run the Whole Memory Layer on Postgres
+- `README.md:239` — Benchmarks and research
+- `README.md:252` — Latest News
+- `README.md:264` — Community & Support
+- `README.md:266` — Contributing
+- `README.md:269` — Code of Conduct
+- `README.md:273` — Research & Citation
+- `AGENTS.md:1` — Repository Guidelines
+- `AGENTS.md:5` — Project Structure & Module Organization
+- `AGENTS.md:28` — Build, Test, and Development Commands
+- `AGENTS.md:97` — Runtime Flags Worth Knowing
+- `AGENTS.md:114` — Multi-Tenancy Support by Backend
+- `AGENTS.md:131` — Coding Style & Naming Conventions
+- `AGENTS.md:142` — Testing Guidelines
+- `AGENTS.md:152` — Commit & Pull Request Guidelines
+- `AGENTS.md:162` — CI Mirrors Local Commands
+- `CLAUDE.md:1` — CLAUDE.md
+- `CLAUDE.md:5` — Project Overview
+- `CLAUDE.md:11` — Development Commands
+- `CLAUDE.md:13` — Setup
+- `CLAUDE.md:15` — Create virtual environment (recommended: uv)
+- `CLAUDE.md:18` — Install with pip or uv
+- `CLAUDE.md:21` — Install with dev dependencies
+- `CLAUDE.md:24` — Install with specific extras
+- `CLAUDE.md:27` — Set up pre-commit hooks
+- `CLAUDE.md:31` — Available Installation Extras
+- `CLAUDE.md:61` — Testing
+- `CLAUDE.md:63` — Run all tests
+- `CLAUDE.md:66` — Run with coverage
+- `CLAUDE.md:69` — Run specific test file
+- `CLAUDE.md:72` — Run specific test function
+- `CLAUDE.md:75` — Run async tests
+- `CLAUDE.md:78` — Run unit tests only
+- `CLAUDE.md:81` — Run integration tests only
+- `CLAUDE.md:85` — Code Quality
+- `CLAUDE.md:87` — Run ruff linter
+- `CLAUDE.md:90` — Run ruff formatter
+- `CLAUDE.md:93` — Run both linting and formatting (pre-commit)
+- `CLAUDE.md:96` — Type checking with ty
+- `CLAUDE.md:100` — Running Cognee
+- `CLAUDE.md:102` — Using Python SDK
+- `CLAUDE.md:105` — Using CLI (memory API — the primary surface)
+- `CLAUDE.md:111` — Low level operations (still ship; what the memory commands call underneath)
+- `CLAUDE.md:116` — Launch full stack with UI
+- `CLAUDE.md:120` — Architecture Overview
+- `CLAUDE.md:122` — Core Workflow: remember → recall (+ improve / forget)
+- `CLAUDE.md:131` — Low level operations: add → cognify → search/memify
+- `CLAUDE.md:151` — recall() vs search()
+- `CLAUDE.md:155` — Key Architectural Patterns
+- `CLAUDE.md:157` — 1. Pipeline-Based Processing
+- `CLAUDE.md:160` — 2. Interface-Based Database Adapters
+- `CLAUDE.md:170` — 3. Multi-Tenant Access Control
+- `CLAUDE.md:194` — Layer Structure
+- `CLAUDE.md:214` — Critical Data Flow Paths
+- `CLAUDE.md:216` — REMEMBER / RECALL: Memory API
+- `CLAUDE.md:226` — ADD: Data Ingestion
+- `CLAUDE.md:231` — COGNIFY: Knowledge Graph Construction
+- `CLAUDE.md:239` — UPDATE: Chunk-Level Incremental Updates
+- `CLAUDE.md:249` — SEARCH: Retrieval
+- `CLAUDE.md:277` — Core Data Models
+- `CLAUDE.md:279` — Engine Models (`cognee/infrastructure/engine/models/`)
+- `CLAUDE.md:284` — Graph Models (`cognee/shared/data_models.py`)
+- `CLAUDE.md:289` — Key Infrastructure Components
+- `CLAUDE.md:291` — LLM Gateway (`cognee/infrastructure/llm/LLMGateway.py`)
+- `CLAUDE.md:294` — Embedding Engines
+- `CLAUDE.md:297` — Document Loaders
+- `CLAUDE.md:300` — Important Configuration
+- `CLAUDE.md:302` — Environment Setup
+- `CLAUDE.md:306` — Minimal setup (defaults to OpenAI + local file-based databases)
+- `CLAUDE.md:320` — Switching Databases
+- `CLAUDE.md:322` — Relational Databases
+- `CLAUDE.md:324` — PostgreSQL (requires postgres extra: pip install cognee[postgres])
+- `CLAUDE.md:333` — Vector Databases
+- `CLAUDE.md:340` — PGVector (requires postgres extra)
+- `CLAUDE.md:345` — Graph Databases
+- `CLAUDE.md:348` — Neo4j (requires neo4j extra: pip install cognee[neo4j])
+- `CLAUDE.md:355` — Remote Ladybug
+- `CLAUDE.md:361` — Postgres (requires postgres extra: pip install cognee[postgres])
+- `CLAUDE.md:362` — DEMO, not production-ready — see the warning below.
+- `CLAUDE.md:363` — Does not support raw Cypher queries, natural language search, or Graphiti.
+- `CLAUDE.md:364` — The legacy value `postgres` still resolves to this same adapter.
+- `CLAUDE.md:377` — Session Cache
+- `CLAUDE.md:379` — Session/conversation cache backend: sqlite (default), postgres, redis, fs, tapes
+- `CLAUDE.md:381` — Optional explicit SQLAlchemy URL for sqlite/postgres cache backends (overrides defaults)
+- `CLAUDE.md:383` — Session-search execution mode: concurrent (default) or sequential
+- `CLAUDE.md:387` — Session Search Modes
+- `CLAUDE.md:414` — only_context and `context_format`
+- `CLAUDE.md:458` — Memory & Performance Tuning Flags
+- `CLAUDE.md:471` — LLM Provider Configuration
+- `CLAUDE.md:475` — OpenAI (Recommended - Minimal Setup)
+- `CLAUDE.md:482` — Azure OpenAI
+- `CLAUDE.md:491` — Google Gemini (no extra required)
+- `CLAUDE.md:498` — Anthropic Claude (requires anthropic extra)
+- `CLAUDE.md:505` — Ollama (Local - requires ollama extra)
+- `CLAUDE.md:517` — Custom / OpenRouter / vLLM
+- `CLAUDE.md:529` — AWS Bedrock (requires aws extra)
+- `CLAUDE.md:536` — Optional for temporary credentials:
+- `CLAUDE.md:537` — AWS_SESSION_TOKEN="your_session_token"
+- `CLAUDE.md:540` — LLM Rate Limiting
+- `CLAUDE.md:547` — Instructor Mode (Structured Output)
+- `CLAUDE.md:549` — LLM_INSTRUCTOR_MODE controls how structured data is extracted
+- `CLAUDE.md:550` — Each LLM has its own default (e.g., gpt-4o models use "json_schema_mode")
+- `CLAUDE.md:551` — Override if needed:
+- `CLAUDE.md:555` — Structured Output Framework
+- `CLAUDE.md:557` — litellm_native (default): plain litellm, schema-native response_format
+- `CLAUDE.md:558` — with prompted-JSON fallback — no instructor in the call path
+- `CLAUDE.md:561` — Or use Instructor (legacy, via litellm)
+- `CLAUDE.md:564` — Or use BAML (requires baml extra: pip install cognee[baml])
+- `CLAUDE.md:571` — Storage Backend
+- `CLAUDE.md:573` — Local filesystem (default)

@@ -1,0 +1,26 @@
+# Architecture evidence: openai/mle-bench
+
+- `README.md:1` — MLE-bench
+- `README.md:5` — Leaderboard
+- `README.md:39` — Additional Leaderboard Submissions
+- `README.md:53` — Producing Scores for the Leaderboard
+- `README.md:71` — Benchmarking
+- `README.md:80` — Lite Evaluation
+- `README.md:113` — Setup
+- `README.md:129` — Pre-Commit Hooks (Optional)
+- `README.md:137` — Dataset
+- `README.md:174` — Grading Submissions
+- `README.md:191` — Environment
+- `README.md:204` — Agents
+- `README.md:208` — Extras
+- `README.md:215` — Examples
+- `README.md:219` — Experiments
+- `README.md:228` — Dev
+- `README.md:232` — Known Issues
+- `README.md:287` — Authors
+- `README.md:291` — Citation
+- `SECURITY.md:1` — Security Policy
+- `pyproject.toml:53` — Pytest can take a long time to collect test cases
+- `pyproject.toml:54` — when many Kaggle competitions have been downloaded.
+- `pyproject.toml:55` — We avoid this up by telling Pytest where the
+- `pyproject.toml:56` — tests live ahead of time.

@@ -1,0 +1,122 @@
+# Architecture evidence: HKUDS/LightRAG
+
+- `README.md:7` — 🚀 LightRAG: Simple and Fast Retrieval-Augmented Generation
+- `README.md:79` — 🎉 News
+- `README.md:116` — Installation
+- `README.md:124` — Install LightRAG Server
+- `README.md:129` — Install LightRAG Server as tool using uv (recommended)
+- `README.md:132` — Or using pip
+- `README.md:133` — python -m venv .venv
+- `README.md:134` — source .venv/bin/activate  # Windows: .venv\Scripts\activate
+- `README.md:135` — pip install "lightrag-hku[api]"
+- `README.md:137` — Setup env file
+- `README.md:138` — Obtain the env.example file by downloading it from the GitHub repository root
+- `README.md:139` — or by copying it from a local source checkout.
+- `README.md:141` — Launch the server. It binds to all interfaces (0.0.0.0) by default.
+- `README.md:142` — SECURITY: before exposing it on a network, configure authentication in .env
+- `README.md:143` — (LIGHTRAG_API_KEY, or AUTH_ACCOUNTS together with TOKEN_SECRET), or bind to
+- `README.md:144` — 127.0.0.1 for local-only access; without auth every endpoint is public.
+- `README.md:145` — Note: the Ollama-compatible /api/* routes stay open by default for client
+- `README.md:146` — compatibility; set WHITELIST_PATHS=/health to require auth on them too.
+- `README.md:156` — Bootstrap the development environment (recommended)
+- `README.md:159` — Or on Windows: .venv\Scripts\activate
+- `README.md:161` — make dev installs the test toolchain plus the full offline stack
+- `README.md:162` — (API, storage backends, and provider integrations), then builds the frontend.
+- `README.md:163` — Run make env-base or copy env.example to .env before starting the server.
+- `README.md:165` — Equivalent manual steps with uv
+- `README.md:166` — Note: uv sync automatically creates a virtual environment in .venv/
+- `README.md:169` — Or on Windows: .venv\Scripts\activate
+- `README.md:171` — Or using pip with virtual environment
+- `README.md:172` — python -m venv .venv
+- `README.md:173` — source .venv/bin/activate  # Windows: .venv\Scripts\activate
+- `README.md:174` — pip install -e ".[test,offline]"
+- `README.md:176` — Build front-end artifacts
+- `README.md:182` — setup env file
+- `README.md:184` — Launch API-WebUI server
+- `README.md:194` — modify LLM and Embedding settings in .env
+- `README.md:204` — Create .env File With Setup Tool
+- `README.md:219` — Optional: spaCy Models for docx smart_heading
+- `README.md:230` — .docx files routed to the native engine get smart_heading by default;
+- `README.md:231` — opt a file back out with an explicit native(smart_heading=false) rule/hint.
+- `README.md:237` — Optional: libcairo for SVG Rasterization (native md/textpack)
+- `README.md:244` — Debian / Ubuntu (the official Docker image already includes this)
+- `README.md:247` — RHEL / Fedora
+- `README.md:250` — macOS (Homebrew)
+- `README.md:253` — Windows: install the GTK3 runtime, which bundles libcairo-2.dll
+- `README.md:258` — About LightRAG
+- `README.md:260` — A Lightweight, Graph-Based RAG Framework
+- `README.md:264` — Features & Advantages
+- `README.md:274` — Multimodal Capability Upgrades
+- `README.md:278` — LightRAG API Server
+- `README.md:284` — Key Configuration Guide
+- `README.md:286` — Selecting LLM Models
+- `README.md:299` — Selecting Query Modes
+- `README.md:311` — Embedding Models
+- `README.md:317` — Enabling Reranking
+- `README.md:321` — Document Processing Pipeline Configuration
+- `README.md:334` — Concurrency Optimization for File Processing
+- `README.md:347` — Sample Configuration
+- `README.md:354` — Selecting Backend Storage
+- `README.md:369` — Other Important Configurations for Document Processing
+- `README.md:380` — Resolving LLM Timeouts During Entity-Relation Extraction
+- `README.md:389` — Other Important Configurations for Document Querying
+- `README.md:397` — WebUI Entries and the Default Entry
+- `README.md:407` — Using LightRAG As SDK
+- `README.md:411` — Install LightRAG SDK
+- `README.md:417` — 注意: uv sync 会自动在 .venv/ 目录创建虚拟环境
+- `README.md:420` — Windows 系统: .venv\Scripts\activate
+- `README.md:422` — 或: pip install -e .
+- `README.md:429` — 或: pip install lightrag-hku
+- `README.md:432` — LightRAG SDK Sample Code
+- `README.md:437` — you should run the demo code with project folder
+- `README.md:439` — provide your API-KEY for OpenAI
+- `README.md:441` — download the demo document of "A Christmas Carol" by Charles Dickens
+- `README.md:443` — run the demo code
+- `README.md:453` — **Notes on SDK Usage**
+- `README.md:457` — Replicating Findings in the Paper
+- `README.md:487` — 📚 Documentation and Tools
+- `README.md:489` — Reference Documentation (`docs/`)
+- `README.md:539` — Maintenance Tools (`lightrag/tools/`)
+- `README.md:575` — 🔗 Related Projects
+- `README.md:615` — 🤝 Contribution
+- `README.md:635` — 📖 Citation
+- `AGENTS.md:1` — Repository Guidelines
+- `AGENTS.md:3` — Project Overview
+- `AGENTS.md:7` — Project Structure
+- `AGENTS.md:16` — Module Layout (`lightrag/`)
+- `AGENTS.md:32` — Core Architecture
+- `AGENTS.md:34` — LightRAG class composition
+- `AGENTS.md:44` — Storage Layer
+- `AGENTS.md:58` — Consistency without transactions
+- `AGENTS.md:67` — File-backed storage contracts
+- `AGENTS.md:79` — Pipeline concurrency contract
+- `AGENTS.md:90` — Purge recovery contract
+- `AGENTS.md:102` — Relation weight contract
+- `AGENTS.md:111` — Query Modes
+- `AGENTS.md:119` — Development Commands
+- `AGENTS.md:121` — Setup
+- `AGENTS.md:123` — Install with uv
+- `AGENTS.md:127` — Install with API support
+- `AGENTS.md:130` — Install specific extras
+- `AGENTS.md:136` — API Server
+- `AGENTS.md:138` — Copy and configure environment
+- `AGENTS.md:141` — Build WebUI
+- `AGENTS.md:147` — Run server
+- `AGENTS.md:153` — WebUI
+- `AGENTS.md:173` — Testing — Bun built-in runner (NOT Vitest/Jest)
+- `AGENTS.md:181` — Testing
+- `AGENTS.md:192` — Preferred for fresh shells and automation; resolves PYTHON, venv, uv, .venv, venv, python, python3
+- `AGENTS.md:193` — Default during development: only the directories mirroring the changed modules
+- `AGENTS.md:197` — Run specific test file
+- `AGENTS.md:200` — Full suite — ~7000 tests, >6 min; milestones and cross-cutting changes only
+- `AGENTS.md:203` — Run with custom workers
+- `AGENTS.md:219` — React component tests
+- `AGENTS.md:231` — Linting
+- `AGENTS.md:236` — Key Implementation Patterns
+- `AGENTS.md:238` — LightRAG Initialization (Critical)
+- `AGENTS.md:267` — Custom Embedding Functions
+- `AGENTS.md:271` — Storage Configuration
+- `AGENTS.md:276` — Environment-based (recommended for production)
+- `AGENTS.md:277` — See env.example for full list
+- `AGENTS.md:279` — Constructor-based
+- `AGENTS.md:293` — Document Insertion

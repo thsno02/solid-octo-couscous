@@ -1,0 +1,40 @@
+\label{sec:method}
+\begin{figure*}[t]
+    \centering 
+    \resizebox{0.95\textwidth}{!}{%
+    \includegraphics{img/method.pdf}
+    }
+    \caption{The overview of \system that automates the pre-writing stage. Starting with a given topic, \system identifies various perspectives on covering the topic by surveying related Wikipedia articles (\Circled{1}-\Circled{2}). It then simulates conversations between a Wikipedia writer who asks questions guided by the given perspective and an expert grounded on trustworthy online sources (\Circled{3}-\Circled{6}). The final outline is curated based on the LLM's intrinsic knowledge and the gathered conversations from different perspectives (\Circled{7}-\Circled{8}).}
+    \label{Fig.method}
+\vspace{-0.5em}
+\end{figure*}
+
+We present \system to automate the pre-writing stage by researching a given topic via effective question asking (\refsec{sec:method_perspective},~\refsec{sec:method_conv}) and creating an outline (\refsec{sec:method_outline}). The outline will be extended to a full-length article grounded on the collected references (\refsec{sec:method_article}).~\reffig{Fig.method} gives an overview of \system and we include the pseudo code in Appendix~\ref{appendix:pseudo_code}.
+
+\subsection{Perspective-Guided Question Asking}
+\label{sec:method_perspective}
+\citet{rohman1965pre} defines pre-writing as the stage of discovery in the writing process. 
+In parallel with stakeholder theory in business~\citep{freeman2010stakeholder}, where diverse stakeholders prioritize varying facets of a company, individuals with distinct perspectives may concentrate on different aspects when researching the same topic and discover multifaceted information. Further, the specific perspectives can serve as prior knowledge, guiding individuals to ask more in-depth questions. %
+For example, an event planner might ask about the ``transportation arrangements'' and ``budget'' for ``the 2022 Winter Olympics opening ceremony'', whereas a layperson might ask more general questions about the event's basic information (\reffig{Fig.question_asking} (A)).
+
+Given the input topic $t$, \system discovers different perspectives by surveying existing articles from similar topics and uses these perspectives to control the question asking process. Specifically, \system prompts an LLM to generate a list of related topics and subsequently extracts the tables of contents from their corresponding Wikipedia articles, if such articles can be obtained through Wikipedia API\footnote{\url{https://pypi.org/project/Wikipedia-API/}} (\reffig{Fig.method}~\Circled{1}). These tables of contents are concatenated to create a context to prompt the LLM to identify $N$ perspectives $\mathcal{P}=\{p_1,...,p_N\}$ that can collectively contribute to a comprehensive article on $t$ (\reffig{Fig.method}~\Circled{2}). To ensure that the basic information about $t$ is also covered, we add $p_0$ as ``basic fact writer focusing on broadly covering the basic facts about the topic'' into $\mathcal{P}$. Each perspective $p \in\mathcal{P}$ will be utilized to guide the LLM in the process of question asking in parallel. 
+
+\subsection{Simulating Conversations}
+\label{sec:method_conv}
+The theory of questions and question asking~\citep{ram1991theory} highlights that while answers to existing questions contribute to a more comprehensive understanding of a topic, they often simultaneously give rise to new questions. To kick off this dynamic process, \system simulates a conversation between a Wikipedia writer and a topic expert. In the $i$-th round of the conversation, the LLM-powered Wikipedia writer generates a single question $q_i$ based on the topic $t$, its assigned perspective $p\in\mathcal{P}$, and the conversation history $\{q_1, a_1,...,q_{i-1}, a_{i-1}\}$ where $a_j$ denotes the simulated expert's answer. The conversation history enables the LLM to update its understanding of the topic and ask follow-up questions. In practice, we limit the conversation to at most $M$ rounds.
+
+To ensure that the conversation history provides factual information, we use trusted sources from the Internet to ground the answer $a_i$ to each query $q_i$. 
+Since $q_i$ can be complicated, we first prompt the LLM to break down $q_i$ into a set of search queries (\reffig{Fig.method}~\Circled{4}) and the searched results will be evaluated using a rule-based filter according to the Wikipedia guideline\footnote{\url{https://en.wikipedia.org/wiki/Wikipedia:Reliable_sources}} to exclude untrustworthy sources (\reffig{Fig.method}~\Circled{5}). Finally, the LLM synthesizes the trustworthy sources to generate the answer $a_i$, and these sources will also be added to $\mathcal{R}$ for full article generation (\refsec{sec:method_article}).
+
+
+\subsection{Creating the Article Outline}
+\label{sec:method_outline}
+After thoroughly researching the topic through $N+1$ simulated conversations, denoted as $\{\mathcal{C}_0, \mathcal{C}_1,..., \mathcal{C}_N\}$, \system creates an outline before the actual writing starts. To fully leverage the internal knowledge of LLMs, we first prompt the model to generate a draft outline $\mathcal{O}_\text{D}$ given only the topic $t$ (\reffig{Fig.method}~\Circled{7}). $\mathcal{O}_\text{D}$ typically provides a general but organized framework. Subsequently, the LLM is prompted with the topic $t$,  the draft outline $\mathcal{O}_\text{D}$, and the simulated conversations $\{\mathcal{C}_0, \mathcal{C}_1,..., \mathcal{C}_N\}$ to refine the outline (\reffig{Fig.method}~\Circled{8}). This results in an improved outline $\mathcal{O}$ which will be used for producing the full-length article.
+
+\subsection{Writing the Full-Length Article}
+\label{sec:method_article}
+
+Building upon the references $\mathcal{R}$ collected and the outline $\mathcal{O}$ developed during the pre-writing stage, the full-length article can be composed section by section. Since it is usually impossible to fit the entire $\mathcal{R}$ within the context window of the LLM, we use the section title and headings of its all-level subsections to retrieve relevant documents from $\mathcal{R}$ based on semantic similarity calculated from Sentence-BERT embeddings. With the relevant information at hand, the LLM is then prompted to generate the section with citations. Once all sections are generated, %
+they are concatenated to form the full-length article. %
+Since the sections are generated in parallel, we prompt the LLM with the concatenated article to delete repeated information to improve coherence. Furthermore, in alignment with Wikipedia's stylistic norms, the LLM is also utilized to synthesize a summary of the entire article, forming the lead section at the beginning.
+

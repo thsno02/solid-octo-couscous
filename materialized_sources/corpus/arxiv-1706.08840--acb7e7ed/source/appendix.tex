@@ -1,0 +1,108 @@
+% \documentclass{article}
+% 
+% \usepackage[final]{nips_2017}
+% \usepackage[utf8]{inputenc}
+% \usepackage{microtype}
+% \usepackage{fancyvrb}
+% \usepackage{graphicx}
+% 
+% \newtheorem{proposition}{Proposition}
+% 
+% \title{Supplementary material for:\\ \emph{Gradient Episodic Memory for Continual Learning}}
+% 
+% 
+% \author{
+%   David Lopez-Paz and Marc'Aurelio Ranzato\\
+%   Facebook Artificial Intelligence Research\\
+%   \texttt{\{dlp,ranzato\}@fb.com} \\
+% }
+% 
+% \begin{document}
+% \maketitle
+% \appendix
+
+\section{Hyper-parameter Selection} \label{sec:apphyper}
+Here we report the hyper-parameter grids considered in our experiments. The
+best values for the MNIST rotations (rot), MNIST permutations (perm) and
+CIFAR-100 incremental (cifar) experiments are noted accordingly in parenthesis.
+For more details, please refer to our implementation, linked in the main text.
+\begin{itemize}
+  \item \emph{single}
+  \begin{itemize}
+    \item learning rate: [0.001, 0.003 (rot), 0.01, 0.03 (perm), 0.1, 0.3, 1.0 (cifar)]
+  \end{itemize}
+  \item \emph{independent}
+  \begin{itemize}
+    \item learning rate: [0.001, 0.003, 0.01, 0.03 (perm), 0.1 (rot), 0.3 (cifar), 1.0]
+    \item finetune: [no, yes (rot, perm, cifar)]
+  \end{itemize}
+  \item \emph{multimodal}
+  \begin{itemize}
+    \item learning rate: [0.001, 0.003, 0.01, 0.03, 0.1 (rot, perm), 0.3, 1.0]
+  \end{itemize}
+  \item \emph{EWC}
+  \begin{itemize}
+    \item learning rate: [0.001, 0.003, 0.01 (rot), 0.03, 0.1 (perm), 0.3, 1.0 (cifar)]
+    \item regularization: [1 (cifar), 3 (perm), 10, 30, 100, 300, 1000 (rot), 3000, 10000, 30000]
+  \end{itemize}
+  \item \emph{iCARL}
+  \begin{itemize}
+    \item learning rate: [0.001, 0.003, 0.01, 0.03, 0.1, 0.3, 1.0 (cifar)]
+    \item regularization: [0.1, 0.3, 1 (cifar), 3, 10, 30]
+    \item memory size:    [200, 1280, 2560, 5120 (cifar)] 
+  \end{itemize}
+  \item \emph{GEM}
+  \begin{itemize}
+    \item learning rate: [0.001, 0.003, 0.01, 0.03, 0.1 (rot, perm, cifar), 0.3, 1.0]
+    \item memory size: [5120 (rot, perm, cifar)]
+    \item $\gamma$: [0.0, 0.1, ..., 0.5 (rot, perm, cifar), ..., 1.0]
+  \end{itemize}
+\end{itemize}
+
+\clearpage
+\newpage
+\section{Full experiments} \label{sec:app-r}
+In this section we report the evaluation matrices $R$ for each model and
+dataset.  The first row of each matrix (above the line) is the baseline test
+accuracy $\bar{b}$ before training starts. The rest of entries $(i,j)$ of the
+matrix $R$ report the test accuracy of the $j$-th task just after finishing
+training the $i$-th task.
+
+\subsection{MNIST permutations}
+\subsubsection{Model \emph{single}}
+{\tiny \VerbatimInput{figures/single_mnist_permutations.pt_2017_11_02_13_22_22.txt}}
+\subsubsection{Model \emph{independent}}
+{\tiny \VerbatimInput{figures/independent_mnist_permutations.pt_2017_11_02_13_30_43.txt}}
+\newpage
+\subsubsection{Model \emph{multimodal}}
+{\tiny \VerbatimInput{figures/multitask_mnist_permutations.pt_2017_11_02_13_37_50.txt}}
+\subsubsection{Model \emph{EWC}}
+{\tiny \VerbatimInput{figures/ewc_mnist_permutations.pt_2017_11_02_13_43_46.txt}}
+\subsubsection{Model \emph{GEM}}
+{\tiny \VerbatimInput{figures/gem2_mnist_permutations.pt_2017_11_03_05_25_58.txt}}
+
+\subsection{MNIST rotations}
+\subsubsection{Model \emph{single}}
+{\tiny \VerbatimInput{figures/single_mnist_rotations.pt_2017_11_02_13_22_08.txt}}
+\subsubsection{Model \emph{independent}}
+{\tiny \VerbatimInput{figures/independent_mnist_rotations.pt_2017_11_02_13_30_28.txt}}
+\subsubsection{Model \emph{multimodal}}
+{\tiny \VerbatimInput{figures/multitask_mnist_rotations.pt_2017_11_02_13_37_33.txt}}
+\subsubsection{Model \emph{EWC}}
+{\tiny \VerbatimInput{figures/ewc_mnist_rotations.pt_2017_11_02_13_40_43.txt}}
+\subsubsection{Model \emph{GEM}}
+{\tiny \VerbatimInput{figures/gem2_mnist_rotations.pt_2017_11_03_05_23_41.txt}}
+
+\subsection{CIFAR-100 incremental}
+\subsubsection{Model \emph{single}}
+{\tiny \VerbatimInput{figures/single_cifar100.pt_2017_11_02_13_30_14.txt}}
+\subsubsection{Model \emph{independent}}
+{\tiny \VerbatimInput{figures/independent_cifar100.pt_2017_11_02_13_37_15.txt}}
+\subsubsection{Model \emph{iCARL}}
+{\tiny \VerbatimInput{figures/icarl_cifar100.pt_2017_11_02_14_47_55.txt}}
+\subsubsection{Model \emph{EWC}}
+{\tiny \VerbatimInput{figures/ewc_cifar100.pt_2017_11_02_14_21_58.txt}}
+\subsubsection{Model \emph{GEM}}
+{\tiny \VerbatimInput{figures/gem2_cifar100.pt_2017_11_03_11_13_38.txt}}
+
+% \end{document}

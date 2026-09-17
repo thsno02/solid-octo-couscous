@@ -1,0 +1,959 @@
+article 
+
+ numbers, compress natbib 
+ cite 
+
+ neurips_data_2023 
+
+ inputenc 
+ fontenc 
+ hyperref 
+ url 
+ booktabs 
+ multirow 
+ amsfonts 
+ nicefrac 
+ microtype 
+ xcolor,soul 
+ enumitem 
+ graphicx 
+ amsmath 
+ dirtree 
+ wrapfig 
+ dirtree 
+ listings 
+ tocvsec2 
+
+ 
+ escapeinside= (*@ @*) ,
+ 
+
+ punct red!60!black 
+ background HTML EEEEEE 
+ delim RGB 20,105,176 
+ numb magenta!60!black 
+
+ json 
+ basicstyle= ,
+ numbers=left,
+ numberstyle= ,
+ stepnumber=1,
+ numbersep=8pt,
+ showstringspaces=false,
+ breaklines=true,
+ frame=lines,
+ backgroundcolor= background ,
+ literate=
+ * 0 numb 0 1 
+ 1 numb 1 1 
+ 2 numb 2 1 
+ 3 numb 3 1 
+ 4 numb 4 1 
+ 5 numb 5 1 
+ 6 numb 6 1 
+ 7 numb 7 1 
+ 8 numb 8 1 
+ 9 numb 9 1 
+ : punct : 1 
+ , punct , 1 
+ \ delim \ 1 
+ \ delim \ 1 
+ [ delim [ 1 
+ ] delim ] 1 ,
+ 
+
+ 
+ Kaiyu Yang ^1 , Aidan M. Swope ^ 2 , Alex Gu ^ 3 , Rahul Chalamala ^1 , Peiyang Song ^4 , \\
+ Shixing Yu ^5 , Saad Godil Research conducted while Saad Godil was at NVIDIA. , Ryan Prenger ^2 , Anima Anandkumar ^ 1,2 \\
+ ^1 Caltech, ^2 NVIDIA, ^3 MIT, ^4 UC Santa Barbara, ^5 UT Austin \\
+ 
+ 
+
+ mygreen RGB 226, 240, 217 
+ myblue RGB 222, 235, 247 
+ myorange RGB 251, 229, 214 
+ mygray RGB 219, 219, 219 
+ [1] mygreen #1 
+ [1] myblue #1 
+ [1] myorange #1 
+ [1] mygray #1 
+
+ https://leandojo.org 
+ [1] -1mm 
+
+### #1.
+ 
+ red [Kaiyu: #1] 
+ blue #1 
+ red TODO: #1 
+ red TBD 
+ blue #1 
+
+ ReProver 
+ 98,734 
+ 130,262 
+ 33,160 
+ 94,734 
+ 2,000 
+ 2,000 
+ 3,384 
+ 217,776 
+ 129,243 
+ 2.13 
+
+ pifont 
+ 51 
+ 55 
+
+ LeanDojo: Theorem Proving with Retrieval-Augmented Language Models 
+
+ document 
+
+ 
+
+ part 
+
+## Abstract
+
+Large language models (LLMs) have shown promise in proving formal theorems using proof assistants such as Lean. However, existing methods are difficult to reproduce or build on, due to private code, data, and large compute requirements. This has created substantial barriers to research on machine learning methods for theorem proving. This paper removes these barriers by introducing LeanDojo: an open-source Lean playground consisting of toolkits, data, models, and benchmarks. LeanDojo extracts data from Lean and enables interaction with the proof environment programmatically. It contains fine-grained annotations of premises in proofs, providing valuable data for premise selection---a key bottleneck in theorem proving. Using this data, we develop ( Re trieval-Augmented Prover ): an LLM-based prover augmented with retrieval for selecting premises from a vast math library. It is inexpensive and needs only one GPU week of training. Our retriever leverages LeanDojo's program analysis capability to identify accessible premises and hard negative examples, which makes retrieval much more effective. Furthermore, we construct a new benchmark consisting of theorems and proofs extracted from Lean's math library. It features challenging data split requiring the prover to generalize to theorems relying on novel premises that are never used in training. We use this benchmark for training and evaluation, and experimental results demonstrate the effectiveness of over non-retrieval baselines and GPT-4. We thus provide the first set of open-source LLM-based theorem provers without any proprietary datasets and release it under a permissive MIT license to facilitate further research.
+
+## Introduction
+
+ figure* [ht]
+ 
+ figures/overall.pdf 
+ Top right: LeanDojo extracts proofs in Lean~ de2015lean into datasets for training machine learning models. It also enables the trained model to prove theorems by interacting with Lean's proof environment. Top left: The proof tree of a Lean theorem n N ,~ gcd n n = n , where gcd is the greatest common divisor (details in Sec.~ sec:background ). When proving the theorem, we start from the original theorem as the initial state (the root) and repeatedly apply tactics (the edges) to decompose states into simpler sub-states, until all states are solved (the leaf nodes). Tactics may rely on premises such as mod\_self and gcd\_zero\_left defined in a large math library. E.g., mod\_self is an existing theorem n N ,~ n \% n = 0 used in the proof to simplify the goal. Bottom: Our model (Sec.~ sec:reprover ). Given a state, it retrieves premises from the math library, which are concatenated with the state and fed into an encoder-decoder Transformer~ vaswani2017attention to generate the next tactic. 
+ fig:overall 
+ figure* 
+
+Reasoning is a cornerstone of human intelligence and a fundamental goal of AI~ newell1956logic . One prominent task is automated theorem proving (ATP): automatically generating proofs for theorems expressed in formal logic. ATP is useful for formal mathematics, producing mathematical proofs that can be checked rigorously~ buzzardfuture . Furthermore, it underpins formal verification, which is essential for proving the correctness and safety of high-stakes applications~ leroy2016compcert,ringer2019qed .
+
+ATP is challenging since the search space is prohibitively large. In many applications, it is impractical to generate proofs fully automatically. Therefore, interactive theorem proving (ITP) has emerged as an alternative paradigm. In ITP, proofs are constructed by human experts interacting with software tools called proof assistants, such as Coq~ barras1997coq , Isabelle~ nipkow2002isabelle , and Lean~ de2015lean . 
+Machine learning can automate such interactive theorem proving, opening up a new avenue for theorem proving~ yang2019learning . The model can learn to interact with proof assistants, given data containing human-written proofs.
+
+Formal theorem proving serves as an important challenge for machine learning. From a computer science perspective, formal proofs can be treated as programs~ howard1980formulae . But unlike conventional programs in C++ or Python, the correctness of proofs can be verified using proof assistants. Therefore, theorem proving may be considered a special form of code generation, with rigorous evaluation and no room for the model to hallucinate. This can be consequential to current large language models (LLMs), as they have demonstrated exceptional capability in code generation~ chen2021evaluating but have flaws in factuality and hallucination~ ji2023survey . In addition, augmenting LLMs with external tools, such as proof assistants, has shown promise in improving their various capabilities, including multi-step reasoning~ schick2023toolformer .
+
+Current research on LLMs for theorem proving is facing many barriers. To our knowledge, none of the existing LLM-based provers are open-source~ polu2020generative,jiang2021lisa,han2022proof,lample2022hypertree,jiang2022thor,polu2023formal,first2023baldur,wang2023dt . They all use private pretraining data, and the compute requirements can reach thousands of GPU days~ lample2022hypertree . Furthermore, some rely on tailored infrastructure for distributed training and interaction with the proof assistant---both are not possible to fully reproduce without open-source code~ polu2023formal,lample2022hypertree . We change the status quo by introducing LeanDojo: open-source toolkits, models, and benchmarks that give researchers access to state-of-the-art LLM-based provers with modest computational costs.
+
+ Tools for Data Extraction and Interaction 
+We focus on Lean, a proof assistant popular among mathematicians. ``Lean'' in our paper refers to Lean 3 by default. Lean 4 is not backward-compatible but is also supported by LeanDojo. Our Lean 4 results are in Appendix~ appendix:lean4 . Our framework LeanDojo provides two essential functions for learning-based theorem proving (Fig.~ fig:overall ): extracting data and enabling models to interact with Lean programmatically. 
+
+For data extraction, LeanDojo extracts training data not directly visible in the raw Lean code (Fig.~ fig:lean_code ), e.g., proof trees consisting of intermediate states between proof steps (Fig.~ fig:overall Top left). In addition, LeanDojo is the first tool to locate premises in Lean proofs, enabling training machine learning models for premise selection. For interaction, LeanDojo turns Lean into a gym-like interactive environment~ brockman2016openai . Using LeanDojo, the model can observe proof states, change the state by executing proof steps (referred to as ``tactics'' in proof assistants), and receive feedback from Lean. LeanDojo is the first tool capable of interacting with Lean reliably, reducing proof-checking errors in existing tools~ polu2023formal (correct proofs misjudged as incorrect) from 21.1\% to 1.4\%. 
+
+ Retrieval-Augmented LLMs for Theorem Proving 
+LeanDojo addresses a key bottleneck in theorem proving: premise selection~ urban2004mptp,irving2016deepmath . Existing LLM-based provers generate the next proof step (tactic), taking only the current state as input. However, proving theorems depends critically on the premises, such as lemmas and definitions, from a math library.
+
+For example, Fig.~ fig:overall (Top left) illustrates the proof of `` n N ,~ gcd n n = n '', where gcd stands for greatest common divisor. The proof starts from the original theorem as the initial state and repeatedly applies tactics to decompose states into simpler sub-states, until all states are solved. Tactics may rely on premises such as mod\_self and gcd\_zero\_left defined in a large math library. E.g., mod\_self is an existing theorem `` n N ,~ n \% n = 0 '' useful for simplifying the goal.
+
+Incorporating all possible premises is too large to fit into LLMs' input, given the limited context window. Existing methods must learn to memorize the association between the proof state and the name mod\_self . It works if the premise has been used in the training data to solve similar goals, but does not generalize to truly novel scenarios, e.g., theorems requiring lemmas unseen in training. 
+
+One potential solution is to complement memorization with explicit premise selection. LeanDojo extracts premise data from Lean, including where they are defined and used. It enables us to tackle premise selection by augmenting LLMs with retrieval. We introduce ( Re trieval-Augmented Prover ) (Fig.~ fig:overall Bottom): Given the current state, it generates a tactic conditioning on a small number of premises retrieved from Lean's math library, mathlib ~ mathlib . 
+ 
+We need to limit retrieval to a small number of premises for it to be effective, and ideally, they should contain the ground truth premise. Our retriever builds upon Dense Passage Retriever (DPR)~ karpukhin2020dense but incorporates two algorithmic innovations: First, not all premises are accessible when proving a theorem (Sec.~ sec:background ). LeanDojo can perform program analysis on Lean code to determine accessible premises. On our data, that reduces the average number of premises from 128K to 33K, significantly simplifying the retriever's task. Second, DPR needs negative examples in training and benefits from hard negatives, i.e., irrelevant premises that are hard to distinguish from ground truth ones. We propose in-file negatives: a simple mechanism to find hard negatives in premise selection, which samples negative premises defined in the same Lean source file as the ground truth premise. 
+
+ LeanDojo Benchmark Using LeanDojo, we construct a benchmark containing theorems/proofs extracted from mathlib . Our benchmark is one of the largest math-focused theorem-proving datasets. We find that the common practice of splitting theorems randomly into training/testing has led to an overestimated performance in the previous papers. LLMs can prove seemingly difficult theorems simply by memorizing the proofs of similar theorems during training. In LeanDojo Benchmark, we mitigate this issue by designing challenging data split requiring the model to generalize to theorems relying on novel premises that are never used in training.
+
+We use LeanDojo Benchmark to train and evaluate . Training takes only five days on a single GPU. In evaluation, can prove 51.2\% theorems, outperforming a baseline that generates tactics directly without retrieval (47.6\%) and another baseline using GPT-4~ openai2023gpt4 to generate tactics in a zero-shot manner (29.0\%). We also test on two existing datasets, MiniF2F~ zheng2022minif2f and ProofNet~ azerbayev2023proofnet . It can prove 26.5\% theorems in MiniF2F and 13.8\% in ProofNet, which is competitive with state-of-the-art methods without reinforcement learning~ polu2023formal , even though trained using far fewer resources. Moreover, it can prove 65 theorems that currently do not have proofs in Lean. Thus, our tool can also serve as an effective tool for augmenting existing math libraries in Lean.
+
+ Contributions 
+In summary, we make four main contributions: First, we introduce tools for extracting data from and interacting with Lean. Second, we develop , the first retrieval-augmented language model for theorem proving. Third, we construct a challenging benchmark for learning-based theorem proving and use it to validate the effectiveness of . Finally, we facilitate open research on LLMs for theorem proving by releasing our data, model, and code. Our method does not rely on private datasets and can be trained on a single GPU within a week. We believe this will significantly lower the barriers to academic research in this area and establish the first accessible baselines for future work to build upon. Further, our method can be used to automatically generate new Lean proofs without requiring human effort.
+
+## Related Work
+
+ Theorem Proving 
+Classical provers express theorems in first-order logic and search for proofs automatically in a large space~ robinson2001handbook,kovacs2013first . Even with data-driven search heuristics~ loos2017deep,bridge2014machine , they fail to scale to large formalization projects. Therefore, recent work on learning-based theorem proving has focused on an alternative paradigm: automating the interaction with proof assistants. 
+
+The architecture of learning-based provers progressed from classical machine learning algorithms such as KNN~ gauthier2021tactictoe , to graph neural networks explicitly encoding the syntax of formal expressions~ yang2019learning,paliwal2020graph , and now Transformer-based LLMs treating expressions as plain strings~ polu2020generative . Besides the model architecture, researchers have explored several complementary dimensions: proof search algorithms for assembling model-generated steps into complete proofs~ lample2022hypertree,wang2023dt ; overcoming data scarcity through reinforcement learning (RL)~ bansal2019learning,wu2021tacticzero,lample2022hypertree,polu2023formal or synthetic/auxiliary data~ wang2020learning,rabe2021mathematical,wu2021lime,han2022proof ; as well as outsourcing some proof goals to classical provers~ bohme2010sledgehammer,blanchette2016hammering,czajka2018hammer,jiang2022thor . Our base model without retrieval is a combination of straightforward design choices. It generates tactics by finetuning an encoder-decoder Transformer, ByT5~ xue2022byt5 , via supervised learning without RL or auxiliary data. Then it searches for proofs using best-first search. Our model's algorithmic novelty lies in the retrieval.
+
+ Premise Selection 
+Selecting useful premises is recognized as a key challenge in theorem proving~ urban2004mptp,irving2016deepmath,szegedy2021retrieval,wu2022formal . Machine learning methods for premise selection have also progressed from classical models~ alama2014premise,bohme2010sledgehammer,piotrowski2023machinelearned , recurrent neural networks~ irving2016deepmath , graph neural networks~ wang2020learning , to Transformers~ mikula2023magnushammer,yeh2023coprover . However, existing methods either tackle premise selection in isolation without theorem proving~ piotrowski2023machinelearned,irving2016deepmath,wang2020learning or feed the premises to a symbolic prover~ alama2014premise,bohme2010sledgehammer,mikula2023magnushammer . To our knowledge, we are the first to augment a learning-based formal theorem prover with retrieved premises so that the prover can learn how to use them effectively. For example, it can decide whether to use an explicitly retrieved premise or an implicitly memorized one.
+
+ Data and Tools for Theorem Proving 
+Tools for data extraction and interacting with proof assistants have been crucial drivers of learning-based theorem proving. Existing tools and datasets can be divided by proof assistants: Coq has GamePad~ huanggamepad , CoqGym~ yang2019learning , and PRISM~ reichel2023proof ; Isabelle has IsarStep~ li2021isarstep and PISA~ jiang2021lisa ; HOL Light has HOList~ bansal2019holist and HoLStep~ kaliszykholstep , and Lean has LeanStep~ han2022proof and lean-gym ~ polu2023formal . MiniF2F~ zheng2022minif2f is the only cross-system dataset, with 488 theorems for evaluation. However, it does not have training theorems and is restricted to the domain of math olympiads. 
+ 
+Among available tools extracting data from proof assistants, LeanDojo is the only one that can extract premises for retrieval-augmented theorem proving. A few existing datasets also have premises~ bansal2019holist,mikula2023magnushammer , but their data extraction tools are not public, making it difficult to construct new datasets. In addition, LeanDojo is the only tool that can interact with Lean robustly (Sec.~ sec:leandojo ) and can extract data from Lean 4. See Appendix~ appendix:tool_comparison for a detailed comparison between LeanDojo and alternatives.
+
+ Mathematical Reasoning in Natural Language 
+We focus on proving theorems expressed in formal logic, whereas researchers have also produced a plethora of work on mathematical reasoning in natural language~ hendrycks2021measuring,lewkowycz2022solving,ferreira2020premise,welleck2021naturalproofs,welleck2022naturalprover,mishra2022lila,lu2022survey,meadows2022survey . A particularly relevant task is autoformalization, translating natural language texts into formal theorems and proofs~ wang2018first,cosler2023nl2spec,pan2023data,hahn2022formal,wu2022autoformalization,jiang2023draft,zhao2023decomposing,cunningham2023towards,azerbayev2023proofnet,chen2023nl2tl . 
+
+ Retrieval-Augmented Language Models 
+Our is the first retrieval-augmented language model for formal theorem proving, though similar architectures have been studied extensively in NLP~ khandelwal2020generalization,guu2020retrieval,lewis2020retrieval,borgeaud2022improving,li2022decoupled,jiang2022retrieval,wu2022memorizing,izacard2022few,zhong2022training . In addition, there have been many retrieval-augmented methods for code generation~ hayati2018retrieval,parvez2021retrieval,lu2022reacc,zhou2023docprompting,shrivastava2022repository,zhang2023repocoder,ding2022cocomic . Most of them retrieve from a corpus not directly related to the current file, e.g., GitHub or Stack Overflow. In contrast, our retrieval corpus consists of premises accessible to the current file, which is determined by program analysis using LeanDojo. This is similar to what CoCoMIC~ ding2022cocomic does for Python. However, their retrieval is based on heuristics, whereas ours is learned. 
+
+## Background: Theorem Proving in Lean
+
+ sec:background 
+
+At a high level, Lean is a programming language that allows you to write not only conventional programs but also theorems and proofs. To that end, it provides two pieces of machinery: First, it provides a unified language for defining programs, mathematical objects, theorems, and proofs, based on functional programming with dependent types~ christiansen2023functional . Second, it provides a tactic system for constructing machine-checkable proofs semi-automatically. 
+
+ figure* [ht]
+ 
+ figures/lean\_code.pdf 
+ Definition of greatest common divisor ( gcd ) in Lean and two related theorems. The proof of gcd\_self (between `` begin '' and `` end '') relies on a premise mod\_self imported from another file in the math library. Lean can run this proof to produce the proof tree in Fig. fig:overall (Top left). 
+ fig:lean_code 
+ figure* 
+
+We use a simple example in Fig.~ fig:lean_code to illustrate how theorems are formalized and proved in Lean. The process is similar in many other proof assistants, though they may have different logical foundations. Here we want to formalize the greatest common divisor ( gcd ) of two natural numbers. First, we define gcd as a recursive function, taking two natural numbers as parameters and returning their gcd via the Euclidean algorithm. Then, we state a lemma named gcd\_zero\_left that x N ,~ gcd 0 x = x , which can be proved simply by the definition of gcd . Finally, we state our main theorem gcd\_self that n N ,~ gcd n n = n , followed by its proof consisting of five tactics. In theorem proving, we are only concerned with generating the proof, i.e., the part between `` begin '' and `` end ''; everything before `` begin '' is known, including other files imported.
+
+The syntax of tactics is quite expressive. They can take arguments and can be combined into compound tactics. You can think of tactics as programs in a domain-specific language (DSL). Users can extend the DSL by defining new tactics. This discrete, combinatorial, and unbounded action space makes theorem proving challenging for machine learning.
+
+Another challenge is premise selection. Premises are existing lemmas or definitions useful for proving a theorem. They are used as arguments in tactics. For example, in Fig.~ fig:lean_code and Fig.~ fig:overall (Top left), the tactic `` rewrite mod\_self '' rewrites the goal using the premise mod\_self , which is defined in another file imported by the current file. Proofs cannot use premises that haven't been defined. For example, gcd\_self cannot be used to prove gcd\_zero\_left . In addition, they cannot use premises not imported to the current file. Still, premises come from a large math library containing hundreds of thousands of existing definitions and theorems, making it hard, for humans and machines alike, to select the right premises when generating a tactic. This is a key bottleneck in theorem proving and is what we aim to address through retrieval-augmented LLMs.
+
+## LeanDojo: Toolkit and Benchmark
+
+ sec:leandojo 
+
+LeanDojo serves two essential needs of learning-based theorem proving in Lean. First, it extracts training data from Lean, and we use this capability to construct a challenging theorem proving benchmark. Second, it enables the model to interact with Lean programmatically.
+
+ Data Extraction 
+Lean repos (e.g., https://github.com/leanprover-community/mathlib mathlib or https://github.com/leanprover-community/lean-liquid lean-liquid ) contain source code of human-written theorems/proofs. However, the raw code is unsuitable for training the prover. It lacks runtime information that humans can access when using Lean, such as intermediate states between proof steps. Therefore, LeanDojo extracts the following information not directly visible in the code:
+ itemize [leftmargin=*]
+
+ File dependencies and abstract syntax trees (ASTs): LeanDojo processes the repo to produce a directed acyclic graph whose nodes are files and edges are import relations between files. In addition, LeanDojo produces the AST of each file. File dependencies and ASTs are useful for program analysis, e.g., collecting theorems defined in a file or premises accessible to a theorem.
+
+ States and tactics: LeanDojo extracts all tactics in proofs. For each tactic, it also extracts the states before/after the tactic, which allows us to reconstruct the proof tree in Fig.~ fig:overall (Top left).
+
+ Premises: For each premise, such as mod\_self in Fig.~ fig:lean_code , LeanDojo records where it is defined (location in data/nat/lemma.lean ) and where it is used (locations across many files). In addition, premises have unique fully qualified names (e.g., nat.mod\_self ) but are often used by ambiguous short names ( mod\_self ), relying on Lean to perform name resolution. LeanDojo is capable of recording their full names.
+ itemize 
+
+Lean has basic support for exporting dependencies, ASTs, states, and tactics. However, it cannot resolve the premises' full names and locate their definitions. Therefore, we modify Lean to record this information (details in Appendix~ appendix:leandojo:premises ). The modified Lean is used only for data extraction but not for evaluation, so we do not risk accidentally breaking Lean's logical soundness. 
+
+ LeanDojo Benchmark 
+We construct a benchmark for premise selection and theorem proving, named LeanDojo Benchmark. The data is extracted from https://github.com/leanprover-community/mathlib mathlib , We use the commit https://github.com/leanprover-community/mathlib/tree/19c869efa56bbb8b500f2724c0b77261edbfa28c 19c869efa56bbb8b500f2724c0b77261edbfa28c released on October 11, 2023. Lean's centralized math library covering diverse topics such as analysis, algebra, and geometry. More details, statistics, and visualizations of mathlib can be found at https://leanprover-community.github.io/mathlib_stats.html . LeanDojo Benchmark is one of the largest math-focused theorem proving datasets, consisting of theorems from Lean files. Unlike existing datasets in Lean~ han2022proof , LeanDojo Benchmark also contains the definitions of premises, including not only theorems but also other definitions that can be used as premises (e.g., gcd in Fig.~ fig:lean_code . Furthermore, the dataset has tactics, of them with at least one premise. The average number of premises is among tactics with premises. 
+Appendix~ appendix:benchmark contains additional information on data format, datasheet~ gebru2021datasheets , hosting, and licensing.
+
+ figure* [ht]
+ 
+ figures/quaternion.pdf 
+ Similar theorems/proofs are common. If splitting them randomly into training/testing, the model can prove testing theorems by memorization. 
+ fig:quaternion 
+ figure* 
+
+LeanDojo Benchmark has / / theorems for training/validation/testing. It features a challenging data split for testing the prover's generalization in more realistic scenarios. Splitting theorems randomly can overestimate the prover's performance, by allowing it to prove many theorems through memorization. In human-written Lean code, a common idiom is to have a block of similar theorems/proofs for slightly different properties of the same math concept. For example, in Fig.~ fig:quaternion , the last two theorems not only look similar but have identical proofs. If one of them is in training, the model can easily prove the other one by memorization. This shortcut enables the model to prove seemingly nontrivial theorems, including those requiring premises to prove. 
+
+To mitigate this issue, besides the random split, we create a challenging data split named novel\_premises . It requires testing proofs to use at least one premise that has never been used in training. For example, the last two theorems in Fig.~ fig:quaternion both use the premise conj\_mul . If one theorem is in the training set of the novel\_premises split, the other one must also be in training.
+
+ Interacting with Lean 
+Another important function of LeanDojo is to interact with Lean programmatically. It turns Lean into a gym-like environment~ brockman2016openai , in which the prover can observe the proof state, run tactics to change the state, and receive feedback on errors or on proof completion. This environment is indispensable for evaluating/deploying the prover or training it through RL. 
+
+Below is LeanDojo's main interface for interacting with Lean through tactics. Lean also supports other proof styles not based on tactics. Although we only support tactic-style proofs, they are sufficiently general since any proof can be converted to a tactic-style proof. Another common type of proofs is ``term-style proofs''. Any term-style proof `` X '' can always be converted into an equivalent tactic-style proof `` exact X '', though such conversion may lead to unidiomatic proofs. 
+ itemize [leftmargin=*]
+
+ initialize(theorem) : Given the theorem to prove, LeanDojo returns the initial state. A valid state is a string representing current proof goals and local contexts (see the nodes in Fig.~ fig:overall Top left). When there are multiple goals, their strings are concatenated.
+
+ run\_tac(state, tactic) : Run a tactic on a given state and return the next state. The returned state will be an error state if the tactic execution is not successful, e.g., due to timeout or inapplicable tactic. If the input state is an error, the result can only be an error.
+
+ itemize 
+
+Building this environment is technically challenging, as Lean is designed for human users, not machines. LeanDojo is the first tool that can interact with Lean reliably. Existing tool~ polu2023formal is limited: 21.1\% of the ground truth proofs are misjudged as incorrect, due to issues with how they construct the proof environment, which distorts the reported performance and produces unreliable feedback when used in reinforcement learning. In contrast, LeanDojo reduces the number of misjudgments to 1.4\%. Details are in Appendix~ appendix:leandojo:interaction .
+
+ : Retrieval-Augmented Theorem Prover 
+ sec:reprover 
+
+We develop the model that uses retrieval to select premises explicitly. At its core is a retrieval-augmented tactic generator (Fig.~ fig:overall Bottom). Given the current proof state, it retrieves a handful of potentially useful premises and generates a tactic conditioning on the concatenation of the state and retrieved premises. When proving theorems, the model generates multiple tactic candidates at each step, which are used in a standard best-first search algorithm to find proofs~ han2022proof,zheng2022minif2f,polu2023formal,jiang2022thor . 
+
+ Premise Retrieval 
+Our retriever is based on Dense Passage Retriever~ karpukhin2020dense . Given a state s as the query and a library of candidate premises P = \ p_i\ _ i=1 ^ N , it retrieves a ranked list of m premises \ p'_i\ _ i=1 ^ m from P . In DPR, s and p_i are both raw texts but are embedded in a vector space, and we retrieve the top m premises maximizing the cosine similarity between the state and the premise.
+
+More formally, we have a function f parameterized by for embedding both the state and the premises into a h -dimensional vector space: f(s, ), f(p_i, ) R ^ h . We retrieve premises maximizing f(s, )^T f(p_i, )/( f(s, ) _2 f(p_i, ) _2) . We choose f to be a Transformer encoder~ vaswani2017attention followed by average pooling: f( , ) = AvgPool ( Enc ( , )) .
+
+The retrieval is efficient. The premise embeddings f(p_i, ) can be pre-computed, and we only need one forward pass to compute f(s, ) . We do not rerank the retrieved premises as in Magnushammer~ mikula2023magnushammer , which is more costly since it requires a separate forward pass for each retrieved premise.
+
+Similar to DPR, we train the retriever by minimizing a contrastive loss between positive premises and in-batch negative premises. Specifically, suppose we have a batch of b states. For each state, we sample a positive premise from the ground truth and n negative premises from P . When training the retriever, we ignore proof states followed by tactics without using any premise. They are called ``in-batch'' negatives because they are shared by all states in the batch---Every state is associated with all b (n+1) premises; at least 1 of them is positive.
+Let l_ ij \ 0, 1\ denote whether a state-premise pair (s_i, p_j) is positive. We minimize the mean squared loss: 
+ equation 
+ L( ) = _ i=1 ^ b _ j=1 ^ b (n + 1) l_ ij - f(s_i, )^T f(p_j, ) f(s_i, ) _2 f(p_j, ) _2 ^ 2 .
+ equation 
+
+ Retrieving from Accessible Premises We incorporate into DPR two insights tailored to premise selection.
+First, instead of retrieving from all premises in the math library, we restrict to premises accessible to the current theorem. They include premises defined in the same file before the theorem, as well as those imported from other files. We compute accessible premises for each theorem, relying on LeanDojo's capability in program analysis (Sec.~ sec:leandojo ). Focusing on accessible premises makes P much smaller. LeanDojo Benchmark contains premises in total, but the average number of accessible premises is only .
+
+ In-file Negative Examples 
+DPR's performance depends critically on the quality of negative examples~ zhan2021optimizing,lu2021multi . In early experiments, we sampled all n negative premises randomly, and the model often mistakenly retrieved other premises from the same file as the positive one. Therefore, we propose a scheme that samples k in-file negatives and n-k random negatives for training.
+
+ Tactic Generation 
+As in Fig.~ fig:overall (Bottom), retrieved premises are concatenated with the state. We retrieve 100 premises, concatenate them with the state, and truncate the concatenation to a fixed length. Then an encoder-decoder Transformer, ByT5~ xue2022byt5 , takes them as input and generates the tactic. The model is trained to minimize the cross entropy loss w.r.t. human-written tactics.
+
+Training takes substantially less compute than prior methods (120 GPU hours vs. more than 1000 hours~ han2022proof,lample2022hypertree ). All existing LLM-based provers pretrain on datasets specific to math and coding~ polu2020generative,jiang2021lisa,han2022proof,lample2022hypertree,jiang2022thor,polu2023formal,first2023baldur . The pretraining is computationally expensive, and the datasets are kept private. In contrast, we choose to avoid domain-specific pretraining and build upon https://huggingface.co/google/byt5-small google/byt5-small ---a model checkpoint that is generic, publicly available, and relatively small (299M parameters vs. 837M~ han2022proof or 600M~ lample2022hypertree ). We could see further benefits from domain-specific pretraining, as in Minerva~ lewkowycz2022solving , or stronger LLMs like LLaMA~ touvron2023llama or StarCoder~ li2023starcoder , but that is beyond our scope. In addition, our model is finetuned on human-written tactics only, without auxiliary data~ han2022proof or data collected through online interaction with Lean~ polu2023formal,lample2022hypertree . These orthogonal directions are valuable but will significantly increase the method's complexity and compute requirements.
+
+## Experiments
+
+ sec:experiments 
+
+We evaluate on LeanDojo Benchmark. It outperforms baselines on premise selection and theorem proving, demonstrating the promise of theorem proving with retrieval-augmented language models. Experimental details and hyperparameters are in Appendix~ appendix:experimentaldetails .
+
+ Premise Selection 
+For premise selection, we only use tactics in LeanDojo Benchmark that have at least one premise. The model, based on a ByT5 encoder, uses the state before a tactic as the query to retrieve 100 premises. Then, we calculate standard metrics in information retrieval: R@k (recall for the top k retrieved premises) and MRR (mean reciprocal rank). 
+
+Our first baseline is a classical BM25 retriever~ robertson2009probabilistic without machine learning. Results in Table~ table:premise_selection_results show that our method outperforms BM25 significantly across the board. However, it exhibits a large performance degradation on the challenging data split (comparing novel\_premises to random ). This is consistent with the general observation that machine learning can be brittle in the presence of distribution shifts. In addition, we compare with two ablations: one retrieving from all premises (instead of accessible premises only) and the other without in-file negatives. They perform worse than our method, demonstrating the effectiveness of our two improvements upon DPR.
+
+ Theorem Proving Experimental Setup 
+Then we evaluate on theorem proving. The training has two stages: First, we train the retriever and use it to retrieve 100 premises for all proof states in LeanDojo Benchmark. Second, we train the tactic generator, taking as input the concatenation of the state and retrieved premises (truncated to a length limit). During evaluation, the tactic generator is combined with best-first search to prove theorems. We evaluate the Pass@1 metric: The prover is given only one attempt and must find the proof within a wall time limit of 10 minutes. Training takes five days on a single NVIDIA A100 GPU with 80GB memory, and evaluation takes two days on eight V100 GPUs. Please see Appendix~ appendix:experimentaldetails for details.
+
+ table* [ht]
+ 
+ Premise selection testing performance. For each method, we train and evaluate two models independently using different data splits ( random and novel\_premises ; see Sec.~ sec:leandojo ). R@k is the recall for the top k retrieved premises, and MRR is the mean reciprocal rank metric (higher is better). Our retriever outperforms BM25 and ablations. Results for Lean 4 are in Appendix~ appendix:lean4 . 
+ tabular @ lcccccc@ 
+ 
+ Method & 3 c random & 3 c novel\_premises \\
+ (r) 2-4 (r) 5-7 & R@1 & R@10 & MRR & R@1 & R@10 & MRR \\
+ 
+ BM25 & 6.7 & 17.2 & 0.15 & 5.9 & 15.5 & 0.14\\
+ w/ all premises & 1.9 & 11.9 & 0.08 & 2.1 & 12.4 & 0.08 \\
+ Ours & 13.5 & 38.4 & 0.31 & 9.1 & 27.6 & 0.24 \\
+ w/ all premises & 11.7 & 36.2 & 0.27 & 7.1 & 23.1 & 0.20 \\
+ w/o in-file negatives & 10.8 & 33.1 & 0.25 & 7.9 & 25.7 & 0.22 \\
+ 
+ tabular 
+ table:premise_selection_results 
+ table* 
+
+ Baselines 
+Following prior work~ han2022proof,zheng2022minif2f , we include tidy as a baseline. It is a tactic in mathlib that tries to complete the proof using heuristics (without machine learning). We apply tidy directly to the original theorem and see if it can succeed within the wall time limit. Another baseline uses GPT-4 as the tactic generator. Given a state, it queries GPT-4 to generate 35 tactics in zero-shot. After removing invalid ones, the remaining tactics are combined with best-first search to find proofs. Data contamination is possible: Many proofs had been publicly available on GitHub before GPT-4's data cutoff date (September 2021). See Appendix~ appendix:gpt-4 for details.
+
+Unfortunately, it is not feasible to compare with existing LLM-based provers in Lean~ han2022proof,polu2023formal,lample2022hypertree . None of them are open-source or can be reproduced with reasonable effort. Furthermore, we cannot compare directly with the numbers reported in their papers, due to differences in data, infrastructure, and training procedures (details in Appendix~ appendix:comparisons ). Many difficulties are due to the private nature of existing methods. By releasing our code and models, we hope to create accessible baselines for future work to build upon.
+
+ table* [ht]
+ 
+ Theorem proving Pass@1 (\%) on the testing data of LeanDojo Benchmark. Our model outperforms tidy , GPT-4, and a baseline that generates tactics directly without retrieval. Results for Lean 4 are in Appendix~ appendix:lean4 . 
+ tabular @ lcc@ 
+ 
+ Method & random & novel\_premises \\
+ 
+ https://leanprover-community.github.io/mathlib_docs/tactic/tidy.html#tactic.tidy tidy & 23.8 & 5.3 \\
+ GPT-4 & 29.0 & 7.4 \\
+ (ours) & 51.2 & 26.3 \\
+ w/o retrieval & 47.6 & 23.2 \\
+ 
+ tabular 
+ table:theorem_proving_results 
+ table* 
+
+ Results 
+Table~ table:theorem_proving_results shows the results on the testing data of LeanDojo Benchmark. outperforms all baselines on two different data splits, demonstrating the effectiveness of retrieval-augmented theorem proving. GPT-4 performs substantially worse than our method, even though it may have seen the ground truth proofs due to data contamination. The task cannot be solved out of the box by state-of-the-art LLMs, calling for algorithmic innovations to make further progress.
+
+Testing theorems in novel\_premises are indeed much more challenging. All methods in Table~ table:theorem_proving_results perform substantially worse on novel\_premises than the random split. We argue that performance on challenging splits is more indicative of the prover's capability and should be emphasized in the future development of theorem proving.
+
+ Evaluation on MiniF2F and ProofNet 
+We run to prove theorems in MiniF2F~ zheng2022minif2f and ProofNet~ azerbayev2023proofnet . These two datasets are for testing only and do not have training theorems, which makes them challenging since the distribution of theorems is quite different from mathlib used to train . MiniF2F focuses on math olympiads, and ProofNet focuses on exercises in undergraduate math textbooks. On MiniF2F's test set in Lean, achieves a Pass@1 of 26.5\%, which is competitive with state-of-the-art methods without RL (25.9\% in Polu~et~al.~ polu2023formal ). On ProofNet, our Pass@1 is 13.8\%, which is the first reported theorem proving result on this dataset. Further, many theorems do not have ground truth proofs in Lean. Our prover discovers 33 proofs in MiniF2F and 39 proofs in ProofNet that currently do not have Lean proofs. Please see Appendix~ appendix:experiments:minif2f for details, examples, and caveats.
+
+## Conclusion
+
+We have introduced LeanDojo: an open-source playground for learning-based theorem proving in Lean, consisting of toolkits, models, and benchmarks. It extracts data from Lean and enables the model to interact with Lean programmatically. We have developed , the first retrieval-augmented LLM for theorem proving. Limitations and future work are discussed in Appendix~ appendix:limitations .
+
+We have released our code, data, models, and documentation to facilitate future research:
+
+ itemize 
+ LeanDojo's codebase for data extraction and interaction with Lean: https://github.com/lean-dojo/LeanDojo 
+ LeanDojo's documentation: https://leandojo.readthedocs.io 
+ Datasets: (1) LeanDojo Benchmark: https://doi.org/10.5281/zenodo.8016385 with DOI 10.5281/zenodo.8016385 . (2) LeanDojo Benchmark 4 (Appendix~ appendix:lean4 ): https://doi.org/10.5281/zenodo.8040109 with DOI 10.5281/zenodo.8040109 .
+ ReProver's code and models: https://github.com/lean-dojo/ReProver 
+ ChatGPT plugin (Appendix~ appendix:chatgpt ): https://github.com/lean-dojo/LeanDojoChatGPT 
+ LeanDojo Website: 
+ itemize 
+
+ ack 
+ sec:ack 
+This work is partially supported by Caltech's Center for Autonomous Systems and Technologies. Kaiyu Yang is supported by the Computing, Data, and Society Postdoctoral Fellowship at Caltech. Alex Gu is supported by the National Science Foundation (NSF) Graduate Research Fellowship. Rahul Chalamala and Peiyang Song are supported by the Summer Undergraduate Research Fellowships (SURF) program at Caltech. Anima Anandkumar is partially supported by the Bren endowed chair. We appreciate the valuable feedback from Logan Murphy and members of the Anima AI+Science Lab on an initial version of this paper. We thank Junyan Xu for manually inspecting the proofs generated by our model on ProofNet. We also thank Jeremy Avigad and Mario Carneiro for insightful discussions on supporting Lean 4 in LeanDojo.
+ ack 
+
+ 
+
+ 
+ 
+ unsrtnat 
+ references 
+ 
+
+ 
+ 
+ Appendix 
+ 
+ 
+
+ table 0 
+ table 
+ figure 0 
+ figure 
+ section 0 
+ section 
+
+## LeanDojo Technical Details
+
+ appendix:leandojo 
+
+We provide more information on how LeanDojo extracts data from and interacts with Lean. ``Lean'' in our paper refers to Lean 3 by default. Lean 4 is not backward-compatible but is also supported by LeanDojo. Our Lean 4 results are in Appendix~ appendix:lean4 . For further details, please check our open-source implementation. 
+
+## Extracting Premise Information from Lean's Elaborator
+
+ appendix:leandojo:premises 
+
+``Premises'' in this paper belong to a category of Lean expressions called ``constants.'' In Lean, definitions of constants are grouped into nested, hierarchical https://leanprover.github.io/theorem_proving_in_lean/dependent_type_theory.html#namespaces namespaces . Therefore, each premise has a unique fully-qualified name. For example, mod\_self in Fig.~ fig:lean_code is defined in the namespace nat ; therefore, its fully qualified name is nat.mod\_self . However, it would be too verbose if premises had to be referred to using full names. In practice, tactics often refer to premises using short names such as mod\_self . In case multiple premises share the same short name, Lean automatically infers the correct one from the context through a process called ``name resolution''. LeanDojo is able to trace the input/output of Lean's name resolution and thereby extract accurate premise information for training the retriever.
+
+Name resolution in Lean is implemented in a process called ``elaboration,'' which happens after parsing but before the parsed expressions are checked by Lean's trusted kernel. Elaboration takes as input user-entered expressions (called ``pre-expressions'') that are concise, partially specified, and potentially ambiguous. It turns them into complete expressions ready to be checked by the kernel. This is realized by inferring not only full names but also missing types, implicit arguments, overloading, type coercion, etc. Please refer to de~Moura~et~al.~ de2015elaboration for details on Lean's elaboration process. In LeanDojo, we modify Lean's internal implementation, intercepting the elaborator to record its input/output:
+ itemize [leftmargin=*]
+ Pre-expression: The input to Lean's elaborator, including where premises are used in proofs.
+ Expression: The output of the elaborator, including the premise's full name and where it is defined.
+ itemize 
+Locations are spans in the source code, specified by the file name and the row/column numbers of its start/end. Our modification takes the form of a Git patch that LeanDojo can automatically apply to any version of Lean 3 after March 24, 2022.
+
+## Reliable Interaction with Lean
+
+ appendix:leandojo:interaction 
+
+Polu~et~al.~ polu2023formal introduced 
+ https://github.com/openai/lean-gym lean-gym . To our knowledge, it is the only mature, open-source tool before LeanDojo for interacting with Lean programmatically. However, we found severe issues with lean-gym : About 21.1\% of the correct, human-written proofs are misjudged as incorrect, leading to two problems: First, it underestimates the prover's evaluation performance. Second, the results are too noisy as feedback signals for reinforcement learning.
+
+After carefully analyzing lean-gym 's implementation, we identified the root cause of the problem. When proving a theorem, the environment used by lean-gym is subtly different from the original environment used by humans. Specifically, lean-gym fails to handle namespaces correctly (illustrated in Fig.~ fig:lean-gym ). As a result, name resolution fails unexpectedly when checking correct proofs.
+
+For example, Fig.~ fig:lean-gym compares the correct environment and the environment constructed by lean-gym . The theorem should be inside the namespace `` buffer ''. However, in lean-gym , it merely opens the namespace. These two scenarios are different when it comes to name resolution. Being inside a namespace instructs Lean to favor constants defined in that namespace, whereas opening a namespace does not have such an effect. In this example, the short name `` read '' is ambiguous: We have `` monad\_reader.read '' defined in `` init/control/reader.lean '' and `` buffer.read '' defined in `` data/buffer.lean ''. In the correct environment, the `` read '' in `` unfold read '' resolves to `` buffer.read ''. Whereas in lean-gym 's environment, it incorrectly resolved to `` monad\_reader.read ''. Lean complains that `` read '' is not an equational lemma, because it is referring to a wrong `` read ''. LeanDojo does not suffer from this kind of error since it uses a different mechanism for constructing the environment. Specifically, it wraps the interaction code as a Lean tactic, which is inserted into the proof. Therefore, the environment is guaranteed to be correct.
+
+We quantitatively compare lean-gym and LeanDojo on the number of proof checking errors. In this study, we use Lean https://github.com/leanprover-community/lean/releases/tag/v3.42.1 v3.42.1 paired with mathlib version https://github.com/leanprover-community/mathlib/tree/6e5ca7d0097313e59f7533a42e3ea5197484c775 6e5ca7d0097313e59f7533a42e3ea5197484c775 since they are supported by both tools. We use LeanDojo to extract all tactic-style proofs and enter them into both tools. These proofs are all correct, but lean-gym failed on 21.1\% of them. In contrast, LeanDojo only failed on 1.4\%, and its failures are a subset of lean-gym 's. We include this study in our open-source repo and document example proofs from the remaining 1.4\% to provide transparency on LeanDojo's limitations. https://github.com/lean-dojo/LeanDojo/blob/main/tests/interaction/test_unexpected_errors.py 
+
+ figure* [ht]
+ 
+ figures/lean-gym.pdf 
+ An example of correct proofs misjudged as incorrect by lean-gym , adapted from the theorem https://github.com/leanprover-community/lean/blob/9fc1dee97a72a3e34d658aefb4b8a95ecd3d477c/library/data/buffer.lean\#L47 read\_eq\_read' in `` data/buffer.lean '' of Lean's standard library. The error message is because lean-gym failed to resolve the short name `` read '' to the correct fully-qualified name. The Lean code in this figure is only for illustrative purposes. It does not reflect the implementation technique used by lean-gym to construct the environment. Instead of generating actual Lean code, lean-gym uses Lean's metaprogramming APIs to construct the environment. 
+ fig:lean-gym 
+ figure* 
+
+## Comparison with Existing Tools for Learning-Based Theorem Proving in Lean
+
+ appendix:tool_comparison 
+
+To our knowledge, LeanStep~ han2022proof LeanStep is technically a dataset. We are referring to the https://github.com/jasonrute/lean_proof_recording lean\_proof\_recording tool for extracting it. and lean-gym ~ polu2023formal are the only published tools for learning-based theorem proving in Lean. There are a few unpublished prototypes, such as https://github.com/leanprover-community/repl repl , https://github.com/leanprover-community/lean-client-python lean-client-python , and https://github.com/dselsam/lean-gym lean-gym for Lean 4 , none of which is mature enough or is under active development. Therefore, we only compare LeanDojo with LeanStep and lean-gym (summarized in Table~ table:comparison ).
+
+ Functionality 
+LeanDojo supports both data extraction and interacting with Lean programmatically. In contrast, LeanStep is only for data extraction, and lean-gym is only for interacting with Lean. They are not actively maintained, so they do not support recent versions of mathlib (tested on August 11, 2023, using mathlib commit https://github.com/leanprover-community/mathlib/tree/19c869efa56bbb8b500f2724c0b77261edbfa28c 19c869efa56bbb8b500f2724c0b77261edbfa28c ). Also, neither of them support Lean 4 (Appendix~ appendix:lean4 ). LeanDojo fully supports recent mathlib and Lean 4. Furthermore, LeanStep cannot extract premise information and is not applicable to repos other than mathlib . Last, LeanDojo comes with comprehensive documentation and unit tests, whereas other tools barely have any.
+
+ Implementation details 
+LeanStep and LeanDojo use different mechanisms to extract ASTs and proof trees. LeanStep implements an ad-hoc parser in Python for parsing Lean code into ASTs. It also intercepts Lean's tactic system to insert logging code. Then the logs are used to reconstruct proof trees. This implementation is brittle and does not work for the current versions of Lean/ mathlib . In contrast, LeanDojo relies on Lean’s built-in mechanisms for exporting ASTs and proof states ( lean ----ast ----tsast ----tspp ), which works robustly for recent Lean/ mathlib . This mechanism was developed after LeanStep.
+
+Regarding interaction with Lean, both lean-gym and LeanDojo rely on Lean's metaprogramming APIs, and LeanDojo partially builds upon lean-gym 's code. However, lean-gym has a critical issue in that it misjudges many correct proofs as incorrect (Appendix~ appendix:leandojo:interaction ). The main reason is that lean-gym fails to distinguish two subtly different cases when constructing the proof environment: (1) opening a namespace; (2) being inside a namespace. LeanDojo does not suffer from this issue. Instead of operating as a standalone program in the IO monad, it wraps the interaction code into a special tactic, which is inserted into the correct location in the proof. Therefore, the interaction code is guaranteed to run in the same environment as the original human-written proof.
+
+ table* [ht]
+ 
+ tabular @ lcccc@ 
+ 
+ & & LeanStep~ han2022proof & lean-gym ~ polu2023formal & LeanDojo (ours) \\
+ 
+ 4 * Data extraction & Premise information & & N/A & \\
+ & Lean 4 support & & N/A & \\
+ & Recent mathlib & & N/A & \\
+ & Repos other than mathlib & & N/A & \\
+ 
+ 3 * Interaction & Estimated errors & N/A & 21.1\% & 1.4\% \\
+ & Lean 4 support & N/A & & \\
+ & Recent mathlib & N/A & & \\
+ & Repos other than mathlib & N/A & & \\
+ 
+ & Documentation \& unit tests & & & \\
+ 
+ tabular 
+ Comparing LeanDojo with existing tools for data extraction and interaction with Lean. 
+ table:comparison 
+ table* 
+
+## LeanDojo Benchmark
+
+ appendix:benchmark 
+
+## Dataset Format
+
+ appendix:dataformat 
+
+We describe the data format of LeanDojo Benchmark, which has the following directory structure:
+
+ 
+.1 /.
+.2 corpus.jsonl All premises defined in mathlib and Lean's standard library .
+.2 metadata.json Metadata .
+.2 licenses.
+.3 lean Attribution to Lean's Apache 2.0 license .
+.3 mathlib Attribution to mathlib 's Apache 2.0 license .
+.3 README.md Statement that LeanDojo Benchmark is released under CC BY 2.0 .
+.2 random Theorems/proofs of the random split .
+.3 train.json theorems .
+.3 val.json theorems .
+.3 test.json theorems .
+.2 novel\_premises Theorems/proofs of the novel\_premises split .
+.3 train.json theorems .
+.3 val.json theorems .
+.3 test.json theorems .
+ 
+
+ Premise Definitions 
+ corpus.jsonl contains the definition of premises. It has 3,280 lines. Each line is in JSON format and corresponds to a Lean file. Below is an example for `` https://github.com/leanprover-community/lean/tree/cce7990ea86a78bdb383e38ed7f9b5ba93c60ce0/library/init/control/functor.lean init/control/functor.lean '', which directly imports three other files: `` https://github.com/leanprover-community/lean/tree/cce7990ea86a78bdb383e38ed7f9b5ba93c60ce0/library/init/core.lean init/core.lean '', `` https://github.com/leanprover-community/lean/tree/cce7990ea86a78bdb383e38ed7f9b5ba93c60ce0/library/init/function.lean init/function.lean '', and `` https://github.com/leanprover-community/lean/tree/cce7990ea86a78bdb383e38ed7f9b5ba93c60ce0/library/init/meta/name.lean init/meta/name.lean ''. It defines two constants that can be used as premises: `` functor '' and `` functor.map\_const\_rev ''. For each premise, we have access to its full name, the source code, and its start/end location within the file.
+ lstlisting [language=json,numbers=none]
+"path": "_target/deps/lean/library/init/control/functor.lean",
+"imports": [
+ "_target/deps/lean/library/init/core.lean",
+ "_target/deps/lean/library/init/function.lean",
+ "_target/deps/lean/library/init/meta/name.lean"
+],
+"premises": [
+ 
+ "full_name": "functor", 
+ "code": "class functor (f : Type u (*@ @*) Type v) : Type (max (u+1) v) := (map : (*@ @*) (*@ @*) (*@ @*) : Type u , ((*@ @*) (*@ @*) (*@ @*)) (*@ @*) f (*@ @*) (*@ @*) f (*@ @*)) (map_const : (*@ @*) (*@ @*) (*@ @*) : Type u , (*@ @*) (*@ @*) f (*@ @*) (*@ @*) f (*@ @*) := (*@ @*) (*@ @*) (*@ @*), map (*@ @*) const (*@ @*))",
+ "start": [11, 1],
+ "end": [13, 70],
+ "kind": "class"
+ ,
+ 
+ "full_name": "functor.map_const_rev",
+ "code": "@[reducible] def functor.map_const_rev f : Type u (*@ @*) Type v [functor f] (*@ @*) (*@ @*) : Type u : f (*@ @*) (*@ @*) (*@ @*) (*@ @*) f (*@ @*) := (*@ @*) a b, b < a",
+ "start": [18, 1],
+ "end": [19, 14],
+ "kind": "definition"
+ 
+]
+ lstlisting 
+
+ Theorems and Tactics 
+Theorems in LeanDojo Benchmark are split into training/validation/testing using two different strategies (Sec.~ sec:leandojo ). They are formatted in JSON, and below is an example corresponding to the theorem `` https://github.com/leanprover-community/mathlib/blob/19c869efa56bbb8b500f2724c0b77261edbfa28c/src/analysis/special_functions/trigonometric/angle.lean#L512 real.angle.to\_real\_pi\_div\_two ''. LeanDojo has recorded two tactics: `` split '' and `` linarith [pi\_pos] ''. For each tactic, we have the proof states before/after it. The `` linarith [pi\_pos] '' tactic illustrates how premises are recorded: They are annotated using HTML-like strings such as `` linarith [<a>pi\_pos</a>] '', followed by a ``provenance list''. Each element in the list corresponds to a premise in the tactic. 
+ lstlisting [language=json,numbers=none]
+"url": "https://github.com/leanprover-community/mathlib",
+"commit": "19c869efa56bbb8b500f2724c0b77261edbfa28c",
+"file_path": "src/analysis/special_functions/trigonometric/angle.lean",
+"full_name": "real.angle.to_real_pi_div_two",
+"start": [512, 9],
+"end": [513, 56],
+"traced_tactics": [
+ 
+ "tactic": "split",
+ "annotated_tactic": ["split", []],
+ "state_before": "(*@ @*) -(*@ @*) < (*@ @*) / 2 (*@ @*) (*@ @*) / 2 (*@ @*) (*@ @*)",
+ "state_after": "2 goals (*@ @*) -(*@ @*) < (*@ @*) / 2 (*@ @*) (*@ @*) / 2 (*@ @*) (*@ @*)"
+ ,
+ 
+ "tactic": "linarith [pi_pos]",
+ "annotated_tactic": [
+ "linarith [<a>pi_pos</a>]", 
+ [
+ 
+ "full_name": "real.pi_pos",
+ "def_path": "src/analysis/special_functions/trigonometric/basic.lean",
+ "def_pos": [122, 7],
+ 
+ ]
+ ],
+ "state_before": "(*@ @*) -(*@ @*) < (*@ @*) / 2",
+ "state_after": "no goals"
+ 
+]
+ lstlisting 
+Not all theorems have tactic-style proofs. For those without tactic-style proofs, concatenating the tactics does not lead to a complete proof of the original theorem. However, this is not an issue when using the data for theorem proving evaluation or for training tactic generators.
+
+## Datasheet
+
+ appendix:datasheet 
+
+We present a datasheet~ gebru2021datasheets for documentation and responsible usage of LeanDojo Benchmark.
+
+ Motivation 
+
+ itemize [leftmargin=*]
+ For what purpose was the dataset created? It was created as a benchmark for learning-based theorem proving in Lean.
+
+ Who created the dataset (e.g., which team, research group) and on behalf of which entity (e.g., company, institution, organization)? It was created by the authors of this paper.
+
+ Who funded the creation of the dataset? See the acknowledgments in Sec.~ sec:ack .
+
+ itemize 
+
+ Composition 
+
+ itemize [leftmargin=*]
+ What do the instances that comprise the dataset represent (e.g., documents, photos, people, countries)? The dataset consists of formal definitions, theorems, and proofs written in Lean~ de2015lean .
+
+ How many instances are there in total (of each type, if appropriate)? The dataset has theorems and their proofs, as well as premises defined in files.
+
+ Does the dataset contain all possible instances or is it a sample (not necessarily random) of instances from a larger set? The dataset contains all theorems/proofs that LeanDojo can extract from the commit https://github.com/leanprover-community/mathlib/tree/19c869efa56bbb8b500f2724c0b77261edbfa28c 19c869efa56bbb8b500f2724c0b77261edbfa28c of mathlib released on October 11, 2023.
+
+ What data does each instance consist of? Theorems/proofs in the dataset are Lean code written by programmers and mathematicians.
+
+ Are relationships between individual instances made explicit? Definitions in the dataset are linked to proofs using them as premises.
+
+ Are there recommended data splits? Yes, we recommend two data splits: random and novel\_premises . 
+Please see Sec.~ sec:leandojo for details.
+
+ Are there any errors, sources of noise, or redundancies in the dataset? ASTs extracted by LeanDojo contain a small number of errors due to potential flaws in Lean's AST exporting mechanism. However, they do not have a tangible impact on our work.
+
+ Is the dataset self-contained, or does it link to or otherwise rely on external resources (e.g., websites, tweets, other datasets)? The dataset is self-contained.
+
+ Does the dataset contain data that might be considered confidential (e.g., data that is protected by legal privilege or by doctor-patient confidentiality, data that includes the content of individuals’ non-public communications)? No.
+
+ Does the dataset contain data that, if viewed directly, might be offensive, insulting, threatening, or might otherwise cause anxiety? No.
+
+ itemize 
+
+ Collection Process 
+
+ itemize [leftmargin=*]
+
+ How was the data associated with each instance acquired? The data is directly observable by opening mathlib in VS Code with the Lean plugin. However, we had to instrument Lean to export the data programmatically.
+
+ What mechanisms or procedures were used to collect the data (e.g., hardware apparatuses or sensors, manual human curation, software programs, software APIs)? The data was generated by building a Lean repo using our modified Lean and postprocessing the exported data.
+
+ Who was involved in the data collection process (e.g., students, crowd workers, contractors), and how were they compensated (e.g., how much were crowd workers paid)? No manual effort was involved in the data collection process.
+
+ Over what timeframe was the data collected? The final version of the dataset was generated in October 2023. 
+
+ itemize 
+
+ Uses 
+
+ itemize [leftmargin=*]
+
+ Has the dataset been used for any tasks already? We have used the dataset for training and evaluating machine learning models on the tasks of premise selection and theorem proving.
+
+ Is there a repository that links to any or all papers or systems that use the dataset? Yes, .
+
+ itemize 
+
+ Distribution 
+
+ itemize [leftmargin=*]
+
+ Will the dataset be distributed to third parties outside of the entity (e.g., company, institution, organization) on behalf of which the dataset was created? Yes, the dataset is publicly available on the Internet.
+
+ How will the dataset be distributed (e.g., tarball on website, API, GitHub)? The dataset can be downloaded as a tarball.
+
+ Will the dataset be distributed under a copyright or other intellectual property (IP) license, and/or under applicable terms of use (ToU)? The dataset is distributed under CC BY 2.0. The data generation code is distributed under the MIT license. The dataset was extracted from https://github.com/leanprover-community/mathlib mathlib , which depends on https://github.com/leanprover-community/lean lean . Both of them are distributed under the Apache 2.0 license. We include their licenses in the dataset as attribution (Appendix~ appendix:dataformat ).
+
+ Have any third parties imposed IP-based or other restrictions on the data associated with the instances? No.
+
+ Do any export controls or other regulatory restrictions apply to the dataset or to individual instances? No.
+
+ itemize 
+
+ Maintenance 
+
+ itemize [leftmargin=*]
+
+ Who will be supporting/hosting/maintaining the dataset? The authors of this paper.
+
+ How can the owner/curator/manager of the dataset be contacted (e.g., email address)? Please contact Kaiyu Yang at kaiyuy@caltech.edu .
+
+ Is there an erratum? No.
+
+ Will the dataset be updated (e.g., to correct labeling errors, add new instances, delete instances)? Please check for any update.
+
+ If others want to extend/augment/build on/contribute to the dataset, is there a mechanism for them to do so? Yes, they can use our data generation code, which is publicly available.
+
+ itemize 
+
+## Data Hosting, Licensing, and Maintenance
+
+ appendix:hosting 
+
+LeanDojo Benchmark is distributed under the CC BY 2.0 license. The data is hosted on https://zenodo.org/ zenodo.org (a long-term data repository operated by CERN). The LeanDojo tool for data extraction and interaction with Lean is released at https://github.com/lean-dojo/LeanDojo 
+under the MIT license. Our model checkpoints are hosted on Hugging Face Hub. LeanDojo's documentation is hosted on Read the Docs at https://leandojo.readthedocs.io . LeanDojo's website ( ) is the entry point for everything related to it, including any future updates or maintenance. 
+
+## Experiments
+
+## Details and Hyperparameters
+
+ appendix:experimentaldetails 
+
+The premise retriever and tactic generator in are initialized by the https://huggingface.co/google/byt5-small google/byt5-small checkpoint on Hugging Face. It is a T5-like~ raffel2020exploring encoder-decoder Transformer that operates directly on UTF-8 bytes without tokenization. We choose ByT5~ xue2022byt5 instead of T5 because Lean code makes extensive use of Unicode math symbols, which may cause problems to T5's pretrained tokenizer. The retriever uses the encoder only, whereas the generator uses both the encoder and the decoder. 
+
+In training, we use one NVIDIA A100 GPU with 80GB of memory. The code is implemented in PyTorch and PyTorch Lightning, with bfloat16 mixed precision and DeepSpeed ZeRO Stage 2~ rasley2020deepspeed . Both the retriever and the generator are optimized using AdamW~ loshchilovdecoupled with a batch size of 8. In the first 2,000 steps, the learning rate warms up linearly from 0 to the maximum value. Then it decays to 0 following a cosine schedule. The maximum learning rate is 10^ -4 for the retriever and 5 10^ -4 for the generator. When training the retriever, we sample 3 negative premises for each example, including 1 in-file negative premise. When training the generator, we apply dropout to retrieved premises with a dropout rate of 0.5. Then, we truncate the generator's input to 2,300 tokens.
+
+During evaluation, the tactic generator is combined with best-first search to find proofs. At each search step, it produces 64 tactic candidates using beam search. Each tactic is associated with a log-likelihood score. In best-first search, we prioritize the states by the sum of log-likelihoods of tactics leading to that state. 
+
+## The GPT-4 Baseline
+
+ appendix:gpt-4 
+
+Now we describe the GPT-4~ openai2023gpt4 baseline in Sec.~ sec:experiments . Similar to , it is a tactic generator combined with best-first search. However, the tactic generator is based on GPT-4's capability to follow instructions in zero-shot. Specifically, given a proof state, we use the following prompt to instruct GPT-4 to produce a list of tactics, each paired with a confidence score:
+ 
+ 0.8em 
+ 
+ -2 
+ Prompt Template: 
+ You are an expert in Lean3 theorem proofs. We are trying to solve the Lean3 theorem `THEOREM\_FULL\_NAME' from the mathlib file `FILE\_PATH'. The current tactic state is: `TACTIC\_STATE'. Suggest exactly 35 unique tactics to progress in solving `THEOREM\_FULL\_NAME', along with their confidence levels as a float between 0 and 1. Rank them in order of effectiveness. Present the tactics and their confidence levels as comma-separated tuples in this format: \#(tactic\_\ 1\ , confidence\_\ 1\ )\#, \#(tactic\_\ 2\ , confidence\_\ 2\ )\#, ..., \#(tactic\_\ 35\ , confidence\_\ 35\ )\#. 
+ 
+ 
+ 
+We adapted the prompt to a particular theorem and state by substituting the variables with the appropriate values. Given the inherent variability in GPT-4's outputs, we requested 35 and filtered out invalid ones. We used a token length limit of 1,024 and kept all other API parameters at their default values. Below are a few example prompts and GPT-4's responses:
+
+ 
+ 0.8em 
+ 
+ -2 
+ Example Prompt 1: 
+ You are an expert in Lean3 theorem proofs. We are trying to solve the Lean3 theorem `polynomial.chebyshev.aeval\_U' from the mathlib file `mathlib/src/analysis/special\_functions/trigonometric/chebyshev.lean'. The current tactic state is: `R : Type u\_1, A : Type u\_2, \_inst\_1 : comm\_ring R, \_inst\_2 : comm\_ring A, \_inst\_3 : algebra R A, x : A, n : N (aeval x) (chebyshev.U R n) = eval x (chebyshev.U A n)'. Suggest exactly 35 unique tactics to progress in solving `polynomial.chebyshev.aeval\_U', along with their confidence levels as a float between 0 and 1. Rank them in order of effectiveness. Present the tactics and their confidence levels as comma-separated tuples in this format: \#(tactic\_\ 1\ , confidence\_\ 1\ )\#, \#(tactic\_\ 2\ , confidence\_\ 2\ )\#, ..., \#(tactic\_\ 35\ , confidence\_\ 35\ )\#. 
+ 
+ 
+ 
+
+ 
+ 0.8em 
+ 
+ -2 
+ Example Response 1: 
+ \#(rw chebyshev.U, 0.9)\#, \#(simp only [chebyshev.U], 0.9)\#, \#(simp\_rw chebyshev.U, 0.8)\#, \#(apply aeval\_add, 0.75)\#, \#(apply aeval\_mul, 0.75)\#, \#(apply aeval\_sub, 0.75)\#, \#(apply aeval\_X, 0.7)\#, \#(apply aeval\_C, 0.7)\#, \#(apply aeval\_pow, 0.7)\#, \#(rw u2190aeval\_pow, 0.65)\#, \#(rw 2190aeval\_mul, 0.65)\#, \#(rw u2190aeval\_add, 0.65)\#, \#(rw u2190aeval\_sub, 0.65)\#, \#(apply algebra\_map\_eq, 0.6)\#, \#(intro aeval\_algebra\_map\_eq, 0.6)\#, \#(apply eval\_map, 0.55)\#, \#(rw eval\_map, 0.55)\#, \#(apply aeval\_eq\_eval, 0.55)\#, \#(rw\_for\_target aeval\_eq\_eval, 0.5)\#, \#(apply aeval\_eq\_eval', 0.5)\#, \#(rw\_for\_target aeval\_eq\_eval', 0.5)\#, \#(apply aeval\_commutes, 0.45)\#, \#(rw aeval\_commutes, 0.45)\#, \#(apply aeval\_eq\_of\_is\_scalar\_tower, 0.4)\#, \#(rw is\_scalar\_tower.aeval\_apply, 0.4)\#, \#(try\_for 100 exact\_mod\_cast chebyshev.U\_eq\_refl , 0.35)\#, \#(simp * at *, 0.3)\#, \#(simp int.coe\_nat\_ring\_hom, 0.25)\#, \#(apply chebyshev.U\_is\_polynomial, 0.2)\#, \#(rw\_algebra\_map\_eq\_of\_ring\_hom, 0.15)\#, \#(unfold chebyshev.U, 0.1)\#, \#(congr, 0.05)\#, \#(change (chebyshev.U R n).eval x = chebyshev.U A n, 0.05)\#, \#(change ( u21d1(aeval x) (chebyshev.U R n) = chebyshev.U A n), 0.05)\#, \#(apply\_fun aeval x, 0.05)\#, \#(apply\_fun eval x, 0.05)\#, \#(simp context\_md := reducible [], 0.01)\# 
+ 
+ 
+ 
+
+ 
+ 0.8em 
+ 
+ -2 
+ Example Prompt 2: 
+ You are an expert in Lean3 theorem proofs. We are trying to solve the Lean3 theorem `euler\_sine.integral\_cos\_pow\_pos' from the mathlib file `mathlib/src/analysis/special\_functions/trigonometric
+ /euler\_sine\_prod.lean'. The current tactic state is: `n : N 0 < (x : R ) in 0.. / 2, cos x \^ n'. Suggest exactly 35 unique tactics to progress in solving `euler\_sine.integral\_cos\_pow\_pos', along with their confidence levels as a float between 0 and 1. Rank them in order of effectiveness. Present the tactics and their confidence levels as comma-separated tuples in this format: \#(tactic\_ 1 , confidence\_ 1 )\#, \#(tactic\_ 2 , confidence\_ 2 )\#, ..., \#(tactic\_ 35 , confidence\_ 35 )\#. 
+ 
+ 
+ 
+
+ 
+ 0.8em 
+ 
+ -2 
+ Example Response 2: 
+ \#(exact integral\_pos\_of\_antimono\_increasing\_on cos.pow\_antimono\_
+ increasing\_on\_cos\_even\_nnreal, 0.99)\#, \#(apply integral\_pos\_of\_antimono\_
+ increasing\_on, 0.95)\#, \#(interval\_integrable\_integral\_pos, 0.90)\#, \#(exact integral\_pos\_pre, 0.85)\#, \#(interval\_integ\_timedout, 0.80)\#, \#(interval\_integrable\_pos, 0.75)\#, \#(exact integral\_pos\_of\_nonneg\_dint\_val, 0.70)\#, \#(exact interval\_integrable\_pos\_left, 0.65)\#, \#(exact interval\_
+ integrable\_pos\_right, 0.60)\#, \#(exact integral\_pos\_of\_nonneg\_f, 0.55)\#, \#(rw integral\_on\_interval, 0.50)\#, \#(rw interval\_integral\_pos\_
+ of\_supporting, 0.45)\#, \#(rw integral\_pos\_of\_interval\_integrable\_pos, 0.40)\#, \#(apply integral\_
+ pos\_of\_antimono\_increasing\_on\_cos\_even\_nnreal, 0.35)\#, \#(norm\_cast apply\_pos, 0.30)\#, \#(apply\_pos\_of\_nonneg\_pos, 0.25)\#, \#(rw interval\_integral\_pos\_of\_antimono, 0.20)\#, \#(use cos\_slow\_mono\_on\_pos, 0.15)\#, \#(apply cos\_slow\_mono\_on\_pos, 0.10)\#, \#(exact integral\_pos\_pre\_cos\_pow\_even, 0.09)\#, \#(norm\_cast apply\_nonneg\_pos, 0.08)\#, \#(rw integral\_pos\_of\_
+ monotone\_integrable, 0.07)\#, \#(use cos\_pos\_constant\_sequence, 0.06)\#, \#(apply cos\_pos\_constant\_sequence, 0.05)\#, \#(use integral\_pos\_of\_ascending\_sequence, 0.04)\#, \#(apply integral\_pos\_of\_ascending\_sequence, 0.03)\#, \#(interval\_integral\_pos\_of\_antimono\_increasing\_on\_pos, 0.02)\#, \#(norm\_cast apply\_pos\_of\_nonzero\_pos, 0.01)\#, \#(apply\_pos\_of\_nonzero\_pos, 0.005)\#, \#(rw integral\_pos\_of\_nonneg\_f\_monotone, 0.001)\# 
+ 
+ 
+ 
+
+Data contamination is possible. Our GPT-4 experiments were performed in 2023, but many theorems and proofs in the dataset have been publicly available on GitHub before GPT-4's data cutoff date (September 2021).
+
+## Justifications for Not Comparing with Existing LLM-Based Provers
+
+ appendix:comparisons 
+
+In Table~ table:theorem_proving_results , we do not empirically compare with any existing LLM-based prover. Unfortunately, such a comparison is infeasible. Provers targeting different proof assistants are generally not comparable, so we focus the discussion on the three existing provers in Lean~ han2022proof,polu2023formal,lample2022hypertree . Most importantly, they are impossible to reproduce with reasonable effort, due to private code and pretraining data. Therefore, the only potential comparison is to evaluate under their experimental settings and compare with the numbers reported in their papers. However, that is also impractical for numerous reasons:
+ itemize [leftmargin=*]
+
+ The data is different. All existing methods used an outdated version of mathlib more than two years ago. We cannot use LeanDojo to extract data from this version. As mentioned in Sec.~ sec:leandojo ,
+LeanDojo only supports repos released after March 24, 2022. Also, we cannot use their dataset directly, since it does not contain premise information required by .
+
+ Lample~et~al.~ lample2022hypertree trained on a synthetic dataset named Equations, which is not publicly available.
+
+ All existing methods co-train the tactic generator on auxiliary tasks from the PACT dataset~ han2022proof . Co-training increases the data/compute requirements by an order of magnitude, which cannot be afforded by us (or probably most academic labs). All existing methods were developed by researchers in the industry.
+
+ Polu~et~al.~ polu2023formal and Lample~et~al.~ lample2022hypertree further finetuned their models on new proofs collected through online interaction with Lean, whereas our method is only trained on human-written proofs.
+
+ The tool for interacting with Lean may impact the performance. Han~et~al.~ han2022proof and Polu~et~al.~ polu2023formal used lean-gym , which has severe limitations (Appendix~ appendix:leandojo:interaction ). Lample~et~al.~ lample2022hypertree developed their own private tool, which is not publicly available.
+
+ itemize 
+
+Most of these difficulties are due to the private nature of existing methods. By releasing our code and models, we take a major step in establishing accessible baselines for future work to build upon.
+
+## Evaluation on MiniF2F and ProofNet
+
+ appendix:experiments:minif2f 
+
+We evaluate our model on MiniF2F~ zheng2022minif2f and ProofNet~ azerbayev2023proofnet (Sec.~ sec:experiments ) to test its capability in proving theorems outside its training data distribution. We use the same hyperparameters and evaluation setup as the previous experiments (Appendix~ appendix:experimentaldetails ).
+
+ figure* [ht]
+ 
+ figures/minif2f.png 
+ Examples of new proofs discovered by on MiniF2F~ zheng2022minif2f . 
+ fig:minif2f 
+ figure* 
+
+ figure* [ht]
+ 
+ figures/proofnet.png 
+ Examples of new proofs discovered by on ProofNet~ azerbayev2023proofnet . 
+ fig:proofnet 
+ figure* 
+
+ figure* [ht]
+ 
+ figures/proofnet_retrieval.png 
+ Three new proofs discovered by on ProofNet~ azerbayev2023proofnet that cannot be found by a baseline without premise retrieval. All of the three proofs rely on premises: `` finite\_field.prod\_univ\_units\_id\_eq\_neg\_one '' , `` norm\_add\_sq\_real '', `` norm\_sub\_pow\_two\_real '', and `` exists\_countable\_basis ''.
+ fig:proofnet_retrieval 
+ figure* 
+
+ MiniF2F 
+We use the commit https://github.com/facebookresearch/miniF2F/commit/5271ddec788677c815cf818a06f368ef6498a106 5271ddec788677c815cf818a06f368ef6498a106 of Meta's version of MiniF2F~ lample2022hypertree . achieves a Pass@1 of 26.5\% on the test set, which is competitive with state-of-the-art methods without reinforcement learning (25.9\% in Polu~et~al.~ polu2023formal ). Moreover, can prove 33 theorems that currently do not have Lean proofs (examples in Fig.~ fig:minif2f ). For the complete list of 33 new proofs, please see our https://github.com/facebookresearch/miniF2F/pull/13 pull request to MiniF2F.
+
+There are caveats about quantitatively comparing with existing methods on MiniF2F. Many difficulties in Appendix~ appendix:comparisons still apply, e.g., different tools for interacting with Lean may impact the performance. Also, MiniF2F is a test-only dataset without training theorems, and existing methods focus on reinforcement learning (RL) to learn from proofs collected via online interaction with the proof assistant~ polu2023formal,lample2022hypertree . In contrast, is trained via supervised learning on a static dataset, so we only compare with the non-RL baseline in existing methods (Polu~et~al.~ polu2023formal achieves a Pass@1 of 25.9\% without RL and 29.6\% with RL). Furthermore, we do not compare with Lample~et~al.~ lample2022hypertree due to differences in the evaluation metric. They use Pass@64, which requires running the prover on each theorem 64 times. We use Pass@1, and it already takes one day for a single evaluation on MiniF2F's test set. Therefore, evaluating Pass@64 would be too computationally expensive for the resources we have access to. Finally, MiniF2F is available in multiple proof assistants~ jiang2022thor,jiang2023draft,zhao2023decomposing . Results across different proof assistants are not comparable, so we only compare with existing work in Lean.
+
+ ProofNet 
+We use the commit https://github.com/zhangir-azerbayev/ProofNet/commit/e8645aa830ce17c33a8b8482a8195f0f97d6a74a e8645aa830ce17c33a8b8482a8195f0f97d6a74a of ProofNet. can prove 48 out of 349 theorems, achieving a Pass@1 of 13.8\%, which is the first reported theorem proving result on ProofNet. Moreover, 39 out of the 48 proved theorems do not have existing Lean proofs (examples in Fig.~ fig:proofnet ), and 3 of them can only be proved with the help of premise retrieval (Fig.~ fig:proofnet_retrieval ).
+We have contributed the 39 new proofs to ProofNet, which helped them reveal and fix problems in the formalization of 7 theorems (details in our https://github.com/zhangir-azerbayev/ProofNet/pull/14 pull request ).
+
+## LeanDojo for Lean 4
+
+ appendix:lean4 
+
+Lean 3 and Lean 4 are two incompatible major versions of Lean, https://leanprover.github.io/lean4/doc/lean3changes.html and both are widely used. Lean 3 was the latest stable version until recently (June 2023). Also, Lean 3 and Lean 4 have separate versions of mathlib. The Lean/mathlib community has recently finished porting theorems and proofs from mathlib 3 to mathlib 4~ mathport . Therefore, Lean 3 will gradually become deprecated, and future Lean projects will be using Lean 4. Therefore, it is important for LeanDojo to support Lean 4.
+
+Since Lean 4 is relatively new, we are not aware of any existing work on learning-based theorem proving in Lean 4. Furthermore, no existing tool is available for extracting data from Lean 4. LeanDojo fills in this gap and fully supports Lean 4. Given any repo in Lean 4, LeanDojo can extract data, including file dependencies, ASTs, proof states, tactics, and premise information. In addition, it enables the model to interact with Lean 4 through tactics, in the same way as Lean 3 (Sec.~ sec:leandojo ). 
+
+Similar to constructing the Lean 3 version of LeanDojo Benchmark, we extract data from the commit https://github.com/leanprover-community/mathlib4/commit/3ce43c18f614b76e161f911b75a3e1ef641620ff 3ce43c18f614b76e161f911b75a3e1ef641620ff of mathlib4 released on October 21, 2023. The resulting dataset is named LeanDojo Benchmark 4. It is released under the CC BY 2.0 license and hosted on https://zenodo.org/ zenodo.org with DOI `` 10.5281/zenodo.8040109 ''. LeanDojo Benchmark 4 consists of 102,514 theorems/proofs, 213,067 tactics, and 152,695 premises. We use 2,000 theorems for validation, 2,000 theorems for testing, and the rest for training. LeanDojo Benchmark 4 also has two different data splits: random and novel\_premises .
+
+We use LeanDojo Benchmark 4 to train and evaluate our method. The model architectures and experimental details are the same as those in Sec.~ sec:experiments . Results on premise selection are in Table~ table:lean4_premise_selection_results , and results on theorem proving are in Table~ table:lean4_theorem_proving_results . 
+
+ table* [ht]
+ 
+ Premise selection testing performance on LeanDojo Benchmark 4 (Lean 3 results in Table~ table:premise_selection_results ). We train and evaluate two models independently using different data splits ( random and novel\_premises ). R@k is the recall for the top k retrieved premises, and MRR is the mean reciprocal rank metric. 
+ tabular @ lcccccc@ 
+ 
+ Method & 3 c random & 3 c novel\_premises \\
+ (r) 2-4 (r) 5-7 & R@1 & R@10 & MRR & R@1 & R@10 & MRR \\
+ 
+ Ours & 12.8 & 34.7 & 0.29 & 9.8 & 32.1 & 0.24 \\
+ 
+ tabular 
+ table:lean4_premise_selection_results 
+ table* 
+
+ table* [ht]
+ 
+ Theorem proving Pass@1 (\%) on the testing data of LeanDojo Benchmark 4 (Lean 3 results in Table~ table:theorem_proving_results ). 
+ tabular @ lcc@ 
+ 
+ Method & random & novel\_premises \\
+ 
+ & 48.6 & 19.9 \\
+ W/o retrieval & 44.5 & 16.2 \\
+ 
+ tabular 
+ table:lean4_theorem_proving_results 
+ table* 
+
+## ChatGPT Plugin for Theorem Proving
+
+ appendix:chatgpt 
+
+LeanDojo provides a general tool for interacting with Lean programmatically. As a demo of how it might bridge LLMs and theorem proving, we build a ChatGPT plugin~ chatgptplugin2023 enabling ChatGPT to prove theorems by interacting with Lean through LeanDojo. Plugin developers can wrap any software as a web service and describe its APIs to ChatGPT. Then, ChatGPT can automatically call the APIs and incorporate the results into the response to the user. Below is a summary of our API description corresponding to the interface in Sec.~ sec:leandojo .
+ lstlisting [language=json,numbers=none]
+Title: Lean
+
+Description: Plugin for proving user-specified theorems automatically by interacting with Lean. The user enters information of how to find a theorem (e.g., theorem name and file path). Based on the user's input, ChatGPT first initializes the proof search with the given theorem as the initial state. Then, ChatGPT will first explain the choice for the next tactic step using LaTeX and run that tactic step to the state. If the current state is not promising, ChatGPT can backtrack to previous states by decrementing the "state_id" parameter. If applying tactics to the current state specified by the "state_id" parameter returns an error message, ChatGPT should explain the error, and if repetitive errors occur, ChatGPT should decrement the "state_id" parameter and try a different approach on a previous state. The theorem is successfully proved if there are no unsolved goals in the current state.
+
+Endpoints:
+ initialize_proof_search: Given the theorem name and file path of a Lean theorem, initialize the proof search. The response includes the initial state and its state ID.
+ Args:
+ theorem_name (string): The name of the target theorem to prove.
+ theorem_file_path (string): The file path of the target theorem.
+ 
+ run_tactic: Run a tactic on a state (specified by its state ID), assuming the proof search has been initialized and some state is available. The response is either the next state and its state ID or an error message, in which ChatGPT should explain the error and consider decrementing the "state_id".
+ Args:
+ state_id (string): The ID of the state on which to run the tactic.
+ tactic (string): The tactic to run on a state (specified by its state ID), assuming the proof search has been initialized.
+ 
+ lstlisting 
+After exposing the APIs to ChatGPT, we can ask it to prove theorems by specifying the theorem's name and path in any public Lean repo on GitHub. Fig.~ fig:chatgpt-1 -- fig:chatgpt-8 show an example with the GPT-3.5 version of ChatGPT. And Fig.~ fig:chatgpt4-1 -- fig:chatgpt4-3 are the same example with the GPT-4 version. The captions provide detailed step-by-step explanations. 
+
+We highlight a few key strengths of ChatGPT observed in multiple examples we evaluated. First, unlike specialized methods for theorem proving (this paper and its prior works), ChatGPT interleaved informal mathematics with formal proof steps. This resembles how humans interact with proof assistants and opens up new avenues for integrating natural language and formal theorem proving. Second, ChatGPT demonstrated impressive capability in explaining error messages from Lean that are quite opaque even to humans. It was able to incorporate the error message to refine its proof strategy. Last, ChatGPT's behavior is more steerable than specialized provers. In Fig.~ fig:chatgpt-1 , we simply gave it the theorem to prove, but we could also provide more detailed instructions. For example, we could say: ``Please describe a high-level proof plan before trying any tactic.'' This kind of steerability enables future research on prompt engineering for theorem proving, and we have already seen initial benefits in an ongoing work named Sagredo. https://www.youtube.com/watch?v=CEwRMT0GpKo 
+
+However, these strengths by no means imply ChatGPT can already solve theorem proving. In fact, it failed to find a proof for most theorems we tried. Hallucination was common. In Fig.~ fig:chatgpt-8 , ChatGPT falsely asserted the theorem was proved, while we knew it was not, by looking at LeanDojo's response. This demonstrates the value of theorem proving as a rigorous benchmark for addressing LLMs' hallucination problem. Another key limitation of ChatGPT was its inability to search systematically in a large space. We frequently found it stuck to an unpromising path when the correct solution could be found by backtracking and exploring alternative paths. This behavior is consistent with the general observation that LLMs are weak at search and planning. Addressing this weakness is an active area of research~ yao2023tree .
+
+We emphasize a few caveats about our study of theorem proving with ChatGPT. First, data contamination is likely. Many theorems we evaluated have been publicly available on GitHub before ChatGPT's data cutoff date. Therefore, ChatGPT may have seen them in training. Second, our study is exploratory. A more detailed and quantitative study is needed to characterize ChatGPT's capability in theorem proving. Such a study with ChatGPT plugins is challenging, as plugins currently only support interaction through the browser. Also, OpenAI has taken measures to block automated access by bots. Using humans may be an option, but that is beyond the scope of this paper.
+
+ figure* [ht]
+ 
+ figures/ChatGPT-1.png 
+ (ChatGPT-3.5, 1/8) After receiving the theorem to prove, ChatGPT first called `` initialize '', which returned the initial state. Then it tried to interpret the theorem in natural language. Note that it made a mistake here. The theorem was about natural numbers ( N ), not complex numbers ( C ). 
+ fig:chatgpt-1 
+ figure* 
+
+ figure* [ht]
+ 
+ figures/ChatGPT-2.png 
+ (ChatGPT-3.5, 2/8) ChatGPT tried to rewrite the goal using the lemma `` b + c = c + b ''. This was a reasonable but incorrect move. After receiving the error message from Lean, ChatGPT explained the error in natural language. Here the explanation is quite accurate, which is impressive given that the error message looks opaque to anyone not familiar with Lean. 
+ fig:chatgpt-2 
+ figure* 
+
+ figure* [ht]
+ 
+ figures/ChatGPT-3.png 
+ (ChatGPT-3.5, 3/8) Then it tried to prove the theorem using `` ring ''. This was another good move. The ring tactic can prove this theorem, but Lean could not find it since it was not imported into the current file. Again, ChatGPT was able to interpret the error message correctly and concluded that ring was not available. Next, it tried another tactic but failed again. 
+ fig:chatgpt-3 
+ figure* 
+
+ figure* [ht]
+ 
+ figures/ChatGPT-4.png 
+ (ChatGPT-3.5, 4/8) ChatGPT made another two failed attempts. Here, the second attempt had the same problem as in Fig.~ fig:chatgpt-1 (`` + '' is left associative). 
+ fig:chatgpt-4 
+ figure* 
+
+ figure* [ht]
+ 
+ figures/ChatGPT-5.png 
+ (ChatGPT-3.5, 5/8) ChatGPT tried to simplify the goal using the simp tactic but failed. Then it tried the `` rw add\_comm a b '' tactic, which successfully rewrote the goal from `` a + b + c = a + c + b '' to `` b + a + c = a + c + b ''. 
+ fig:chatgpt-5 
+ figure* 
+
+ figure* [ht]
+ 
+ figures/ChatGPT-6.png 
+ (ChatGPT-3.5, 6/8) Then it successfully performed another rewrite from `` b + a + c = a + c + b '' to `` b + a + c = c + a + b ''. 
+ fig:chatgpt-6 
+ figure* 
+
+ figure* [ht]
+ 
+ figures/ChatGPT-7.png 
+ (ChatGPT-3.5, 7/8) Another rewrite tactic, transforming the goal to `` a + b + c = c + a + b ''. 
+ fig:chatgpt-7 
+ figure* 
+
+ figure* [ht]
+ 
+ figures/ChatGPT-8.png 
+ (ChatGPT-3.5, 8/8) It performed one last rewrite, which brought the goal back to the original goal `` a + b + c = a + c + b ''. At this point, ChatGPT went back to the starting point without making meaningful progress. However, it asserted that the theorem had been successfully proved, even though the response from LeanDojo clearly indicated `` proof\_finished: False ''. 
+ fig:chatgpt-8 
+ figure* 
+
+ figure* [ht]
+ 
+ figures/ChatGPT4-1.png 
+ (ChatGPT-4, 1/3) The same theorem using the GPT-4 version of ChatGPT. Despite a minor error when interpreting the theorem (natural numbers, not integers), it generated a sensible tactic, rewriting the goal to `` a + (b + c) = a + c + b ''. 
+ fig:chatgpt4-1 
+ figure* 
+
+ figure* [ht]
+ 
+ figures/ChatGPT4-2.png 
+ (ChatGPT-4, 2/3) A good move, rewriting the goal to `` a + (c + b) = a + c + b ''. 
+ fig:chatgpt4-2 
+ figure* 
+
+ figure* [ht]
+ 
+ figures/ChatGPT4-3.png 
+ (ChatGPT-4, 3/3) It tried the refl tactic but failed. refl requires the goal to be an equation whose both sides are identical up to trivial transformations. However, `` a + (c + b) = a + c + b '' is not trivial since `` + '' is left associative. ChatGPT was able to interpret this error accurately and finish the proof using the correct premise `` add\_assoc ''. 
+ fig:chatgpt4-3 
+ figure* 
+
+## Limitations and Future Work
+
+ appendix:limitations 
+
+Our work is one step toward unlocking the potential of LLMs for generating verifiable formal proofs, and we see abundant space for future exploration. A learning-based prover is a complex system consisting of multiple components: data extraction, interaction with proof assistants, model training, and proof search. While navigating the design space spanned by various components, we err on the side of simplicity and efficiency, instead of pushing performance to the limit. This helps us deliver a reliable, open, and accessible system, laying the foundation for further research. There are many directions in which the system can be improved, and we discuss a few of them here. Additional limitations: https://leandojo.readthedocs.io/en/latest/limitations.html 
+
+ Stronger LLMs 
+Our backbone model, ByT5~ xue2022byt5 , was published in 2021 and has 299M parameters, which is not very large by today's standard. Recently, there have been a plethora of open-source LLMs demonstrating strong capabilities in writing code, e.g., CodeGen~ nijkamp2022codegen , StarCoder~ li2023starcoder , and CodeGeeX~ zheng2023codegeex . We are excited to see how they might impact theorem proving and, more generally, how far we can go by pushing the limit of the model/data scale. 
+
+ByT5's tokenizer-free nature helps us sidestep the difficulty with pretrained tokenizers that may not work well for Lean's Unicode-rich code. However, treating texts as raw bytes makes the sequence length much longer than necessary. Long sequences harm efficiency, as Transformers scale quadratically w.r.t. the sequence length, which may become a bigger problem when we further scale up the model. To solve the issue, it might be helpful to pretrain a customized tokenizer or adopt more advanced tokenizer-free models such as MegaByte~ yu2023megabyte .
+
+Our model is based on the pretraining-finetuning paradigm. Recent work on instruction-following LLMs such as GPT-4~ openai2023gpt4 has led to successes in many applications by prompting the model without any finetuning. Our preliminary results show that GPT-4 and ChatGPT (Appendix~ appendix:gpt-4 and appendix:chatgpt ) cannot solve theorem proving out of the box and are currently far behind finetuned models. However, the way we prompt these models is quite naive, and better strategies, such as Tree of Thoughts~ yao2023tree , may lead to further improvements. We consider theorem proving as a promising task for studying LLMs' capabilities in planning and search.
+
+ Improving Premise Retrieval 
+ uses DPR~ karpukhin2020dense to retrieve premises and fuses them with the current proof state by concatenation. This architecture is simple and effective but does not scale to a large number of retrieved premises. With a length limit of 2,300 tokens, we can fit only 10--15 premises into the input of the tactic generator. To mitigate the problem, we may need an architecture that fuses the retrieved premises in the hidden space, e.g., Fusion-in-Decoder~ izacard2021leveraging .
+
+In addition, one can also switch from DPR to radically different retrieval architectures. For example, generative retrieval~ tay2022transformer,bevilacqua2022autoregressive,pradeep2023does is a recent class of models performing retrieval by directly predicting the document IDs, which could be the premise names in our task.
+
+ Limitations of Imitating Human-Written Proofs 
+Human-written proofs extracted by LeanDojo provide valuable data for training the prover. However, we have also observed limitations of using them as the sole training target:
+
+First, they are relatively scarce for today's data-hungry LLMs. LeanDojo Benchmark has proofs, covering a large portion of available data in Lean (as of October 2023). The number of proofs in other proof assistants has the same order of magnitude (tens or hundreds of thousands). Due to limited data, we cannot constantly improve the performance simply by scaling up the model size. Second, theorem proving in proof assistants is an interactive process, but the proof only captures the final successful trajectory. Without the intermediate history of trial and error, it can be quite opaque how final proofs are derived. Therefore, tactics in human-written proofs can be difficult for the model to learn from. Third, models trained on proofs in one project often struggle to generalize to theorems in new domains~ yang2019learning,first2023baldur , e.g., from mathlib to MiniF2F and ProofNet (Appendix~ appendix:experiments:minif2f ).
+
+To overcome these limitations, existing work has explored learning from auxiliary data or data collected via online interaction with the proof assistant. For example, Proof Artifact Co-Training (PACT) co-trains the tactic generator on nine auxiliary tasks, such as predicting types and theorem names~ han2022proof . MetaGen~ wang2020learning trains a neural network to generate synthetic theorems/proofs as training data in the Metamath proof assistant~ megill2019metamath . Polu~et~al.~ polu2023formal and Lample~et~al.~ lample2022hypertree improve the prover by training it on successful proofs found by itself. Incorporating these techniques into our system may lead to substantial improvements.
+
+ document

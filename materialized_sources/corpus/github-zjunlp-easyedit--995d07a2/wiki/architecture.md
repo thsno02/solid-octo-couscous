@@ -1,0 +1,74 @@
+# Architecture evidence: zjunlp/EasyEdit
+
+- `README.md:47` — Table of Contents
+- `README.md:80` — 🔔News
+- `README.md:168` — Editing Demo
+- `README.md:177` — Knowledge Editing
+- `README.md:183` — Task Definition
+- `README.md:189` — Multi Setting
+- `README.md:191` — Single Knowledge Editing
+- `README.md:197` — Continuous Knowledge Editing
+- `README.md:205` — Multi Scenario
+- `README.md:209` — Knowledge insert
+- `README.md:215` — Knowledge update
+- `README.md:221` — Knowledge erase
+- `README.md:261` — Comparisons of different technologies
+- `README.md:265` — Evaluation
+- `README.md:284` — 🌟Overview
+- `README.md:312` — Current Implementation
+- `README.md:356` — Quick Start on Some Works
+- `README.md:368` — Dataset
+- `README.md:464` — Datasets for Chinese Knowledge: CKnowEdit
+- `README.md:508` — Datasets for Factual Knowledge
+- `README.md:565` — Datasets for Conceptual Knowledge: ConceptEdit
+- `README.md:596` — Datasets for Multimodal Knowledge: MMEdit
+- `README.md:630` — Datasets for detoxifying LLMs: SafeEdit
+- `README.md:654` — Tutorial notebook
+- `README.md:664` — Datasets for Real-World Lifelong Knowledge Editing: WikiBigEdit
+- `README.md:675` — Requirements
+- `README.md:677` — 🔧Pip Installation
+- `README.md:690` — ⚡uv Installation
+- `README.md:716` — Editing GPU memory usage
+- `README.md:732` — 📌Use EasyEdit
+- `README.md:738` — BaseEditor
+- `README.md:744` — Introduction by a Simple Example
+- `README.md:762` — In this case, we use MEND method, so you should import `MENDHyperParams`
+- `README.md:764` — Loading config from hparams/MEMIT/gpt2-xl.yaml
+- `README.md:771` — edit descriptor: prompt that you want to edit
+- `README.md:777` — You can set `ground_truth` to None !!!(or set to original output)
+- `README.md:779` — edit target: expected output
+- `README.md:787` — Construct Language Model Editor
+- `README.md:820` — metrics: edit success, rephrase success, locality e.g.
+- `README.md:821` — edited_model: post-edit model
+- `README.md:832` — Evaluation
+- `README.md:871` — Trainer
+- `README.md:1001` — Use EasyEdit with KnowEdit
+- `README.md:1002` — Dataset
+- `README.md:1011` — Usage
+- `README.md:1015` — Editing Performance
+- `README.md:1081` — 🎊How to contribute to EasyEdit
+- `README.md:1083` — New Method
+- `README.md:1087` — (1) YourMethod_main.py
+- `README.md:1104` — Here is the specific implementation of the method.
+- `README.md:1115` — (2) YourMethod_hparams.py
+- `README.md:1123` — ✨Additional Explanation
+- `README.md:1131` — New Dataset
+- `README.md:1135` — YourDataset.py
+- `README.md:1153` — ✨Additional Explanation
+- `README.md:1161` — Citation
+- `README.md:1210` — 🎉Contributors
+- `README.md:1218` — Other Related Projects
+- `Dockerfile:1` — Use the official Ubuntu 22.04 image
+- `Dockerfile:4` — Set working directory
+- `Dockerfile:7` — Set non-interactive mode to avoid issues during package installation
+- `Dockerfile:10` — Update and install necessary dependencies in a single RUN command
+- `Dockerfile:23` — Install Miniconda
+- `Dockerfile:28` — Set PATH to include Miniconda
+- `Dockerfile:31` — Clone the EasyEdit project
+- `Dockerfile:35` — Copy environment file and create the Conda environment
+- `Dockerfile:39` — Use conda shell for all subsequent commands
+- `Dockerfile:42` — Set Conda default environment
+- `Dockerfile:46` — Install additional dependencies
+- `Dockerfile:50` — Set working directory
+- `Dockerfile:53` — Expose any required ports (e.g., Jupyter Notebook)
+- `Dockerfile:56` — Default command

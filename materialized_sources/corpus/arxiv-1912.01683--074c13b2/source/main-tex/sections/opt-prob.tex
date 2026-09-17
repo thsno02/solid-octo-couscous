@@ -1,0 +1,30 @@
+\section{Some actions have a greater probability of being optimal}\label{sec:action-prob}
+We claim that optimal policies ``tend'' to take certain actions in certain situations. We first consider the probability that certain actions are optimal.
+
+Reconsider the reward function $\unitvec[\farright]$, optimized at $\gamma=\half$. Starting from $\start$, the optimal trajectory goes $\rightA$ to $\closeright$ to $\farright$, where the agent remains. The $\rightA$ action is optimal at $\start$ under these incentives. Optimal policy sets capture the behavior incentivized by a reward function and a discount rate.
+
+\begin{restatable}[Optimal policy set function]{definition}{defOptPi}\label{def:opt-fn}
+$\optPi$ is the optimal policy set for reward function $R$ at $\gamma\in(0,1)$. All $R$ have at least one optimal policy $\pi\in\Pi$ \citep{puterman_markov_2014}. $\optPi[R,0]\defeq \lim_{\gamma\to 0} \optPi$ and $\optPi[R,1]\defeq \lim_{\gamma\to 1} \optPi$ exist by \cref{lem:opt-pol-shift-bound} (taking the limits with respect to the discrete topology over policy sets).
+\end{restatable} 
+
+We may be unsure which reward function an agent will optimize. We may expect to deploy a system in a known environment, without knowing the exact form of \eg{} the reward shaping \citep{Ng99policyinvariance} or intrinsic motivation \citep{pathakICMl17curiosity}. Alternatively, one might attempt to reason about future {\rl} agents, whose details are unknown. Our power-seeking results do not hinge on such uncertainty, as they also apply to degenerate distributions (\ie{} we know what reward function will be optimized). 
+
+\begin{restatable}[Reward function distributions]{definition}{distDefn}\label{def:dist}
+Different results make different distributional assumptions. Results with $\Dany \in \DSetAny\defeq \Delta(\rewardVS)$ hold for any probability distribution over $\rewardVS$. $\DSetBd$ is the set of bounded-support probability distributions $\Dbd$. For any distribution $\Dist$ over $\reals$, $\Diid\defeq \Dist^{\abs{\St}}$.  For example, when $\Dist_u\defeq \text{unif}(0,1)$, $\Diid[\Dist_u]$ is the maximum-entropy distribution. $\D_s$ is the degenerate distribution on the state indicator reward function $\unitvec$, which assigns 1 reward to $s$ and 0 elsewhere.
+\end{restatable} 
+
+With $\Dany$ representing our prior beliefs about the agent's reward function, what behavior should we expect from its optimal policies? Perhaps we want to reason about the probability that it's optimal to go from $\start$ to $\sink$, or to go to $\closeright$ and then stay at $\topright$. In this case, we quantify the optimality probability of $F\defeq\{\unitvec[\start] + \geom[\gamma]\unitvec[\sink], \unitvec[\start]+\gamma\unitvec[\closeright]+\geom[\gamma^2]\unitvec[\topright]\}$.
+
+\begin{restatable}[Visit distribution optimality probability]{definition}{ProbOpt}\label{def:prob-opt}
+Let $F\subseteq \F(s)$, $\gamma \in [0,1]$. $\optprob[\Dany]{F,\gamma}\defeq \prob[R\sim\Dany]{\exists \f^\pi \in F: \pi\in\optPi}$.
+\end{restatable}
+
+Alternatively, perhaps we're interested in the probability that $\rightA$ is optimal at $\start$.
+
+\begin{restatable}[Action optimality probability]{definition}{DefIC}\label{def:action-optimality}
+At discount rate $\gamma$ and at state $s$, the \emph{optimality probability of action $a$} is $\optprob[\Dany]{s,a,\gamma}\defeq \optprob[R \sim \Dany]{\exists \pi^* \in \optPi: \pi^*(s)=a}$.
+\end{restatable}
+
+Optimality probability may seem hard to reason about. It's hard enough to compute an optimal policy for a single reward function, let alone for uncountably many! But consider any $\Diid$ distributing reward independently and identically across states. When $\gamma=0$, optimal policies greedily maximize next-state reward. At $\start$, identically distributed reward means $\closeleft$ and $\closeright$ have an equal probability of having maximal next-state reward. Therefore, $\optprob[\Diid]{\start,\leftA,0}=\optprob[\Diid]{\start,\rightA,0}$. This is not a proof, but such statements are provable.
+
+With $\D_{\closeleft}$ being the degenerate distribution on reward function $\unitvec[\closeleft]$, $\optprob[\D_{\closeleft}]{\start,\leftA,\half}=1>0= \optprob[\D_{\closeleft}]{\start,\rightA,\half}$. Similarly, $\optprob[\D_{\closeright}]{\start,\leftA,\half}=0<1=\optprob[\D_{\closeright}]{\start,\rightA,\half}$. Therefore, ``what do optimal policies `tend' to look like?'' seems to depend on one's prior beliefs. But in \cref{fig:case-study}, we claimed that {\leftA} is optimal for fewer reward functions than {\rightA} is. The claim is meaningful and true, but we will return to it in \cref{sec:symmetries}.

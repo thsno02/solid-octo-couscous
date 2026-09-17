@@ -1,0 +1,20 @@
+{
+\setlength{\tabcolsep}{3pt}
+\begin{table}
+\small
+    \centering
+    \begin{tabular}{lrrrrrr}
+        \toprule
+        Task & \multicolumn{2}{c}{Base model} & \multicolumn{2}{c}{SERAC (\textbf{out})} & \multicolumn{2}{c}{SERAC (\textbf{in})} \\
+        \midrule
+        QA & 87ms & 2.96GB & 92ms & 3.47GB & 31ms & 3.46GB \\
+        \midrule
+        FC & 7ms & 0.44GB & 19ms & 1.18GB & 19ms & 1.18GB \\
+        \midrule
+        CS & 182ms & 0.38GB & 183ms & 1.00GB & 185ms & 1.01GB \\
+        \bottomrule
+    \end{tabular}
+    \caption{Wall clock time \& memory usage comparison for one forward pass of the base model and {\name} after 10 edits. \name's performance is given separately for \textbf{out}-of-scope inputs (routed to base model) and \textbf{in}-scope inputs (routed to counterfactual model).}
+    \label{tab:compute-stats}
+\end{table}
+}

@@ -1,0 +1,168 @@
+\subsection{Sampling human entities}\label{app:data-category}
+
+We sample 183 human entities to be annotated as follows. We first choose entities from Wikidata whose \texttt{instance of} is \texttt{human} and have corresponding Wikipedia pages.
+We then categorize entities based on two dimensions: frequency and nationality, resulting in 20 categories. We then sample entities uniformly at random over all categories.
+
+\vspace{-.2em}
+\paragraph{Frequency.}
+We compute {\texttt{freqValue}} as a maximum of the entity occurrence in Wikipedia provided by \citet{kandpal2022large} and the pageview count of the Wikipedia page following \citet{mallen2022not}. We found using one of them could lead to an underestimate of frequency levels due to failure in entity linking or mismatch in the Wikipedia page title, and taking a maximum of them provides a reasonable solution.
+We then assign one of five categories: 
+{`Very rare'} if {\texttt{freqValue}}$ \in [0, 10^2)$,
+{`Rare'} if {\texttt{freqValue}}$ \in [10^2, 10^3)$,
+{`Medium'} if {\texttt{freqValue}}$ \in [10^3, 10^4)$,
+{`Frequent'} if {\texttt{freqValue}}$ \in [10^4, 10^5)$, and
+{`Very frequent'} if {\texttt{freqValue}}$ \in [10^5,)$.
+
+\vspace{-.2em}
+\paragraph{Nationality.} We take \texttt{country of citizenship} from Wikidata and assign them one of four categories: `North America', `Europe \& Middle East', `Asia \& Pacific' and `Latin/South America \& Africa'.
+
+\subsection{Details in generating atomic facts}\label{app:atomic-fact-generation}
+We break out a generation automatically by splitting a generation into sentences, and feeding each sentence to InstructGPT (\texttt{text-davinci-003}) with a series of instructions to further break it down to a series of atomic facts.
+%
+The prompt to InstructGPT is provided in Table~\ref{tab:instruction-atomic-facts}.
+%
+Outputs from InstructGPT are used (1) to human experts for revision (Section~\ref{subsec:data}) and (2) for model-based evaluators (Section~\ref{sec:method}).
+%
+We find human experts split and merged atomic facts from InstructGPT for 18\% and 34\% of the cases, respectively.
+
+\subsection{More details on annotator recruitment}\label{app:annotator-recruitment}
+We recruit freelancers through Upwork and pay 15--25 USD per hour. We recruit fact-checking experts---freelancers who mentioned fact-checking as their expertise---for Step 3.
+Every worker went through a qualification test of 2 hours and was tested to be highly qualified.
+We design one HIT to consist of three generations, one from each \subjectLM, for one prompt, because we find it saves annotation time in total.
+10\% of the HITs have two workers assigned to calculate the agreement rate; the rest have one worker assigned.
+The agreement rates are 96\%, 90\% and 88\% for InstructGPT, ChatGPT and PerplexityAI, respectively. Appendix~\ref{subsec:annotation-qualitative} discusses disagreement cases in more detail.
+The full instructions and the interface are provided in Figure~\ref{fig:instruction} and Figure~\ref{fig:interface}, respectively.
+
+% We find that annotation requires extensive efforts and time, partially because each generation contains 26--41 atomic facts, and verification of each requires extensive search over Wikipedia. For instance, completing Step 3 for three pieces of generation from three LMs takes 25 minutes on average.
+
+\begin{table}[t]
+    \myfontsize \setlength{\tabcolsep}{0em}
+    \centering
+    \begin{tabular}{p{7.6cm}}
+        \toprule
+        \textbf{Prompt:} Tell me a bio of Ylona Garcia. \\
+        \textbf{Sentence:} [Ylona Garcia] has since appeared in various TV shows such as ASAP (All-Star Sunday Afternoon Party), Wansapanataym Presents: Annika PINTAsera and Maalaala Mo Kaya. \\
+        $\mathbf{\bullet}$ Ylona Garcia has appeared in various TV shows. \myblue{\sLabel} \\
+        $\mathbf{\bullet}$ She has appeared in ASAP. \myblue{\sLabel}  \\
+        $\mathbf{\bullet}$ ASAP stands for All-Star Sunday Afternoon Party. \myblue{\sLabel} \\
+        $\mathbf{\bullet}$ ASAP is a TV show. \myblue{\sLabel}\\
+        $\mathbf{\bullet}$ She has appeared in Wansapanataym Presents: Annika PINTAsera. \mypurple{\nsLabel}\\
+        $\mathbf{\bullet}$ Wansapanataym Presents: Annika PINTAsera is a TV show.  \mypink{\irLabel} \\
+        $\mathbf{\bullet}$ She has appeared in Maalaala Mo Kaya.  \mypurple{\nsLabel} \\
+        $\mathbf{\bullet}$ Maalaala Mo Kaya is a TV show. \mypink{\irLabel} \\
+        \midrule
+        %\textbf{Prompt:} & Tell me a bio of [Cha Seung-won]. \\
+        %\textbf{Sentence:} & [Cha Seung-won] is a lead vocal of V.O.S., a boy band founded in 2002. \\
+        %\textbf{Atomic fact:} & Cha Seung-won is a lead vocal of V.O.S. \\
+        %\textbf{Label:} & \nsLabel \\
+        %\textbf{Atomic fact:} &  V.O.S. is a boy band. \\
+        %\textbf{Label:} & \irLabel \\
+        %\textbf{Atomic fact:} & V.O.S. was founded in 2002. \\
+        %\textbf{Label:} & \irLabel \\
+        %
+        % \midrule
+        \textbf{Prompt:} Tell me a bio of John Estes.\\
+        \textbf{Sentence:} William Estes is an American actor known for his role on CBS police drama Blue Bloods as Jameson \"Jamie\" Reagan. \\
+        $\mathbf{\bullet}$ William Estes is an American. \mypink{\irLabel} \\
+        $\mathbf{\bullet}$ William Estes is an actor. \mypink{\irLabel}\\
+        $\mathbf{\bullet}$ William Estes is known for his role on CBS police drama Blue Bloods. \mypink{\irLabel}\\
+        $\mathbf{\bullet}$ William Estes' role on Blue Bloods is Jameson ``Jamie'' Reagan. \mypink{\irLabel} \\
+        \bottomrule
+    \end{tabular}
+    \caption{
+      Examples that contain \myblue{\sLabel}, \mypurple{\nsLabel} and \mypink{\irLabel}. Sentences in bullet points indicate atomic facts.
+    }\label{tab:example-label}
+\end{table}
+
+\begin{table*}[t]
+    \center  \myfontsize %\footnotesize
+    \setlength{\tabcolsep}{0.5em}
+    \begin{tabular}{p{3.3cm}p{0.4cm}p{11.4cm}}
+        \toprule
+            Category & \% & Example \\
+        \midrule
+            Different interpretations of the factual information
+            & 21
+            & \myblue{Gen} Gerhard Fischer is an inventor. \mypink{Wiki} Gerhard Fischer (inventor). ... was first patented by Dr. Gerhard Fischer  in 1931. A metal detector had been invented some forty years earlier (1881) by Alexander Graham Bell ... \\
+            && \myblue{Gen} Chadwick Boseman was a producer. \mypurple{Comment} Chadwick Boseman is not known as a producer, but produced one music video. \\
+        \cmidrule(lr){1-3}
+            Inferred (not directly mentioned but highly likely)
+            & 16
+            & \myblue{Gen}  Leach has since become a member of the England Test team. \mypurple{Comment} Leach is a member of the England Test team, but since when is less clear. \\
+        \cmidrule(lr){1-3}
+            Depends on how strict in judging the correctness
+            & 11
+            & \myblue{Gen} He made his Test debut for England in March 2018. \mypink{Wiki} On 16 March 2018, he was called up to England's Test squad (...) He made his debut in the second Test in Christchurch. \\
+            && \myblue{Gen} The building was the first LEED-certificated building in Edmonton. \mypink{Wiki} (..) became the first project in the City of Edmonton to achieve a LEED Gold status. \\
+        \cmidrule(lr){1-3}
+            Subjective  & 21 & 
+            \myblue{Gen} Chadwick Boseman became an African American pioneer. \mypink{Wiki} Culture writer Steve Rose, in The Guardian, said that Boseman's career was revolutionary and he ``leaves behind a gamechanging legacy'' (...) Rose wrote: ``Chadwick Boseman began his career playing African American icons and pioneers; he ends it as one himself.'' \\
+        \cmidrule(lr){1-3}
+            Wikipedia not consistent & 5 &
+            \myblue{Gen} [Tim Fischer] was an Ambassador to the Holy See from 2009 to 2012.
+            \mypink{Wiki} ... was later Ambassador to the Holy See from 2009 to 2012. (...) Australian Ambassador to the Holy See 2008–2012 \mypurple{Comment} The plain text and the table of the {\em Tim Fischer} page as well as the {\em Australian Ambassador to the Holy See} page are inconsistent in his start year. \\
+         \cmidrule(lr){1-3}
+            Two different entities  & 5 & \mypurple{Comment} Carlos J. Alfonso vs. Carlos Alfonso \\
+        \cmidrule(lr){1-3}
+            Mistakes in annotation  & 21 & \myblue{Gen} Jack Leach is a left-handed batsman. \mypurple{Comment} mentioned in the {\em England cricket team} page, Table {\em Current Squad}.            \\
+        \bottomrule
+    \end{tabular}
+    \caption{Categorization of disagreement cases.
+     \myblue{Gen} indicates the generation from PerplexityAI, and \mypink{Wiki} indicates evidence text from Wikipedia. \mypurple{Comment} indicates our comments.
+    }\label{tab:disagreement-analysis}
+\end{table*}
+
+\subsection{Examples in annotated data}\label{app:example-annotated-data}
+Table~\ref{tab:example-label} provides examples of the human-annotated data, each atomic fact with an assigned label. \sLabel\ and \nsLabel\ respectively indicate Wikipedia supports the fact and does not support the fact (either contradicts or does not contain any evidence). \irLabel\ indicates the fact is irrelevant to the input prompt, which can further be divided into two cases: (1) the fact depends on other facts because it expands previous facts in a generation, and such other facts are \nsLabel, e.g., in the first example in Table~\ref{tab:example-label}, and (2) the entire sentence is irrelevant to the prompt, independent from other facts in a generation, e.g., the second example in Table~\ref{tab:example-label}.
+%
+The second case rarely happens with InstructGPT and ChatGPT, but happens considerably with PerplexityAI, i.e., 24.7\% of generations of PerplexityAI have $\geq$ sentences marked as irrelevant without dependencies to other facts, compared to 0.5\% and 1.3\% in InstructGPT and ChatGPT, respectively.
+This is because PerplexityAI often directly copies search results even if they are largely irrelevant to the input prompt.
+This is in agreement with a concurrent work from \citet{liu2023evaluating} that shows generative search engines like PerplexityAI copy incorrect search results and generate text that is irrelevant to the input query.
+
+
+
+\subsection{Qualitative Analysis}
+\label{subsec:annotation-qualitative}
+
+% \kalpesh{can move definitions below to appendix, since the examples in Table make error type clear} \sewon{TODO for the 8p version. for the arxiv version feel like keeping it makes the paper more self-contained.}
+
+\myskip{
+\begin{table*}[t]
+    \center \myfontsize
+    \begin{tabular}{l cccc l
+        }
+        \toprule
+             & \#Params & prompt types & retrv & need \subjectLM\ & closest prior work \\
+        \midrule
+            No-context LM   & 7B+ & \{\texttt{QA,FV}\} & \xmark & \xmark& \citet{kadavath2022language} \\
+            Self-check LM   & 7B+ & \{\texttt{QA,FV}\} & \xmark & \cmark & \citet{manakul2023selfcheckgpt} \\
+            \rtg            & 335M + 7B+ & \{\texttt{QA,FV}\} & \cmark & \xmark & \citet{gao2022attributed} \\
+            NPM             & 354M & - & \cmark & \xmark & \citet{min2022nonparametric} \\
+            \rtg\ + NPM     & 335M + 354M + 7B+ & \{\texttt{QA,FV}\} & \cmark & \xmark & - \\
+        \bottomrule
+    \end{tabular}
+    \caption{Summary of five evaluators described in Section~\ref{subsec:models-validation}.
+    7B+ is from LLAMA 7B and can be more if larger LMs are being used; 335M is from GTR large; 354M is from NPM.
+    {\em retrv} indicates whether or not retrieval over an external corpus (Wikipedia) is being used.
+    {\em need \subjectLM{}} indicates whether multiple samples from the \subjectLM{} are needed; methods with this requirement cannot be applied to the PerplexityAI-based data, because PerplexityAI is semi-deterministic (likely due to internal cache).
+    }\label{tab:validation-methods-summary}
+\end{table*}
+}
+
+\paragraph{Analysis of disagreement cases.}
+We analyze the cases where two annotators assigned to a same generation disagree on a precision label for the same atomic fact. Categorization is provided in Table~\ref{tab:disagreement-analysis}. The 70\% is due to an inherent debatability on whether or not the fact is supported by a given source of knowledge, not satisfying Assumption 2 in Section~\ref{subsec:data-overview}.
+This is because there can be multiple interpretations of a fact, it is debatable whether or not an information can be inferred from a piece of text, or the atomic fact is subjective. For instance:\vspace{-.3em}
+\begin{itemize}[leftmargin=15pt]\itemsep -.2em
+    \item \texttt{Gerhard Fischer is an inventor}: Gerhard Fischer is widely known as an inventor of a metal detector, and even the title of the Wikipedia article is \emph{``Gerhard Fischer (inventor)''.}
+    However, it later turns out that he did not invent a metal detector; rather, he commercialized it.
+    \item \texttt{Chadwick Boseman was a producer}: Chadwick Boseman is widely known as another profession (singer) and there is no text that mentions him as a producer. However, he produced one music video.
+\end{itemize}
+Nonetheless, since our agreement rate is fairly high (91\%), we think such cases are rare in our particular domain of people biographies. We include more discussion on other domains that such cases may be more frequent in the Limitation section.
+
+
+\paragraph{Coverage of English Wikipedia.}
+While factual prediction is inherently a function of a knowledge source given as part of the input, a potential concern is how representative using English Wikipedia as a knowledge source for evaluating people biographies with respect to its coverage. For instance, it is possible that, especially for rare entities, the coverage of information in Wikipedia is not high enough, and LMs may be penalized by generating information that is true even if not supported by Wikipedia (i.e., supported by other sources on the web).
+
+To quantify the effect, we randomly sample 30 unsupported facts from ChatGPT on people whose categories are either `rare' or `very rare', and then validate them against the entire web. We found 10\% (3 out of 30 facts) are in fact supported, even though they are not supported in Wikipedia. An example is \emph{[Hibo] Wardere published her memoir titled ``Cut: One Woman's Fight Against FGM in Britain Today''} which is not mentioned in Wikipedia but is found from Google Books.
+
+Nonetheless, we found that Wikipedia has a high coverage and mentions most of the important information that we were able to find from any other sources on the web. This is in agreement with prior work that treated Wikipedia as a general knowledge source under the same reason~\cite{chen-etal-2017-reading,petroni-etal-2021-kilt}.

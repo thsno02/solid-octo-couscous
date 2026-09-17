@@ -1,0 +1,19 @@
+\begin{table}
+    \centering
+    \small
+    \begin{tabular}{lcccc}
+        \toprule
+        & \multicolumn{2}{c}{\textbf{QA-hard} (T5-large)} & \multicolumn{2}{c}{\textbf{FC} (BERT-base)} \\
+        \cmidrule(lr){2-3} \cmidrule(lr){4-5}
+        Scope split & Cls acc. & $\rep$ acc. & Cls acc. & $\rep$ acc. \\
+        \midrule
+        In (easy) & 0.985 & 0.996 & \multirow{2}{*}{0.909} & \multirow{2}{*}{0.875} \\
+        In (hard) & 0.855 & 0.987 &  & \\
+        Out (easy) & 0.996 & 0.123 & 0.993 & -- \\
+        Out (hard) & 0.967 & 0.042 & 0.706 & -- \\
+        \bottomrule
+    \end{tabular}
+    \caption{Component-wise {\name} performance breakdown by data subset on QA-hard and FC. On both datasets, hard examples account for the vast majority of classifier errors. FC classifier performance on hard out-of-scope examples is the bottleneck for improving editor precision. FC does not annotate easy/hard in-scope examples (so they are pooled) or labels for out-of-scope examples (so $\rep$ accuracy for out-of-scope examples is omitted).}
+    % \vspace{-5mm}
+    \label{tab:decomp}
+\end{table}

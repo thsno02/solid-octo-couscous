@@ -1,0 +1,39 @@
+\begin{figure}
+\begin{minipage}[t]{0.45\textwidth}
+\begin{algorithm}[H]
+\small
+% \relscale{1.04}
+\caption{\name~Training}\label{alg:training}
+\begin{algorithmic}[1]
+\State \textbf{Input:} Pre-trained $p_{\theta_\mathcal{W}}$, weights to make editable $\mathcal{W}$, editor params $\phi_0$, edit dataset $\dtrain$, edit-locality tradeoff $c_\text{edit}$
+\For{$t \in 1,2,...$}
+    \State Sample $\xe,\ye,\xe',\ye',\xloc\sim \dtrain$
+    \State $\mathcal{\tilde W} \gets \textsc{Edit}(\theta_\mathcal{W},\mathcal{W},\phi_{t-1},\xe,\ye)$
+    \State $\losse \gets -\log p_{\theta_\mathcal{\tilde W}}(\ye'|\xe')$
+    \State $\lossl \gets \text{KL}(p_{\theta_\mathcal{W}}(\cdot|\xloc) \| p_{\theta_\mathcal{\tilde W}}(\cdot|\xloc))$
+    \State $L(\phi_{t-1}) \gets c_\text{edit} \losse + \lossl$
+    \State $\phi_t \gets \text{Adam}\left(\phi_{t-1}, \nabla_\phi L(\phi_{t-1})\right)$
+\EndFor
+\end{algorithmic}\end{algorithm}\end{minipage} \hfill%
+%
+%
+%
+\begin{minipage}[t]{0.54\textwidth}
+\begin{algorithm}[H]
+\small
+% \relscale{1.04}
+\caption{\name~Edit Procedure}\label{alg:edit-procedure}
+\begin{algorithmic}[1]
+\Procedure{Edit}{$\theta,\mathcal{W},\phi,\xe,\ye$}
+    \State $\hat{p} \gets p_{\theta_\mathcal{W}}(\ye|\xe)$, \textbf{caching} input $u_\ell$ to $W_\ell\in\mathcal{W}$
+    \State $L(\theta, \mathcal{W})\gets -\log \hat{p}$ \Comment{Compute NLL}
+    \For{$W_\ell \in \mathcal{W}$}
+        \State $\delta_{\ell+1} \gets \nabla_{W_\ell u_\ell + b_\ell} l_e(\xe,\ye)$ \Comment{Grad wrt output}
+        \State $\tilde u_\ell,\tilde\delta_{\ell+1} \gets g_{\phi_\ell}(u_\ell,\delta_{\ell+1})$ \Comment{Pseudo-acts/deltas}
+        \State $\tilde W_\ell \gets W_\ell - \tilde\delta_{\ell+1}\tilde u_\ell^{\top}$ \Comment{Layer $\ell$ model edit}
+    \EndFor
+    \State $\mathcal{\tilde{W}} \gets \{\tilde W_1,...,\tilde W_k\}$
+    \State \Return $\mathcal{\tilde{W}}$ \Comment{Return edited weights}
+\EndProcedure
+\end{algorithmic}\end{algorithm}\end{minipage}
+\end{figure}

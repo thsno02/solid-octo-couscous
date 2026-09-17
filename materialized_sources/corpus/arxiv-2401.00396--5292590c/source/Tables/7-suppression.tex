@@ -1,0 +1,131 @@
+% \begin{table}[t]
+% \scriptsize
+% \centering
+%     \begin{tabular}{c|l|ccc}
+%     \toprule
+%     \textsc{Group} & \textsc{Model/Strategy} & \textsc{\# Resp.} & \textsc{\# Hall } & \textsc{\% Hall} \\
+
+%      \midrule
+%      \multirow{5}{*}{1} & Llama-2-7B  & 450   & 233  & 51.8   \\
+%       & Mistral-7B-Instruct & 450  & 259 & 57.6  \\
+%      \cmidrule{2-5}
+%      & Randomly select & 450 & 248 & 55.1(-) \\
+%      & Least detected spans & 450 & 194 & 43.1(\textbf{-21.8\%})$^{\dagger}$   \\
+%      & No detected spans & 326 & 78 & 23.9(\textbf{-56.6\%})$^{\dagger}$ \\
+%      \midrule\midrule
+%      \multirow{5}{*}{2} & GPT-3.5-Turbo  & 450   & 49  & 10.9   \\
+%      & GPT-4 & 450  & 42 & 9.3  \\
+%      \cmidrule{2-5}
+%      & Randomly select & 450 & 47 & 10.4(-) \\
+%      & Least detected spans & 450 & 24 & 5.3(\textbf{-41.0\%})$^{\dagger}$   \\
+%      & No detected spans & 446 & 22 & 4.9(\textbf{-52.9\%})$^{\dagger}$ \\
+%     \bottomrule
+%     \end{tabular}
+%     \caption{Utilizing the finetuned hallucination detector to sample from two responses can significantly reduce the rate of hallucinations. $\dagger$: compared to hallucination rate of random selection.}
+%     \label{tab:7-suppression}
+% \end{table}
+
+% \begin{table}[t]
+% \scriptsize
+% \centering
+%     \begin{tabular}{p{0.8cm}|c|cp{0.8cm}c}
+%     \toprule
+%     \multicolumn{2}{ }{} & \textsc{\# Resp.} & \textsc{\# Hall} & \textsc{\% Hall} \\
+
+%      \midrule
+%      \multirow{2}{*}{Models} & Llama-2-7B  & 450   & 233  & 51.8 \\
+%       & Mistral-7B-Instruct & 450  & 259 & 57.6  \\
+%      \midrule
+%      \multirow{3}{*}{\makecell{Sampling\\strategy}}& Random selection & 450 & 248 & 55.1(-) \\
+%      & Least detected spans & 450 & 194 & 43.1(\textbf{$\downarrow$21.8\%}) \\
+%      & No detected spans & 326$^{\dagger}$ & 78 & 23.9(\textbf{$\downarrow$56.6\%}) \\
+%      \midrule\midrule
+%      \multirow{2}{*}{Models} & GPT-3.5-Turbo-0613  & 450   & 49  & 10.9 \\
+%      & GPT-4-0613 & 450  & 42 & 9.3  \\
+%      \midrule
+%      \multirow{3}{*}{\makecell{Sampling\\strategy}} & Random selection & 450 & 47 & 10.4(-) \\
+%      & Least detected spans & 450 & 24 & 5.3(\textbf{$\downarrow$41.0\%}) \\
+%      & No detected spans & 446$^{\dagger}$ & 22 & 4.9(\textbf{$\downarrow$52.9\%}) \\
+%     \bottomrule
+%     \end{tabular}
+%     \caption{Utilizing the finetuned hallucination detector to sample from two responses can significantly reduce the rate of hallucinations. ${\dagger}$: Some instances did not have responses that met the required criteria.}
+%     \label{tab:7-suppression}
+% \end{table}
+
+% \begin{table}[t]
+% \scriptsize
+% \centering
+%     \begin{tabular}{p{0.3cm}|p{0.8cm}|c|cc}
+%     \toprule
+%     % \multicolumn{4}{c}{Group 1} \\
+%     % \midrule
+%     \textsc{NO.} & \multicolumn{2}{c}{\textsc{Treatment}} & \textsc{\# Resp.} & \textsc{\% Hallucination} \\
+%      \midrule
+%      \multirow{5}{*}{1} & \multirow{2}{*}{\makecell{Sample\\From}} & Llama-2-7B  & 450    & 51.8 \\
+%      & & Mistral-7B-Instruct & 450   & 57.6  \\
+%      \cmidrule{2-5}
+%      & \multirow{3}{*}{\makecell{Sampling\\Strategy}}& Random selection & 450  & 55.1(-) \\
+%      & & Least detected spans & 450 & 43.1(\textbf{$\downarrow$21.8\%}) \\
+%      & & No detected spans & 326$^{\dagger}$  & 23.9(\textbf{$\downarrow$56.6\%}) \\
+%      \midrule\midrule
+%      \multirow{5}{*}{2} & \multirow{2}{*}{\makecell{Sample\\From}} & GPT-3.5-Turbo-0613  & 450     & 10.9 \\
+%      & & GPT-4-0613 & 450  & 9.3  \\
+%      \cmidrule{2-5}
+%      & \multirow{3}{*}{\makecell{Sampling\\Strategy}} & Random selection & 450  & 10.4(-) \\
+%      & & Least detected spans & 450  & 5.3(\textbf{$\downarrow$41.0\%}) \\
+%      & & No detected spans & 446$^{\dagger}$  & 4.9(\textbf{$\downarrow$52.9\%}) \\
+%     \bottomrule
+%     \end{tabular}
+%     \caption{Utilizing the finetuned hallucination detector to sample from two responses can significantly reduce the rate of hallucinations. ${\dagger}$: Some instances did not have responses that met the required criteria.}
+%     \label{tab:7-suppression}
+% \end{table}
+
+% \begin{table*}[!t]
+% \scriptsize
+% \centering
+%     \begin{tabular}{c|c|c|cc}
+%     \toprule
+%     % \multicolumn{4}{c}{Group 1} \\
+%     % \midrule
+%     \textsc{Group} & \multicolumn{2}{c}{\textsc{Treatment}} & \textsc{Valid Response Num} & \textsc{Hallucination Rate} \\
+%      \midrule
+%      \multirow{5}{*}{1} & \multirow{2}{*}{\makecell{Sample\\From}} & Llama-2-7B-chat  & 450    & 51.8 \\
+%      & & Mistral-7B-Instruct & 450   & 57.6  \\
+%      \cmidrule{2-5}
+%      & \multirow{3}{*}{\makecell{Sampling\\Strategy}}& Random selection & 450  & 55.1(-) \\
+%      & & Least detected spans & 450 & 43.1(\textbf{$\downarrow$21.8\%}) \\
+%      & & No detected spans & 326$^{\dagger}$  & 23.9(\textbf{$\downarrow$56.6\%}) \\
+%      \midrule\midrule
+%      \multirow{5}{*}{2} & \multirow{2}{*}{\makecell{Sample\\From}} & GPT-3.5-Turbo-0613  & 450     & 10.9 \\
+%      & & GPT-4-0613 & 450  & 9.3  \\
+%      \cmidrule{2-5}
+%      & \multirow{3}{*}{\makecell{Sampling\\Strategy}} & Random selection & 450  & 10.4(-) \\
+%      & & Least detected spans & 450  & 5.3(\textbf{$\downarrow$41.0\%}) \\
+%      & & No detected spans & 446$^{\dagger}$  & 4.9(\textbf{$\downarrow$52.9\%}) \\
+%     \bottomrule
+%     \end{tabular}
+%     \caption{Utilizing the finetuned hallucination detector to sample from two responses can significantly reduce the rate of hallucinations. ${\dagger}$: Some instances did not have responses that met the required criteria.}
+%     \label{tab:7-suppression}
+% \end{table*}
+
+\begin{table*}[!t]
+\scriptsize
+\centering
+    \begin{tabular}{c|c|cc}
+    \toprule
+    % \multicolumn{4}{c}{Group 1} \\
+    % \midrule
+    \textsc{Group} & \textsc{Selection Strategy} & \textsc{Valid Response Num} & \textsc{Hallucination Rate} \\
+     \midrule
+     \multirow{3}{*}{{\makecell{Llama-2-7B-chat~(51.8)\\Mistral-7B-Instruct~(57.6)}}} &  Random & 450  & 52.4(-) \\
+       & Select the response with fewer detected hallucination spans & 450 & 41.1(\textbf{$\downarrow$21.6\%}) \\
+       & Select the response with no detected hallucination spans & 328$^{\dagger}$  & 19.3(\textbf{$\downarrow$63.2\%}) \\
+     \midrule\midrule
+     \multirow{3}{*}{\makecell{GPT-3.5-Turbo-0613~(10.9)\\GPT-4-0613~(9.3)}} &  Random & 450  & 9.8(-) \\
+     & Select the response with fewer detected hallucination spans & 450  & 5.6(\textbf{$\downarrow$42.9\%}) \\
+     & Select the response with no detected hallucination spans & 448$^{\dagger}$  & 4.8(\textbf{$\downarrow$51.0\%}) \\
+    \bottomrule
+    \end{tabular}
+    \caption{Utilizing the finetuned hallucination detector to sample from two responses can significantly reduce the rate of hallucinations. The numbers within the brackets in the group column represent the model's hallucination rate. ${\dagger}$: Some instances did not have responses that met the required criteria.}
+    \label{tab:7-suppression}
+\end{table*}

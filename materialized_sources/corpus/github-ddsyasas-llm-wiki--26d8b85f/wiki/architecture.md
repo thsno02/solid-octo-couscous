@@ -1,0 +1,88 @@
+# Architecture evidence: ddsyasas/llm-wiki
+
+- `README.md:32` — Demo
+- `README.md:46` — Why this exists
+- `README.md:58` — Screenshots
+- `README.md:64` — The wiki layer
+- `README.md:76` — Operations
+- `README.md:84` — Settings + multi-wiki
+- `README.md:97` — What's in v1.2
+- `README.md:104` — The three operations (Karpathy's pattern)
+- `README.md:110` — Workflow features
+- `README.md:121` — Quality / safety
+- `README.md:130` — Settings
+- `README.md:136` — The on-disk shape
+- `README.md:153` — Install + run
+- `README.md:157` — Hosted — try without installing
+- `README.md:163` — Quick start — install the CLI (recommended)
+- `README.md:174` — From source — for development or contributing
+- `README.md:185` — Prerequisites
+- `README.md:197` — `llm-wiki: command not found` after install
+- `README.md:202` — Find where npm put the binary
+- `README.md:205` — Confirm it landed there
+- `README.md:208` — One-off: run via full path
+- `README.md:222` — Per-OS install notes
+- `README.md:229` — Debian / Ubuntu / WSL
+- `README.md:232` — Fedora / RHEL
+- `README.md:235` — Arch
+- `README.md:249` — Run the dev server
+- `README.md:269` — macOS / Linux / WSL
+- `README.md:273` — Windows PowerShell
+- `README.md:277` — Windows cmd
+- `README.md:284` — Using the CLI
+- `README.md:289` — Start (uses current directory as the wiki folder)
+- `README.md:292` — Start in a specific folder (auto-initializes it if empty)
+- `README.md:295` — Initialize a folder as a wiki without starting the server
+- `README.md:298` — Probe install + OpenRouter connectivity
+- `README.md:301` — Full command + flag list
+- `README.md:344` — Updating
+- `README.md:374` — Get the latest release URL from https://github.com/ddsyasas/llm-wiki/releases/latest
+- `README.md:391` — Building a publishable tarball
+- `README.md:399` — or:
+- `README.md:405` — Uninstalling
+- `README.md:410` — Remove the repo
+- `README.md:413` — Remove the global config (OpenRouter key file-fallback + recent-wiki list)
+- `README.md:417` — Optionally delete the wiki folder itself (it's just markdown — you may want to keep it)
+- `README.md:427` — Recovery / common gotchas
+- `README.md:433` — Documentation
+- `README.md:466` — Project status (v1.2.3)
+- `README.md:488` — Stack
+- `README.md:510` — Contributing
+- `README.md:532` — Credits
+- `README.md:540` — License
+- `CLAUDE.md:1` — Project Brief for Claude Code
+- `CLAUDE.md:5` — Read this first
+- `CLAUDE.md:21` — Core principles, do not violate
+- `CLAUDE.md:29` — Stack lock-in
+- `CLAUDE.md:40` — Working conventions
+- `CLAUDE.md:50` — Don't do these things
+- `CLAUDE.md:59` — When in doubt
+- `CLAUDE.md:63` — Attribution
+- `CONTRIBUTING.md:1` — Contributing to LLM Wiki
+- `CONTRIBUTING.md:11` — Where this project is going
+- `CONTRIBUTING.md:25` — What we need help with right now
+- `CONTRIBUTING.md:29` — 🟢 Quick wins (≤ 1 hour, good first PR)
+- `CONTRIBUTING.md:43` — 🟡 Medium (1–3 hours, mid-experience)
+- `CONTRIBUTING.md:57` — 🔴 Big (V2-scoped, propose first)
+- `CONTRIBUTING.md:71` — 🐛 Bug reports
+- `CONTRIBUTING.md:75` — 💡 Ideas + design discussions
+- `CONTRIBUTING.md:81` — What we don't want
+- `CONTRIBUTING.md:98` — How to actually contribute
+- `CONTRIBUTING.md:100` — One-time setup
+- `CONTRIBUTING.md:113` — Before you start coding
+- `CONTRIBUTING.md:119` — While coding
+- `CONTRIBUTING.md:128` — Before opening the PR
+- `CONTRIBUTING.md:139` — Opening the PR
+- `CONTRIBUTING.md:151` — Getting your PR reviewed
+- `CONTRIBUTING.md:157` — Code of conduct
+- `CONTRIBUTING.md:163` — Security
+- `CONTRIBUTING.md:169` — License + attribution
+- `CONTRIBUTING.md:177` — Recognition
+- `SECURITY.md:1` — Security Policy
+- `SECURITY.md:5` — Supported versions
+- `SECURITY.md:15` — Reporting a vulnerability
+- `SECURITY.md:31` — What to expect after you report
+- `SECURITY.md:42` — What counts as in-scope
+- `SECURITY.md:51` — What's out of scope
+- `SECURITY.md:60` — Known security-relevant design choices
+- `SECURITY.md:69` — Hall of Fame

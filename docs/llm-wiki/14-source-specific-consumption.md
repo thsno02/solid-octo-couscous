@@ -1,134 +1,88 @@
-# Source-Specific Consumption
+# 来源专属消费（Source-Specific Consumption）
 
-## Decision
+## 决策
 
-The LLM Wiki compiler consumes a normalized materialization interface, not raw URLs and not every source in the same way.
+LLM Wiki compiler 消费统一的物化接口（materialization interface），而不是直接消费 URL，也不会把不同来源强行压平成匿名 chunks。
 
 ```text
 source metadata
 → adapter selection
 → frozen source revision
-→ source-specific parsing or semanticization
-→ selectors and evidence map
-→ claim extraction
+→ source-specific parsing / semanticization
+→ local evidence + selectors
+→ candidate claim
 → wiki compilation
 ```
 
-This prevents the compiler from confusing a repository with an article, a PDF page with a paragraph, a standard with an implementation, or a mutable current page with an immutable source revision.
+这避免把 repository 当成文章、把 PDF 页当成普通段落、把标准当成实现，或把可变网页当成不可变来源版本。
 
-## Consumption matrix
+## 消费矩阵（Consumption Matrix）
 
-| Source | Preferred materialization | Primary selector | Extra semanticization |
+| 来源 | 首选物化方式 | 主要 selector | 额外语义化 |
 |---|---|---|---|
-| arXiv | source bundle and TeX tree | file and line/section | usually no |
-| journal/preprint | structured HTML or licensed full text; PDF fallback | section/paragraph or page/region | no |
-| GitHub repository | frozen commit and semantic repo capsule | file, blob, line, symbol | yes |
-| blog | time-stamped HTML/Markdown snapshot | DOM/paragraph | viewpoint classification |
-| X/thread | immutable post/thread capture | post ID and segment | context and deletion state |
-| standard/ontology | exact active edition | section and term | normative/informative classification |
-| dataset | versioned release and split | row/record/field | data dictionary and quality profile |
-| benchmark | task and evaluator version | item/run/metric | protocol reconstruction |
-| incident/retraction | primary event record | event/time/affected object | dependency impact |
+| arXiv | source archive 与 TeX tree | file、line、section | 通常不需要 |
+| journal / preprint | 开放结构化 HTML 或 licensed full text；PDF fallback | section/paragraph 或 page/region | 不需要 |
+| GitHub repository | frozen commit 与 semantic capsule | commit、file、line | 需要 |
+| blog / web | 带时间与 hash 的 HTML/text snapshot | DOM/paragraph | 观点与来源角色分类 |
+| standard / ontology | 精确版本或 edition | section、term | normative/informative 分类 |
+| dataset / benchmark | versioned release、split 与 evaluator | row/field/item/run/metric | schema 与 protocol 重建 |
+| incident / retraction | primary event record | event/time/affected object | dependency impact |
 
-## Repository-to-wiki bridge
+## Repository-to-Wiki 桥接
 
-A repository has several semantic surfaces:
+一个 repository 同时包含目录拓扑、依赖、文档、接口、配置、tests、evaluation、release history 与 paper-code linkage。单一 README 无法代表所有语义表面。
 
-```text
-repository identity and commit
-├── directory and module topology
-├── package/dependency manifests
-├── documentation
-├── public interfaces and commands
-├── configuration and deployment
-├── tests and evaluation
-├── runtime behavior
-├── issue/release history
-└── relationship to papers and datasets
-```
+当前 adapter 的目标是建立确定性 baseline：固定 commit，保存预算内的高价值证据，生成 exact local selectors 和候选 mini-wiki。它明确不证明：
 
-No single README captures all of them. The initial deterministic capsule creates an evidence-backed baseline, but it is not a complete repo wiki.
+- runtime behavior；
+- build/test 成功；
+- benchmark 数字真实；
+- production reliability 或 security；
+- README 与实际实现一致。
 
-A mature repo-wiki pass should add:
+当 GitHub REST API 不可用时，commit-pinned raw-path fallback 仍会保存 README、架构/接口文档和构建配置等常规路径；manifest 必须标记 tree coverage 不完整。不存在、重命名或无法公开读取的 repository 则诚实降级为 `metadata_capsule`。
 
-1. symbol and module extraction;
-2. imports, calls, data-flow, and configuration relationships;
-3. test-to-feature and benchmark-to-claim mappings;
-4. public API, CLI, service, and file-format contracts;
-5. architecture decisions and release evolution;
-6. paper-to-code and dataset-to-code linkage;
-7. exact file/line evidence for every generated statement;
-8. staleness detection when the repository head changes.
-
-## Admission boundary
-
-Repository capsule pages have status `review`. They may guide navigation and source selection, but cannot independently corroborate a scientific claim.
-
-Promotion requires:
-
-- a pinned commit;
-- resolvable evidence selectors;
-- wording supported by source or execution evidence;
-- conflict checks against papers and official documentation;
-- risk-appropriate review;
-- a rollback path.
-
-README claims such as “state of the art,” “production ready,” or benchmark results remain assertions by the project until independently verified.
-
-## Paper and repository linking
-
-A paper and codebase are separate sources even when maintained by the same authors:
+## Paper 与 Repository 是独立来源
 
 ```text
 Paper --describes--> Method
 Repository --implements--> Method
 Commit --realizes--> Repository state
 Benchmark run --evaluates--> Commit
-Claim --supported_by--> Paper section or benchmark run
+Claim --supported_by--> Paper section / code evidence / benchmark run
 ```
 
-Do not use an associated repository README as independent confirmation of the paper.
+同一作者维护的 paper 与 repository 也不能自动互相证实；README 更不能作为论文结论的独立 corroboration。
 
-## Update and deletion behavior
+## 准入边界（Admission Boundary）
 
-A new commit creates a new capsule. The old capsule remains historical. The system compares file/blob and semantic deltas, finds affected claims and wiki sections, rebuilds the dependency closure, and reruns fixed evaluations.
+Repository capsule 和生成页面都处于 candidate/review 状态。晋升需要：
 
-A force-push or changed bytes under the same recorded reference is an integrity incident. An archived or deleted repository does not erase its frozen historical capsule.
+1. pinned revision；
+2. 可解析的本地 evidence selectors；
+3. 与证据范围一致的措辞；
+4. paper、official docs 与 execution evidence 之间的冲突检查；
+5. 与风险匹配的 review；
+6. rollback path。
 
-## Compiler input contract
+诸如 “state of the art”“production ready” 或 benchmark 数字，默认仍是 maintainer assertion，直到获得独立证据。
 
-```yaml
-source_uid: github:owner/repo
-source_revision: <commit>
-adapter: github_repo_wiki
-manifest_ref: materialized_sources/github/owner--repo/manifest.yaml
-evidence_index_ref: materialized_sources/github/owner--repo/evidence/excerpts.jsonl
-allowed_selectors:
-  - repo://owner/repo@commit/path#Lx-Ly
-semantic_pages_ref: materialized_sources/github/owner--repo/wiki/
-trust:
-  semantic_pages: candidate
-  evidence_excerpts: source-derived
-  runtime_behavior: unverified
-```
+## 更新、删除与回溯
 
-## Anti-patterns
+新 commit 产生新 source revision。旧版本应由 Git history 保留。系统需要根据 source delta 找到受影响的 evidence、claims、wiki sections 和 context packs，再执行 dependency-aware rebuild。
 
-- placing a GitHub URL in a RAG corpus and calling the repository ingested;
-- summarizing the default branch without recording a commit;
-- copying the entire repository into `raw_data`;
-- citing generated repo-wiki prose instead of file evidence;
-- inferring runtime behavior from directory names;
-- mixing README marketing, code, tests, and issues into one trust level;
-- overwriting pages when HEAD changes without preserving the old capsule;
-- treating paper and repository statements as independent sources when they share the same origin.
+Force-push、相同 reference 下 bytes 改变、source removal 或 retraction 都属于需要传播的完整性事件；不能通过覆盖旧页面抹掉 lineage。
 
-## Current executable path
+## 当前可执行入口
 
 ```text
-pipeline/materialization.yaml
-scripts/materialize_pipeline.py
-scripts/validate_materialized.py
-source_registry/
-materialized_sources/
+pipeline/materialization_all_260910.yaml
+scripts/materialize_all_sources.py
+scripts/validate_materialization_completeness.py
+source_registry/registry.yaml
+materialized_sources/index.yaml
+materialized_sources/corpus/
+experiments/v0_meta_kb_initialization_demo_260910/
 ```
+
+完整运行使用 `make materialize`；只重建某个来源族可使用 `--only-source-type`。所有 consumer 应先读取 manifest 的 `content_tier`、`status`、`rights`、`warnings/errors` 与 selector 清单，再决定允许的下游操作。

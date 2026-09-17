@@ -1,0 +1,44 @@
+\begin{table}[t]
+\centering
+\scriptsize
+\caption{\footnotesize Discoveryworld comparison. To control for spatial complexity across environments, for the purposes of counting actions, move actions are considered single actions (i.e. \textit{move left, right, up, and down} are considered a single action). \todoinline{FILL IN}}
+\label{tab:env_comparison}
+\begin{tabular}{lccccccc}
+\toprule
+\textbf{}               &   \textbf{Multi-}    &   \textbf{} &   \textbf{\# of}  &            \textbf{Para-}           &   \textbf{\# Obj.}  & \textbf{\# of}   & \textbf{Task}  \\
+\textbf{Environment}    &   \textbf{modal}    &   \textbf{Domain} &   \textbf{Tasks}  &   \textbf{metric} &   \textbf{Props.}  & \textbf{Actions}   & \textbf{Length}  \\
+\midrule
+
+\textsc{MiniGrid}~\citep{MinigridMiniworld23}       &   ?           & Pick+Place            &  23    & ?     & ?     & 4     &   Short       \\
+\textsc{Alfred}~\citep{ALFRED20}         &   Vis.        & Pick+Place            &  6    & Yes   & ?     & 7     &   Long       \\
+\textsc{AlfWorld}~\citep{Shridhar2020ALFWorldAT}       &   Separate    & Pick+Place            &  6    & Yes   & ?     & 9     &   Short       \\
+\textsc{MineDojo}~\citep{fan2022minedojo}       &   Vis.        & Minecraft             &  ~400 & ?     & ?     & 12    &   ?     \\
+\textsc{Nethack LE}~\citep{NetHack}     &   Text+Pix.   & Dungeon               &  1    & Yes   & ?     & 78    &   V. Long     \\
+\textsc{Alchemy}~\citep{wang2021alchemy}        &   ?           & ?            &  ?    & ?     & ?     & ?     &   ?       \\
+\textsc{IVRE}~\citep{xu2023interactive}           &   ?           & ?            &  ?    & ?     & ?     & ?     &   ?       \\
+\textsc{ScienceWorld}~\citep{wang2022scienceworld}   &   Text        & Elem. Science         &  30   & Yes   & ?     & 25    &   Medium      \\
+\textsc{DiscoveryWorld} &   Text+Vis.   & Sci. Discovery        &  24+10   & Yes   & ?     & 14    &   Long        \\
+\bottomrule        
+\end{tabular}
+\end{table}
+
+
+
+\section{Related Work}
+
+\todoinline{Refer to comparison Table~\ref{tab:env_comparison}}
+
+\paragraph{Instruction-focused environments.} Over the past decade, several environments have been proposed to study AI agents at following language instructions to accomplish some given task. Typically, those tends to focus on objects manipulation and navigation and have been applied to diverse domains such as robotics~\citep{yu2021metaworld,yang2023unisim}, 3D simulated households~\citep{Kolve2017AI2THORAI,ALFRED20,Szot2021Habitat2T,HoME}, text-based environments~\cite{Ct2018TextWorldAL,Shridhar2020ALFWorldAT,wang2022scienceworld,tamari-etal-2021-process}, open-world games~\citep{fan2022minedojo, MineRL}.
+
+Those instruction-based environments focus on the planning/experimentation part of the scientific discovery cycle, whereas \env deal with the entire process; from hypothesis ideation to experimentation.
+
+\paragraph{Discovery-focused environments.} More recently, we have seen a growing use of open-ended games such as MineCraft, Nethack, Jericho? ~\citep{fan2022minedojo, MineRL, Jericho} where there exist multiple ways to reach the end goals and where part of the process is about solving puzzle.
+
+Alchemy~\citep{wang2021alchemy} is a 3D environment which involves a latent causal structure that is resampled procedurally from episode to episode, affording structure learning, online inference, hypothesis testing and action sequencing based on abstract domain knowledge.
+IVRE~\citep{xu2023interactive} introduces a spatial-temporal-causal reasoning task in which agents are placed into environments with various ambiguous action-effect pairs and asked to determine each object’s role. They are encouraged to propose effective and efficient experiments to validate their hypotheses based on observations and actively gather new information.
+
+
+
+\paragraph{Autonomous AI agent benchmarks.} With the recent success of LLMs, several efforts have been made towards evaluation their reasoning and planning capabilities in more realistic scenarios, ranging from web searches and browser interactions (GAIA~\citep{mialon2023gaia}, WebArena~\citep{zhou2024webarena}) to applications and operating systems (AndroidWorld~\citep{rawles2024androidworld}, OSWorld~\citep{xie2024osworld}).
+
+\paragraph{Language agents} SwiftSAGE~\citep{Lin2023SwiftSageAG}, CLIN~\citep{Majumder2023CLINAC}

@@ -1,0 +1,74 @@
+% \vspace{-0.3cm}
+\section{Experiments}\label{sec:exp}
+\input{tab/ZsRE_main_table}
+% \vspace{-0.3cm}
+\subsection{Experimental Settings and Evaluation Metrics} \label{subsec:exp_setting}
+In the experiments, we compare the performance of different baselines and WISE in sequentially editing LLM models hundreds to thousands of times. In practice, we augment $\mathbf{x}_e$ by generating 10 random token sequences of length 10 using $f_{\Theta}$, enhancing editing generalization/adaptation to diverse contexts. We ensure that this augmentation with random tokens is applied across all baselines (See Appendix \ref{sec:random_token_ablation}, we ablate the contribution of Random Token).
+
+\input{tab/dataset}
+\paragraph{Datasets and Models.} 
+We choose trending autoregressive LLM models \textbf{LLaMA-2-7B} \cite{llama-2},  \textbf{Mistral-7B} \cite{mistral}, and \textbf{GPT-J-6B}~\cite{gpt-1,gpt-j} for evaluation. The dataset details are in Table \ref{tab:datasets}. Following \cite{grace}, we evaluate WISE on the closed-book question-answering (QA) dataset \textbf{ZsRE}~\cite{zsre}, and also evaluate its ability to correct \textbf{Hallucination} in SelfCheckGPT \cite{selfcheckgpt}.
+The \textbf{Temporal} dataset \cite{canonical_examples} is employed to test the out-of-distribution (OOD) generalization of editing. 
+Since Temporal comprises emerging entities post-2019, we avoid using the latest LLMs in OOD experiments.
+Instead, we follow the original literature of the Temporal dataset \cite{canonical_examples} and adopt \textbf{GPT-J-6B} as the base model, which is pretrained on the Pile \cite{pile} with a cutoff in 2020.
+Implementation details and editing examples for each dataset and can be found in Appendix \ref{app_sec:implem_details}.
+
+\paragraph{Baselines.} 
+The baselines include methods of continual learning and model editing.
+We compare WISE against direct fine-tuning \textbf{FT-L} with an additional KL divergence loss \cite{rome}, and continual learning fine-tuning based on Elastic Weight Consolidation (\textbf{FT-EWC}) \cite{ewc}.
+We also compare WISE to other model editors, including 1) GPT-style editors based on causal tracing: \textbf{ROME} \cite{rome}, \textbf{MEMIT} \cite{memit}, and \textbf{MEMIT-MASS} (a batch-editing version of MEMIT); 2) hypernetwork-based editors: \textbf{MEND} \cite{mend};
+and 3) the latest memory-based editors: \textbf{DEFER} (inspired by SERAC \cite{serac} for inference routing) and \textbf{GRACE} \cite{grace}. Details on all comparisons are found in Appendix \ref{baselines}.
+
+\paragraph{Metrics.} 
+Each edit example includes an edit descriptor (i.e., query) $\mathbf{x}_e$, its paraphrase prompts $\mathbf{x}_{e'}$ (if available) for testing generalization, and an unrelated statement $\mathbf{x}_{\text{loc}}$ for testing locality. 
+For the editing dataset $\mathcal{D}_{\text{edit}}= \{(\mathcal{X}_e, \mathcal{Y}_e)\}$ with $T$ edits, we evaluate the final post-edit model $f_{\Theta_{T}}$ after the $T$-th edit example $(\mathbf{x}_T, \mathbf{y}_T)$. 
+We evaluate the model editor's reliability and generalization using the metrics \textbf{Rel.} (a.k.a Edit Success Rate~\cite{grace}) and \textbf{Gen.} (Generalization Success Rate~\cite{knowledge_editing_survey_2}), while \textbf{Loc.} (Localization Success Rate~\cite{knowledge_editing_survey_2}), defined as the post-edit model should not change the output of the irrelevant examples $\mathbf{x}_{\text{loc}}$, assesses specificity.
+We report these metrics and their mean scores, which are formally defined as:
+\begin{scriptsize}
+\begin{equation}\label{equ:metrics}
+        \text{Rel}. = \frac{1}{T}\sum\limits_{t=1}^{T} \mathbbm{1}(f_{\Theta_{T}}(\mathbf{x}_e^t) = \mathbf{y}_e^t),\
+        \text{Gen}. = \frac{1}{T}\sum\limits_{t=1}^{T} \mathbbm{1}(f_{\Theta_{T}}(\mathbf{x}_{e'}^t) = \mathbf{y}_e^t),\
+        \text{Loc}. = \frac{1}{T}\sum\limits_{t=1}^{T} \mathbbm{1}(f_{\Theta_{T}}(\mathbf{x}_{\text{loc}}^{t}) = f_{\Theta_{0}}(\mathbf{x}_{\text{loc}}^{t})),
+\end{equation}
+\end{scriptsize}
+where $\mathbbm{1}(\cdot)$ is the indicator function. Notably, for the Hallucination dataset, following~\cite{grace}, we use the perplexity (PPL) to verify the locality, and there is no proper metric for generalization.
+
+\input{tab/hallucination_main_table}
+
+\subsection{Main Results} \label{subsec: main_results}
+\paragraph{Competitive Performance of WISE.} 
+The competitive performance of WISE is evident in Table \ref{tab:zsre_main_editing} and \ref{tab:halluc_main_editing}, which compare its results with eight baselines on the QA (ZsRE) and Hallucination (SelfCheckGPT) settings. 
+In general, we observe the followings: \ding{182} WISE outperforms existing methods on multiple tasks after long editing sequences; \ding{183} direct editing of long-term memory (ROME, MEMIT, etc.) creates conflicts with prior pretraining knowledge, resulting in poor locality; and \ding{184} retrieving working memory and modifying activations (GRACE, DEFER, etc) struggle to generalize to diverse queries.
+
+\input{tab/OOD_main_table}
+In the \textbf{QA} setting, with $T=1000$, WISE achieves average scores of 0.83 and 0.79 on LLaMA and Mistral, respectively, reflecting improvements of 18\% and 11\% over the nearest competitor.
+This demonstrates WISE's outstanding stability and effective management of long-sequential edits. 
+While methods like MEND and ROME are competitive early in editing, they show clear shortcomings as the edit sequence extends.
+Directly editing long-term memory (e.g., MEMIT, FT-EWC, MEND) results in a significant decline in Loc. When $T \in \{100, 1000\}$, this indicates that these methods cannot preserve LLMs' knowledge structure and significantly impair the model's generalization ability. 
+GRACE excels in Loc. and Rel. (close to 1.00), however, it sacrifices generalization in continual editing.
+A possible reason is that token representation may not be suitable for measuring semantic similarity in autoregressive LMs, leading to paraphrase $\mathbf{x}_{e'}$ failing to achieve similarity matching with any CodeBook \textit{Key} in GRACE (detailed in Appendix \ref{subsec: grace_generalization_analysis}).
+% Specifically, no amount of adjustment to the threshold for similarity matching (denoted as $\epsilon_{\text{init}}$ in GRACE) balances Gen. and Loc. (See Appendix \ref{subsec: grace_generalization_analysis} for more details).
+Overemphasis on preserving and precisely adapting training data (working memory) hampers adaptability to new contexts.
+In a nutshell, most previous methods struggle to balance Rel., Gen., and Loc., particularly in long-form editing tasks. In addition, the results of GPT-J-6B can be found in Figure~\ref{fig:gpt-j_zsre_fig} in the Appendix.
+
+WISE also surpasses the baselines on the \textbf{Hallucination} dataset, maintaining the lowest perplexity scores of 3.12 and 5.21 at $T=600$, with Loc. remaining above 0.93. We similarly observe significant \textit{PPL} increases for FT-L, MEND, and ROME in long-context editing tasks, while GRACE's performance is lackluster in LLM long texts (possibly due to the limited fitting capacity of the very small active trained parameters $\vert h^l \vert$ of GRACE).
+
+\paragraph{Out-of-Distribution Evaluation.} 
+Ideally, model editing needs to generalize distributionally from formulaic editing examples to natural texts \cite{canonical_examples}, where the distributional shift involves complexity rather than conventional domain shift \cite{domain_shift}.
+Following \citep{canonical_examples}, we evaluate the OOD generalization of editing methods on emerging entities using the temporal updating dataset, \textbf{Temporal}. 
+Editing examples and evaluation metrics are provided in Appendix \ref{app_subsec:data_description}.
+As shown in Table \ref{tab:ood_main_editing}, WISE effectively handles out-of-distribution generalization tasks (achieving the best OOD Gen. and overall performance).
+DEFER delivers mediocre performance on OOD Gen. due to the limited capacity of the auxiliary model\cite{knowledge_editing_survey_1}.
+During the fine-tuning phase, GRACE and MEMIT focus on the representation $v*$ of a \textbf{single} input token after $\mathbf{W}_v$ (GRACE: last token, MEMIT: last subject token).
+However, regarding $v*$ the editing carrier encounters two problems: 1) the training objective is not aligned with the pretraining phase, and 2) the single representation limits the search scope of gradient descent, making it difficult to handle OOD generalization. WISE, on the other hand, avoids these challenges.
+% In contrast, the shortcomings of GRACE and MEMIT-MASS reveal that relying solely on activation $v^*$ is insufficient for complex out-of-distribution generalization.
+
+% \newpage
+\input{sec/analysis}
+% \begin{wrapfigure}{r}{0.4\columnwidth}
+%   \centering
+%   \vspace{-0.3cm}
+%     \includegraphics[width=0.99\linewidth]{img/motivation_radar_fig_with_shadow.pdf}
+%     \caption{\textbf{Metric triplet among reliability, generalization, and locality.} ZsRE dataset, number of continual edits $n=100$, LLaMA-2-7B. Editing methods based on long-term memory (ROME and FT-EWC) and working memory (DEFER and GRACE) show the impossible triplet in metrics, while our WISE is leading in all three metrics.}\label{fig:motivation_fig_radar}
+%   \vspace{-0.2cm}
+% \end{wrapfigure}

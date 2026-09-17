@@ -1,0 +1,105 @@
+% EM: Need a new name:
+% Gradient-Conditioned Model Adapters
+
+% Key ideas:
+% - Editing a *pre-trained* model
+% - Not architecture-specific (to e.g. transformers)
+% - Scales well
+% - Uses factorized form of gradient
+
+%%% Paper titles?
+% Editing pre-trained models with lossless gradient conditioning
+% Editing large pre-trained models with lossless gradient conditioning
+% Editing knowledge in large pre-trained models with lossless gradient conditioning
+% Adapting knowledge in large pre-trained models with lossless gradient conditioning
+% Modifying knowledge in large pre-trained models with lossless gradient conditioning
+% Quickly Editing Large Pre-Trained Models
+% A Fast Method for Editing Large Pre-Trained Models
+% A Fast Method for Adapting Large-Scale Pre-Trained Models
+% A Fast Method for Adapting Billion-Parameter Pre-Trained Models
+% Model Editors for Adapting Large Pre-Trained Models
+% Quick Fix: Model Editing at Scale 
+% Quick Fix: Post-Hoc Model Editing at Scale 
+% Quick Fix: Editing Pre-Trained Models at Scale 
+% Editing Pre-Trained Models at Scale 
+
+
+%%% Method names
+% Lossless Gradient Conditioning
+% Learnable Gradient Manipulation
+% Knowledge Editing with Gradient Manipulation
+% Knowledge Adaptation by Gradient Editing
+% knowledge adapters
+% scalable knowledge editors 
+% scalable network editors (SNEs)
+% scalable weight editors 
+% lightweight model editor
+%%% model editors
+%% QuickFix
+
+\DeclareMathOperator*{\argmax}{\arg\!\max}
+
+\newcommand{\fullname}{Model Editor Networks with Gradient Decomposition}
+\newcommand{\name}{MEND}
+\newcommand{\baseparams}{\theta}
+\newcommand{\editedparams}{\theta_e}
+\newcommand{\xe}{x_\text{e}}
+\newcommand{\xloc}{x_\text{loc}}
+\newcommand{\yloc}{y_\text{loc}}
+\newcommand{\ye}{y_\text{e}}
+\newcommand{\losse}{L_\text{e}}
+\newcommand{\lossl}{L_\text{loc}}
+\newcommand{\losstotal}{L_\text{MEND}}
+\newcommand{\dtrain}{D^{tr}_{edit}}
+\newcommand{\dtest}{D^{te}_{edit}}
+\newcommand{\dbase}{D_{base}}
+\newcommand{\basemodel}{f_\baseparams}
+\newcommand{\pseudograd}{edit update}
+\newcommand{\neighborhood}{N(\xe,\ye)}
+% \newcommand{\rebuttal}[1]{\textcolor{blue}{#1}}
+\newcommand{\rebuttal}[1]{#1}
+% \newcommand{\cameraready}[1]{\textcolor{orange}{#1}}
+\newcommand{\cameraready}[1]{#1}
+
+\newcommand{\mrow}[2]{\multirow{#1}{*}{\shortstack{#2}}}
+
+\newcommand{\textlt}[1]{\textless\,#1\phantom{\textless\,}}
+\newcommand{\textgt}[1]{\textgreater\,#1\phantom{\textgreater\,}}
+
+% https://tex.stackexchange.com/questions/42619/x-mark-to-match-checkmark
+\newcommand{\cmark}{\ding{51}}
+\newcommand{\xmark}{\ding{55}}
+
+\newcommand{\greenyes}{\textcolor{Green}{\ding{51}}}
+\newcommand{\yellowmaybe}{\textcolor{YellowOrange}{\textbf{?}}}
+\newcommand{\redno}{\textcolor{Red}{\ding{55}}}
+
+% https://tex.stackexchange.com/a/385527/250175
+\newcommand*{\fakemonochar}[1]{\makebox[.6em][c]{#1}}
+\makeatletter
+\newcommand*{\fakemonotext}[1]{%
+  \@fakemonotext#1\\%
+}
+\newcommand*{\@fakemonotext}[1]{%
+  \ifx #1\\\else\fakemonochar{#1}\expandafter\@fakemonotext\fi
+}
+
+% chris comments
+\newif\ifcomments
+\commentstrue
+\ifcomments
+\usepackage[normalem]{ulem}
+\addtolength{\marginparwidth}{1in}
+\definecolor{CMpurple}{rgb}{0.6,0.18,0.64}
+\newcommand\cm[1]{\textcolor{CMpurple}{\textsf{\scriptsize[\textbf{CM\@:} #1]}}}
+\newcommand\cmi[1]{\textcolor{CMpurple}{#1}}
+\newcommand\cmm[1]{\marginpar{\raggedright\tiny\textcolor{CMpurple}{\textsf{{\bfseries CM\@:} #1}}}}
+\newcommand\cms{\bgroup\markoverwith{\textcolor{CMpurple}{\rule[.4ex]{2pt}{0.8pt}}}\ULon}
+\else
+\newcommand\cm[1]{}
+\newcommand\cmi[1]{\ignorespaces}
+\newcommand\cmm[1]{}
+\newcommand\cms[1]{#1}
+\fi
+
+\newcommand\antoine[1]{{\color{red}\{\textit{#1}\}$_{antoine}$}}

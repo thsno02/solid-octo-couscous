@@ -1,0 +1,48 @@
+% Please add the following required packages to your document preamble:
+% \begin{table*}[t]
+% \small
+% \centering
+% \scalebox{0.9}{
+% \begin{tabular}{l|ccccccccc}
+% \toprule
+% \multirow{2}{*}{Task} & \multirow{2}{*}{\# Instance} & \multirow{2}{*}{\# Resp.} & \multicolumn{2}{c}{\textsc{Context Length}} & \multicolumn{2}{c}{\textsc{Resp. Length}} &\multicolumn{3}{c}{\textsc{Hallucination}} \\
+% \cmidrule(lr){4-5} \cmidrule(lr){6-7} \cmidrule(lr){8-10}
+%   & & & Mean  & Max  & Mean  & Max & \# Resp. & \% Resp. & \# Span \\
+% \midrule
+% Summarization(CNN/DM) & 628 & 3768 & 648 & 1749 & 124 & 632 & 1165 & 30.9\% & 1474 \\
+% Summarization(Recent News) & 315 & 1890 & 369 & 481  & 89  & 240  & 521 & 27.6\% & 598 \\
+% Question Answering & 989 & 5934 & 243 & 509 & 119 &381 & 1724 & 29.1\% & 2927 \\
+% Data-to-text & 1033  & 6198 & 354 & 1253 & 159 & 369 & 4254$^{\dagger}$ & 68.6\%$^{\dagger}$ & 9290$^{\dagger}$ \\
+% \midrule
+% Overall & 2965 & 17790 & 381 & 1749 & 131 & 632 & 7664 & 43.1\% & 14289 \\
+% \bottomrule
+% \end{tabular}
+% }
+% \caption{The basic statistics of RAGTruth. $\dagger$: The data presented in the table above include hallucination spans caused by null values in JSON. If these spans are removed, the hallucination response number, hallucination response rate, and hallucination span number of date-to-text tasks are 3848, 62.1\%, and 7648, respectively.}
+% \label{tab:basic_stat}
+% \end{table*}
+
+
+\begin{table*}[t]
+% \small
+\centering
+\scriptsize
+% \scalebox{0.9}{
+\begin{tabular}{l|ccccccccc}
+\toprule
+\multirow{2}{*}{Task} & \multirow{2}{*}{\# Instance} & \multirow{2}{*}{\# Resp.} & \multicolumn{2}{c}{\textsc{Context Length}} & \multicolumn{2}{c}{\textsc{Resp. Length}} &\multicolumn{3}{c}{\textsc{Hallucination}} \\
+\cmidrule(lr){4-5} \cmidrule(lr){6-7} \cmidrule(lr){8-10}
+  & & & Mean  & Max  & Mean  & Max & \# Resp. & \% Resp. & \# Span \\
+\midrule
+Question Answering & 989 & 5934 & 243 & 509 & 119 &381 & 1724 & 29.1\% & 2927 \\
+Data-to-text Writing & 1033  & 6198 & 354 & 1253 & 159 & 369 & 4254 & 68.6\% & 9290 \\
+Summarization(CNN/DM) & 628 & 3768 & 648 & 1749 & 124 & 632 & 1165 & 30.9\% & 1474 \\
+Summarization(Recent News) & 315 & 1890 & 369 & 481  & 89  & 240  & 521 & 27.6\% & 598 \\
+\midrule
+Overall & 2965 & 17790 & 381 & 1749 & 131 & 632 & 7664 & 43.1\% & 14289 \\
+\bottomrule
+\end{tabular}
+% }
+\caption{The basic statistics of \CorpusName. Here "Resp." stands for "Response".}
+\label{tab:basic_stat}
+\end{table*}

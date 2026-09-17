@@ -1,0 +1,45 @@
+# Architecture evidence: aiidateam/aiida-core
+
+- `README.md:1` — <img src="https://raw.githubusercontent.com/aiidateam/aiida-core/main/docs/source/images/aiida-logo.svg" alt="AiiDA" width="200"/>
+- `README.md:14` — Features
+- `README.md:37` — Installation
+- `README.md:42` — How to contribute [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com) [![GitHub issues by-label](https://img.shields.io/github/issues/aiidateam/aiida-core/good%20first%20issue)](https://github.com/aiidateam/aiida-core/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22)
+- `README.md:49` — Frequently Asked Questions
+- `README.md:54` — How to cite
+- `README.md:65` — License
+- `README.md:70` — Acknowledgements
+- `AGENTS.md:1` — AGENTS.md - AI Coding Assistant Guide for AiiDA Core
+- `AGENTS.md:7` — Project overview
+- `AGENTS.md:12` — Key design concepts
+- `AGENTS.md:22` — Process / Node duality
+- `AGENTS.md:33` — Code style
+- `AGENTS.md:44` — Error handling
+- `AGENTS.md:49` — Design principles
+- `AGENTS.md:61` — Heuristics
+- `AGENTS.md:71` — API design
+- `AGENTS.md:87` — Object-oriented design
+- `AGENTS.md:100` — Types
+- `AGENTS.md:118` — Python idioms
+- `AGENTS.md:134` — Claude Code skills
+- `AGENTS.md:149` — AI assistant guidelines
+- `AGENTS.md:159` — Key dependencies
+- `pyproject.toml:5` — The "dev" dependency group is automatically synced by uv
+- `pyproject.toml:6` — and should thus contain all necessary deps for local development.
+- `pyproject.toml:28` — NOTE: When updating versions of some packages, such as requests or paramiko,
+- `pyproject.toml:29` — you need to also update the versions of corresponding stub packages
+- `pyproject.toml:30` — in the 'pre-commit' group e.g. 'types-requests'
+- `pyproject.toml:254` — NOTE: THe versions of the `types-*` stubs packages should match
+- `pyproject.toml:255` — the versions of the actual packages see:
+- `pyproject.toml:256` — https://github.com/python/typeshed?tab=readme-ov-file#package-versioning-for-third-party-stubs
+- `pyproject.toml:366` — these options reduce the strictness and should eventually be removed
+- `pyproject.toml:380` — strictness
+- `pyproject.toml:538` — Mark some classes as generic, per https://docs.astral.sh/ruff/settings/#lint_pyflakes_extend-generics
+- `pyproject.toml:539` — Needed due to https://github.com/astral-sh/ruff/issues/9298
+- `pyproject.toml:591` — tip: remove apidocs before using this feature (`cd docs; make clean`)
+- `pyproject.toml:630` — We specify a minimum uv version so that the format of uv.lock file
+- `pyproject.toml:631` — does not change depending on uv version that a particular developer has installed.
+- `pyproject.toml:632` — The uv.lock format is versioned, using the "version" and "revision" fields in uv.lock,
+- `pyproject.toml:633` — and the minimum version here should be the first one that introduced a given version/revision.
+- `pyproject.toml:634` — NOTE: When you bump the minimum uv version, you might also need to change it in:
+- `pyproject.toml:635` — .pre-commit-config.yaml
+- `pyproject.toml:636` — .github/actions/install-aiida-core/action.yml

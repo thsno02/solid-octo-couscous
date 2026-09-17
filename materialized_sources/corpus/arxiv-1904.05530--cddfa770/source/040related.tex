@@ -1,0 +1,34 @@
+
+%Our work is related to previous studies on temporal knowledge graph reasoning, temporal modeling on homogeneous graphs, recurrent graph neural networks, and deep autoregressive models.
+
+
+
+\para{Temporal KG Reasoning.}
+% Reasoning on temporal knowledge graphs can be deployed under two settings: \textit{interpolation}, which is to make predictions at some time $t$ such that $t_0 \leq t \leq t_T$, and \textit{extrapolation}, which is to predict at future time $t$ such that $t > t_T$. 
+% Note that our work focuses on \textit{extrapolation}.
+There have been some recent attempts on incorporating temporal information in modeling dynamic knowledge graphs, broadly categorized into two settings - \textit{extrapolation}~\citep{Trivedi2017KnowEvolveDT} and \textit{interpolation}~\citep{GarcaDurn2018LearningSE,leblay2018deriving,Dasgupta2018HyTEHT,goel2020diachronic,Lacroix2020Tensor}.
+For the former setting, Know-Evolve~\citep{Trivedi2017KnowEvolveDT} models the occurrence of a fact as a temporal point process. 
+% However, this method is built on a problematic formulation when dealing with concurrent events, as shown in Section~\ref{supp:know}.
+For the latter setting, several embedding-based methods have been proposed~\citep{GarcaDurn2018LearningSE,leblay2018deriving,Dasgupta2018HyTEHT,goel2020diachronic,Lacroix2020Tensor} to model time information.
+They embed the associate into a low dimensional space such as relation embeddings with RNN on the text of time~\citep{GarcaDurn2018LearningSE}, time embeddings~\citep{leblay2018deriving}, temporal hyperplanes~\citep{leblay2018deriving}, diachronic entity embedding~\citep{goel2020diachronic}, and tensor decomposition~\citep{Lacroix2020Tensor}.
+However, these models cannot predict future events, as representations of unseen time stamps are unavailable.
+
+% these models do not capture temporal dependency and cannot generalize to unobserved time stamps.
+% Our proposed method introduces a recurrent event encoder to capture temporal dependency and is able to predict interactions at unseen time tamps.
+
+
+\para{Temporal Modeling on Homogeneous Graphs.}
+There are attempts on predicting future links on homogeneous graphs~\citep{Pareja2019EvolveGCNEG,goyal2018dyngem,goyal2019dyngraph2vec,zhou2018dynamic,singer2019node}.
+Some of the methods try to incorporate and learn graphical structures to predict future links \citep{Pareja2019EvolveGCNEG,zhou2018dynamic,singer2019node}, while other methods predict by reconstructing an adjacency matrix by using an autoencoder \citep{goyal2018dyngem,goyal2019dyngraph2vec}.
+These methods seek to predict on single-relational graphs, and are designed to predict future edges in one future step (i.e., for $t+1$).
+However, our work focuses on \textit{multi-relational} knowledge graphs and aims for multi-step prediction.
+
+
+
+
+
+\para{Deep Autoregressive Models.} 
+Deep autoregressive models define joint probability distributions as a product of conditionals. DeepGMG~\citep{li2018learning} and GraphRNN~\citep{you2018graphrnn} are deep generative models of graphs and focus on generating static homogeneous graphs where there is only a single type of edge. In contrast to these studies, our work focuses on generating heterogeneous graphs, in which multiple types of edges exist, and thus our problem is more challenging. 
+% Our proposed work is to design a tractable autorgressive model to generate heterogeneous graphs. 
+To the best of our knowledge, this is the first paper to formulate the structure inference (prediction) problem for temporal, multi-relational (knowledge) graphs in an autoregressive fashion. 
+

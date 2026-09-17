@@ -1,0 +1,287 @@
+\captionsetup[subtable]{position=top}
+\def\zsrex{Which continent is Berkner Island in?}
+\def\zsrey{South America}
+\def\zsrelocx{who gets the golden boot if its a tie?}
+\def\zsrelocy{shared}
+\def\zsrexx{On which continent is Berkner Island located?}
+\def\zsreyy{South America}
+
+\def\hallucx{This is a Wikipedia passage about heinz christian pander. Heinz Christian Pander (1794 - 1865) was a German anatomist and embryologist who was born in Riga, Latvia. He studied medicine at the University of Dorpat and later at the University of Berlin.}
+\def\hallucy{In 1820, he took part in a scientific expedition to Bokhara as a naturalist.}
+\def\halluclocx{Tired and restlessly, drifting in and out of sleep. Hearing crashing and banging, thinking the roof will cave in. Not alert enough to quite know what}
+\def\halluclocy{it was, I yelled loudly for whoever was making those noises at such an hour to stop. They heard and listened, I'm guessing}
+
+\def\temporalx{Self-driving cars,}
+\def\temporaly{also known as autonomous vehicles, are vehicles that are capable of navigating and operating without human intervention. These innovative vehicles rely on a combination of advanced sensors, artificial intelligence, and computer algorithms to interpret their environment and make real-time decisions. With the potential to significantly impact numerous industries and sectors, self-driving cars have the ability to revolutionize transportation by enhancing safety, improving traffic flow, and increasing energy efficiency. However, challenges related to regulatory frameworks, ethical considerations, and public acceptance still need to be addressed before widespread adoption becomes a reality.}
+\def\temporallocx{Apple has a new peach with the release of its 3.0GHz, 8-core Intel Xeon-based Mac Pro. The 8-core Mac Pro is powered bu two quad-core Intel Xeon \"Clov}
+\def\temporallocy{ertown\" processors running at 3.0GHz. Apple also released a quad-core Mac Pro featuring two Dual-Core Intel Xeon \"Woodcrest\" processors.}
+\def\temporalyy{also known as autonomous cars or driverless cars, are vehicles capable of traveling without human input. These cars utilize a range of sensors, including optical and thermographic cameras, radar, lidar, ultrasound/sonar, GPS, odometry, and inertial measurement units, to perceive their surroundings. By interpreting sensory information, control systems in the car are able to create a three-dimensional model of its environment. Using this model, the car can then identify the best navigation path and develop strategies for managing traffic controls and obstacles. As self-driving car technology continues to advance, it is expected to have a significant impact on various fields such as the automotive industry, health, welfare, urban planning, traffic, insurance, and the labor market. The regulation of autonomous vehicles is also becoming an increasingly important topic of discussion.}
+
+\section{Implementation Details}\label{app_sec:implem_details}
+\subsection{Description of Datasets}\label{app_subsec:data_description}
+
+
+\begin{table}[!htbp]
+\vspace{-11pt}
+    \caption{Bolded text refers to the edit labels $\mathbf{y}_e$. Locality example $\mathbf{x}_{\text{loc}}$ is an unrelated query.}
+    \subfloat[\textbf{ZsRE, question-answering} editing dataset example. ]{
+        \centering
+        \begin{tabular}{l@{\hspace{5pt}}p{2.8cm}}
+            \toprule
+            $\mathbf{x}_e, \mathbf{y}_e$ & \zsrex~\textbf{\zsrey} \\
+            \cmidrule{2-2}
+            $\mathbf{x}_{\text{loc}}$ & \zsrelocx ~ \textbf{\zsrelocy} \\
+            \cmidrule{2-2}
+            $\mathbf{x}'_e, \mathbf{y}_e$ & \zsrexx~\textbf{\zsreyy} \\
+            \bottomrule
+            \\
+            \\
+        \end{tabular}
+    }\hfill
+    \subfloat[\textbf{Hallucination} editing dataset example. In the original data \cite{grace}, there is no paraphrase $x_{e'}$ so the measurement of Gen. metric is ignored here.]{
+        \centering
+        \begin{tabular}{l@{\hspace{5pt}}p{7.9cm}}
+            \toprule
+            $\mathbf{x}_e, \mathbf{y}_e$ & \hallucx~\textbf{\hallucy} \\
+            \cmidrule{2-2}
+            $\mathbf{x}_{\text{loc}}$ & \halluclocx ~ \halluclocy \\
+            \bottomrule
+        \end{tabular}
+    }
+    \label{tab:dataset-example}
+    \vspace{-13pt}
+\end{table}
+
+
+\paragraph{ZsRE}
+The ZsRE question-answering task \cite{zsre} is extensively studied within the model editing literature \cite{rome, memit, mend, malmen, t-patcher}, where each record contains an editing statement $\mathbf{x}_e$, a paraphrase prompt $\mathbf{x}'_e$, and a locality prompt $\mathbf{x}_{\text{loc}}$.
+We use the same train/test split as \cite{mend} (163196/19086).
+Notably, only MEND requires fitting a hypernetwork on the training set; other methods discard the training set and perform edits and evaluations on the test set. 
+In practice, we randomly sample 1K and 3K records from the test set to form the edit sets in Section \ref{subsec: main_results} and \ref{subsec: scaling2_3K}.
+
+\paragraph{Hallucination}
+\begin{wrapfigure}{r}{0.4\columnwidth}
+    \centering
+    \vspace{-13pt}
+    \includegraphics[width=0.4\textwidth]{img/halluc_length_range.pdf}
+    \vspace{-17pt}%
+    \caption{Hallucination length statistics.}
+    \label{fig:halluc_length}
+    \vspace{-13pt}%
+\end{wrapfigure}
+We utilize the same dataset as GRACE, SelfCheckGPT \cite{selfcheckgpt}, to assess the ability of Model Editors to mitigate hallucinations in autoregressive LMs.
+This setting involves editing highly inaccurate sentences (sourced from GPT-3 \cite{gpt-3}) and replacing them with corresponding sentences from actual Wikipedia entries.
+This dataset aligns more closely with real-world deployment scenarios where models trigger "unexpected behaviors," and the token length of edits is significantly longer than in past datasets, making it a more challenging editing setting.
+Unlike GRACE, which used GPT2-XL (1.5B) \cite{gpt-2}, our main experiments deploy larger LLMs, LLaMA and Mistral, both with 7B parameters, we measure retention of pretraining data ($\mathbf{x}_{\text{loc}}$) from the base model: RedPajama \cite{redpajama}, a public version of LLaMA’s pretraining data.
+Some of the exceptionally long editing samples cannot even be accommodated on an NVIDIA A800 (80GB) due to resource limitations.
+As shown in Figure \ref{fig:halluc_length}, the original dataset provided by GRACE, after tokenization with \textsc{LlamaTokenizer}, has length distributions ranging from [17,390].
+The dimension of a single MLP layer in \texttt{llama-2-7b-hf} is (11008, 4096) \footnote{\url{https://huggingface.co/meta-llama/Llama-2-7b-hf}}.
+Theoretically, fine-tuning an input of length 390 with default full precision and the Adam optimizer would require (390+4+4+4) * (11008 * 4096 * 4) + 4 * 7B = \textbf{100.36GB} of VRAM (for activations, gradients, first-order, and second-order optimizers), exceeding the memory capacity of the NVIDIA A800.
+Consequently, we excluded excessively long samples (limiting tokenized lengths to 254) and ultimately retained 906 editing instances (compared to 1392 in GRACE).
+To facilitate a fair comparison with MEND, we specifically allocated a training set for MEND, with a final train/test split of 306/600.
+All methods were edited and evaluated on the test set.\looseness=-1
+
+\paragraph{Temporal}
+\cite{canonical_examples} sources the prefix $\mathbf{x}_e$ from the first paragraph of an entity's Wikipedia page and samples a paragraph $\mathbf{y}_e$ discussed by GPT-4 \cite{gpt4} about the emerging entity $\mathbf{x}_e$, which is usually noisy but may contain helpful information.
+These are presented as editing prompts to Model Editors.
+For out-of-distribution (OOD) generalization to complex natural contexts (not fitted), $\mathbf{y}_{\text{ood}}$ is taken from the actual Wikipedia suffix of $\mathbf{x}_e$.
+This setup is utilized to evaluate the OOD generalization of Model Editors centered around a single canonical example.
+Consistent with previous work \cite{grace}, the out-of-scope data $\mathbf{x}_{\text{loc}}$ is derived from the Pile \cite{pile}, the pretraining corpus of GPT-J-6B.
+Examples from the dataset can be seen in Table \ref{tab:temporal-example}. 
+To measure the OOD generalization of editing methods for emerging entities, we perform model editing using standardized simple examples and then evaluate this behavior on more complex instances.
+Following \cite{canonical_examples}, in a natural setting, no single correct continuation exists.
+Thus, we also use probability threshold-based evaluations, such as 80\%, where the editing success rate evaluates whether the loss $L_{\mathbf{x}_e, \mathbf{y}_{\text{ood}}}$ for an example falls below $\delta = - \text{log} (0.8)$, as indicated in the formula below.
+The intuition behind this is that many other plausible alternative continuations may exist.\looseness=-1
+
+\begin{equation}\label{equ:temporal_es}
+    \vspace{-5pt}
+    \text{OOD Gen.}  = \frac{1}{T}\sum\limits_{t=1}^{T} \mathbbm{1}\{(L_{\Theta_{T}}(\mathbf{x}_e, \mathbf{y}_{\text{ood}}) < \delta)\}.
+\end{equation}
+
+\begin{table}
+    \centering
+    \caption{\textbf{Temporal} OOD dataset example. Bolded text refers to the edit labels $\mathbf{y}_e$ and $\mathbf{y}_{\text{ood}}$.}
+    \vspace{4pt}
+    \begin{tabular}{p{1cm}p{12.3cm}}
+        \toprule
+        $\mathbf{x}_e, \mathbf{y}_e$ & \temporalx~\textbf{\temporaly} \\
+        \cmidrule{2-2}
+        $\mathbf{x}_{\text{loc}}$ & \temporallocx ~\temporallocy \\
+        \cmidrule{2-2}
+        $\mathbf{x}_e, \mathbf{y}_{\text{ood}}$ & \temporalx~\textbf{\temporalyy} \\
+        \bottomrule
+    \end{tabular}
+    \label{tab:temporal-example}
+    \vspace{-11pt}
+\end{table}
+
+\subsection{Descriptions of Compared Model Editors}\label{baselines}
+\textbf{FT-L.} ~
+All other layers of the LLMs remain frozen, and only a single MLP layer is fine-tuned through autoregressive loss \cite{rome}. 
+Additionally, we impose an $\text{L}_{\infty}$ norm constraint to prevent the parameters from deviating too far from the pretrained distribution.
+
+\textbf{FT-EWC.} ~
+Elastic Weight Consolidation (EWC) has been demonstrated to mitigate catastrophic forgetting by updating weights using a Fisher information matrix, which is computed from past edits, multiplied by a scaling factor $\lambda$ \cite{ewc}.
+Following \cite{grace}, we omit the constraints of the $\text{L}_{\infty}$ norm in this implementation.
+
+\textbf{MEND.} ~
+MEND \cite{mend} transforms the gradients obtained from standard fine-tuning using a hypernetwork that converts gradients decomposed into low rank (rank=1) into new gradients, which are then applied to the target layer for parameter updates.
+During the training phase, a small auxiliary hypernetwork receives editing examples $(\mathbf{x}_e, \mathbf{y}_e)$, and $\mathbf{x}_{\text{loc}}$.
+MEND's training loss comprises the standard autoregressive loss combined with the KL divergence loss of the model's output on $\mathbf{x}_{\text{loc}}$ before and after editing.
+This hypernetwork plays a crucial role during the editing procedure.
+
+\textbf{ROME.} ~
+ROME \cite{rome} uses causal analysis to pinpoint knowledge within specific MLP layers and modifies the entire matrix through least squares approximation.
+It operates under the strong assumption that the MLP is the primary module for storing knowledge \cite{geva-etal-2021-transformer}, and it injects a single piece of knowledge into the MLP at each iteration using a Lagrangian remainder.
+
+\textbf{MEMIT.} ~
+Similarly, based on the assumption that the FFN serves as a knowledge key-value store, MEMIT \cite{memit} manipulates parameters of specific layers directly through least squares approximation.
+Unlike ROME, which updates a single layer, MEMIT is a multi-layer updating algorithm that supports simultaneous updates of hundreds or thousands of facts.
+For sequential model editing tasks, MEMIT requires immediate on-the-fly repairs when the model makes errors, expressed as $f_{\Theta_{T}} = {\rm MEMIT}(f_{\Theta_{T-1}}, \mathbf{x}_T, \mathbf{y}_T),$ involving multiple operations on the original model.
+
+\textbf{MEMIT-MASS.} ~
+Unlike sequential editing, MEMIT supports modification of multiple knowledge fragments in a batch mode, named \textbf{MEMIT-MASS}.
+Suppose we collect streaming errors as $(\mathcal{X}, \mathcal{Y}) = \{(\mathbf{x}_0, \mathbf{y}_0), (\mathbf{x}_1, \mathbf{y}_1), ..., (\mathbf{x}_T, \mathbf{y}_T)\}$ and inject them collectively into the MLP, it only involves a single editing operation on the original model as $f_{\Theta_{T}} = {\rm MEMIT}(f_{\Theta_{0}}, \mathcal{X}, \mathcal{Y}).$
+Although this approach \textbf{loses the capability for on-the-fly repairs}, we still include this baseline in our experiments.
+
+\textbf{DEFER.} ~
+In GRACE, a reimplementation of SERAC \cite{serac} is utilized, denoted as DEFER.
+For new inputs, DEFER includes a network $g$ (corresponding to the \textit{scope classifier} in SERAC) that predicts whether to: 1) trust the prediction of the LLMs, or 2) trust the prediction of the new model.
+Here, the new model is configured as a single-layer linear network $o$ with a sigmoid activation function, corresponding to the \textit{counterfactual model} in SERAC.
+During the editing process, $g$ and $o$ are fine-tuned jointly.
+
+\textbf{GRACE.} ~
+GRACE \cite{grace} utilizes a discrete KEY-VALUE codebook and maintains the codebook throughout the editing flow by adding, expanding, and splitting KEYs.
+During the inference phase, it retrieves the nearest KEY and determines whether to replace the activation of the hidden layer output.
+
+\subsection{Training Details and Hyperparameters} \label{app_sec: training_details}
+Except for MEMIT-MASS, the batch size for all methods is consistently 1 in sequential editing scenarios.
+All experiments are conducted using 3 NVIDIA A800 GPUs, with all tasks reproducible on a single A800.
+Editing ZsRE takes approximately 4 hours, while Hallucination requires around 6 hours.
+To ensure fair comparisons, unless otherwise specified (for some methods like MEND, ROME, and MEMIT, we follow the original literature by selecting the last few layers or using causal analysis to identify the target layers), the default target layers for editing on \texttt{LLaMA}, \texttt{Mistral}, and \texttt{GPT-J} are \texttt{model.layers[27].mlp.down\_proj.weight}, \texttt{model.layers[27].mlp.down\_proj.weight}, and \texttt{transformer.h[21].mlp.c\_fc}, respectively.
+
+For FT-L, we utilize a reimplementation from ROME \footnote{\url{https://github.com/kmeng01/rome}}, employing the Adam \cite{adam} optimizer with consideration of learning rates at 1e-5, 1e-4, and 5e-4, and conducting gradient descents for 50 iterations, ultimately reporting the best results at a learning rate of 5e-4.
+
+For FT-EWC, we follow the reimplementation in GRACE and its default settings, setting the learning rate at 1e-2, the $ \lambda_{\text{ewc}} $ penalty factor at 0.1, and the number of replay instances at 10.
+
+\begin{figure}[!htbp]
+    \begin{minipage}{1.0\linewidth}\centering
+         % \vspace{-0.2cm}
+    \centering
+    \includegraphics[width=0.48\linewidth]{img/llama-causal-trace-no-attn-mlp.pdf}
+    \includegraphics[width=0.48\linewidth]{img/mistral-causal-trace-no-attn-mlp.pdf}
+    % \vspace{-13pt}%
+    \caption{Mid-layer MLPs play a crucial mediating role in \texttt{LLaMA-2-7B} and \texttt{Mistral-7B}.}
+    % \vspace{-13pt}%
+    \label{fig:causal_analysis}
+    \end{minipage}
+\end{figure}
+For the training phase of MEND, we adhere to the original paper, setting the learning rate at 1e-4, iterating 100K times, and employing early stopping at 30K, ultimately achieving an accuracy of 0.95 on the training set.
+Notably, we target the last few MLP layers as per the original literature, such as \texttt{model.layers[i].mlp.down\_proj.weight}, \texttt{model.layers[i].mlp.gate\_proj.weight}, \texttt{model.layers[i].mlp.up\_proj.weight} in LLaMA, where $i \in [29, 30, 31]$.
+
+For ROME and MEMIT, we follow the original literature on GPT-J using the default configurations, specifically the fifth layer and layers [3,4,5,6,7,8].
+In LLaMA and Mistral, additional causal analysis is conducted to pinpoint the layers storing knowledge. As shown in Figure \ref{fig:causal_analysis}, an increasing trend in the Average Indirect Effect of the MLP is observed across layers [4,5,6,7,8], suggesting that the model recalls factual knowledge here and passes the matured token distribution via residual connections to the last MLP.
+Thus, in LLaMA and Mistral, ROME edits the fifth layer, while MEMIT edits layers [4,5,6,7,8].
+
+\begin{wraptable}{r}{0.35\textwidth}
+  \centering
+  \vspace{-0.4cm}
+  \arrayrulecolor{black}
+  \caption{WISE hyper-parameters during editing and merging.}
+  \vspace{5pt}
+  \resizebox{0.35\textwidth}{!}{
+    \begin{tabular}{lr}
+    \toprule
+    Hyper-Parameters & Values \\
+    \midrule
+    Optimizer & \textsc{SGD} \\
+    LR $\eta$ & $1.0$ \\
+    Mask Ratio $\rho$ & $0.2$ \\
+    $\alpha$ & $5.0$ \\
+    $\beta$ & $20.0$ \\
+    $\gamma$ & $10.0$ \\
+    \midrule
+    Merge Weights $\lambda$ & $0.5$ \\
+    Knowledge shards $k$ & $2$ \\
+    \bottomrule
+    \vspace{-25pt}
+    \end{tabular}}
+  \label{tab:wise-hyper}%
+\end{wraptable}
+For DEFER, the original literature uses a learning rate of 1.0; however, we found it unfit for LLaMA and Mistral, with severe fluctuations in model loss.
+Therefore, we experiment with learning rates of 7e-5, 7e-4, and 1e-3, and ultimately report using 7e-5 (optimal).
+
+For GRACE, we strictly follow the original literature, setting the learning rate at 1.0, and using \texttt{replace\_last} to only replace the activation of the last token in autoregressive scenarios.
+After observing failures in generalization, we adjust various $ \epsilon_{\text{init}} $ values and discuss this more in Appendix \ref{subsec: grace_generalization_analysis}.
+
+For WISE, the hyperparameters for the QA and Hallucination tasks are identical.
+We find that a learning rate of 1.0 with the SGD \cite{sgd} optimizer is a good approach for stable training.
+The hyperparameters designed in the knowledge editing phase include the random masking probability $ \rho $ and the routing threshold guidance $ \alpha, \beta, \gamma $.
+In the knowledge merging phase, hyperparameters include the number of merges $ k $ and the merging weights $ \lambda $ for each MLP (we discuss the impact of $ \rho $ and $ k $ in Section \ref{subsec: further_analysis}).
+Theoretically, as the importance of knowledge in any MLP is considerable, we always average with $ \lambda = 1 / k $ across all experiments. These are shown in Table \ref{tab:wise-hyper}.
+
+\subsection{Pseudo Code of WISE}
+The pseudo-code of the WISE editing stage is in Algorithm~\ref{alg:wise_editing}, and the one of the WISE inference stage is Algorithm~\ref{alg:wise_inference}.
+
+\begin{algorithm}[h]
+\vspace{-3pt}
+\caption{WISE Editing Stage}
+\label{alg:wise_editing}
+\vspace{0.1CM}
+\textbf{Input}: The initial LLM model $f_{\Theta_0}$, the targeted FFN layer, the edit dataset $\mathcal{D}_{\text{edit}}$ whose length is $T$, the irrelevant dataset $\mathcal{D}_{\text{irr}}$, the subspace mask ratio $\rho$, the number of subspaces $k$, whether WISE-Retrieve.\\
+\textbf{Output}: The final LLM model $f_{\Theta_T}$ after $T$ edits.
+\begin{algorithmic}[1] %[1] enables line numbers
+\STATE Generate $k$ random masks $\mathbf{M}_i, i \in [k]$ of ratio $\rho$; if WISE-Retrieve, copy the side memory several times;
+\FOR{each edit $(\mathbf{x}_t, \mathbf{y}_t) \in \mathcal{D}_{\text{edit}}, t \in [T]$}
+        \STATE Edit $(\mathbf{x}_t, \mathbf{y}_t)$ in the corresponding memory subspace by $L_{\text{edit}} = -\log P_{W_{v'}}(\mathbf{y}_t | \mathbf{x}_t) + L_a$;
+        % \STATE Train the activation routing $\Delta_{\text{act}}$ according to Equation~\ref{equ:routing_loss} and update the threshold $\epsilon$;
+        \STATE Update the activation threshold: $\epsilon = \min(\epsilon, \Delta_{\text{act}}(\mathbf{x}_t))$;
+        \IF{All the $k$ subspaces of a side memory are full}
+            \STATE Use Ties-Merge in Equation~\ref{equ:ties_update} to update the final side memory;
+            \IF{WISE-Retrieve}
+                \STATE Move to another copy of side memory $\mathbf{W}_{v'}$;
+            \ENDIF
+        \ELSE
+            \IF{Current subspace $\mathbf{M}_i$ is full}
+                \STATE Move to another subspace of side memory $\mathbf{M}_{i+1}$;
+            \ENDIF
+        \ENDIF
+    \ENDFOR
+\STATE \textbf{return} Obtain the final LLM model $f_{\Theta_T}$.
+\end{algorithmic}
+\end{algorithm}
+\vspace{-9pt}
+
+
+\begin{algorithm}[h]
+\caption{WISE Inference Stage}
+\label{alg:wise_inference}
+\textbf{Input}: The edited LLM model $f_{\Theta_T}$, the activation threshold $\epsilon$, the test dataset $\mathcal{D}_{\text{test}}$, whether WISE-Retrieve.\\
+\textbf{Output}: The model's output.
+\begin{algorithmic}[1] %[1] enables line numbers
+\FOR{each query $\mathbf{x}_i \in \mathcal{D}_{\text{test}}$}
+        \IF{WISE-Retrieve}
+            \STATE Get the value of activation $\Delta_{\text{act}} = \Vert \mathcal{A}(\mathbf{x}_i) \cdot (\mathbf{W}_{v'} - \mathbf{W}_v) \Vert_2$ for each side memory and select the one with the maximal value of $\Delta_{\text{act}}$;
+            \ELSE 
+                \STATE Get the value of activation $\Delta_{\text{act}} = \Vert \mathcal{A}(\mathbf{x}_i) \cdot (\mathbf{W}_{v'} - \mathbf{W}_v) \Vert_2$;
+        \ENDIF
+        \IF{$\Delta_{\text{act}} > \epsilon$}
+            \STATE Use the side memory $\mathbf{W}_{v'}$ to generate the output as in Equation~\ref{equ:ffn_out};
+        \ELSE
+            \STATE Use the main memory $\mathbf{W}_{v}$ to generate the output as in Equation~\ref{equ:ffn_out}.
+        \ENDIF
+    \ENDFOR
+\end{algorithmic}
+\end{algorithm}
+
+
+% \subsection{Additional Dataset}
+% \paragraph{Measure editing OOD capabilities on Temporal} \label{temporal_metric}
+
+% \begin{figure}[t]
+%     \centering
+%     \includegraphics[width=1.0\linewidth]{img/temporal_editing_example.pdf}
+%     \caption{Given simple examples of model editing, we evaluate editing performance in more complex and natural settings (\textsc{OOD Prompt}). The Loc data is sampled from the pretraining corpus.}
+%     \label{fig:temporal_example}
+% \end{figure}
+

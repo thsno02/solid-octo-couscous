@@ -1,0 +1,150 @@
+\section{Evaluating Automatic Corpus-Level Inconsistency Detectors using \dataset}
+\label{sec:experiment}
+With the dataset annotated, we evaluate multiple automated systems for \task.
+
+\subsection{Evaluated Systems}
+
+\textbf{\system.} We evaluate \system directly against the human-corrected labels.
+
+\textbf{Retrieve-and-Verify.} Following established fact-checking methodologies~\citep{thorne-etal-2018-fever}, this system separates retrieval and verification. First, relevant passages are retrieved via similarity search. Then, a verification model (a single LLM call) assesses the consistency of the fact against all retrieved evidence and outputs an inconsistency score in [0, 1]. Facts with scores above 0.5 are classified as inconsistent.
+
+\textbf{NLI Pipeline.} This system also follows a retrieve-and-verify approach but evaluates each retrieved passage individually against the fact using an LLM-based Natural Language Inference (NLI) model. Each evidence-fact pair is classified as \refutes, \supports~or \nei. A fact is marked inconsistent if at least one passage is classified as a contradiction.
+
+\subsection{Experiment Setup}
+We experiment with GPT-4o (\texttt{gpt-4o-2024-11-20}), the 70B-parameter LLaMA-3.1~\cite{grattafiori2024llama}, and \texttt{o3-mini}~\cite{openai2025o3} as LLM backbones. For retrieval, we embed all Wikipedia passages, tables, and infoboxes using the mGTE embedding model~\cite{zhang-etal-2024-mgte}. Unless noted otherwise, all experiments use RankGPT~\citep{sun-etal-2023-chatgpt} for reranking after retrieval.
+
+The \system agent is allotted 10 steps, with 15 passages retrieved per query. For the retrieve-and-verify and NLI pipeline systems, we retrieve 20 passages per query, yielding a comparable total number of evidence items across methods for fair comparison. Ablation studies on these hyperparameters are provided in Section~\ref{sec:ablations}. Further implementation details and prompts for each system are provided in Appendix~\ref{sec:system_implementations}.
+
+\subsection{Evaluation Metrics}
+A primary use case of \task systems is flagging potential inconsistencies for human review. False positives waste human effort, while false negatives miss true inconsistencies. Therefore, we report the Area Under the Receiver Operating Characteristic curve (AUROC) as our main metric, alongside accuracy and F1.
+
+For retrieve-and-verify and \system, we vary the inconsistency score threshold to compute ROC curves. For the NLI pipeline, we vary the number of contradictory passages required to classify a fact as inconsistent.
+
+\subsection{Results}
+Table~\ref{tab:results_main} reports performance using GPT-4o as the LLM backbone on the \dataset validation and test sets. \system achieves the best validation performance across all metrics. On the test set, \system outperforms other systems in Accuracy and AUROC by at least 0.3 and 2.1 points, respectively.
+
+\begin{table}[ht!]
+\centering
+\small
+\begin{tabular}{lccc}
+    \toprule
+    \textbf{System} & \textbf{Accuracy}  & \textbf{F1} & \textbf{AUROC} \\
+    \midrule
+    \multicolumn{4}{c}{\textbf{Validation set}} \\
+    \system & \textbf{76.5} &  \textbf{67.4} & \textbf{80.9}  \\
+    Retrieve-and-verify & 73.6 & 65.2 & 78.5 \\
+    NLI-based pipeline & 74.0 & 66.5 & 78.4 \\
+    \midrule
+    \multicolumn{4}{c}{\textbf{Test set}} \\
+    \system & \textbf{69.3} & 69.6 & \textbf{75.1} \\
+    Retrieve and verify & 69.0 &  69.7 & 73.0 \\
+    NLI pipeline & 67.0 & \textbf{70.2} & 72.2 \\
+    \bottomrule
+\end{tabular}
+
+\caption{Overall performance of different systems using GPT-4o on the \dataset validation and test sets. The best score for each metric and split is shown in bold. For validation, we use a fixed threshold of 0.5. For test, thresholds are chosen to maximize validation F1: 0.6 for retrieve-and-verify, 0.5 for \system, and 1 contradictory passage for the NLI pipeline.}
+\label{tab:results_main}
+\end{table}
+
+
+
+\subsection{Error Analysis}
+
+All evaluated systems frequently conflate distinct entities that share the same name, leading to incorrect inconsistency flags.
+
+A key challenge is context-dependent false positives: systems often detect discrepancies between a fact and retrieved evidence but misunderstand cases where those discrepancies are contextually acceptable. Below we detail cases where \system superficially and incorrectly flags inconsistencies due to limited contextual understanding:
+
+\textbf{Numerical context.} Minor differences due to acceptable rounding or precision should not be flagged as inconsistent.
+
+\textbf{Language context.} Articles sometimes include non-English terms whose translated forms differ for named entities; such translation variants should not be treated as inconsistencies. For example, the Japanese album title ``DoriMusu 1'' and its English equivalent ``Dreams 1'' are acceptable variants of the same entity name.
+
+\textbf{Temporal context.} The system sometimes compares facts from different time periods and incorrectly flags inconsistencies when atomic facts lack explicit temporal qualifiers.
+
+\begin{table}[ht!]
+\centering
+\small
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{lllll}
+    \toprule
+    \textbf{System} & \textbf{RR} & \textbf{Acc.} & \textbf{F1} & \textbf{AUROC} \\
+    \midrule
+    Retrieve+verify & \xmark & 71.9 & 62.8 & 76.5  \\
+    ~ & \cmark & 73.6 \textcolor{ForestGreen}{\tiny(+1.7)}& 65.2 \textcolor{ForestGreen}{\tiny(+2.4)} & 78.5 \textcolor{ForestGreen}{\tiny(+2.0)} \\
+    \system & \xmark & 74.6 & 64.9 & 78.1  \\
+    ~ & \cmark & 76.5 \textcolor{ForestGreen}{\tiny(+1.9)}& 67.4 \textcolor{ForestGreen}{\tiny(+2.5)} & 80.9 \textcolor{ForestGreen}{\tiny(+2.8)}  \\
+    \bottomrule
+\end{tabular}
+\caption{Ablation study showing the impact of reranking (RR) on system performance using GPT-4o on the \dataset validation set. Green values indicate improvements when reranking is applied. All systems use the same configurations as in Table~\ref{tab:results_main}.}
+\label{tab:reranker_ablation}
+\end{table}
+    
+\textbf{Perspective and belief context.} The system occasionally fails to distinguish differences in viewpoint, belief versus truth, or intention versus action. For example, it may incorrectly flag ``Alice believes Earth is flat'' as inconsistent with ``Bob believes Earth is round.''
+
+\textbf{Legitimate variation in scholarly interpretation.} Apparent contradictions about historical events or scientific classifications may reflect evolving consensus rather than true inconsistencies.
+
+
+
+\subsection{Ablation Studies}
+\label{sec:ablations}
+
+\textbf{Impact of tools available to the \system agent.}
+Figure~\ref{fig:ablation_react_tools} shows that the agent achieves the highest F1 when using both \action{explain} and \action{clarify}.
+
+\begin{figure*}[ht!]
+    \centering
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=0.8\textwidth]{assets/ablation_study_react.pdf}
+        \caption{Ablation of tools available to the \system agent (GPT-4o) on the \dataset validation set. ReAct + Clarify and ReAct + Explain denote the ReAct agent with only one tool enabled.}
+        \label{fig:ablation_react_tools}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=0.8\textwidth]{assets/ablation_study_react_heatmap.pdf}
+        \caption{Ablation of retrieval hyperparameters for \system. Heatmap of AUROC as the number of steps and retrieved documents vary on the \dataset validation set.}
+        \label{fig:ablation_react_heatmap}
+    \end{minipage}
+\end{figure*}
+
+\textbf{Impact of hyperparameters.} We vary (1) the number of thought-action-observation steps and (2) the number of documents returned per query. Figure~\ref{fig:ablation_react_heatmap} shows that \system generally performs better with more retrieved documents, but the effect is within 3\%.
+
+\textbf{Impact of reranking in retrieval.} 
+Embedding-based retrieval may miss deeper semantic relations. Adding a context-aware reranker prioritizes semantically relevant documents. As shown in Table~\ref{tab:reranker_ablation}, RankGPT reranking consistently improves all systems and metrics.
+
+
+
+\begin{table}[ht!]
+\centering
+\small
+\begin{tabular}{l@{\hspace{6pt}}l@{\hspace{4pt}}c@{\hspace{4pt}}c@{\hspace{4pt}}c}
+
+    \toprule
+    \textbf{System} & \textbf{Model} & \textbf{Accuracy} & \textbf{F1} & \textbf{AUROC} \\
+    \midrule
+    \multirow{3}{*}{\shortstack[l]{Retrieve\\and \\Verify}}  & GPT-4o & 73.6 &  65.2 & 78.5  \\
+    & o3-mini & 75.7 &  65.7 & 77.0 \\
+    & Llama-3.1-70B & 67.9 & 52.3 & 70.9 \\
+    \midrule
+   
+    \multirow{3}{*}{\shortstack[l]{NLI \\Pipeline}} & GPT-4o & 74.0 & 66.5 & 78.4  \\
+    & o3-mini & 65.4 & 59.5 & 77.0 \\
+    & Llama-3.1-70B & 63.1 & 53.9 & 65.6 \\
+
+    \midrule
+    \multirow{3}{*}{\shortstack[l]{\system\\(ours)}}  & GPT-4o & \textbf{76.5} & \textbf{67.4} & \textbf{80.9} \\
+    & o3-mini & 76.3  & 54.6 & 68.1 \\
+    & Llama-3.1-70B & 69.0 & 43.9 & 69.5 \\
+    \bottomrule
+\end{tabular}
+\caption{Ablation study of different LLMs on the \dataset validation set. The best score for each metric is shown in bold.}
+\label{tab:ablation_model}
+\end{table}
+
+\textbf{Impact of the LLM used.}
+We compare GPT-4o, o3-mini (medium reasoning), and Llama-3.1-70B on the validation set. As shown in Table~\ref{tab:ablation_model}, GPT-4o consistently achieves the highest scores. o3-mini is competitive, with generally higher precision; however, using the same prompt, it rarely outputs inconsistency scores in the intermediate range (0.1--0.9), instead clustering at extremes. Llama-3.1-70B underperforms relative to the other two.
+
+
+
+
+

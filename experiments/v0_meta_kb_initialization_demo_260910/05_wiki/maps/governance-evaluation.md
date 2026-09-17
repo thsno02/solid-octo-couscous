@@ -1,0 +1,225 @@
+---
+uid: wiki-page:map-governance-evaluation
+title: Governance Evaluation
+slug: maps/governance-evaluation
+page_type: map
+status: review
+summary: Routing map for governance evaluation sources, questions, and claims.
+aliases: []
+ontology_refs:
+- experiment:meta-kb-v0
+claim_refs:
+- claim:17c715b34b0f0c68
+- claim:4bf5ea8e6b4e37de
+- claim:4fd96c70e0c625fd
+- claim:84c91602bd1dfb78
+- claim:bde139a533f9483a
+- claim:ecdd2719fa55751c
+source_refs: &id001
+- arxiv:2602.06855
+- arxiv:2502.14499
+- arxiv:2406.06769
+page_refs:
+- wiki-page:source-a264f295a5ce5604
+- wiki-page:source-3dda2384308efbda
+- wiki-page:source-18c791741aa4bcd7
+- wiki-page:v0-quality-gates
+- wiki-page:automation-vs-editorial-review
+outgoing_links:
+- target: wiki-page:source-a264f295a5ce5604
+  relation: explains
+  claim_refs:
+  - claim:ecdd2719fa55751c
+  - claim:17c715b34b0f0c68
+  notes: null
+- target: wiki-page:source-3dda2384308efbda
+  relation: explains
+  claim_refs:
+  - claim:4bf5ea8e6b4e37de
+  - claim:4fd96c70e0c625fd
+  notes: null
+- target: wiki-page:source-18c791741aa4bcd7
+  relation: explains
+  claim_refs:
+  - claim:84c91602bd1dfb78
+  - claim:bde139a533f9483a
+  notes: null
+- target: wiki-page:v0-quality-gates
+  relation: related
+  claim_refs:
+  - claim:17c715b34b0f0c68
+  - claim:4bf5ea8e6b4e37de
+  - claim:4fd96c70e0c625fd
+  - claim:84c91602bd1dfb78
+  - claim:bde139a533f9483a
+  - claim:ecdd2719fa55751c
+  notes: null
+- target: wiki-page:automation-vs-editorial-review
+  relation: related
+  claim_refs:
+  - claim:17c715b34b0f0c68
+  - claim:4bf5ea8e6b4e37de
+  - claim:4fd96c70e0c625fd
+  - claim:84c91602bd1dfb78
+  - claim:bde139a533f9483a
+  - claim:ecdd2719fa55751c
+  notes: null
+sections:
+- heading: Source coverage
+  claim_refs: []
+  source_refs: *id001
+  editorial_intent: Route by source family.
+- heading: Source-reported signals
+  claim_refs:
+  - claim:4bf5ea8e6b4e37de
+  - claim:84c91602bd1dfb78
+  - claim:ecdd2719fa55751c
+  source_refs:
+  - arxiv:2502.14499
+  - arxiv:2406.06769
+  - arxiv:2602.06855
+  editorial_intent: Preserve source-authored scope.
+- heading: Collector assessments
+  claim_refs:
+  - claim:17c715b34b0f0c68
+  - claim:4fd96c70e0c625fd
+  - claim:bde139a533f9483a
+  source_refs:
+  - arxiv:2602.06855
+  - arxiv:2502.14499
+  - arxiv:2406.06769
+  editorial_intent: Preserve collector scope.
+temporal:
+  created_at: '2026-09-16T04:30:26Z'
+  updated_at: '2026-09-16T04:30:26Z'
+  valid_from: null
+  valid_to: null
+  as_of: '2026-09-16T04:30:26Z'
+provenance:
+  build_id: build:llm-wiki-v0:7825e3978fb6a0ee
+  generated_by_agent: pipeline/build_llm_wiki.py
+  generated_by_model: null
+  prompt_or_skill_version: deterministic-llm-wiki-v0.2
+  compiled_from_revisions:
+  - arxiv:2602.06855@sha256:ac1ba940f1bdc54e012cc384c428f78bd01d50d7a947f052117944c03e790d9a
+  - arxiv:2502.14499@sha256:de8bc15be762914dd2f056f00efe2b83d51ce852a7035d65e866e6cdecbbb65a
+  - arxiv:2406.06769@sha256:28793ae05bbb22ed6e02fbdceb697a2b9ea8ebff6932c4dd8fb5b70bba5dde91
+  created_at: '2026-09-16T04:30:26Z'
+  updated_at: '2026-09-16T04:30:26Z'
+  manual_edits_preserved: false
+review:
+  state: needs_human
+  reviewers: []
+  decision_ref: null
+  checked_claim_refs: []
+  unresolved_issues:
+  - Scientific, semantic, neutrality, and due-weight review remain required before publication.
+freshness:
+  status: fresh
+  checked_at: '2026-09-16T04:30:26Z'
+  max_age_days: 30
+  source_dependencies: *id001
+  staleness_reasons: []
+consumption:
+  audiences:
+  - human
+  - agent
+  summary_tiers:
+    one_line: Routing map for governance evaluation sources, questions, and claims.
+    short: Routing map for governance evaluation sources, questions, and claims.
+    full: null
+  estimated_tokens: 854
+  machine_entry_points:
+  - ../../04_claims/claims.jsonl
+  - ../../03_evidence/evidence.jsonl
+  - ../catalog/pages.jsonl
+rendered_claim_refs:
+- claim:17c715b34b0f0c68
+- claim:4bf5ea8e6b4e37de
+- claim:4fd96c70e0c625fd
+- claim:84c91602bd1dfb78
+- claim:bde139a533f9483a
+- claim:ecdd2719fa55751c
+rights_refs:
+- source_uid: arxiv:2406.06769
+  source_revision: sha256:28793ae05bbb22ed6e02fbdceb697a2b9ea8ebff6932c4dd8fb5b70bba5dde91
+  source_version_url: https://arxiv.org/pdf/2406.06769v2
+  license_spdx: CC-BY-SA-4.0
+  license_url: https://creativecommons.org/licenses/by-sa/4.0/
+  notice_path: raw_data/licenses/p3-pdf-02-discoveryworld-v2.md
+  package_path: materialized_sources/corpus/arxiv-2406.06769--d1971e3b/manifest.yaml#pdf_supplement.rights.redistribution_package
+  usage: rendered_source_claims
+  transformation: The listed source-authored claim excerpts are rendered inside a mixed, compiler-generated page.
+  claim_refs:
+  - claim:84c91602bd1dfb78
+rights_unavailable_source_refs:
+- arxiv:2502.14499
+- arxiv:2602.06855
+---
+
+# Governance Evaluation
+
+Admission, factuality, review, rollback, and policy controls.
+
+## Routing questions
+
+- What evidence is sufficient for admission?
+- How are citation and factual precision measured?
+- Which changes require independent review?
+
+## Source coverage
+
+| Source | Type | Tier | Claims |
+|---|---|---|---|
+| [AIRS-Bench: a Suite of Tasks for Frontier AI Research Science Agents](../sources/arxiv-2602.06855.md) | `arxiv` | `full_text` | 2 |
+| [MLGym: A New Framework and Benchmark for Advancing AI Research Agents](../sources/arxiv-2502.14499.md) | `arxiv` | `full_text` | 2 |
+| [DISCOVERYWORLD: A Virtual Environment for Developing and Evaluating Automated Scientific Discovery Agents](../sources/arxiv-2406.06769.md) | `arxiv` | `full_text` | 2 |
+
+## Source-reported signals
+
+- **MLGym: A New Framework and Benchmark for Advancing AI Research Agents** (source assertion): We introduce Meta and -Bench, a new framework and benchmark for evaluating and developing LLM agents on AI research tasks. This is the first Gym environment for machine learning (ML) tasks, enabling research on reinforcement learning (RL) algorithms for training such agents. 〔[claim:4bf5ea8e6b4e37de](../claims/claim-4bf5ea8e6b4e37de.md)〕
+- **DISCOVERYWORLD: A Virtual Environment for Developing and Evaluating Automated Scientific Discovery Agents** (source assertion): Automated scientific discovery promises to accelerate progress across scientific domains. However, developing and evaluating an AI agent’s capacity for end- to-end scientific reasoning is challenging as running real-world experiments is often prohibitively expensive or infeasible. 〔[claim:84c91602bd1dfb78](../claims/claim-84c91602bd1dfb78.md)〕
+- **AIRS-Bench: a Suite of Tasks for Frontier AI Research Science Agents** (source assertion): LLM agents hold significant promise for advancing scientific research. To accelerate this progress, we introduce ~(the AI Research Science Benchmark), a suite of 20 tasks sourced from state-of-the-art machine learning papers. 〔[claim:ecdd2719fa55751c](../claims/claim-ecdd2719fa55751c.md)〕
+
+## Collector assessments
+
+- **AIRS-Bench: a Suite of Tasks for Frontier AI Research Science Agents** (collection assessment): A 2026 benchmark explicitly targeting frontier AI research-science agents across the research lifecycle, including idea generation, experimentation, analysis and iterative refinement. 〔[claim:17c715b34b0f0c68](../claims/claim-17c715b34b0f0c68.md)〕
+- **MLGym: A New Framework and Benchmark for Advancing AI Research Agents** (collection assessment): A Gym-style environment and benchmark for training/evaluating agents on open-ended ML research tasks requiring ideation, implementation, experimentation, analysis and iterative improvement. 〔[claim:4fd96c70e0c625fd](../claims/claim-4fd96c70e0c625fd.md)〕
+- **DISCOVERYWORLD: A Virtual Environment for Developing and Evaluating Automated Scientific Discovery Agents** (collection assessment): A benchmark environment for complete novel scientific discovery cycles where agents must form hypotheses, run experiments, analyze results and discover explanatory knowledge. 〔[claim:bde139a533f9483a](../claims/claim-bde139a533f9483a.md)〕
+
+## Current synthesis boundary
+
+The map routes candidate evidence; it does not flatten sources into consensus or resolve contradictions automatically.
+
+## Related pages
+
+- [AIRS-Bench: a Suite of Tasks for Frontier AI Research Science Agents](../sources/arxiv-2602.06855.md) — `explains`
+- [MLGym: A New Framework and Benchmark for Advancing AI Research Agents](../sources/arxiv-2502.14499.md) — `explains`
+- [DISCOVERYWORLD: A Virtual Environment for Developing and Evaluating Automated Scientific Discovery Agents](../sources/arxiv-2406.06769.md) — `explains`
+- [v0 LLM Wiki quality gates](../evaluations/v0-quality-gates.md) — `related`
+- [Automation versus editorial review](../debates/automation-editorial-review.md) — `related`
+
+## Source text rights and attribution
+
+The terms below apply only to the listed source-authored claim components. They do not relicense collector assessments, compiler synthesis, other source components, or this repository as a whole.
+
+### DISCOVERYWORLD: A Virtual Environment for Developing and Evaluating Automated Scientific Discovery Agents (`arxiv:2406.06769`)
+
+- Components: `claim:84c91602bd1dfb78`
+- Source revision: `sha256:28793ae05bbb22ed6e02fbdceb697a2b9ea8ebff6932c4dd8fb5b70bba5dde91`
+- Source version: [pinned upstream version](https://arxiv.org/pdf/2406.06769v2)
+- License: [CC-BY-SA-4.0](https://creativecommons.org/licenses/by-sa/4.0/)
+- NOTICE: [raw_data/licenses/p3-pdf-02-discoveryworld-v2.md](../../../../raw_data/licenses/p3-pdf-02-discoveryworld-v2.md)
+- Attribution: Peter Jansen; Marc-Alexandre Côté; Tushar Khot; Erin Bransom; Bhavana Dalvi Mishra; Bodhisattwa Prasad Majumder; Oyvind Tafjord; Peter Clark. "DISCOVERYWORLD: A Virtual Environment for Developing and Evaluating Automated Scientific Discovery Agents". Fixed arXiv 2406.06769v2, https://arxiv.org/abs/2406.06769v2; original PDF https://arxiv.org/pdf/2406.06769v2. Article expression the authors/submitter may license is available under CC BY-SA 4.0, https://creativecommons.org/licenses/by-sa/4.0/; full legal code https://creativecommons.org/licenses/by-sa/4.0/legalcode.en. Fixed article/PDF license checked in this batch on 2026-09-16. PDF p9 致谢与 p13 checklist 的实际信用：作者购买 CuteRPG/PixyMoon 素材并说明 attribution 要求；原论文截图中的 CuteRPG 素材归属 PixyMoon，产品页 https://pixymoon.itch.io/2d-topdown-cute-rpg-world 。本批已核该具体产品页允许 personal/commercial project use、modify/edit，要求 Credit PixyMoon，禁止 resell asset pack。科学主题增改归论文作者及 OpenAI DALL-E。完整论文内已合成截图保留这些实际信用，不提供或授权独立提取、转售或再分发底层 asset pack，不冒称 sprite 素材获得 CC BY-SA 4.0，也不把资产包条款施加到论文作者有权许可的原创 BY-SA 部分。 No endorsement or additional right to external works/models/trademarks is implied.
+- Excerpt/page transformation: The listed source-authored claim excerpts are rendered inside a mixed, compiler-generated page. 原官方 PDF 按实际下载 bytes 原样保存，不编辑或重导出；复用既有 pypdf plain 提取逐页文字，加入明确页边界并生成独立页定位；在派生 text 末尾附唯一署名、修改、范围声明及完整 NOTICE.md 链接。plain 文字保留原抽取结果，不做 OCR、不运行 TeX、论文代码或提示词，不将图形、数学排版或阅读顺序损失隐藏为完整。旧 source、normalized、default selectors、NOTICE、files、archive revision/retrieval 和旧许可包全部保留，不新增 trusted。 适用论文表达/页文字及后续改编沿 BY-SA4 同方式共享，不重许可整个仓库。
+- Scope: 仅本次从 https://arxiv.org/pdf/2406.06769v2 取得的固定 v2 官方完整 PDF（29 页，3054585 bytes）、其 plain 页文字与独立页定位器。范围为完整主文、全部附录、四幅实际科学图（p2/3/18/29），真实末尾 p29 Save failures/Windows autosave 用户数据丢失说明。作者/提交者有权许可的论文表达与本次文字派生沿作品级 CC BY-SA 4.0；PDF p9 致谢与 p13 checklist 的实际信用：作者购买 CuteRPG/PixyMoon 素材并说明 attribution 要求；原论文截图中的 CuteRPG 素材归属 PixyMoon，产品页 https://pixymoon.itch.io/2d-topdown-cute-rpg-world 。本批已核该具体产品页允许 personal/commercial project use、modify/edit，要求 Credit PixyMoon，禁止 resell asset pack。科学主题增改归论文作者及 OpenAI DALL-E。完整论文内已合成截图保留这些实际信用，不提供或授权独立提取、转售或再分发底层 asset pack，不冒称 sprite 素材获得 CC BY-SA 4.0，也不把资产包条款施加到论文作者有权许可的原创 BY-SA 部分。 论文作者有权许可的原创表达/页文字及后续改编继续 BY-SA4；具体资产边界不施于这些原创 BY-SA 部分，不整库重许可。完整 PDF 原有署名、资助、图注、引文、警告和第三方信用原样保留，不授权外部被引作品全文、模型、代码、脚本或数据，不转授商标、专利或许可者无权许可材料。PDF 原字节不编辑/重导出，plain 文字有损、不做 OCR，原件完整不等于 text extraction complete。旧 source/normalized/default selectors/NOTICE/files/archive revision/retrieval/旧组件授权包不变。
+
+### MLGym: A New Framework and Benchmark for Advancing AI Research Agents (`arxiv:2502.14499`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.
+
+### AIRS-Bench: a Suite of Tasks for Frontier AI Research Science Agents (`arxiv:2602.06855`)
+
+- Rights status: No complete redistribution package is recorded for this source. No license or permission is inferred by this compiler.
+- Excerpt note: The page identifies the component as a source-reported candidate and preserves its pinned source reference; downstream reuse must resolve rights separately.

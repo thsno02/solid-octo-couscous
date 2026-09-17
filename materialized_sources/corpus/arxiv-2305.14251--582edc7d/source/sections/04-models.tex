@@ -1,0 +1,144 @@
+
+\newcommand{\myO}{$+$}
+\newcommand{\myU}{$-$}
+\newcommand{\strongO}{\myO}
+\newcommand{\strongU}{\myU}
+
+\begin{table*}[t]
+    \center
+    % \myfontsize 
+    \footnotesize
+    \begin{tabular}{ll @{\hspace{0.2em}}
+            R{0.6cm}
+            R{1cm} @{\hspace{0.1em}} R{1cm} @{\hspace{0em}} R{0.3cm}
+            R{1cm} @{\hspace{0.1em}} R{1cm} @{\hspace{0em}} R{0.3cm}
+            R{1cm} @{\hspace{0.1em}} R{1cm} @{\hspace{0em}} R{0.3cm}
+            @{\hspace{-0.3em}} 
+            R{1.2cm}
+        }
+        \toprule
+            & \multirow{2}{*}{Evaluator} & \multirow{2}{*}{retrv} & \multicolumn{3}{c}{\textsc{subj}: InstGPT} & \multicolumn{3}{c}{\textsc{subj}: ChatGPT} & \multicolumn{3}{c}{\textsc{subj}: PPLAI} & \multirow{2}{*}{ranking} \\
+            \cmidrule(lr){4-6} \cmidrule(lr){7-9} \cmidrule(lr){10-12}
+            & & & ER & FS && ER & FS && ER & FS && \\
+        \midrule    
+            & Human &                     && 42.5 &&& 58.3 &&& 71.5 \\
+        \midrule
+            \parbox[t]{2mm}{\multirow{3}{*}{\rotatebox[origin=c]{90}{\myfontsize  Trivial}}} &
+            Always \sLabel &            & 57.5 &100.0 & \strongO & 41.7& 100.0 &\strongO& 28.5 &100.0 &\strongO & \xmark \\
+            & Always \nsLabel &           & 42.5 &0.0 &\strongU& 58.3 &0.0 & \strongU & 71.5& 0.0 &\strongU & \xmark \\
+            & Always Random &             & 7.5 &50.0 & \myO & 8.3 &50.0 &\myU& 21.5 &50.0 &\strongU & \xmark \\
+        \midrule
+            \parbox[t]{2mm}{\multirow{4}{*}{\rotatebox[origin=c]{90}{\myfontsize I-LLAMA}}} &
+            No-context LM & \xmark      & 7.1 &49.6 & \myO & 7.8 &50.5 &\myU& 34.7 &36.8 & \strongU & \xmark  \\
+            & NP & \cmark                & 14.8 &57.3 & \myO & 13.7& 72.0 &\myO& 1.4 &72.9 & & \gmark \\
+            & \rtg & \cmark               & 14.1 &56.6 & \myO & 17.1& 75.4 &\myO& \best{0.1} & 71.6 & & \xmark \\
+            & \rtg\ + NP & \cmark        & \best{1.4} &41.1 & & \best{0.4} &58.7 && 9.9 &61.6 &\myU & \gmark \\
+        \midrule
+            \parbox[t]{2mm}{\multirow{3}{*}{\rotatebox[origin=c]{90}{\myfontsize  ChatGPT}}} &
+            No-context LM & \xmark      & 39.6& 82.1 & \strongO & 31.7& 90.1& \strongO& 3.3 &74.8 & & \xmark \\
+            & \rtg & \cmark               & 5.1 &47.6 & \myO & 6.8& 65.1& \myO & 0.8& 72.3 & & \gmark \\
+            & \rtg\ + NP & \cmark        & 5.2 &37.3 &\myU& 4.7& 53.6 && 8.7 &62.8 &\myU & \gmark \\
+        \bottomrule
+    \end{tabular}
+    \caption{
+        Results on \textbf{Error Rate (ER)} along with \ours{}s estimated by each model (\textbf{FS}).
+        `{\em retrv}' indicates whether or not retrieval is being used, and
+        `{\em ranking}' \gmark\ indicates whether the ranking between three \subjectLM{}s rated by the model is consistent to the ground truth ranking.
+        \myO\ and \myU\ respectively indicate the estimation is an overestimation and an underestimation by more than 5\% in absolute.
+        \best{Red Bold} indicates the best (lowest) ER.
+        See Appendix~\ref{app:fone} for the results in other metrics that consider individual judgments instead of aggregated ones.
+    }\label{tab:validation-error-rate}
+\end{table*}
+
+
+Human evaluation of factual precision is costly (\$4 per generation)~\citep{bohnet2022attributed,krishna-etal-2023-longeval}
+because validating every atomic fact against a large knowledge source is time-consuming, and one generation contains many (26--41) atomic facts. This prevents LM developers and practitioners from evaluating the factual precision in long-form generation of a new \subjectLM{} at scale.
+In this context, we introduce a model that \textbf{estimates} \ours. This estimator takes a set of generations and automatically computes a \ours, and can be applied to any \subjectLM.
+
+We describe our model (Section~\ref{subsec:models-validation}) and demonstrate its accuracy against human evaluation (Section~\ref{subsec:models-validation-result}). % on the data from Section~\ref{sec:benchmark}.
+\ours\ estimated by our model is then used to evaluate twelve LMs (Section~\ref{sec:eval-new-lms}).
+%and to improve a system that revises the LM generations to be factually more precise (Section~\ref{sec:editing}).
+
+%We then report factual precision and their analyses of a new set of LMs in Section~\ref{sec:eval-new-lms}.
+%Finally, we show that judgments from \ours\ are effective for other tasks, e.g., they significantly improve a system that revise the LM generation to be factually more accurate (Section~\ref{sec:editing}), demonstrating promising results in an end-to-end validation \& revision of LM generations.
+
+\subsection{Model}\label{subsec:models-validation}
+
+% An estimator of \ours\ first breaks a generation into a series of atomic facts and validates each against a given knowledge source. 
+Our estimator of \ours\ first breaks a generation into a series of atomic facts and then validates each against the given knowledge source. 
+%\pw{Technically, an estimator of \ours doesn't need to do that---e.g., you could train an end-to-end model that takes in a sequence and produces a \ours, even if it might not be accurate. So just say that this is what our \estimator does.}
+We find taking atomic facts generated by InstructGPT (used in data collection in Section~\ref{subsec:data}) effective and close to human, consistent with findings from prior work~\citep{chen2022generating}.
+\pw{are there details of how this was measured? add a ref?}
+This section thus focuses on how to validate each atomic fact against a given knowledge source.
+
+The validation is based on zero-shot prompting of an LM referred to as an \textbf{\evalLM} to distinguish from an \subjectLM.
+Specifically, a {\em prompt}---whose construction methods differ across four variants---is fed into an \evalLM.
+The prediction is then made by comparing the conditional probability of \texttt{True} and \texttt{False} from the \evalLM.
+If the logit values are unavailable (e.g., commercial LMs like ChatGPT), the prediction is made based on whether the generated text contains \texttt{True} or \texttt{False}.\footnote{
+    In Appendix~\ref{app:val-abl}, we compare with an alternative prompting that generates a question and compares the answer to it and the expected answer~\citep{kryscinski2019evaluating,wang2020asking,gao2022attributed,manakul2023selfcheckgpt}.
+    We empirically find that our prompting performs better due to the lack of control over the questions being generated.
+}
+
+\noindent 
+The four variants we consider are as follows.
+
+\vspace{.3em}
+\noindent 
+\textbf{No-context LM} uses \texttt{<atomic-fact> True or False?} as a prompt, closely resembling \citet{kadavath2022language}.\footnote{In Appendix~\ref{app:val-abl}, we also compare with Self-check LM, a concurrent work from \citet{manakul2023selfcheckgpt}. We do not include it in the main paper because it has strong restrictions, e.g., requires access to the \subjectLM\ at evaluation time and cannot be applied to PerplexityAI with nondeterministic outputs. %whose outputs are nondeterministic.
+}% This closely resembles \citet{kadavath2022language} who performed model calibration in short-form question answering.
+
+
+\vspace{.3em}
+\noindent \textbf{\rtg} retrieves passages from the given knowledge source and then prompts the \evalLM. It first retrieves $k$ passages, constructs the prompt by concatenating retrieved passages, the given atomic fact, and \texttt{``True or False?''}, and feeds it to the \evalLM\ to get the prediction.
+
+\vspace{.3em}
+\noindent \textbf{Nonparametric Probability (NP)} makes a judgment based on a nonparametric likelihood. 
+It masks out each token in the atomic fact, computes its likelihood using a nonparametric masked LM~\citep{min2022nonparametric}, averages probabilities over all tokens, and makes a prediction based on thresholding.
+
+\vspace{.3em}
+\noindent \textbf{\rtg\ + NP} is an ensemble of \rtg\ and NP which assigns \sLabel\ only if both methods assign \sLabel. %; otherwise, \nsLabel.
+
+\vspace{.3em}
+We use LLAMA 7B trained on Super Natural Instructions (Inst-LLAMA, \citealp{touvron2023llama,wang2022super}) and ChatGPT as an \evalLM, and Generalizable T5-based Retrievers (GTR, \citet{ni2021large}) for passage retrieval.
+See Appendix~\ref{subsubsec:setup-validation} for more implementation details.
+
+\subsection{Evaluation of Estimators}\label{subsec:models-validation-result}
+
+\paragraph{Metrics.}
+We report \textbf{Error Rate (ER)}---the difference between the ground truth and the estimated \ours---as well as whether the estimated \ourScores\ preserve the ranking between three \subjectLM{}s.
+Appendix~\ref{app:fone} discusses results with other metrics that consider individual judgments instead of aggregated judgments.
+We use the data in Section~\ref{subsec:data} as evaluation data.
+
+\vspace{.3em}
+\noindent
+Results are reported in Table~\ref{tab:validation-error-rate}.
+
+\vspace{-.3em}
+\paragraph{Retrieval significantly helps.}
+Models that use retrieval are consistently better than No-context LM which either has a significantly high ER or does not preserve ranking between three \subjectLM{}s.
+This is likely because the \evalLM\ has not memorized every factual information about the topic entity, thus benefiting from retrieval providing factual context.
+% Self-check LM outperforms no-context LM by 4--11\%, which confirms findings from \citet{manakul2023selfcheckgpt}. However, both significantly underperform methods that use retrieval. This is in contrast to \citet{manakul2023selfcheckgpt} that reports that Self-check without retrieval achieves performance that is close to that with retrieval, likely because the data in \citet{manakul2023selfcheckgpt} contains more frequent entities.
+%
+Nonetheless, just using \rtg\ may overestimate \ours, e.g., by up to 17\% with Inst-LLAMA, when a \subjectLM{} is InstructGPT or ChatGPT.
+In this case, ensembling \rtg\ and NP reduces an error rate by a significant margin. % This is likely because \rtg\ often makes incorrect predictions when there is a strong bias from an LM or there are distracting passages, and considering nonparametric probabilities makes the model more robust to these factors. For instance, given an unsupported fact \texttt{Samuel Oboh is Nigerian}, No-context LM, Self-check LM and \rtg\ predict \sLabel\ due to a strong name-nationality bias. NPM correctly predicts \nsLabel\ based on a passage \texttt{Samuel Oboh ... is a Canadian architect, manager, ...}.
+When a \subjectLM{} is PerplexityAI, single methods (either \rtg\ or NP) give a low ER, and ensemble methods have a higher ER due to an underestimation of \ours.
+%This discrepancy between InstructGPT/ChatGPT and PerplexityAI may be due to (1) human-written text vs. model-generated text given that PerplexityAI often copies Wikipedia text or (2) a large portion of facts being \sLabel. 
+
+\vspace{-.3em}
+\paragraph{ChatGPT is not always the best.}
+% One interesting finding is that
+Our results show that ChatGPT is not necessarily better than Inst-LLAMA. We investigate this further in Appendix~\ref{app:val-abl}. In summary, ChatGPT is better at validating each individual atomic fact. However, most errors from ChatGPT are incorrectly assigning \sLabel\ to unsupported facts, overestimating \ours.
+In contrast, LLAMA+NP is not biased toward overestimation or underestimation of the factual precision, resulting in an aggregated factual precision to be closer to the ground truth.
+This is similar to the trade-off between system-level and segment-level correlations in summarization evaluation, which often produce different rankings~\citep{bhandari-etal-2020-evaluating,deutsch2021towards}.
+
+\vspace{-.3em}
+\paragraph{The best estimator depends on the \subjectLM.}
+While using retrieval is consistently better than No-context LM, the best variant of estimator depends on a \subjectLM: LLAMA+NP for InstructGPT and ChatGPT, and ChatGPT for PerplexityAI. 
+%
+Nevertheless, both evaluators give consistently correct ranking between three \subjectLM{}s, and Section~\ref{sec:eval-new-lms} show scores from two estimators are largely correlated across 10+ \subjectLM{}s (0.99 Pearson's $r$). We recommend users try both variants of our estimator when evaluating a new \subjectLM\ and report their correlation. %, and choose the evaluator that is most suitable for their downstream application. 
+
+
+
+
+
+

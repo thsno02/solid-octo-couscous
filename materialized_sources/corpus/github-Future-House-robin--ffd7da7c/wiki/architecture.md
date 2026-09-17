@@ -1,0 +1,60 @@
+# Architecture evidence: Future-House/robin
+
+- `README.md:1` — Robin: A multi-agent system for automating scientific discovery
+- `README.md:5` — Prerequisites
+- `README.md:13` — Docker (Alternative Setup)
+- `README.md:44` — Setup Instructions
+- `README.md:88` — Running Robin via `robin_demo.ipynb`
+- `README.md:126` — Expected Output
+- `README.md:136` — Overview of `examples` Folder:
+- `README.md:165` — Advanced Usage
+- `pyproject.toml:12` — Full list: https://pypi.python.org/pypi?%3Aaction=list_classifiers
+- `pyproject.toml:65` — Type-checks the interior of functions without type annotations.
+- `pyproject.toml:67` — Allows enabling one or multiple error codes globally. Note: This option will
+- `pyproject.toml:68` — override disabled error codes from the disable_error_code option.
+- `pyproject.toml:82` — Shows a short summary line after error messages.
+- `pyproject.toml:84` — A regular expression that matches file names, directory names and paths which mypy
+- `pyproject.toml:85` — should ignore while recursively discovering files to check. Use forward slashes (/) as
+- `pyproject.toml:86` — directory separators on all platforms.
+- `pyproject.toml:90` — Specifies the OS platform for the target program, for example darwin or win32
+- `pyproject.toml:91` — (meaning OS X or Windows, respectively). The default is the current platform
+- `pyproject.toml:92` — as revealed by Python’s sys.platform variable.
+- `pyproject.toml:94` — Comma-separated list of mypy plugins.
+- `pyproject.toml:96` — Use visually nicer output in error messages: use soft word wrap, show source
+- `pyproject.toml:97` — code snippets, and show error location markers.
+- `pyproject.toml:99` — Shows column numbers in error messages.
+- `pyproject.toml:101` — Shows error codes in error messages.
+- `pyproject.toml:102` — SEE: https://mypy.readthedocs.io/en/stable/error_codes.html#error-codes
+- `pyproject.toml:104` — Prefixes each error with the relevant context.
+- `pyproject.toml:106` — Warns about casting an expression to its inferred type.
+- `pyproject.toml:108` — Shows a warning when encountering any code inferred to be unreachable or
+- `pyproject.toml:109` — redundant after performing type analysis.
+- `pyproject.toml:111` — Warns about per-module sections in the config file that do not match any
+- `pyproject.toml:112` — files processed when invoking mypy.
+- `pyproject.toml:114` — Warns about unneeded `# type: ignore` comments.
+- `pyproject.toml:118` — Suppresses error messages about imports that cannot be resolved.
+- `pyproject.toml:120` — Per-module configuration options
+- `pyproject.toml:129` — Maximum number of attributes for a class (see R0902).
+- `pyproject.toml:133` — Maximum number of characters on a single line.
+- `pyproject.toml:137` — Use multiple processes to speed up Pylint. Specifying 0 will auto-detect the
+- `pyproject.toml:138` — number of processors available to use, and will cap the count on Windows to
+- `pyproject.toml:139` — avoid hangs.
+- `pyproject.toml:141` — List of plugins (as comma separated values of python module names) to load,
+- `pyproject.toml:142` — usually to register additional checkers.
+- `pyproject.toml:148` — Disable the message, report, category or checker with the given id(s).
+- `pyproject.toml:205` — Enable the message, report, category or checker with the given id(s).
+- `pyproject.toml:211` — Set true to activate the evaluation score.
+- `pyproject.toml:215` — Minimum lines number of a similarity.
+- `pyproject.toml:232` — Line length to use when enforcing long-lines violations (like `E501`).
+- `pyproject.toml:234` — Enable application of unsafe fixes.
+- `pyproject.toml:238` — Enable reformatting of code snippets in docstrings.
+- `pyproject.toml:240` — Enable preview style formatting.
+- `pyproject.toml:401` — List of rule codes that are unsupported by Ruff, but should be preserved when
+- `pyproject.toml:402` — (e.g.) validating # noqa directives. Useful for retaining # noqa directives
+- `pyproject.toml:403` — that cover plugins not yet implemented by Ruff.
+- `pyproject.toml:491` — The maximum line length to allow for line-length violations within
+- `pyproject.toml:492` — documentation (W505), including standalone comments.
+- `pyproject.toml:494` — The maximum line length to allow for line-too-long violations. By default,
+- `pyproject.toml:495` — this is set to the value of the line-length option.
+- `pyproject.toml:499` — Whether to use Google-style or NumPy-style conventions or the PEP257
+- `pyproject.toml:500` — defaults when analyzing docstring sections.

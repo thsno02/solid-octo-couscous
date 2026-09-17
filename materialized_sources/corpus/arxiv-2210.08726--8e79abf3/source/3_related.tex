@@ -1,0 +1,27 @@
+\section{Related work}\label{section:related}
+
+\paragraph{Fact-checking}
+Our research builds upon works to identify whether a claim is supported or refuted by the given evidence \cite{thorne2018fever, wang2017liar, karadzhov2017fully, augenstein2019multifc, wadden2020fact}. In real-world scenarios such as the one which \approach{} operates in, relevant evidence may not be provided, necessitating retrieval \cite{fan2020generating,piktus2021web}.
+
+\paragraph{Post-hoc editing for factuality}
+Recent work has gone beyond checking the validity of a claim to correcting a piece of text to be factually consistent with a set of evidence via post-hoc editing \cite{shah2020automatic,thorne2021evidence,schuster2021get, Balachandran2022CorrectingDF, Cao2020FactualEC, Iso2020FactbasedTE}.
+FRUIT \cite{LoganIV2022FRUIT} and PEER \cite{Schick2022PEER} both implement an editor that is fine-tuned on Wikipedia edit history with the goal of updating outdated information and collaborative writing respectively.
+Evidence-based Factual Error Correction \cite[EFEC;][]{thorne2021evidence} also implements a full research-and-revise workflow trained on Wikipedia passages \cite{thorne2018fever}.
+A key differentiator of \approach{} is its ability to edit the output of any generation model without being restricted by the domain, task, or the need for training data.
+
+\paragraph{Measuring attribution}
+A key part of improving attribution is being able to quantify it.
+Apart from human evaluation \cite{Rashkin2021AIS},
+several automated evaluation methods have been proposed.
+Our work uses an entailment-based metric,
+which measures whether the referenced evidence entails the output text \cite{Bohnet2022AttributedQA, Kryscinski2020EvaluatingTF,Goyal2021AnnotatingAM}.
+A common alternative is to evaluate whether the output text contains the same factual information as the evidence; e.g., by checking if both yield the same answer to the same question \cite{Wang2020AskingAA}. We use this notion of attribution in \approach{}'s agreement model rather than for evaluation. 
+
+\paragraph{Retrieval-augmented models}
+Models with a retrieval component have seen successes in question answering \cite{chen2017reading,lee2019latent,nakano2021webgpt}, machine translation \cite{zhang2018guiding}, code generation \cite{hayati2018retrieval}, language modeling \cite{khandelwal2019generalization}, and other knowledge-intensive tasks \cite{lewis2020rag}.
+Their retrievals are not necessarily attributions \cite{dziri2022origin,longpre2021entity}
+and typically are not used to revise an existing output.
+An exception is LaMDA \cite{Thoppilan2022LaMDA}, a language model for dialog that performs revision by training on human annotations.
+
+
+

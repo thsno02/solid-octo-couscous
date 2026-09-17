@@ -1,0 +1,48 @@
+\begin{table*}[!t]
+\centering\small\setlength{\tabcolsep}{5pt}
+\adjustbox{max width=\textwidth}{%
+\begin{tabular}{
+@{}l
+r@{ $\to$ }rcc
+r@{ $\to$ }rcc
+r@{ $\to$ }rcc
+@{}}
+\toprule
+ & \multicolumn{4}{c}{PaLM outputs on NQ}
+ & \multicolumn{4}{c}{PaLM outputs on SQA}
+ & \multicolumn{4}{c}{LaMDA outputs on QReCC}
+ \\
+ \cmidrule(lr){2-5} \cmidrule(lr){6-9} \cmidrule(lr){10-13}
+ Model
+ & \multicolumn{2}{c}{$\attrauto{}$} & $\preslev{}$ & \multicolumn{1}{c}{$\HM{}$}
+ & \multicolumn{2}{c}{$\attrauto{}$} & $\preslev{}$ & \multicolumn{1}{c}{$\HM{}$}
+ & \multicolumn{2}{c}{$\attrauto{}$} & $\preslev{}$ & \multicolumn{1}{c@{}}{$\HM{}$}
+ \\
+\midrule
+Full \approach{}
+& 45.6 & 54.9 & 89.6 & 68.1
+& 37.6 & 45.1 & 89.9 & 60.0
+& 18.8 & 29.4 & 80.2 & 43.1
+\\ %
+qgen 62B, editor 540B
+& 45.9 & 54.6 & 87.8 & 67.4
+& 37.0 & 40.5 & 90.0 & 55.9
+& 15.8 & 28.4 & 76.1 & 41.4
+\\
+qgen 62B, editor 62B
+& 45.9 & 49.9 & 91.0 & 64.4
+& 37.0 & 38.3 & 93.0 & 54.2
+& 15.8 & 21.9 & 71.6 & 33.5
+\\ %
+GPT-3
+& 44.3 & 55.0 & 90.6 & \textbf{68.5}
+& 38.6 & 46.6 & 89.3 & \textbf{61.2}
+& 18.3 & 28.6 & 89.8 & \textbf{43.4}
+\\
+\bottomrule
+\end{tabular}
+}
+\caption{\textbf{Additional ablation results.} We report the automatic metrics: $\attrauto$, $\preslev$, and harmonic mean between the two ($\HM{}$). We show auto-AIS scores both before and after editing (before $\rightarrow$ edit), with respect to the attribution report $A$ produced by the model.
+}
+\label{tab:ablation_results_upper}
+\end{table*}

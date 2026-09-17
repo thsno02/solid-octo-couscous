@@ -1,0 +1,27 @@
+\section{Preliminaries}
+\subsection{Problem Statement}
+The primary challenge addressed in this paper is: \emph{How should we design a large language model that is capable of efficiently integrating new knowledge while minimizing the degradation of previously learned knowledge?} 
+To make the challenge more specific, we outline several essential properties that we hope to integrate into the new model: \textbf{(1) Effiency}: The process of knowledge injection into the model should be streamlined, potentially eliminating the need for back-propagation for efficiency. \textbf{(2) Efficacy}: It is crucial to ensure that the knowledge is effectively injected into the model, guaranteeing its impact on the model's performance. 
+\textbf{(3) Knowledge Retention}: Our model has a fixed-sized memory pool, implying a constant memorization capacity. This necessitates a mechanism for gradually phasing out older knowledge.
+\textbf{(4) Integrity}: The model must maintain full functionality regardless of the number of updates made to the memory pool. 
+% \noindent
+\textbf{(5) Non-redundancy}: We aim for more compact storage of knowledge, reducing redundancy, and optimizing memory usage. 
+
+\subsection{Sketch of \ours}
+To address the above challenges, our rough idea is to design a model denoted as $\mathcal{M}_{\theta, \phi}$ consisting of two sets of parameters: $\phi$ and $\theta$. Once we obtain the model, the $\phi$ parameters should be static, while $\theta$ dynamically evolves when encountering new knowledge. This aligns with the intuition that some knowledge within an LLM should never change (persistent truths, encoded by $\phi$) and some knowledge is being updated continuously (fresh information, modeled by $\theta$). 
+Specifically, we use an existing large language model (Llama2) to model $\phi$, while $\theta$ is modeled by the memory pool with the detailed structure in Section \ref{ssub:memory_pool}. 
+Here we need to design the \textit{self-updating} mechanism of $\theta$ that is pivotal to this process. 
+Denoting the new knowledge as $x$, a text paragraph, the \textit{self-updating} process 
+refers to 
+updating $\theta$ in a way that does not compromise the general capabilities of the model while injecting the latest knowledge $x$ into the memory pool $\theta$ to obtain a new memory pool $\theta'$:
+\begin{equation}\label{eq:one_step_injection}
+    \theta' = U(\theta, x)
+\end{equation}
+Here $U$ is the update function which takes the memory pool $\theta$ and the new knowledge $x$ as input and outputs the new memory pool $\theta'$. 
+Extending this process to multistep updating, consider a scenario with a never-ending context or a series of conversation histories, represented as $(x_1, \cdots, x_n)$, where $x_i, i\in\{1,\cdots,n\}$ is a text paragraph. The model requires the integration of all these contexts, which can be accomplished using the update function $I$ defined in Eq.(\ref{eq:one_step_injection}): 
+\begin{equation}\label{eq:multi_step_injection}
+    \theta_n = U(\cdots(U(\theta, x_1), x_n).
+\end{equation}
+We define the process \textit{self-updating} as modifying the parameters $\theta$ with newly encountered knowledge $x$, essentially enabling the model to read and assimilate knowledge. This design presents two primary challenges: (1) \textbf{Parameter and Interaction Design}: We need to determine the structure for $\theta$ and how it should interact with $\phi$, The goal is to allow the LLM to effectively use the knowledge from the $\theta$ in the generation process. (2) \textbf{Update function design}: It is crucial to design the update function $U$ such that $\theta$ can be updated without disturbing the old knowledge and undermining the overall capabilities of the model. 
+
+

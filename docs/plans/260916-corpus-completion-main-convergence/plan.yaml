@@ -1,0 +1,211 @@
+plan_id: nonrepo-materialization-main-convergence-260916
+version: 2
+created_at: '2026-09-16'
+status: planning_contract
+repository: thsno02/solid-octo-couscous
+authority:
+  issues:
+    - 3
+    - 4
+  user_intent:
+    - complete actual body acquisition and preprocessing for existing non-repository sources
+    - persist legally retainable source files and derived artifacts in the repository
+    - converge approved work through the existing parent pull request into main
+baseline:
+  main:
+    branch: main
+    sha: 99ce4670be91637209d67792de0962404fa96488
+  integration:
+    branch: work/v0-meta-kb-initialization-demo-260910
+    sha: 568d31de26c918a9251fadf9488a47ae3405c034
+    pull_request: 1
+    pr_state: open_draft
+  incorporated_stack:
+    pull_request: 2
+    merged_into: work/v0-meta-kb-initialization-demo-260910
+    merge_commit: 37ccf4e86d106866273c147280fe1d0efe1ba6fb
+scope:
+  collection_records: 215
+  github_repository_records:
+    count: 84
+    included_in_fulltext_denominator: false
+    handling: commit_pinned_repository_semanticization
+  non_repository_records:
+    count: 131
+    included_in_fulltext_denominator: true
+    baseline_labels:
+      full_text: 90
+      excerpt: 27
+      metadata_only: 14
+    known_parse_incomplete:
+      - arxiv:2406.04268
+      - arxiv:2502.18864
+  expansion:
+    new_source_uids: forbidden
+    recursive_references: forbidden
+    external_datasets_or_weights: forbidden
+state_dimensions:
+  - identity_and_version
+  - original_artifact_coverage
+  - text_extraction_coverage
+  - local_persistence
+  - public_redistribution
+  - knowledge_admission
+controlled_values:
+  original_artifact_coverage:
+    - unknown
+    - complete
+    - partial
+    - unavailable
+    - metadata_only
+    - not_applicable
+  text_extraction_coverage:
+    - unknown
+    - complete
+    - partial
+    - unavailable
+    - not_applicable
+  public_redistribution:
+    - allow
+    - allow_with_conditions
+    - block
+    - unknown
+    - not_applicable
+  coverage_verification_state:
+    - unverified
+    - partial_check
+    - verified
+  action_bucket:
+    - complete_verified
+    - needs_boundary_verification
+    - parser_only
+    - canonical_repair
+    - open_fulltext_fetch
+    - author_manuscript_fetch
+    - html_article_snapshot
+    - standard_spec_fetch
+    - ocr_assessment
+    - access_restricted
+    - public_persistence_decision
+    - identity_or_version_ambiguous
+source_package_roles:
+  target_body:
+    required_for_body_completion: true
+  citation_support:
+    required_for_body_completion: conditional
+  figure_or_table_asset:
+    required_for_original_coverage: conditional
+  layout_dependency:
+    required_for_body_completion: false
+  embedded_third_party_content:
+    required_for_body_completion: false
+  historical_or_auxiliary:
+    required_for_body_completion: false
+branch_policy:
+  final_target: main
+  temporary_integration_branch: work/v0-meta-kb-initialization-demo-260910
+  single_parent_pr_to_main: 1
+  one_active_implementation_pr: true
+  max_uids_per_network_batch: 10
+  implementation_base: latest_integration_head
+  implementation_target: work/v0-meta-kb-initialization-demo-260910
+  second_long_lived_integration_branch: forbidden
+  force_push_shared_branch: forbidden
+  duplicate_pr_2_cherry_pick: forbidden
+phases:
+  - id: P0
+    name: planning_contract
+    network_access: false
+    data_mutation: false
+    output:
+      - docs/plans/260916-corpus-completion-main-convergence
+  - id: P1
+    name: nonrepo_coverage_ledger
+    network_access: false
+    data_mutation: false
+    required_output:
+      - raw_data/audits/non_repo_materialization_coverage_2026-09-16.yaml
+      - docs/plans/260916-corpus-completion-main-convergence/coverage-baseline.md
+    acceptance:
+      exact_nonrepo_rows: 131
+      github_excluded_rows: 84
+  - id: P2
+    name: known_parser_repairs
+    uids:
+      - arxiv:2406.04268
+      - arxiv:2502.18864
+    depends_on:
+      - P1
+  - id: P3
+    name: sequential_acquisition_and_preprocessing
+    depends_on:
+      - P1
+      - P2
+    batching:
+      max_uids: 10
+      one_adapter_family: true
+      one_primary_action_bucket: true
+      serial_merge_to_integration: true
+  - id: P4
+    name: corpus_reconciliation_and_pr1_scope_correction
+    depends_on:
+      - P3
+    new_source_acquisition: false
+  - id: P5
+    name: main_integration_and_fresh_checkout_verification
+    depends_on:
+      - P4
+    merge_method_recommendation: squash
+    automatic_merge_authorized: false
+    conditional_merge_authority: explicit_user_instruction_after_independent_pass_and_premerge_acceptance
+independent_pr_gate:
+  applies_to: [P0, P1, P2, P3, P4, P5]
+  evaluator_must_not_author_changes: true
+  required_verdict: PASS
+  dimensions: [user_requirements, agentic_reasoning_and_evidence, core_quality]
+  exact_head_and_base_required: true
+  changes_after_review_require_reevaluation: true
+  failure_route: planner_executor_independent_evaluator
+  normal_completion: merge_after_acceptance
+  direct_close_requires: evidence_of_absorption_or_explicit_user_cancellation
+  github_agent_review_action: COMMENT
+completion_rules:
+  capsule_presence_is_fulltext_completion: false
+  full_text_label_is_sufficient: false
+  rights_count_is_acquisition_count: false
+  ci_green_is_content_complete: false
+  trusted_claim_count_is_materialization_complete: false
+  unresolved_items_must_remain_explicit: true
+  main_fresh_checkout_required: true
+prohibited_actions:
+  - bypass_access_controls
+  - commit_unknown_new_fulltext_then_audit_later
+  - automatic_source_deletion
+  - storage_migration_without_approval
+  - git_history_rewrite_without_approval
+  - branch_deletion_without_approval
+  - branch_protection_change_without_approval
+  - automatic_trusted_promotion
+  - generated_conflict_resolution_by_bulk_ours_or_theirs
+  - claim_main_completion_while_only_on_work_branch
+decision_gates:
+  - id: source_identity_ambiguity
+    behavior: stop_entire_pr_and_request_minimal_decision
+  - id: access_restricted_single_uid
+    behavior: record_unresolved_and_continue_independent_uids
+  - id: public_persistence_unknown_single_uid
+    behavior: do_not_commit_new_body_record_decision_request_continue_independent_uids
+  - id: deletion_migration_or_history_rewrite
+    behavior: stop_and_require_explicit_authorization
+  - id: pr1_ready_and_merge
+    behavior: explicit_user_decision_plus_premerge_acceptance_and_independent_evaluator_pass
+    current_decision: conditional_completion_authorized_by_user_not_immediate_merge
+issue_closure:
+  issue_3:
+    requires_main_landing: true
+    requires_131_row_ledger: true
+    requires_all_gaps_resolved_or_explicitly_unresolved: true
+  issue_4:
+    requires_pr1_in_main: true
+    requires_fresh_main_checkout_validation: true
+    branch_cleanup_automatic: false

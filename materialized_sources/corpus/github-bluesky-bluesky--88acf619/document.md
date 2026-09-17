@@ -1,0 +1,287 @@
+# Repository semantic capsule: bluesky/bluesky
+
+- Commit: `868907779d6939e8c7c37fa73f37542854af6283`
+- Default branch: `main`
+- Description: Bluesky Run Engine
+- Selected evidence files: 3 of 21 files observed
+- Interpretation: maintainer documentation and static repository evidence; runtime behavior is not proven.
+
+
+## `README.md`
+
+[![CI](https://github.com/bluesky/bluesky/actions/workflows/ci.yml/badge.svg)](https://github.com/bluesky/bluesky/actions/workflows/ci.yml)
+[![Coverage](https://codecov.io/gh/bluesky/bluesky/branch/main/graph/badge.svg)](https://codecov.io/gh/bluesky/bluesky)
+[![PyPI](https://img.shields.io/pypi/v/bluesky.svg)](https://pypi.org/project/bluesky)
+
+
+# Bluesky — An Experiment Specification & Orchestration Engine
+
+|    Source     |     <https://github.com/bluesky/bluesky>      |
+| :-----------: | :-------------------------------------------: |
+|     PyPI      |             `pip install bluesky`             |
+| Documentation |      <https://bluesky.github.io/bluesky>      |
+|   Releases    | <https://github.com/bluesky/bluesky/releases> |
+
+Bluesky is a library for experiment control and collection of scientific data
+and metadata. It emphasizes the following virtues:
+
+* **Live, Streaming Data:** Available for inline visualization and processing.
+* **Rich Metadata:** Captured and organized to facilitate reproducibility and
+  searchability.
+* **Experiment Generality:** Seamlessly reuse a procedure on completely
+  different hardware.
+* **Interruption Recovery:** Experiments are "rewindable," recovering cleanly
+  from interruptions.
+* **Automated Suspend/Resume:** Experiments can be run unattended,
+  automatically suspending and resuming if needed.
+* **Pluggable I/O:** Export data (live) into any desired format or database.
+* **Customizability:** Integrate custom experimental procedures and commands,
+  and get the I/O and interruption features for free.
+* **Integration with Scientific Python:** Interface naturally with numpy and
+  Python scientific stack.
+
+[**Bluesky Documentation**](http://blueskyproject.io/bluesky).
+
+The Bluesky Project enables experimental science at the lab-bench or facility scale. It is a collection of Python libraries that are co-developed but independently useful and may be adopted *a la carte*.
+
+[**Bluesky Project Documentation**](http://blueskyproject.io).
+
+<!-- README only content. Anything below this line won't be included in index.md -->
+
+See https://bluesky.github.io/bluesky for more detailed documentation.
+
+## `Dockerfile`
+
+# The devcontainer should use the developer target and run as root with podman
+# or docker with user namespaces.
+ARG PYTHON_VERSION=3.12
+FROM python:${PYTHON_VERSION} AS developer
+
+# Add any system dependencies for the developer/build environment here
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    graphviz \
+    libqt5gui5 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set up a virtual environment and put it in PATH
+RUN python -m venv /venv
+ENV PATH=/venv/bin:$PATH
+
+## `pyproject.toml`
+
+[build-system]
+requires = ["setuptools>=64", "setuptools_scm[toml]>=8"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bluesky"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
+description = "Experiment specification & orchestration."
+dependencies = [
+    "cycler",
+    "event-model>=1.24.0",
+    "historydict",
+    "msgpack",
+    "msgpack-numpy",
+    "numpy",
+    "opentelemetry-api",
+    "toolz",
+    "tqdm>=4.44",
+    "typing-extensions>=4.10.0",
+]
+dynamic = ["version"]
+license.file = "LICENSE"
+readme = "README.md"
+requires-python = ">=3.10"
+
+[project.optional-dependencies]
+dev = [
+    "attrs",
+    "bluesky-tiled-plugins",
+    "cloudpickle",
+    "copier",
+    "coverage",
+    "databroker",
+    "doct",
+    "doctr",
+    "flake8",
+    "ipython",
+    "ipywidgets",
+    "jinja2",
+    "lmfit",
+    "matplotlib >=3.5.0",
+    "mongoquery",
+    "mongomock",
+    "multiprocess",
+    "mypy",
+    "myst-parser",
+    "networkx",
+    "numpydoc",
+    "opentelemetry-sdk",
+    "ophyd",
+    "ophyd-async;python_version>='3.11'",
+    "orjson",
+    "packaging",
+    "pandas",
+    "pickleshare",
+    "pipdeptree",
+    "pre-commit",
+    "pydata-sphinx-theme>=0.12",
+    "pyepics",
+    "pyqt5",
+    "pytest",
+    "pytest-cov",
+    "pytest-faulthandler",
+    "pyyaml",
+    "pyzmq",
+    "requests",
+    "ruff",
+    "scikit-image",
+    "scipy",
+    "sphinx<7.3",
+    "sphinx-autobuild",
+    "sphinx-copybutton",
+    "sphinx-design",
+    "sphinxcontrib-mermaid",
+    "sphinx_rtd_theme",
+    "streamz",
+    # These suitcases are test deps of databroker which we need to access
+    # databroker fixtures.
+    "suitcase-jsonl",
+    "suitcase-mongo",
+    "suitcase-msgpack",
+    "tifffile",
+    "tiled[server]",
+    "tox-direct",
+    "types-mock",
+    "vendoring",
+    "zict",
+    "pytest-mock>=3.15.1",
+]
+ipython = ["ipython"]
+zmq = ["pyzmq"]
+common = ["ophyd", "databroker"]
+tools = ["doct", "lmfit", "tifffile", "historydict"]
+streamz = ["streamz"]
+plotting = ["matplotlib"]
+cmd = ["colorama"]
+olog = ["jinja2"]
+old_persistentdict = ["zict<3"]
+all = ["bluesky[dev,ipython,zmq,common,tools,streamz,plotting,cmd,olog]"]
+
+[project.scripts]
+bluesky-0MQ-proxy = "bluesky.commandline.zmq_proxy:main"
+
+[project.urls]
+GitHub = "https://github.com/bluesky/bluesky"
+
+[[project.authors]] # Further authors may be added by duplicating this section
+name = "danielballan"
+
+
+[tool.setuptools_scm]
+version_file = "src/bluesky/_version.py"
+
+[tool.mypy]
+ignore_missing_imports = true # Ignore missing stubs in imported modules
+exclude = ["src/bluesky/_vendor/"]
+
+[tool.pytest.ini_options]
+# Run pytest with all our checkers, and don't spam us with massive tracebacks on error
+# Don't collect the interactive directory which is intended for manual execution
+addopts = """
+    --tb=native -vv --doctest-modules --doctest-glob="*.rst" --ignore src/bluesky/tests/interactive
+    """
+# https://iscinumpy.gitlab.io/post/bound-version-constraints/#watch-for-warnings
+filterwarnings = [
+    "error",
+    "ignore::PendingDeprecationWarning",
+    "ignore::UserWarning",
+    "ignore::DeprecationWarning",
+]
+# Doctest python code in docs, python code in src docstrings, test functions in tests
+testpaths = "src/bluesky/tests"
+
+[tool.coverage.run]
+data_file = "/tmp/bluesky.coverage"
+
+[tool.coverage.report]
+exclude_lines = ["if __name__ == '__main__':"]
+
+[tool.coverage.paths]
+# Tests are run from installed location, map back to the src directory
+source = ["src", "**/site-packages/"]
+
+# tox must currently be configured via an embedded ini string
+# See: https://github.com/tox-dev/tox/issues/999
+
+[tool.ruff]
+src = ["src", "tests"]
+line-length = 115
+exclude = [
+    "docs/source/conf.py",
+    "docs/source/examples",
+    "src/bluesky/_vendor"
+]
+
+
+[tool.ruff.lint]
+select = [
+    "B",   # flake8-bugbear - https://docs.astral.sh/ruff/rules/#flake8-bugbear-b
+    "C4",  # flake8-comprehensions - https://docs.astral.sh/ruff/rules/#flake8-comprehensions-c4
+    "E",   # pycodestyle errors - https://docs.astral.sh/ruff/rules/#error-e
+    "F",   # pyflakes rules - https://docs.astral.sh/ruff/rules/#pyflakes-f
+    "W",   # pycodestyle warnings - https://docs.astral.sh/ruff/rules/#warning-w
+    "I",   # isort - https://docs.astral.sh/ruff/rules/#isort-i
+    "UP",  # pyupgrade - https://docs.astral.sh/ruff/rules/#pyupgrade-up
+]
+ignore = [
+    "UP031", # Ignore %-format strings until #1848 is done
+    "B905",  # adding strict=False to every zip call is just noise
+]
+
+[tool.ruff.lint.per-file-ignores]
+# By default, private member access is allowed in tests
+# See https://github.com/DiamondLightSource/python-copier-template/issues/154
+# Remove this line to forbid private member access in tests
+"tests/**/*" = ["SLF001"]
+
+
+[tool.vendoring]
+destination = "src/bluesky/_vendor/"
+requirements = "src/bluesky/_vendor/vendor.txt"
+namespace = "bluesky._vendor"
+protected-files = ["__init__.py", "README.rst", "vendor.txt"]
+
+[tool.vendoring.license.fallback-urls]
+super_state_machine = "https://github.com/beregond/super_state_machine/blob/master/LICENSE"
+
+[tool.tox]
+legacy_tox_ini = """
+
+[tox]
+skipsdist=True
+
+[testenv:{pre-commit,type-checking,tests,docs}]
+# Don't create a virtualenv for the command, requires tox-direct plugin
+direct = True
+passenv = *
+allowlist_externals =
+    pytest
+    pre-commit
+    mypy
+    sphinx-build
+    sphinx-autobuild
+commands =
+    pre-commit: pre-commit run --all-files --show-diff-on-failure {posargs}
+    type-checking: mypy src {posargs}
+    tests: pytest --cov=bluesky --cov-report term --cov-report xml:cov.xml {posargs}
+    docs: sphinx-{posargs:build -EW --keep-going} -T docs build/html
+"""

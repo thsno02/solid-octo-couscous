@@ -1,0 +1,30 @@
+# Architecture evidence: stanfordnlp/dspy
+
+- `README.md:7` — DSPy: _Programming_—not prompting—Foundation Models
+- `README.md:21` — Documentation: [dspy.ai](https://dspy.ai)
+- `README.md:27` — Installation
+- `README.md:43` — 📜 Citation & Reading More
+- `CONTRIBUTING.md:1` — Contribution Guide
+- `CONTRIBUTING.md:5` — Finding an Issue
+- `CONTRIBUTING.md:19` — Contributing Code
+- `CONTRIBUTING.md:23` — Step 1. Open an Issue
+- `CONTRIBUTING.md:33` — Step 2. Make Code Changes
+- `CONTRIBUTING.md:38` — Step 3 Commit Your Code and Run Autoformatting
+- `CONTRIBUTING.md:75` — Step 4. Create a Pull Request
+- `CONTRIBUTING.md:80` — Step 5. Code Review
+- `CONTRIBUTING.md:85` — Step 6. Merging
+- `CONTRIBUTING.md:89` — Environment Setup
+- `CONTRIBUTING.md:105` — [Recommended] Set Up Environment Using uv
+- `CONTRIBUTING.md:134` — Set Up Environment Using conda + pip
+- `CONTRIBUTING.md:154` — AI-Generated Contributions
+- `SECURITY.md:1` — Security Policy
+- `SECURITY.md:3` — Reporting a Vulnerability
+- `SECURITY.md:13` — Disclosure Process
+- `pyproject.toml:6` — Do not add spaces around the '=' sign for any of the fields
+- `pyproject.toml:7` — preceded by a marker comment as it affects the publish workflow.
+- `pyproject.toml:168` — Allow fix for all enabled rules (when `--fix`) is provided.
+- `docs/README.md:13` — Modifying the DSPy Documentation
+- `docs/README.md:18` — Building docs locally
+- `docs/README.md:57` — Continuous Integration (CI) Build Checks
+- `docs/README.md:67` — Contributing to the `docs` Folder
+- `docs/README.md:77` — LLMs.txt

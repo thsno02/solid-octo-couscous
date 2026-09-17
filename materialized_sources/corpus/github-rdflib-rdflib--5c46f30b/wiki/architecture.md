@@ -1,0 +1,29 @@
+# Architecture evidence: RDFLib/rdflib
+
+- `README.md:3` — RDFLib
+- `README.md:28` — RDFlib Family of packages
+- `README.md:45` — Versions & Releases
+- `README.md:68` — Documentation
+- `README.md:71` — Installation
+- `README.md:83` — Installation from the current development branch (for developers)
+- `README.md:101` — Getting Started
+- `README.md:182` — Features
+- `README.md:199` — Running tests
+- `README.md:201` — Running the tests on the host
+- `README.md:209` — Running test coverage on the host with coverage report
+- `README.md:216` — Viewing test coverage
+- `README.md:224` — Contributing
+- `README.md:241` — Support & Contacts
+- `pyproject.toml:71` — Set python to 3.11 or greater as that's what's used in the validate workflow to test doc builds.
+- `pyproject.toml:85` — https://beta.ruff.rs/docs/configuration/
+- `pyproject.toml:87` — Same as Black.
+- `pyproject.toml:216` — log_cli = true
+- `pyproject.toml:217` — log_cli_level = "DEBUG"
+- `docs/index.md:1` — RDFLib
+- `docs/index.md:32` — Getting started
+- `docs/index.md:44` — In depth
+- `docs/index.md:58` — Versioning
+- `docs/index.md:68` — For developers
+- `docs/index.md:78` — Source Code
+- `docs/index.md:84` — Further help & Contact
+- `docs/index.md:93` — History

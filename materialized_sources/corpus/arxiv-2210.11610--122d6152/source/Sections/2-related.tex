@@ -1,0 +1,28 @@
+\section{Related Work}
+\label{sec:related_work}
+\paragraph{Learning from explanations.}
+Augmenting a machine learning model with explanations has been studied in existing literature extensively.
+For example, in the supervised learning setting, a model can be fine-tuned using human-annotated rationales \citep{zaidan-etal-2007-using,ling-etal-2017-program,wt5,esnli,Cobbe2021TrainingVT,chung2022scaling}.
+A few works have also looked at how explanations can help the models in various settings, e.g., in-context learning \citep{learn_from_explanation_in_context} and in distillation \citep{evaluate_explanations_distill}.
+In this paper, we focus more on the \textit{unsupervised learning} setting, where we do not assume we have a rationale-augmented training dataset available, since human-annotated rationales can be expensive.
+
+\paragraph{Few-shot explanations improves reasoning in LLMs.}
+Recently, a lot of progress has been made towards improving LLMs' reasoning abilities via prompting or in-context learning.
+\citet{Wei2022ChainOT} propose Chain-of-Thought prompting, which prompts the language model to generate a series of natural-language-based intermediate steps, and show it can help language models better solve complex and multi-step reasoning tasks.
+\citet{Wang2022SelfConsistencyIC} improve Chain-of-Thought prompting by sampling multiple diverse reasoning paths and finding the most consistent answers via majority voting.
+\citet{step_by_step} propose to prompt the language model with ``Let's think step by step'' to generate reasoning in a zero-shot fashion.
+\citet{Zhou2022LeasttoMostPE} further decompose the questions into multiple sub-questions, and ask the language model to solve each sub-question sequentially.
+
+% \paragraph{Learning from refined explanations.}
+\paragraph{Refining explanations.}
+More recent work proposes to further refine the generated reasoning paths as some of them could be unreliable. For example, \citet{ye2022unreliability} calibrate model predictions based on the reliability of the explanations, \citet{maieutic_prompting} show that inducing a tree of explanations and inferring the satisfiability of each explanation can further help judge the correctness of explanations.
+\citet{better_reasoner} show that sampling a diverse set of prompts from the training data, and a voting verifier can be used to improve model's reasoning performance.
+\citet{star} proposes better rationale generation by augmenting ground truth answers as hints when predicted answers are incorrect. % to fine-tune a model via augmenting the training dataset with few-shot explanations, and show it can further improve the model's capability over commonsense reasoning tasks.  %, whereas \citet{star} do.
+Our work is orthogonal to these lines of work, as we utilize refined explanations from~\citet{Wang2022SelfConsistencyIC} for fine-tuning the model for self-improvement, and could readily incorporate these other refinement techniques for generating higher-quality self-training data. Our work is similar to \citet{star} where we both propose to fine-tune a model on self-generated CoT data, but our method does not require ground truth labels and shows stronger empirical results with multi-task generalization.
+%Different from existing work, we show that a mixture of the reasoning-path refinement techniques can be combined to further improve the quality of the generated reasoning paths, which is shown to be effective in boosting model's performance via self-improvement.
+
+\paragraph{Self-training models.}
+One related line of work is self-training (see a survey from \citet{self-training-survey}). The key idea is to assign pseudo labels from a learned classifier to unlabeled data, and use these pseudo-labeled examples to further improve the original model training, e.g., \citep{DBLP:conf/cvpr/RoyChowdhuryCSJ19,self_training_xie,He2020Revisiting,chen2021-CPS}.
+Different from such prior work, our proposed self-improvement framework uses CoT prompting plus self-consistency to obtain high-confidence solutions on a large set of unlabeled data to augment the fine-tuning process. 
+
+\paragraph{Distillation and dark knowledge.} Our method also tangentially relates to rich literature on distillation~\citep{ba2014deep,hinton2015distilling}, where a student network imitates a teacher network's classifier predictions on input examples. A key detail is to learn from soft targets instead of hard predicted labels, as softmax outputs with a high temperature reveal more detailed relative class likelihoods, colloquially known as \textit{dark knowledge}~\citep{hinton2015distilling,korattikara2015bayesian}. Recent studies~\citep{star,snell2022learning,eisenstein2022honest} show that \textit{dark knowledge} within LLMs can be retrieved with more computation at inference time, such as adding informative instructions into the input sequence, and output CoT generation~\citep{Wei2022ChainOT,step_by_step}. In our work, we explicitly show that imperfect CoT reasoning (which may lead to incorrect answer) can be used directly for self-improving language models as evidenced in our experiments in Sections~\ref{sec:exp_limits} and~\ref{sec:exp_distill}.

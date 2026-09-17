@@ -1,0 +1,53 @@
+\newpage
+\appendix
+% \onecolumn
+
+
+\begin{center}
+\Large
+\textbf{Appendix}
+\end{center}
+
+
+
+In the Appendix, we introduce more details  along with additional experimental results, discussions, and related works:
+
+\begin{itemize}
+\item Appendix \ref{app_sec:implem_details}: Experimental setups (cf. Section \ref{sec:exp}).
+\item Appendix \ref{app_sec:more_results}: More experimental results (cf. Section \ref{sec:method} and \ref{sec:exp}).
+\item Appendix \ref{app_sec:proof}: Proof of the Theorem~\ref{theorem:subspace_overlap} (cf. Section \ref{sec:method}).
+\item Appendix \ref{app_sec:more_related_works}: Additional discussions and more related works (cf. Section \ref{sec:related_works}).
+\end{itemize}
+
+
+
+
+\input{appendix/implementation_details}
+\input{appendix/supplementary_results}
+\input{appendix/theorem_proof}
+
+\section{Detailed Related Works}\label{app_sec:more_related_works}
+\paragraph{Memory and Knowledge Injection of LLMs} 
+The memories of LLMs can be divided into long-term (episodic) memory and working memory (short-term)~\cite{llm_controllable_working_memory,memoria,spalm}. Long-term memory refers to the knowledge stored in the model's parameters, which can be updated by (re)pretraining~\cite{gpt-1}, finetuning~\cite{lora}, and model editing~\cite{knowledge_editing_survey_1}. Working memory is stored in sustained activations/representations of neurons, which will be awakened during inference time~\cite{llm_controllable_working_memory}. In-context learning (ICL) is a kind of working memory~\cite{chain_of_thoughts}, also along with retrieval-based editing methods like GRACE~\cite{grace}. 
+How to reinforce memory and inject/update knowledge for LLMs is a fundamental question~\cite{memoryllm,ft_vs_rag,fewshotft_vs_icl}. ICL or finetuning? Different works show different conclusions. In \cite{fewshotft_vs_icl}, the authors find that few-shot finetuning is more generalizable than ICL, especially for out-of-distribution data. In \cite{ft_vs_rag}, the authors contrast finetuning with retrieval-augmented generation (RAG) in terms of knowledge injection and find that RAG is better in most cases, and combining both will produce the best results. 
+However, finetuning and pretraining are computation-expensive~\cite{llama-2,grace} and usually suffer from catastrophic forgetting~\cite{catastrophic_forgetting_llm} and overfitting~\cite{memorization_overfitting}. For ICL and RAG, the working memory is sometimes not controllable, the model may not follow the information of the contexts~\cite{llm_controllable_working_memory}, and the context window is limited~\cite{landmark_attention,infini_attention}, and there are works addressing these issues by training controllable ICL~\cite{llm_controllable_working_memory}, long-context ~\cite{landmark_attention,infini_attention}, and recurrent memory architecture design~\cite{memoryllm}. 
+SPALM is proposed to add language models with storage modules that resemble both working and long-term memories~\cite{spalm}. 
+% Also, model editing is an emerging technology that aims to enable data-efficient, fast, and non-destructive knowledge updates to LLMs~\cite{knowledge_editing_survey_1,knowledge_editing_survey_2}.
+
+\paragraph{Model Editing of LLMs} 
+Model editing can be summarized as the following lines of research. 
+\textbf{\textit{Constrained finetuning:}} Preliminary model editing uses constrained finetuning to update parameters based on new examples~\cite{constrained_ft_me_1,constrained_ft_me_2}. 
+\textbf{\textit{Locate-and-edit:}} ROME~\cite{rome} locates the factual associations in autoregressive LLMs and conducts accurate and efficient edits by taking MLPs as key-value memories. 
+Then, MEMIT~\cite{memit} extends ROME from single-editing to mass-editing.
+COMEBA-HK \cite{comeba} identifies the Local Editing Scope and extends MEMIT for sequential editing.
+In addition, T-Patcher~\cite{t-patcher} targets the last feed-forward layer of LLMs, adding an additional neuron for each edit. 
+\textbf{\textit{Meta learning:}} Recent meta-learning methods use hypernetworks for aiding editing. MEND~\cite{mend} learns a hypernetwork that can decouple the finetuning gradients into the gradient updates that generalize the edits and won't damage the performances on unrelated inputs. To remedy the cancellation effect of MEND, MALMEN~\cite{malmen} uses hypernetwork to produce the weight shifts of editing and formulates the weight shift aggregation as the least square problem. 
+\textbf{\textit{Retrieval-based methods:}} Instead of directly editing the model parameters, retrieval-based methods aim to improve the working memory of LLMs to enable model editing. IKE \cite{ike} uses context-edit facts to guide the model when generating edited facts. 
+DeCK \cite{deck} employs contrasting knowledge decoding, which enhances the confidence of in-context-based editors in the edited facts. SERAC~\cite{serac} (a modified version dubbed as DEFER~\cite{grace}) records edit items in a file and trains additional scope classifier and counterfactual model to detect, retrieve, and generate the edit-related results. Though the editing retriever and generator are neural networks, they are too small to have the power of LLMs. GRACE~\cite{grace} adopts a discrete codebook of edits for retrieving and replacing the edits' layer representations during inference. From single editing~\cite{rome} to mass editing~\cite{malmen,memit}, and from static editing to sequential~\cite{t-patcher} (continual) or lifelong editing~\cite{grace}, model editing is developing to meet more realistic demands.
+
+\paragraph{Continual Learning}
+Continual learning \cite{continual_survey1, continual_survey2} tackles the catastrophic forgetting problem in deep learning models with new knowledge~\cite{de2021continual}, and recent research has focused on various methods in this area. One such method is continual finetuning, where LLMs are refined over time with the arrival of new instances. For instance, a comprehensive study by \cite{lin2022continual} explores continual finetuning extensively. However, it has been observed that regularizing finetuning with continual learning techniques such as Elastic Weight Consolidation~\cite{ewc}, Experience Replay \cite{rolnick2019experience}, and Maximally Interfered Replay \cite{aljundi2019online} can lead to a rapid decay in performance on previous tasks, although it aids in retaining some memory of past inputs. 
+This suggests that editing, as opposed to vanilla continual finetuning, presents unique challenges, especially considering that edits are unlikely to be evenly distributed \cite{henn2021principled}. 
+One promising direction within the realm of continual learning is the adoption of key-value methods, inspired by advancements in computer vision \cite{liu2021post,van2017neural}. Recent studies have showcased the effectiveness of continual prompt-learning for NLP \cite{wang2022dualprompt,wang2022learning}, particularly in applications like text retrieval \cite{xiong2020approximate}. 
+Notably, discrete key-value methods have been shown to excel in handling shifting distributions \cite{trauble2023discrete}, with some recent efforts extending their application to question answering \cite{dai2022lifelong}. 
+These methods cache values to ensure that inputs remain within the distribution for downstream encoders, thus facilitating the incorporation of longer-term memory, provided there are adequate computational resources.

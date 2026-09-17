@@ -1,0 +1,63 @@
+% \begin{table*}[t]
+% % \small
+% \centering
+% \scriptsize
+% % \scalebox{0.9}{
+% \begin{tabular}{l|ccccccccc}
+% \toprule
+% \multirow{2}{*}{Task} & \multirow{2}{*}{\# Instance} & \multirow{2}{*}{\# Resp.} & \multicolumn{2}{c}{\textsc{Context Length}} & \multicolumn{2}{c}{\textsc{Resp. Length}} &\multicolumn{3}{c}{\textsc{Hallucination}} \\
+% \cmidrule(lr){4-5} \cmidrule(lr){6-7} \cmidrule(lr){8-10}
+%   & & & Mean  & Max  & Mean  & Max & \# Resp. & \% Resp. & \# Span \\
+% \midrule
+% Question Answering & 989 & 5934 & 243 & 509 & 119 &381 & 1724 & 29.1\% & 2927 \\
+% Data-to-text Writing & 1033  & 6198 & 354 & 1253 & 159 & 369 & 4254 & 68.6\% & 9290 \\
+% Summarization(CNN/DM) & 628 & 3768 & 648 & 1749 & 124 & 632 & 1165 & 30.9\% & 1474 \\
+% Summarization(Recent News) & 315 & 1890 & 369 & 481  & 89  & 240  & 521 & 27.6\% & 598 \\
+% \midrule
+% Overall & 2965 & 17790 & 381 & 1749 & 131 & 632 & 7664 & 43.1\% & 14289 \\
+% \bottomrule
+% \end{tabular}
+% % }
+% \caption{The basic statistics of \CorpusName. Here "Resp." stands for "Response".}
+% \label{tab:basic_stat}
+% \end{table*}
+
+% Please add the following required packages to your document preamble:
+% \usepackage{multirow}
+\begin{table*}[h]
+\centering
+\small
+\begin{tabular}{c|cccccc}
+\toprule
+\multirow{2}{*}{Task}                 & \multirow{2}{*}{Model} & \multirow{2}{*}{\# Hallucination Span} & \multicolumn{2}{c}{\it{implicit\_true}} & \multicolumn{2}{c}{\it{due\_to\_null}} \\
+                                      &                        &                                        & \# Span          & \% Span         & \# Span         & \% Span         \\
+\midrule
+\multirow{6}{*}{Question Answering}   & GPT-3.5-turbo-0613     & 89                                     & 33               & 0.371           &                 &                 \\
+                                      & GPT-4-0613             & 51                                     & 15               & 0.294           &                 &                 \\
+                                      & Llama-2-7B-chat        & 1010                                   & 251              & 0.249           &                 &                 \\
+                                      & Llama-2-13B-chat       & 654                                    & 215              & 0.329           &                 &                 \\
+                                      & Llama-2-70B-chat       & 529                                    & 168              & 0.318           &                 &                 \\
+                                      & Mistral-7B-Instruct    & 594                                    & 164              & 0.276           &                 &                 \\
+\midrule
+\multirow{6}{*}{Data-to-text Writing} & GPT-3.5-turbo-0613     & 384                                    & 52               & 0.135           & 69              & 0.180           \\
+                                      & GPT-4-0613             & 354                                    & 24               & 0.068           & 209             & 0.590           \\
+                                      & Llama-2-7B-chat        & 1775                                   & 195              & 0.110           & 230             & 0.130           \\
+                                      & Llama-2-13B-chat       & 2803                                   & 260              & 0.09            & 439             & 0.157           \\
+                                      & Llama-2-70B-chat       & 1834                                   & 274              & 0.149           & 272             & 0.148           \\
+                                      & Mistral-7B-Instruct    & 2140                                   & 102              & 0.048           & 423             & 0.198           \\
+\midrule
+\multirow{6}{*}{Summarization}        & GPT-3.5-turbo-0613     & 60                                     & 14               & 0.233           &                 &                 \\
+                                      & GPT-4-0613             & 80                                     & 10               & 0.125           &                 &                 \\
+                                      & Llama-2-7B-chat        & 517                                    & 44               & 0.085           &                 &                 \\
+                                      & Llama-2-13B-chat       & 342                                    & 28               & 0.082           &                 &                 \\
+                                      & Llama-2-70B-chat       & 245                                    & 27               & 0.110           &                 &                 \\
+                                      & Mistral-7B-Instruct    & 828                                    & 52               & 0.063           &                 &                 \\
+\midrule
+Overall                               &                        & 14289                                  & 1928             & 0.135           & 1642                                                  & 0.115 \\
+\bottomrule
+\end{tabular}
+\caption{Detailed statistical information for the labels \textit{implicit\_true} and \textit{due\_to\_null}. 
+The majority of implicit truths appear in two types of tasks: question answering and data-to-text writing.
+About 17.7\% hallucination spans in the data-to-text writing tasks are related to null values in the JSON data.}
+\label{tab:implicit_true}
+\end{table*}

@@ -1,0 +1,23 @@
+# Architecture evidence: jennyzzt/dgm
+
+- `README.md:24` — Setup
+- `README.md:26` — API keys, add to ~/.bashrc
+- `README.md:32` — Verify that Docker is properly configured in your environment.
+- `README.md:35` — If a permission error occurs, add the user to the Docker group
+- `README.md:41` — Install dependencies
+- `README.md:46` — Optional: for running analysis
+- `README.md:52` — Clone SWE-bench
+- `README.md:60` — Prepare Polyglot
+- `README.md:61` — Make sure git is properly configured in your environment with username and email
+- `README.md:65` — Running the DGM
+- `README.md:71` — File Structure
+- `README.md:83` — Logs from Experiments
+- `README.md:86` — Safety Consideration
+- `README.md:90` — Acknowledgement
+- `README.md:94` — Citing
+- `Dockerfile:1` — Use an official Python runtime as the base image
+- `Dockerfile:4` — Install system-level dependencies, including git
+- `Dockerfile:10` — Set the working directory inside the container
+- `Dockerfile:13` — Copy the entire repository into the container
+- `Dockerfile:16` — Install Python dependencies
+- `Dockerfile:19` — Keep the container running by default

@@ -1,0 +1,26 @@
+# Architecture evidence: SakanaAI/AI-Scientist-v2
+
+- `README.md:28` — Table of Contents
+- `README.md:39` — Requirements
+- `README.md:43` — Installation
+- `README.md:46` — Create a new conda environment
+- `README.md:50` — Install PyTorch with CUDA support (adjust pytorch-cuda version for your setup)
+- `README.md:53` — Install PDF and LaTeX tools
+- `README.md:57` — Install Python package requirements
+- `README.md:63` — Supported Models and API Keys
+- `README.md:65` — OpenAI Models
+- `README.md:69` — Gemini Models
+- `README.md:73` — Claude Models via AWS Bedrock
+- `README.md:81` — Semantic Scholar API (Literature Search)
+- `README.md:85` — Setting API Keys
+- `README.md:91` — Set AWS credentials if using Bedrock
+- `README.md:92` — export AWS_ACCESS_KEY_ID="YOUR_AWS_ACCESS_KEY_ID"
+- `README.md:93` — export AWS_SECRET_ACCESS_KEY="YOUR_AWS_SECRET_KEY"
+- `README.md:94` — export AWS_REGION_NAME="your-aws-region"
+- `README.md:97` — Generate Research Ideas
+- `README.md:123` — Run AI Scientist-v2 Paper Generation Experiments
+- `README.md:159` — Citing The AI Scientist-v2
+- `README.md:172` — Frequently Asked Questions
+- `README.md:194` — Acknowledgement
+- `README.md:199` — Star History
+- `README.md:203` — ⚖️ License & Responsible Use

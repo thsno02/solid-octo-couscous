@@ -1,0 +1,68 @@
+% \begin{table*}[!ht]
+% \scriptsize
+% \centering
+%     \begin{tabular}{l|cccccccccccc}
+%     \toprule
+%     \multirow{3}{*}{Methods}  & \multicolumn{12}{c}{\textsc{Span-level Hallucination Detection}}\\
+%      & \multicolumn{4}{c}{\textsc{Question Answering}} & \multicolumn{4}{c}{\textsc{Data2Text}} & \multicolumn{4}{c}{\textsc{Summarization}} \\
+%      \cmidrule(lr){2-5} \cmidrule(lr){6-9} \cmidrule(lr){10-13}  
+%      & Precision & Recall & F1 & EM & Precision & Recall & F1 & EM & Precision & Recall & F1 & EM\\
+%      \midrule
+%      % & \multicolumn{9}{c}{\textit{Detection}} \\
+%      % \midrule
+%      % SelfCheckGPT$_{ChatGPT}$\\
+%      % SelfCheckGPT$_{gpt-4}$\\
+%      % LMvLM \\
+%      Prompt Baseline$_\textrm{GPT-3.5-turbo}$ & 56.5 & 1.5 & 2.9 & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 & 100.0 & 1.1  & 2.3  & 0.0\\
+%      Prompt Baseline$_\textrm{GPT-4-turbo}$& 25.2& 42.9 & 31.8 & 2.7 &22.8 & 62.3 & 33.4 & 1.9 & 33.0 & 49.1 & 39.5& 2.8\\
+%      Finetuned Llama-2-13B &54.5 & 38.9 & 45.4 & 8.1 & 64.4 &52.6 & 57.9 & 15.6 & 67.9 & 37.3 & 48.1 & 7.6\\
+%      % \midrule
+%      % \midrule
+%      % SelfCheckGPT & & & 60.4 \\
+%      % LMvLM & & & 44.5 \\
+%      % \midrule
+%      % & \multicolumn{7}{c}{Span-level Detection}  \\
+%      % GPT-4 & & & 50.3/72.8/59.5 \\
+%     \bottomrule
+%     \end{tabular}
+%     \caption{The Overall span-level detection performance for each baseline method across different tasks and different models. 
+%     % 
+% % The footnote (if has) represents the base model we used to call in the baseline methods.
+%     }
+%     \label{tab:2-span-result}
+% \end{table*}
+
+
+\begin{table*}[!ht]
+\scriptsize
+\centering
+    \begin{tabular}{l|ccccccccc|ccc}
+    \toprule
+    % \multicolumn{12}{c}{\textsc{Span-level Hallucination Detection}}
+    \multirow{2}{*}{Methods} & \multicolumn{3}{c}{\textsc{Question Answering}} & \multicolumn{3}{c}{\textsc{Data-to-text Writing}} & \multicolumn{3}{c}{\textsc{Summarization}} & \multicolumn{3}{c}{\textsc{Overall}}\\
+     \cmidrule(lr){2-4} \cmidrule(lr){5-7} \cmidrule(lr){8-10}  \cmidrule(lr){11-13}
+     & Precision & Recall & F1  & Precision & Recall & F1  & Precision & Recall & F1 & Precision & Recall & F1 \\
+     \midrule
+     % & \multicolumn{9}{c}{\textit{Detection}} \\
+     % \midrule
+     % SelfCheckGPT$_{ChatGPT}$\\
+     % SelfCheckGPT$_{gpt-4}$\\
+     % LMvLM \\
+     Prompt Baseline$_\textrm{gpt-3.5-turbo}$ & 7.9 & 25.1 & 12.1 & 8.7 & 45.1 & 14.6 & 6.1 & 33.7  & 10.3 & 7.8 & 35.3 & 12.8 \\
+     Prompt Baseline$_\textrm{gpt-4-turbo}$& 23.7& 52.0 & 32.6  & 17.9 & \textbf{66.4} & 28.2 & 14.7 & \textbf{65.4} & 24.1 & 18.4 & \textbf{60.9} & 28.3\\
+     Finetuned Llama-2-13B & \textbf{55.8} & \textbf{60.8} & \textbf{58.2} & \textbf{56.5} & 50.7 & \textbf{53.5} & \textbf{52.4} & 30.8 & \textbf{38.8} & \textbf{55.6} & 50.2 & \textbf{52.7}\\
+     % \midrule
+     % \midrule
+     % SelfCheckGPT & & & 60.4 \\
+     % LMvLM & & & 44.5 \\
+     % \midrule
+     % & \multicolumn{7}{c}{Span-level Detection}  \\
+     % GPT-4 & & & 50.3/72.8/59.5 \\
+    \bottomrule
+    \end{tabular}
+    \caption{The span-level detection performance for each baseline method across different tasks and different models. 
+    % 
+% The footnote (if has) represents the base model we used to call in the baseline methods.
+    }
+    \label{tab:2-span-result}
+\end{table*}

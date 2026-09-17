@@ -1,0 +1,83 @@
+\documentclass{article} % For LaTeX2e
+\usepackage{iclr2018_conference,times}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage[utf8x]{inputenc}
+\usepackage{graphicx}     
+\usepackage{listings}
+\usepackage{makecell}
+
+
+\title{Generating Wikipedia by Summarizing Long Sequences}
+%\title{Writing Wikipedia by Extracting and Abstracting Information from Very Long Sequences}
+
+% Authors must not appear in the submitted version. They should be hidden
+% as long as the \iclrfinalcopy macro remains commented out below.
+% Non-anonymous submissions will be rejected without review.
+
+\author{Peter J. Liu\thanks{Joint first-authors. Ordered randomly.} , Mohammad Saleh\footnotemark[1], \\
+\textbf{Etienne Pot\thanks{Work done as a member of the Google Brain Residency (g.co/brainresidency)} , Ben Goodrich, Ryan Sepassi, \L{}ukasz Kaiser, Noam Shazeer} \\
+Google Brain\\
+Mountain View, CA\\
+\texttt{\{peterjliu,msaleh,epot,bgoodrich,rsepassi,lukaszkaiser,noam\}@google.com} \\
+}
+
+% The \author macro works with any number of authors. There are two commands
+% used to separate the names and addresses of multiple authors: \And and \AND.
+%
+% Using \And between authors leaves it to \LaTeX{} to determine where to break
+% the lines. Using \AND forces a linebreak at that point. So, if \LaTeX{}
+% puts 3 of 4 authors names on the first line, and the last on the second
+% line, try using \AND instead of \And before the third author name.
+
+\newcommand{\fix}{\marginpar{FIX}}
+\newcommand{\new}{\marginpar{NEW}}
+\newcommand{\coderepo}{\url{https://goo.gl/wSuuS9}}
+
+\iclrfinalcopy % Uncomment for camera-ready version, but NOT for submission.
+
+\begin{document}
+
+\input{newcommands}
+
+\maketitle
+
+
+\input{abstract.tex}
+\input{intro.tex}
+
+\input{related.tex}
+\input{dataset.tex}
+
+\input{models.tex}
+
+\input{exp.tex}   % includes discussion
+\input{conclusion.tex}
+\input{opensource.tex}
+
+% Add back acknowledgements for final paper
+\input{ack.tex}
+
+\bibliography{paper_ref}
+\bibliographystyle{iclr2018_conference}
+
+\clearpage % page break and flush out figures
+\appendix
+\section{Appendix}
+\input{app_samples}
+\input{app_implementation}
+
+\subsection{Example abstractive model input}
+\begin{figure}[h]
+\begin{center}
+\fbox{%
+    \includegraphics[width=1.0\textwidth]{dewey_input.png}
+}%
+\caption{Example extractive-output/abstractive-input for models in "dewey \& lebeouf" example. The
+	extractive method used is \textit{tf-idf}.}
+\end{center}
+\label{dewey_input}
+\end{figure}
+
+
+\end{document}

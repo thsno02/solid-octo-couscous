@@ -1,0 +1,280 @@
+repository: aws/context-ontology-accelerator
+requested_repository: aws/context-ontology-accelerator
+default_branch: main
+commit: e265573df26eefd6a8b51683d7555ceffbe26ab7
+tree_sha: null
+tree_truncated: true
+repository_description: null
+primary_language: null
+topics: []
+license: null
+repository_file_count_seen: 21
+selected_evidence_files: 5
+top_level_counts:
+  docs: 5
+  README.md: 1
+  README.rst: 1
+  README.txt: 1
+  README: 1
+  CONTRIBUTING.md: 1
+  SECURITY.md: 1
+  AGENTS.md: 1
+  CLAUDE.md: 1
+  pyproject.toml: 1
+  package.json: 1
+  Cargo.toml: 1
+  go.mod: 1
+  pom.xml: 1
+  Makefile: 1
+  Dockerfile: 1
+  documentation: 1
+extension_counts:
+  .md: 11
+  <none>: 3
+  .toml: 2
+  .rst: 1
+  .txt: 1
+  .json: 1
+  .mod: 1
+  .xml: 1
+prominent_headings:
+- path: README.md
+  line: 1
+  level: 1
+  heading: ✦ Context Ontology Accelerator
+- path: README.md
+  line: 5
+  level: 2
+  heading: Architecture
+- path: README.md
+  line: 15
+  level: 2
+  heading: Quick Start
+- path: README.md
+  line: 17
+  level: 3
+  heading: Prerequisites
+- path: README.md
+  line: 24
+  level: 3
+  heading: Setup
+- path: README.md
+  line: 31
+  level: 1
+  heading: Clone at the latest release tag (replace <tag> with a release from the link above)
+- path: README.md
+  line: 43
+  level: 2
+  heading: Repository Structure
+- path: README.md
+  line: 67
+  level: 2
+  heading: Tech Stack
+- path: README.md
+  line: 81
+  level: 2
+  heading: Contributing
+- path: README.md
+  line: 85
+  level: 2
+  heading: External Dependencies
+- path: README.md
+  line: 118
+  level: 2
+  heading: License
+- path: CONTRIBUTING.md
+  line: 1
+  level: 1
+  heading: Contributing to Context Ontology Accelerator
+- path: CONTRIBUTING.md
+  line: 5
+  level: 2
+  heading: Reporting Bugs/Feature Requests
+- path: CONTRIBUTING.md
+  line: 16
+  level: 2
+  heading: Code of Conduct
+- path: CONTRIBUTING.md
+  line: 20
+  level: 2
+  heading: Security issue notifications
+- path: CONTRIBUTING.md
+  line: 24
+  level: 2
+  heading: Licensing
+- path: CONTRIBUTING.md
+  line: 28
+  level: 2
+  heading: Amazon employees
+- path: Makefile
+  line: 14
+  level: 2
+  heading: Propagate the repo-root VERSION into every package manifest. Bump VERSION,
+- path: Makefile
+  line: 15
+  level: 2
+  heading: then run this — never edit a package's version by hand.
+- path: Makefile
+  line: 19
+  level: 2
+  heading: Fail if any package manifest has drifted from VERSION (runs as part of lint).
+- path: Makefile
+  line: 28
+  level: 2
+  heading: Per-package unit tests (Nx) plus the repo-level suite in tests/unit, which
+- path: Makefile
+  line: 29
+  level: 2
+  heading: covers cross-package concerns (version sync, NOTICE generation, doc accuracy)
+- path: Makefile
+  line: 30
+  level: 2
+  heading: and belongs to no single Nx project.
+- path: Makefile
+  line: 39
+  level: 2
+  heading: Run integration tests against all packages with deployed stacks.
+- path: Makefile
+  line: 40
+  level: 2
+  heading: 'Optional env vars (all auto-resolved if not set):'
+- path: Makefile
+  line: 41
+  level: 2
+  heading: 'AWS_DEFAULT_REGION  — AWS region (default: us-east-1)'
+- path: Makefile
+  line: 42
+  level: 2
+  heading: 'ENV_NAME            — environment name (default: dev)'
+- path: Makefile
+  line: 43
+  level: 2
+  heading: INTEG_SECRET_ARN    — skip user provisioning, use this Secrets Manager ARN
+- path: Makefile
+  line: 44
+  level: 2
+  heading: API_ENDPOINT        — skip CloudFormation lookup, use this API Gateway URL
+- path: Makefile
+  line: 45
+  level: 2
+  heading: INTEG_NAMESPACE_ID  — reuse an existing namespace (skip create)
+- path: Makefile
+  line: 51
+  level: 2
+  heading: 'Load test: validates the pipeline at scale (50 → 50k tables).'
+- path: Makefile
+  line: 52
+  level: 2
+  heading: '`make load-test` runs the non-billable smoke rung only (''not slow'').'
+- path: Makefile
+  line: 53
+  level: 2
+  heading: '`make load-test-slow RUNG=500` opts into billable 500+ rungs.'
+- path: Makefile
+  line: 54
+  level: 2
+  heading: 'Crash recovery: make load-test-teardown RUN_ID=<id>'
+- path: Makefile
+  line: 72
+  level: 2
+  heading: Regenerate the root NOTICE (third-party attribution, ORR PAK-A-3) from the
+- path: Makefile
+  line: 73
+  level: 2
+  heading: resolved environment. Run as part of `make build`; commit the result if it
+- path: Makefile
+  line: 74
+  level: 2
+  heading: changes so the checked-in NOTICE stays current with the dependency set.
+- path: Makefile
+  line: 87
+  level: 2
+  heading: Deploy the example Athena federation connector (connectors/) into a dev account,
+- path: Makefile
+  line: 88
+  level: 2
+  heading: giving integration tests a federated source to query. Separate from deploy-dev on
+- path: Makefile
+  line: 89
+  level: 2
+  heading: 'purpose: it stands in for something a customer deploys in their own account, and it'
+- path: Makefile
+  line: 90
+  level: 2
+  heading: must run AFTER COA — it reads COA's serve and discovery role ARNs from SSM.
+- path: Makefile
+  line: 91
+  level: 2
+  heading: 'Optional env vars: SCL_PREFIX (default: coa — matches the CDK app),'
+- path: Makefile
+  line: 92
+  level: 2
+  heading: FUNCTION_NAME_PREFIX (default <prefix>-<env>-), EXAMPLE_BULK_ROWS /
+- path: Makefile
+  line: 93
+  level: 2
+  heading: EXAMPLE_BULK_ROW_BYTES to size the fixture past Athena's 6 MB limit and exercise spill.
+- path: Makefile
+  line: 97
+  level: 2
+  heading: Tear down all dev stacks in one command. Deletes AgentCore Runtimes,
+- path: Makefile
+  line: 98
+  level: 2
+  heading: waits for their ENIs to detach (and stops if they do not),
+- path: Makefile
+  line: 99
+  level: 2
+  heading: deletes VKG's ECS services, force-deletes the DataZone domain (cascades
+- path: Makefile
+  line: 100
+  level: 2
+  heading: to RETAINed child resources CFN can't clear on its own), deletes every connector
+- path: Makefile
+  line: 101
+  level: 2
+  heading: stack (separate CDK apps, so `cdk destroy --all` never sees them), then runs
+- path: Makefile
+  line: 102
+  level: 2
+  heading: '`cdk destroy --all` and verifies no stacks remain (see #660, #661, #707).'
+- path: Makefile
+  line: 103
+  level: 2
+  heading: 'Optional env vars: SCL_PREFIX (default: coa — matches the CDK app), SCL_DESTROY_YES=1 to skip'
+- path: Makefile
+  line: 104
+  level: 2
+  heading: the confirmation prompt (e.g. in CI), and the wait budgets
+- path: Makefile
+  line: 105
+  level: 2
+  heading: SCL_ENI_WAIT_MAX_SECONDS (600), SCL_ECS_WAIT_MAX_SECONDS (300),
+- path: Makefile
+  line: 106
+  level: 2
+  heading: SCL_DOMAIN_WAIT_MAX_SECONDS (300), SCL_CLOUDMAP_WAIT_MAX_SECONDS (180),
+- path: Makefile
+  line: 107
+  level: 2
+  heading: SCL_CONNECTOR_DELETE_WAIT_MAX_SECONDS (600).
+- path: pyproject.toml
+  line: 3
+  level: 1
+  heading: Single source of truth is the repo-root VERSION file. Do not edit by hand —
+- path: pyproject.toml
+  line: 4
+  level: 1
+  heading: bump VERSION and run `make version` (verified by `make lint`).
+- path: pyproject.toml
+  line: 58
+  level: 1
+  heading: Print a traceback on mypy internal errors so transient crashes (e.g. under
+- path: pyproject.toml
+  line: 59
+  level: 1
+  heading: concurrent `nx run-many` lint) are diagnosable instead of just emitting the
+- path: pyproject.toml
+  line: 60
+  level: 1
+  heading: generic "INTERNAL ERROR" banner with no location.

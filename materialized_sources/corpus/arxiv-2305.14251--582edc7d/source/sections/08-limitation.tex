@@ -1,0 +1,42 @@
+\paragraph{Scope of \ours.}
+All of our experiments focus on people biographies and Wikipedia, because many LMs can generate biographies with objective and specific facts (rather than subjective and vague ones) and Wikipedia has a high coverage for them.
+% We highlight that
+\ours\ can be applied to a broader domain, e.g., text about recent events whose knowledge source can be a collection of news articles, or text about scientific findings whose knowledge source can be a collection of scientific literature.
+We present a proof of concept in Appendix~\ref{app:nlp-domain} and leave further study for future work.
+
+Due to the assumptions made in Section~\ref{subsec:data-overview},
+\ours\ is not applicable when the facts are more nuanced, open-ended, and debatable~\citep{chen2019seeing,xu2023critical} or with a knowledge source whose text frequently conflicts with each other~\citep{wadden2022scifact}.
+Moreover, \ours\ may not be suitable for the human-written text that is nuanced and includes intentional or implicit deception.
+
+%\kalpesh{cite eunsol / mohit paper on LFQA errors}
+
+\vspace{-.1em}
+\paragraph{Limitation in our estimator.}
+While our estimator closely approximates humans and provides consistent ranking over a large set of LMs, it is not perfect in individual judgments, and the best variant depends on the degree of how close a generation is to human-written text and its linguistic complexity.
+Future work can investigate how the distribution of model generation affects the performance of the estimator and further improve the estimator.
+%, and improve it for more reliable automatic evaluation of long-form text generation.
+% \sewon{Mainly say the validation model has still rooms for improvements.}
+
+\vspace{-.1em}
+\paragraph{Beyond factual precision.}
+\ours\ focuses on factual precision---whether each piece of information in a generation is factually supported by a reliable source of knowledge---which is only one aspect of the broader factuality problem.
+For instance, \ours\ does not consider factual recall: the coverage of information in a generation.
+\ours\ does not penalize a model that abstains from responding too frequently or generates fewer facts, which can be unfair since there is an inherent trade-off between precision and recall.
+Moreover, the boundary between precision and recall is often blurry, e.g., it is possible that, even if every piece of information in a generation is supported, it misses a significant piece of information that should have been mentioned in order to be considered as correctly responding to the input prompt (example in Table~\ref{tab:recall}).
+We leave a more holistic evaluation of factuality for future work, and recommend reporting \ours\ together with the \% of abstention and the average number of atomic facts (as we did in Section~\ref{sec:eval-new-lms}).
+
+\begin{table}[t]
+    \center \footnotesize
+    % \setlength{\tabcolsep}{0.5em}
+    \begin{tabular}{p{7.3cm}}
+        \toprule        
+           \textbf{Prompt:} Tell me a bio of Mary I of England. \\
+           \textbf{Generation:}
+           Mary I % (February 18, 1516 — November 17, 1558)
+           was Queen of England and Ireland from July 1553 until her death. Mary was the daughter of King Henry VIII and his first wife, Catherine of Aragon. After her father annulled his marriage to Catherine, Mary’s status was in doubt, and she was excluded from the line of succession. Her half-brother, Edward VI, succeeded their father in 1547, and Mary had to live with the humiliation of being declared illegitimate. \\
+        \bottomrule
+    \end{tabular}
+    \caption{An example whose factual precision is high but recall is low. The generation does not mention how Mary I of England got back to the line of succession and eventually became a queen. %\kalpesh{wondering what we should do about the table. It is technically in the limitations section but a casual reviewer may think we are exceeding page limit. What if we move it to [h] positioning rather than [t] positioning, and embed it within the limitations?}
+    \vspace{-.5em}
+    }\label{tab:recall}
+\end{table}

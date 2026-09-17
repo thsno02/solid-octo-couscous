@@ -1,0 +1,76 @@
+# Architecture evidence: mem0ai/mem0
+
+- `README.md:45` — New Memory Algorithm (April 2026)
+- `README.md:65` — Research Highlights
+- `README.md:71` — Introduction
+- `README.md:75` — Key Features & Use Cases
+- `README.md:87` — 🚀 Quickstart Guide <a name="quickstart"></a>
+- `README.md:89` — Sign up as an agent
+- `README.md:94` — 1. Install
+- `README.md:97` — 2. Sign up as an agent (replace `claude-code` with your name)
+- `README.md:100` — 3. Add a memory
+- `README.md:103` — 4. Search
+- `README.md:119` — Library (pip / npm)
+- `README.md:138` — Self-Hosted Server
+- `README.md:143` — Recommended: one command — start the stack, create an admin, issue the first API key.
+- `README.md:146` — Manual: start the stack and finish setup via the browser wizard.
+- `README.md:152` — Cloud Platform
+- `README.md:158` — CLI
+- `README.md:172` — Agent Skills
+- `README.md:194` — Basic Usage
+- `README.md:241` — 🔗 Integrations & Demos
+- `README.md:248` — 📚 Documentation & Support
+- `README.md:254` — Citation
+- `README.md:267` — ⚖️ License
+- `AGENTS.md:1` — AGENTS.md
+- `AGENTS.md:10` — Do NOT
+- `AGENTS.md:24` — Where to look
+- `AGENTS.md:39` — Repository map
+- `AGENTS.md:72` — Setup
+- `AGENTS.md:83` — Conventions everywhere
+- `AGENTS.md:91` — Benchmarking
+- `AGENTS.md:99` — What to ship with a change
+- `AGENTS.md:113` — Contributing
+- `AGENTS.md:125` — Two gates decide whether your pull request stays open
+- `AGENTS.md:143` — The CLA is not optional
+- `AGENTS.md:151` — What gets a pull request closed
+- `AGENTS.md:162` — Reference
+- `CONTRIBUTING.md:1` — Contributing to Mem0
+- `CONTRIBUTING.md:16` — Before You Start
+- `CONTRIBUTING.md:18` — 1. Open an Issue First
+- `CONTRIBUTING.md:67` — 2. Understand Your Code
+- `CONTRIBUTING.md:93` — 3. Sign the Contributor License Agreement (CLA)
+- `CONTRIBUTING.md:103` — First Contribution Fast Path
+- `CONTRIBUTING.md:116` — Repository Layout
+- `CONTRIBUTING.md:129` — Development Workflow
+- `CONTRIBUTING.md:143` — Contributing to the Python SDK (`mem0/`)
+- `CONTRIBUTING.md:149` — Activate a dev environment (3.9 / 3.10 / 3.11 / 3.12)
+- `CONTRIBUTING.md:152` — Install pre-commit hooks (runs ruff + isort on commit)
+- `CONTRIBUTING.md:155` — Lint, format, and sort imports
+- `CONTRIBUTING.md:160` — Run the test suite (run `make install_all` first if deps are missing)
+- `CONTRIBUTING.md:171` — Contributing to the TypeScript SDK (`mem0-ts/`)
+- `CONTRIBUTING.md:191` — Good Contribution Practices
+- `CONTRIBUTING.md:211` — Pull Request Checklist
+- `CONTRIBUTING.md:222` — Reporting Security Issues
+- `CONTRIBUTING.md:227` — Releasing
+- `CONTRIBUTING.md:232` — Tag Prefixes
+- `CONTRIBUTING.md:243` — How to Release
+- `CONTRIBUTING.md:249` — Publishing Details
+- `Makefile:3` — Variables
+- `Makefile:7` — Default target
+- `Makefile:18` — Format code with ruff
+- `Makefile:22` — Sort imports with isort
+- `Makefile:26` — Lint code with ruff
+- `SECURITY.md:1` — Security Policy
+- `SECURITY.md:6` — Reporting a Vulnerability
+- `SECURITY.md:36` — Response Process
+- `SECURITY.md:43` — Public Disclosure
+- `SECURITY.md:50` — Supported Versions
+- `pyproject.toml:163` — isort scope kept aligned with [tool.ruff.lint.isort] above.
+- `pyproject.toml:164` — black-equivalent profile here matches the formatter behaviour ruff applies.
+- `pyproject.toml:165` — Plugin-version bumps need a touch here to fire required CI checks (path-filter trap).
+- `pyproject.toml:166` — Last touched: plugin v0.1.3
+- `docs/README.md:1` — Mintlify Starter Kit
+- `docs/README.md:11` — Development
+- `docs/README.md:25` — Publishing Changes
+- `docs/README.md:29` — Troubleshooting

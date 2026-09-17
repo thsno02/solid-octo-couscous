@@ -1,0 +1,68 @@
+\section{Approach}\label{section:approach}
+
+\input{fig_example_prompts}
+
+We now present \approachfull{} (\approach{}), a simple method for solving the \taskName{} task.
+As illustrated in Figure~\ref{fig:overview}, given an input passage $x$,
+the research stage first generates a set of queries $\{q_1, ..., q_N\}$, each investigating one aspect of $x$ that potentially requires attribution.
+For each query $q_i$, it retrieves web documents and selects the best evidence snippets $\{\e_{i1}, \e_{i2},\dots\}$.
+    The revision stage then revises the original text $x$ using the retrieval results $\{(q_1, \e_{11}), \dots\}$, yielding a revised text $y$.
+
+Most components for \approach{} are implemented using few-shot prompting \cite{Brown2020LanguageMA}. We use PaLM \cite{Chowdhery2022PaLMSL} as our language model.
+Figure~\ref{fig:example_prompts} shows some few-shot examples we use, while Appendix~\ref{section:prompting} lists the full prompts.
+
+
+
+
+
+\subsection{Research stage}
+\label{section:qgen}
+
+
+\paragraph{Query generation}
+We perform \emph{comprehensive question generation} (CQGen) which produces a sequence of questions covering \emph{all aspects} of the passage $x$ that need to be verified and attributed.
+A similar strategy has been employed to train text-planning models \cite{narayan2022blueprint}.
+A prompt with six human demonstrations %
+was sufficient for PaLM to adequately learn the task.  To increase diversity and coverage, we sample from our CQGen model three times and take the union of the resulting queries.
+
+
+\paragraph{Evidence retrieval}
+For each query from CQGen, we use Google Search to retrieve $K=5$ web pages.
+We extract candidate evidence snippets from each web page by running a sliding window of four sentences across the page, breaking at document headings.
+The evidence snippets for each query are then ranked based on their relevance to the query. For this, we use an existing query-document relevance model trained following \citet{ni2021gtr}, which computes a relevance score $S_{\text{relevance}}(q, e)$ between a query $q$ and an evidence snippet $e$. We then keep the top $J=1$ evidence for each query. 
+The final retrieval result is
+$[
+(q_1, \e_{11}),\allowbreak
+\ldots,\allowbreak
+(q_1, \e_{1J}),\allowbreak
+\ldots,\allowbreak
+(q_N, \e_{N1}),\allowbreak
+\dots,\allowbreak
+(q_N, \e_{NJ})]$,
+where $\e_{ij}$ denotes the $j^{\text{th}}$ evidence for the $i^{\text{th}}$ query, and $N$ denotes the total number of queries from CQGen (which can be different for each input $x$).
+
+
+\subsection{Revision stage}\label{sec:approach-editor}
+
+After retrieving evidence, certain parts of $x$ may now be properly attributed, but other parts remain unattributed and should be revised.
+As illustrated in Figure~\ref{fig:overview},
+the revision stage initializes the output $y = x$. Then for each retrieved $(q, e) = (q_i, \e_{ij})$,
+the \emph{agreement model} checks if the evidence $e$ disagrees with the current output $y$ regarding the issue in query $q$. If a disagreement is detected, the \emph{edit model} edits $y$ to agree with $e$; otherwise, it does nothing. The process continues until all retrievals are processed.
+
+\paragraph{Agreement model}
+The agreement model takes the partially edited passage $y$, a query $q$, and the evidence $e$ as input. It then decides whether both $y$ and $e$ imply the same answer to the question in $q$. This form of question-guided agreement was previously explored by \citet{honovich2021q2}.
+We implement this by few-shot prompting PaLM using a chain-of-thought style prompt \cite{Wei2022COT}, where we ask the model to explicitly state the implied answers for both $y$ and $e$ before producing its judgment about their agreement. %
+
+\paragraph{Edit model}
+The edit model is run only if a disagreement is detected.
+The model takes $y$, $q$ and $e$ as input, and outputs a new version of $y$ that aims to agree with $e$ while otherwise minimally altering $y$. We again use few-shot prompting and chain-of-thought, where we ask the model to first identify a particular span in $y$ that needs to be edited before generating the revised $y$. %
+This helps reduce the editor's deviation from the current $y$.\footnote{The editor occasionally produces large edits that bring the new revision close to $e$ but far from the current $y$. Since this is rarely desirable, we reject edits with edit distance above 50 characters or 0.5 times the original text length.}
+
+
+\subsection{Attribution report}\label{sec:attribution-report}
+
+Finally, we select at most $M=5$ evidence snippets to form an attribution report $A$. Note that during evidence retrieval and revision, we may have encountered and used more than $M$ snippets.
+Our goal is to find a subset of snippets that maximizes \emph{coverage} over the potentially attributable points in the passage, as represented by the queries ${q_1,\dots,q_N}$. We use the relevance model from Section~\ref{section:qgen} as a proxy for measuring how much an evidence $e$ covers the point raised by a query $q$. Then, we exhaustively search for $A \subseteq \{\e_{11}, \dots, \e_{NJ}\}$ of size at most $M$ that maximizes
+\begin{equation}
+\text{Cover}(A, q_{1:N}) := \sum_{i=1}^N \max_{e \in A} S_{\text{relevance}}(q_i, e).
+\end{equation}

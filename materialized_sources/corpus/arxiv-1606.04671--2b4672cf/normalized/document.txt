@@ -1,0 +1,856 @@
+article 
+
+ numbers, compress natbib 
+
+ nips_2016 
+
+ inputenc 
+ fontenc 
+ url 
+ booktabs 
+ amsfonts 
+ hyperref 
+ amsmath 
+ nicefrac 
+ graphicx 
+ microtype 
+ subfig 
+ amsmath 
+ caption 
+ enumitem 
+
+ rotating 
+ array 
+
+ nosep 
+
+ color 
+ [1] blue #1 
+
+ Progressive Neural Networks 
+
+ Andrei A. Rusu*, \ Neil C. Rabinowitz*, \ Guillaume Desjardins*, \ Hubert Soyer,\\
+James Kirkpatrick, \ Koray Kavukcuoglu, \ Razvan Pascanu, \ Raia Hadsell \\
+ * These authors contributed equally to this work 
+ 0.15 cm 
+\\
+Google DeepMind \\
+London, UK
+ 0.15 cm 
+\\
+ \ andreirusu, ncr, gdesjardins, soyer, kirkpatrick, korayk, razp, raia\ @google.com \\
+ 
+ document 
+
+ 
+
+## Abstract
+
+Learning to solve complex sequences of tasks---while both leveraging transfer and
+avoiding catastrophic forgetting---remains a key obstacle to achieving human-level
+intelligence. The progressive networks approach represents a step forward in this direction:
+they are immune to forgetting and can leverage prior knowledge via lateral
+connections to previously learned features. We evaluate this architecture
+extensively on a wide variety of reinforcement learning tasks (Atari and 3D
+maze games), and show that it outperforms common baselines based on pretraining
+and finetuning. Using a novel sensitivity measure, we demonstrate
+that transfer occurs at both low-level sensory and high-level control layers of the learned policy.
+
+## Introduction
+
+Finetuning remains the method of choice for transfer learning with neural
+networks: a model is pretrained on a source domain (where data is often
+abundant), the output layers of the model are adapted to the target domain, and the
+network is finetuned via backpropagation. This approach was
+pioneered in hinton2006science by transferring knowledge from a
+generative to a discriminative model, and has since been generalized
+with great success UTLC+LISA-2011 . Unfortunately, the approach has drawbacks
+which make it unsuitable for transferring across multiple tasks: if we
+wish to leverage knowledge acquired over a sequence of experiences, which model
+should we use to initialize subsequent models? This seems to require not only a
+learning method that can support transfer learning without catastrophic forgetting, but also
+foreknowledge of task similarity. Furthermore, while finetuning may allow us to
+recover expert performance in the target domain, it is a destructive process
+which discards the previously learned function. One could copy each model before
+finetuning to explicitly remember all previous tasks, but the issue of
+selecting a proper initialization remains. While distillation
+ Hinton2015distil offers one potential solution to multitask learning
+ Rusu15 , it requires a reservoir of persistent training data for all tasks,
+an assumption which may not always hold.
+
+This paper introduces progressive networks, a novel model architecture
+with explicit support for transfer across sequences of tasks. While finetuning
+incorporates prior knowledge only at initialization, progressive networks
+retain a pool of pretrained models throughout training, and learn lateral connections
+from these to extract useful features for the new task. By combining previously
+learned features in this
+manner, progressive networks achieve a richer compositionality, in which prior
+knowledge is no longer transient and can be integrated at each layer of the
+feature hierarchy. Moreover, the addition of new capacity alongside pretrained
+networks gives these models the flexibility to both reuse old computations and learn new ones.
+As we will show, progressive networks naturally accumulate experiences and
+are immune to catastrophic forgetting by design, making them an ideal
+springboard for tackling long-standing problems of continual or lifelong
+learning.
+
+The contributions of this paper are threefold. While many of the individual
+ingredients used in progressive nets can be found in the literature, their
+combination and use in solving complex sequences of tasks is novel. Second,
+we extensively evaluate the model in complex reinforcement learning domains.
+In the process, we also evaluate alternative approaches to transfer
+(such as finetuning) within the RL domain. In particular, we show that
+progressive networks provide comparable (if not slightly better) transfer
+performance to traditional finetuning, but without the destructive
+consequences. Finally, we develop a novel analysis based on
+Fisher Information and perturbation which allows us to analyse in
+detail how and where transfer occurs across tasks.
+
+## Progressive Networks
+
+Continual learning is a long-standing goal of machine learning, where agents
+not only learn (and remember) a series of tasks experienced in sequence, but also have
+the ability to transfer knowledge from previous tasks to improve convergence speed AAAIMag11-Taylor .
+Progressive networks integrate these desiderata directly into the
+model architecture: catastrophic forgetting is prevented by instantiating a new
+neural network (a column) for each task being solved, while transfer is
+enabled via lateral connections to features of previously learned columns. The
+scalability of this approach is addressed at the end of this section.
+
+A progressive network starts with a single column: a deep neural network having
+ L layers with hidden activations h_i^ (1) R ^ n_i ,
+with n_i the number of units at layer i L , and parameters
+ ^ (1) trained to convergence. When switching to a second task, the
+parameters ^ (1) are ``frozen'' and a new
+column with parameters ^ (2) is instantiated (with random
+initialization), where layer h_i^ (2) receives input from both
+ h_ i-1 ^ (2) and h_ i-1 ^ (1) via lateral connections. This
+generalizes to K tasks as follows:
+ Progressive networks can also be generalized in a straightforward
+manner to have arbitrary network width per column/layer, to accommodate varying
+degrees of task difficulty, or to compile lateral connections from multiple,
+independent networks in an ensemble setting. Biases are omitted for clarity. :
+ align 
+ eq:prognet 
+ h_i^ (k) = f ( W_i^ (k) h_ i-1 ^ (k) + _ j<k U_ i ^ (k:j) h_ i-1 ^ (j) ),
+ align 
+where W_i^ (k) R ^ n_ i n_ i-1 is the weight matrix of layer
+ i of column k , U_ i ^ (k:j) R ^ n_i n_j are the
+lateral connections from layer i-1 of column j , to layer i of column k 
+and h_0 is the network input.
+ f is an element-wise non-linearity: we use f(x)= (0, x) for all
+intermediate layers.
+A progressive network with K=3 is shown in Figure~ fig:progressiveNet .
+
+ figure [h]
+ 
+ figures/progressiveNetDepiction2 
+ Depiction of a three column progressive network. The first two
+columns on the left (dashed arrows) were trained on task 1 and 2 respectively.
+The grey box labelled a represent the adapter layers (see text).
+A third column is added for the final task having access to all previously learned
+features.
+ 
+ fig:progressiveNet 
+ figure 
+
+These modelling decisions are informed by our desire to:
+(1) solve K independent tasks at the end of training;
+(2) accelerate learning via transfer when possible; and
+(3) avoid catastrophic forgetting.
+
+In the standard pretrain-and-finetune paradigm, there is often an implicit
+assumption of ``overlap'' between the tasks. Finetuning is efficient in this
+setting, as parameters need only be adjusted slightly to
+the target domain, and often only the top layer is retrained yosinski-nips2014 . In contrast, we make no assumptions about the
+relationship between tasks, which may in practice be orthogonal or even
+adversarial. While the finetuning stage could potentially unlearn these
+features, this may prove difficult. Progressive networks side-step
+this issue by allocating a new column for each new task, whose weights are
+initialized randomly. Compared to the task-relevant initialization of pretraining,
+columns in progressive networks are free to reuse, modify or ignore previously
+learned features via the lateral connections.
+As the lateral connections U_ i ^ (k:j) are only from column k to columns
+ j < k , previous columns are not affected by the newly learned features in the
+forward pass. Because also the parameters \ ^ (j) ; j<k\ 
+are kept frozen (i.e. are constants for the optimizer) when training ^ (k) ,
+there is no interference between
+tasks and hence no catastrophic forgetting.
+
+### Application to Reinforcement Learning.
+ Although progressive
+networks are widely applicable, this paper focuses on their application to
+deep reinforcement learning. In this case, each column is trained to solve a
+particular Markov Decision Process (MDP): the k -th column thus defines a policy
+ ^ (k) (a s) taking as input a state s given by the environment,
+and generating probabilities over actions ^ (k) (a s) := h_L^ (k) (s) .
+At each time-step, an action is sampled from this distribution and taken in the
+environment, yielding the subsequent state. This policy implicitly defines a
+stationary distribution _ ^ (k) (s,a) over states and actions.
+
+### Adapters.
+
+In practice, we augment the progressive network layer of Equation~ eq:prognet with
+non-linear lateral connections which we call adapters. They serve
+both to improve initial conditioning and perform dimensionality reduction.
+Defining the vector of anterior features
+ h_ i-1 ^ (<k) = [h_ i-1 ^ (1) h_ i-1 ^ (j) h_ i-1 ^ (k-1) ] 
+of dimensionality n_ i-1 ^ (<k) , in the case of dense layers,
+we replace the linear lateral connection with a single hidden layer MLP.
+Before feeding the lateral activations into the MLP, we multiply them by a learned scalar,
+initialized by a random small value.
+Its role is to adjust for the different scales of the different inputs.
+The hidden layer of the non-linear adapter is a projection onto an n_ i dimensional
+subspace. As the
+index k grows, this ensures that the number of parameters stemming from the
+lateral connections is in the same order as | ^ (1) | . Omitting bias
+terms, we get:
+ align 
+ eq:prognet 
+ h_i^ (k) = ( W_i^ (k) h_ i-1 ^ (k) + U_ i ^ (k:j) (V_ i ^ (k:j) _ i-1 ^ (<k) h_ i-1 ^ (<k) ) ),
+ align 
+where V_ i ^ (k:j) R ^ n_ i-1 n_ i-1 ^ (<k) is the projection
+matrix. For convolutional layers, dimensionality reduction is
+performed via 1 1 convolutions LinCY13 .
+
+### Limitations.
+
+Progressive networks are a stepping stone towards a full continual
+learning agent: they contain the necessary ingredients to learn multiple tasks,
+in sequence, while enabling transfer and being immune to catastrophic
+forgetting. A downside of the approach is the growth in number of
+parameters with the number of tasks.
+The analysis of Appendix 2 reveals
+that only a fraction of the new capacity is actually utilized, and that this trend increases with more columns. This
+suggests that growth can be addressed, e.g. by adding fewer layers or less capacity, by pruning Cun90optimalbrain , or by online compression
+ Rusu15 during learning. Furthermore, while progressive networks retain the
+ability to solve all K tasks at test time, choosing which column to use for
+inference requires knowledge of the task label. These issues are left as future
+work.
+
+## Transfer Analysis
+
+ sec_transfer 
+
+Unlike finetuning, progressive nets do not destroy the features learned on
+prior tasks. This enables us to study in detail which features and at which
+depth transfer actually occurs. We explored two related methods: an intuitive,
+but slow method based on a perturbation analysis, and a faster analytical method
+derived from the Fisher Information amari98natural .
+
+### Average Perturbation Sensitivity (APS).
+ To evaluate the degree to
+which source columns contribute to the target task, we can inject
+Gaussian noise at isolated points in the architecture (e.g. a given
+layer of a single column) and measure the impact of this perturbation
+on performance. A significant drop in performance indicates that the
+final prediction is heavily reliant on the feature map or
+layer. We find that this method yields similar results to the faster
+Fisher-based method presented below. We thus relegate details and
+results of the perturbation analysis to the appendix.
+
+### Average Fisher Sensitivity (AFS).
+
+We can get a local approximation to the perturbation sensitivity by using
+the Fisher Information matrix
+ amari98natural . While the Fisher matrix is typically computed with
+respect to the model
+parameters, we compute a modified diagonal Fisher F of the network policy 
+with respect to the normalized activations
+ The Fisher of individual neurons (fully connected) and feature maps
+(convolutional layers) are computed over _ ^ (k) (s,a) . The use of a normalized
+representation h is non-standard, but makes the scale of F 
+comparable across layers and columns. 
+at each layer h _i^ (k) . For convolutional layers, we define
+ F to implicitly perform a summation over pixel locations. F can
+be interpreted as the sensitivity of the policy to small changes in the
+representation. We define the diagonal matrix F , having
+elements F (m,m) , and the derived Average Fisher
+Sensitivity (AFS) of feature m in layer i of column k as:
+ align* 
+ F _i^ (k) &=
+ E _ (s, a) 
+ 
+& 1cm &
+ AFS (i,k,m) &=
+ F _i^ (k) (m,m) _k F _i^ (k) (m,m) 
+ align* 
+where the expectation is over the joint state-action distribution (s,a) 
+induced by the progressive network
+trained on the target task. In practice, it is often useful to consider the AFS
+score per-layer AFS (i,k) = _m AFS (i,k,m) , i.e. summing over
+all features of layer i . The AFS and APS thus estimate how much
+the network relies on each feature or column in a layer to compute its output.
+
+## Related Literature
+
+There exist many different paradigms for transfer and
+multi-task reinforcement learning, as these have long been recognized 
+as critical challenges in AI research
+ Ring1995,SilverYL13,AAAIMag11-Taylor . Many methods for transfer
+learning rely on linear and other simple models
+(e.g. Ruvolo2013ELLA ), which is a limiting factor to their
+applicability. Recently, there have been new methods proposed for
+multi-task or transfer learning with deep RL:
+ tessler2016,Rusu15,ParisottoICLR16 . In this
+work we present an architecture for deep reinforcement learning that
+in sequential task regimes that enables learning without forgetting
+while supporting individual feature transfer from previous
+learned tasks.
+
+Pretraining and finetuning was proposed in hinton2006science 
+and applied to transfer learning in
+ Bengio12deeplearning,UTLC+LISA-2011 , generally
+in unsupervised-to-supervised or supervised-to-supervised
+settings. The actor-mimic approach
+ ParisottoICLR16 applied these principles to
+reinforcement learning, by fine-tuning a DQN multi-task network on new
+Atari games and showing that some responded with faster learning,
+while others did not. Progressive networks differ from the
+finetuning direction substantially, since capacity is added as new tasks are learned.
+
+Progressive nets are related to the incremental and constructive
+architectures proposed in neural network literature. The
+cascade-correlation architecture was designed to eliminate forgetting
+while incrementally adding and refining feature extractors
+ Fahlman1990 . Auto-encoders such as ZhouAISTATS12 use
+incremental feature augmentation to track concept drift, and deep
+architectures such as RozantsevSF16 have been designed that
+specifically support feature transfer. More recently, in
+ Agostinelli_NIPS2013 , columns are separately trained on
+individual noise types, then linearly combined, and 
+ CiresanMS12 use columns for image classification. The block-modular architecture of Terekhov2015 has many similarities to our approach but focuses on a visual discrimination task.
+The progressive net approach, in contrast, uses lateral connections to access previously learned features for deep compositionality. It can be used in any sequential learning setting but is especially valuable in RL.
+
+## Experiments
+
+We evaluate progressive networks across three different RL domains.
+First, we consider synthetic versions of Pong,
+altered to have visual or control-level
+similarities. Next, we experiment broadly with random
+sequences of Atari games and perform a feature-level transfer analysis.
+Lastly, we demonstrate performance
+on a set of 3D maze games. Fig.~ fig:datasets shows examples from selected tasks.
+
+ figure [h]
+ 
+ 
+ tabular cc 
+ figures/pong_plain.png &
+ figures/pong_zoom.png \\
+ figures/pong_white.png &
+ figures/pong_hvflip.png 
+ tabular 
+ 
+ 
+ tabular cc 
+ figures/seek_track_01.png &
+ figures/seekavoid_arena_01.png \\
+ figures/seek_track_02.png &
+ figures/seekavoid_arena_02.png 
+ tabular 
+ 
+ 
+ tabular cc 
+ figures/pacman.jpg &
+ figures/qbert.jpg \\
+ figures/rraid.jpg &
+ figures/seaquest.jpg 
+ tabular 
+ 
+ 
+ Samples from different task domains: (a) Pong variants include flipped, noisy, scaled, and recoloured transforms; (b) Labyrinth is a set of 3D maze games with diverse level maps and diverse positive and negative reward items; (c) Atari games offer a more challenging setting for transfer. 
+ fig:datasets 
+ figure 
+
+## Setup
+
+We rely on the Async Advantage Actor-Critic (A3C) framework introduced in
+ mnih2016a3c . Compared to DQN mnih-dqn-2015 , the model simultaneously learns
+a policy and a value function
+for predicting expected future rewards. A3C is trained on CPU using multiple threads
+and has been shown to converge faster than DQN on GPU. This made it
+a more natural fit for the
+large amount of sequential experiments required for this work.
+
+We report results by averaging the top 3 out of 25 jobs, each having
+different seeds and random hyper-parameter sampling. Performance is evaluated
+by measuring the area under the learning curve (average score per
+episode during training), rather than final score. The transfer score
+is then defined as the relative performance of an architecture compared with
+a single column baseline, trained only on the target task (baseline 1). We present transfer
+score curves for selected source-target games, and summarize all such pairs in
+transfer matrices.
+Models and baselines we consider are illustrated in Figure fig:baselines .
+Details of the experimental setup are provided in section 3 of the Appendix.
+
+ figure [h]
+ 
+ figures/baselineDepiction6 
+ Illustration of different baselines and
+ architectures. Baseline 1 is a single column trained on the target task;
+baseline 2 is a single column, pretrained on a source task and
+finetuned on the target task (output layer only); baseline 3 is
+the same as baseline 2 but the whole model is finetuned; and
+baseline 4 is a 2 column progressive architecture,
+ with previous column(s) initialized randomly and frozen.
+ 
+ fig:baselines 
+ figure 
+
+## Pong Soup
+
+ sec_pong 
+
+The first evaluation domain is a set of synthetic variants of the
+Atari game of Pong ("Pong Soup") where the visuals and gameplay have been
+altered, thus providing a setting where we can be confident that there
+are transferable aspects of the tasks. The variants are
+Noisy (frozen Gaussian noise is added to the inputs);
+Black (black background); White (white
+background); Zoom (input is scaled by 75\% and
+translated); V-flip, H-flip, and VH-flip (input is
+horizontally and/or vertically flipped). Example frames are shown in
+Fig. fig:datasets .
+The results of training two columns on the Pong variants, including
+all relevant baselines are shown in Figure
+ pong_results . Transfer scores are summarized over all target
+tasks in Table~ table:main .
+
+ figure [h]
+ 
+ figures/transfer_pong.pdf 
+ (a) Transfer matrix. Colours indicate transfer scores (clipped at 2).
+ For progressive nets, the first column is trained on Pong, Noisy,
+ or H-flip (table rows); the second column is trained on each of the
+ other pong variants (table columns). (b) Example learning curves. 
+ fig:atari_results 
+ pong_results 
+ figure 
+
+We can make
+several observations from these results. Baseline 2 (single column, only output layer is finetuned; see Fig.~ fig:baselines )
+fails to learn the target task in most
+experiments and thus has negative transfer. This approach is quite standard
+in supervised learning settings, where features from
+ImageNet-trained nets are routinely repurposed for new domains.
+As expected, we observe high positive transfer with baseline 3 (single column, full finetuning),
+a well established paradigm for transfer.
+Progressive networks outperform this baseline however in terms of both median and mean score, with
+the difference being more pronounced for the latter. As the mean is
+more sensitive to outliers, this suggests that progressive networks are better
+able to exploit transfer when transfer is possible (i.e. when source and target domains are compatible). Fig.~ pong_results ~(b) lends
+weight to this hypothesis, where progressive networks are shown to significantly
+outperform the baselines for particular game pairs.
+Progressive nets also compare
+favourably to baseline 4,
+confirming that progressive nets are indeed taking
+advantage of the features learned in previous columns.
+
+Detailed analysis
+
+ figure [h]
+ 
+ figures/pong_results_neil.pdf 
+ (a) Transfer analysis for 2-column nets on Pong variants.
+ The relative sensitivity of the network's outputs on the columns
+ within each layer (the AFS) is indicated by the darkness of shading.
+ (b) AFS values for the 8 feature maps of
+ conv. 1 of a 1-column Pong net. Only one feature map is
+ effectively used by the net; the same map is also used by the
+ 2-column versions. Below: spatial filter components (red =
+ positive, blue = negative). (c) Activation maps of the filter in (b) from example
+ states of the four games. 
+ fig:pong_results_neil 
+ figure 
+
+We use the metric derived in Sec.~ sec_transfer to
+analyse what features are being transferred between Pong variants.
+We see that when switching from Pong to H-Flip, the network reuses the
+same components of low and mid-level vision (the outputs of the two
+convolutional layers; Figure fig:pong_results_neil a). However, the fully connected layer must be
+largely re-learned, as the policy relevant features of the task (the
+relative locations/velocities of the paddle and ball) are now in a new
+location. When switching from Pong to Zoom, on the other hand,
+low-level vision is reused for the new task, but new mid-level vision
+features are learned. Interestingly, only one low-level feature appears
+to be reused:
+(see Fig.~ fig:pong_results_neil b): this is a spatio-temporal
+filter with a considerable temporal DC component. This appears
+sufficient for detecting both ball motion and paddle position in the
+original, flipped, and zoomed Pongs.
+
+Finally, when switching from Pong to Noisy, some new low-level
+vision is relearned. This is likely because the first layer
+filter learned on the clean task is not sufficiently
+tolerant to the added noise. In contrast, this problem does not apply
+when moving from Noisy to Pong (Figure
+ fig:pong_results_neil a, rightmost column), where all of vision
+transfers to the new task.
+
+## Atari Games
+
+We next investigate feature transfer between randomly
+selected Atari games~ bellemare13arcade . This is an interesting question, because the visuals of
+Atari games are quite different from each other, as are the controls
+and required strategy. Though games like Pong and Breakout are
+conceptually similar (both involve hitting a ball with a
+paddle), Pong is vertically aligned while
+Breakout is horizontal: a potentially insurmountable
+feature-level difference. Other Atari game pairs have no discernible
+overlap, even at a conceptual level.
+
+ figure [h]
+ 
+ figures/transfer_atari.pdf 
+ Transfer scores and example learning curves for Atari target games,
+ as per Figure pong_results . 
+ fig:atari_results 
+ figure 
+
+To this end we start by training single columns on three source
+games (Pong, River Raid, and Seaquest)
+ Progressive columns having more than one ``source'' column are trained
+sequentially on these source games, i.e.\ Seaquest-River Raid-Pong means column 1 is first trained
+on Seaquest, column 2 is added afterwards and trained on River Raid, and then column 3 added and
+trained on Pong. 
+and assess if the learned features transfer to a different subset of
+randomly selected target games (Alien, Asterix, Boxing, Centipede,
+Gopher, Hero, James Bond, Krull, Robotank, Road Runner, Star Gunner,
+and Wizard of Wor). We evaluate progressive networks with 2, 3 and 4
+columns, comparing to the baselines of Figure fig:baselines ).
+The transfer matrix and selected transfer curves are shown in
+Figure~ fig:atari_results , and the results summarized in
+Table~ table:main .
+
+Across all games, we observe from Fig.~ fig:atari_results ,
+that progressive nets result in
+positive transfer in 8 out of 12 target tasks, with only two cases
+of negative transfer. This compares favourably to baseline 3, which yields
+positive transfer in only 5 of 12 games. This trend is reflected in
+Table~ table:main , where progressive networks convincingly outperform
+baseline 3 when using additional columns. This is especially promising as
+we show in the Appendix that progressive network use a diminishing amount of
+capacity with each added column, pointing a clear path to online compression
+or pruning as a means to mitigate the growth in model size.
+
+Now consider the specific sequence
+Seaquest-to-Gopher, an example of two dissimilar games. Here, the
+pretrain/finetune paradigm (baseline 3) exhibits negative transfer, unlike
+progressive networks (see Fig. fig:atari_results b, bottom), perhaps
+because they are more able to ignore the irrelevant features. For the sequence
+Seaquest[+River Raid][+Pong]-to-Boxing, using additional
+columns in the progressive networks can yield a significant increase in
+transfer (see Fig.~ fig:atari_results b, top).
+
+ table [t]
+ center 
+ 
+ tabular @ lrrrrrr@ 
+ 
+& 2 c Pong Soup 
+& 2 c Atari 
+& 2 c Labyrinth \\
+ & Mean (\%) & Median (\%) & Mean (\%) & Median (\%) & Mean (\%) & Median (\%) \\
+ 
+ Baseline 1 & 100 & 100 & 100 & 100 & 100 & 100 \\
+ Baseline 2 & 35 & 7 & 41 & 21 & 88 & 85 \\
+ Baseline 3 & 181 & 160 & 133 & 110 & 235 & 112 \\
+ Baseline 4 & 134 & 131 & 96 & 95 & 185 & 108 \\
+ Progressive 2 col & 209 & 169 & 132 & 112 & 491 & 115 \\
+ Progressive 3 col & 222 & 183 & 140 & 111 & --- & --- \\
+ Progressive 4 col & --- & --- & 141 & 116 & --- & --- \\
+
+ 
+ tabular 
+ center 
+ Transfer percentages in three domains. Baselines are defined in
+ Fig.~ fig:baselines . 
+ table:main 
+ table 
+
+Detailed Analysis
+
+Figure fig:atari_results demonstrates that both positive and
+negative transfer is possible with progressive nets. To differentiate
+these cases, we consider the Average Fisher Sensitivity for the 3 column
+case (e.g., see Fig.~ fig:atari3_results_neil a). A clear pattern
+emerges amongst these and other examples: the most negative transfer
+coincides with complete dependence on the convolutional layers of the
+previous columns, and no learning of new visual features in the new
+column. In contrast, the most positive transfer occurs when the
+features of the first two columns are augmented by
+new features. The statistics across all 3-column nets
+(Figure fig:atari3_results_neil b) show that positive transfer in
+Atari occurs at a "sweet spot" between heavy reliance on features from
+the source task, and heavy reliance on all new features for the
+target task.
+
+ figure [h]
+ figures/atari3_results_neil.pdf (a)
+ AFS scores for 3-column nets with lowest (left) and highest
+ (right) transfer scores on the 12 target Atari games. (b) Transfer
+ statistics across 72 three-column nets, as a function of the
+ mean AFS across the three convolutional layers of the new
+ column (i.e.\ how much new vision is learned). fig:atari3_results_neil 
+ figure 
+
+At first glance, this result appears unintuitive: if a progressive net
+finds a valuable feature set from a source task,
+shouldn't we expect a high degree of transfer?
+We offer two hypotheses. First, this may
+simply reflect an optimization difficulty, where the source features offer
+fast convergence to a poor local minimum. This is a known
+challenge in transfer learning AAAIMag11-Taylor : learned source
+tasks confer an inductive bias that can either help or hinder in different cases.
+Second, this may reflect a problem of
+exploration, where the transfered representation is "good enough" for
+a functional, but sub-optimal policy. 
+
+## Labyrinth
+
+The final experimental setting for progressive networks is Labyrinth,
+a 3D maze environment where the inputs are rendered images granting partial
+observability and the agent outputs discrete actions,
+including looking up, down, left, or right and moving forward,
+backwards, left, or right. The tasks as well as the level maps are
+diverse and involve getting positive scores for `eating' good items
+(apples, strawberries) and negative scores for eating bad items
+(mushrooms, lemons). Details can be found in the appendix. While there is conceptual and
+visual overlap between the different tasks, the tasks present a
+challenging set of diverse game elements (Figure
+ fig:datasets ).
+
+ figure [h]
+ 
+ figures/transfer_lab.pdf 
+ Transfer scores and example learning curves for Labyrinth tasks. Colours indicate transfer (clipped at 2). The learning curves show two examples of two-column progressive performance vs. baselines 1 and 3. 
+ fig:lab 
+ figure 
+
+As in the other domains, the progressive approach yields more positive transfer than any of the baselines (see Fig.~ fig:lab a and Table~ table:main ). We observe less transfer on the Seek Track levels, which have dense reward items throughout the maze and are easily learned. Note that even for these easy cases, baseline 2 shows negative transfer because it cannot learn new low-level visual features, which are important because the reward items change from task to task. The learning curves in Fig.~ fig:lab b exemplify the typical results seen in this domain: on simpler games, such as Track 1 and 2, learning is rapid and stable by all agents. On more difficult games, with more complex game structure, the baselines struggle and progressive nets have an advantage.
+
+## Conclusion
+
+Continual learning, the ability to accumulate and transfer knowledge to new domains, is a core characteristic of intelligent beings. Progressive neural networks are a stepping stone towards continual learning, and this work has demonstrated their potential through experiments and analysis across three RL domains, including Atari, which contains orthogonal or even adversarial tasks. We believe that we are the first to show positive transfer in deep RL agents within a continual learning framework. Moreover, we have shown that the progressive approach is able to effectively exploit transfer for compatible source and task domains; that the approach is robust to harmful features learned in incompatible tasks; and that positive transfer increases with the number of columns, thus corroborating the constructive, rather than destructive, nature of the progressive architecture.
+
+ 
+ 
+ 5pt 
+ plain 
+ progressive 
+
+ 
+
+ 
+ arabic 
+
+ Supplementary Material 
+
+## Perturbation Analysis
+
+We explored two related methods for analysing transfer in progressive networks.
+One based on Fisher information yields the Average Fisher Sensitivity (AFS)
+and is described in Section 3 of the paper. We describe
+the second method based on perturbation analysis in this appendix, as it proved
+too slow to use at scale. Given its intuitive appeal however, we provide
+details of the method along with results on Pong Variants (see
+Section 5.2), as a means to corroborate the AFS score.
+
+Our perturbation analysis aims to estimate which components of the source
+columns materially contribute to the performance of the final column on the
+target tasks. To this end, we injected Gaussian noise into each of the (post-ReLU) hidden
+representations, with a new sample on every forward pass, and calculated the
+average effect of these perturbations on the game score over 10 episodes. We
+did this at a coarse scale, by adding noise across all features of a given
+layer, though a fine scale analysis is also possible per feature (map).
+In order to be invariant to any arbitrary scale factors in the network weights,
+we scale the noise variance proportional to the variance of the activations in
+each feature map and fully-connected neuron. Scaling the variance in this
+manner is analogous to computing the Fisher w.r.t. normalized activations for
+the AFS score.
+
+ figure [h]
+ 
+ figures/appendix_AFS_vs_APS.pdf 
+ (a) Perturbation analysis for the two second-layer
+ convolutional representations in the two columns of the
+ Pong/Pong-noise net. Blue: adding noise to second convolutional layer from column 1;
+ green: from column 2. Grey line determines critical noise
+ magnitude for each representation, _i^2 .
+ (b-c) Comparison of per-layer sensitivities obtained using the APS
+ method (b) and the AFS method (c; as per main text).
+ These are highly similar. 
+ fig:app_afs_vs_aps 
+ figure 
+
+Define _i^ (k) =1/ _i^ 2(k) as the precision of the noise
+injected at layer i of column k , which results in a 50\% drop in
+performance. The Average Perturbation Sensitivity (APS) for this layer is
+simply:
+ align 
+ APS (i,k) = _i^ (k) _k _i^ (k) 
+ align 
+Note that this value is normalized across columns for a given layer. The APS
+score can thus be interpreted as the responsibility of each column in a given
+layer to final performance.
+The APS score of 2-column progressive networks trained on Pong Variants is
+shown in Fig fig:app_afs_vs_aps (b). These clearly corroborate the
+AFS shown in (c).
+
+## Compressibility of Progressive Networks
+
+As described in the main text, one of the limitations of progressive networks is the growth in the size of the network with added tasks. In the basic approach we pursue in the main text, the number of hidden units and feature maps grows linearly with the number of columns, and the number of parameters grows quadratically.
+
+Here, we sought to determine the degree to which this full capacity is actually used by the network. We leveraged the Average Fisher Sensitivity measure to study how increasing the number of columns in the Atari task set changes the need for additional resources. In Figure fig:app_compression a, we measure the average fractional use of existing feature maps in a given layer (here, layer 2). We do this for each network by concatenating the per-feature-map AFS values from all source columns in this layer, sorting the values to produce a spectrum, and then averaging across networks. We find that as the number of columns increases, the average spectrum becomes sparser: the network relies on a smaller proportion of features from the source columns. Similar results were found for all layers. 
+
+Similarly, in Figure fig:app_compression b, we measure the capacity required in the final added column as a function of the total number of columns. Again, we measure the spectrum of AFS values in an example layer, but here from only the final column. As the progressive network grows, the new column's features are both less important overall (indicated by the declining area under the graph), and have a sparser AFS spectrum. Combined, these results suggest that significant pruning of lateral connections is possible, and the quadratic growth of parameters might be contained.
+
+ figure [h]
+ 
+ figures/appendix_compression.pdf 
+ (a) Spectra of AFS values (for layer 2) across all feature maps from source columns, for the Atari dataset. The spectra show the range of AFS values, and are averaged across networks. While the 2 column / 3 column / 4 column nets all have different values of N_ maps (here, 12, 24, and 36 respectively), these have been dilated to fit the same axis to show the proportional use of these maps. (b) Spectra of AFS values (for layer 2) for the feature maps from only the final column. 
+ 
+ fig:app_compression 
+ figure 
+
+## Setup Details
+
+ sec:appendix_jobs_detail 
+
+In our grid we sample hyper-parameters from categorical distributions:
+ itemize 
+ Learning rate was sampled from \ 10^ -3 , 5 10^ -4 , 10^ -4 \ .
+ Strength of the entropy regularization from \ 10^ -2 , 10^ -3 , 10^ -4 \ 
+ Gradient clipping cut-off from \ 20, 40\ 
+ scalar multiplier on the lateral feature is initialized randomly to one from \ 1, 10^ -1 , 10^ -2 \ 
+ itemize 
+
+For the Atari experiments we used a model with 3 convolutional layers followed by a fully connected
+layer and from which we predict the policy and value function. The convolutional layers are as
+follows. All have 12 feature maps. The first convolutional layer has a kernel of size 8x8 and a stride
+of 4x4. The second layer has a kernel of size 4 and a stride of 2. The last convolutional layer has
+size 3x4 with a stride of 1. The fully connected layer has 256 hidden units.
+
+Learning follows closely the paradigm described in mnih2016a3c . We use 16 workers and the
+same RMSProp algorithm without momentum or centring of the variance. The score for each point of
+a training curve is the average over all the episodes the model gets to finish in 25e4 environment steps.
+
+The whole experiments are run for a maximum of 1.6e8 environment step. The agent has an action repeat of 4 as
+in mnih2016a3c , which means that for 4 consecutive steps the agent will use the same action picked at the
+beginning of the series. For this reason through out the paper we actually report results in terms of agent
+perceived steps rather than environment steps. That is, the maximal number of agent perceived step that we do
+for any particular run is 4e7 .
+
+## Learning curves
+
+ sec:appendix_curves 
+
+Figure fig:app_plot shows training curves for all the target games in the Atari domain.
+We plot learning curves for two column, three column and four column progressive networks alongside Baseline 3 (gray dashed line), a model pretrained on Seaquest and then finetuned on the particular target game and Baseline 1 (gray dotted line), where a single column is trained on the source game Seaquest.
+
+ figure 
+ tabular ccc 
+ figures/app_plots/mainpaper-nolegend-seaquest_riverraid_pong_to_alien &
+ figures/app_plots/mainpaper-nolegend-seaquest_riverraid_pong_to_asterix &
+ figures/app_plots/mainpaper-nolegend-seaquest_riverraid_pong_to_boxing \\
+
+ figures/app_plots/mainpaper-nolegend-seaquest_riverraid_pong_to_centipede &
+ figures/app_plots/mainpaper-nolegend-seaquest_riverraid_pong_to_gopher &
+ figures/app_plots/mainpaper-nolegend-seaquest_riverraid_pong_to_hero \\
+
+ figures/app_plots/mainpaper-nolegend-seaquest_riverraid_pong_to_jamesbond &
+ figures/app_plots/mainpaper-nolegend-seaquest_riverraid_pong_to_krull &
+ figures/app_plots/mainpaper-nolegend-seaquest_riverraid_pong_to_road_runner \\
+
+ figures/app_plots/mainpaper-nolegend-seaquest_riverraid_pong_to_robotank &
+ figures/app_plots/mainpaper-nolegend-seaquest_riverraid_pong_to_star_gunner &
+ figures/app_plots/mainpaper-legend-seaquest_riverraid_pong_to_wizard_of_wor \\
+ tabular 
+ Training curves for transferring to the target games after seeing first Seaquest followed by River Raid and lastly Pong. For the baselines,
+ the source game used for pretraining is Seaquest. 
+ fig:app_plot 
+ figure 
+
+We can see that overall baseline 3 performs well. However there are situations when having features learned from more previous task actually helps with transfer (e.g. when target game is Boxing).
+
+Figure fig:app_plot_pongs shows how two-column progressive networks perform as compared to Baseline 3 (gray dashed line), a model pretrained on the source game, here standard Pong, and then finetuned on a particular target game, and Baseline 1 (black dotted line), where a single column is trained on standard Pong. Figure fig:app_plot_lab shows two-column progressive networks and baselines on Labyrinth tasks; the source game was Maze Y. 
+
+ figure 
+ tabular cccccccc 
+ Target: Pong & Target: Black \\
+ figures/app_plots/pongs/pong/pong &
+ figures/app_plots/pongs/pong/pong_black \\
+
+ Target: H-flip & Target: HV-flip \\
+ figures/app_plots/pongs/pong/pong_h_flip &
+ figures/app_plots/pongs/pong/pong_hv_flip \\
+
+ Target: Noisy & Target: V-flip \\
+ figures/app_plots/pongs/pong/pong_noise &
+ figures/app_plots/pongs/pong/pong_v_flip \\
+
+ Target: White & Target: Zoom \\
+ figures/app_plots/pongs/pong/pong_white &
+ figures/app_plots/pongs_legend/pong/pong_zoom \\
+
+ tabular 
+ Training curves for transferring to 8 target games after learning standard Pong first. 
+ fig:app_plot_pongs 
+ figure 
+
+ figure 
+ tabular cccccccc 
+ Target: Track 1 & Target: Track 2 \\
+ figures/app_plots/lab/smy1/seek_track_01 &
+ figures/app_plots/lab/smy1/seek_track_02 \\
+
+ Target: Track 3 & Target: Track 4 \\
+ figures/app_plots/lab/smy1/seek_track_03 &
+ figures/app_plots/lab_legend/smy1/seek_track_04 \\
+
+ Target: Avoid 1 & Target: Avoid 2 \\
+ figures/app_plots/lab/smy1/seekavoid_arena_01 &
+ figures/app_plots/lab/smy1/seekavoid_arena_02 \\
+
+ Target: Maze Y & Target: Maze M \\
+ figures/app_plots/lab/smy1/seek_maze_y_01 &
+ figures/app_plots/lab_legend/smy1/seek_maze_m_01 \\
+ tabular 
+ Training curves for transferring to 8 target games after learning Maze Y first. 
+ fig:app_plot_lab 
+ figure 
+
+## Labyrinth
+
+Section 5.4 evaluates progressive networks on foraging tasks in complex 3D maze
+environments. Positive rewards are given to the agent for collecting apples and
+strawberries, and negative rewards for mushrooms and lemons.
+Episodes terminate when either all (positive) rewards are collected, or after a
+fixed time interval.
+
+Levels differ in their maze layout, the type of items present and the sparsity
+of the reward structure. The levels we employed can be characterized as follows:
+ itemize 
+ Seek Track 1: simple corridor with many apples
+ Seek Track 2: U-shaped corridor with many strawberries
+ Seek Track 3: -shaped, with 90^o turns, with few apples
+ Seek Track 4: -shaped, with 45^o turns, with few apples
+ Seek Avoid 1: large square room with apples and lemons
+ Seek Avoid 2: large square room with apples and mushrooms
+ Seek Maze M : M-shaped maze, with apples at dead-ends
+ Seek Maze Y : Y-shaped maze, with apples at dead-ends
+ itemize 
+
+ document
+
+
+<!-- materialization-redistribution-notice -->
+## Redistribution notice
+
+"Progressive Neural Networks", arXiv:1606.04671v4, by Andrei A. Rusu, Neil C. Rabinowitz, Guillaume Desjardins, Hubert Soyer, James Kirkpatrick, Koray Kavukcuoglu, Razvan Pascanu and Raia Hadsell, https://arxiv.org/abs/1606.04671v4, CC BY 4.0: https://creativecommons.org/licenses/by/4.0/. Andrei A. Rusu、Neil C. Rabinowitz、Guillaume Desjardins 为原文标星的前三位等贡献作者 （These authors contributed equally to this work），不是全部八作者等贡献。 模板独立归属：NeurIPS 2026 Program Chairs, "Formatting Instructions For NeurIPS 2026", https://www.overleaf.com/latex/templates/formatting-instructions-for-neurips-2026/bjdwqfdkyftc， 当前官方明确 CC BY 4.0；官方 CFP https://neurips.cc/Conferences/2026/CallForPapers 所链源包为 https://media.neurips.cc/Conferences/NeurIPS2026/Formatting_Instructions_For_NeurIPS_2026.zip， 核对日期 2026-09-16。实际保留的是 nips_2016.sty 中对应的模板表达，不冒称整件同字节 或历史出处；保留 Roman Garnett (garnett@wustl.edu) and the many authors of nips15submit_e.sty, including MK and drstrip@sandia 的原归属。以上署名不暗示背书。
+
+Changes: 固定 v4 的全部 20 个 source 文本、normalized/document.tex、41 个定位器及既有 41,918-byte 正文前缀原样保留；130 个未保存成员是既有物化范围，本次不新删内容。 仅 normalized/document.txt 末尾追加唯一署名、修改、范围附注与 NOTICE.md 链接， NOTICE.md 复制完整 BY4 法律资产，README 与 manifest 同步包装记录。 相对于当前明确授权的 neurips_2026.sty，实存样式保留 NIPS 名称、March 2016 与 2016/03/07 包标识、nips_2016 包名及内部 nips/final/caption-length 等旧标识； 会议事实为 29th/2016/Barcelona, Spain，而非当前 40th/2026/Sydney。 source/nips_2016.sty 第 49–50 行 final conference 页脚原已注释，未知修改者不作推断； 旧匿名投稿短页脚措辞保留。第 94–99 行直接加载 letterpaper、textheight=9in、 textwidth=5.5in、top=1in 的 geometry，而当前用 verbose/letterpaper、 AtBeginDocument/newgeometry 和 headheight/headsep/footskip/fullpage guard。 旧 lineno/amsmath 兼容长段前置、当前后置，缩进及括号布局不同；旧标题分支 if@nipsfinal 为真时显示作者、否则匿名，当前 if@anonymous 为真时匿名、否则显示作者， 两段长表达对应但顺序/条件适配。旧件没有当前 preprint、main/position/eandd/creativeai/education、单/双盲 workshop、nonanonymous 模式、ack/environ/hiding、最低字号覆盖、checklist 回答宏， final 选项亦没有当前的 anonymousfalse 设置。全部字体、section、list、table、 footnote、title/abstract 与 lineno/amsmath 长排版表达已逐块对应；这些既存差异 依当前 BY4 复制/改编路径准确披露，不虚构历史 2016 许可、历史整件字节一致、 旧件来自 2026 原包或修改者身份，本次不修改 STY。
+
+Scope: 本包仅覆盖固定 arXiv 1606.04671v4 实存的 20 个 source 文本（76,305 bytes）、 normalized/document.tex（49,876 bytes）、附注前的 41,918-byte 正文及 41 个 定位器（selectors）。论文作者可许可的正文、实验及表格文字、附录和补充 source 适用该固定 v4 作品 CC BY 4.0；nips_2016.sty（10,112 bytes）的独立长排版对应表达 分别依当前 NeurIPS 官方 BY4 复制/改编路径署名，并保留已披露的旧标识、会议事实、 短页脚、geometry、分支和功能差异，不将模板版权归给论文作者，不声称历史 March 2016 整 STY 曾获同许可或向整个 2016 模板家族外推。nips_2016.bbl 与 progressive.bbl 各 5,556 bytes、彼此同字节，均为书目引用记录，不许可所引完整作品。原已省略的 130 个成员（包括文本 Makefile、图像和图表 PDF）、未保存的外链作品、软件依赖 （包括仅加载而未实存的 natbib）、媒体、模型、数据、商标及专利不属于本包； 不声称保存/许可了完整 tar，定位器不改变其所定位表达的适用权利。
+
+Full license and original rights links: [NOTICE.md](../NOTICE.md).

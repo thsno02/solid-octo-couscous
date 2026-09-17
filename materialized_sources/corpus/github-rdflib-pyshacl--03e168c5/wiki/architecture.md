@@ -1,0 +1,46 @@
+# Architecture evidence: RDFLib/pySHACL
+
+- `README.md:3` — pySHACL
+- `README.md:15` — Community for Help and Support
+- `README.md:22` — Installation
+- `README.md:40` — Optional: Oxigraph backend
+- `README.md:49` — Command Line Use
+- `README.md:156` — Python Module Use
+- `README.md:248` — Python Module Call
+- `README.md:256` — Errors
+- `README.md:271` — Focus Node Filtering, and Shape Selection
+- `README.md:286` — SPARQL Remote Graph Mode
+- `README.md:298` — Inference and Rules
+- `README.md:316` — Integrated OpenAPI-3.0-compatible HTTP REST Service
+- `README.md:332` — or
+- `README.md:334` — or
+- `README.md:336` — or
+- `README.md:346` — Configuring the HTTP REST Service
+- `README.md:354` — Windows CLI
+- `README.md:376` — Docker
+- `README.md:388` — Compatibility
+- `README.md:396` — Features
+- `README.md:399` — Changelog
+- `README.md:402` — Benchmarks
+- `README.md:405` — License
+- `README.md:408` — Contributors
+- `README.md:411` — Citation
+- `README.md:414` — Contacts
+- `README.md:416` — Lead Developer
+- `README.md:425` — Support developer
+- `CONTRIBUTING.md:1` — CONTRIBUTING
+- `CONTRIBUTING.md:3` — The PySHACL project encourages submissions from anyone who wishes to contribute
+- `CONTRIBUTING.md:7` — Code Format
+- `CONTRIBUTING.md:13` — Code Linting
+- `CONTRIBUTING.md:19` — Type Checking
+- `CONTRIBUTING.md:25` — Testing
+- `CONTRIBUTING.md:35` — Makefile
+- `Dockerfile:9` — Update to latest setuptools and pip in /usr/local/lib to mitigate CVE-2024-6345
+- `pyproject.toml:7` — Don't forget to change the version number in __init__.py, Dockerfile, and CITATION.cff along with this one
+- `pyproject.toml:63` — These are equivelent to python package "extras"
+- `pyproject.toml:134` — Exclude a variety of commonly ignored directories.
+- `pyproject.toml:168` — Enable pycodestyle (`E`) and Pyflakes (`F`) codes by default.
+- `pyproject.toml:172` — Allow autofix for all enabled rules (when `--fix`) is provided.
+- `pyproject.toml:175` — Allow unused variables when underscore-prefixed.
+- `pyproject.toml:180` — Unlike Flake8, default to a complexity level of 10.
+- `pyproject.toml:244` — Don't include lint or type-checking in gh-actions matrix

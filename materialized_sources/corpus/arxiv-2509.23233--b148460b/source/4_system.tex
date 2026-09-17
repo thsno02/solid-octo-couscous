@@ -1,0 +1,58 @@
+\section{\system: A Human-in-the-Loop Assistant for Corpus-Level Inconsistency Detection}
+
+The \task task involves two primary subtasks:
+
+\begin{enumerate}
+\item \textbf{Research:} Gathering a comprehensive set of relevant evidence from a large corpus, as exhaustive manual checking is infeasible.
+\item \textbf{Verification:} Determining whether any retrieved evidence contradicts the given fact.
+\end{enumerate}
+
+While humans generally perform well at verifying inconsistencies, our preliminary studies suggest they struggle to efficiently locate relevant pages that may contradict a given fact. To leverage the strengths of both humans and machines, we propose \system, an agent based on the ReAct architecture~\citep{yao2022react}. In this framework, research and verification steps are interleaved, allowing insights gained during verification to guide subsequent retrieval. This iterative process improves the agent's ability to uncover inconsistencies.
+
+In our experiments, we found that simply presenting retrieval results can confuse users unfamiliar with the domain of the claim. Determining consistency often hinges on nuanced understandings of entities and concepts mentioned in the evidence. We therefore introduce two auxiliary actions to the research subtask and incorporate their outcome into the agent's outputs:
+
+\begin{enumerate}
+\item \action{clarify}:
+Request clarifications to disambiguate entities.
+To distinguish similarly named entities, the agent identifies ambiguities in the given fact and retrieved evidence, gathers additional context, and produces concise summaries highlighting key differences.
+\item \action{explain}: Request explanations of specialized terminology. When encountering unfamiliar concepts (e.g., ``tie-break rules in tennis''), the agent queries an LLM for a brief, accessible explanation.
+\end{enumerate}
+
+This structure enables more targeted evidence collection, especially for complex or nuanced claims. Illustrative examples of the benefit of such retrieval appear in Appendix~\ref{sec:dataset_examples}. Implementation details are provided in Appendix~\ref{sec:tools_implementation}.
+
+\system employs in-context learning with an LLM to assess whether retrieved evidence contradicts the given fact. Preliminary evaluations indicate that current LLMs alone do not reliably verify inconsistencies at high accuracy. Therefore, we design \system to output an inconsistency score in the range [0, 1] to quantify confidence and help users prioritize high-confidence candidates for inspection.
+
+\subsection{User Study}
+We evaluated the effectiveness of \system in helping users efficiently explore potential inconsistencies by conducting a user study with eight experienced Wikipedia editors (median number of edits: 2{,}124).
+
+We integrated \system into a browser extension that highlights potentially inconsistent claims encountered during Wikipedia browsing and editing (Figure~\ref{fig:browser_extension}). The extension analyzes the current page in the background and, when a potential inconsistency is detected, highlights the claim and provides a tooltip with explanations and links to supporting evidence.
+
+For each editor, we selected two Wikipedia articles from a pool of 10 that we had manually verified to contain multiple inconsistencies with the rest of Wikipedia. Each participant completed two 30-minute tasks in randomized order: (1) identifying inconsistencies in one article using our extension without external search, and (2) identifying inconsistencies in a different article without the extension, using any external tools they wish to use (including search engines and LLM chatbots). In both tasks, participants documented all inconsistencies they found within the assigned article.
+
+Participants identified an average of 64.7\% more inconsistencies per hour when using \system.
+
+After the tasks, we collected feedback on perceived usefulness. Participants rated their agreement with several statements on a 5-point Likert scale (\textit{Strongly Disagree} to \textit{Strongly Agree}); Figure~\ref{fig:usefulness_chart} shows the response distribution. Editors particularly valued the tool's ability to surface contradictions across article boundaries, information that typically requires extensive manual cross-referencing. Additionally, 87.5\% of participants reported increased confidence in identifying inconsistencies when using \system. These results suggest that AI-assisted inconsistency detection can effectively augment human curation.
+
+\begin{figure}[ht!]
+\centering
+\includegraphics[width=0.48\textwidth]{assets/usefulness.png}
+\caption{\small Survey results on the perceived usefulness of our tool ($n=8$). Responses were collected using a 5-point Likert scale.}
+\label{fig:usefulness_chart}
+\end{figure}
+
+Additional details and open-ended responses are provided in Appendix~\ref{sec:user_study}.
+
+\section{Inconsistency Rates in the English Wikipedia and NLP Datasets}
+\label{sec:implications}
+
+We find that {\bf at least 3.3\% of Wikipedia facts are inconsistent.}
+We establish a statistical lower bound on inconsistencies in the November 1, 2024 Wikipedia dump. Applying \system to 700 atomic facts uniformly sampled from Wikipedia articles, we identified 44 potentially inconsistent facts, of which 23 were manually confirmed inconsistent. With 99\% confidence, we estimate that approximately $3.3\% \pm 1.7\% [1.6\%, 5.0\%]$ of all facts in Wikipedia contradict other information in the corpus. This is a lower bound, as \system may miss inconsistencies (see Appendix~\ref{sec:inconsistency-calculation} for further details).
+Extrapolated to the entire encyclopedia, this corresponds to between 37.6 million and 121.9 million inconsistent facts,\footnote{\url{https://en.wikipedia.org/wiki/Wikipedia:Size_of_Wikipedia}} underscoring the need for systematic inconsistency detection.
+
+\textbf{Inconsistency rates vary across article categories.}
+We further analyze frequency by mapping our uniform sample to Wikipedia article categories. Reliability varies substantially across domains, with narrative-heavy subjects particularly prone to inconsistencies. Articles in the “history” category exhibit the highest inconsistency rate (17.7\%), followed by Everyday Life (16.9\%) and Society \& Social Sciences (14.3\%) (Figure~\ref{fig:category_inconsistency}). The most common error type in history articles is numerical discrepancy. By contrast, categories requiring precise technical knowledge and quantifiable information---such as Mathematics (5.6\%) and Technology (9.4\%)---show markedly lower rates. See Appendix~\ref{section:inconsistency-in-categories} for more details.
+
+\textbf{In the AmbigQA dataset~\citep{min-etal-2020-ambigqa}, we find that $4.0\% \pm 1.1\%$ of examples contradict information elsewhere in the corresponding Wikipedia dump}, reflecting underlying inconsistencies in Wikipedia.
+This finding is significant given that AmbigQA is designed to have unique answers at the corpus level. For our investigation, we converted its question-answer pairs into declarative facts and applied the same methodology as before to assess inconsistency.
+
+\textbf{Applying the same analysis to \feverous~\cite{aly-etal-2021-fact}, we find that $7.3\% \pm 0.5\%$ of claims labeled as \supports~are involved in corpus-level inconsistencies}: their verification outcome depends on which Wikipedia article is chosen as evidence and could have been labeled as \refutes~instead. This challenges the foundational assumption in fact verification that the corpus provides a consistent source of truth. 

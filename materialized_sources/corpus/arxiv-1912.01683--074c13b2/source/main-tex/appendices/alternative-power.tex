@@ -1,0 +1,22 @@
+\section{Comparing \texorpdfstring{$\pwrNoDist$}{POWER} with information-theoretic empowerment}\label{existing}
+\citet{salge_empowermentintroduction_2014} define  information-theoretic \emph{empowerment} as the maximum possible mutual information between the agent's actions and the state observations $n$ steps in the future, written $\mathfrak{E}_n(s)$. This notion requires an arbitrary choice of horizon, failing to account for the agent's discount rate $\gamma$. ``In a  discrete deterministic world empowerment reduces to the logarithm of the number of sensor states reachable with the available actions'' \citep{salge_empowermentintroduction_2014}. \Cref{fig:empower_fail} demonstrates how empowerment can return counterintuitive verdicts with respect to the agent's control over the future. 
+ 
+\begin{figure}[h] 
+    \centering
+
+    \subfloat[][]{\includegraphics{main-tex/assets/tikz/main-appendix/fail-converge.pdf}\label{fail-converge}}\hspace{3pt}
+     \subfloat[][]{
+     \includegraphics[]{main-tex/assets/tikz/main-appendix/empower-weak.pdf}
+     \label{empower-a}}\quad\hspace{5pt}
+     \subfloat[][]{
+     \includegraphics[]{main-tex/assets/tikz/main-appendix/empower-strong.pdf}
+    \label{empower-b}}
+
+    \caption{Proposed empowerment measures fail to adequately capture how future choice is affected by present actions. In \protect\subref{fail-converge}: $\mathfrak{E}_n(\col{blue}{s_1})$ varies depending on whether $n$ is even; thus, $\lim_{n\to \infty}\mathfrak{E}_n(\col{blue}{s_1})$ does not exist. In \protect\subref{empower-a} and  \protect\subref{empower-b}: $\forall n: \mathfrak{E}_n(\col{blue}{s_3})=\mathfrak{E}_n(\col{blue}{s_4})$, even though $\col{blue}{s_4}$ allows greater control over future state trajectories than $\col{blue}{s_3}$ does. For example, suppose that in both \protect\subref{empower-a} and \protect\subref{empower-b}, the leftmost black state and the rightmost red state have 1 reward while all other states have 0 reward. In \protect\subref{empower-b}, the agent can independently maximize the intermediate black-state reward and the delayed red-state reward. Independent maximization is not possible in \protect\subref{empower-a}.  
+    }
+    \label{fig:empower_fail}
+\end{figure}
+ 
+$\pwrNoDist$ returns intuitive answers in these situations. $\lim_{\gamma\to 1}\pwr[\col{blue}{s_1},\gamma]$ converges by \cref{thm:cont-power}. Consider the obvious involution $\phi$ which takes each state in \cref{empower-a} to its counterpart in \cref{empower-b}. Since $\phi\cdot\Fnd(\col{blue}{s_3})\subsetneq \Fnd(\col{blue}{s_4})=\F(\col{blue}{s_4})$, \cref{prop:more-opt} proves that $\forall \gamma\in [0,1]:\pwr[\col{blue}{s_3},\gamma][\Dbd]\leqMost[][\DSetBd]\pwr[\col{blue}{s_4},\gamma][\Dbd]$, with the proof of \cref{prop:more-opt} showing strict inequality under all $\Diid$ when $\gamma\in(0,1)$.
+ 
+Empowerment can be adjusted to account for these cases, perhaps by considering the channel capacity between the agent's actions and the state trajectories induced by stationary policies. However, since $\pwrNoDist$ is formulated in terms of optimal value, we believe that $\pwrNoDist$ is better suited for {\mdp}s than information-theoretic empowerment is.

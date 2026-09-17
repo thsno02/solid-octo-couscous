@@ -1,0 +1,60 @@
+\label{sec:task}
+
+
+We study generating Wikipedia-like articles from scratch, placing emphasis on the \textit{pre-writing} stage~\citep{rohman1965pre}, which involves the demanding sub-tasks of gathering and curating relevant information (``research''). %
+This models the human writing approach which has prompted
+some educators to view %
+Wikipedia article writing 
+as an educational exercise for academic training%
+~\citep{tardy2010writing}.
+
+\begin{table}
+\centering
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lcccc} 
+\toprule
+     & \textbf{Domain} & \textbf{Scope} & \begin{tabular}[c]{@{}c@{}}\textbf{Given}\\\textbf{Outline?}\end{tabular} & \begin{tabular}[c]{@{}c@{}}\textbf{Given}\\\textbf{Refs?}\end{tabular}  \\ 
+\midrule
+  \citet{balepur-etal-2023-expository}   & One             & One para.      & /                                                                         & Yes                                                                     \\
+ \citet{qian2023webbrain}    & All             & One para.      & /                                                                         & No                                                                      \\
+  \citet{fan-gardent-2022-generating}   & One             & Full article   & Yes                                                                       & No                                                                      \\
+ \citet{j.2018generating}    & All             & One para.      & /                                                                         & Yes                                                                     \\
+ \citet{sauper-barzilay-2009-automatically}    & Two             & Full article   & No                                                                        & No                                                                      \\ 
+\midrule
+Ours & All             & Full article   & No                                                                        & No                                                                      \\
+\bottomrule
+\end{tabular}
+}
+\caption{Comparison of different Wikipedia generation setups in existing literature. Generating one paragraph does not need an article outline.}
+\vspace{-0.5em}
+\label{table:background}
+\end{table}
+
+\reftab{table:background} compares our work against prior benchmarks for Wikipedia generation. Existing work has generally focused on evaluating the generation of shorter snippets (\eg, one paragraph), within a narrower scope (\eg, a specific domain or two), or when an explicit outline or reference documents are supplied. A notable example is WikiSum~\citep{j.2018generating}, which treats generating Wikipedia articles as a multi-document summarization problem, with respect to the reference documents. 
+
+Our setup emphasizes the capability of long-form grounded writing systems to research and curate content. Specifically, given a topic $t$, the task is to find a set of references $\mathcal{R}$ and generate a full-length article $\mathcal{S}=s_1s_2...s_n$, where each sentence $s_i$ cites a list of documents in $\mathcal{R}$.\footnote{In practice, $\mathcal{S}$ also includes organizational elements such as section and subsection titles, which do not require citations.}
+
+
+
+
+
+
+\subsection{The FreshWiki Dataset}
+\label{sec:task_dataset}
+
+Creating a new Wikipedia-like article demands not only fluent writing but also good research skills. As modern LLMs are generally trained on Wikipedia text, we mitigate data leakage by explicitly seeking out \textit{recent} Wikipedia articles that were created (or very heavily edited) after the training cutoff of the LLMs we test. Our process can be repeated at future dates when new LLMs emerge.
+
+To apply our date criteria, we focus on the top 100 most-edited pages, based on edit counts, for each month from February 2022 to September 2023\footnote{Obtained from \url{\detokenize{https://wikimedia.org/api/rest_v1/metrics/edited-pages/top-by-edits/en.wikipedia/all-editor-types/content/}}\{year\}/\{month\}/all-days}. 
+To ensure high-quality references, we filter these articles to keep only those having B-class quality or above assessed by ORES\footnote{\url{https://www.mediawiki.org/wiki/ORES}}. We also exclude list articles\footnote{\url{https://en.wikipedia.org/wiki/Wikipedia:Stand-alone_lists}} and articles that have no subsections. While high-quality Wikipedia articles usually contain structured data (\eg, tables) and are multi-modal, we only consider the plain text component in constructing the dataset to simplify our task. More details of the dataset are in Appendix~\ref{appendix:dataset}.
+
+
+\subsection{Outline Creation and Evaluation}
+\label{sec:task_outline}
+
+
+A full-length article is hard to generate or evaluate~\citep{xu-etal-2023-critical, krishna-etal-2023-longeval}. When human educators teach students academic writing, they sometimes supervise students at the outline stage~\citep{eriksson2015supervision} because an extensive outline indicates a comprehensive understanding of the topic and provides a solid foundation for writing the full-length article~\citep{dietz2019trec}. Inspired by this, we decompose the generation of $\mathcal{S}$ into two stages. In the pre-writing stage, we require the system to create an outline $\mathcal{O}$, which is defined as a list of multi-level section headings\footnote{Since language models process and produce sequences, we can linearize $\mathcal{O}$ by adding ``\#'' to indicate section titles, ``\#\#'' to indicate subsection titles, etc.}. In the writing stage, the system uses the topic $t$, the references $\mathcal{R}$, and an outline $\mathcal{O}$ to produce the full-length article $\mathcal{S}$.
+
+
+To evaluate the outline coverage, we introduce two metrics: \textit{heading soft recall} and \textit{heading entity recall}. These metrics compare the multi-level section headings of the human-written article, considered as ground truth, and those in $\mathcal{O}$. Recognizing that an exact match between elements in these two sets of headings is unnecessary, we calculate the \textit{heading soft recall}~\citep{franti2023soft} using cosine similarity derived from Sentence-BERT~\citep{reimers-gurevych-2019-sentence} embeddings of the headings (details in Appendix~\ref{appendix:soft_heading_recall}).
+We also compute the \textit{heading entity recall} which is quantified as the percentage of named entities in human-written article headings covered by $\mathcal{O}$. We extract entities with FLAIR named entity recognition (NER)~\citep{akbik-etal-2019-flair}.
+

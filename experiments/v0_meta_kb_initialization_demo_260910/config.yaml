@@ -1,0 +1,60 @@
+experiment_id: v0_meta_kb_initialization_demo_260910
+created_at: '2026-09-10'
+status: candidate
+purpose: >-
+  Build a reproducible, evidence-linked meta knowledge base and LLM Wiki demo from the locally
+  materialized corpus. The demo proves the source -> evidence -> claim -> page plan -> candidate
+  wiki -> evaluation -> review path; it does not promote scientific assertions to trusted status
+  automatically.
+max_selected_sources: 36
+minimum_selected_sources: 12
+preferred_sources:
+  - cs/0309048
+  - '2505.22954'
+  - '2408.06292'
+  - '2402.14207'
+  - '2502.12110'
+  - '2501.13956'
+  - jennyzzt/dgm
+  - SakanaAI/AI-Scientist
+  - getzep/graphiti
+  - xoai/sage-wiki
+  - linkml/linkml
+  - VectifyAI/OpenKB
+content_tiers_allowed:
+  - full_text
+  - semantic_capsule
+  - excerpt_capsule
+page_types:
+  - map
+  - overview
+  - concept
+  - method
+  - system
+  - comparison
+  - debate
+  - evidence
+  - source
+  - research_question
+  - collection
+  - gap
+  - evaluation
+wiki_compiler:
+  version: deterministic-llm-wiki-v0.2
+  build_scope: selected_materialized_sources
+  proposal_based: true
+  claim_pages: true
+  source_pages: true
+  typed_links: true
+  backlinks: true
+  lexical_index: true
+  dependency_graph: true
+  context_packs: 3
+  fixed_evaluation_questions: 5
+  human_review_required: true
+  automatic_trusted_claims: 0
+admission_policy:
+  source_assertions: candidate
+  collection_assessments: candidate
+  generated_synthesis: review
+  trusted_claims: 0

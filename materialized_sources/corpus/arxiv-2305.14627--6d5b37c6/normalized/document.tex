@@ -1,0 +1,2381 @@
+\pdfoutput=1
+
+\documentclass[11pt]{article}
+
+\usepackage{EMNLP2023}
+
+
+\usepackage{times}
+\usepackage{latexsym}
+\usepackage{graphicx}
+\usepackage{subfigure}
+
+
+\usepackage[T1]{fontenc}
+
+\usepackage[utf8]{inputenc}
+
+\usepackage{microtype}
+
+\usepackage{inconsolata}
+
+\usepackage{array}
+\usepackage{pifont}
+\usepackage{tabularx}
+\usepackage{adjustbox}
+\usepackage{multirow}
+\usepackage{enumitem}
+\usepackage{xspace}
+\usepackage{tcolorbox}
+\usepackage{booktabs,amsfonts,dcolumn}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{amsmath,amsthm,amsfonts,amssymb,bm,stmaryrd,bbm}
+\usepackage[noorphans,vskip=0.75ex,leftmargin=2ex]{quoting}
+\usepackage{footmisc}\interfootnotelinepenalty=10000
+\usepackage{colortbl}
+
+
+
+
+
+% --- begin included file: header.tex ---
+\providecommand{\todo}[1]{
+    {\protect\color{red}{[TODO: #1]}}
+}
+
+\providecommand{\danqi}[1]{
+    {\protect\color{orange}{[Danqi: #1]}}
+}
+
+\providecommand{\tianyu}[1]{
+    {\protect\color{blue}{[Tianyu: #1]}}
+}
+
+\providecommand{\howard}[1]{
+    {\protect\color{purple}{[Howard: #1]}}
+}
+
+\providecommand{\jiatong}[1]{
+    {\protect\color{green}{[Jiatong: #1]}}
+}
+
+\newcommand{\cmark}{\ding{51}}
+\newcommand{\xmark}{\ding{55}}
+
+\newcommand\ti[1]{\textit{#1}}
+\newcommand\ts[1]{\textsc{#1}}
+\newcommand\tf[1]{\textbf{#1}}
+\newcommand\ttt[1]{\texttt{#1}}
+\newcommand\mf[1]{\mathbf{#1}}
+\newcommand\tmp[1]{\color{gray}{#1}}
+\newcommand\warn[1]{\textbf{\color{red}{#1}}}
+\newcommand\mr[1]{\mathrm{#1}}
+\newcommand\mc[1]{\mathcal{#1}}
+
+\newcommand{\cls}{\ttt{[CLS]}}
+
+\newcommand\myeq{\stackrel{\mathclap{\normalfont\mbox{i.i.d.}}}{~}}
+\providecommand{\todon}{
+    {\protect\color{red}{00.00}}
+}
+
+\newcommand{\uours}{USimCSE\xspace}
+\newcommand{\ours}{SimCSE\xspace}
+\newcommand{\identical}{identical}
+\newcommand{\Identical}{Identical}
+
+\newcommand{\la}{$_\texttt{large}$}
+\newcommand{\ba}{$_\texttt{base}$}
+
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\renewcommand{\paragraph}[1]{\vspace{0.2cm}\noindent\textbf{#1}}
+\newcommand{\tpf}[1]{\noindent\textbf{#1}}
+\newcommand{\tableindent}{~~}
+
+\newcommand{\gense}{LLMCC}
+
+\newcommand{\vani}{{\sc{Vanilla}}}
+\newcommand{\summ}{{\sc{Summ}}}
+\newcommand{\snippet}{{\sc{Snippet}}}
+\newcommand{\interact}{{\sc{Interact}}}
+\newcommand{\search}{{\sc{InlineSearch}}}
+\newcommand{\rerank}{{\sc{Rerank}}}
+\newcommand{\close}{{\sc{ClosedBook}}}
+\newcommand{\posthoc}{{\sc{PostCite}}}
+\newcommand{\oracle}{{\sc{Oracle}}}
+
+
+\newcommand{\pvani}{Vanilla}
+\newcommand{\psumm}{Summ}
+\newcommand{\psnippet}{Snippet}
+\newcommand{\pinteract}{Interact}
+\newcommand{\psearch}{InlineSearch}
+\newcommand{\prerank}{Rerank}
+\newcommand{\pclose}{ClosedBook}
+\newcommand{\pposthoc}{PostCite}
+
+\newcommand{\ccc}{\textasciicircum}
+
+\newcommand{\citeeval}{ALCE}
+
+\newcommand{\tableskip}{\noalign{\vskip 2pt}}
+\newcommand{\headercolor}{\rowcolor{gray!15}}
+\newcommand{\headercolorlong}{\rowcolor{gray!17}}
+
+
+\newcommand{\revise}[1]{{{#1}}}
+
+\newcommand{\citedb}[1]{{\color{darkblue}{#1}}}
+
+
+% --- end included file: header.tex ---
+
+
+
+
+\title{\citeeval{}: An Automatic Benchmark for\\ Large Language Model Generations with \ti{Citations}}
+\title{Can Large Language Models Cite Precisely?\\ A Benchmark for Automatic Evaluation and Modeling}
+
+\title{Enabling Large Language Models to Generate Text with Citations} %
+
+
+
+
+
+
+
+\author{Tianyu Gao\quad Howard Yen\quad Jiatong Yu\quad Danqi Chen  \\
+Department of Computer Science
+\& Princeton Language and Intelligence\\
+Princeton University \\
+\ttt{\{tianyug,hyen,jiatongy,danqic\}@cs.princeton.edu}\quad
+}
+
+\begin{document}
+\maketitle
+\begin{abstract}
+
+
+
+
+Large language models (LLMs) have emerged as a widely-used tool for information seeking, %
+but their generated outputs are prone to hallucination. %
+In this work, our aim is to allow LLMs to generate text with \ti{citations},
+improving their factual correctness and verifiability.
+Existing work mainly relies on commercial search engines and human evaluation, making it challenging to reproduce and compare different modeling approaches.
+We propose \tf{\citeeval{}}, %
+the first benchmark for \tf{A}utomatic \tf{L}LMs' \tf{C}itation \tf{E}valuation. 
+\citeeval{} collects a diverse set of questions and retrieval corpora
+and requires building end-to-end systems to retrieve supporting evidence and generate answers with citations. 
+We develop automatic metrics along three dimensions---fluency, correctness, and citation quality---and 
+demonstrate their strong correlation with human judgements.
+Our experiments with state-of-the-art LLMs and novel prompting strategies show that current systems have considerable room for improvement---For example, on the ELI5 dataset, 
+even the best models lack complete citation support 50\% of the time.
+Our analyses further highlight promising future directions, including
+developing better retrievers,
+advancing long-context LLMs,
+and improving the ability to synthesize information from multiple sources.\footnote{Our code and data are available at \url{https://github.com/princeton-nlp/ALCE}.}
+
+\end{abstract}
+
+
+% --- begin included file: sections/intro.tex ---
+\section{Introduction}
+
+
+
+Large language models (LLMs; \citealp{brown2020language,openai2023gpt4}) have gained increasing popularity as a tool for information seeking.
+While they generate engaging and coherent responses,
+their outputs are prone to hallucination and often contain factually incorrect information~\cite{ji2023survey}.
+This makes it harder for users to trust and verify LLM-generated outputs without any supporting evidence.
+
+\begin{figure}[t]
+    \includegraphics[width=0.98\linewidth]{figs/main.pdf}
+    \caption{The task setup of \citeeval{}. Given a question, 
+    the system generates text while providing \ti{citing passages} from a large retrieval corpus. Each statement may contain multiple citations (e.g., \ttt{[1][2]}). %
+    }
+    \vspace{-5pt}
+    \label{fig:main}
+\end{figure}
+
+In this work, we study a new generation paradigm for LLMs, in which
+we require LLMs to provide \textit{citations} to one or a few text passages for any statement they generate (Figure~\ref{fig:main}).
+Incorporating citations brings several benefits:
+(1) users can easily verify LLMs' claims with the provided citations;
+(2) LLMs can generate text that faithfully follows cited passages, which has the promise to improve correctness and alleviate hallucination.
+
+
+
+\begin{table*}[t]
+    \centering
+    \small
+        \begin{tabular}{lllp{0.5\textwidth}}
+            \toprule
+            \tf{Dataset} & \tf{Corpus (\#passages)} & \tf{Question type} & \tf{Example} \\
+            \midrule
+            ASQA & Wikipedia (21M) & Factoid (ambiguous) & \tf{Q}: When did the US break away from England? \\
+             &&& \tf{A}: The US declared independence on July 2, 1776 \citedb{[1][2]} ... The Treaty of Paris was later signed on September 3, 1783 \citedb{[3]}. \\ %
+            QAMPARI & Wikipedia (21M) & Factoid (list) & \tf{Q}: Which films have Gong Li as a member of their cast? \\
+            &&& \tf{A}: The Story of Qiu Ju \citedb{[1]}, Farewell My Concubine \citedb{[2]}, The Monkey King 2 \citedb{[3]}, Mulan \citedb{[3]}, Saturday Fiction \citedb{[3]} ...\\
+            ELI5 & Sphere (899M) & Why/How/What & \tf{Q}: How do student loans affect getting a mortgage? \\
+            &&& \tf{A}: Student loans can affect the debt to income ratio \citedb{[1]}, which is a key factor in determining the amount that ... \citedb{[2][3]} \\
+            \bottomrule
+        \end{tabular}
+    \caption{The three datasets used in our \citeeval{} benchmark. %
+    These datasets cover a wide range of question types
+    and the corresponding corpora span from Wikipedia to 
+    Web-scale document collection. %
+    }
+    \vspace{-10pt}
+    \label{tab:datasets}
+\end{table*}
+
+Multiple commercial systems have adopted this paradigm: %
+Bing Chat\footnote{\url{https://www.bing.com/new}} and perplexity.ai\footnote{\url{https://www.perplexity.ai}}
+respond to user questions in natural language with references to Web pages.
+\citet{nakano2021webgpt,menick2022teaching} share a similar motivation, but they mainly experiment with commercial search engines and closed-source models, making their results difficult to evaluate.
+Retrieval-augmented LMs~\citep{borgeaud2022retro,izacard2022atlas}
+incorporate retrieved passages during both training and inference,
+but do not guarantee faithfulness to retrieved passages or explicitly provide citations.
+Additionally,
+previous studies mostly rely on human evaluation~\cite{nakano2021webgpt,menick2022teaching,liu2023evaluating}, which is expensive and difficult to reproduce.
+We argue that the absence of automated evaluation
+hinders the advances of such systems.
+
+We present \tf{\citeeval{}}, the first {reproducible} benchmark for \textit{automatically} evaluating LLMs'  generations with citations.
+\citeeval{} assumes a natural-language question and a retrieval corpus, and requires building end-to-end systems to retrieve relevant passages from the corpus, generate a response to the question, and cite corresponding supporting passages.
+We compile three datasets that cover different types of questions and corpora---ASQA~\cite{stelmakh2022asqa}, QAMPARI~\cite{rubin2022qampari}, and ELI5~\cite{fan-etal-2019-eli5}---as shown in Table~\ref{tab:datasets}.
+Different from previous benchmarks~\citep{lee-etal-2019-latent,bohnet2022attributed},
+\citeeval{} evaluates long-text generation, 
+focusing on automatically evaluating citation quality,
+and allows citing \textit{multiple} passages for individual statements.
+
+We design automatic evaluation methods in three dimensions:
+\tf{fluency}, \tf{correctness}, and \tf{citation quality}.
+Specifically,
+we use MAUVE~\citep{pillutla2021mauve} to measure fluency, 
+propose tailored correctness metrics for each dataset, %
+and
+adopt a natural language inference (NLI) model~\citep{honovich-etal-2022-true-evaluating} to measure citation quality.
+We showcase how the three dimensions together contribute to a robust evaluation, 
+preventing systems from exploiting shortcuts. %
+Additionally, we conduct human evaluation and demonstrate a strong correlation with our automatic metrics.
+
+We experiment on multiple systems with state-of-the-art LLMs and retrievers and also propose novel prompting strategies to synthesize retrieved text into text generation. 
+Although all systems are capable of providing fluent and coherent responses, 
+there remains substantial room for improvement in terms of correctness and citation quality: For example, on the ELI5 dataset, 
+around 50\% generations of our ChatGPT and GPT-4 baselines are not fully supported by the cited passages. 
+Additionally, we find that
+(1) a closed-book model (generating answers without accessing any retrieved documents) with post-hoc citing achieves good correctness but much worse citation quality;
+(2) although interactive retrieval approaches~\citep{yao2023react,schick2023toolformer} offer more flexibility in when/what to retrieve, they do not improve the performance on this challenging benchmark;
+(3) summarizing the retrieved passages in a shorter text improves correctness but not citation quality;
+(4) reranking multiple generations boosts citation quality measured by human evaluation;
+(5) incorporating more retrieved passages in context does not help ChatGPT but improves GPT-4 performance.
+
+
+Our extensive analyses  
+highlight three major challenges of building LLMs to generate text with citations: 
+(1) 
+the retrieval quality is crucial to the final performance and  has substantial room for improvement;
+(2) 
+LLMs' limited context window
+restricts the number of passages they can incorporate;
+(3) 
+\revise{current LLMs struggle to synthesize multiple documents in context
+without being distracted by irrelevant ones, although better instruction tuning brings significant improvement.}
+These challenges pose promising research directions for 
+developing better systems integrating retrieval and LLMs.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+% --- end included file: sections/intro.tex ---
+
+
+% --- begin included file: sections/benchmark.tex ---
+
+\section{Task Setup and Datasets} %
+
+
+
+
+\label{sec:task_def}
+
+Our task is formalized as follows:
+Given a query $q$ and a corpus of text passages $\mathcal{D}$,
+the system %
+is required to return an output $\mathcal{S}$%
+, which consists of $n$ statements $s_1$, ..., $s_n$, 
+and each statement $s_i$ cites a list of passages $\mathcal{C}_i = \{c_{i,1}, c_{i, 2}, \ldots\}$\footnote{In practice, we allow at most 3 citations for each statement as more citations usually do not help.}, where $c_{i,j}\in \mathcal{D}$. 
+In this work,
+we segment LLMs' output into statements by sentence boundaries.\footnote{
+    QAMPARI requires a list as the answer, and we choose each entity in the generated list as a statement.} 
+While LLMs may include sentences that do not require a citation, such as ``\ti{I'm happy to help}'', 
+we observe that almost all sentences that LLMs output  provide valuable information and  require citations, similar to findings in
+\citet{liu2023evaluating}. 
+In this work, citations are enclosed by box brackets such as \texttt{[1][2]}.
+
+We divide the corpus $\mathcal{D}$ into 100-word passages following previous works on open-domain question answering~\cite{karpukhin-etal-2020-dense,petroni-etal-2021-kilt,piktus2021web},
+in contrast to
+commercial systems like Bing Chat, which cite entire Web pages. %
+We take  100-word passages because
+it is easier for humans to verify, and %
+allows for more retrieved passages to fit in LLMs' limited context.  %
+
+
+We choose QA datasets so that 
+(1) they contain factual questions, in which references are important; 
+(2) questions require long-text answers that cover multiple aspects; %
+(3) answering the questions  requires synthesizing multiple sources.
+We select three datasets %
+(Table~\ref{tab:datasets}) and introduce them below. %
+See \S\ref{app_sec:dataset_stats} for additional statistics. 
+
+ 
+\textbf{ASQA}~\cite{stelmakh2022asqa} is a long-form factoid dataset.
+As shown in Figure~\ref{fig:main}, 
+each question is an ambiguous question from AmbigQA~\cite{min-etal-2020-ambigqa} that requires multiple short answers to cover different aspects, 
+and the dataset provides a long-form answer that covers all short answers.
+Since most questions can be answered by Wikipedia, we use the 2018-12-20 Wikipedia snapshot as $\mathcal{D}$.  
+
+
+\textbf{QAMPARI} \cite{rubin2022qampari}  
+is a factoid QA dataset constructed from Wikipedia,
+where the answer is a list of entities that are  drawn from different passages.
+Same as ASQA, we use the 2018-12-20 Wikipedia as the corpus.%
+
+
+\textbf{ELI5} \cite{fan-etal-2019-eli5} 
+is a long-form QA dataset built on the Reddit forum ``Explain Like I'm Five''.\footnote{\url{https://www.reddit.com/r/explainlikeimfive/}} %
+Most ELI5 questions are how/why/what questions that require long answers and multiple passages as evidence.
+Due to the diverse topics discussed in the questions, we use
+Sphere~\cite{piktus2021web}---a filtered version of Common Crawl\footnote{\url{https://commoncrawl.org}. We also filter out any Web pages from Reddit. }---as the corpus. %
+The ELI5 dataset is widely used in related work due to its challenging nature~\cite{nakano2021webgpt,menick2022teaching,liu2023evaluating}.
+
+
+
+We randomly select 1,000 examples from the development set of each dataset for \citeeval{}.
+Our benchmark primarily assesses the citation capabilities of existing LLMs and does not provide training data,
+as
+there are no available examples that provide supervision for citations
+in these datasets.
+
+% --- end included file: sections/benchmark.tex ---
+
+
+% --- begin included file: sections/evaluation.tex ---
+
+
+
+
+\section{Automatic Evaluation}
+
+
+
+
+\vspace{-3pt}
+Our benchmark measures the following three dimensions of system responses:
+\vspace{-3pt}
+\begin{itemize}[leftmargin=1em,itemsep=0pt]
+    \item \tf{Fluency}: whether the model's generated text is fluent and coherent.
+    \item \tf{Correctness}: whether the answer is accurate and covers all aspects of interest.
+    \item \tf{Citation quality}: whether the answer is well supported by the cited passages and no irrelevant passages are cited.
+\end{itemize}
+\vspace{-3pt}
+In the following, we present automatic metrics for each dimension 
+and discuss why the combination of the three metrics provides a robust evaluation. %
+
+
+
+\subsection{Fluency} 
+We use MAUVE \cite{pillutla2021mauve} to evaluate the fluency of the output (\S\ref{app_sec:imp_details}).
+We deploy MAUVE for ASQA and ELI5
+and omit it for QAMPARI,
+as QAMPARI 
+only requires a list of short answers as the response
+and LLMs consistently adhere to the format  in our experiments.
+As MAUVE is sensitive to output length and text style, and most LLMs are capable of producing fluent text,
+we mainly employ it as a sanity check as long as the MAUVE scores are high enough.
+
+
+
+\subsection{Correctness}
+\label{sec:correctness}
+
+
+
+
+
+Our objective is to measure the informativeness and utility of the generation  to the question. 
+\citet{liu2023evaluating} propose to directly evaluate \textit{perceived utility}
+by humans, a process difficult to automate. 
+Therefore, we use correctness---whether the response is accurate compared to a ground truth answer---as a proxy.
+Evaluating the correctness of long-form generation is a challenging task~\citep{krishna-etal-2021-hurdles},
+and we describe our strategy for each dataset below.
+Figure~\ref{fig:correctness} illustrates the metrics and we include additional implementation details in \S\ref{app_sec:imp_details}.
+
+
+For \tf{ASQA}, we follow \citet{stelmakh2022asqa} and 
+calculate the recall of correct short answers
+by checking whether the short answers (provided by the dataset) are exact substrings of the generation (\textit{exact match recall}; EM recall).
+
+
+For \tf{QAMPARI}, we follow \citet{rubin2022qampari} and calculate the \textit{precision} and \textit{recall} of 
+the model prediction, 
+by checking the exact match to the gold answer list.
+We add one additional adjustment:
+considering that users often  want to know only a few example answers of 
+the question, %
+our evaluation considers recall to be 100\% if the prediction includes at least 5 correct answers (\textit{recall-5}).
+
+Unlike ASQA and QAMPARI, the \tf{ELI5} dataset does not provide short entity answers.
+\citet{fan-etal-2019-eli5} use ROUGE for evaluation, which does not reflect the correctness  well (\citealp{krishna-etal-2021-hurdles}; \S\ref{app_sec:claim_eli5}).
+Inspired by works in summarization evaluation~\cite{zhang-bansal-2021-finding,kamoi2023wice,wang-etal-2020-asking}, 
+we use InstructGPT~(\ttt{text-davinci-003}; \citealp{ouyang2022training}) to generate three ``sub-claims''. 
+Then we use TRUE\footnote{\url{https://huggingface.co/google/t5_xxl_true_nli_mixture}. Details in \S\ref{app_sec:imp_details}.}~\cite{honovich-etal-2022-true-evaluating}, a T5-11B~\citep{raffel2020exploring} model fine-tuned on a collection of natural language inference (NLI)  datasets, to check whether the model output entails the sub-claims (\textit{claim recall}). TRUE targets factual correctness and has been used by previous works in similar context~\citep{bohnet2022attributed,gao2022rarr}.
+We demonstrate that claim recall provides a more accurate measure of correctness than existing metrics (more details in \S\ref{app_sec:claim_eli5}).
+
+
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.94\linewidth]{figs/correctness.pdf}
+    \caption{Evaluation of correctness (details in \S\ref{sec:correctness}).}
+    \vspace{-13pt}
+    \label{fig:correctness}
+\end{figure}
+
+
+\subsection{Citation Quality}
+\label{sec:citation}
+
+
+
+
+
+We evaluate citation qualities using two metrics:  
+(1) \textit{citation recall}, which determines if the output is entirely supported by cited passages, and
+(2) \textit{citation precision}, which identifies any irrelevant citations. %
+Although we prioritize citation recall as it entails a well-supported and truthful answer, 
+enhancing precision is crucial for better user satisfaction,
+reducing the need for human review of extraneous passages.
+Figure~\ref{fig:citation} provides an illustrated example. %
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.98\linewidth]{figs/citation.pdf}
+    \caption{Evaluation of citation quality (details in \S\ref{sec:citation}). We use 
+   an NLI model to verify whether a statement is supported by its citations. %
+    }
+    \vspace{-15pt}
+    \label{fig:citation}
+\end{figure}
+
+
+We use the NLI model TRUE~\citep{honovich-etal-2022-true-evaluating} again
+to automatically examine whether the cited passages entail the model generation.
+We conduct human evaluation (\S\ref{sec:human}) to demonstrate strong human correlation of our metric.
+
+
+
+
+
+\paragraph{Citation recall.} 
+We calculate the citation recall of \textit{each statement} (0 or 1) and average
+over all {statements} in the model response. %
+For each statement $s_i$, %
+its citation recall is $1$ if and only if there is at least one citation ($\mathcal{C}_i\neq \emptyset$) and 
+$\phi(\text{concat}(\mathcal{C}_i), s_i)=1$,
+where 
+$\phi(\text{premise},\text{hypothesis})$
+is the NLI model that outputs $1$ if the premise  entails the hypothesis, and $0$ otherwise; 
+$\text{concat}(\mathcal{C}_i)$ concatenates all passages in $\mathcal{C}_i$ together (details in \S\ref{app_sec:imp_details}).
+The NLI evaluation is in accordance with the \textit{attributable to identified sources} (AIS) framework~\cite{rashkin2021measuring}: 
+$\phi(\text{concat}(\mathcal{C}_i), s_i)=1$ implies that 
+$s_i$ is true based solely on $\text{concat}(\mathcal{C}_i)$.
+
+
+
+ 
+
+
+
+\paragraph{Citation precision.} 
+Our citation precision evaluation detects citations that are irrelevant,
+but it does not require citing a minimal set.
+We follow this design  because human writing often cites  redundant sources to enhance  credibility;
+human readers may also appreciate multiple citations, especially when it pertains to critical claims such as medical advice.
+
+
+We calculate the citation precision for \textit{each citation} (0 or 1) and
+average over all {citations} in the response. %
+We first define if a citation is ``irrelevant''.
+Intuitively, a citation $c_{i,j}$ is ``irrelevant'' if (a) $c_{i,j}$ itself cannot support $s_i$ and (b) removing $c_{i,j}$ does not affect the rest of the citations to support $s_i$. Formally, $c_{i,j}$ is ``irrelevant'' if and only if
+\begin{enumerate}[itemsep=0pt,leftmargin=2em,label=(\alph*)]
+        \item  $\phi(c_{i,j},s_i)=0$, AND
+        \item  $\phi(\text{concat}(\mathcal{C}_i \setminus \{c_{i,j}\}), s_i)=1$.  
+\end{enumerate}
+$c_{i,j}$ has a precision  of 1 if $s_i$ has recall$=$$1$ and $c_{i,j}$ is not irrelevant.
+For example (Figure~\ref{fig:citation}), when $s_3$ cites three references \ttt{[2][4][5]} and recall$=$$1$,
+\ttt{[2]} is ``irrelevant'' if $\phi(\texttt{[2]}, s_3)=0$ and $\phi(\texttt{[4][5]}, s_3)=1$.
+For condition (b) to work, we set recall$=$$1$ as a prerequisite for precision$=1$. Note that this algorithm overlooks the scenario when one citation partially supports the statement. 
+We discuss the details in \S\ref{app_sec:citation_recall}.
+
+
+
+
+
+
+
+
+
+\subsection{\citeeval{} is Robust to Shortcut Cases}
+We showcase how the \citeeval{} evaluation is robust to two possible shortcuts in \S\ref{app_sec:short_cut}:
+(1) using the top-1 retrieved passage as the response and citing itself, 
+and (2) using the first two sentences of the top-1 passage.
+Both cases have almost-perfect citation scores, but (1) has low fluency due to its unnaturally long length compared to human answers, and (2) has low correctness due to low coverage.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+% --- end included file: sections/evaluation.tex ---
+
+
+% --- begin included file: sections/model.tex ---
+
+
+
+\section{Modeling}
+\label{sec:modeling}
+
+
+
+In this section,
+we discuss three major modeling components for an \citeeval{} system---retrieval, synthesis, and post-editing.
+
+
+
+% --- begin included file: tables/prompt_short.tex ---
+
+
+
+\begin{table}[t]
+    \centering
+    \small
+    \begin{tabular}{>{\raggedright\arraybackslash\tt}p{0.94\linewidth}<{}}
+        \toprule
+            Instruction: Write an accurate, engaging, and concise answer for ... \\
+            \\
+            \vspace{-1em}
+            \noindent {\color{brown}<Retrieve for the question>}\\
+            Document {[1]}(Title: American Decolonization) ... \\
+            Document {[2]}(Title: Decolonization) ... \\
+            Document {[3]}(Title: American Revolution) ... \\
+            ... \\
+            \\
+            \vspace{-1em}
+            Question: When did  US break away from England? \\
+            Answer: {\color{blue} The United States took the first step towards gaining independence ... \tf{\underline{[1][2]}}. The Treaty of Paris was later signed ... \tf{\underline{[3]}}}.\\
+
+        \bottomrule
+    \end{tabular}
+    \caption{
+        An example of our \vani{} method. Different colors represent \ttt{prompt}, \ttt{\color{blue} model generation}, and \ttt{\color{brown} <actions>}. 
+        We also provide two in-context demonstrations before the test example. 
+    }
+    \vspace{-10pt}
+    \label{tab:prompt_short}
+\end{table}
+
+% --- end included file: tables/prompt_short.tex ---
+
+
+\subsection{Retrieval}
+\label{sec:retrieval}
+
+We explore simple, off-the-shelf retrievers.
+We use dense retrievers  for Wikipedia, including GTR~\cite{ni-etal-2022-large} and DPR~\cite{karpukhin-etal-2020-dense}; 
+we use 
+BM25 for Sphere. %
+For each question,
+we 
+retrieve the top-100 passages. %
+
+
+
+\subsection{Synthesis}
+\label{sec:synthesis}
+
+
+
+
+
+We  focus on %
+how to
+prompt an LLM to 
+interact with the retriever, and 
+synthesize and cite the evidence (without fine-tuning internal parameters).
+One noteworthy challenge is that existing %
+LLMs all have limited context window and thus
+can only fit a handful of passages.
+
+
+
+
+
+\paragraph{\textsc{\pvani{}}.}
+We simply provide the model with the top-$k$\footnote{We can fit at most $k=3$ for models with 2K window and at most $k=5$ for models with 4K context window.} passages and instruct the model to cite accordingly (Table~\ref{tab:prompt_short}).
+We also use in-context learning~\cite{brown2020language} and prepend two demonstrations.
+The complete instruction is in Table~\ref{tab:inst_vanilla}.
+
+
+\paragraph{\textsc{\psumm}/\textsc{\psnippet{}}.}
+With a 4K context window, we can at most safely fit $k=5$ passages. As shown in Figure~\ref{fig:ret}, top-5 retrieved passages can only cover 56.8\% percent of the answers in ASQA. 
+
+To tackle this limitation, we propose to provide \textit{summaries} or \textit{snippets} of passages instead of the full text (summaries are abstractive but snippets are spans from passages). 
+We acquire summaries and snippets by prompting ChatGPT with instructions (prompts in Table~\ref{tab:prompt_summary} and \ref{tab:prompt_snippet}).\footnote{We also query ChatGPT whether the passage is relevant to the question, and
+filter out passages that are ``irrelevant''.}
+Then we replace all passages with  summaries/snippets.
+Summaries or snippets significantly reduce the passage length, allowing for more passages to fit in:
+for ASQA, they reduce passage length by 6$\times$ on average.
+
+
+Though \summ{}/\snippet{} allows for more retrieved passages, 
+they are lossy compressions. 
+To alleviate this problem,
+we propose \interact{}, an interactive prompting scheme 
+to allow the model to check the full text of certain passages. %
+At each step, the model can execute one of  three actions: 
+(1) ``\ttt{Check: Document [1][2]}'' to check the full text of the corresponding documents;
+(2) ``\ttt{Output:}'' to output a statement of the answer;
+(3) ``\ttt{End.}'' to end the generation.
+\S\ref{app_sec:imp_details} provides more details.
+
+
+
+
+% --- begin included file: tables/prompt_search.tex ---
+
+
+
+\begin{table}[t]
+    \centering
+    \small
+    \begin{tabular}{>{\raggedright\arraybackslash\tt}p{0.94\linewidth}<{}}
+        \toprule
+            Instruction: ... \\
+            \\
+            \vspace{-1em}
+            \noindent {\color{brown}<Retrieve for question ``...''>}\\
+            Question: When did  US break away from England? \\
+        \noindent {\color{blue} Search: Declaration of Independence} \\
+        \noindent {\color{brown}<Search the query among the top-100 passages>}\\
+        Document [1](Title: ...) ... \\
+        \noindent {\color{blue} Output: The United States ... \tf{\underline{[1]}}.} \\
+        \noindent {\color{brown}<Remove Document [1] from context>}\\
+        \noindent {\color{blue} Search: Treaty of Paris} \\
+        \noindent {\color{brown}<Search the query among the top-100 passages>}\\
+        Document [3](Title: ...) ... \\
+        \noindent {\color{blue} Output: The Treaty of Paris ... \tf{\underline{[3]}}.} \\
+        \noindent {\color{brown}<Remove Document [3] from context>}\\
+        \noindent {\color{blue}End.}\\
+        \bottomrule
+    \end{tabular}
+    \caption{
+        An example of \search{}. 
+    }
+    \vspace{-15pt}
+    \label{tab:prompt_search}
+\end{table}
+
+% --- end included file: tables/prompt_search.tex ---
+
+
+\paragraph{\textsc{\psearch{}}.}
+The above methods all display retrieval results at the beginning.
+In \search{},
+we allow LLMs to call ``search'' during the generation process~\citep{yao2023react,press2022measuring,jiang2023active}.
+At each step, the model can execute one of  three actions: 
+``\ttt{Search: \{query\}}'' to search among the top-100 passages\footnote{We do not search over the entire corpus because  \ttt{\{query\}} may leave out certain context in the question and searching among the already-retrieved passages gives better results.} by using GTR; the ``\ttt{Output}'' and ``\ttt{End}'' actions are the same as \interact{}.
+For each ``\ttt{Search}'' action, we display the best retrieved passage in the context.
+The passage is removed after one action to save context space.
+Table~\ref{tab:prompt_search} shows an example. %
+
+
+
+\paragraph{\textsc{\pclose{}}.}
+We also add a simple closed-book baseline, where the model is only prompted with the instruction and the question,
+without any retrieved passages provided.
+Consequently, this variant does not cite any evidences.
+
+\subsection{Post-editing}
+\label{sec:refinement}
+
+In this section we discuss two strategies for refining the  output to further improve its quality.
+
+\paragraph{\textsc{\prerank{}}.}
+We randomly sample $n_{\text{sample}}=4$ %
+responses for each question, and select the best response using the automatic \textit{citation recall} score. 
+we expect \textsc{\prerank{}} to improve the citation quality.
+
+\paragraph{\textsc{\pposthoc{}}.}
+For each statement, we find the best matching passage among the top-100 retrieved passages using GTR and cite it.
+We combine this with \close{} in our experiments.
+
+% --- end included file: sections/model.tex ---
+
+
+% --- begin included file: sections/results.tex ---
+
+\section{Experiments}
+\label{sec:experiments}
+
+
+% --- begin included file: tables/asqa.tex ---
+
+\begin{table}[t]
+    \centering
+    \resizebox{0.98\linewidth}{!}{
+        \begin{tabular}{lcccc}
+            \toprule
+            & \tf{Fluency} & \tf{Correct.} & \multicolumn{2}{c}{\tf{Citation} }\\
+            \cmidrule(lr){2-2} \cmidrule(lr){3-3} \cmidrule(lr){4-5}
+            & (MAUVE) & (EM Rec.) & Rec. & Prec. \\
+            \midrule
+            \headercolor
+            \multicolumn{5}{c}{\textbf{ChatGPT}} \\
+            \tableskip
+            \vani{} (5-psg) & 66.6 & 40.4  & {73.6}  & 72.5\\% {63.0} \\
+            ~~w/ \rerank{} &  77.0 & 40.2 & \tf{84.8} & \textbf{81.6} \\% \tf{73.3} \\
+            \summ{} (10-psg) & 70.0  & \tf{43.3}  &68.9	& 61.8\\ %
+            ~~w/ \interact{}  & 69.0 &	39.1 & 73.4& 66.5\\ %
+            \snippet{} (10-psg) & 69.8&	41.4& 65.3&	57.4\\ %
+            \search{} & 58.7 & 32.4 & 58.3 & 58.2	\\ %
+            \close{} & 52.7 &	38.3 & 26.7& 26.7 \\
+
+            \tableskip
+            \headercolor
+             \multicolumn{5}{c}{\textbf{GPT-4} (\vani{} prompting)}  \\
+            \tableskip
+            GPT-4 (5-psg) & 67.1 & 41.3 & 68.5 & 75.6 \\
+            GPT-4 (20-psg) & 64.9 & 44.4 & 73.0 & 76.5 \\
+
+            \tableskip
+            \headercolor
+            \multicolumn{5}{c}{\textbf{LLaMA} (\vani{} prompting)} \\
+            \tableskip
+            LLaMA-13B (3-psg) & 68.4 & 26.9 & 10.6 & 15.4 \\
+            Vicuna-13B (3-psg) & 82.6 & 31.9 & 51.1 & 50.1 \\ 
+ 
+            Chat-13B (5-psg) & 72.4 & 35.2 & 38.4 & 39.4 \\
+            Chat-70B (5-psg) & 88.3 & 41.5 & 62.9 & 61.3 \\
+            \bottomrule
+        \end{tabular}
+    }
+    \caption{
+        Experiments on ASQA.
+        For \close{}, we use \posthoc{} to get citations.
+        $k$-psg: putting top-$k$ passages from the retrieval results into the context.
+        Chat-13B and Chat-70B refer to LLaMA-2-Chat.
+    }
+    \label{tab:asqa_result}
+    \vspace{-10pt}
+\end{table}
+
+% --- end included file: tables/asqa.tex ---
+
+
+% --- begin included file: tables/qampari.tex ---
+
+\begin{table}[t]
+    \centering
+    \small
+    \resizebox{0.98\linewidth}{!}{
+        \begin{tabular}{lcccc}
+            \toprule
+             & \multicolumn{2}{c}{\tf{Correctness}} & \multicolumn{2}{c}{\tf{Citation} }\\
+             \cmidrule(lr){2-3} \cmidrule(lr){4-5}
+            &  Rec.-5 & Prec. & Rec. & Prec. \\
+            \midrule
+            \headercolor
+            \multicolumn{5}{c}{\textbf{ChatGPT}} \\
+            \tableskip
+            \vani{} (5-psg) & 20.8 &  20.8 & 20.5&	20.9 \\
+            ~~w/ \rerank{} & 22.8 & 21.4 & 21.2 & 21.4 \\ %
+            \summ{} (10-psg) & 23.6& 21.2&   \tf{23.6}&	\tf{25.7} \\
+            \snippet{} (10-psg)&24.5 &  21.5&  {22.9} &  {24.9} \\
+            ~~w/ \interact{} & 21.9 &  \tf{23.0} & 21.9&23.4\\
+            \search{} & 17.2& 20.4 & 14.9&	14.9 \\
+            \close{} &  \tf{32.9} & 19.8 &  10.0 &   10.0\\
+            \tableskip
+            \headercolor
+             \multicolumn{5}{c}{\textbf{GPT-4} (\vani{} prompting)}  \\
+            \tableskip
+            GPT-4 (5-psg) & 22.2 & 25.0 & 25.9 & 27.0 \\
+            GPT-4 (20-psg) & 29.6 & 26.2 & 27.4 & 28.5 \\ 
+
+            \tableskip
+            \headercolor
+            \multicolumn{5}{c}{\textbf{LLaMA} (\vani{} prompting)} \\
+            \tableskip
+            LLaMA-13B (3-psg) & 9.7 & 9.1 & 6.7 & 7.1 \\% 6.8 \\
+            Vicuna-13B (5-psg) & 14.0 & 15.9 & 12.5 & 13.4 \\ %
+            
+            
+            Chat-13B (5-psg) & 21.1 & 18.2 & 9.6 & 9.7 \\
+            Chat-70B (5-psg) & 21.8 &18.4 & 15.1 &15.6 \\
+            \bottomrule
+        \end{tabular}
+    }
+    \caption{
+        Experiments  on QAMPARI.
+        ``Rec.-5'': we set the recall to be 100\% if the prediction includes at least 5 correct answers.
+    }
+    \label{tab:qampari_result}
+    \vspace{-10pt}
+\end{table}
+
+% --- end included file: tables/qampari.tex ---
+
+
+
+% --- begin included file: tables/eli5.tex ---
+
+\begin{table}[h]
+    \centering
+    \resizebox{0.98\linewidth}{!}{
+        \begin{tabular}{lcccc}
+            \toprule
+            & \tf{Fluency} & \tf{Correct.} & \multicolumn{2}{c}{\tf{Citation} }\\
+            \cmidrule(lr){2-2} \cmidrule(lr){3-3} \cmidrule(lr){4-5}
+            & (MAUVE) & (Claim) & Rec. & Prec. \\
+            \midrule
+            \headercolor
+            \multicolumn{5}{c}{\textbf{ChatGPT}} \\
+            \tableskip
+            \vani{} (5-psg) &57.2&	12.0 &	51.1&	{50.0} \\
+            ~~w/ \rerank{} & 56.1 & 11.4 & \tf{69.3} & \textbf{67.8}\\ %
+            \summ{} (10-psg) & 40.3 & 12.5 & 51.5 & 48.2 \\
+            \snippet{} (10-psg) & 62.9 &	{14.3} & 50.4 & 45.0 \\ %
+            ~~w/ \interact{} & 68.0 &	13.3&	47.8& 45.0\\	%
+            \search{} & 49.7&	13.4&	45.6&  43.7\\	%
+            \close{} & 32.6 &\tf{18.6}	&15.5	&15.5\\
+            \tableskip
+            \headercolor
+             \multicolumn{5}{c}{\textbf{GPT-4} (\vani{} prompting)}  \\
+            \tableskip
+            GPT-4 (5-psg) & 38.4 & 14.2 & 44.0 & 50.1 \\
+            GPT-4 (20-psg) & 41.5 & 18.3 & 48.5 & 53.4 \\
+
+            \tableskip
+            \headercolor
+            \multicolumn{5}{c}{\textbf{LLaMA} (\vani{} prompting)} \\
+            \tableskip
+            LLaMA-13B (3-psg) & 50.0 & 3.9 & 3.1 & 5.3 \\%2.0 \\
+            Vicuna-13B (3-psg)& 58.2 &  {10.0} & 15.6 & 19.6 \\% 12.6 \\
+            
+            Chat-13B (5-psg) & 34.7 & 13.4 &17.3 & 15.8 \\
+            Chat-70B (5-psg) & 38.6 & 12.8 & 38.3 & 37.9 \\
+            \bottomrule
+        \end{tabular}
+    }
+    \caption{
+        Experiments on ELI5. We use \textit{claim recall} for the correctness evaluation.
+        Chat-13B and Chat-70B refer to LLaMA-2-Chat.
+    }
+    \label{tab:eli5_result}
+    \vspace{-10pt}
+\end{table}
+
+% --- end included file: tables/eli5.tex ---
+
+
+We describe experiment details in \S\ref{app_sec:imp_details}. 
+We use ChatGPT (\ttt{gpt-3.5-turbo-0301}) with a 4K context window for most main experiments and ablations. 
+\revise{We also report results with ChatGPT-16K (\ttt{gpt- 3.5-turbo-16k-0613}) and GPT-4 (\ttt{gpt-4-0613}; 8K context window).}
+For open-source models, we test LLaMA~\citep{touvron2023llama} and 
+its instruction-tuned versions, including 
+Alpaca~\citep{alpaca}, Vicuna~\citep{vicuna2023}, and Oasst~\citep{kopf2023openassistant}.
+They all have a 2K context window.
+We use short instructions for LLaMA (Table~\ref{tab:inst_vanilla_light}) to save  context budget.
+\revise{Additionally, we test LLaMA-2-Chat, which were also trained to follow instructions \cite{touvron2023llama2}. These models have a context window of 4K tokens, which allows for 5 passages per question.}
+
+
+
+\subsection{Main Results}
+We present the main results on three datasets in 
+Table~\ref{tab:asqa_result},~\ref{tab:qampari_result}, and~\ref{tab:eli5_result} respectively (full results in \S\ref{app_sec:more_main}). %
+We first note that all models achieve good fluency scores (except some models on ELI5 mainly due to their longer generations).
+We summarize the main takeaways from the experiments below.
+
+\paragraph{\tf{\textsc{\pvani{}}} achieves strong performance.}
+Despite its simplicity,
+\vani{} (putting retrieved passages in context)
+achieves close-to-the-best performance among all prompting strategies. %
+
+
+
+\paragraph{Using summaries or snippets improves correctness.}
+We see a universal trend that 
+\summ{} or \snippet{} 
+improves  correctness,
+though
+on ASQA and ELI5, such an improvement comes at a cost of citation quality
+due to the lossy compression. %
+Combining \interact{} with \summ{}/\snippet{} does not bring improvement,
+and we hypothesize that 
+checking the full passages offers limited benefit and 
+ current LLMs are not proficient in an interactive usage.
+
+
+
+
+
+
+\paragraph{Retrieving text on the fly does not improve performance.}
+All datasets show that 
+\vani{} 
+ outperforms
+\search{} on citation quality (and on correctness for ASQA and ELI5).
+By manually examining the examples,
+we find that 
+it is challenging to ask detailed questions without seeing any passages.
+To improve \search{},
+one may need to provide more context about the questions in advance or
+encourage the model to call retrievers with more detailed and diverse queries.
+
+\paragraph{{\textsc{\prerank{}}} boosts citation quality.}
+We observe that \rerank{} 
+leads to consistent improvement in citation quality (on ASQA and ELI5).
+As the automatic scores may be biased in \rerank{},
+we also conduct human evaluation~(\S\ref{sec:human})
+and verify its effectiveness. %
+
+\paragraph{\textsc{\pclose{}}+\textsc{\pposthoc{}} delivers strong correctness but poor citation quality.}
+\close{} outperforms \vani{} in correctness on ELI5 and QAMPARI, and has only a 2\% gap on ASQA.
+However, 
+\close{} cannot provide any citation;
+when combined with \posthoc{},
+the citation quality remains inadequate. For instance, 
+citation recall of \close{}+\posthoc{} is lower than \vani{} by 47\% on ASQA. 
+
+To understand why \close{} achieves better correctness and why \posthoc{} cannot deliver satisfying citation quality,
+we manually examine model outputs and find that:
+(1) open-book models are easily distracted by irrelevant passages and generate responses with lower correctness, 
+a phenomenon also observed by~\citet{shi2023large};
+(2) \close{} often generates texts that are correct but not similar to any retrieved passages, 
+making it difficult to match a citation post-hoc.
+
+\revise{
+\paragraph{GPT-4 brings limited improvement but is better at using long context.}
+We evaluate GPT-4 with \vani{} and different numbers of passages (more results in \S\ref{app_sec:more_main}).
+GPT-4 brings consistent (but limited) improvement on correctness, but often at a cost of citation quality. 
+GPT-4 can also incorporate more passages due to its longer context window,
+which boosts both correctness and citation quality. 
+On the contrary, 
+including more passages with ChatGPT-16K does not improve the results (Table \ref{tab:asqa_llm}), 
+suggesting that processing more passages is non-trivial and GPT-4 is better at synthesizing information from its long context than ChatGPT.
+}
+
+\subsection{Comparison of Different LLMs}
+\label{sec:different_llms}
+
+
+\begin{figure*}[t]
+    \centering
+    \begin{minipage}[b]{0.66\textwidth}
+    \centering
+    \includegraphics[width=1.0\textwidth]{figs/ret.pdf}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[b]{0.33\textwidth}
+    \centering
+
+    \resizebox{1.0\textwidth}{!}{
+        \begin{tabular}{lcccc}
+            \toprule
+            & \tf{Fluency} & \tf{Correct.} & \multicolumn{2}{c}{\tf{Citation} }\\
+            \cmidrule(lr){2-2} \cmidrule(lr){3-3} \cmidrule(lr){4-5}
+            & (MAUVE) & (EM) & Rec. & Prec. \\
+            \midrule
+            \headercolor
+            \multicolumn{5}{c}{\textbf{ChatGPT} (\vani{})} \\
+            \tableskip
+            DPR (5-psg) &  61.8 &	36.1 & 65.0 &	65.6\\%56.7 \\
+            GTR (1-psg) & 69.5&	38.4 & 56.0	&       64.0\\%56.0\\
+            GTR (3-psg) & 66.6 & 39.6 & 72.8	&   \tf{73.9}\\%64.0 \\
+            GTR (5-psg) & 66.6 & \tf{40.4}  & \tf{73.6} &     72.5\\%63.0 \\
+            \bottomrule
+        \end{tabular}
+    }
+    \vspace{17pt}
+    \end{minipage}
+    \vspace{-25pt}
+    \caption{
+Retrieval recall@$k$ on ASQA (\textit{EM recall}), QAMPARI (\textit{recall-5}), and ELI5 (\textit{claim recall}).
+Retrieval recall serves as an upper bound for model performance,
+and we compare them with two models' correctness results in the figure (dashed lines):
+``Vanilla (5-psg)'' is ChatGPT \vani{} with top-5 passages in context;
+``Oracle'' is the same model  except that it uses 5 gold passages (\S\ref{app_sec:retrieval}), whose recall matches Recall@100 on all three datasets. %
+    }
+    \vspace{-10pt}
+    \label{fig:ret}
+\end{figure*}
+
+
+Table~\ref{tab:asqa_llm} compares 
+different LLMs on ASQA using \vani{} (more results  in \S\ref{app_sec:more_main}).
+Notably, instruction-tuned models (Vicuna-13B and LLaMA-2-Chat)
+outperform the original LLaMA models in correctness and 
+considerably enhance the citation quality.
+We observe that 
+while the original LLaMA models are able to %
+copy facts from the context,
+they struggle with accurately citing the sources or simply do not cite. 
+\revise{Notably, the best open-source model, LLaMA-2-70B-Chat, achieves comparable correctness score as the OpenAI models, but still lags behind in citation quality. }
+
+
+
+
+
+\subsection{Retrieval Analysis}
+
+
+% --- begin included file: tables/asqa_different_llms.tex ---
+
+\begin{table}[t]
+    \centering
+    \resizebox{0.98\linewidth}{!}{
+        \begin{tabular}{lcccc}
+            \toprule
+            & \tf{Fluency} & \tf{Correct.} & \multicolumn{2}{c}{\tf{Citation} }\\
+            \cmidrule(lr){2-2} \cmidrule(lr){3-3} \cmidrule(lr){4-5}
+            & (MAUVE) & (EM Rec.) & Rec. & Prec. \\
+            \midrule
+            \headercolor
+            \multicolumn{5}{c}{\textbf{Open-source} (max \#tokens=2K-4K)} \\
+            \tableskip
+            LLaMA-13B (3-psg) & 68.4 & 26.9 & 10.6 & 15.4 \\
+            Vicuna-13B (3-psg) & 82.6 & 31.9 & 51.1 & 50.1 \\ 
+            Chat-13B (5-psg) & 72.4 & 35.2 & 38.4 & 39.4 \\
+            Chat-70B (5-psg) & 88.3 & 41.5 & 62.9 & 61.3 \\
+            \tableskip
+            \headercolor
+            \multicolumn{5}{c}{\textbf{ChatGPT} (max \#tokens=4K)} \\
+            \tableskip
+            ChatGPT (3-psg) & 66.6 & 39.6 & 72.8	& 73.9 \\% 64.0 \\
+            ChatGPT (5-psg) & 66.6 & 40.4  & {73.6}  & 72.5 \\%{63.0} \\
+            \tableskip
+            \headercolor
+            \multicolumn{5}{c}{\textbf{ChatGPT-16K} (max \#tokens=16K)} \\
+            \tableskip
+            ChatGPT (5-psg) & 60.3 & 36.1 & 76.2 & 76.5 \\
+            ChatGPT (10-psg) & 56.3 & 36.7 & 75.3 & 75.0 \\ 
+            ChatGPT (20-psg) & 56.7 & 36.1 & 73.7 & 73.5 \\
+
+            \tableskip
+            \headercolor
+             \multicolumn{5}{c}{\textbf{GPT-4} (max \#tokens=8K)} \\
+            \tableskip
+            GPT-4 (5-psg) & 67.1 & 41.3 & 68.5 & 75.6 \\
+            GPT-4 (10-psg) & 71.5 & 43.1 & 72.0 & 75.5 \\
+            GPT-4 (20-psg) & 64.9 & 44.4 & 73.0 & 76.5 \\
+            \bottomrule
+ 
+        \end{tabular}
+    }
+    \caption{
+        Comparison of different LLMs on ASQA (GTR+\vani{}). LLaMA-13B and Vicuna-13B have a context limit of 2,048 tokens, and thus can only use a short version of instructions and at most top-3 passages.
+        Chat-13B and Chat-70B refer to LLaMA-2-Chat.
+    }
+    \label{tab:asqa_llm}
+    \vspace{-10pt}
+\end{table}
+
+% --- end included file: tables/asqa_different_llms.tex ---
+
+
+The retrieval results play a crucial role to the correctness and the citation quality.
+Figure~\ref{fig:ret} presents 
+the retrieval recall@$k$ %
+with different datasets and retrievers.
+As the number of passages increases, retrieval recall steadily improves.
+Additionally, Figure~\ref{fig:ret} shows
+the correctness performance of two models:
+(1) ChatGPT \vani{} with top-5 passages (our primary baseline);
+(2) an oracle version of the same model employing
+5 gold passages (\S\ref{app_sec:retrieval}; the 5 gold passages match the retrieval recall@100).
+Notably,
+both models' correctness lags behind the corresponding retrieval recall (except for ELI5 top-5).
+The discrepancy suggests that 
+despite the presence of accurate answers in context,
+LLMs struggle to utilize  them in their outputs.
+
+
+
+We compare the impact of different retrievers and different numbers of passages to LLMs.
+Figure~\ref{fig:ret} (right)
+shows that
+GTR outperforms DPR in both correctness and citation quality,
+emphasizing  the importance of deploying better retrievers.
+Contrary to the  retrieval recall trend  in Figure~\ref{fig:ret},
+more passages in context do not yield substantial improvement for ChatGPT.
+Specifically, correctness plateaus at top-1 passage and citation quality plateaus at top-3. 
+\revise{GPT-4 (Table~\ref{tab:asqa_llm}) exhibits an increasing trend with more passages, 
+but the improvement is not proportional to the retrieval performance.}
+This  indicates the limited ability of LLMs in  utilizing multiple passages within context.
+
+\subsection{Other Ablations}
+\label{sec:other_ablation}
+
+We provide additional ablations in \S\ref{app_sec:more_exp}. 
+In summary, we find that 
+(1) 
+using comprehensive instructions
+ enhances the citation quality of instruction-tuned models (\S\ref{sec:inst});
+(2) 
+including at least one demonstration improves the performance %
+(\S\ref{sec:demo}); 
+\revise{(3) fine-tuned models (FiD; \citealp{izacard-grave-2021-leveraging}) with \posthoc{} lag behind LLMs in both correctness and citation quality and fail to generalize %
+(\S\ref{sec:fid}).}
+
+
+
+
+
+
+
+
+% --- end included file: sections/results.tex ---
+
+
+% --- begin included file: sections/human_eval.tex ---
+\section{Human Evaluation}
+\label{sec:human}
+
+
+To verify that our automatic evaluation correlates with human judgement, 
+we conduct human evaluation on selected models %
+and request workers 
+to judge model generations on three dimensions similar to \citet{liu2023evaluating}---(1) utility: a 1-to-5 score indicating whether the generation helps answer the question; %
+(2) citation recall: the annotator is given a sentence and all passages that the sentence cited, and is asked to judge whether the passages fully support the sentence; %
+(3) citation precision: given a sentence and one of its citations, the annotator is  asked to judge whether the citation ``fully supports'', ``partially supports'', or ``does not support'' the sentence. 
+Each citation gets a precision score 1 if the output sentence has a citation recall of 1 and this citation at least ``partially supports'' it.
+See Appendix~\ref{app_sec:human} for more details.
+
+
+
+% --- begin included file: tables/human_asqa_all.tex ---
+\begin{table}[t]
+    \centering
+    \resizebox{0.98\linewidth}{!}{
+    \begin{tabular}{lcccc}
+        \toprule
+            & \multicolumn{2}{c}{\tf{Human scores}} & \multicolumn{2}{c}{\tf{\citeeval{} scores}} \\
+             \cmidrule(lr){2-3} \cmidrule(lr){4-5}
+            & Rec.& Prec. & Rec. & Prec. \\
+            \midrule
+            ChatGPT \vani & 74.7 & 76.6 & 75.3 & 74.4 \\
+            ~~w/ \rerank & \textbf{79.3} & \textbf{81.9} & \textbf{83.9} & \textbf{80.8} \\
+            Vicuna-13B \vani & 51.6 & 51.5 & 50.3 & 50.1 \\
+            \bottomrule
+            \end{tabular}
+    }
+    \caption{
+        Human citation quality evaluation vs. \citeeval{} citation quality evaluation on ASQA. 
+    }
+    \vspace{-5pt}
+    \label{tab:human-asqa-all}
+\end{table}
+
+% --- end included file: tables/human_asqa_all.tex ---
+
+
+% --- begin included file: tables/human_eli5_all.tex ---
+\begin{table}[t]
+    \centering
+    \resizebox{0.98\linewidth}{!}{
+    \begin{tabular}{lcccc}
+        \toprule
+            & \multicolumn{2}{c}{\tf{Human scores}} & \multicolumn{2}{c}{\tf{\citeeval{} scores}} \\
+             \cmidrule(lr){2-3} \cmidrule(lr){4-5}
+             & Rec. & Prec. & Rec. & Prec. \\
+            \midrule
+            ChatGPT \vani & 50.8 & 52.4 & 52.8 & 50.4 \\
+            ~~w/ \rerank & \textbf{59.7} & \textbf{60.6} & \textbf{63.0} & \textbf{60.6} \\
+            Vicuna-13B \vani & 13.4 & 19.2 & 13.6 & 18.1 \\
+            \bottomrule
+            \end{tabular}
+    }
+    \caption{
+        Human citation quality evaluation vs. \citeeval{} citation quality evaluation on ELI5. 
+    }
+    \vspace{-10pt}
+    \label{tab:human-eli5-all}
+\end{table}
+
+% --- end included file: tables/human_eli5_all.tex ---
+
+
+\paragraph{Model outputs score high utility.} 
+The utility scores do not differ significantly between models, ranging $3.7$-$3.9$ for ASQA and $3.5$-$3.6$  for ELI5. 
+Upon inspection, all tested models are mostly able to output fluent answers that are related to the question, %
+despite  differences in factual correctness. 
+
+
+
+
+
+\paragraph{Our automatic evaluation of citation quality strongly correlates with human judgements.}
+As shown in Table~\ref{tab:human-asqa-all} (ASQA) and Table~\ref{tab:human-eli5-all} (ELI5),
+the relative rankings induced by human and our automatic metrics are consistent.
+The absolute citation scores from human and \citeeval{} are very close except for \rerank{} (which uses the automated citation recall for reranking).
+This suggests that an improvement on \citeeval{} citation metrics translates to improvement on human preferences. %
+Furthermore, the Cohen's kappa coefficient between 
+human and \citeeval{} suggests substantial agreement for citation recall ($0.698$) and moderate agreement for citation precision ($0.525$).
+We also show in \S\ref{sec_more_human} that our automatic evaluation achieves high accuracy when treating human annotations as gold labels
+($85.1\%$ for citation recall and $77.6\%$ for citation precision).
+
+
+
+
+
+
+
+
+
+
+
+% --- end included file: sections/human_eval.tex ---
+
+% 
+% --- begin included file: sections/discussion.tex ---
+%!TEX root = ../emnlp2023.tex
+% --- end included file: sections/discussion.tex ---
+
+
+% --- begin included file: sections/related_works.tex ---
+\section{Related Work}
+\label{sec:related_work}
+\vspace{-5pt}
+
+\paragraph{Evaluating citations.}
+Generating text with citations is closely related to attribution.
+\citet{rashkin2021measuring} define the ``attributable to identified sources''~(AIS) score to measure how faithful a generated text is to its sources.
+\citet{bohnet2022attributed} apply AIS scores on a single-document short-answer QA dataset.
+\citet{honovich-etal-2022-true-evaluating,yue2023automatic} study  automatic evaluations for the AIS score.
+A concurrent work~\citep{liu2023evaluating} 
+conduct human evaluation on commercial generative search engines  to
+examine their citation qualities.
+
+Scientific citation text generation~\citep{funkquist2022citebench} is a related task to \citeeval{} where the model is provided the  papers-to-cite and  context and is required to recover the citing text. 
+It is different from \citeeval{} 
+as all citations are provided
+and the model only needs to perform the summarization.
+
+
+
+
+
+
+
+\paragraph{Retrieval-augmented LMs.}
+Many studies have explored augmenting LMs with 
+externally retrieved information.
+\citet{guu2020realm,borgeaud2022retro,izacard2022atlas}
+pre-train language models with retrieved passages, 
+while \citet{Khandelwal2020Generalization,zhong-etal-2022-training} augment
+LLMs' output by interpolating it with a $k$NN module;
+though none of them explicitly provide citations to the retrieved sources.
+Other works prompt or fine-tune LLMs to 
+``retrieve on-the-fly'' \citep{parisi2022talm,schick2023toolformer,shuster-etal-2022-language,jiang2023active,yao2023react,press2022measuring},
+which offers flexibility of when and what to search.
+\citet{gao2022rarr,he2022rethinking} propose to first generate text without accessing external documents and then
+retrieve relevant documents and revise the generation to be consistent. %
+
+Among previous explorations, \citet{nakano2021webgpt,menick2022teaching} 
+are the closest to our setting, where
+LLMs are trained to answer questions while providing citations. 
+However, they do not explore retrieval strategies and simply use commercial search engines, which are not reproducible, and their models and training data are closed-source.
+To the best of our knowledge, 
+we are the first to implement end-to-end systems that retrieve, synthesize, and cite documents with LLMs.
+
+
+
+
+% --- end included file: sections/related_works.tex ---
+
+
+% --- begin included file: sections/conclusion.tex ---
+
+\section{Conclusion}
+
+We propose \citeeval{}, the first automatic benchmark for evaluating LLM generations with citations.
+We deploy automatic metrics to measure fluency, correctness, and citation quality, and verify their efficacy via human evaluation.
+We explore a variety of strategies for incorporating citations in LLMs
+and demonstrate that current systems have considerable room for improvement on \citeeval{}.
+
+Our experiments highlight a number of promising research directions, including
+(1) enhancing retrieval and refining retrieval integrations in LLMs,
+(2) developing long-context LLMs, and 
+(3) advancing LLMs' ability to synthesize multiple sources.
+What's even more intriguing is that  these research proposals extend beyond the \citeeval{} setup (for example, long-context LLMs have numerous exciting applications), and
+\citeeval{} can serve as a valuable testbed for their development.
+% --- end included file: sections/conclusion.tex ---
+
+
+\section*{Limitations}
+
+ 
+
+Our evaluation still has room for improvement:
+(1) MAUVE is found to be sensitive to output length and may provide unstable results;
+(2) for the ELI5's correctness evaluation, the automatically generated claims may not cover all possible answers due to the open-ended nature of the questions;
+(3) our citation quality evaluation is limited by the accuracy of the NLI model; for citation precision, the NLI model cannot detect the case of ``partially support'' and thus
+leads to a lower citation precision score than the human evaluation.
+
+Although we believe our curated datasets closely resemble the distribution of real-world user questions,
+we acknowledge that they do not cover more challenging scenarios, such as
+multi-hop reasoning, math reasoning, and code completion.
+
+
+In our experiments, we focus on prompting LLMs without updating their model weights.
+Training a model directly to incorporate citations remains challenging due to the lack of supervised data.
+However, we observe that certain human-instruction datasets
+contain examples similar to our task setup.
+We leave the exploration of training LLMs to generate citations for future work.
+
+
+
+\section*{Acknowledgments}
+
+We appreciate the helpful feedback from the members of the Princeton NLP group. %
+We thank Alexander Wettig, Nelson Liu, Tianyi Zhang, Yu Meng, Sadhika Malladi, Yangsibo Huang, Zhiyuan Zeng, and Dan  Friedman for the valuable discussion.
+We thank Surge AI (especially Anna Folinsky and Edwin Chen)
+for their support with the human evaluation.
+Tianyu Gao is supported by an IBM PhD Fellowship. 
+This research is supported by an NSF CAREER award (IIS-2239290), a Sloan Research Fellowship, 
+and Microsoft Azure credits through the ``Accelerate Foundation Models Academic Research'' Initiative. 
+
+
+
+\bibliography{anthology,custom}
+\bibliographystyle{acl_natbib}
+
+\clearpage
+\appendix
+
+
+% --- begin included file: sections/appendix.tex ---
+
+\section{Generating Claims for ELI5}
+\label{app_sec:claim_eli5}
+
+
+
+We elect not to use ROUGE-L as our main correctness metrics since it does not account for the different ways of expressing the same answer and it can be easily gamed \cite{krishna-etal-2021-hurdles}.
+We further illustrate this issue in Table \ref{tab:eli5-rouge}.
+A system can easily achieve high ROUGE-L score by retrieving and returning the top passage from a BM25 index.
+However, the claims evaluation metric does not reward this approach since the output often lacks different aspects of the answers.
+
+% --- begin included file: tables/eli5_rouge.tex ---
+\begin{table}[ht]
+    \centering
+    \small
+ \begin{tabular}{@{}lcc@{}}
+\toprule
+ & ROUGE-L & Claim recall\\ %
+ \midrule
+ChatGPT \vani & 20.6 & 12.0\\% & 66.9 \\
+ChatGPT \oracle & 21.2 & 21.3 \\%& 64.4 \\
+LLaMa-13B \vani & 16.2 & 3.9 \\%& 50.0 \\
+Top-1 passage & 19.1 & 3.0 \\%& 47.1 \\ \bottomrule
+\bottomrule
+\end{tabular}   
+    \caption{
+        Comparison between ROUGE-L and claim recall scores on ELI5. 
+    }
+    \label{tab:eli5-rouge}
+\end{table}
+ 
+% --- end included file: tables/eli5_rouge.tex ---
+
+
+Instead, we leverage the original answers 
+to generate sub-claims
+and use them to serve as an estimate of the different aspects of the answers that we expect the model to cover.
+This approach is inspired by works in summarization evaluation and claim verification \cite{zhang-bansal-2021-finding,kamoi2023wice,wang-etal-2020-asking}.
+
+
+Specifically, we use \ttt{text-davinci-003}  to generate the sub-claims.
+We first manually annotate three question and answer pairs from the original ELI5 training set with 3 sub-claims each.
+Then, we prompt \ttt{text-davinci-003} with these pairs as demonstrations.
+The full prompt with an example is shown in Table \ref{tab:eli5-claims-prompt}.
+
+\paragraph{InstructGPT generates coherent and faithful sub-claims.}
+To ensure that the generated sub-claims are of good quality, we manually inspect a random sample of 40 answers and their generated sub-claims (totaling to 120 sub-claims).
+For each sub-claim, we assign a score of $1$ if it is relevant to the question and faithful to the facts presented in the ground truth, and $0$ otherwise.
+We found that $112$ out of the $120$ ($93.33\%$) sub-claims received a score of $1$, meaning that our generated sub-claims are of high quality and faithful to the ground truth.
+Furthermore, the average number of words in the generated sub-claims is $14$ words, and they are typically just one sentence long.
+This is aligned with  the intent behind the metric---to capture short factual claims made by the original answer.
+
+\paragraph{NLI model accurately predicts the entailment of sub-claims.}
+We further analyze our sub-claim evaluation metrics by checking the error rate of the final prediction of the NLI model.
+To this end, we first manually annotate the entailment scores between 40 outputs and their sub-claims (in total of 120 pairs; these are the same questions from the previous analysis). 
+We then use the NLI model to obtain the entailment scores for the output and sub-claims. 
+Using the human annotations as the ground truth label, we found that the NLI model achieved an accuracy of $80.0\%$. 
+
+
+\section{Dataset Statistics}
+
+\label{app_sec:dataset_stats}
+
+For ASQA, human answers have an average length of 65 words.
+For QAMPARI, each question has on average 13 answers. 
+For ELI5, human answers have an average length of 131 words.
+
+\section{Implementation Details}
+\label{app_sec:imp_details}
+
+\paragraph{NLI model.} 
+We use the version of TRUE model from \url{https://huggingface.co/google/t5_xxl_true_nli_mixture}, which is trained on 
+SNLI~\citep{bowman2015large_snli},
+MNLI~\citep{williams2018broad_mnli},
+Fever~\citep{thorne-etal-2018-fever},
+Scitail~\citep{khot2018scitail},
+PAWS~\citep{zhang-etal-2019-paws},
+and VitaminC~\citep{schuster-etal-2021-get}.
+This model uses the following prompt: ``\ttt{premise: \{PREMISE\} hypothesis: \{\}}''
+and outputs ``\texttt{1}'' if the premise entails the hypothesis.
+We format each passage (when used as premise) 
+by the format of ``\ttt{Title: \{TITLE\}\textbackslash{}n\{TEXT\}}'' and concatenate all passages with ``\ttt{\textbackslash{}n}'' as a separator. 
+
+
+
+
+\paragraph{MAUVE.} 
+When running MAUVE, we concatenate the question and the model output (or human answer) by space. 
+We truncate both the references and the model generations to 100 words, 
+as we found MAUVE results are unstable beyond this length for ELI5 (this is due to that ELI5 has a lot of extremely long human answers).
+
+\paragraph{Exact match for ASQA and QAMPARI.}
+Both ASQA and QAMPARI provide aliases for their short answers. 
+We normalize the response and the short answers similarly to \citet{rajpurkar-etal-2016-squad}
+and report the score with the best-matching aliases. 
+For ASQA, \citet{stelmakh2022asqa} also propose a QA-based evaluation which we found to be not as stable, and thus we do not report it in our paper.
+
+
+
+\paragraph{Output truncation.} 
+Before evaluation,
+we truncate model output by new lines, 
+as non-instruction-tuned models may generate more content after new lines that are irrelevant. 
+
+
+
+\paragraph{\textbf{\textsc{\pinteract{}}}.} 
+Empirically, we found that models tend to execute too many consecutive ``\ttt{check}'' actions, so we force the model to always ``\ttt{output}'' after each ``\ttt{check}''. 
+We limit the maximum number of passages to check as 3 to avoid exceeding the length limit.
+The full passages are removed from the context after one action to save context space.
+Table~\ref{tab:inst_inter} provides an example for \interact{}.
+
+\paragraph{Main experiments.} 
+For all experiments except ChatGPT \rerank{},
+we run each model three times with different seeds and each time we sample two demonstrations from a pool of four.
+We report the averaged scores for all experiments in the main paper 
+and we report the standard deviations in Appendix \ref{app_sec:more_main}.
+
+\paragraph{Decoding methods.}
+Based on preliminary experiments we choose the following decoding methods: For ChatGPT and GPT-4, we use sampling with temperature $0.5$; for all open-source models, we use Nucleus sampling~\citep{Holtzman2020The} and set $\text{top\_p}=0.95$. 
+
+
+\section{\citeeval{} Catches Shortcut Cases}
+\label{app_sec:short_cut}
+
+
+% --- begin included file: tables/cheat_asqa.tex ---
+
+\begin{table}[h]
+    \centering
+    \resizebox{0.98\linewidth}{!}{
+        \begin{tabular}{lcccc}
+            \toprule
+            & \tf{Fluency} & \tf{Correct.} & \multicolumn{2}{c}{\tf{Citation} }\\
+            \cmidrule(lr){2-2} \cmidrule(lr){3-3} \cmidrule(lr){4-5}
+            & (MAUVE) & (EM Rec.) & Rec. & Prec. \\
+            \midrule
+            ChatGPT &  66.6 & 40.4  & {73.6}  & {63.0} \\
+            Top-1 passage & {\color{red}20.8} & 35.1 & 99.4 & 99.4\\
+            First 2 sents & 67.2 & {\color{red}18.9} & 98.7 & 98.7 \\
+            \bottomrule
+        \end{tabular}
+    }
+    \caption{
+        ASQA cheating cases. ``ChatGPT'': the ChatGPT \vani{} model with GTR-retrieved top-5 passages. 
+        ``Top-1 passage'': use the top-1 retrieved passage as the response. 
+        ``First 2 sents'': use the first 2 sentences of the top-1 retrieved passage.
+    }
+    \label{tab:cheat}
+\end{table}
+
+% --- end included file: tables/cheat_asqa.tex ---
+
+
+Table~\ref{tab:cheat} demonstrates the experiments to show that \citeeval{}
+is robust to shortcut cases.
+Using the top-1 passages or first two sentences of the top-1 passages
+induces almost perfect citation quality, 
+but fluency and correctness  are dramatically lower.
+
+\section{Citation Recall Discussion}
+\label{app_sec:citation_recall}
+
+Our citation precision evaluation cannot detect a citation that partially supports the statement and hence will falsely penalize it. 
+Consider a statement $s_3$ and its citations \ttt{[2][4][5]}:
+if \ttt{[2]} entails partial information of $s_3$ that \ttt{[4][5]} also entails, 
+\ttt{[2]} will be counted as ``irrelevant'' while it should not be penalized.
+\citet{liu2023evaluating} conduct human evaluation on citation precision in a different way:
+For each citation,
+they ask annotators to judge whether the citation (1) fully support, (2) partially support, or (3) does not support $s_i$. 
+One citation $c_{i,j}$ is precise if
+(a) $c_{i,j}$ fully supports $s_i$ or 
+(b) $\mathcal{C}_i$ fully supports $s_i$, $c_{i,j}$ partially supports $s_i$, and no $c\in \mathcal{C}_i$ alone fully supports $s_i$.
+This evaluation solved the corner case we mentioned in the main paper (one citation partially supports the claim but is identified as ``irrelevant'').
+However, it is challenging to conduct such evaluation automatically,
+as there is no existing model that can judge whether a citation ``partially'' supports a claim.
+We also explore prompting ChatGPT to conduct such a task, which yields poor results.
+We defer it to future work to collect  supervised data to train a better $\phi$ that can detect ``partial support''.
+
+\section{Human Evaluation}
+\label{app_sec:human}
+
+We employ Surge AI (\url{https://www.surgehq.ai/}) for our human evaluation.
+The average pay to workers is 20 USD per hour.
+We randomly sample 100 examples from ASQA and ELI5 and annotate outputs of selected models: ChatGPT \vani, ChatGPT \rerank, and Vicuna-13B \vani.
+
+
+\subsection{Utility}
+To check if the model output is useful to downstream users, we measure the utility of the response $\mathcal{S}$.
+We first show the query $q$ and model response $\mathcal{S}$ to the worker and ask them to rate their agreement with  
+the statement "The response is a helpful and informative answer to the query" on a Likert scale of 1-5, 
+corresponding to \textit{Strongly Disagree}, \textit{Disagree}, \textit{Neutral}, \textit{Agree}, and \textit{Strongly Agree}.
+
+
+\subsection{Citation Recall}
+The annotators are shown the question $q$, the statement $s_i$, and all of its citations $\mathcal{C}_i$, and they rate if the joint set of citations fully support the statement (recall=1) or if they do not support all the claims (recall=0).
+We  calculate the overall recall score
+for the generation by taking an average of all the statements' recall scores.
+
+\subsection{Citation Precision}
+We show the question $q$ and a pair of a statement $s_i$ and one of its citation $c_{i,j} \in \mathcal{C}_i$
+to the annotator.
+We ask the annotator if the citation  \textit{fully supports}, \textit{partially supports}, or \textit{does not support} the factual claims in $s_i$.
+Citation $c_{i,j}$ has a citation precision of $1$ if $s_i$ has a recall of $1$, and
+$c_{i,j}$ fully or partially supports $s_i$.
+Finally, we take an average of  precision scores of all citations in the statement $\mathcal{S}$ to obtain the citation  precision score.
+
+
+
+
+% --- begin included file: tables/retrieval_asqa.tex ---
+\begin{table}[t]
+    \centering
+    \small
+    \begin{tabular}{@{}lccccc@{}}
+    \toprule
+     & R@1 & R@3 & R@5 & R@20 & R@100 \\ \midrule
+    DPR & 29.6 & 44.5 & 51.5 & 64.6 & 74.1 \\
+    GTR & 35.1 & 50.7 & 56.8 & {70.3} & {78.4} \\
+    Oracle & 63.8 & 72.8 & 78.4 & - & - \\
+    \bottomrule
+    \end{tabular}
+    \caption{Retrieval results for ASQA (EM recall).}
+    \label{tab:retrieval-asqa}
+\end{table}
+% --- end included file: tables/retrieval_asqa.tex ---
+
+
+% --- begin included file: tables/retrieval_qampari.tex ---
+\begin{table}[t]
+    \centering
+    \small
+    \begin{tabular}{@{}lccccc@{}}
+    \toprule
+     & R@1 & R@3 & R@5 & R@20 & R@100 \\ \midrule
+    DPR & 6.7 & 13.5 & 17.6 & 30.4 & 47.6 \\
+    GTR & 14.6 & 24.7 & 31.6 & 49.7 & {65.6} \\
+    Oracle & 44.3 & 58.7 & 65.6 & - & - \\
+    \bottomrule
+    \end{tabular}
+    \caption{Retrieval results for QAMPARI (recall-5).}
+    \label{tab:retrieval-qampari}
+\end{table}
+% --- end included file: tables/retrieval_qampari.tex ---
+
+
+% --- begin included file: tables/retrieval_eli5.tex ---
+\begin{table}[t]
+    \centering
+    \small
+    \begin{tabular}{@{}lccccc@{}}
+    \toprule
+     & R@1 & R@3 & R@5 & R@20 & R@100 \\ \midrule
+    BM25  & 3.0 & 6.6 & 9.6 & 19.3 & 31.8 \\
+    Oracle & 25.3 & 29.7 & 31.8 & - & - \\
+    \bottomrule
+    \end{tabular}
+    \caption{Retrieval results for ELI5 (claim recall).}
+    \label{tab:retrieval-eli5}
+\end{table}
+% --- end included file: tables/retrieval_eli5.tex ---
+
+
+
+
+\section{More Experiments}
+\label{app_sec:more_exp}
+
+
+
+% --- begin included file: tables/inst.tex ---
+
+\begin{table}[ht]
+    \centering
+    \resizebox{0.98\linewidth}{!}{
+        \begin{tabular}{lcccc}
+            \toprule
+            & \tf{Fluency} & \tf{Correct.} & \multicolumn{2}{c}{\tf{Citation} }\\
+            \cmidrule(lr){2-2} \cmidrule(lr){3-3} \cmidrule(lr){4-5}
+            & (MAUVE) & (EM Rec.) & Rec. & Prec. \\
+            \midrule
+            \headercolor
+            \multicolumn{5}{c}{\textbf{ChatGPT} (\vani{}, 5-doc)} \\
+            Short instruction & 64.1&	39.5&69.6&	73.2 \\
+            Full instruction & 66.6 & {40.4}  & {73.6}  & 72.5 \\
+            \bottomrule
+        \end{tabular}
+    }
+    \caption{
+        Effect of different instructions on ASQA.
+    }
+    \label{tab:inst}
+\end{table}
+
+% --- end included file: tables/inst.tex ---
+
+
+
+% --- begin included file: tables/numdemo.tex ---
+
+\begin{table}[ht]
+    \centering
+    \resizebox{0.98\linewidth}{!}{
+        \begin{tabular}{lcccc}
+            \toprule
+            & \tf{Fluency} & \tf{Correct.} & \multicolumn{2}{c}{\tf{Citation} }\\
+            \cmidrule(lr){2-2} \cmidrule(lr){3-3} \cmidrule(lr){4-5}
+            & (MAUVE) & (EM) & Rec. & Prec. \\
+            \midrule
+            \headercolor
+            \multicolumn{5}{c}{\textbf{ChatGPT} (\vani{})} \\
+            \#demo = 0& 74.5 & 41.9 & 69.3	& 73.4  \\
+            \#demo = 1& 68.9 & 39.8 & 74.6	& 73.2 \\
+            \#demo = 2& 66.6 & 40.4  & 73.6  & 72.5 \\
+            \bottomrule
+        \end{tabular}
+    }
+    \caption{
+        Different demonstrations on ASQA. 
+    }
+    \label{tab:numdemo}
+\end{table}
+
+% --- end included file: tables/numdemo.tex ---
+
+
+% --- begin included file: tables/fid_asqa.tex ---
+
+\begin{table}[ht]
+    \centering
+    \resizebox{0.98\linewidth}{!}{
+        \begin{tabular}{lcccc}
+            \toprule
+            & \tf{Fluency} & \tf{Correct.} & \multicolumn{2}{c}{\tf{Citation} }\\
+            \cmidrule(lr){2-2} \cmidrule(lr){3-3} \cmidrule(lr){4-5}
+            & (MAUVE) & (EM Rec.) & Rec. & Prec. \\
+            \midrule
+            ChatGPT & 66.6 & {40.4}  & {73.6}  & 72.5 \\
+            FiD + \posthoc{} & 75.8 & 28.4 & 58.1 & 58.0 \\
+            \bottomrule
+        \end{tabular}
+    }
+    \caption{
+        Comparison of Fusion-in-Decoder with ChatGPT on ASQA. 
+        Both models use top-5 GTR passages. 
+    }
+    \label{tab:fid-asqa}
+\end{table}
+
+% --- end included file: tables/fid_asqa.tex ---
+
+
+% --- begin included file: tables/fid_eli5.tex ---
+
+\begin{table}[h]
+    \centering
+    \resizebox{0.98\linewidth}{!}{
+        \begin{tabular}{lcccc}
+            \toprule
+            & \tf{Fluency} & \tf{Correct.} & \multicolumn{2}{c}{\tf{Citation} }\\
+            \cmidrule(lr){2-2} \cmidrule(lr){3-3} \cmidrule(lr){4-5}
+            & (MAUVE) & (Claim) & Rec. & Prec. \\
+            \midrule
+            ChatGPT & 57.2 &	12.0 &	51.1&	{50.0} \\
+            FiD + \posthoc{} & 25.2 & 4.4 & 39.3 & 39.3 \\
+            \bottomrule
+        \end{tabular}
+    }
+    \caption{
+        Comparison of Fusion-in-Decoder with ChatGPT on ELI5. 
+        Both models use top-5 GTR passages.
+    }
+    \label{tab:fid-eli5}
+\end{table}
+
+% --- end included file: tables/fid_eli5.tex ---
+
+
+
+\subsection{Retrieval Analysis}
+\label{app_sec:retrieval}
+
+
+\paragraph{Oracle.}
+Since the original datasets do not contain gold passages
+at the same granularity level as our setting (100-word passages), 
+we approximate gold passages by running the following algorithm on the top-100 retrieved passages.
+We first calculate the recall score for each passage. %
+Then, we sort the passages using their recall score and take the top 5 passages as our initial oracle set.
+Finally, we iterate through all passages that were not initially in the oracle set and try to replace the passages in the oracle set in a greedy fashion: we calculate the change in the recall score of the oracle set for every possible replacement and proceed with the replacement that results in the largest recall improvement. %
+The set of 5 oracle passages were able to match the recall scores of the top-100 retrieved passages.
+
+
+\paragraph{Detailed retrieval results.}
+We show detailed retrieval results in Tables~\ref{tab:retrieval-asqa}, \ref{tab:retrieval-qampari}, and \ref{tab:retrieval-eli5}.
+
+
+
+
+
+
+\subsection{Effect of Instructions}
+\label{sec:inst}
+
+Table~\ref{tab:inst} shows results of using a full instruction (Table~\ref{tab:inst_vanilla}) and a short version of the instruction (Table~\ref{tab:inst_vanilla_light}).
+We see that the full version induces stronger correctness and citation recall, while the two instructions lead to similar citation precision.
+
+\subsection{Effect of Demonstrations}
+
+\label{sec:demo}
+
+
+
+Table~\ref{tab:numdemo}
+shows results on effect of different numbers of demonstrations.
+We see that 
+numbers of demonstrations do not affect ChatGPT's correctness but
+using at least one demonstration
+ensures high citation recall.
+For the original LLaMA model, Table~\ref{tab:numdemo} shows the trend that more demonstrations lead to better performance.
+
+\subsection{Fine-tuned Models}
+\label{sec:fid}
+
+\revise{
+To better understand the differences between fine-tuned models and prompted large language models, we train state-of-the-art question answering model, Fusion-in-Decoder (FiD; \citet{izacard-grave-2021-leveraging}), and evaluate it in conjunction with \posthoc{}.
+Due to the lack of training data with citation annotation, we first train a T5-base FiD model for 5 epochs on the ASQA training set with a batch size of 64 and a learning rate of 1e-4.
+During evaluation, we use \posthoc{} to add citations to the output. 
+We also use $k=5$ passages during both training and evaluation of the FiD model. 
+
+Then, we evaluate this model on both ASQA (in-domain) and ELI5 (out-of-domain), and the results can be found in Tables \ref{tab:fid-asqa} and \ref{tab:fid-eli5}.
+Note that this is not a direct comparison, as ALCE assumes only evaluation data available and uses only few-shot data for prompting. 
+As the results show, the FiD baseline still significantly lags behind prompting ChatGPT in both correctness and citation quality (even though it is trained on 4000+ examples). 
+When tested on another dataset (ELI5), FiD performs even worse, showing that it is challenging to solve the problem by fine-tuning a small pre-trained model. 
+}
+ 
+\subsection{More Human Evaluation}
+\label{sec_more_human}
+
+
+
+We evaluate the accuracy of our automatic metrics by treating the human annotations as gold labels.
+For citation recall, \citeeval{} achieves an accuracy of $85.1\%$; for citation precision, \citeeval{} has an accuracy of $77.6\%$.
+Regarding detecting insufficient citations, \citeeval{} has a recall of $82.3\%$ and a precision of $84.2\%$; 
+regarding detecting ``irrelevant'' citations, \citeeval{} has a recall of $75.6\%$ and a precision of $66.1\%$---\citeeval{} is effective in detecting ``irrelevant'' citations, but 
+due to the limitation of the NLI model (cannot detect ``partial support''), it has a relatively high false positive rate.
+
+\subsection{Main Results}
+\label{app_sec:more_main}
+We show full results of our experiments along with the standard deviation 
+in Tables \ref{tab:asqa_full}, \ref{tab:qampari_full}, and \ref{tab:eli5_full}.
+We repeat all experiments with three different random seeds. 
+However, for ChatGPT \rerank, we use only one seeded run since each run repeats the generation step four times, and more experiments would incur significant costs. Similarly, due to the cost of running ChatGPT-16K and GPT-4, we only use one seeded run for each model. 
+
+\subsection{Open-source Models}
+\label{app_sec:open-source-models}
+In addition to the open-source models discussed in the main text, we also show the results of LLaMA-7B, Alpaca-7B, Vicuna-7B, LLaMA-33B, Oasst-33B, and Stable Beluga 2 in the Tables \ref{tab:asqa_full}, \ref{tab:qampari_full}, and \ref{tab:eli5_full}.
+For selected models, we also tested them using approaches beyond \vani{}. 
+
+Although open-source models generally lag behind the state-of-the-art models (i.e. GPT-4) in both correctness and citation quality, the largest instruction-following models (i.e. LLaMA-2-70B-Chat and Stable Beluga 2) can sometimes achieve competitive correctness to the SoTA. 
+
+Furthermore, we found that the open-source models follow a similar trend between different approaches as ChatGPT. Specifically, using \summ{} and \snippet{} improves correctness and \rerank{} boosts citation quality. 
+
+
+% --- begin included file: tables/asqa_full.tex ---
+
+\begin{table*}[h]
+    \centering
+    \small
+        \begin{tabular}{lcccccc}
+            \toprule
+            & \tf{Fluency} & \tf{Correct.} & \multicolumn{2}{c}{\tf{Citation} }\\
+            \cmidrule(lr){2-2} \cmidrule(lr){3-3} \cmidrule(lr){4-5}
+            & (MAUVE) & (EM Rec.) & Rec. & Prec. & ROUGE-L & Length \\
+            \midrule
+            \headercolorlong
+            \multicolumn{7}{c}{\textbf{ChatGPT}} \\
+            \tableskip
+
+            \vani{} (5-psg) & 66.8 $_{(2.0)}$ & 40.4 $_{(0.6)}$ & 73.6 $_{(1.1)}$ & 72.5 $_{(1.8)}$ & 37.0 $_{(0.4)}$ & 40.0 $_{(3.1)}$   \\
+            ~~w/ \rerank{} & 77.0 $_{(-)}$ & 40.2 $_{(-)}$ & 84.8 $_{(-)}$ & 81.6 $_{(-)}$ & 36.9 $_{(-)}$ & 40.8 $_{(-)}$ \\
+            \summ{} (10-psg) & 70.0 $_{(1.2)}$ & 43.3 $_{(0.8)}$ & 68.8 $_{(0.6)}$ &61.8  $_{(1.1)}$ & 36.9 $_{(0.2)}$ & 49.8 $_{(4.3)}$   \\
+            ~~w/ \interact{}  & 69.0 $_{(2.7)}$ & 39.1 $_{(0.5)}$ & 73.4 $_{(0.2)}$ & 66.5 $_{(4.9)}$ & 35.7 $_{(0.2)}$ & 34.0 $_{(0.9)}$   \\
+            \snippet{} (10-psg) & 69.8 $_{(2.5)}$ & 41.4 $_{(0.6)}$ & 65.3 $_{(0.6)}$ & 57.4 $_{(0.9)}$ & 36.4 $_{(0.4)}$ & 43.0 $_{(3.5)}$   \\
+            \search{} & 58.7 $_{(1.3)}$ & 32.4 $_{(0.6)}$ & 58.3 $_{(1.3)}$ & 58.3 $_{(1.3)}$ & 58.2 $_{(1.1)}$ & 23.7 $_{(1.1)}$   \\
+            \close{} & 52.7 $_{(4.9)}$ & 38.2 $_{(0.1)}$ & 26.7 $_{(1.1)}$ & 26.7 $_{(1.1)}$ & 37.1 $_{(0.3)}$ & 61.1 $_{(4.5)}$   \\
+            \oracle (5-psg) & 64.4 $_{(0.6)}$ & 48.9 $_{(1.2)}$ & 74.5 $_{(0.6)}$ & 72.7 $_{(1.0)}$ & 38.2 $_{(1.0)}$ & 37.4 $_{(3.0)}$   \\
+
+
+            \headercolorlong
+            \tableskip
+            \multicolumn{7}{c}{\textbf{ChatGPT-16K}} \\
+            \tableskip
+            \vani{} (5-psg)  & 60.3 $_{(-)}$&36.1 $_{(-)}$&76.2 $_{(-)}$&76.5 $_{(-)}$&36.2 $_{(-)}$&24.7 $_{(-)}$\\
+            \vani{} (10-psg) & 56.3 $_{(-)}$&36.7 $_{(-)}$&75.3 $_{(-)}$&75.0 $_{(-)}$&35.6 $_{(-)}$&23.5 $_{(-)}$\\
+            \vani{} (20-psg) & 56.7 $_{(-)}$&36.1 $_{(-)}$&73.7 $_{(-)}$&73.5 $_{(-)}$&35.5 $_{(-)}$&23.1 $_{(-)}$\\
+
+            \headercolorlong
+            \tableskip
+            \multicolumn{7}{c}{\textbf{GPT-4}} \\
+            \tableskip
+
+            \vani{} (5-psg)  & 67.1 $_{(-)}$&41.3 $_{(-)}$&68.5 $_{(-)}$&75.6 $_{(-)}$&39.2 $_{(-)}$&31.8 $_{(-)}$\\
+            \vani{} (10-psg) & 71.5 $_{(-)}$&43.1 $_{(-)}$&72.0 $_{(-)}$&75.5 $_{(-)}$&39.7 $_{(-)}$&33.8 $_{(-)}$\\
+            \vani{} (20-psg) & 64.9 $_{(-)}$&44.4 $_{(-)}$&73.0 $_{(-)}$&76.5 $_{(-)}$&40.1 $_{(-)}$&34.3 $_{(-)}$\\
+
+            \headercolorlong
+            \tableskip
+            \multicolumn{7}{c}{\textbf{Open-source} } \\
+            \tableskip
+            LLaMA-7B \vani{} (3-psg) & 69.8 $_{(2.0)}$ & 22.6 $_{(0.9)}$ & 6.2 $_{(2.7)}$ & 9.2 $_{(2.9)}$ & 29.1 $_{(0.2)}$ & 61.3 $_{(14.3)}$ \\
+            Alpaca-7B \vani{} (3-psg) & 84.2 $_{(2.7)}$ & 32.1 $_{(1.7)}$ & 12.3 $_{(7.2)}$ & 14.1 $_{(7.0)}$ & 33.1 $_{(0.8)}$ & 51.7 $_{(12.8)}$ \\
+            Vicuna-7B \vani{} (3-psg) & 82.9 $_{(5.0)}$ & 34.6 $_{(0.7)}$ & 40.3 $_{(0.5)}$ & 42.6 $_{(1.0)}$ & 35.9 $_{(0.7)}$ & 48.9 $_{(6.6)}$ \\ \midrule
+            LLaMA-13B \vani{} (3-psg) & 68.4 $_{(6.4)}$ & 26.9 $_{(0.4)}$ & 10.6 $_{(4.7)}$ & 15.4 $_{(5.2)}$ & 29.8 $_{(0.5)}$ & 67.1 $_{(19.1)}$ \\
+            ~~w/ \rerank & 60.9 $_{(14.5)}$ & 25.2 $_{(2.5)}$ & 28.1 $_{(9.3)}$ & 37.0 $_{(7.2)}$ & 27.9 $_{(2.4)}$ & 50.5 $_{(14.3)}$ \\
+            LLaMA-13B \summ{} (10-psg) & 76.8 $_{(4.7)}$ & 33.3 $_{(0.7)}$ & 19.6 $_{(3.9)}$ & 23.7 $_{(4.7)}$ & 32.1 $_{(0.3)}$ & 54.4 $_{(1.5)}$ \\
+            LLaMA-13B \snippet{} (10-psg) & 72.0 $_{(0.8)}$ & 31.3 $_{(1.1)}$ & 18.2 $_{(3.1)}$ & 21.1 $_{(3.6)}$ & 30.8 $_{(0.4)}$ & 50.5 $_{(4.5)}$ \\
+            LLaMA-13B \oracle{} (3-psg) & 69.5 $_{(11.4)}$ & 34.3 $_{(0.9)}$ & 10.8 $_{(4.9)}$ & 15.8 $_{(5.9)}$ & 30.6 $_{(0.1)}$ & 67.3 $_{(17.9)}$ \\ \midrule
+            Vicuna-13B \vani{} (3-psg) & 82.6 $_{(9.4)}$ & 31.9 $_{(3.9)}$ & 51.1 $_{(1.4)}$ & 50.1 $_{(2.5)}$ & 34.9 $_{(1.3)}$ & 39.1 $_{(6.6)}$ \\
+            ~~w/ \rerank & 73.5 $_{(2.1)}$ & 32.9 $_{(1.3)}$ & 71.9 $_{(1.9)}$ & 65.4 $_{(1.5)}$ & 34.6 $_{(0.3)}$ & 35.7 $_{(4.2)}$ \\
+            Vicuna-13B \summ{} (10-psg) & 67.7 $_{(0.3)}$ & 43.2 $_{(0.1)}$ & 52.7 $_{(2.6)}$ & 50.0 $_{(2.1)}$ & 36.7 $_{(0.2)}$ & 66.0 $_{(1.2)}$ \\
+            Vicuna-13B \snippet{} (10-psg) & 81.4 $_{(3.0)}$ & 42.1 $_{(1.2)}$ & 53.4 $_{(1.9)}$ & 48.7 $_{(1.6)}$ & 36.9 $_{(0.4)}$ & 61.2 $_{(7.4)}$ \\
+            Vicuna-13B \oracle{} (3-psg) & 72.9 $_{(3.5)}$ & 42.5 $_{(1.6)}$ & 52.2 $_{(0.8)}$ & 50.7 $_{(1.6)}$ & 36.5 $_{(0.9)}$ & 38.7 $_{(3.5)}$ \\ \midrule
+            LLaMA-33B \vani{} (3-psg) & 83.7 $_{(5.4)}$ & 31.0 $_{(0.8)}$ & 19.5 $_{(5.3)}$ & 23.0 $_{(5.3)}$ & 32.3 $_{(0.6)}$ & 44.1 $_{(9.3)}$ \\
+            ~~w/ \rerank & 82.1 $_{(3.0)}$ & 31.3 $_{(1.1)}$ & 41.3 $_{(6.4)}$ & 44.7 $_{(5.5)}$ & 32.5 $_{(0.9)}$ & 39.4 $_{(8.0)}$ \\
+            LLaMA-33B \summ{} (10-psg) & 72.0 $_{(3.0)}$ & 33.1 $_{(1.9)}$ & 34.7 $_{(5.8)}$ & 35.2 $_{(6.0)}$ & 31.1 $_{(0.8)}$ & 43.7 $_{(5.0)}$ \\
+            LLaMA-33B \snippet{} (10-psg) & 70.8 $_{(3.1)}$ & 30.9 $_{(1.4)}$ & 31.4 $_{(4.2)}$ & 31.5 $_{(5.3)}$ & 30.1 $_{(0.7)}$ & 42.8 $_{(3.6)}$ \\
+            LLaMA-33B \oracle{} (3-psg) & 82.6 $_{(7.1)}$ & 39.3 $_{(2.9)}$ & 20.2 $_{(6.2)}$ & 23.9 $_{(6.3)}$ & 33.1 $_{(0.9)}$ & 42.0 $_{(9.3)}$ \\ \midrule
+            Oasst-33B \vani{} (3-psg) & 82.9 $_{(2.7)}$ & 34.8 $_{(1.5)}$ & 36.2 $_{(1.7)}$ & 38.3 $_{(2.7)}$ & 35.5 $_{(0.7)}$ & 45.2 $_{(6.3)}$ \\
+            ~~w/ \rerank & 83.2 $_{(2.4)}$ & 35.1 $_{(1.4)}$ & 66.7 $_{(0.2)}$ & 64.3 $_{(1.0)}$ & 35.0 $_{(0.6)}$ & 41.8 $_{(6.0)}$ \\
+            Oasst-33B \summ{} (10-psg) & 74.3 $_{(4.6)}$ & 40.9 $_{(1.1)}$ & 45.5 $_{(1.9)}$ & 44.0 $_{(2.9)}$ & 35.8 $_{(0.6)}$ & 54.3 $_{(4.8)}$ \\
+            Oasst-33B \snippet{} (10-psg) & 79.3 $_{(1.0)}$ & 40.1 $_{(0.9)}$ & 45.0 $_{(1.3)}$ & 43.3 $_{(2.2)}$ & 35.8 $_{(0.2)}$ & 50.9 $_{(4.1)}$ \\
+            Oasst-33B \oracle{} (3-psg) & 85.1 $_{(2.8)}$ & 44.3 $_{(2.4)}$ & 37.0 $_{(1.0)}$ & 39.6 $_{(1.5)}$ & 36.5 $_{(1.1)}$ & 44.2 $_{(5.8)}$ \\ 
+            \midrule
+            LLaMA-2-7B-Chat \vani{} (5-psg) & 80.1 $_{(6.5)}$ & 33.9 $_{(2.1)}$ & 50.9 $_{(4.5)}$ & 47.5 $_{(3.7)}$ & 35.1 $_{(0.9)}$ & 42.3 $_{(10.1)}$\\
+            LLaMA-2-13B-Chat \vani{} (5-psg)  & 72.4 $_{(6.3)}$ & 35.2 $_{(1.2)}$ & 38.4 $_{(5.9)}$ & 39.4 $_{(4.8)}$ & 35.8 $_{(0.9)}$ & 38.0 $_{(6.4)}$\\
+            LLaMA-2-70B-Chat \vani{} (5-psg)  & 88.3 $_{(4.1)}$ & 41.5 $_{(0.8)}$ & 62.9 $_{(1.4)}$ & 61.3 $_{(2.1)}$ & 37.1 $_{(0.4)}$ & 52.9 $_{(9.5)}$\\
+            \midrule
+            Stable Beluga 2 \vani{} (5-psg) & 59.7 $_{(3.3)}$&37.2 $_{(1.0)}$&63.6 $_{(0.7)}$&63.5 $_{(0.1)}$&35.3 $_{(0.7)}$&23.8 $_{(3.2)}$\\
+            \bottomrule
+        \end{tabular}
+    \caption{
+        ASQA full results. %
+    }
+    \label{tab:asqa_full}
+\end{table*}
+
+% --- end included file: tables/asqa_full.tex ---
+
+
+% --- begin included file: tables/qampari_full.tex ---
+
+\begin{table*}[ht]
+    \centering
+    \small
+        \begin{tabular}{lccccc}
+            \toprule
+             & \multicolumn{2}{c}{\tf{Correctness}} & \multicolumn{2}{c}{\tf{Citation} }\\
+             \cmidrule(lr){2-3} \cmidrule(lr){4-5}
+            &  Rec.-5 & Prec. & Rec. & Prec. & Num Pred. \\
+            \midrule
+            \rowcolor{gray!16}
+            \multicolumn{6}{c}{\textbf{ChatGPT}} \\
+            \tableskip
+            \vani{} (5-psg) & 20.8 $_{(2.2)}$ & 20.8 $_{(0.2)}$ & 20.5 $_{(0.7)}$ & 20.9 $_{(0.7)}$ & 5.0 $_{(0.5)}$   \\
+            ~~w/ \rerank{} & 22.8 $_{(-)}$ & 21.4 $_{(-)}$ & 21.2 $_{(-)}$ & 21.4 $_{(-)}$ & 5.4 $_{(-)}$ \\
+            \summ{} (10-psg) & 23.6 $_{(0.9)}$ & 21.2 $_{(0.5)}$ & 23.6 $_{(0.7)}$ & 25.7 $_{(0.8)}$ & 6.7 $_{(0.4)}$   \\
+            \snippet{} (10-psg) & 24.5 $_{(1.4)}$ & 21.5 $_{(1.8)}$ & 22.9 $_{(1.6)}$ & 24.9 $_{(0.4)}$ & 7.2 $_{(0.9)}$   \\
+            ~~w/ \interact{} & 21.9 $_{(0.9)}$ & 23.0 $_{(0.4)}$ & 21.9 $_{(1.2)}$ & 23.4 $_{(0.9)}$ & 6.7 $_{(0.4)}$   \\
+         \search{} & 17.2 $_{(1.1)}$ & 20.4 $_{(0.8)}$ & 14.9 $_{(0.8)}$ & 14.9 $_{(0.8)}$ & 6.7 $_{(0.2)}$   \\
+            \close{} & 32.9 $_{(1.1)}$ & 19.8 $_{(1.6)}$ & 10.0 $_{(0.4)}$ & 10.0 $_{(0.4)}$ & 17.0 $_{(2.9)}$   \\
+         \oracle{} & 37.0 $_{(3.1)}$ & 36.9 $_{(0.6)}$ & 24.1 $_{(1.2)}$ & 24.6 $_{(1.3)}$ & 5.3 $_{(0.6)}$   \\
+
+
+
+            \headercolorlong
+            \tableskip
+            \multicolumn{6}{c}{\textbf{ChatGPT-16K}} \\
+            \tableskip
+            \vani{} (5-psg)  & 21.1 $_{(-)}$&22.0 $_{(-)}$&20.7 $_{(-)}$&21.2 $_{(-)}$&4.9 $_{(-)}$\\ 
+            \vani{} (10-psg) & 23.4 $_{(-)}$&21.9 $_{(-)}$&21.6 $_{(-)}$&22.0 $_{(-)}$&5.7 $_{(-)}$\\
+            \vani{} (20-psg) & 26.4 $_{(-)}$&21.1 $_{(-)}$&19.4 $_{(-)}$&19.7 $_{(-)}$&7.6 $_{(-)}$\\
+
+            \headercolorlong
+            \tableskip
+            \multicolumn{6}{c}{\textbf{GPT-4}} \\
+            \tableskip
+
+            \vani{} (5-psg)  & 22.2 $_{(-)}$&25.0 $_{(-)}$&25.9 $_{(-)}$&27.0 $_{(-)}$&4.4 $_{(-)}$\\
+            \vani{} (10-psg) & 26.8 $_{(-)}$&25.1 $_{(-)}$&26.2 $_{(-)}$&27.2 $_{(-)}$&5.7 $_{(-)}$\\
+            \vani{} (20-psg) & 29.6 $_{(-)}$&26.2 $_{(-)}$&27.4 $_{(-)}$&28.5 $_{(-)}$&6.8 $_{(-)}$\\
+
+
+            \rowcolor{gray!16}
+            \multicolumn{6}{c}{\textbf{Open-source}} \\
+            LLaMA-7B \vani{} (3-psg) & 7.8 $_{(3.4)}$ & 7.4 $_{(2.7)}$ & 5.1 $_{(0.5)}$ & 5.7 $_{(0.8)}$ & 5.7 $_{(0.6)}$ \\
+            Alpaca-7B \vani{} (3-psg) & 9.4 $_{(3.7)}$ & 9.5 $_{(3.6)}$ & 6.4 $_{(0.5)}$ & 6.8 $_{(0.5)}$ & 5.1 $_{(0.1)}$ \\
+            Vicuna-7B \vani{} (3-psg) & 11.3 $_{(1.4)}$ & 13.3 $_{(2.3)}$ & 10.1 $_{(0.6)}$ & 10.9 $_{(0.5)}$ & 3.9 $_{(0.3)}$ \\ \midrule
+            LLaMA-13B \vani{} (3-psg) & 9.7 $_{(3.6)}$ & 9.1 $_{(3.1)}$ & 6.7 $_{(0.9)}$ & 7.1 $_{(0.9)}$ & 5.9 $_{(0.6)}$ \\
+            ~~w/ \rerank & 10.0 $_{(3.3)}$ & 10.7 $_{(3.3)}$ & 9.9 $_{(1.2)}$ & 10.2 $_{(1.1)}$ & 5.4 $_{(0.5)}$ \\
+            LLaMA-13B \summ{} (10-psg) & 14.8 $_{(2.5)}$ & 12.6 $_{(1.5)}$ & 7.4 $_{(0.5)}$ & 8.0 $_{(0.6)}$ & 8.1 $_{(0.9)}$ \\
+            LLaMA-13B \snippet{} (10-psg) & 17.7 $_{(1.4)}$ & 15.7 $_{(0.9)}$ & 8.8 $_{(0.7)}$ & 9.9 $_{(0.6)}$ & 8.2 $_{(0.4)}$ \\
+            LLaMA-13B \oracle{} (3-psg) & 16.8 $_{(6.6)}$ & 15.4 $_{(5.6)}$ & 7.7 $_{(1.0)}$ & 8.3 $_{(1.1)}$ & 5.7 $_{(0.7)}$ \\ \midrule
+            Vicuna-13B \vani{} (3-psg) & 14.0 $_{(0.6)}$ & 15.9 $_{(1.7)}$ & 12.5 $_{(0.8)}$ & 13.4 $_{(0.7)}$ & 4.7 $_{(0.3)}$ \\
+            ~~w/ \rerank & 13.0 $_{(0.7)}$ & 17.2 $_{(2.2)}$ & 17.3 $_{(0.8)}$ & 17.7 $_{(0.6)}$ & 4.4 $_{(0.3)}$ \\
+            Vicuna-13B \summ{} (10-psg) & 21.1 $_{(1.4)}$ & 17.1 $_{(0.3)}$ & 15.7 $_{(0.2)}$ & 17.8 $_{(0.1)}$ & 6.9 $_{(0.7)}$ \\
+            Vicuna-13B \snippet{} (10-psg) & 21.9 $_{(0.8)}$ & 18.2 $_{(0.3)}$ & 16.8 $_{(0.3)}$ & 19.7 $_{(0.6)}$ & 7.5 $_{(0.4)}$ \\
+            Vicuna-13B \oracle{} (3-psg) & 25.9 $_{(1.6)}$ & 28.4 $_{(2.6)}$ & 15.8 $_{(1.4)}$ & 16.8 $_{(1.4)}$ & 4.9 $_{(0.5)}$ \\ \midrule
+            LLaMA-33B \vani{} (3-psg) & 14.7 $_{(3.3)}$ & 12.0 $_{(2.2)}$ & 7.9 $_{(0.7)}$ & 8.3 $_{(0.6)}$ & 7.2 $_{(0.7)}$ \\
+            ~~w/ \rerank & 14.0 $_{(3.4)}$ & 13.9 $_{(2.6)}$ & 10.7 $_{(0.6)}$ & 11.1 $_{(0.5)}$ & 6.4 $_{(0.7)}$ \\
+            LLaMA-33B \summ{} (10-psg) & 19.0 $_{(1.9)}$ & 14.8 $_{(0.8)}$ & 12.5 $_{(0.2)}$ & 15.0 $_{(0.3)}$ & 7.6 $_{(0.6)}$ \\
+            LLaMA-33B \snippet{} (10-psg) & 19.6 $_{(1.1)}$ & 15.7 $_{(0.1)}$ & 12.8 $_{(1.1)}$ & 15.2 $_{(1.2)}$ & 7.8 $_{(0.5)}$ \\
+            LLaMA-33B \oracle{} (3-psg) & 23.9 $_{(6.9)}$ & 20.3 $_{(5.2)}$ & 9.8 $_{(1.2)}$ & 10.4 $_{(1.2)}$ & 6.8 $_{(0.9)}$ \\ \midrule
+            Oasst-33B \vani{} (3-psg) & 15.5 $_{(1.5)}$ & 14.9 $_{(1.4)}$ & 9.0 $_{(1.6)}$ & 10.1 $_{(1.8)}$ & 5.6 $_{(0.3)}$ \\
+            ~~w/ \rerank & 14.1 $_{(1.1)}$ & 15.8 $_{(1.0)}$ & 15.0 $_{(1.6)}$ & 15.9 $_{(1.6)}$ & 4.7 $_{(0.3)}$ \\
+            Oasst-33B \summ{} (10-psg) & 21.0 $_{(0.6)}$ & 17.5 $_{(1.0)}$ & 12.9 $_{(1.2)}$ & 16.6 $_{(1.2)}$ & 7.1 $_{(0.4)}$ \\
+            Oasst-33B \snippet{} (10-psg) & 22.0 $_{(0.4)}$ & 17.4 $_{(0.3)}$ & 13.6 $_{(1.7)}$ & 17.7 $_{(1.6)}$ & 7.5 $_{(0.1)}$ \\
+            Oasst-33B \oracle{} (3-psg) & 26.9 $_{(3.7)}$ & 26.0 $_{(3.3)}$ & 11.7 $_{(1.0)}$ & 12.9 $_{(1.2)}$ & 5.6 $_{(0.4)}$ \\ 
+            \midrule
+            LLaMA-2-7B-Chat \vani{} (5-psg) & 16.2 $_{(1.3)}$&15.3 $_{(1.6)}$&10.6 $_{(0.9)}$&10.9 $_{(1.0)}$&5.5 $_{(0.0)}$\\
+            LLaMA-2-13B-Chat \vani{} (5-psg) & 21.1 $_{(0.9)}$&18.2 $_{(0.5)}$&9.6 $_{(1.5)}$&9.7 $_{(1.5)}$&6.5 $_{(0.3)}$\\
+            LLaMA-2-70B-Chat \vani{} (5-psg)  & 21.8 $_{(0.7)}$&18.4 $_{(0.1)}$&15.1 $_{(1.2)}$&15.6 $_{(1.3)}$&7.1 $_{(0.2)}$\\
+            \midrule
+            Stable Beluga 2 & 19.7 $_{(0.7)}$&21.2 $_{(1.4)}$&18.6 $_{(1.2)}$&20.7 $_{(1.1)}$&5.1 $_{(0.3)}$\\
+            \bottomrule
+            
+        \end{tabular}
+    \caption{
+        QAMPARI full results.
+    }
+    \label{tab:qampari_full}
+\end{table*}
+
+% --- end included file: tables/qampari_full.tex ---
+
+
+% --- begin included file: tables/eli5_full.tex ---
+
+\begin{table*}[h]
+    \centering
+    \small
+        \begin{tabular}{lcccccc}
+            \toprule
+            & \tf{Fluency} & \tf{Correct.} & \multicolumn{2}{c}{\tf{Citation} }\\
+            \cmidrule(lr){2-2} \cmidrule(lr){3-3} \cmidrule(lr){4-5}
+            & (MAUVE) & (Claim) & Rec. & Prec. & ROUGE-L & Length \\
+            \midrule
+            \headercolorlong
+            \multicolumn{7}{c}{\textbf{ChatGPT}} \\
+
+            \vani{} (5-psg) & 57.2 $_{(1.6)}$ & 12.0 $_{(0.6)}$ & 51.1 $_{(4.2)}$ & 50.0 $_{(4.8)}$ & 20.6 $_{(0.2)}$ & 91.5 $_{(6.5)}$   \\
+            ~~w/ \rerank{} & 56.1 $_{(-)}$ & 11.4 $_{(-)}$ & 69.3 $_{(-)}$ & 67.8 $_{(-)}$ & 20.3 $_{(-)}$ & 103.4 $_{(-)}$ \\
+          \summ{} (10-psg)& 40.2 $_{(1.2)}$ & 12.5 $_{(0.2)}$ & 51.5 $_{(1.1)}$ & 48.2 $_{(2.0)}$ & 20.3 $_{(0.1)}$ & 90.0 $_{(6.6)}$   \\
+          \snippet{} (10-psg) & 62.9 $_{(2.2)}$ & 14.3 $_{(0.1)}$ & 50.4 $_{(1.1)}$ & 45.0  $_{(2.w)}$ & 21.0 $_{(0.1)}$ & 100.0 $_{(6.8)}$   \\
+          ~~w/ \interact{} & 68.0 $_{(5.8)}$ & 13.3 $_{(0.5)}$ & 47.8 $_{(3.3)}$ & 45.0  $_{(3.1)}$ & 20.1 $_{(0.2)}$ & 99.8 $_{(6.1)}$   \\
+          \search{} & 49.7 $_{(4.6)}$ & 13.4 $_{(1.1)}$ & 45.6 $_{(2.5)}$ &43.7  $_{(3.9)}$ & 20.4 $_{(0.3)}$ & 103.0 $_{(18.1)}$   \\
+       \close{} & 32.6 $_{(1.1)}$ & 18.6 $_{(0.5)}$ & 15.4 $_{(0.3)}$ & 15.4 $_{(0.3)}$ & 22.8 $_{(0.1)}$ & 108.3 $_{(8.9)}$   \\
+       \oracle{} (5-psg) & 59.4 $_{(4.1)}$ & 21.3 $_{(0.2)}$ & 57.8 $_{(3.7)}$ & 56.0  $_{(3.8)}$ & 21.2 $_{(0.3)}$ & 93.0 $_{(7.8)}$   \\
+
+
+
+
+            \headercolorlong
+            \multicolumn{7}{c}{\textbf{ChatGPT-16K}} \\
+            \tableskip
+            \vani{} (5-psg)  & 31.6 $_{(-)}$&14.4 $_{(-)}$&44.6 $_{(-)}$&44.1 $_{(-)}$&21.4 $_{(-)}$&87.6 $_{(-)}$\\  
+            \vani{} (10-psg) & 26.6 $_{(-)}$&14.4 $_{(-)}$&45.5 $_{(-)}$&43.3 $_{(-)}$&21.5 $_{(-)}$&87.5 $_{(-)}$\\
+            \vani{} (20-psg) & 31.6 $_{(-)}$&15.9 $_{(-)}$&43.4 $_{(-)}$&40.9 $_{(-)}$&21.7 $_{(-)}$&92.6 $_{(-)}$\\
+
+            \headercolorlong
+            \tableskip
+            \multicolumn{7}{c}{\textbf{GPT-4}} \\
+            \tableskip
+
+            \vani{} (5-psg)  & 38.4 $_{(-)}$&14.2 $_{(-)}$&44.0 $_{(-)}$&50.1 $_{(-)}$&20.6 $_{(-)}$&79.6 $_{(-)}$\\
+            \vani{} (10-psg) & 39.9 $_{(-)}$&15.7 $_{(-)}$&49.5 $_{(-)}$&54.2 $_{(-)}$&21.2 $_{(-)}$&88.2 $_{(-)}$\\
+            \vani{} (20-psg) & 41.5 $_{(-)}$&18.3 $_{(-)}$&48.5 $_{(-)}$&53.4 $_{(-)}$&22.2 $_{(-)}$&97.0 $_{(-)}$\\
+
+            \headercolorlong
+            \tableskip
+            \multicolumn{7}{c}{\textbf{Open-source} } \\
+            \tableskip
+            LLaMA-7B \vani{} (3-psg) & 28.6 $_{(17.9)}$ & 1.6 $_{(0.9)}$ & 1.2 $_{(0.0)}$ & 2.7 $_{(0.1)}$ & 12.2 $_{(1.3)}$ & 46.9 $_{(1.2)}$ \\
+            Alpaca-7B \vani{} (3-psg) & 45.9 $_{(5.3)}$ & 9.2 $_{(0.1)}$ & 4.5 $_{(1.6)}$ & 5.2 $_{(1.9)}$ & 18.8 $_{(0.3)}$ & 67.1 $_{(1.2)}$ \\
+            Vicuna-7B \vani{} (3-psg) & 43.2 $_{(3.9)}$ & 10.0 $_{(0.5)}$ & 12.6 $_{(2.3)}$ & 16.3 $_{(2.6)}$ & 19.1 $_{(0.4)}$ & 68.7 $_{(2.0)}$ \\ \midrule
+            LLaMA-13B \vani{} (3-psg) & 50.0 $_{(2.0)}$ & 3.9 $_{(0.4)}$ & 3.1 $_{(0.9)}$ & 5.3 $_{(1.3)}$ & 16.1 $_{(0.5)}$ & 63.3 $_{(2.0)}$ \\
+            ~~w/ \rerank & 46.7 $_{(2.9)}$ & 4.3 $_{(0.4)}$ & 9.7 $_{(2.1)}$ & 15.0 $_{(2.2)}$ & 16.1 $_{(0.7)}$ & 63.0 $_{(2.3)}$ \\
+            LLaMA-13B \summ{} (10-psg) & 28.6 $_{(1.8)}$ & 2.9 $_{(0.1)}$ & 2.5 $_{(0.8)}$ & 3.8 $_{(0.8)}$ & 8.5 $_{(0.3)}$ & 33.1 $_{(0.6)}$ \\
+            LLaMA-13B \snippet{} (10-psg) & 48.4 $_{(3.1)}$ & 5.7 $_{(0.9)}$ & 5.8 $_{(0.6)}$ & 7.6 $_{(0.9)}$ & 15.1 $_{(1.1)}$ & 60.2 $_{(3.2)}$ \\
+            LLaMA-13B \oracle{} (3-psg) & 49.5 $_{(2.4)}$ & 6.4 $_{(0.6)}$ & 3.7 $_{(0.7)}$ & 6.5 $_{(1.0)}$ & 16.8 $_{(0.5)}$ & 64.5 $_{(1.7)}$ \\ \midrule
+            Vicuna-13B \vani{} (3-psg) & 58.2 $_{(25.1)}$ & 10.0 $_{(0.3)}$ & 15.6 $_{(2.2)}$ & 19.6 $_{(2.0)}$ & 19.1 $_{(0.3)}$ & 69.6 $_{(0.6)}$ \\
+            ~~w/ \rerank & 45.9 $_{(4.3)}$ & 9.2 $_{(0.0)}$ & 31.7 $_{(2.9)}$ & 38.2 $_{(1.6)}$ & 18.6 $_{(0.5)}$ & 69.7 $_{(1.0)}$ \\
+            Vicuna-13B \summ{} (10-psg) & 22.4 $_{(3.0)}$ & 4.9 $_{(0.1)}$ & 9.7 $_{(1.3)}$ & 12.2 $_{(1.2)}$ & 9.3 $_{(0.4)}$ & 33.0 $_{(3.7)}$ \\
+            Vicuna-13B \snippet{} (10-psg) & 48.1 $_{(5.3)}$ & 11.2 $_{(1.4)}$ & 27.2 $_{(3.6)}$ & 27.9 $_{(1.9)}$ & 18.4 $_{(1.9)}$ & 76.8 $_{(8.7)}$ \\
+            Vicuna-13B \oracle{} (3-psg) & 41.6 $_{(3.1)}$ & 17.1 $_{(0.4)}$ & 20.2 $_{(3.0)}$ & 26.5 $_{(3.0)}$ & 20.0 $_{(0.3)}$ & 72.0 $_{(0.3)}$ \\ \midrule
+            LLaMA-33B \vani{} (3-psg) & 58.8 $_{(4.3)}$ & 6.2 $_{(0.0)}$ & 9.3 $_{(3.0)}$ & 12.1 $_{(4.2)}$ & 16.9 $_{(0.2)}$ & 60.0 $_{(1.3)}$ \\
+            ~~w/ \rerank & 65.9 $_{(2.5)}$ & 6.0 $_{(0.7)}$ & 22.5 $_{(5.2)}$ & 26.1 $_{(6.9)}$ & 17.5 $_{(0.4)}$ & 61.0 $_{(1.2)}$ \\
+            LLaMA-33B \summ{} (10-psg) & 23.3 $_{(2.0)}$ & 3.0 $_{(0.2)}$ & 6.2 $_{(0.5)}$ & 8.2 $_{(0.7)}$ & 7.5 $_{(0.4)}$ & 26.2 $_{(2.3)}$ \\
+            LLaMA-33B \snippet{} (10-psg) & 53.2 $_{(4.0)}$ & 7.4 $_{(1.3)}$ & 13.7 $_{(0.5)}$ & 15.1 $_{(0.4)}$ & 14.4 $_{(1.7)}$ & 53.3 $_{(8.5)}$ \\
+            LLaMA-33B \oracle{} (3-psg) & 63.7 $_{(2.8)}$ & 11.4 $_{(0.5)}$ & 11.9 $_{(2.6)}$ & 15.4 $_{(3.6)}$ & 17.9 $_{(0.2)}$ & 61.7 $_{(2.6)}$ \\ \midrule
+            Oasst-33B \vani{} (3-psg) & 46.8 $_{(7.6)}$ & 9.5 $_{(0.2)}$ & 16.0 $_{(2.5)}$ & 21.6 $_{(3.5)}$ & 18.6 $_{(0.3)}$ & 67.8 $_{(1.5)}$ \\
+            ~~w/ \rerank & 52.1 $_{(6.1)}$ & 8.5 $_{(0.5)}$ & 34.4 $_{(2.9)}$ & 41.5 $_{(2.5)}$ & 18.2 $_{(0.3)}$ & 67.0 $_{(1.5)}$ \\
+            Oasst-33B \summ{} (10-psg) & 24.8 $_{(2.8)}$ & 3.9 $_{(0.3)}$ & 12.3 $_{(0.2)}$ & 16.3 $_{(0.3)}$ & 9.1 $_{(0.3)}$ & 31.6 $_{(1.5)}$ \\
+            Oasst-33B \snippet{} (10-psg) & 50.7 $_{(4.6)}$ & 10.7 $_{(1.2)}$ & 25.8 $_{(3.3)}$ & 26.7 $_{(2.3)}$ & 17.8 $_{(1.8)}$ & 69.6 $_{(8.6)}$ \\
+            Oasst-33B \oracle{} (3-psg) & 50.7 $_{(12.1)}$ & 15.8 $_{(0.1)}$ & 20.8 $_{(2.8)}$ & 28.0 $_{(3.2)}$ & 19.4 $_{(0.1)}$ & 70.3 $_{(1.1)}$ \\ 
+            \midrule
+            LLaMA-2-7B-Chat \vani{} (5-psg) & 27.8 $_{(3.0)}$&10.9 $_{(0.2)}$&19.8 $_{(1.2)}$&15.0 $_{(1.4)}$&20.5 $_{(0.2)}$&87.8 $_{(8.1)}$\\
+            LLaMA-2-13B-Chat \vani{} (5-psg) & 34.7 $_{(1.5)}$&13.4 $_{(0.4)}$&17.3 $_{(1.3)}$&15.8 $_{(1.4)}$&20.9 $_{(0.2)}$&88.3 $_{(6.3)}$\\
+            LLaMA-2-70B-Chat \vani{} (5-psg)  & 38.6 $_{(4.8)}$&12.8 $_{(1.0)}$&38.3 $_{(2.4)}$&37.9 $_{(1.9)}$&21.3 $_{(0.1)}$&110.8 $_{(5.6)}$\\
+            \midrule
+            StableBeluga2 & 33.0 $_{(4.4)}$&14.0 $_{(0.5)}$&27.9 $_{(2.7)}$&29.0 $_{(2.7)}$&20.6 $_{(0.2)}$&75.6 $_{(5.0)}$\\
+            \bottomrule
+        \end{tabular}
+    \caption{
+        ELI5 full results.
+    }
+    \label{tab:eli5_full}
+\end{table*}
+
+% --- end included file: tables/eli5_full.tex ---
+
+
+
+
+
+% --- begin included file: tables/eli5_claims_prompt.tex ---
+\begin{table*}[ht]
+    \centering
+    \small
+    \begin{tabular}{>{\raggedright\arraybackslash\tt}p{0.98\textwidth}<{}}
+        \toprule
+            Read the original question and passage, and generate 3 additional claims that are supported by the passage and answer the question.
+            \\\\
+            \noindent {Original question: What's the difference between Shia vs. Sunni Islam?}\\
+            Passage: The main difference between Shia and Sunni Muslim is related to ideological heritage and issues of leadership. This difference is first formed after the death of the Prophet Muhammad in 632 A.D. The ideological practice of the Sunni branch strictly follows Prophet Muhammad and his teachings, while the Shia branch follows Prophet Muhammad's son-in-law Ali. Nowadays, Sunni and Shia are the major branches of Islam. \\
+            Claim 1: The major branches of Islam are Sunni and Shia. \\
+            Claim 2: Prophet Muhammad died in 632 A.D. \\
+            Claim 3: The ideological practice of the Sunni branch strictly follows Prophet Muhammad and his teachings. \\\\
+            Original question: What causes Bi-polar disorder? \\
+            Passage: Bipolar disorder is an emotional disorder that causes extreme mood swings between excitement and depression. The spectrum of mood swing may span from days to months. We are still not certain of the exact factors that cause such disorder, but genetics is considered a major factor. \\
+            Claim 1: One symptom of Bi-polar disorder is extreme mood swings between excitement and depression.\\
+            Claim 2: Genetics could be one of the major factors that causes Bi-polar disorder.\\
+            Claim 3: The mood swing from Bi-polar disorder can last days to months.\\\\
+            Original question: How do we hear differences in sound besides volume and pitch?\\
+            Passage: Pitch refers to the frequency of soundwave, and volumn refers to the amplitude of the soundwave. Besides volumn and pitch, we can also tell the difference between sounds based on the tone of sound. For example, we can differentiate the sound of different instruments based on the tone of the sounds.\\
+            Claim 1: Volume of sound is the amplitude of the soundwave.\\
+            Claim 2: Pitch is the frequency of soundwave.\\
+            Claim 3: We can use the tone of the sounds to differentiate the sound of different instruments. \\\\
+            \vspace{-0.7em}
+            {\color{brown}Original question: How are we able to discern whether a sound is coming from in front of us or behind us?} \\
+            \vspace{-0.7em}
+            {\color{brown}Passage: There are multiple explanations for why we can localize sounds. One explanation is that sounds travelling to the corresponding side of one's ear will be slightly louder. Another explanation is that there is a slight difference in the hitting time to one's left and right ear based on the sound's direction. However, these explanation means that when a sound is exactly in front of someone or exactly behind someone, he or she can not tell the difference.} \\
+            \vspace{-0.7em}
+            {\color{brown}Claim 1:} {\color{blue} We can localize sounds by recognizing that the sound travelling to the corresponding side of one's ear will be slightly louder.} \\
+            \vspace{-0.7em}
+            {\color{blue}Claim 2: We can also localize sounds by recognizing the difference in hitting time to one's left and right ear based on the sound's direction.}\\
+            \vspace{-0.7em}
+            {\color{blue}Claim 3: We cannot tell the difference between a sound that is exactly in front of us or exactly behind us.} \\
+        \bottomrule
+    \end{tabular}
+    \caption{
+        Prompt used to generate the sub-claims for ELI5 questions.
+        {\color{blue} Blue text is model generation.}
+        {\color{brown} Brown text is the ELI5 example that we want to generate sub-claims for.}
+        We construct the prompt by manually writing the sub-claims for three questions from the training set. 
+    }
+    \label{tab:eli5-claims-prompt}
+\end{table*}
+
+% --- end included file: tables/eli5_claims_prompt.tex ---
+
+\section{Prompts}
+\label{app_sec:propmt}
+
+We show detailed prompts used in our paper in Tables~\ref{tab:inst_vanilla}, \ref{tab:inst_vanilla_light}, \ref{tab:prompt_summary}, \ref{tab:prompt_snippet}, \ref{tab:inst_inter}, \ref{tab:inst_search}, and \ref{tab:prompt_close}.
+
+\begin{table*}[h]
+    \centering
+    \small
+    \begin{tabular}{>{\raggedright\arraybackslash\tt}p{0.95\textwidth}<{}}
+        \toprule
+            Instruction: Write an accurate, engaging, and concise answer for the given question using only the provided search results (some of which might be irrelevant) and cite them properly. Use an unbiased and journalistic tone. Always cite for any factual claim. When citing several search results, use [1][2][3]. Cite at least one document and at most three documents in each sentence. If multiple documents support the sentence, only cite a minimum sufficient subset of the documents. \\
+        \bottomrule
+    \end{tabular}
+    \caption{
+        Instruction for \vani{}.
+    }
+    \label{tab:inst_vanilla}
+\end{table*}
+
+\begin{table*}[h]
+    \centering
+    \small
+    \begin{tabular}{>{\raggedright\arraybackslash\tt}p{0.95\textwidth}<{}}
+        \toprule
+            Instruction: Write a high-quality answer for the given question using only the provided search results and cite them properly using [1][2][3].\\
+        \bottomrule
+    \end{tabular}
+    \caption{
+        Short instruction for \vani{}.
+    }
+    \label{tab:inst_vanilla_light}
+\end{table*}
+
+\begin{table*}[h]
+    \centering
+    \small
+    \begin{tabular}{>{\raggedright\arraybackslash\tt}p{0.95\textwidth}<{}}
+        \toprule
+            Summarize the following document within 50 words with the question of interest "\{QUESTION\}" Return "irrelevant" if the document is irrelevant to the question. Try to keep all the important dates, numbers, and names.\\
+            ~\\
+            Title: \{TITLE\}\\
+            Text: \{TEXT\}\\
+            Summary:\\
+        \bottomrule
+    \end{tabular}
+    \caption{
+        Prompts for \summ{}.
+    }
+    \label{tab:prompt_summary}
+\end{table*}
+
+\begin{table*}[h]
+    \centering
+    \small
+    \begin{tabular}{>{\raggedright\arraybackslash\tt}p{0.95\textwidth}<{}}
+        \toprule
+Given the follow passage and the question "\{QUESTION\}", extract a useful span from the passage that can answer the question. Resolve all the coreference issues to make the extracted span understandable standalone. If the passage is not helpful for answering the question, return "irrelevant".\\
+\\
+Title: \{TITLE\}\\
+Text: \{TEXT\}\\
+Extracted span:\\
+        \bottomrule
+    \end{tabular}
+    \caption{
+        Prompts for \snippet{}.
+    }
+    \label{tab:prompt_snippet}
+\end{table*}
+
+
+
+
+\begin{table*}[h]
+    \centering
+    \small
+    \begin{tabular}{>{\raggedright\arraybackslash\tt}p{0.95\textwidth}<{}}
+        \toprule
+            Instruction: Write an accurate, engaging, and concise answer for the given question using only the provided search results and cite them properly. Use an unbiased and journalistic tone. Always cite for any factual claim.\\
+            You are provided summaries/snippets of the search results. You can use "Check: Document [1][2]" to check the corresponding full documents (you should only check relevant documents and you can at most check 3 documents at a time) and use "Output:" to output a sentence in the answer. In the answer, cite properly by using [1][2][3]. Cite at least one document and at most three documents in each sentence. If multiple documents support the sentence, only cite a minimum sufficient subset of the documents. Use "End" to end the generation.\\
+            \\
+            \vspace{-1em}
+            \noindent {\color{brown}<Retrieve for question ``...''>}\\
+            \noindent {\color{brown}<Get summaries/snippets for the passages and delete those that are ``irrelevant''>}\\
+            Document {[1]}(Title: ...) \{SUMMARY OR SNIPPET\}\\
+            ... \\
+            \\
+            \vspace{-1em}
+            Question: When did  US break away from England? \\
+        \noindent {\color{blue} Check: Document [1][2]} \\
+        Document [1] \{FULL TEXT\} \\
+        Document [2] \{FULL TEXT\} \\
+        \noindent {\color{blue} Output: The United States ... \tf{\underline{[1]}} ... \tf{\underline{[2]}}.} \\
+        \noindent {\color{brown}<Remove the full text of [1][2] from context>}\\
+        \noindent {\color{blue} Check: Document [3]} \\
+        Document [3] \{FULL TEXT\} \\
+        \noindent {\color{blue} Output: The Treaty of Paris ... \tf{\underline{[3]}}.} \\
+        \noindent {\color{brown}<Remove the full text of [3] from context>}\\
+        \noindent {\color{blue}End.}\\
+        \bottomrule
+    \end{tabular}
+    \caption{
+        An example for \interact{}.
+    }
+    \label{tab:inst_inter}
+\end{table*}
+
+\begin{table*}[h]
+    \centering
+    \small
+    \begin{tabular}{>{\raggedright\arraybackslash\tt}p{0.95\textwidth}<{}}
+        \toprule
+            Instruction: Write an accurate, engaging, and concise answer for the given question using only the provided search results and cite them properly. Use an unbiased and journalistic tone. Always cite for any factual claim.\\
+           You can use "Search: key words" to check the most relevant document's full text and use "Output:" to output a sentence in the answer. In the answer, cite properly by using [1][2][3]. Cite at least one document and at most three documents in each sentence. If multiple documents support the sentence, only cite a minimum sufficient subset of the documents. Use "End" to end the generation.\\
+        \bottomrule
+    \end{tabular}
+    \caption{
+        Instruction for \search{}.
+    }
+    \label{tab:inst_search}
+\end{table*}
+
+\begin{table*}[h]
+    \centering
+    \small
+    \begin{tabular}{>{\raggedright\arraybackslash\tt}p{0.95\textwidth}<{}}
+        \toprule
+            Instruction: Write an accurate, engaging, and concise answer for the given question. Use an unbiased and journalistic tone. \\
+        \bottomrule
+    \end{tabular}
+    \caption{
+        Instruction for \close{}.
+    }
+    \label{tab:prompt_close}
+\end{table*}
+
+
+\section{Examples}
+
+In Tables~\ref{tab:exp_eli5} and \ref{tab:exp_eli52} we show some examples of questions and model generated outputs. 
+
+\begin{table*}[h]
+    \centering
+    \small
+    \begin{tabular}{>{\raggedright\arraybackslash\tt}p{0.95\textwidth}<{}}
+        \toprule
+            Instruction: Write an accurate, engaging, and concise answer for ... \\
+            \\
+            \vspace{-1em}
+            Document {[1]}(Title: How to Treat and Prevent Food Poisoning - MsPrepper) just a typical gastro upset. Salmonella is most commonly caused by eating undercooked or raw foods like eggs or meat. You know how your mom always warned you not to eat raw cookie dough? This is why. Most people do eat cookie dough and they are fine, but salmonella is a risk. If you do contract salmonella, you could start to feel bad within in a couple of hours after eating contaminated food, and sometimes it could take a day or two. Common symptoms are nausea and vomiting, loose stools (sometimes bloody), flu like symptoms, and stomach cramps. To treat \\
+            Document {[2]}(Title: FDA Issues Warning About Eating Raw Cookie Dough, But Not For Salmonella Risks) FDA Issues Warning About Eating Raw Cookie Dough, But Not For Salmonella Risks Used to licking the spoon or placating yourself with full-on chunks of raw cookie dough? The Food and Drug Administration issued a warning on Tuesday that strongly advises against continuing the habit. The agency asserted that consuming raw batter of any kind, whether for bread, cookies or pizza, could make a person sick. While you may have been warned in the past against eating raw dough due to the risk of contracting salmonella from raw eggs, the FDA is citing raw flour as the culprit for a \\
+            Document {[3]}(Title: It's Probably OK to Eat Raw Cookie Dough — As Long As You're Smart About It - The Crux - Very Top Secret Information) First, when most people think about health risks and cookie dough, they think about raw egg. Eggs can be contaminated with salmonella bacteria, and food safety recommendations encourage people to cook eggs until the white and yolk are firm in order to kill any bacteria. However, anyone making cookies can do things to reduce this risk by using pasteurized egg products. When my kids and I make cookie dough, we never use regular eggs. Instead, we use shell eggs that have been pasteurized to kill any harmful bacteria without actually cooking the egg itself. (A great public health innovation, if \\
+            Document {[4]}(Title: How Dangerous Is It to Eat Raw Cookie Dough? | Men's Health) Can Eating Raw Cookie Dough Really Make You Sick? Scientists reveal the truth about this supposedly dangerous delicacy By Katherine Dempsey There are few things more tempting in life than eyeing a bowl of cookie dough and deciding whether or not to stick your finger in for a scoop. It’s a bit like playing Russian roulette. You could get lucky and enjoy the delicious dough without conseqence, but there’s always the risk of getting serously sick with a food-borne illness. That’s because multiple ingredients within the dough could be contaminated by pathogens such as Salmonella and E. coli, says Soohyoun \\
+            Document {[5]}(Title: How Dangerous Is It to Eat Raw Cookie Dough? | Men's Health) is usually pasteurized, so it’s not likely that the egg would make you sick. However, other ingredients in the dough could potentially harbor pathogens. Experts say that a prime suspect in a 2009 E. coli outbreak linked to prepackaged cookie dough was actually the flour. Nuts and chocolate have also been linked to Salmonella outbreaks. Bottom line: You’re better off skipping raw cookie dough. At least you’ll have killer cookies as a consolation. The article How Bad Is It To Eat Raw Cookie Dough? originally ran on Prevention.com The 9 Foods Most Likely to Make You Sick Mmm, Just Don't \\
+
+            ... \\
+            \\
+            \vspace{-1em}
+            Question: Why is it bad to eat cookie dough for risk of salmonella but things like Cookie Dough Bites are ok? \\
+            Answer: {\color{blue} Raw cookie dough is not recommended to be eaten due to the risk of salmonella \tf{\underline{[1][2]}}. Eating raw flour is also a risk for food poisoning \tf{\underline{[2]}}. The egg in cookie dough is usually pasteurized, so it's not likely that the egg would make you sick, but other ingredients in the dough could potentially harbor pathogens \tf{\underline{[4][5]}}. However, prepackaged cookie dough like Cookie Dough Bites is safe to eat because the dough is made with pasteurized egg products and heat-treated flour \tf{\underline{[2][3]}}.}.\\
+            \\
+            \noindent {\color{orange} Ground truth claims:}\\
+            \noindent {\color{orange} 1. Cookie Dough Bites are safe to eat since they do not contain eggs.}\\
+            \noindent {\color{orange} 2. Salmonella is a bacteria found in eggs.}\\
+            \noindent {\color{orange} 3. Eating raw cookie dough carries the risk of salmonella infection.}\\
+        \bottomrule
+    \end{tabular}
+    \caption{
+        ELI5 example 1.
+    }
+    \label{tab:exp_eli5}
+\end{table*}
+
+
+\begin{table*}[h]
+    \centering
+    \small
+    \begin{tabular}{>{\raggedright\arraybackslash\tt}p{0.98\textwidth}<{}}
+        \toprule
+            Instruction: Write an accurate, engaging, and concise answer for ... \\
+            \\
+            \vspace{-1em}
+            Document [1](Title: Is Snapchat really worth \$19 billion? - CSMonitor.com) reporting that the Los Angeles-based company is aiming to raise \$500 million at a valuation of \$16 billion to \$19 billion, making it the third most highly valued tech start-up backed by venture capitalists. The Chinese handset maker Xiaomi is valued at \$45 billion, while Uber is estimated to be valued at about \$40 billion, according to data from CB Insights. Read MoreVC investment hits \$86B thanks to Uber, Xiaomi Snapchat was valued at \$10 billion in August, according to a Dow Jones report. Some of its investors from previous rounds include Benchmark, Lightspeed Venture Partners and Kleiner Perkins Caufield \\
+            Document [2](Title: What Are Venture Capital Investments? – DollarsAndSense.my) Ever wondered how highly valued technology giants like Google and Facebook were able to grow so fast and pay their employees so well in such a short amount of time, or how still growing start-ups like Uber are able to lose 1.2 billion US dollars in just the first half of this year alone and still command a valuation upwards of 50 billion US dollars? The answer lies with a special category of investment activity known as venture capital. Venture capitalists are professional investors who invest in a number of highly scalable high-risk technology ventures hoping to make a multi-fold \\
+            Document [3](Title: Opinion | What Dara Khosrowshahi Must Do to Save Uber - The New York Times) at a discount. These are troubling signs. Every start-up must one day fulfill the market’s demand that it turn a profit, but Uber has never figured out how to do that. While ride sharing in some form will probably survive, it’s more likely that without some drastic changes, Uber won’t be around in three to five years. Mr. Khosrowshahi must avoid the mistakes of his predecessor by accepting that “pivots” (Silicon Valley-speak for the desperate changes troubled companies make to reassure their venture capitalist funders) are not the answer. None of the pivots Mr. Kalanick tried — like on-demand delivery \\
+            Document [4](Title: Snapchat raising funding round at \$19 billion valuation: Report) Snapchat raising funding round at \$19 billion valuation: Report The mobile messaging app Snapchat is said to be seeking funding at a \$19 billion valuation, according to a report, citing a person with knowledge of the matter. Bloomberg is reporting that the Los Angeles-based company is aiming to raise \$500 million at a valuation of \$16 billion to \$19 billion, making it the third most highly valued tech start-up backed by venture capitalists. The Chinese handset maker Xiaomi is valued at \$45 billion, while Uber is estimated to be valued at about \$40 billion, according to data from CB Insights. \\
+            Document [5](Title: Unicorns And Wall Street | MoneyTips) not start showing profits soon. Even Uber, with its massive \$62-billion-plus valuation, will test investor's patience if it does not start showing signs of a profit in the next few years. Cracks are starting to show in terms of pre-IPO devaluations. Dropbox and Snapchat have seen a nearly one-quarter drop in their pre-IPO valuations, while Square's pre-IPO value has dropped by approximately one-third. Larger investors and venture capitalists are sending a message to the unicorns: Outline a solid path to profits and start producing them soon, or expect your valuation to be slashed. Diving ahead with an IPO is not \\
+            ... \\
+            \\
+            \vspace{-1em}
+            Question: How are firms like snapchat, uber etc valued so highly while still not making a profit? Do venture capitalists not expect some form of repayment within a number of years? \\
+            Answer: {\color{blue} Venture capitalists invest in a number of highly scalable high-risk technology ventures hoping to make a multi-fold return on their investment in a short amount of time \tf{\underline{[2]}}. Highly valued companies like Snapchat, Uber, and Xiaomi are able to grow so fast and command high valuations because they have the potential to generate significant revenue in the future \tf{\underline{[2][4]}}. Venture capitalists expect a return on their investment within a number of years, but they also invest in the long-term potential of the company \tf{\underline{[2]}}. It is important to note that every start-up must eventually turn a profit, but some start-ups like Uber have not yet figured out how to do that \tf{\underline{[3][5]}}.}\\
+            \\
+            \noindent {\color{orange} Ground truth claims:}\\
+            \noindent {\color{orange} 1. Firms like Snapchat and Uber need to establish their brand and amass users before introducing ads.}\\
+            \noindent {\color{orange} 2. Introducing ads too early can deter potential users.}\\
+            \noindent {\color{orange} 3. Uber is reinvesting a lot of money to make their service better.}\\
+        
+        \bottomrule
+    \end{tabular}
+    \caption{
+        ELI5 example 2.
+    }
+    \label{tab:exp_eli52}
+\end{table*}
+
+% --- end included file: sections/appendix.tex ---
+
+
+\end{document}

@@ -1,0 +1,311 @@
+\section{Experiments}
+
+\subsection{Evaluation}
+In experiments we evaluate based on perplexity (per-wordpiece), a common language
+modeling metric, and ROUGE-L F1 (version \texttt{ROUGE-1.5.5}), a common metric used in comparing
+candidate and reference summaries. Note the F1 flavor of ROUGE is more 
+appropriate in this setting as we do not explicitly constrain the output length in abstractive models;
+it is the harmonic
+mean of ROUGE-Recall (which favors long summaries) and ROUGE-Precision (which favors short
+summaries).
+
+Although optimizing ROUGE directly has been shown to not always yield the best summaries as evaluated by
+human judgment \citep{paulus2017deep}, we found that for our task optimizing for perplexity
+correlates with increased ROUGE and human judgment. We suspect that the relatively uniform style
+of Wikipedia articles makes ROUGE more appropriate here than in general abstractive summarization tasks.
+
+\subsection{Model Training Details and Decoding}
+For all abstractive model training, we use the open-source
+\texttt{tensor2tensor}\footnote{\url{https://github.com/tensorflow/tensor2tensor}}
+library. 
+
+The seq2seq baseline had a hidden size of 128 with 2 layers (we use the hyper-parameter
+set defined in the library as \texttt{lstm\_attention}).
+
+For the Transformer encoder-decoder (T-ED), we use the hyper-parameter
+set  \texttt{transfomer\_base\_v1}
+and train for 1 million steps.
+Models exhibited very little over-fitting and did not require early-stopping.
+The Transformer Decoder (T-D) was identical to the decoder part of T-ED.
+The T-DMCA model is similar to T-D, but with the enhancements described in
+section \ref{t-dmca}.
+
+Unless otherwise stated, during decoding we use a beam search of size 4 and length penalty $\alpha=0.6$
+\citep{wu2016google} and decode until an end-of-sequence token is reached.
+
+\subsection{Results and Discussion}
+\label{discussion}
+There are four main dimensions we vary in experiments in generating Wikipedia lead sections:
+\begin{enumerate}
+    \item Extractive method: \textit{SumBasic}, \textit{TextRank}, \textit{tf-idf}, \textit{identity}, \textit{cheating extractor}
+	\item Input corpus: \textit{citations}, \textit{search results}, \textit{combined}
+	\item Abstractive model input length, $L$: We try values between 100 and 11000.
+	\item Abstractive model architecture: \textit{seq2seq-att}, \textit{T-ED}, \textit{T-D}, \textit{T-DMCA}
+\end{enumerate}
+
+\begin{figure}[h]
+\begin{center}
+\fbox{%
+    \includegraphics[width=0.6\textwidth]{extractive_barplot.png}
+}%
+\caption{ROUGE-L F1 for various extractive methods. The abstractive model contribution is shown
+for the best combined \textit{tf-idf}-T-DMCA model.}
+\label{extractive_barplot}
+\end{center}
+\end{figure}
+\textbf{Extractive-only is not enough:}
+We investigate performance of extractive methods without the abstractive model by looking at the ROUGE-L F1 scores after running \textit{tf-idf}, \textit{SumBasic}, and \textit{TextRank} in
+Figure \ref{extractive_barplot}, without any abstractive model.
+In the case of TextRank and SumBasic we matched
+the output length to the target length and observe the extractive methods perform roughly
+in-line with each other in terms of ROUGE-L F1. Our best abstractive model more than doubled
+this metric. Further, this model yields large improvements in perceived linguistic quality
+(elaborated below).
+
+
+\textbf{Extractive method:}
+From Table \ref{ext-input-perf} we observe that smart extraction is critical
+for final abstractive performance.
+There is a significant gap between doing nothing, \textit{identity},
+and extractive summarization, \textit{tf-idf}. Further, there is a
+significant gap between \textit{tf-idf} and the \textit{cheating} extractor, suggesting
+future work in improving the extraction step could result in significant improvements.
+One possibility is to train a supervised model to predict relevance (Eq. \ref{cheating-similarity}),
+which we leave as future work.
+For subsequent experiments we fix the extractive method to \textit{tf-idf}.
+
+% Results pulled from
+% https://docs.google.com/document/d/1wTI2zzkr39KOclO8h8sFAKtxQeqiAwe0QGaXRvottVc/edit
+\begin{table}[t]
+\caption{Comparison of extractive method and corpus with $L=500$, and
+	the Transformer E-D model}
+\label{ext-input-perf}
+\begin{center}
+\begin{tabular}{llll}
+\multicolumn{1}{l}{\bf Extractor}
+	&\multicolumn{1}{l}{\bf Corpus}
+	&\multicolumn{1}{l}{\bf Test log-perplexity}
+	&\multicolumn{1}{l}{\bf ROUGE-L}
+\\ \hline \\
+	\textit{cheating} & combined & 1.72975  & 59.3 \\
+	\textit{tf-idf} & combined & 2.46645 & 34.2 \\
+	\textit{tf-idf} & citations-only  & 3.04299  & 22.6 \\
+	\textit{tf-idf} & search-only & 3.56593  & 2.8 \\
+	\textit{identity} & combined & 4.80215  & 4.0 \\
+\end{tabular}
+\end{center}
+\end{table}
+
+\textbf{Input Corpus:}
+From table \ref{ext-input-perf} we also observe that, unsurprisingly,
+the \textit{combined} dataset performs best, but the gaps between it and using
+only one of \textit{citations} or \textit{search results} are both significant
+and their contributions are
+complementary. In subsequent experiments, we report only the \textit{combined} results.
+
+
+
+% Results pulled from
+% https://docs.google.com/document/d/1wTI2zzkr39KOclO8h8sFAKtxQeqiAwe0QGaXRvottVc/edit
+\begin{table}[t]
+\caption{Performance of best models of each model architecture
+    using the combined corpus and tf-idf extractor. }
+\label{abs-perf}
+\begin{center}
+\begin{tabular}{lll}
+\multicolumn{1}{c}{\bf Model} &\multicolumn{1}{c}{\bf Test perplexity} &\multicolumn{1}{c}{\bf ROUGE-L}
+\\ \hline \\
+\textit{seq2seq-attention, $L=500$}          &  5.04952 & 12.7 \\
+\textit{Transformer-ED, $L=500$}          & 2.46645  & 34.2 \\
+\textit{Transformer-D, $L=4000$}          & 2.22216  & 33.6 \\
+\textit{Transformer-DMCA, no MoE-layer, $L=11000$}          & 2.05159  & 36.2 \\
+\textit{Transformer-DMCA, MoE-128, $L=11000$}          & 1.92871  & 37.9 \\
+\textit{Transformer-DMCA, MoE-256, $L=7500$}          & 1.90325  & 38.8 \\
+\end{tabular}
+\end{center}
+\end{table}
+\begin{figure}[h]
+\begin{center}
+    \includegraphics[width=0.7\textwidth]{perplexityVsL.png}
+\caption{Shows perplexity versus $L$ for tf-idf extraction on combined corpus
+	for different model architectures. For T-DMCA, $E$ denotes
+	the size of the mixture-of-experts layer.}
+\label{perpVsL}
+\end{center}
+\end{figure}
+\textbf{Abstractive model architecture and input length:}
+As we see from Table \ref{abs-perf}, \textit{seq2seq-attention} as a baseline
+does quite poorly on this task compared to the Transformer architectures.
+As seen in Figure \ref{perpVsL}, we observe that the Transformer encoder-decoder, T-ED, architecture
+consistently improves in performance until a best of around $L=500-1000$ and is unable to learn at $L=2000$.
+This motivated the Transformer-Decoder, which we found could learn and improve up to $L=4000$, before
+running out of memory on our machines equipped with 16GB of GPU RAM (NVIDIA P100).
+By using the T-DMCA modifications, we were able to train up to $L=11000$ and continued to see
+improvements in performance.
+We also found the MoE-layer helped performance by adding model capacity at high $L$, for example
+dropping log-perplexity from 2.05 to 1.93 at $L=11000$ with 128 experts. Our best model
+attempted uses 256 experts at $L=7500$
+(we were unable to use 256 experts with $L=11000$ due to memory constraints)
+and achieves a perplexity of 1.90,
+
+
+\textbf{Human Evaluation - Linguistic quality}
+We conducted a DUC-style human evaluation of linguistic quality{\footnote{\url{http://duc.nist.gov/duc2007/quality-questions.txt}} of samples from 
+    a baseline abstractive (seq2seq), the best extractive (\textit{tf-idf}), and our best T-DMCA models.
+    Five different dimensions are assessed: grammaticality, non-redundancy, referential clarity, focus, and structure/coherence. As seen in Table \ref{ling-quality}, the T-DMCA model does statistically significantly better 
+    on all dimensions, 
+    except on non-redundancy where \textit{tf-idf} does about as well. Overall,
+    we observed high fluency and coherence from our best abstractive model.
+    Occasionally we observed some repetition of phrases which hurt
+    the non-redundancy and structure, but it was much rarer compared with
+    the other abstractive method, \textit{seq2seq}. The biggest weakness
+    of the extractive method compared with our best abstractive model
+    was the lack of structure and coherence in the summaries.
+    
+
+\begin{table}[t]
+    \caption{Linguistic quality human evaluation scores
+    (scale 1-5, higher is better). A score significantly different
+(according to the Welch Two Sample t-test, with $p=0.001$)
+than the \textit{T-DMCA} model is denoted by *.}
+\label{ling-quality}
+\begin{center}
+\begin{tabular}{llllll}
+\multicolumn{1}{l}{\bf Model}
+    &\multicolumn{1}{l}{\bf Focus}
+	&\multicolumn{1}{l}{\bf Grammar}
+    &\multicolumn{1}{l}{\bf \thead{Non-\\redundancy}}
+    &\multicolumn{1}{l}{\bf \thead{Referential \\ clarity}}
+    &\multicolumn{1}{l}{\bf \thead{Structure and \\ Coherence}}
+\\ \hline \\
+\textit{T-DMCA (best)} & 4.5 & 4.6 & 4.2 & 4.5 & 4.2 \\
+\textit{tf-idf}-only  & 3.0* & 3.6* & 3.9 & 3.2*  & 2.7*  \\
+\textit{seq2seq-attention}  & 3.0*  & 3.4*  & 2.1*  & 3.4*  & 2.3* 
+\end{tabular}
+\end{center}
+\end{table}
+
+\textbf{Human Evaluation - side-by-side preference}
+We validated our chosen metrics correlate with human preference by conducting
+two side-by-side human evaluation experiments, comparing models with large gaps in
+perplexity/ROUGE.  We observe in Table \ref{human_eval_table} that human judgment correlates with 
+our automatic metrics, but it becomes more difficult to distinguish at the higher-end of model performance.
+Details of the human evaluation experimental designs can be found in Appendix \ref{human_eval}.
+
+\begin{table}[t]
+\caption{Side-by-side for two models pair with large automatic metric gaps }
+\label{human_eval_table}
+\begin{center}
+\begin{tabular}{lllll}
+\multicolumn{1}{l}{\bf Model A} &\multicolumn{1}{l}{\bf Model B}
+                                &\multicolumn{1}{l}{\bf ROUGE-L A}
+                                &\multicolumn{1}{l}{\bf ROUGE-L B}
+                                &\multicolumn{1}{l}{\bf $\frac{\textrm{\#  prefer B}}{\textrm{\# prefer A}}$}
+\\ \hline \\
+T-ED, $L=100$ & T-ED, $L=500$ &  30.9 & 34.2  & 4.25 \\
+T-ED, $L=500$ & T-DMCA-MoE-256, $L=7500$ & 34.2 & 38.8  & 1.5 \\
+\end{tabular}
+\end{center}
+\end{table}
+
+To summarize the quantitative results, we believe the highest impact future work
+will be from improving the extractive stage
+and extending the decoder-only architectures to learn from larger $L$ while maintaining sufficient
+model capacity.
+
+\textbf{Comparison with \cite{Sauper2009}:}
+A direct comparison with \cite{Sauper2009} is difficult for three reasons: (a) they report
+results only for two small subsets of Wikipedia, Diseases and American Actors; 
+ (b) we report on lead generation instead of full-articles;
+ (c) we were unable to obtain the exact articles they used as input and output (in particular they make no claim of Wiki-clone detection). However, we
+ make a best-effort comparison by finding the subset of articles
+ of our test set
+ that correspond to Diseases and American Actors, the two categories
+ reported on by Sauper \& Barzilay and reporting our ROUGE-1 scores
+ (Table \ref{sauper_table}). We observe that we perform better
+ on American Actors than Diseases, probably because of the 
+ prevalence of the former (and biographies) in Wikipedia compared to the latter in our training set for our single, global model, 
+ whereas Sauper \& Barzilay likely benefit from the category-specific templates. On average our ROUGE-1 scores
+ are higher but do worse on the less common and 
+ somewhat specific disease category.
+\begin{table}[t]
+    \caption{Comparison of results with \cite{Sauper2009}. Note our results are reported
+    for lead section, whereas Sauper \& Barzilay report for articles.}
+\label{sauper_table}
+\begin{center}
+\begin{tabular}{llll}
+\multicolumn{1}{l}{}
+    &\multicolumn{1}{l}{\bf ROUGE-1 R}
+    &\multicolumn{1}{l}{\bf ROUGE-1 P}
+    &\multicolumn{1}{l}{\bf ROUGE-1 F1}
+\\ \hline
+\\
+\bf All Wikipedia \\ 
+\hline\\
+\textit{T-DMCA} (Ours)  & 46  & 53  & 43 \\
+\\
+\bf Diseases \\
+\hline \\
+\textit{T-DMCA} (Ours), $n=161$ & 25  & 48 & 29 \\
+Sauper \& Barzilay  & 36 & 39 & 37 \\
+\\
+\bf American Actors \\
+\hline \\
+\textit{T-DMCA} (Ours), $n=1322$   & 52 & 72 & 54 \\
+Sauper \& Barzilay  & 46  & 40 & 41 \\ \\
+\end{tabular}
+\end{center}
+\end{table}
+
+
+\subsection{Qualitative Discussion}
+\begin{figure}[h]
+\begin{center}
+\fbox{%
+    \includegraphics[width=1.0\textwidth]{compareModels.png}
+}%
+\caption{Shows predictions for the same example from different models. Example model input can
+be found in the Appendix \ref{dewey_input}}
+\label{compareModels}
+\end{center}
+\end{figure}
+In Figure \ref{compareModels}, we show the predictions from three
+different models (using \textit{tf-idf} extraction,
+and the \textit{combined} corpus) along with the Wikipedia ground truth. As the perplexity 
+decreases we see improvements in the model outputs, in terms of fluency, factual accuracy,
+and narrative complexity.  
+In particular, the T-DMCA model offers 
+a respectable alternative to the Wikipedia version and is more succinct, while mentioning
+key facts, such as where the law firm was located, when and how it was formed, and the
+rise and fall of the firm.
+
+
+In manual inspection of model outputs, we noticed an unexpected side-effect: models learn to
+translate names from English into multiple languages, e.g. Rohit Viswanath
+into Hindi (see Figure \ref{translation}). Although we did not do a systematic evaluation
+of the translations, we found they are often correct, and often they are not found in the
+Wikipedia article itself. We also verified that in general the translation
+is not merely copied from the source, such as example cases where the target language
+is the incorrect one (e.g. translation of an English name into Ukrainian).
+\input{ex_translate}
+
+\subsection{Generating full-Wikipedia articles}
+Given that we have shown it is possible to learn sequence transduction models
+on combined input-output sequence lengths of approximately 12000 using the
+T-D architecture, we show that it is possible to
+train a model to generate entire Wikipedia articles.
+As a preliminary result, we trained two T-DMCA models: One is trained
+to use $L=6000$ reference tokens to predict at most $2192$ article tokens
+(longer examples are ignored) and another is conditioned only on
+the title and generates articles up to $4000$ tokens long.
+
+We show samples from both models in Appendix~\ref{full_wiki}.
+Although the generated articles are not as good as the real Wikipedia
+or our lead section samples,
+the models can be seen to organize the article into plausible sections
+and exhibit global coherence over multi-paragraph text.
+The model with access to reference documents inserts factual information
+in the generated article. Although we did not focus or tune on
+the full-article task we see this as an interesting future work for
+abstractive summarization.
+

@@ -1,0 +1,81 @@
+% To evaluate the effectiveness of \system in assisting human learning and information seeking, we further conducted an IRB-approved human evaluation by recruiting 20 volunteers on the Internet. %\footnote{The study has been approved by our institution's IRB.}. 
+%Participants were randomly split into two groups: one compared \system with Google Search, while the other group compared it with our RAG Chatbot baseline. We controlled for confounding variables by creating five pairs of complex information-seeking tasks, each pair consisting of two topics within the same domain and an information-seeking goal. Each pair was assigned to two participants per group, with each participant using both systems (one per topic) to avoid topic familiarity bias. We also alternated the order in which participants used \system and the baseline system to avoid order effects.
+
+%After seeking information for each topic, participants were instructed to rate their experience based on four grading aspects defined in \refsec{sec:eval_metrics} (\textit{Relevance}, \textit{Breadth}, \textit{Depth}, \textit{Novelty}), using a 5-point Likert scale. Note that for the \textit{Novelty} aspect, we use the term ``serendipity'' in the human evaluation. After completing both tasks, participants were asked to provide pairwise preferences regarding the \textit{required effort}, \textit{user engagement}, \textit{addressing echo chamber issues}, and \textit{overall experience}. We also collected open-ended feedback from participants and allowed them to optionally leave comments on each discourse turn and the mind map snapshots when interacting with \system. More details on the human evaluation are included in Appendix~\ref{appendix:human_eval}. \reftab{table:human_eval} shows the human rating results. 
+
+% ---- Human Eval Main Results ---- %
+\begin{table*}[!h]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lcccc!{\vrule width \lightrulewidth}cccc} 
+\toprule
+            & \multicolumn{4}{c!{\vrule width \lightrulewidth}}{\textbf{\system v.s. Search Engine}} & \multicolumn{4}{c}{\textbf{\system v.s. RAG Chatbot}}  \\
+            & Search Engine & \system & Win \% (Lose \%) & $p$-value                                           & RAG Chatbot & \system & Win \% (Lose \%) & $p$-value             \\ 
+\midrule
+Relevance   & 3.90          & \textbf{4.00}          &   30\% (30\%)       & 0.758                                             & 3.89        & \textbf{4.22}          &     33\% (0\%)     & 0.081               \\
+Breadth     & 3.60          & \textbf{4.10}          &   50\% (10\%)       & 0.096                                             & 3.11        & \textbf{4.22}          &     67\% (0\%)     & 0.013               \\
+Depth       & 3.10          & \textbf{4.00}          &    60\% (10\%)      & 0.081                                             & 3.11        & \textbf{4.00}          &    56\% (33\%)      & 0.069               \\
+Serendipity & 2.70          & \textbf{3.90}          &   70\% (10\%)       & 0.030                                             & 2.78        & \textbf{3.78}          &     67\% (0\%)     & 0.009               \\
+\bottomrule
+\end{tabular}
+}
+\caption{Human ratings on different aspects of the information-seeking experience with \system and Search Engine (n=10) and with \system and RAG Chatbot (n=9)\protect\footnotemark. The ratings are given on a scale from 1 to 5 with 3 as ``Average''. We report the win rate of \system in pairwise comparison and the $p$-value in a paired $t$-test.}
+\label{table:human_eval}
+\vspace{-1em}
+\end{table*}
+
+% A walk-around to add footnote to table caption: https://chenyuzuoo.github.io/posts/25922/
+\footnotetext{One participant in the \system v.s. RAG Chatbot group submitted the rating but did not leave a usage record, so we excluded this data point from the aggregated results.}
+
+
+
+
+\begin{figure}[t]
+    \centering 
+    \resizebox{\columnwidth}{!}{%
+    \includegraphics{img/human_eval_pref.pdf}
+    }
+    \caption{Survey results of the pairwise comparison (\ie, agreement on whether \system is better than Search Engine/RAG Chatbot) in human evaluation.}
+    \label{fig:human_eval_pref}
+\vspace{-1em}
+\end{figure}
+
+\subsection{Human Evaluation Results}
+\reftab{table:human_eval} shows the human rating results and \reffig{fig:human_eval_pref} shows the pairwise comparison results.
+%\TODO{We should discuss the results in Table 4. For Figure 4, clearly co-storm loses user engagement to RAG chatbot, but there is absolutely no discussion on that. Please include it.  (It is a deliberate tradeoff because we allow the user to be more passive - and overall learn better. And remind the reader that they can even participate in every turn.) }
+%\yucheng{totally make sense. I made revision in this section to discuss this point.}
+\textbf{\system helps users find broader and deeper information relevant to their goals.}\quad
+Participants found that \system uncovers information with greater breadth and depth compared to the search engine and the RAG Chatbot. Specifically, \system is rated strictly higher in \textit{Breadth} by 50\% of the participants and strictly higher in \textit{Depth} by 60\% of the participants than the search engine. Compared to the RAG Chatbot, \system receives strictly higher scores in \textit{Breadth} from 67\% of participants and in \textit{Depth} from 56\% of participants. This finding aligns with the automatic evaluation results shown in~\reftab{table:report_grading}. While helping users discover more information, \system remains aligned with their goals, as participants also rated \system higher in \textit{Relevance} compared.% to both the search engine and the RAG Chatbot.
+
+
+%Evaluators provided input on 12\% of the discourse utterances on average, matching the experiment setup. \system aligned with the user’s latent intent in 30\% more topics than the search engine and had comparable performance to the RAG-enhanced LLM chatbot.
+
+
+\noindent
+\textbf{\system provides more serendipitous information with less mental effort required.}\quad
+Participants found that \system requires less effort, better mitigates the echo chamber issue, and provides a better overall experience. In a more fine-grained evaluation, participants evaluated 32\% of \system’s total utterances, rating 89\%
+%89.47\% 
+of them as effectively ``steering the discourse towards a new and interesting direction''. % \system demonstrates better information serendipity, rated as significantly more effective in helping users reach \textit{unknown unknowns} compared to the other two systems. 
+One participant noted, ``\system allows for almost full automation and much better understanding as it brings up topics that the user may not even think of''. Moreover, participants found the mind map helpful. % in reducing mental effort for tracking the discourse. 
+In total, they evaluated 80 snapshots of the dynamic mind map, %within 50\% of evaluation tasks, 
+finding it accurately tracked the discourse 71\%
+%.25\% 
+of the time. One participant remarked, ``\system is so much less mentally taxing for me to use''.
+
+% \noindent
+% \textbf{\system Balances User Engagement with Enhanced Learning Outcomes}.\quad
+% Among the 9 participants who compared \system with the RAG Chatbot baseline, 5 either favored the baseline or found it on par with \system on the dimension of user engagement. This reflects a deliberate tradeoff in \system’s design philosophy. While \system may seem less engaging by allowing users to take a more passive role, it promotes deeper exploration and understanding. In a 1-5 rubric grading by participants, \system consistently outperformed the RAG Chatbot along all grading dimensions. In pairwise comparisons, all participants favored \system or rated it on par with the RAG Chatbot in \textit{relevance}, \textit{breadth}, and \textit{serendipity}. Notably, 7 out of 9 participants favored Co-STORM in terms of overall experience. This highlights Co-STORM’s ability to enhance the quality and richness of information-seeking tasks.
+
+
+\noindent
+%\textbf{\system should dynamically adjust to users’ mental states.}\quad
+\textbf{\system should support more customization}.\quad
+%While 15 out of 19 participants agreed that \system effectively steers the discourse and provides information with great breadth and depth, 
+Among the 19 participants, 4 noted that the RAG Chatbot better follows instructions that have a clear target and mentioned they expect \system to generate more concise utterances and provide less information in such cases. 
+We view dynamically adapting \system to users’ evolving mental states and personalizing their preferences as a meaningful direction for future work.
+
+%\system outperforms baseline systems when users are in an open-ended exploration state, whereas the RAG Chatbot is sometimes more effective when users have a specific goal in mind.  
+
+%\noindent
+%\textbf{\system should support more customization}\quad
+%Among the 19 participants, 15 noted that \system outperforms baseline systems when users are in an open-ended exploration state by offering diverse perspectives. 4 other participants commented that RAG Chatbot better follows instructions that have a clear target. We suggest that advancing the customization and personalization capabilities of \system, enabling users to control participant roles and utterance styles as a meaningful direction for future work.

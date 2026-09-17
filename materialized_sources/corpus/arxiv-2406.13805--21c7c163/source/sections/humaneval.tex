@@ -1,0 +1,64 @@
+\section{Human evaluation: LLMs are struggling on WikiContradict}
+\label{sec:human_eval}
+
+To understand LLMs' behavior when faced with real-world inter-context conflicts, we use \texttt{WikiContradict} to benchmark a list of LLMs with the evaluation protocol described in Section \ref {sec:evalProtocal}\footnote{In our experiments, decoding temperature=0, maximum output length=250 tokens}.
+The authors independently evaluated a subset of answers, comprising 1,375 responses from 5 LLMs based on the five prompt templates, as shown in Figure \ref{fig:evaluation}, for 55 instances. Each response is assessed by two authors of this paper, yielding a total of 2,750 human judgements. The inter-annotator agreements, as measured by Cohen's kappa $\kappa$, were moderate to substantial, with values of 0.58 for prompt template 3, 0.67 for prompt template 4, 0.84 for prompt template 0, 0.85 for prompt template 2, and 0.88 for prompt template 1. After resolving the annotation disagreements among annotators, our final human evaluation study dataset (\texttt{WikiContradict\_HuamEval}) consists of 1,200 samples resulting from five LLMs’ responses to 48 WikiContradict instances based on five prompt templates\footnote{We exclude 7 instances from our human evaluation study due to ambiguity in their inconsistencies, which are not crystal clear. These instances are also excluded from the final \texttt{WikiContradict} dataset.}.
+
+
+\begin{table}[t]
+   \caption{Human evaluation results on \texttt{WikiContradict\_HumanEval}. ``C'', ``PC'' and ``IC'' stand for ``\emph{Correct}'', ``\emph{Partially correct}'', ``\emph{Incorrect}'', respectively. ``all'', ``exp'', and ``imp'' represent for instance types: all instances, instances with explicit conflicts, and instances with implicit conflicts. The numbers represent the ratio of responses from each LLM that were assessed as ``\emph{Correct}, ``\emph{Partially correct}, or ``\emph{Incorrect} for each instance type under a prompt template. The bold numbers highlight the best models that correctly answer questions for  each type and prompt template.}
+   \label{tab:humeval}
+    \begin{footnotesize}
+    \begin{tabular}{|p{0.25cm}|p{0.46cm}|p{0.475cm}|p{0.46cm}|p{0.46cm}|p{0.475cm}|p{0.46cm}|p{0.46cm}|p{0.46cm}|p{0.46cm}|p{0.46cm}|p{0.475cm}|p{0.46cm}|p{0.46cm}|p{0.475cm}|p{0.46cm}|}
+   \hline
+        & \multicolumn{3}{c|}{Mistral-7b-inst} & \multicolumn{3}{c|}{Mixtral-8x7b-inst} & \multicolumn{3}{c|}{Llama-2-70b-chat}& \multicolumn{3}{c|}{Llama-3-70b-inst} & \multicolumn{3}{c|}{GPT-4} \\ \hline
+        ~ & \textbf{all}  & \textbf{exp}& \textbf{imp} & \textbf{all} & \textbf{exp} & \textbf{imp} & \textbf{all}  & \textbf{exp} & \textbf{imp}& \textbf{all} & \textbf{exp} & \textbf{imp} & \textbf{all}  & \textbf{exp} & \textbf{imp} \\ \hline
+        \multicolumn{16}{|c|}{\textbf{Prompt Template 1}} \\ \hline
+        C & \textbf{4.2} & \textbf{6.7} & 0.0 & 2.1 & 0.0 & 5.9 & 0.0 & 0.0 & 0.0 & \textbf{4.2} & 0.0 & \textbf{11.8} & 2.1 & 0.0 & 5.9 \\ \hline
+        PC & 33.3 & 23.3 & 47.1 & 52.1 & 43.3 & 64.7 & 54.2 & 43.3 & 70.6 & 52.1 & 46.7 & 58.8 & 58.3 & 53.3 & 64.7 \\ \hline
+        IC & 62.5 & 70.0 & 52.9 & 45.8 & 56.7 & 29.4 & 45.8 & 56.7 & 29.4 & 43.8 & 53.3 & 29.4 & 39.6 & 46.7 & 29.4 \\ \hline
+        \multicolumn{16}{|c|}{\textbf{Prompt Template 2}}\\ \hline
+        C & 92.7 & - & - & \textbf{97.6} & - & - & 87.8 & - & - & 95.1 & - & - & \textbf{97.6} & - & - \\ \hline
+        IC & 7.3 & - & - & 2.4 & - & - & 12.2 & - & - & 4.9 & - & - & 2.4 & - & - \\ \hline
+        \multicolumn{16}{|c|}{\textbf{Prompt Template 3}}\\ \hline
+        C & 82.9 & -& - & \textbf{92.7} & - & - & 90.2 & - & - & \textbf{92.7} & - & - & 87.8 & - & - \\ \hline
+        IC & 17.1 & - & - & 7.3 & - & - & 9.8 & - & - & 7.3 & - & - & 12.2 & - & - \\ \hline
+         \multicolumn{16}{|c|}{\textbf{Prompt Template 4}} \\ \hline
+       C & 2.1 & 3.3 & 0.0 & 4.2 & 3.3 & 5.9 & 4.2 & 3.3 & 5.9 & \textbf{10.4} & \textbf{13.3} & 5.9 & 6.3 & 3.3 & \textbf{11.8} \\ \hline
+        PC & 87.5 & 86.7 & 88.2 & 91.7 & 93.3 & 88.2 & 93.8 & 96.7 & 88.2 & 81.3 & 80.0 & 82.4 & 85.4 & 96.7 & 64.7 \\ \hline
+        IC & 10.4 & 10.0 & 11.8 & 4.2 & 3.3 & 5.9 & 2.1 & 0.0 & 5.9 & 8.3 & 6.7 & 11.8 & 8.3 & 0.0 & 23.5 \\ \hline
+        \multicolumn{16}{|c|}{\textbf{Prompt Template 5}} \\ \hline
+        C & 20.8 & 26.7 & 11.8 & 14.6 & 16.7 & 11.8 & 22.9 & 26.7 & \textbf{17.6} & \textbf{43.8} & \textbf{60.0} & \textbf{17.6} & 10.4 & 10.0 & 11.8 \\ \hline
+        PC & 70.8 & 63.3 & 82.4 & 83.3 & 83.3 & 82.4 & 68.8 & 63.3 & 76.5 & 45.8 & 26.7 & 76.5 & 81.3 & 90.0 & 64.7 \\ \hline
+        IC & 8.3 & 10.0 & 5.9 & 2.1 & 0.0 & 5.9 & 8.3 & 10.0 & 5.9 & 10.4 & 13.3 & 5.9 & 8.3 & 0.0 & 23.5 \\ \hline
+        \end{tabular}
+    \end{footnotesize}
+\end{table}
+%\vspace{-3mm}
+
+
+Table \ref{tab:humeval} presents the results of \texttt{WikiContradict\_HumanEval} for 5 LLMs: \emph{Mistral-7b-instruct}, \emph{Mixtral-8x7b-instruct}, \emph{Llama2-2-70b-chat}, \emph{Llama3-70b-instruct}, and \emph{GPT-4-turbo-2024-04-09}. The table provides a detailed breakdown of response accuracy for each LLM, categorized into three types: \emph{correct}, \emph{partially correct} (applicable to prompt templates 1, 4, and 5), and \emph{incorrect}. We further distinguish between instances with explicit conflicts (30 instances) and implicit conflicts (18 instances) to provide a more nuanced understanding of the LLMs' performance. Below we summarise a few key observations on \texttt{WikiContradict\_HumanEval}.
+
+\textbf{Prompt template 1: There is a significant overlap between the internal knowledge of LLMs and the content of Wikipedia.} As expected, the portion of correct or partially correct answers based on their internal knowledge, ranges from 37.5\% (\emph{Mistral-7b-inst}) to 60.4\% (\emph{GPT-4}). 
+
+\textbf{Prompt template 2 and 3: When tasked with answering questions based on a provided context, LLMs are generally capable of generating correct responses for the majority of instances, as long as the context does not contain conflicting information.} However, we observe that \emph{GPT-4} exhibits a ``stubborn'' behavior, particularly with prompt template 3. It often relies on its internal knowledge, which may not align with the given context, resulting in a lower accuracy of 87.8\% compared to \emph{Mixtral-8X7b-inst} and \emph{Llama3-3-70b-inst}, which perform better in this scenario.
+
+\textbf{Prompts template 4 and 5: LLMs often struggle to provide correct answers when the context contains conflicting information.} Typically, the models rely on a single passage to inform their response, disregarding the other passage. Notably, some models attempt to reconcile the conflicting information by providing both answers, but then proceed to explain why one of them is incorrect. This phenomenon is particularly pronounced in the \emph{Mistral-7b-inst} model.
+
+\textbf{Prompts template 4 vs. 5: LLMs can improve their performance in providing correct answers when explicitly instructed to consider conflicting information within the given context.} Notably, Llama-3-70b-inst exhibits the most substantial improvement, jumping from 10.4\% to 43.8\%. In contrast, GPT-4 demonstrates the smallest improvement, increasing from 6.3\% to 10.4\%, which is likely attributed to its previously observed stubborn behavior in prompt template 3.
+
+\textbf{Explicit conflicts vs. implicit conflicts: When explicitly instructed to consider conflicting information within the given context, LLMs' performance in providing correct answers improves in particular %and the improvement is largely driven by their enhanced performance 
+in cases where conflicts are explicitly stated.} For instance, for \emph{Llama-3-70b-inst}, the performance on explicit conflicts instances jumps from 13.3\% to 60.0\%, while the performance on implicit conflicts instances improves from 5.9\% to 17.6\%.
+
+\textbf{Additional evaluations: }We conducted additional human evaluation studies on 48 instances from \texttt{WikiContradict\_HumanEval} using four variations of prompt template 5: prompt template 5.1 swaps the positions of passage 1 and passage 2 from the original template 5; prompt template 5.2 instructs LLMs to identify any contradictions in the given context with respect to the question; prompt template 5.3 provides LLMs with manually revised passage 1 and passage 2, where contradictions with respect to the question were resolved; prompt template 5.4 tasks LLMs with detecting any contradictions in the revised consistent context from template 5.3 with respect to the question. In this experiment, each response is assessed by a single human annotator.
+
+The human evaluation of 5 LLMs on 4 prompt templates (5, 5.1, 5.2, and 5.3) reveals the following insights. 
+1) \textbf{No position bias}: the results for prompt templates 5 and 5.1 are similar for all LLMs;
+2) \textbf{Contradiction detection}: for prompt template 5.2, all LLMs perform better in detecting contradictions in the given context compared to generating correct answers for prompt template 5. \emph{GPT-4} and \emph{Llama-3-70b-instruct} are the top performers, with \emph{GPT-4} detecting contradictions and providing reasonable explanations in around 88\% of cases, followed by \emph{Llama-3-70b-instruct} with 77\%;
+3) \textbf{Conflict-free context}: for prompt template 5.3, all models demonstrate high performance in correctly answering questions based on the given context (with correct response rates ranging from 85\% to 87\%), where there are no conflicts between passage 1 and passage 2. This is consistent with the observations for prompt templates 2 and 3 in the previous section;
+4) \textbf{Difficulty in detecting conflict-free contexts}: for prompt template 5.4, all models struggle to detect when there are no contradictions in the given context, performing worse than when generating correct answers for prompt template 5.3. \emph{GPT-4} and \emph{Llama-3-70b-instruct} are the worst performers, only confirming 44\% and 48\% of instances as conflict-free, and ``making up'' reasons to explain why the two passages conflict in the remaining instances. See Appendix \ref{appx:details_prompt} in the supplementary materials for more on the prompt templates 5.1 - 5.4 and human evaluation results.
+
+
+
+
+

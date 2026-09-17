@@ -1,0 +1,29 @@
+# Architecture evidence: SemanticMediaWiki/SemanticMediaWiki
+
+- `README.md:1` — Semantic MediaWiki
+- `README.md:27` — Requirements
+- `README.md:32` — Installation
+- `README.md:37` — Documentation
+- `README.md:48` — Support
+- `README.md:65` — Contributing
+- `README.md:79` — Tests
+- `README.md:97` — Step 1: Clone the Repository
+- `README.md:99` — Step 2: Ensure test container is running
+- `README.md:110` — Step 3: Run lint, phpcs and tests
+- `README.md:120` — License
+- `Makefile:4` — setup for docker-compose-ci build directory
+- `Makefile:5` — delete "build" directory to update docker-compose-ci
+- `Makefile:13` — docker images
+- `Makefile:20` — composer
+- `Makefile:21` — Enables "composer update" inside of extension
+- `Makefile:24` — nodejs
+- `Makefile:25` — Enables node.js related tests and "npm install"
+- `Makefile:28` — check for build dir and git submodule init if it does not exist
+- `SECURITY.md:1` — Security Policy
+- `SECURITY.md:3` — Supported versions
+- `SECURITY.md:9` — Reporting a vulnerability
+- `SECURITY.md:22` — Disclosure process
+- `SECURITY.md:42` — Vulnerabilities in MediaWiki core
+- `docs/README.md:1` — Semantic MediaWiki documentation
+- `docs/README.md:11` — Release notes / version history
+- `docs/README.md:17` — For developers

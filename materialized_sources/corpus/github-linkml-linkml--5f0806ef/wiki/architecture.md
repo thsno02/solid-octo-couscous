@@ -1,0 +1,27 @@
+# Architecture evidence: linkml/linkml
+
+- `README.md:11` — LinkML - Linked Data Modeling Language
+- `AGENTS.md:1` — Claude Code Notes for LinkML
+- `AGENTS.md:3` — Project Structure
+- `AGENTS.md:13` — Best Practices
+- `Dockerfile:3` — https://stackoverflow.com/questions/53835198/integrating-python-poetry-with-docker
+- `Dockerfile:12` — Install uv
+- `Dockerfile:18` — Build project. The .git directory is needed for uv-dynamic-versioning
+- `Dockerfile:36` — command to run on container start
+- `Makefile:6` — for now we only have one example
+- `Makefile:9` — for each example schema, make all derived schema products, and derived serializations for the example data file
+- `Makefile:24` — Metamodel compatibility: download latest metamodel from linkml-model
+- `Makefile:43` — Example schema products
+- `Makefile:69` — Example instance data products
+- `Makefile:96` — Commands for building the Docker image ####
+- `pyproject.toml:28` — Ignore table where words could be split across rows
+- `pyproject.toml:120` — https://docs.astral.sh/ruff/settings/
+- `pyproject.toml:146` — Golden files are generated output whose formatting is determined by the code generator
+- `pyproject.toml:153` — These templates can have long lines
+- `pyproject.toml:158` — Golden files are generated output — may have unused imports, long lines, unsorted imports
+- `pyproject.toml:162` — Auto-generated model files use Optional/Union with string forward references
+- `pyproject.toml:168` — Notebooks can have unsorted imports
+- `pyproject.toml:171` — tests/linkml_runtime follows the original linkml_runtime linting conventions
+- `docs/README.md:1` — Instructions for building LinkML documentation
+- `docs/README.md:12` — Instructions
+- `docs/README.md:37` — IMPORTANT

@@ -1,0 +1,36 @@
+\begin{table*}[!ht]
+
+\renewcommand{\arraystretch}{1.1}
+
+\small
+\centering
+    \begin{tabular}{p{1.0\textwidth}}
+    \toprule
+
+    \textbf{\textsc{Question answering}}\\
+    \midrule
+    Answer the following question:\\
+    \{question\}\\
+    Bear in mind that your response should be strictly based on the following 3 passages:\\
+    \{passages\}\\
+    In case the passages do not contain the necessary information to answer the question, please reply with: "Unable to answer based on given passages."\\
+    \midrule
+    \textbf{\textsc{Data-to-text Writing}}\\
+    \midrule
+    Instruction:\\
+    Write an objective overview about the following local business based only on the provided structured data in the JSON format.\\
+    You should include details and cover the information mentioned in the customers' review. The overview should be 100 - 200 words. Don't make up information.\\
+    Structured data:\\
+    \{json\_data\}\\
+    Overview:\\
+    \midrule
+    \textbf{\textsc{Summarization}}\\
+    \midrule
+    Summarize the following news within \{word\_num\} words:\\
+    \{news\}\\
+    output:\\
+    \bottomrule
+    \end{tabular}
+    \caption{Prompts for generating responses for the three types of tasks. word\_num is min(200, word\_num\_of\_news//4). The word count requirement is only to control the length of the generated summarization, it will not serve as the basis for hallucination annotation.} 
+    \label{tab:prompts}
+\end{table*}

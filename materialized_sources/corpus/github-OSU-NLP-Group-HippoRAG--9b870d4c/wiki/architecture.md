@@ -1,0 +1,42 @@
+# Architecture evidence: OSU-NLP-Group/HippoRAG
+
+- `README.md:34` — Papers
+- `README.md:41` — Installation
+- `README.md:88` — Upgrading existing indexes
+- `README.md:92` — Quick Start
+- `README.md:94` — OpenAI
+- `README.md:114` — OpenAI-compatible endpoints
+- `README.md:137` — Amazon Bedrock
+- `README.md:161` — OrcaRouter
+- `README.md:182` — Local Deployment (vLLM)
+- `README.md:197` — Tune gpu-memory-utilization or max_model_len to fit your GPU memory, if OOM occurs
+- `README.md:214` — Same Indexing, Retrieval and QA as running OpenAI models above
+- `README.md:217` — Vector Store Backends
+- `README.md:226` — Milvus
+- `README.md:272` — Testing
+- `README.md:293` — Reproducing our Experiments
+- `README.md:297` — Data for Reproducibility
+- `README.md:304` — Running indexing and QA
+- `README.md:316` — OpenAI
+- `README.md:321` — Run OpenAI model
+- `README.md:344` — Run with vLLM (Llama)
+- `README.md:357` — Tune gpu-memory-utilization or max_model_len to fit your GPU memory, if OOM occurs
+- `README.md:371` — Advanced: vLLM offline batch
+- `README.md:391` — Debugging Note
+- `README.md:401` — Custom Datasets
+- `README.md:407` — Retrieval Corpus JSON
+- `README.md:424` — (Optional) Query JSON
+- `README.md:454` — (Optional) Chunking Corpus
+- `README.md:458` — Code Structure
+- `README.md:513` — Contact
+- `README.md:521` — Citation
+- `README.md:525` — HippoRAG 2
+- `README.md:538` — HippoRAG
+- `README.md:549` — TODO:
+- `CONTRIBUTING.md:1` — Contributing to HippoRAG
+- `CONTRIBUTING.md:6` — How to Contribute
+- `CONTRIBUTING.md:15` — Before you start, file an issue
+- `CONTRIBUTING.md:21` — Search existing issues first
+- `CONTRIBUTING.md:27` — File a new Issue
+- `CONTRIBUTING.md:40` — Credits
+- `CONTRIBUTING.md:46` — Thank you

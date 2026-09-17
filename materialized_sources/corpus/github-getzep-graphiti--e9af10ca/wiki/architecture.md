@@ -1,0 +1,122 @@
+# Architecture evidence: getzep/graphiti
+
+- `README.md:60` — What is a Context Graph?
+- `README.md:79` — Graphiti and Zep
+- `README.md:95` — Zep vs Graphiti
+- `README.md:108` — When to choose which
+- `README.md:114` — Why Graphiti?
+- `README.md:136` — Graphiti vs. GraphRAG
+- `README.md:154` — Installation
+- `README.md:190` — Installing with FalkorDB Support
+- `README.md:197` — or with uv
+- `README.md:200` — or embedded version (requires Python 3.12+)
+- `README.md:202` — or with uv
+- `README.md:206` — Installing with Kuzu Support
+- `README.md:218` — or with uv
+- `README.md:222` — Installing with Amazon Neptune Support
+- `README.md:229` — or with uv
+- `README.md:233` — You can also install optional LLM providers as extras:
+- `README.md:236` — Install with Anthropic support
+- `README.md:239` — Install with Groq support
+- `README.md:242` — Install with Google Gemini support
+- `README.md:245` — Install with multiple providers
+- `README.md:248` — Install with FalkorDB and LLM providers
+- `README.md:251` — Install with Amazon Neptune
+- `README.md:255` — Default to Low Concurrency; LLM Provider 429 Rate Limit Errors
+- `README.md:267` — Quick Start
+- `README.md:290` — Running with Docker Compose
+- `README.md:310` — MCP Server
+- `README.md:328` — REST Service
+- `README.md:334` — Optional Environment Variables
+- `README.md:340` — Database Configuration
+- `README.md:350` — Neo4j with Custom Database Name
+- `README.md:356` — Create a Neo4j driver with custom database name
+- `README.md:364` — Pass the driver to Graphiti
+- `README.md:368` — FalkorDB with Custom Database Name
+- `README.md:374` — Create a FalkorDB driver with custom database name
+- `README.md:383` — Or use embedded FalkorDB Lite (requires Python 3.12+)
+- `README.md:384` — from redislite.async_falkordb_client import AsyncFalkorDB
+- `README.md:385` — falkordb_client = AsyncFalkorDB(dbfilename='/path/to/database.db')
+- `README.md:386` — driver = FalkorDriver(falkor_db=falkordb_client)
+- `README.md:388` — Pass the driver to Graphiti
+- `README.md:392` — Kuzu
+- `README.md:402` — Create a Kuzu driver
+- `README.md:405` — Pass the driver to Graphiti
+- `README.md:409` — Amazon Neptune
+- `README.md:415` — Create a Neptune driver
+- `README.md:423` — Pass the driver to Graphiti
+- `README.md:429` — Using Graphiti with Azure OpenAI
+- `README.md:433` — Quick Start
+- `README.md:442` — Initialize Azure OpenAI client using the standard OpenAI client
+- `README.md:443` — with Azure's v1 API endpoint
+- `README.md:449` — Create LLM and Embedder clients
+- `README.md:459` — Initialize Graphiti with Azure OpenAI clients
+- `README.md:468` — Now you can use Graphiti with Azure OpenAI
+- `README.md:480` — Using Graphiti with Google Gemini
+- `README.md:490` — or
+- `README.md:501` — Google API key configuration
+- `README.md:504` — Initialize Graphiti with Gemini clients
+- `README.md:529` — Now you can use Graphiti with Google Gemini for all components
+- `README.md:536` — Using Graphiti with OpenAI-compatible providers and local LLMs
+- `README.md:560` — Configure Ollama LLM client
+- `README.md:570` — Initialize Graphiti with Ollama clients
+- `README.md:587` — Now you can use Graphiti with local Ollama models
+- `README.md:592` — Structured output and small models
+- `README.md:612` — Documentation
+- `README.md:618` — Telemetry
+- `README.md:623` — What We Collect
+- `README.md:635` — What We Don't Collect
+- `README.md:646` — Why We Collect This Data
+- `README.md:657` — View the Telemetry Code
+- `README.md:661` — How to Disable Telemetry
+- `README.md:674` — For bash users (~/.bashrc or ~/.bash_profile)
+- `README.md:677` — For zsh users (~/.zshrc)
+- `README.md:688` — Then initialize Graphiti as usual
+- `README.md:696` — Technical Details
+- `README.md:703` — Contributing
+- `README.md:709` — Support
+- `AGENTS.md:1` — Repository Guidelines
+- `AGENTS.md:3` — Project Structure & Module Organization
+- `AGENTS.md:6` — Build, Test, and Development Commands
+- `AGENTS.md:15` — Coding Style & Naming Conventions
+- `AGENTS.md:18` — Testing Guidelines
+- `AGENTS.md:21` — Commit & Pull Request Guidelines
+- `AGENTS.md:24` — Cursor Cloud specific instructions
+- `AGENTS.md:28` — Graph databases (Neo4j + FalkorDB via Docker)
+- `AGENTS.md:33` — Tests (non-obvious)
+- `AGENTS.md:39` — Running the services (dev mode)
+- `AGENTS.md:44` — Backend gotcha
+- `CLAUDE.md:1` — CLAUDE.md
+- `CLAUDE.md:5` — Project Overview
+- `CLAUDE.md:17` — Development Commands
+- `CLAUDE.md:19` — Main Development Commands (run from project root)
+- `CLAUDE.md:22` — Install dependencies
+- `CLAUDE.md:25` — Format code (ruff import sorting + formatting)
+- `CLAUDE.md:28` — Lint code (ruff + pyright type checking)
+- `CLAUDE.md:31` — Run tests
+- `CLAUDE.md:34` — Run all checks (format, lint, test)
+- `CLAUDE.md:38` — Server Development (run from server/ directory)
+- `CLAUDE.md:42` — Install server dependencies
+- `CLAUDE.md:45` — Run server in development mode
+- `CLAUDE.md:48` — Format, lint, test server code
+- `CLAUDE.md:54` — MCP Server Development (run from mcp_server/ directory)
+- `CLAUDE.md:58` — Install MCP server dependencies
+- `CLAUDE.md:61` — Run with Docker Compose
+- `CLAUDE.md:65` — Code Architecture
+- `CLAUDE.md:67` — Core Library (`graphiti_core/`)
+- `CLAUDE.md:78` — Server (`server/`)
+- `CLAUDE.md:84` — MCP Server (`mcp_server/`)
+- `CLAUDE.md:89` — Testing
+- `CLAUDE.md:95` — Configuration
+- `CLAUDE.md:97` — Environment Variables
+- `CLAUDE.md:103` — Database Setup
+- `CLAUDE.md:112` — Development Guidelines
+- `CLAUDE.md:114` — Code Style
+- `CLAUDE.md:122` — Testing Requirements
+- `CLAUDE.md:132` — LLM Provider Support
+- `CLAUDE.md:136` — Current LLM Models (as of November 2025)
+- `CLAUDE.md:175` — MCP Server Usage Guidelines
+- `CONTRIBUTING.md:1` — Contributing to Graphiti
+- `CONTRIBUTING.md:9` — Four Ways to Get Involved
+- `CONTRIBUTING.md:11` — Pick Up Existing Issues
+- `CONTRIBUTING.md:15` — Create Your Own Tickets

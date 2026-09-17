@@ -1,0 +1,70 @@
+# Architecture evidence: terminusdb/terminusdb
+
+- `README.md:16` — Project Overview (Updated May 2026)
+- `README.md:26` — Key Features
+- `README.md:36` — What's New in Version 12
+- `README.md:52` — Getting Started
+- `README.md:61` — Database administrator's password (required)
+- `README.md:78` — Usage
+- `README.md:80` — Quick Start with CLI
+- `README.md:99` — Client Libraries
+- `README.md:109` — Documentation
+- `README.md:113` — Key Resources
+- `README.md:125` — Community
+- `README.md:134` — Contributing
+- `README.md:138` — How to Contribute
+- `README.md:145` — Development Setup
+- `README.md:150` — Clone your fork
+- `README.md:154` — Build the project
+- `README.md:157` — Start test server
+- `README.md:160` — Run tests
+- `README.md:166` — Reporting Issues
+- `README.md:175` — License
+- `Dockerfile:1` — syntax=docker/dockerfile:1.3
+- `Dockerfile:3` — Community-only Docker build.
+- `Dockerfile:4` — Set the swipl version by argument (see Makefile for the default!)
+- `Dockerfile:8` — Minimal SWI-Prolog
+- `Dockerfile:13` — Install the SWI-Prolog pack dependencies.
+- `Dockerfile:26` — Install Rust. Prepare to build the Rust code.
+- `Dockerfile:36` — Initialize the crates.io index git repo to cache it.
+- `Dockerfile:42` — Build the community dylib.
+- `Dockerfile:48` — Copy the packs and dylib. Prepare to build the Prolog code.
+- `Dockerfile:67` — Build the community executable.
+- `Makefile:2` — Default was 9.2.9
+- `Makefile:11` — Build the binary.
+- `Makefile:16` — Build the development binary (macOS-friendly, no library stripping).
+- `Makefile:17` — JWT is enabled by default in dev builds so integration tests work out of the box.
+- `Makefile:24` — Generate the dev RSA key pair used by JWT integration tests.
+- `Makefile:25` — Writes dashboard/assets/test-jwks.json and /tmp/test-jwt-keypair.json.
+- `Makefile:38` — Build the Docker image for development and testing. To use the TerminusDB
+- `Makefile:39` — container, see: https://github.com/terminusdb/terminusdb-bootstrap
+- `Makefile:40` — To make with swipl 10, use: make docker SWIPL_VERSION=10.0.0
+- `Makefile:53` — Build the Docker image for development using local swipl-rs sources.
+- `Makefile:67` — Install minimal pack dependencies.
+- `Makefile:71` — Install the tus pack.
+- `Makefile:76` — Download the lint tool.
+- `Makefile:81` — Download and run the lint tool.
+- `Makefile:98` — The 1.34.7 version is chosen as the others have a React/styled components
+- `Makefile:99` — dependency that is not resolved by npx, making it an issue using npx
+- `Makefile:104` — Build the dylib.
+- `Makefile:109` — Run unit tests in swipl; all, or just one suite.
+- `Makefile:110` — make test OR make test SUITE='[json,terminus_store,tables]'
+- `Makefile:115` — Run the unit tests in node.
+- `Makefile:116` — Usage: make test-int                    # run all tests
+- `Makefile:117` — make test-int SUITE=data-version # run test/data-version.js
+- `Makefile:118` — make test-int SUITE="cli-*"      # run all cli tests
+- `Makefile:127` — Start Docker container for integration testing (no plugins).
+- `Makefile:128` — Rebuilds the docker image and recreates the container.
+- `Makefile:142` — Stop the Docker test server.
+- `Makefile:149` — Quick command for interactive
+- `Makefile:154` — Remove the binary.
+- `Makefile:159` — Remove everything.
+- `Makefile:163` — Remove the dylib.
+- `Makefile:168` — Remove the dylib and all Rust build files.
+- `Makefile:173` — Remove the deps
+- `Makefile:182` — Build the documentation.
+- `Makefile:188` — Create input for `ronn` from a template and the `terminusdb` help text.
+- `Makefile:192` — Create a man page from using `ronn`.
+- `SECURITY.md:1` — Security Policy
+- `SECURITY.md:3` — Reporting a Vulnerability
+- `docs/README.md:1` — Documentation Information

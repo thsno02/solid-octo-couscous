@@ -1,0 +1,483 @@
+webofc 
+ txfonts 
+
+ equation 
+ equation 
+
+ document 
+
+ Diffractive patterns in
+deep-inelastic scattering and parton genealogy 
+
+ 
+ St\'ephane Munier 1 stephane.munier@polytechnique.edu 
+
+ 
+
+ CPHT, \'Ecole Polytechnique, CNRS, Universit\'e Paris-Saclay, Route de Saclay, 91128 Palaiseau, France
+ 
+
+ 
+We report on our recent observation that the occurrence of diffractive patterns in the scattering of electrons off nuclei obeys the same law as the fluctuations of the height of genealogical trees in branching diffusion processes.
+ 
+
+ 
+
+## Introduction
+
+ sec:intro 
+
+
+
+Consider electrons scattering off atomic nuclei in a high-energy particle collider, a process known as ``deep-inelastic scattering''. Diffractive events are characterized by the striking property that the nucleus is left intact in the process, and is surrounded by an angular region in which no particle is observed, called the ``gap'', the size of which, a quantity fluctuating from event-to-event, is used to classify the diffractive patterns (see Fig.~ fig-0 ).
+
+
+ figure [h]
+ 
+ 
+ fig1 
+ [Adapted from Ref.~ Mueller:2018zwx ]
+ Graph contributing to the electron-nucleus diffractive scattering
+ amplitude.
+ The electron emits a virtual photon,
+ which converts to a quark-antiquark pair. The latter scatters elastically, coherently,
+ off the nucleus, through a particular quantum fluctuation
+ (containing two gluons in addition to the quark and to the antiquark
+ in this illustration).
+ The final state exhibits a gap of size~ y_0 here,
+ which is a signature of the elastic
+ scattering process.
+ 
+ fig-0 
+ figure 
+
+
+Diffraction in the context of high-energy hadronic and nuclear physics is a surprising phenomenon. Indeed, a nucleus being a lose boundstate of nucleons, themselves being rather fragile compounds of quarks (whenever involved in a reaction of center-of-mass energy larger than a few GeV), one may think that the probability that a nucleus ``survives'' a high-energy collision with a small (compared to nuclear scales) object is negligible.
+The observation at the DESY-HERA collider of a significant fraction (about 10\% overall) of diffractive events came as a surprise for many physicists (for a review, see Ref.~ Schoeffel:2009aa ). It boosted the study of quantum chromodynamics (QCD) in the dense, semi-classical, regime, since the most elegant explanation for the important fraction of these events and for their properties came from so-called ``saturation models'', which assumed that at HERA, the proton appeared as a dense system of gluons at momentum scales as high as~1~GeV~ GolecBiernat:1998js .
+
+
+Now consider an apparently completely different problem: a particle evolves stochastically in time by diffusing on a line and randomly splitting, at some fixed rate, into two particles, which subsequently follow independently the same rules (see Fig.~ fig-2 below). This process, called ``branching diffusion'', is an interesting mathematical object, potentially relevant in many fields of science, from the physics of glasses to evolutionary biology (for a review by a mathematician, see Ref.~ bovier2016gaussian ). After some given time, pick the two leftmost particles and trace their most recent common ancestor. Surprisingly enough, we found that the distribution of the age of the latter is identical to the distribution of the gap size in diffraction, for a deep reason related to the very mechanism of how fluctuations build up in these two processes.
+ figure [h]
+ 
+ 
+ fig2 
+ Schematic representation of a realization of a branching Brownian motion process.
+ A particle initially at position x=0 diffuses, and may split into 2 particles at a constant rate.
+ The particles evolve further independently, following the same rules, until the final
+ time t is reached. Then, the two particles at the largest positions are picked, and
+ their most recent common ancestor is traced: Its decay time is denoted by t_0 .
+ 
+ fig-2 
+ figure 
+
+
+Our study contributes to link distinct fields of science, and paves the way for a better understanding of diffraction phenomena in particle physics, that can be tested at a future Electron-Ion Collider (EIC)~ Accardi:2012qut .
+
+This short review summarizes the papers in Refs.~ Mueller:2018zwx,Mueller:2018ned .
+We shall start by recalling the equation for the rapidity gap distribution, first derived by Kovchegov and Levin (KL)~ Kovchegov:1999ji . We then elaborate on a picture which enables us to find asymptotic form of the solution to the latter. We discuss the link with genealogies in branching random walks, before presenting the results of numerical calculations which support our analytical results. The final section gathers some prospects.
+
+
+
+
+
+
+ sec-2 Equation for the rapidity gap distribution 
+
+Throughout, we shall not address electron-nucleus diffractive scattering, but rather onium-nucleus scattering, which can however be connected to the former through a well-known method. The link is discussed in more detail in Ref.~ Mueller:2018ned , and is illustrated in Fig.~ fig-0 .
+
+Let us consider the scattering of an onium of size r off a big nucleus at a total center-of-mass
+energy corresponding to the rapidity Y .
+We are going to write down an equation for the evolution of the distribution of the rapidity
+gap around the nucleus.
+
+We need to start with the forward elastic onium-nucleus S -matrix element. It obeys the Balitsky-Kovchegov (BK)
+equation~ Balitsky:1995ub,Kovchegov:1999ua 
+ 
+ _ y S(r,y)= d^2r' 2 r^2 r'^2(r-r')^2 ,
+ eq:bkS 
+ 
+where the initial condition may be taken from the McLerran-Venugopalan model~ McLerran:1993ni , which
+we can approximate by
+ S(r,y=0)=1-e^ -r^2Q_A^2/4 ,
+with Q_A the nuclear saturation scale, typically of the order of 1~GeV.
+Note that the (dimensionless) total, elastic and inelastic cross sections at a given impact
+parameter per unit surface in the transverse plane to the collision axis may be
+expressed with the help of S :
+ 
+ _ tot =2(1-S), _ el =(1-S)^2, _ in = _ tot - _ el =1-S^2.
+ eq:sections 
+ 
+
+We now turn to the diffractive cross section
+with a given rapidity gap~ y_0 .
+According to Kovchegov and Levin,
+the distribution of~ y_0 can be deduced from an auxiliary function S_2(r, y) ,
+which also obeys the BK equation:
+ 
+ _ y S_2(r, y)= d^2r' 2 r^2 r'^2(r-r')^2 for y>0,
+ eq:S2 
+ 
+ with the peculiar initial condition 
+ S_2(r, y=0)= ^2 , which couples the two equations for S and S_2 .
+The gap distribution is then evaluated as
+ 
+ d _ diff dy_0 =- y_0 S_2(r,Y-y_0).
+ 
+These equations also follow quite straightforwardly~ Hatta:2006hs,Mueller:2018ned 
+from the Good-Walker picture~ Good:1960ba .
+
+The solution to the set of equations~( eq:bkS , eq:S2 )
+is actually
+what we are after. But the latter are very difficult to solve: there are no known methods to address such
+coupled nonlinear evolution equations.
+In a certain sense, the work presented here may be viewed as an effort to derive a solution to the KL equations. But instead of trying to solve them brute force,
+with purely mathematical tools, we develop a picture of diffractive scattering, from which what we believe should be the large-rapidity asymptotics of the KL equations straightforwardly follow.
+
+
+
+
+
+
+## Picture of onium-nucleus scattering
+
+
+
+
+
+## Interpretation of the total cross section in different frames
+
+
+The total cross section can be deduced from the elastic S -matrix element through
+the optical theorem, see Eq.~( eq:sections ). S satisfies the BK equation, the solution of which
+is known for some values of the variables, in a limited range:
+ 
+1-S const 1 r^2Q_s^2(Y) ^ _0 
+ with Q_s^2(Y) Q_A^2 e^ '( _0) Y ( Y)^ 3/2 _0 ,
+ eq:oneminusS 
+ 
+where _s N_c/ , _0 0.63 is a number, and the values of the
+complex function
+ ( )=2 (1)- ( )- (1- ) are the eigenvalues of the kernel of the
+linearized BK equation.
+This behavior holds when the variables (r,Y) are chosen such that
+ 1<| [r^2Q_s^2(Y)]|< ''( _0) Y , which we shall call the scaling region .
+
+ S(r,Y) is of course a boost-invariant quantity. But to interpret it, it is useful to choose particular
+Lorentz frames.
+
+In the restframe of the onium , the full QCD evolution is in the nucleus. This evolution
+is deterministic since it starts with a highly-occupied state (the nucleus in its groundstate).
+The larger Y , the denser the nucleus Fock state: 1-S , solution to the
+BK equation, is an estimator of the density of the nucleus. 
+ Actually, 1-S^2 is the probability that the onium has an interaction. It may be extracted from the
+ data for diffractive elastic vector-meson production~ Munier:2001nr . 
+
+In the restframe of the nucleus instead, the QCD evolution is in the onium. Since the latter is a
+quark-antiquark pair in its initial (fundamental) state, its evolution is highly stochastic,
+and there are large event-by-event fluctuations in its content.
+In this context, 1-S may be interpreted as the fraction of realizations of the QCD evolution
+which lead to a scattering event. We note that there is an interaction between the onium state
+and the nucleus whenever there is a gluon in the former which has a transverse momentum
+of the order of (or smaller than) the saturation scale of the nucleus, Q_A .
+Thus 1-S can be interpreted as the probability of having a gluon of transverse momentum
+ smaller than Q_A in a particular realization of the state of the onium.
+
+
+
+ Total and diffractive cross sections in the
+ y_0 -frame 
+
+ figure [h]
+ 
+ 
+ tabular cc|cc 
+\ \ \ \ \ fig3a &\ \ \ \ \ \ \ &\ \ \ \ \ \ \ &
+ fig3b \\
+(a)& & & (b) 
+ tabular 
+ [Adapted from Ref.~ Mueller:2018zwx ]
+ Example of graphs contributing to the total (a) and diffractive dissociation (b)
+ amplitude. For the latter, the gap has a size y_0 , and the condition for its existence
+ is the presence of a rare fluctuation, a gluon of transverse momentum k_ Q_s(y_0) ,
+ in the Fock state of the onium evolved to rapidity y_0=Y-y_0 . 
+ fig-1 
+ figure 
+
+
+
+We can also choose an intermediate frame in which the evolution is shared between the
+onium and the nucleus. Let us boost the nucleus exactly to the rapidity~ y_0 , while
+the onium carries the remaining rapidity y_0 Y-y_0 : 
+ The rapidity y_0 is also related to the invariant mass M_X of the
+ diffracted system: y_0 W^2/M_X^2 , where W is the total center-of-mass
+ energy of the onium-nucleus system, see Fig.~ fig-0 .
+ 
+Examples of
+graphs are displayed in Fig.~ fig-1 for the total and diffractive cross section.
+In this particular frame, in order to create a rapidity gap, the scattering of the
+onium Fock state off the nucleus should be elastic . For such an elastic scattering
+to be probable, there should be
+at least a gluon in the state of the onium which has a transverse momentum k_ comparable
+to (or smaller than)
+the characteristic momentum scale of the nucleus in that frame, namely to the
+saturation scale Q_s(y_0) . We choose the onium size r in the scaling region, in which
+the total cross section is small. Therefore,
+such a fluctuation is relatively rare: The gluon which interacts is most probably
+softer than the typical soft gluons present in these states of the onium. 
+
+So the diffractive cross section conditioned to a gap of size y_0 ,
+ d _ diff /dy_0 ,
+is proportional to the
+probability of having an exceptionally soft gluon, of transverse momentum of the
+order of Q_s(y_0) , in the Fock state of the onium evolved to rapidity~ y_0 .
+According to the discussion given in the previous section, this quantity
+is the solution of the BK equation. Therefore, it reads
+ 
+ split 
+ d _ diff dy_0 & const 
+ 1 r^2 Q_s^2( y_0) 
+ ^ _0 
+ with Q_s^2( y_0)=
+Q_s^2(y_0) e^ y_0 '( _0) ( y_0)^ 3/2 _0 \\
+& const _ tot ^ 3/2 .
+ split 
+ eq:rapgap 
+ 
+This result is valid in the scaling window The region at the border of the scaling window,
+ around | [r^2Q_s^2(Y)]| ''( _0) Y , may be described by Eq.~( eq:rapgap )
+ supplemented with the factor ,
+ see Ref.~ Mueller:2018ned . defined above, and under the additional conditions
+ y_0, (Y-y_0) 1 .
+In order to arrive at the final expression in Eq.~( eq:rapgap ), we have just used the expression
+of the saturation scale as a function of the rapidity given in Eq.~( eq:oneminusS ).
+
+
+
+
+
+
+
+
+## Ancestry in branching random walks
+
+
+
+It turns out that the structure of diffractive events
+bears similarities with an apparently completely different problem: The genealogy of
+particles near the boundary of a
+branching random walk (BRW) in Ref.~ 0295-5075-115-4-40005 .
+That dipole evolution (at fixed impact parameter) is a peculiar branching random walk
+has been known for some time (see e.g.~ Munier:2014bba ), but that the very structure of the evolution may play
+a role is new and quite surprising.
+
+We may define a branching random walk in the following way (see Fig.~ fig-2 for an illustration).
+Let us consider a set of particles evolving in time t by diffusing in the real variable~ x ,
+and assume that each of them has a probability to split to two particles, independently of
+the other particles. (Diffusion may actually be replaced by discrete jumps, which may
+occur at the same time as the splitting: the fundamental nature of the problem keeps unchanged).
+
+Assume that the mean density of particles n(x,t) obeys the equation
+ _t n= n ; is an appropriate operator acting
+on n viewed as a function of x . For example, = _x^2+1 in the case
+of the branching Brownian motion.
+ admits the eigenfunctions e^ - x and we denote by
+ ( ) the corresponding eigenvalues.
+After the (large) time~ t , pick exactly the two leftmost particles,
+and look for the first common ancestor splitting time t_0 (see Fig.~ fig-2 ).
+
+Then, according to Ref.~ 0295-5075-115-4-40005 ,
+ t_0 is distributed as
+ equation 
+p(t_0)=c_p ^ 3/2 ,
+ with c_p= 1 _0 1 2 ''( _0) ,
+ eq:p 
+ equation 
+where _0 solves ( _0)= _0 '( _0) .
+Hence, up to the overall
+normalization, which is determined in the case of the genealogies, but
+not in the case of diffraction,
+ ( 1 / _ tot )( d _ diff / dy_0 ) (see Eq.~( eq:rapgap ))
+corresponds to p(t_0) ,
+with the identifications Y t ,
+ y_0 t_0 .
+
+We think that this formal analogy has actually a deep origin, related to a property
+of the common ancestor.
+In the same way as in our diffraction calculation,
+the common ancestor of the boundary
+particles also stems from a fluctuation,
+in the form of a particle sent ahead of the expected
+position of the most extreme particle, occurring
+in the course of the evolution, at time t-t_0 .
+
+
+
+
+
+
+
+## Numerical checks
+
+
+We stressed in Sec.~ sec-2 that it is difficult to address the Kovchegov-Levin equations analytically.
+On the other hand, it is quite straightforward to solve them numerically, since it amounts to
+integrating successively two BK equations (in their fixed-impact parameter version).
+
+We first go to very large rapidities in order to see how well the numerical solution of the KL equation
+matches our analytical expectations~( eq:rapgap ).
+The comparison is quite spectacular, see Fig.~ fig-3 ,
+and gives us confidence in the validity of our analytical expression.
+Note that the KL equation had been solved numerically
+before~ Levin:2001yv , but too low rapidities were considered to
+see the asymptotical regime emerging.
+ figure [h]
+
+ 
+
+ fig4 
+ 
+ [From Ref.~ Mueller:2018zwx ]
+ Numerical solution of the KL equation in the asymptotic regime, namely for Y=10 
+ and Y=20 (see the legend), in order to appreciate the convergence
+ to the asymptotics. The results are presented for the diffractive cross section
+ normalized to the total cross section, and in scaled variables, in such a way that
+ the asymptotic prediction deduced from Eq.~( eq:rapgap ) (black curve)
+ be rapidity-independent. Its normalization is arbitrary.
+ 
+ fig-3 
+ figure 
+For more realistic rapidities, maybe attainable at a future Electron-Ion Collider (EIC),
+the rapidity gap distribution still has a similar shape, peaking for
+minimal and maximal gap sizes; compare Fig.~ fig-4 to~Fig.~ fig-3 .
+
+
+ figure [h]
+
+ 
+
+ fig5 
+ [From Ref.~ Mueller:2018ned ]
+ Numerical solution of the KL equation (dots) for Y=3 , compared to the asymptotic
+ prediction~( eq:rapgap )
+ (dashed line), and to the asymptotics supplemented by a subleading term
+ (see Ref.~ Mueller:2018ned and footnote~3; full line). The
+ normalization of the latter is ad hoc .
+ 
+ fig-4 
+ figure 
+
+
+
+
+## Prospects
+
+
+On the theory side, we intend to study systematically the asymptotics of the distribution of the rapidity
+gap y_0 , in parallel to the distribution of the decay time of the common ancestor of the largest dipoles
+in an event~ Dung:2018 . Preliminary calculations seem to suggest that the overall constant in the gap distribution
+may be determined; The first subleading term in the limit y_0, (Y-y_0) 1 might also be
+calculated analytically.
+
+
+On the phenomenology side, we deem that the distribution of rapidity gaps is an interesting observable to consider
+at EIC. Arriving at robust predictions will require to examine more in depth all regimes,
+also outside of the
+scaling window considered here, and to solve numerically a modified version
+of the KL equation which would incorporate
+next-to-leading order effects (running coupling~ Kovchegov:2006vj ,
+kinematical constraint~ Motyka:2009gi ,
+resummation of collinear logarithms~ Iancu:2015vea ),
+known to be quantitatively important.
+
+
+ acknowledgement 
+This work was supported in part by the Agence Nationale
+de la Recherche under the project \# ANR-16-CE31-0019.
+ acknowledgement 
+
+
+ thebibliography 20 
+
+ Mueller:2018zwx 
+A.~Mueller, S.~Munier, Phys. Rev. Lett. 121, 082001 (2018),
+ 1805.09417 
+
+ Schoeffel:2009aa 
+L.~Schoeffel, Prog. Part. Nucl. Phys. 65, 9 (2010), 0908.3287 
+
+ GolecBiernat:1998js 
+K.J. Golec-Biernat, M.~Wusthoff, Phys. Rev. D59, 014017 (1998),
+ hep-ph/9807513 
+
+ bovier2016gaussian 
+A.~Bovier, Gaussian Processes on Trees: From Spin Glasses to Branching
+ Brownian Motion, Cambridge Studies in Advanced Mathematics (Cambridge
+ University Press, 2016), ISBN 9781316871409
+
+ Accardi:2012qut 
+A.~Accardi et~al., Eur. Phys. J. A52, 268 (2016), 1212.1701 
+
+ Mueller:2018ned 
+A.~Mueller, S.~Munier, Phys. Rev. D98, 034021 (2018),
+ 1805.02847 
+
+ Kovchegov:1999ji 
+Y.V. Kovchegov, E.~Levin, Nucl. Phys. B577, 221 (2000),
+ hep-ph/9911523 
+
+ Balitsky:1995ub 
+I.~Balitsky, Nucl. Phys. B463, 99 (1996), hep-ph/9509348 
+
+ Kovchegov:1999ua 
+Y.V. Kovchegov, Phys. Rev. D61, 074018 (2000), hep-ph/9905214 
+
+ McLerran:1993ni 
+L.D. McLerran, R.~Venugopalan, Phys. Rev. D49, 2233 (1994),
+ hep-ph/9309289 
+
+ Hatta:2006hs 
+Y.~Hatta, E.~Iancu, C.~Marquet, G.~Soyez, D.N. Triantafyllopoulos, Nucl. Phys.
+ A773, 95 (2006), hep-ph/0601150 
+
+ Good:1960ba 
+M.L. Good, W.D. Walker, Phys. Rev. 120, 1857 (1960)
+
+ Munier:2001nr 
+S.~Munier, A.M. Stasto, A.H. Mueller, Nucl. Phys. B603, 427 (2001),
+ hep-ph/0102291 
+
+ 0295-5075-115-4-40005 
+B.~Derrida, P.~Mottishaw, EPL (Europhysics Letters) 115, 40005 (2016)
+
+ Munier:2014bba 
+S.~Munier, Sci. China Phys. Mech. Astron. 58, 81001 (2015),
+ 1410.6478 
+
+ Levin:2001yv 
+E.~Levin, M.~Lublinsky, Phys. Lett. B521, 233 (2001),
+ hep-ph/0108265 
+
+ Dung:2018 
+D.~Le~Anh, Internship report, \'Ecole polytechnique (unpublished) (2018)
+
+ Kovchegov:2006vj 
+Y.V. Kovchegov, H.~Weigert, Nucl. Phys. A784, 188 (2007),
+ hep-ph/0609090 
+
+ Motyka:2009gi 
+L.~Motyka, A.M. Stasto, Phys. Rev. D79, 085016 (2009),
+ 0901.4949 
+
+ Iancu:2015vea 
+E.~Iancu, J.D. Madrigal, A.H. Mueller, G.~Soyez, D.N. Triantafyllopoulos, Phys.
+ Lett. B744, 293 (2015), 1502.05642 
+
+ thebibliography 
+
+ document 
+
+
+ biblio_proceedings 
+
+
+ document

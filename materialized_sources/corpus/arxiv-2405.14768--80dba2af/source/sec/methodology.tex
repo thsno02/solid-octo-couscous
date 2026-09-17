@@ -1,0 +1,183 @@
+% \vspace{-0.2cm}
+\section{Methodology}\label{sec:method}
+% \vspace{-0.2cm}
+
+\subsection{Preliminaries: Lifelong Model Editing}
+% \vspace{-0.2cm}
+We focus on lifelong model editing problem~\cite{grace,t-patcher}, which can ensure hundreds or even thousands of sequential edits on LLMs to make the outputs of target queries align with human expectations while maintaining LLMs' previous knowledge and capability. 
+Let $f_{\Theta}: \mathbb{X} \mapsto \mathbb{Y}$, parameterized by $\Theta$, denote a model function mapping an input $\mathbf{x}$ to the prediction $f_{\Theta}(\mathbf{x})$.
+The initial model before editing is $\Theta_0$, which is trained on a large corpus $\mathcal{D}_{\text{train}}$. 
+When the LLM makes mistakes or requires injections of new knowledge, it needs model editing with a time-evolving editing dataset as $\mathcal{D}_{\text{edit}}= \{(\mathcal{X}_e, \mathcal{Y}_e) \vert (\mathbf{x}_1, \mathbf{y}_1), ..., (\mathbf{x}_T, \mathbf{y}_T)\}$. 
+At the time step $T$, a model editor (ME) takes the $T$-th edit and the LLM of the $T-1$ time step $f_{\Theta_{T-1}}$ as inputs and produce the revised LLM model $f_{\Theta_T}$ following the equation below:
+\begin{equation}
+ \label{equ:cme_def}
+    f_{\Theta_{T}}={\rm ME}(f_{\Theta_{T-1}},\mathbf{x}_T,\mathbf{y}_T), \quad \text{s.t.}\
+    f_{\Theta_{T}}(\mathbf{x}) = 
+   \begin{cases}
+    \mathbf{y}_e &\mbox{if $\mathbf{x} \in \mathcal{X}_e$,}\\
+    f_{\Theta_0}(\mathbf{x})&\mbox{if $\mathbf{x} \notin \mathcal{X}_e$.}
+    \end{cases}
+\end{equation}
+Equation~\ref{equ:cme_def} describes that after model editing, the LLM should make the correct prediction on the current edit as $f_{\Theta_{T}}(\mathbf{x}_T) = \mathbf{y}_T$, while also preserving knowledge from past editing instances $(\mathbf{x}_{<T}, \mathbf{y}_{<T}) \in \mathcal{D}_{\text{edit}}$ as well as maintaining capability of $f_{\Theta_0}$ on the irrelevant data when $x \notin \mathcal{X}_e$, especially for general training corpus $\mathcal{D}_{\text{train}}$.
+
+\subsection{Rethinking the Memory Design of Lifelong Model Editing}
+\begin{table}[h]
+\vspace{-0.4cm}
+    \centering
+    \caption{\textbf{Comparison of current model editing methods.} {\small``\Checkmark''} refers to ``yes'' and ``well-supported'', {\small\XSolidBrush} refers to ``no'' or ``badly-supported'', and ``\Circle'' refers to ``less-supported''. The three metrics of Reliability, Generalization, and Locality denote the performances on lifelong (continual) editing.}
+    % \setstretch{1.2}
+    % \vspace{0.2cm}
+    \resizebox{0.99\linewidth}{!}{
+        \begin{tabular}{l|cc|cc|c|ccc}
+        \toprule
+         Methods& Long-term Memory& Working Memory& Parametric Knowledge& Retrieval Knowledge& Whether Lifelong& Reliability& Generalization& Locality \\
+         \midrule
+         FT-EWC &\Checkmark &\XSolidBrush &\Checkmark &\XSolidBrush &\Checkmark &\Checkmark &\Checkmark &\XSolidBrush \\
+         ROME/MEMIT  &\Checkmark &\XSolidBrush &\Checkmark &\XSolidBrush &\XSolidBrush &\XSolidBrush &\XSolidBrush &\XSolidBrush \\
+         MEND &\Checkmark &\XSolidBrush &\Checkmark &\XSolidBrush &\XSolidBrush &\XSolidBrush &\XSolidBrush &\XSolidBrush \\
+         SERAC/DEFER  &\XSolidBrush &\Checkmark &\Checkmark &\Checkmark &\Checkmark &\textbf{\Circle} &\XSolidBrush &\textbf{\Circle} \\
+         GRACE  &\XSolidBrush &\Checkmark &\XSolidBrush &\Checkmark &\Checkmark &\Checkmark &\XSolidBrush &\Checkmark \\
+         \midrule
+         \rowcolor{green!8}\textbf{WISE}  &\Checkmark &\Checkmark &\Checkmark  &\Checkmark &\Checkmark &\Checkmark &\Checkmark  &\Checkmark \\
+        \bottomrule 
+        \end{tabular}
+    }
+    \label{tab:editing_comparision}
+    % \vspace{-0.3cm}
+\end{table}
+
+In Table~\ref{tab:editing_comparision}, we compare current model editing methods in terms of memory types and lifelong editing abilities. 
+FT-EWC~\cite{ewc}, ROME~\cite{rome}, MEMIT~\cite{memit}, and MEND~\cite{mend} edit the long-term memory stored in the LLMs' model parameters, but they either do not support continual editing or have negative effects on irrelevant knowledge (poor locality). 
+GRACE~\cite{grace} is designed for lifelong editing via retrieval-based working memory.
+The retrieval codebook can avoid the conflicts of irrelevant knowledge, but GRACE fails to generalize due to its codebook being a non-parametric knowledge representation that solely memorizes queries without comprehension.
+%Though GRACE designs a deferral radius for generalization, it seems to be ineffective and limited.
+It is worth noting that SERAC~\cite{serac}/DEFER~\cite{grace} uses working memory that is stored in additional small models: a scope classifier and a counterfactual model, whose knowledge is parametric. 
+However, the small counterfactual model cannot match the expressiveness and generalization capabilities of LLM itself, making it challenging for the edited knowledge to generalize effectively.
+
+To enable effective lifelong model editing, the method should take advantage of both LLM parameters' long-term memory and retrieval-based working memory. Therefore, we propose WISE as follows.
+
+\subsection{WISE: Side Memory with Knowledge Sharding, Merging, and Routing}
+\begin{figure}[t]
+\vspace{-0.5cm}
+    \definecolor{figgreen}{rgb}{0.547,0.695,0.434}
+    \definecolor{figblue}{rgb}{0.445, 0.551, 0.73}
+    \centering
+    \includegraphics[width=0.98\linewidth]{img/WISE_method_overview_v3.pdf}
+    \vspace{-0.6cm}
+    \caption{\textbf{Overview of WISE.} Side memory (in \textcolor{figblue}{\textbf{blue}}) and main memory (in \textcolor{figgreen}{\textbf{green}}) store edited and pretrained knowledge, respectively. Note: during inference, if WISE-Retrieve, the activation routing will retrieve and select one side memory with maximal activation score.}
+    \label{fig:method_overview}
+    \vspace{-0.4cm}
+\end{figure}
+
+As illustrated in Figure~\ref{fig:method_overview}, WISE comprises two key components: 
+1) \textbf{Side Memory Design}: i) \textit{side memory}: side memory is a memory container that is initialized as a copy of LLM's certain FFN layer, storing the stream of edits; ii) \textit{memory routing mechanism}: similar to retrieval, a routing activation component is adopted to identify the scope of edits, routing the main (original) or side memories during inference; 
+2) \textbf{Knowledge Sharding and Merging}: i) \textit{knowledge in random memory subspaces}: to make the edits in appropriate knowledge density and avoid forgetting, we shard the side memory into several random subspaces for editing; ii) \textit{knowledge merging}: we leverage model merging techniques to merge different memory shards into one side memory without loss of knowledge.
+
+\subsubsection{Side Memory Design} \label{subsec:side_memory}
+\paragraph{Side memory in FFN's value matrix.} 
+Each layer in a Transformer contains a multi-head self-attention (MHA) mechanism and a feed-forward network (FFN), where the FFN constitutes two-thirds of the model parameters \cite{geva-etal-2021-transformer}.
+The question of how Transformers retrieve and utilize stored knowledge remains unresolved \cite{rome, niu2024what}, yet past works \cite{mend, geva-etal-2021-transformer} have demonstrated that editing the weights of the FFN is consistently more effective for LLMs.
+The FFN typically consists of key-value linear matrices: $\mathbf{W}_k, \mathbf{W}_v$, i.e., two multi-layer perceptron (MLP) layers.
+For the output of attention feature $\mathbf{f}$, the computation of the feed-forward network, omitting the bias terms, can be represented as:\looseness=-1
+\begin{equation}
+    \text{FFN}(\mathbf{f}) = \mathbf{a} \cdot \mathbf{W}_v = \sigma({\mathbf{f}}^\top \cdot \mathbf{W}_k) \cdot \mathbf{W}_v,
+    \label{equ:ffn_function}
+\end{equation}
+where $\sigma$ is a nonlinear activation function (e.g. SwiGLU, GeLU), and $\mathbf{a}$ represents the activation values of the first MLP layer. 
+Following previous works~\cite{rome,geva-etal-2021-transformer}, we edit the value matrix $\mathbf{W}_{v}$ of the chosen FFN layer. 
+
+However, directly editing the value matrix may cause forgetting and side effects in a lifelong setting. 
+Thus, we \textbf{copy a value matrix as side memory and edit the side memory instead of the original matrix (main memory)}.
+Specifically, the side memory is initialized with the copy of main memory as $\mathbf{W}_{v'} \leftarrow \mathbf{W}_{v}$. 
+Given the side memory, the new output is expressed as $\text{FFN}_{s}(\mathbf{f}) = \mathbf{a} \cdot \mathbf{W}_{v'}$. 
+We will introduce how to update the side memory in Section~\ref{subsec:knowledge_merging}.
+
+% TODO here add which FFN layer is chosen and why?
+\paragraph{Locating side memory's FFN layer.} \label{subsec:locating_side_memory}
+Transformer LLMs have been widely demonstrated to encode  ``lower-level'' information (e.g., parts of speech) in earlier layers while processing more advanced linguistic phenomena like anaphora and coreference in later layers \cite{early_layer_1,early_layer_2,early_layer_3}.
+Representations in later hidden layers propagate through residual connections without drastic changes \cite{dola, rome}, enabling effective early exit in LLMs \cite{shortgpt, confident_adaptive}.
+Therefore, to minimize the side effects of editing and adjust advanced linguistic phenomena, we target mid-to-late layers (e.g. 27) for side memory. Further analysis of layer selection is provided in Section \ref{subsec:layer_selection}.
+
+
+
+\paragraph{Routing between side memories and main memory.} 
+Similar to the retrieval-based methods~\cite{grace,serac}, during inference, it is needed to decide whether the main memory or the side memory is used. If a given query is within the scope of previous edits, the side memory is used; otherwise, the main memory. 
+Inspired by \cite{t-patcher}, we introduce a routing activation indicator, given an input $\mathbf{x}$, it is formulated:\looseness=-1
+\begin{equation}
+    \Delta_{\text{act}}(\mathbf{x}) = \Vert \mathcal{A}(\mathbf{x}) \cdot (\mathbf{W}_{v'} - \mathbf{W}_v) \Vert_2, 
+    \label{equ:routing_activation}
+\end{equation}
+where $\mathcal{A}(\cdot) = \mathbf{a}$ is the activation of the side memory's corresponding FFN layer in Equation~\ref{equ:ffn_function}. We want the activation indicators of editing queries to be larger than the ones of irrelevant queries by a large margin, which is:
+\begin{equation}
+    \min \{\Delta_{\text{act}}(\mathbf{x}_e)| \mathbf{x}_e \in \mathcal{D}_{\text{edit}}\} \gg \max \{\Delta_{\text{act}}(\mathbf{x}_i)| \mathbf{x}_i \in \mathcal{D}_{\text{irr}}\},
+\end{equation}
+where $\mathcal{D}_{\text{irr}}$ is the irrelevant dataset which includes $\mathcal{D}_{\text{train}}$. 
+
+To achieve the above objective, we design a margin-based loss function during editing training, similar to contrastive~\cite{simclr} or triplet loss~\cite{triple_loss}. The margin-based loss function for routing activation is:\looseness=-1
+\begin{small}
+\begin{align}
+    L_a = \min_{\mathbf{W}_{v'}} \{ \max(0, \Delta_{\text{act}}(\mathbf{x}_i) - \alpha) + \max(0, \beta -& \Delta_{\text{act}}(\mathbf{x}_e)) + \max(0, \gamma - (\Delta_{\text{act}}(\mathbf{x}_e) - \Delta_{\text{act}}(\mathbf{x}_i))) \},\label{equ:routing_loss}\\
+    &\text{s.t.}\; \mathbf{x}_e \in \mathcal{D}_{\text{edit}}, \mathbf{x}_i \in \mathcal{D}_{\text{irr}}.\nonumber
+\end{align}
+\end{small}
+Equation~\ref{equ:routing_loss} aims that for all queries of irrelevant examples $\mathbf{x}_i$, the activation indicators should be less than threshold $\alpha$, and for the edit samples $\mathbf{x}_e$, the activations should be larger than threshold $\beta$, with a certain distance $\gamma$ between $\Delta_{\text{act}}(\mathbf{x}_e)$ and $\Delta_{\text{act}}(\mathbf{x}_i)$.
+
+In the continual stream of incoming edits, the smallest activation indicator within the edits is updated and saved:
+$\epsilon = \min \{\Delta_{\text{act}}(\mathbf{x}_e)| \mathbf{x}_e \in \mathcal{D}_{\text{edit}}\}$.
+We aim to recognize the local scope of edits in this form.
+During inference, if the activation indicator of a new input is greater than $\epsilon$, WISE will use the side memory $\mathbf{W}_{v'}$; otherwise, using the main memory $\mathbf{W}_{v}$. 
+Thus, given the query $\mathbf{x}$, the output of the targeted FFN in Equation~\ref{equ:ffn_function} is replaced by:
+\begin{equation}\label{equ:ffn_out}
+    \text{FFN}_\text{out}(\mathbf{x}) = \begin{cases}
+    \mathcal{A}(\mathbf{x}) \cdot \mathbf{W}_{v'} &\mbox{if $\Vert \mathcal{A}(\mathbf{x}) \cdot (\mathbf{W}_{v'} - \mathbf{W}_v) \Vert_2 > \epsilon$,}\\
+    \mathcal{A}(\mathbf{x}) \cdot \mathbf{W}_{v} &\mbox{otherwise.}
+    \end{cases}
+\end{equation}
+
+\subsubsection{Knowledge Sharding and Merging} \label{subsec:knowledge_merging}
+
+How to effectively and efficiently store continual knowledge in model parameters is important for lifelong editing.
+We introduce the notion of ``\textit{knowledge density}'' (similar to knowledge capacity~\cite{knowledge_capacity}) that describes how many pieces of knowledge are stored per parameter on average. There is an editing dilemma w.r.t. knowledge density: 
+i) If only a few edits are made for full fine-tuning or editing the entire memory, the knowledge density is low, which may lead to overfitting.
+ii) If numerous edits are made within a common and limited parameter space, the knowledge density is high, resulting in conflicts within the edited knowledge and potentially causing catastrophic forgetting.
+To remedy this dilemma, we propose a knowledge sharding and merging mechanism to divide the edits into several shards, store them in different parameter subspaces, and merge them into a common side memory. 
+
+\paragraph{Knowledge in random memory subspaces.} 
+We edit the side memory $\mathbf{W}_{v'}$. 
+We divide $n$ edits into $k$ shards, copy the side memory for $k$ times, and generate $k$ random gradient mask with mask ratio $\rho$ for each copy of side memory.
+A random gradient mask $\mathbf{M}_i \in \{0, 1\}^{|\mathbf{W}_{v'}|}, i \in [k]$ is a binary mask whose proportion of $1$ is $\rho$~\cite{tna}. For edit shard $i, i \in [k]$, we edit the knowledge into the subspace $\mathbf{M}_i$ as follows:
+\begin{equation} \label{equ:subspace_update}
+    \mathbf{W}_{v'}^{i} \leftarrow \mathbf{W}_{v'}^{i}-\eta(\mathbf{M}_i\odot\mathbf{g}_i(\mathbf{W}_{v'}^{i})),
+\end{equation}
+where $\mathbf{W}_{v'}^{i}$ is the $i$-th copy of the side memory, $\eta$ is the learning rate, $\mathbf{g}_i(\cdot)$ is the gradient of the $i$-th shard of edits, and the gradient is the autoregressive loss plus the routing activation loss $L_a$(Equation \ref{equ:routing_loss}): $L_{\text{edit}} = -\log P_{W_{v'}}(\mathbf{y}_e | \mathbf{x}_e) + L_a$.
+% \looseness=-1
+
+The random mask of gradients freezes the parameters intact when the elements are 0 and updates the weights when the elements are 1. 
+It is superior to pruning because it does not harm the network performance while regularizing optimization in a subspace~\cite{tna}.
+In addition, the $\rho$ subspace will have higher knowledge density when $k\cdot\rho < 1$, resulting in higher generalization (e.g., Figure~\ref{fig:rho_k_analysis}). Also, different shards of edits have different random masks, and due to the (sub)orthogonality of random masks, different shards will not conflict with each other. Therefore, we can non-destructively merge the $k$ copies of side memory into one.
+
+% TODO: 这里加个random mask的重叠概率的lemma
+\paragraph{Knowledge merging.} 
+We merge the $k$ subspace pieces of side memory into one. Because we randomly generate the subspace masks, different random masks will have some overlapping elements and some disjoint elements, following the theorem below: 
+
+\begin{theorem}\label{theorem:subspace_overlap}
+    \textbf{Subspace Overlap.} 
+    Generate $k$ memory subspaces $\mathbf{W}_{v'}^{i}, i \in [k]$ by random mask with 1's ratio $\rho$, so each memory has $\rho\cdot|\mathbf{W}_{v'}|$ active trained parameters. For any two subspaces $\mathbf{W}_{v'}^{i}$ and $\mathbf{W}_{v'}^{j}$ $i\neq j ;i,j \in [k]$, there are $\rho^2\cdot|\mathbf{W}_{v'}|$ active parameters that are overlapped. For all $k$ subspaces, there are $\rho^k\cdot|\mathbf{W}_{v'}|$ overlapped active parameters.
+\end{theorem}
+The theorem shows that larger $\rho$ will cause more overlap of subspace parameters, and the proof is in Appendix \ref{app_sec:proof}.
+We find that this overlap is helpful in playing the role of ``anchors'' for knowledge merging (See Figure~\ref{fig:rho_k_analysis} and Appendix \ref{app_subsec:knowledge_anchor}).
+However, knowledge conflicts also exist in the overlapped parameters, so we leverage the recent task arithmetic model merging technique Ties-Merge~\cite{ties_merge} to relieve the conflicts. 
+First, we compute the edit weight shift vectors $\mathrm{T}_e =\{ \tau_{e}^{i} = \mathbf{W}_{v'}^{i} - \mathbf{W}_v| i \in [k]\}$. 
+Then, we use Ties-Merge to merge the edit vectors into one:
+\begin{equation}\label{equ:ties_update}
+    \mathbf{W}_{v'} \leftarrow \mathbf{W}_{v} +\text{Ties}(\mathrm{T}_e;\mathbf{W}_{v}).
+\end{equation}
+Ties-Merge consists of three steps: i) trim: trim the redundant parameters for each task vector; ii) elect the sign: elect the signs of each parameter; ii) disjoint merge: compute the disjoint mean for each parameter which has the same and correct signs~\cite{ties_merge}. 
+By Ties-Merge, different subspaces of knowledge are integrated into one with fewer conflicts. 
+We study the effects of different merging techniques in Table~\ref{tab:knowledge-merging-strategy} of Appendix \ref{app_sec:varying_merge}.
+
+\paragraph{Routing and retrieving among several side memories.} One single side memory has its limited knowledge capacity~\cite{knowledge_capacity}. For the lifelong editing stream, we can produce several side memories and retrieve them via activation score routing. We compute different activation indicator scores of side memories and retrieve the top-1 during inference. This design is named WISE-Retrieve, which enables a more challenging lifelong editing scenario.
+For WISE with only one side memory, it is notated as WISE-Merge. 
+For most of the experiments, we use WISE-Merge by default, and we compare WISE-Retrieve in Table~\ref{tab:zsre_scaling2_3K} and Figure~\ref{fig:inference_time}.
+
+The pseudo-code of our method can be found in Algorithms~\ref{alg:wise_editing} and \ref{alg:wise_inference}.

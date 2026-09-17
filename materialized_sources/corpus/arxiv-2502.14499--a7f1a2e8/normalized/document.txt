@@ -1,0 +1,1440 @@
+=1
+ fairmeta 
+
+ natbib 
+ hyperref 
+ todonotes 
+ colortbl 
+ nicematrix 
+
+ amssymb 
+ amsmath 
+ adjustbox 
+ soul 
+ enumitem 
+ booktabs 
+ color 
+ xcolor 
+ bbding 
+ listings 
+ multicol 
+ xspace 
+ lmodern 
+ tablefootnote 
+
+ 
+ 
+ Section 
+ Section 
+ Section 
+ Appendix 
+ 
+ 
+
+ 
+ basicstyle= , 
+ breaklines=true,
+ frame=single,
+ captionpos=t, 
+ showstringspaces=false,
+ numbers=none, 
+ 
+
+ : A New Framework and Benchmark for Advancing AI Research Agents 
+
+ Deepak Nathani 
+ Lovish Madaan 
+ Nicholas Roberts 
+ Nikolay Bashlykov 
+ Ajay Menon 
+ Vincent Moens 
+ Amar Budhiraja 
+ Despoina Magka 
+ Vladislav Vorotilov 
+ Gaurav Chaurasia 
+ Dieuwke Hupkes 
+ Ricardo Silveira Cabral 
+ Tatiana Shavrina 
+ Jakob Foerster 
+ Yoram Bachrach 
+ William Yang Wang 
+ Roberta Raileanu 
+
+ University of California, Santa Barbara 
+ University College London 
+ University of Wisconsin--Madison 
+ University of Oxford 
+ PyTorch Core Libraries at Meta 
+ FAIR at Meta 
+ GenAI at Meta 
+
+ Work done during internship at Meta 
+
+ 
+We introduce Meta and -Bench, a new framework and benchmark for evaluating and developing LLM agents on AI research tasks. This is the first Gym environment for machine learning (ML) tasks, enabling research on reinforcement learning (RL) algorithms for training such agents. -bench consists of 13 diverse and open-ended AI research tasks from diverse domains such as computer vision, natural language processing, reinforcement learning, and game theory. Solving these tasks requires real-world AI research skills such as generating new ideas and hypotheses, creating and processing data, implementing ML methods, training models, running experiments, analyzing the results, and iterating through this process to improve on a given task. We evaluate a number of frontier large language models (LLMs) on our benchmarks such as Claude-3.5-Sonnet, Llama-3.1 405B, GPT-4o, o1-preview, and Gemini-1.5 Pro. Our framework makes it easy to add new tasks, integrate and evaluate models or agents, generate synthetic data at scale, as well as develop new learning algorithms for training agents on AI research tasks. We find that current frontier models can improve on the given baselines, usually by finding better hyperparameters, but do not generate novel hypotheses, algorithms, architectures, or substantial improvements. We open-source our framework and benchmark to facilitate future research in advancing the AI research capabilities of LLM agents.
+
+ 
+
+ 
+ Deepak Nathani at dnathani@ucsb.edu , Roberta Raileanu at raileanu@meta.com 
+
+ https://github.com/facebookresearch/MLGym 
+
+ section #2#1#3 
+ subsection #2#1#3 
+ subsubsection #2#1#3 
+
+ [1] #1 
+
+ [1] #1 -0.1em 0.75em 1em 
+ [1] #1 -0.1em 0.75em 1em 
+ green 
+ red 
+ [2] #1 #2 
+ [2] #1 #2 
+ pastelgreen RGB 102,204,102 
+ pastelred RGB 255,77,77 
+
+ [1] [l] pastelgreen #1 
+ [1] [l] pastelred #1 
+
+ [1] magenta white Deepak magenta :#1 
+ [1] red white Roberta red :#1 
+ [1] blue white Tatiana blue :#1 
+ [1] orange white Ajay orange :#1 
+ [1] purple white 
+ Yoram purple :#1 
+ [1] green white Jakob green :#1 
+ [1] teal white Lovish teal :#1 
+ [1] violet white Nikolay violet :#1 
+ [1] Emerald white Nick Emerald :#1 
+ [1] Emerald white Despoina Emerald :#1 
+ lmr MLGym 
+
+ document 
+
+ 
+
+## Introduction
+
+ sec:intro 
+
+Accelerating scientific discovery has been a long-standing ambition in artificial intelligence (AI) research, with early initiatives like the Oak Ridge Applied Artificial Intelligence Project in 1979 exploring~ team1985artifical, emrich1988potential, johnson1994oak . More recent explorations enabled by advances in foundation models~ achiam2023gpt, anthropic2024claude, team2024gemini, dubey2024llama provide a proof-of-concept of a fully automated pipeline for end-to-end paper generation~ luAIScientistFully2024 . In the future, we envision AI Research Agents capable of independently conducting literature search, generating scientific hypotheses, designing experiments, implementing new methods, analyzing results, disseminating findings by writing scientific papers, and applying this research in products, thus assisting with all parts of the research process. Such agents should be capable of both working fully autonomously, or be guided by human supervision, taking into account feedback from users. 
+
+This vision stems from the recognition that AI, with its capacity to process vast datasets and discern complex patterns, could accelerate scientific breakthroughs in areas such as drug discovery and materials science by identifying promising drug candidates or predicting the properties of novel materials~ hessler2018artificial,schneider2020rethinking,guo2021artificial . Unlike traditional methods, AI agents can reveal hidden interdisciplinary relationships by analyzing vast knowledge graphs, leading to novel insights and solutions for complex challenges like climate modeling. By automating laborious tasks and exploring unconventional avenues, AI agents can liberate scientists to focus on higher-level cognitive activities, ultimately driving innovation and expanding the frontiers of knowledge. Machine learning (ML) research, with its emphasis on empirical validation and systematic experimentation in simulation, presents an ideal testbed for exploring and improving the utlity of LLMs for advancing scientific research. 
+
+ figure* [!t]
+ 
+ assets/mlgym_paper_diagram.pdf 
+ Diagram of , a unified framework designed to integrate diverse and open-ended AI research tasks into a single platform for developing and evaluating LLM agents on these tasks. 
+ fig:mlgym_diagram 
+ figure* 
+
+However, the scientific method inherently relies on empirical validation, rigorous evaluation, and standardized benchmarks to ensure the reliability and reproducibility of findings. While significant progress has been made in developing AI agents for various domains~ yangSWEagentAgentComputerInterfaces2024,wu2024copilot,ma2024sciagenttoolaugmentedlanguagemodels,deng2023mind2webgeneralistagentweb,wang2023voyager , we currently lack comprehensive frameworks and benchmarks specifically designed to assess their capabilities in conducting open-ended AI research tasks in diverse domains. This absence of standardized evaluation tools hinders our ability to objectively measure progress and identify areas for improvement in this emerging field. 
+
+Recently, a number of papers have started to evaluate LLM agents on various SWE and ML tasks; notable examples include SWE-Bench jimenez2023swe , SWE-agent~ yangSWEagentAgentComputerInterfaces2024 , ScienceAgentBench~ chenScienceAgentBenchRigorousAssessment2024 , SUPER~ boginSUPEREvaluatingAgents2024 , MLE-Bench~ chanMLEbenchEvaluatingMachine2024 , MLAgentBench~ huangMLAgentBenchEvaluatingLanguage2024 , and RE-Bench~ rebench-metr .
+
+However, existing benchmarks for AI Research Agents either do not include open-ended research tasks, or only cover a narrow range of research domains. In addition, existing frameworks are not designed to enable research on different training algorithms for AI Research Agents such as reinforcement learning, curriculum learning, or open-ended learning. Finally, current frameworks do not allow flexible artifacts to be evaluated (e.g. different outputs of the agent's research such as a model, algorithm, or set of predictions). 
+
+In this paper, we introduce ---the first Gym~ brockman2016openaigym environment for AI Research Agents and a unified framework designed to integrate diverse and open-ended AI research tasks into a single platform for developing and evaluating LLM agents on such tasks (see fig:mlgym_diagram for a diagram of ). Being a Gym environment, our framework enables research on different training algorithms for AI Research Agents such as reinforcement learning (RL), curriculum learning, and open-ended learning. 
+
+We also release -Bench, a curated set of 13 
+open-ended research tasks, covering a wide range of domains such as computer vision, natural language processing, reinforcement learning, and game theory, carefully crafted to evaluate the performance of agents in realistic, multifaceted workflows. 
+
+ and -Bench expand the range of problems considered by current LLM agent frameworks and benchmarks, by offering the ability to flexibly evaluate performance on open-ended research tasks. For example, performance can be measured based on various artefacts such as model weights, RL training algorithms, or code representing game theory strategies.
+
+We compare five frontier LLMs across the tasks in -Bench under consistent experimental settings, highlighting their strengths and limitations. 
+
+Finally, we propose a new evaluation metric for agents, adapted from the optimization~ dolanBenchmarkingOptimizationSoftware2002 and automated machine learning~ [] automldecathlon literature, to more fairly assess the relative performance of LLM agents across tasks with their own distinct performance metrics. 
+
+To summarize our contributions, we (i) introduce , the first Gym environment for evaluating and developing AI Research Agents, (ii) release -Bench, a suite of diverse open-ended AI research tasks for evaluating LLM agents, (iii) propose a new evaluation metric for comparing multiple agents on a variety of tasks, and (iv) extensively evaluate frontier LLMs on -Bench. Finally, makes it easy for researchers and developers to integrate and evaluate new tasks, agents, or models. 
+
+In the rest of the paper, we discuss related LLM agent frameworks and benchmarks, provide an overview of the framework, introduce the mechanics behind -Bench and its evaluation, present our experimental setup and results, and conclude with a discussion of limitations and future extensions.
+
+## Capability Levels for AI Research Agents
+
+We propose a hierarchical framework to categorize the capabilities of LLM agents for accelerating AI research.
+
+This framework consists of six levels, each representing a distinct degree of autonomy and scientific contribution.
+
+Level 0: Reproduction
+At this level, LLM agents can reproduce existing research papers either with or without access to the original code.
+
+This level demonstrates a basic understanding of the research domain and the ability to replicate established results.
+
+Level 1: Baseline Improvement
+At Level 1, LLM agents can improve performance on a benchmark given a baseline code that is not state-of-the-art (SOTA).
+
+This level indicates the ability to analyze and optimize existing solutions, even if they are not the most advanced.
+
+Level 2: SOTA Achievement
+At Level 2, LLM agents can achieve SOTA performance on a benchmark given only a task description and access to the published literature before the invention of the SOTA approach, but no access to the SOTA paper or code. 
+
+This level demonstrates the ability to come up with a solution to an open research problem which is as good as the one found by humans.
+
+Level 3: Novel Scientific Contribution
+At Level 3, LLM agents can make a novel scientific contribution, such as coming up with a new method that establishes a new SOTA on multiple benchmarks, and is worthy of publication at a top ML conference such as NeurIPS. 
+
+Level 4: Groundbreaking Scientific Contribution
+At Level 4, LLM agents can identify key research questions, directions, solutions, and make a notable scientific contribution worthy of being published as an oral or best paper award at a prestigious ML conference such as NeurIPS.
+
+Level 5: Long-Term Research Agenda
+At Level 5, LLM agents can pursue a long-term research agenda, coming up with the research questions, directions, and solutions, continuously producing scientific discoveries over the span of weeks, months, or years. LLMs at this level should be capable of paradigm-shifting research breakthroughs worthy of prizes such as Nobel or Turing.
+
+By defining these capability levels, we provide a framework for evaluating frontier AI Research Agents. 
+
+ -Bench focuses on Level 1: Baseline Improvement of the categorisation defined above.
+
+## Related Work
+
+ sec:related 
+
+## AI Research Frameworks and Benchmarks
+
+ tab:mlgym_novelty_table_tex shows a comparison between and -Bench with other related LLM agent frameworks and benchmarks. Below, we expand on the differences between and these works. 
+
+ table* [!h]
+ 
+ adjustbox width= 
+ NiceTabular lcccccc 
+ 
+ Benchmark & Gym Interface & Algorithmic Tasks & Open-Ended Research & Flexible Artifacts & Agentic Harness \\
+ 
+ (ours) & & & & & \\
+ MLE-Bench & & & & & \\
+ SWE-Bench/Agent & & & & & \\
+ MLAgentBench & & & & & \\
+ RE-Bench & & & & & \\
+ ScienceAgentBench & & & & & \\
+ 
+ NiceTabular 
+ adjustbox 
+ Comparison of and -Bench with other related LLM agent frameworks and benchmarks. Algorithmic Tasks refers to the inclusion of tasks that require coming up with new algorithms such as reinforcement learning, game theory or SAT problems. Open-ended Research refers to the inclusion of tasks that are not fully solved by the research community and where multiple new solutions could be discovered such as language modeling, game theory or SAT problems. Flexible Artifacts refers to the allowance of different research artifacts such as model weights, reinforcement learning algorithms, or code capturing an agent's strategy. 
+ tab:mlgym_novelty_table_tex 
+ table* 
+
+ 
+
+First, is the first framework for AI Research Agents that provides a Gym interface, making it easy to integrate and train these agents using RL algoritms. -Bench is also the first benchmark to include tasks that require research on algorithms in multiple domains such as RL, game theory, or SAT. 
+
+Second, -Bench encompasses a wide range of open-ended AI research tasks, covering supervised learning, language modeling, reinforcement learning, game theory and SAT. 
+In contrast, SWE-Bench/SWE-Agent~ yangSWEagentAgentComputerInterfaces2024 focuses on solving Github issues so the code changes either fix the code or not (as opposed to optmization tasks with finer-grained metrics, such as a loss metric in a supervised learning problem).
+
+Similarly, MLE-Bench~ chanMLEbenchEvaluatingMachine2024 includes narrowly scoped machine learning tasks from Kaggle competitions.
+
+While these tasks have a spectrum of quality levels, they tend to be already solved by current state-of-the-art methods. 
+On the other hand, MLAgentBench~ huangMLAgentBenchEvaluatingLanguage2024 contains both ML-specialized tasks (regression, classification, code speed improvements) and tasks focused on recent research challenges (e.g. CLRS reasoning corpus~ velivckovic2022clrs , BabyLM challenge~ oba2023babylm ).
+RE-bench~ rebench-metr also consists of broadly scoped ML engineering tasks which are hard to saturate and reward increasingly sophisticated approaches.
+ScienceAgentBench~ chenScienceAgentBenchRigorousAssessment2024 incorporates data-driven scientific discovery tasks extracted from peer-reviewed publications, but which are so specific that they resemble Kaggle competition rather than open research questions. 
+
+Third, allows for flexible evaluation artifacts: it is sufficient to provide python code that the agent can call to examine the quality of its current solution, such as a model checkpoint or an RL algorithm.
+In contrast, MLE-Bench requires a CSV file to be submitted for grading each question and SWE-Bench/Agent require evaluating a piece of code through a collection of unit tests. MLAgentBench, RE-Bench and ScienceAgentBench provide Python scripts to compute the evaluation scores.
+
+Finally, enables easy evaluation of both models and agents. To facilitate model evaluation, provides a default agentic harness that can be used out-of-the-box to evaluate any base model.
+
+## LLM Agents
+
+Research on tool-augmented LLMs~ schick2023toolformerlanguagemodelsteach has inspired a new research agenda of “agentic” LLMs~ kaddour2023challenges, wangSurveyLargeLanguage2024 , where LLMs interact with an external environment. Existing work explores teaching LLMs to use tools or APIs schick2023toolformerlanguagemodelsteach, qin2023toolllmfacilitatinglargelanguage , navigate the web~ nakano2022webgptbrowserassistedquestionansweringhuman, deng2023mind2webgeneralistagentweb, zhou2023webarena , interface with operating systems~ wu2024copilot , play games~ paglieri2024balrog,wang2023voyager , or interact with other simulated~ wang2024userbehaviorsimulationlarge, lin2023agentsimsopensourcesandboxlarge or physical worlds~ zhang2024buildingcooperativeembodiedagents . Evaluating agentic LLMs typically involves designing controlled environments, providing suitable tools, defining tasks and goals, and establishing quantitative metrics to measure the system’s performance.
+
+Building on these directions,~ yoranAssistantBenchCanWeb2024 introduce AssistantBench, emphasizing the complexity of open-web navigation and showcasing how current systems struggle with realistic, time-consuming tasks such as monitoring real-estate markets or identifying nearby businesses. Meanwhile,~ kapoor2024aiagentsmatter highlight the importance of standardized evaluation protocols that consider both accuracy and cost, warning against overfitting and advocating for more reproducible benchmarks. Extending these concerns to multi-dimensional environments,~ liuAgentBenchEvaluatingLLMs2023 propose AgentBench—a suite of eight interactive settings that test agents’ capacity for reasoning, decision-making, and long-term instruction following. Similarly,~ mialonGAIABenchmarkGeneral2023 focus on holistic planning skills through GAIA, a benchmark designed to assess performance on real-world questions requiring robust tool-use and multimodal reasoning, revealing substantial gaps between human-level proficiency and current LLMs. Finally,~ trivediAppWorldControllableWorld2024 emphasize the necessity of sophisticated tool integration with AppWorld, an interactive environment where agents must operate diverse applications via APIs and generate complex code in an iterative fashion. Collectively, these works underscore not only the breadth of agentic LLM capabilities but also the pressing need for systematic, multifaceted benchmarks that capture complex tasks with verifiable results and foster reproducible progress in the field. However, none of these works focuses on evaluating or developing LLM agents for open-ended AI research tasks.
+
+## Agents for Software Engineering and Data Science
+
+In line with the principle of reproducibility and verifiability, software engineering tasks provide a testbed for LLM agents, where tasks can be tightly scoped and outcomes rigorously measured. Recent work has explored how agents can tackle code-level challenges in controlled settings that permit systematic evaluation. As discussed above,~ yangSWEagentAgentComputerInterfaces2024 introduce SWE-agent, which operates within a constrained agent-computer interface to facilitate file creation, repository navigation, and code testing—thereby enhancing both traceability and reproducibility on benchmarks such as SWE-bench and HumanEvalFix. Similarly,~ wangOpenDevinOpenPlatform2024 describe OpenHands, a platform that restricts agent interactions to sandboxed environments for safer command execution and verifiable web browsing, and in doing so provides a standardized foundation for benchmarking. Magentic-One ~ fourney2024magenticonegeneralistmultiagentsolving is another agentic system competent in software engineering but also augmented with web navigation capabilities, as demonstrated by its strong performance on the GAIA, AssistantBench and WebArena zhou2023webarena agentic benchmarks. On the other hand, ~ zhang2024autocoderover achieve competitive perforemance on SWE-bench with AutoCodeRover, which, unlike the agentic approaches, solves Github issues by combining LLM-based programming with program representation as an abstract syntax tree.
+
+Towards the goal of automating data science work, li2024autokagglemultiagentframeworkautonomous introduce AutoKaggle, a multi-agent human-assisting system, and grosnit2024largelanguagemodelsorchestrating present AgentK v1.0, an end-to-end autonomous data science agent; both of these systems perform well on Kaggle competition data. Still within the realm of data science work, lei2024spider20evaluatinglanguage build Spider 2.0, a challenging benchmark and code agent framework for automating text-to-SQL workflows. Going one step further, cao2024spider2vfarmultimodalagents introduce Spider 2-V, an autonomous multimodal agent coupled with a benchmark focusing on the automation of enterprise data science and engineering workflows.
+
+More search-oriented approaches include SWE-Search ~ antoniades2024swesearchenhancingsoftwareagents , a multi-agent framework that marries Monte Carlo Tree Search (MCTS) with iterative refinement, enabling agents to continuously evaluate and improve their approaches to repository-level tasks. In a similar vein, koh2024treesearchlanguagemodel explore tree search for LLM agents and show that equipping LLM agents with best-first search boosts performane for the WebArena and VisualWebArena koh2024visualwebarena agentic benchmarks. Also on augmenting LLM agents with search, yu2025exactteachingaiagents propose MCTS-based test-time search and self-learning techniques that yield better performance on VisualWebArena. Finally,~ xiaAgentlessDemystifyingLLMbased2024 demonstrate that even relatively simple approaches can excel when thoroughly monitored: an 'agentless' system follows a three-step process and outperforms more complex agent-based methods on SWE-bench Lite, underscoring the value of constrained, verifiable environments in driving reproducible gains for autonomous SWE agents.
+
+## Agents for Scientific Research
+
+Controlled SWE contexts build the foundation for more complex automation while maintaining a reproducible and verifiable approach. However, just the software foundations alone are not sufficient to address the remaining gaps towards the goal of science acceleration. Going from the limited environments and well-defined tasks with metrics towards a less-defined area of open-ended questions, there are substantial efforts needed to boost the capabilities of research agents. For instance, coming up with automatable criteria to gauge scientific novelty or constructing theories inheriting the automated findings from heterogeneous disciplines are examples of areas that could use more refinement and experimentation. 
+
+Nevertheless, the first steps on this path can be started now - in the field of ML research and data science - since these areas represent for us a scientific playground with tasks that are both well-defined and have formal criteria of verifiability (benchmarks and tests), falsifiability (ablation studies and tests for data leakage, memorization, out of domain generalization, etc) and reproducibility.
+
+ Data Science 
+
+Many recent works approach both classic data science tasks and real-life repository-based tasks as a testbed for agents with a known test set and metrics.
+While based on similar grounds, the works differ in the resulting levels of autonomy of the agents. For instance, ML-Bench tangMLBenchEvaluatingLarge2024 focuses on explicit tasks within existing GitHub repositories — evaluating agents in code-centric setups without delving into open-ended objectives. By contrast, Data Interpreter hongDataInterpreterLLM2024 extends agent testing to broader data science problems, spanning coding tasks, mathematical reasoning, and a limited suite of open-ended applications (e.g., OCR, web search, and mini-game generation), thus reflecting a more flexible approach to autonomy. The agentic benchmark SUPER boginSUPEREvaluatingAgents2024 raises the bar by requiring the agent to formulate the task itself and iterate on NLP-related data and tasks within research repositories, thereby emphasizing self-directed problem-solving.
+
+ AI Research 
+
+The presence of models and simulations in machine learning itself inevitably leads to the fact that this area also becomes the object of automation.
+Having an agent formulating a task itself and approaching open-ended tasks naturally leads to automatic agentic enhancement of the machine learning methods themselves. AutoML~ eggensperger2019pitfalls,lindauer2020best,tornede2023automl and NAS~ elsken2019neural,nasir2024llmatic approaches have been previously paving the foundations of ML automation within environments with built-in restrictions (an explicit set of methods, definition of the search space and strategy), while the agentic approach can propose open-ended solutions without said specifications.
+
+For example, MLAgentBench~ huangMLAgentBenchEvaluatingLanguage2024 consists of an environment for agents to solve 13 complex tasks ranging from improving image classification to language modeling, with the current state-of-the-art LLMs achieving 0\% success rate for the most difficult of these tasks. The proposed pipelines for agents in the environment include designing and running experiments, analyzing the results, and iterating towards improving the defined metrics. Similarly, RE-Bench (Research Engineering Benchmark)~ rebench-metr is a set of 7 diverse and challenging ML tasks with the methodological addition of real human experts involvement and progress comparison: timed sessions for ML experts vs LLM agents. Authors state that the best agents achieve a score 4x higher than human experts when both are given a total time budget of 2 hours per environment. However, humans currently display better returns to increased time budgets, narrowly exceeding the top AI agent scores given an 8-hour budget, and achieving 2x the score of the top agent when both are given 32 total hours. MLE-bench~ chanMLEbenchEvaluatingMachine2024 focuses on Kaggle tasks as a source for agentic evaluations. Agents are evaluated across well-defined metrics, datasets, and real competition result distribution. The attempts are limited to 24 hours. However, in contrast with , all these works contain a more narrow set of domains that do not assess algorithmic reasoning capabilities. Moreover, some of them do not provide a standardized agentic harness to allow for model evaluation, but they vary both the harnesses (also known as scaffolds) and the LLMs when comparing performances. While our work focuses on creating an evaluation framework with objective and standardized evaluation metrics, other recent works focus on developing an agentic harness for the more subjective task of generating papers based on end-to-end experimental cycles luAIScientistFully2024 . 
+
+ Scientific Discovery 
+
+Several recent works have approached scientific automation with LLM agents targeting the process of scientific discovery. DiscoveryWorld~ jansenDISCOVERYWORLDVirtualEnvironment2024 is a benchmark for scientific agents being evaluated in a game-like virtual discovery environment. 120 tasks require an agent to form hypotheses, design and run experiments, analyze results, and act on conclusions -- for areas like proteomics, chemistry, archeology, physics, agriculture, rocket science, linguistics, or epidemiology. The custom simulation engine only supports a limited list of objects and 14 possible actions.
+A distinctive feature of the work is also that it focuses on general discovery skills rather than task-specific solution, and the assessment, space of objects and actions is common to all scientific domains.
+
+ScienceAgentBench chenScienceAgentBenchRigorousAssessment2024 , however, approaches differently the similar task of creating a discovery-based agentic benchmark: the tasks are based on 44 cherry-picked peer-reviewed publications that include data-driven discovery tasks with well-defined metrics.
+The scientific areas covered include bioinformatics, computational chemistry, geographical information science, and neuroscience yielding 102 tasks of various types, such as data processing, modeling or visualization. Each task is defined by Python-based evaluation environment, end result metrics and intermediate evaluation criteria. Special metrics control data contamination and agent shortcut issues. Comparing different baselines, including pure LLMs with prompting, authors state that execution feedback is necessary for agents to generate useful solutions.
+
+The idea of execution feedback and iterative improvement for research tasks has been proposed in ResearchAgent~ baekResearchAgentIterativeResearch2024 . Agentic concept-based approach with literature-based discovery shows great improvement for end-to-end iterative solution generation, also supported by knowledge-based vs random facts ablations. 
+The agent is evaluated solely with subjective human preference annotation and automatic human preference evals. While covering structured aspects of end-to-end experimental pipeline (problem clarity, feasibility, significance, relevance, originality, method generalizability, innovativeness, experiment reproducibility, validity, etc), relying solely on human judgment without supporting it with objective metrics is insufficient, as~ si2024llmsgeneratenovelresearch shows.
+
+## 
+
+An LLM agent can perform ML research/development by interacting with a shell environment through a sequence of commands.
+
+Given a task description, some starter code and access to its action and observation history, the LLM generates appropriate shell commands to accomplish research objectives like generating ideas, processing data, implementing new methods, training and evaluating models, analyzing the results, and reasoning about what experiments to run next.
+
+The agent is iteratively prompted to take actions based on the task description and execution feedback from previous commands, allowing it to develop and self-refine the solutions in-context.
+
+The framework provides a unified framework for evaluating and developing agents and models for AI research tasks. We take inspiration from long existing field of RL and build a Gym ~ brockman2016openaigym environment that can execute shell commands in a local docker machine shell. 
+ provides access to four core components: Agents, Environment, Datasets, and Tasks. 's modular design allows one to easily utilize and extend the library.
+For example, researchers can easily implement other agentic harnesses to improve performance, they can expand the environment by adding more tools for an agent, add more datasets within a given task (e.g., if the task is image classification they could add ImageNet in addition to Cifar-10), and they can even add more tasks to the benchmark. Below, we discuss each component in detail.
+
+## Agents
+
+ sec:agents 
+The Agent class provided by acts as a wrapper around a base LLM and provides functionality for integrating various base models, history processors, and cost management.
+
+Moreover, unlike other frameworks~ huangMLAgentBenchEvaluatingLanguage2024,yangSWEagentAgentComputerInterfaces2024 , separates the agent from the environment, allowing for easy integration of external agents.
+This also enables one to fairly compare different base models given the same agentic harness without the need of implementing their own agentic orchestration.
+
+The agent is expected to take the history of all prior observations and actions as input and return the next action to take. The provided action is then passed to the environment, which executes the command and returns the next observation based on the command output.
+
+The agent can execute any bash command in the environment. In addition, it has access to a set of tools (i.e., bash scripts such as editing a file) that it can use similarly to any other bash command.
+
+ provides an agent adapted from SWE-Agent~ yangSWEagentAgentComputerInterfaces2024 as a default agentic harness.
+We describe the design and configuration of the tools in~ sec:tools . The full system prompt used can be found in~ lst:system_prompt .
+
+## Environment
+
+ sec:environment 
+ environments are designed as Gymnasium (gym) environments towers2024gymnasiumstandardinterfacereinforcement .
+
+The environment component is responsible for initializing a shell environment in a local docker machine, with all the required tools, installing task-specific python dependencies, copying all the necessary data and code in a separate agent workspace and managing interactions between the LLM agent and the system.
+
+Moreover, to support open-ended research tasks and make the environment safe and flexible, environment also manages permissions for various files and directories.
+
+Specifically, when running in a docker container, due to various security concerns associated with using a root user, we create a non-root user named "agent" and set the appropriate permissions for the working directory.
+
+In this work, we make a conscious decision to decouple tools and ACI as defined in SWE-Agent yangSWEagentAgentComputerInterfaces2024 As of the latest release, SWE-Agent also decouples tools/ACI from the agent. .
+
+Note that this ensures that the agent and environment are not tightly coupled, allowing for easier implementation of other agentic architectures.
+
+Practically, this means that when the environment is initialized, it also initializes the tools in the working environment and a tool documentation is prepared which can be added to the LLM agent's prompt. More details about the tools are provided in sec:tools .
+
+## Datasets
+ 
+ sec:datasets 
+ provides a simple abstraction for defining datasets through configuration files.
+
+It supports both locally stored and Hugging Face datasets.
+
+We decouple the dataset definition from the task definition, so that a single dataset can be used in multiple tasks. Similarly, a single task can have more than one dataset so that the agent's code can be evaluated across all of them to demonstrate the generality of the implemented method.
+
+Moreover, if the dataset files are stored locally, the environment automatically copies the relevant files to the agent workspace with read-only permissions.
+
+This ensures that the agent cannot change the dataset files, which is important for reproducibility and cheating prevention.
+
+If the dataset is stored in Hugging Face, the agent is given the dataset URL through the starter code or in the prompt and asked to utilize it. 
+
+Note that if the LLM agent fails to follow instructions or uses a different dataset, the evaluation code will not work or result in performance issues.
+
+## Tasks
+
+ sec:tasks 
+We provide an easy abstraction to define any ML research task using configuration files.
+
+Each task can incorporate one or more datasets, custom evaluation scripts (with read-only access), task-specific conda environment, optional starter code, training timeouts, and memory management settings.
+
+This provides a flexible framework for defining diverse open-ended ML research tasks covering a wide range of difficulty. For example, one can define an easier version of a task by providing a baseline code and a harder version by providing no starter code or one with bugs, thus creating a natural curriculum.
+
+ Evaluation is a critical component for any ML task.
+
+Every task requires a different evaluation protocol; thus, Kaggle-style evaluation as done in MLE-Bench~ chanMLEbenchEvaluatingMachine2024 where the agent is expected to submit a CSV file is not feasible for every problem. 
+For example, in reinforcement learning settings, the evaluation artifact is a set of models trained on a set of pre-defined random seeds, which is then used to get a mean reward across a set of environment seeds. Similarly for Game Theoretic tasks, it can be a Python file with a strategy function which will be evaluated against a fixed set of strategy functions.
+
+Since we aim to evaluate the agent on open-ended and diverse tasks, it is not possible to convert all submissions to a CSV format.
+
+To ensure extensibility to such open-ended tasks, the task definition is expected to provide an evaluation script and submission artifact instructions.
+
+The LLM agent can then be prompted to follow the submission instructions and write the appropriate code.
+
+Moreover, the evaluation script is read-only for the LM agent, so while it can inspect the evaluation format, it cannot modify the script to change the evaluation logic.
+
+Existing works such as~ huangMLAgentBenchEvaluatingLanguage2024,rebench-metr,chenScienceAgentBenchRigorousAssessment2024 also use a script based evaluation approach, whereas MLE-Bench chanMLEbenchEvaluatingMachine2024 uses a Kaggle style evaluation.
+
+All our design decisions for the Agent, Environment, Dataset, and Tasks are meant to reduce overhead on the developers' and researchers' side and enhance reproducibility in this newly emerging area.
+
+## Tools and ACI
+
+ sec:tools 
+Augmenting LLM agents with the ability of using external tools is a critical component for making progress on knowledge-intensive tasks.
+
+In this work, we extend the ACI (agent-computer interface) first introduced in SWE-Agent yangSWEagentAgentComputerInterfaces2024 with some additional features required for an ML research agent. 
+
+Specifically, we extend the commands for search, navigation, file viewer, file editor and context management with our permission management system and introduce new commands for literature search and a memory module.
+For example, if the agent tries to open a file without read permission, the file viewer tool will generate textual feedback for the agent. Similarly, if agent tries to edit the evaluation script (which is marked as read-only), the edit tools will output a feedback string instead of failing silently.
+Literature search and the ability to maintain a experimental log in it's memory are crucial for the agent to surpass SOTA solutions on open-ended research tasks.
+
+Similar to SWE-Agent, tools are defined as bash or python scripts and are made available as bash commands in the environment.
+
+All tool documentation is provided to the agent in the system prompt. See tab:tools for a description of the available tools.
+
+ color1 HTML 4477AA 
+ color2 HTML EE6677 
+ sweAgentColor color1!50!white 
+ extendedColor color2!50!white 
+
+ table* [!h]
+ 
+ adjustbox width=1.0 
+ NiceTabular cccc 
+ 
+ 
+ 
+ 
+ 
+ Category & Tool & Arguments & Documentation \\
+ 
+ 
+ 
+ 4 c SWE-Agent Tools \\
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ Search & search\_dir & <search\_term> [<dir>] & searches for the search term in all files in dir \\
+ & search\_file & <search\_term> [<file>] & searches for the search term in the given file \\
+ & find\_file & <file\_name> [<dir>] & finds all the files with the given name in dir \\
+ 
+ File Viewer & open & <path> [<line\_number>] & opens the given file and goes to the line number \\
+ & goto & <line\_number> & moves the window to show the line number \\
+ & scroll\_down & & moves the window down 1000 lines \\
+ & scroll\_up & & moves the window up 1000 lines \\
+ 
+ File editing & create & <filename> & creates a new file \\
+ & insert & <line\_number <text\_to\_add> & inserts the given text at line number in the open file \\
+ & edit & <start\_line>:<end\_line <replacement\_text> & replaces the given lines with the given text in the open file \\
+ 
+ Evaluation & validate & & validates the current submission file and returns the metrics on the test set \\
+ & submit & & submits the current code and terminates the session \\
+ 
+ 
+ 
+ 
+ 
+ 
+ 4 c Extended Tools \\
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ Literature Search & literature\_search & <query> [<num\_results>] & query Semantic Scholar API for papers with attached PDFs \\
+ & parse\_pdf\_url & <url> & downloads and extracts the contents of a PDF given a URL \\
+ 
+ Memory Module & memory\_write & <content\_str> & save important results, configs or findings to memory \\
+ & memory\_read & <query\_str> & retrieve top-2 elements from memory most similar to a query \\
+ 
+ NiceTabular 
+ adjustbox 
+ List of tools available to agents. Required arguments are enclosed in <> and optional arguments are in [] . 
+ tab:tools 
+ table* 
+
+ 
+
+ Validation and Submit 
+We provide two commands to the agent to validate the submission and submit the results.
+
+Both the validate and submit commands are used to run the evaluation script and give the agent feedback on its current score on the test set.
+
+However, while the submit command is a terminal action, i.e., the agent's trajectory is terminated, and the evaluation script is executed to log the final scores, the validate command can be used as many times as needed during the run to get the current performance on the test set.
+
+Addition of a validation command helps the agent to continuously improve its performance on the test set.
+
+ Literature Search and PDF Parser 
+
+We provide the agent with two tools to find and extract knowledge from external sources. The Literature Search tool allows the agent to query the Semantic Scholar API to find research papers about a given query that have open-access PDFs available, and the PDF Parsing tool allows the agent to download PDFs and convert them into a text-based representation. The paper contents can be stored in the context window as well as the Memory Module for longer-term tasks. Combined, these two tools allow the agent to find and analyze research papers as part of its workflow. See~ tab:tools for more information about these tools and how they are called.
+ 
+
+ Memory Module - Research Logs 
+
+We introduce the Memory Module for , an important tool to improve the performance of agents on long-horizon AI research tasks. The Memory Module enables the agent to persistently store critical findings and successful training configurations using a structured memory system, overcoming the challenge of limited context retention in long tasks. During our experiments, we observed that when the agent has access to the memory module, it can retrieve the best training configuration from memory and continue to iterate on it (see ~ fig:memory_example_1 and fig:memory_example_2 ). Without the memory module, the agent's trajectory can become longer than the model's context length, thus not being able to retrieve the best configuration, effectively forgetting older experiments and only being able to locally iterate on recent configurations. 
+
+The module is equipped with two core functions: memory\_write and memory\_read . The memory\_write function allows the agent to store key insights and effective configurations by saving text data along with its corresponding embeddings and tags in JSON format. In contrast, the memory\_read method retrieves the top-k most relevant stored entries based on cosine similarity with a given query, allowing the agent to review past knowledge and iterate from previously successful configurations.
+
+Empirical results demonstrate the positive impact of the Memory Module on long-horizon tasks. Agents equipped with the Memory Module were able to sustain progress over extended sequences of trials, reusing optimal configurations and findings to achieve superior results compared to agents limited by fixed context windows. To further enhance its capabilities, we added the state of the memory to the system prompt (memory tags and number of records) so that the agent is aware of the type of data stored. Tags from a memory record are extracted by identifying the 3-gram most closely matching to the memory record.
+
+This module significantly reduces the limitations of constrained context length, allowing agents to operate effectively in long experimental settings. However, it is an early version and there are many ways to improve the module. For example, one possible direction would be to introduce a more structured memory format, such as hierarchical or relational models, allowing for precise storage and retrieval of information and enabling more complex reasoning over stored knowledge. Another is to incorporate memory operations directly into the model’s training or fine-tuning process to allow the agent to natively utilize stored knowledge for improved performance. Or using a sub-agent that will automatically manage the memory by selecting important insights, removing unnecessary entries, and updating the memory. Each of these directions would require extensive experimentation and rigorous testing to ensure robustness and scalability.
+
+For all the experiments presented in this paper, the agent only uses the SWE-Agent tools and validation command.
+
+## -Bench
+
+ sec:benchmark 
+
+The primary motivation behind our benchmark is to challenge models across different aspects of machine learning, including data handling, model architecture, and strategic decision-making.
+By incorporating tasks from data science, game theory, computer vision, natural language processing, and reinforcement learning, the benchmark aims to provide a varied and comprehensive agent evaluation testbed.
+
+The tasks included in the benchmark are carefully selected to represent real-world challenges, ensuring that models are tested on their ability to generalize and perform effectively across various scenarios.
+Each task is accompanied by standardized evaluation scripts and baseline implementations, providing a clear reference point for performance assessment and comparison.
+
+The benchmark suite is structured into four main categories, each focusing on a specific domain of machine learning: Data Science, Game Theory, Computer Vision, Natural Language Processing, and Reinforcement Learning.
+Below we describe each of the tasks in the benchmark.
+
+## Data Science
+
+ House Price Prediction ~ kaggle_house_prices In the House Price Prediction task, the goal is to predict housing prices using the Kaggle House Price dataset.
+This task evaluates models based on their ability to accurately predict prices from various features, using RMSE and R2 as performance metrics.
+
+The baseline for this task is a simple Ridge Regression model with minimal feature engineering.
+
+## 3-SAT
+
+ 3-SAT ~ cook1971complexity In the 3-SAT task, the LLM agent is given a DPLL code and is prompted to optimize the variable selection heuristic.
+
+The associated DPLL code is stored in a read-only file, and the agent can inspect it to structure its heuristic function code, however, it cannot modify it.
+
+A simple random selection heuristic is used as a baseline and starter code for the LLM agent.
+
+The performance is measured by the total wall-clock time taken to solve a set of 100 generated 3-SAT instances. The instances are genereted using the algorithm described in~ selsam2018satAlgorithm .
+
+## Game Theory
+
+We consider several tasks related to making strategic choices in iterated games, considering multiple well-known games.
+Specifically, we consider the task of producing code for a strategy for playing in a repeated two-player game.
+In each such task we provide an opponent strategy, in the form of an opponent bot for playing the game, and ask the agent to produce code for a strategy for best-responding to this opponent, i.e. provide code for a strategy that maximizes the score against that opponent.
+We very briefly review game theory terminology, with various textbooks covering this topic in more detail~ fudenberg1991game .
+
+In a two-player normal form game G , players select actions simultaneously, with the outcome determined by the choices of both players.
+Let A^1 = \ a^1_1, , a^1_k \ be the (pure) strategies available to player 1 and let A^2 = \ a^2_1, , a^2_m \ be the strategies available to player 2 .
+Denote the set of strategy profiles , consisting of a strategy choice for both players as A = A_1 A_2 .
+The utility of the players depends on the actions selected by both for them, i.e. the payoffs are u: A R ^n , where u(a) = (u_1(a), u_2(a)) for a A , and where each player i tries to maximize their individual utility u_i .
+A mixed strategy is a probability distribution over pure strategies.
+Given a mixed strategy profile = ( _1, _2) the expected utility of u_i of player i is 
+
+ u_i( _1, _2) = _ (a_1, a_2) A _1(a_1) _2(a_2) u_i(a_1, a_2) . 
+
+A repeated game consists of k rounds in which the players play the same underlying normal form game.
+The history at the j+1 'th round consists of the actions (pure strategies) chosen by both players in each of the rounds 1 to j .
+We denote by H the set of all possible such histories, so a strategy in a repeated game is a function a_i : H (A) , i.e. a function that takes the history of actions chosen in the previous round and provides a distribution over the actions the agents would take in the next round.
+In our tasks, a strategy in the repeated game is expressed as a piece of code that takes in the history (actions of both players in the previous rounds), and outputs an action for the next round (where the code may make some random choices, hence yielding a distribution over the selected next round actions).
+Given an opponent strategy a_2 , the goal of our agent is to produce a strategy that best responds to the opponent and produces a the maximal payoff, i.e _ a_1 u_1(a_1, a_2) .
+Note that in this equation a_2 is a given opponent strategy expressed as a piece of code that takes the history over the previous rounds and selects an action for the next round (possibly making some random choices), and that the goal of an agent is to produce a_1 as a piece of code capturing the strategy of the first player.
+The agent optimization goal is selecting the code a_1 so as to maximize player 1's expected payoff u_1 against the fixed opponent a_2 .
+
+We consider the repeated version of prominent games, which we briefly discuss here: iterated Prisoner's Dilemma~ flood1958some,fudenberg1991game,axelrod1980effective , Battle of the Sexes~ cooper1989communication,luce2012games and Colonel Blotto~ roberson2006colonel . As our goals was to highlight how our agent framework could be used to solve game theoretic tasks, rather than providing a rigorous evaluation and analysis of many game theoretic environments, we only included few games. However, additional games could easily be added in.
+
+ Prisonner's Dilemma ~ axelrod1980effective . In this game, two players each have two options: cooperate or defect. When both cooperate, they receive a moderate reward. If one defects while the other cooperates, the defector gets a high reward while the cooperator gets a low payoff. If both defect, they both receive a low payoff. Due to the structure of payoffs, although mutual cooperation yields the best collective outcome, individual incentives often push towards defection. We included a repeated game, consisting of k=20 rounds of the game. In the repeated version, players remember previous interactions and can adjust their strategies based on the history consisting of the past outcomes. Repeating the stage game multiple times allows for the development of trust and cooperation, as players recognize that consistent cooperation can lead to better long-term benefits than short-term defection~ axelrod1980effective . As our opponent strategy we provided a simple model which randomizes between cooperation, defection, or actions chosen based only on the last round of the interaction. 
+
+ Battle of Sexes ~ cooper1989communication . This is a simple game illustrating coordination challenges between two participants with different preferences. In the game, two participants have to agree on a venue (for instance where to go to spend an evening). There are two possible venues, and both players would rather make the same choice rather than making different choices. The strategic dilemma arises because as each player wants to coordinate their choice with the other, but they have a different ranking over the venues (one prefers the first venue and the other prefers the second venue). Similarly to the iterated Prisoner's Dilemma, we have used a repeated game with k=20 rounds and used a simple opponent that makes random choices using the information from the last round. 
+
+ Colonel Blotto Game ~ roberson2006colonel . This game is a model of strategic allocation of limited resources under competition. Two players (``Colonels'') must simultaneously distribute their resources (such as troops) over several alternative locations (``battlefields''). The player who allocates more resources to a battlefield wins that battlefield. The overall winner is the player who wins the most battlefields. The key challenge arises from the fact that players must make their allocations without knowing how their opponent will distribute their resources. This yields an environment where players try and anticipate their opponent's moves to decide how to best allocate their own resources in order to maximize their chances of winning. A key insight from the game is the importance of diversification and unpredictability: it is harder to exploit an opponent who spreads resources across multiple battlefields and varies their strategy. Our target opponent used a very simple random allocation rule (re-normalizing to the overall budget of resources).
+
+It is important to note that in all the game theoretic tasks, the agent is allowed to look at the opponent's strategy, and thus these tasks measure code understanding and the LLM's capabilities to exploit the opponent's strategy.
+In the future, we plan to add tasks where the opponent's strategy is not provided to the agent, and agent is pitted against multiple opponents in a round robin fashion, similar to the setup used in Axelrod's original Prisoner's Dilemma tournament. 
+
+ table [!h]
+ 
+ adjustbox width= 
+ NiceTabular llll 
+ 
+ Problem Setting & Domain & Task & Dataset/Environment \\
+ 
+ Supervised Learning & Data Science & Regression & House Price Prediction https://www.kaggle.com/datasets/yasserh/housing-prices-dataset \\
+ 
+ Supervised Learning & Computer Vision & Image Classification & CIFAR-10~ krizhevsky2009learning \\
+ Supervised Learning & Computer Vision & Image Classification & Fashion MNIST~ xiao2017/online \\
+ Supervised Learning & Computer Vision & Image Captioning & MS-COCO~ lin2014microsoft \\
+ 
+ Supervised Learning & Natural Language Processing & Natural Language Inference & MNLI~ williams2018multi \\
+ Self-Supervised Learning & Natural Language Processing & Language Modeling & FineWeb~ penedo2024finewebdatasetsdecantingweb \\
+ 
+ Reinforcement Learning & Reinforcement Learning & MetaMaze Navigation & Gymnax~ gymnax2022github \\
+ Reinforcement Learning & Reinforcement Learning & MountainCar Continuous & Gymnax~ gymnax2022github \\
+ Reinforcement Learning & Reinforcement Learning & Breakout MinAtar & Gymnax~ gymnax2022github 
+ \\
+ 
+ Algorithmic Reasoning & Computer Science & 3-SAT & Randomly Generated~ selsam2018satAlgorithm \\ 
+ 
+ Algorithmic Reasoning & Game Theory & Prisonner's Dilemma & N/A\\
+ Algorithmic Reasoning & Game Theory & Battle of Sexes & N/A \\
+ Algorithmic Reasoning & Game Theory & Colonel Blotto & N/A \\
+ 
+ NiceTabular 
+ adjustbox 
+ List of tasks included in -Bench along with their respective problem setting, domain, and datasets. 
+ tab:aup_scores 
+ table 
+
+## Computer Vision
+
+ Image Classification (CIFAR-10) ~ krizhevsky2009learning The Image Classification CIFAR-10 task involves classifying images into one of ten classes using the CIFAR-10 dataset.
+This task tests the ability of models to learn visual patterns and features, with a baseline accuracy of 49.71\% encouraging improvements 
+
+ Image Classification (Fashion MNIST) ~ xiao2017/online The Image Classification Fashion MNIST task involves classifying fashion items into predefined categories using the Fashion MNIST dataset. The agent is provided with a simple two layer CNN as a baseline and it has to optimize for the accuracy on the test set. The agent can optimize the model architecture and the hyper-parameters for the training.
+
+ Image captioning (MS-COCO) ~ lin2014microsoft For the image captioning task, the agent has to write the modeling code and come up with a good architecture and training setup for the image-text pairs in the MS-COCO dataset. We provide a baseline code for training to the agent which uses an image encoder and text decoder. We use the MS-COCO training and validation sets after removing all images containing humans. The agent has to optimize for the BLEU scores~ papineni2002bleu computed over the model-generated captions and ground truth captions for a given image.
+
+## Natural Language Processing
+
+For language, we test the agent's ability to understand and modify training setup for both Natural Language Understanding (NLU) and Natural Language Generation (NLG) as detailed below.
+
+ Natural Language Inference ~ williams2018multi In this task, the agent starts from a pre-trained BERT model devlin2018bert and we provide the baseline code to fine-tune on the training set of the MNLI benchmark to the agent. The agent is expected to come up with good hyper-parameters and fine-tuning strategy to optimize the test set accuracy on MNLI.
+
+ Language Modeling ~ modded_nanogpt_2024 In the Language Modeling task, the agent is expected to train a language model for next token prediction using a smaller version of the FineWeb penedo2024finewebdatasetsdecantingweb dataset.
+
+The LLM Agent is provided with the dataset and the NanoGPT modded_nanogpt_2024 codebase as a baseline and starting point. We use version \#8 from modded-nanogpt https://github.com/KellerJordan/modded-nanogpt as the starting point. The training and validation sets contain 1.773B and 100M tokens, respectively.
+
+The perfomance metric is the perplexity of the trained model on the validation set.
+
+## Reinforcement Learning
+
+ MetaMaze Navigation ~ miconi2020backpropaminetrainingselfmodifyingneural The MetaMaze Navigation task simulates a grid-world environment where agents must navigate using local observations and reach the goal location.
+
+ Mountain Car Continuous ~ brockman2016openaigym We use the continuous version of the Mountain Car environment introduced in~ brockman2016openaigym , where the task is to learn a policy that drives a car up a steep hill in a continuous control environment.
+
+ Breakout MinAtar ~ young2019minataratariinspiredtestbedthorough The Breakout MinAtar task involves playing the arcade game Breakout in a simulated environment.
+This environment was introduced in~ young2019minataratariinspiredtestbedthorough and is a popular benchmark for evaluating reinforcement learning agents.
+
+For all the RL tasks, we use the environments from the Gymnax library gymnax2022github and the PPO algorithm from Gymnax-blines https://github.com/RobertTLange/gymnax-blines as a baseline and starting code for the LLM agent.
+
+## Experimental Setup
+
+ sec:experiment_setup 
+
+## Agent and Models
+
+For our experiments, we utilize a SWE-Agent based model adapted specifically for the MLGYM environment.
+
+SWE-Agent follows a simple ReAct-style thought and action loop~ yao2023react , where the agent is prompted with the ACI documentation, the task and dataset description, as well as lightweight generic instructions to act as a ML researcher.
+
+The agent is configured to use a single command per step, and is not allowed to use any interactive session commands (e.g., python REPL, vim).
+
+We use a set of 5 state-of-the-art models for our experiments, OpenAI O1-preview, Gemini 1.5 Pro, Claude-3.5-sonnet-20241022 (refered to as Claude-3.5-sonnet in the paper), Llama-3-405b-instruct, and GPT-4o.
+
+All the models are used with temperature=0.0 and top-p=0.95 , with the exception for OpenAI O1-preview, which doesn't support changing the decoding parameters and has a default temperature=1.0 .
+
+## Environment Configuration
+
+The MLGYM environment is configured with several key parameters to facilitate effective interaction between the agent and the tasks:
+
+ itemize 
+ Window Configuration : The environment uses a window size of 1000 lines with an overlap of 2 lines, allowing the agent to effectively navigate and edit large files while maintaining context.
+
+ Context Management : A processor maintains a rolling window with the five most recent interactions (action and observation), helping the agent maintain context about the most recent interactions while keeping the input size manageable.
+
+ Command Interface : The environment provides a set of specialized commands beyond standard bash operations, including file navigation commands ( goto , scroll\_up , scroll\_down ), file editing commands ( edit , insert ) with linting support, file and directory search commands ( search\_file , search\_dir , find\_file ), and evaluation commands ( validate , submit ).
+ itemize 
+
+A single agent run is limited to 50 steps (i.e. interactions with the environment), after which the agent is terminated and the last codebase state is autosubmitted.
+
+Moreover, to control the runtime of the agent and prevent it from simply increasing the number of parameters in the model, we set a task specific timeout for the training commands.
+
+In the next section, we discuss the evaluation metrics used in our experiments.
+
+## Evaluation
+
+ sec:evaluation 
+
+In order to compare agents on , we aggregate the scores of each method---an agent architecture paired with a backbone model---across our tasks. 
+
+There are many ways one can aggregate scores. 
+
+Common options include computing the average score across tasks for each method or by computing the average ranking of each method across tasks. 
+
+While simple, these approaches can weight metrics in undesirable ways and disproportionately penalize certain methods. 
+
+Averaging across different metrics may unfairly weight the metrics differently based on their relative scales, and averaging ranks can disproportionately penalize methods that effectively solve a task but are tied with other methods that also solve the task. 
+
+Rather than naive averaging of scores or rankings, we employ performance profile curves~ dolanBenchmarkingOptimizationSoftware2002 , which allow us to compare relative performance gains across both methods and tasks. 
+
+Performance profiles were originally developed to compare optimization techniques across a set of optimization problems. 
+
+Since then, they have been used by the AutoML community to compare AutoML methods across diverse domains, each with their own domain-specific metrics~ nasbench360,autowsbench101 . 
+
+One challenge when using performance profiles is that they produce a curve for each method (where a higher curve is better), rather than a direct ranking of methods. 
+
+To address this, the AutoML Decathlon~ automldecathlon competition introduced the AUP score, which computes the area under the performance profile curve for each method, where a higher value constitutes better performance. 
+
+Variants of the AUP score have since been used to score the AutoML Cup https://2023.automl.cc/competitions/automl-cup/ and MLCommons AlgoPerf~ algoperf competitions. 
+
+Next, we define performance profiles, the AUP score, and the details of their usage within . 
+
+## Performance Profiles and the AUP Score
+
+For a given method m , its performance profile curve is defined as 
+ align 
+ _m( ) = 1 |T| | \ t T: _ 10 r_ t,m \ | 
+&& 
+r_ t,m = _ t,m \ _ t,m : m M\ 
+ align 
+where M is the set of all methods, P is the set of tasks,
+
+ _ t,m is the performance metric for a method m on task t , and r_ t,m is a quantity called the performance ratio. 
+
+Importantly, this definition assumes that the performance metric for each task, _ p, , must be defined such that lower scores are better---we discuss our modification to this definition to support other scores in~ sec:aup_in_mlgym . 
+
+Performance profiles are parameterized by a threshold, , on the distance between the method m and the best scoring methods on each of the tasks. 
+
+At a given threshold , performance profiles compute the proportion of tasks for which the method m is within of the best method for each task. 
+
+In order to derive a final score for each method m M , we compute the AUP score as
+ equation 
+ AUP _m = _ 1 ^ _ max _ m ( ) d ,
+ equation 
+where _ max is the minimum for which _ m ( ) = 1 for all m M . 
+
+## Usage in 
+
+ sec:aup_in_mlgym 
+
+In the context of , a method is defined as a combination of an agent scaffolding and a backbone model.
+
+Since, in this work we use a single agent scaffolding (SWE-Agent), we are comparing the performance of different backbone models.
+
+Moreover, we adapt performance profiles and AUP scores to handle various edge cases introduced by our tasks.
+
+ itemize 
+ Metric Direction Handling. For metrics where higher values are better (e.g., accuracy, R2), we invert the performance ratio calculation and use the maximum score instead of the minimum: 
+
+ equation 
+ r_ t,m = \ _ t,m : m M\ _ t,m .
+ equation 
+
+ Infeasible Method In order to be counted as a feasible method, an agent should produce at least one valid solution and beat the baseline, methods must outperform the baseline.
+ 
+ Methods that don't produce any valid solution or underperform are marked as Infeasible. 
+ The score of an infeasible method is set to (1 + ) r_ t, m_ baseline , where r_ t, m_ baseline is the score obtained by the baseline method on task t . 
+ 
+ We set the value of = 0.05 .
+ 
+ 
+ 
+ 
+ itemize 
+
+We report the metrics across 4 independent runs for each model on each task.
+
+Finally, since the LM agent can use the validate command to check the performance without ending the run, we maintain two separate sets of performance profiles and AUP scores for each model.
+ enumerate 
+ Best Submission Profiles, ^ bs _m( )@4 , are computed using the best final submission across 4 runs. A submission is classified as a final submission in two cases: if the agent uses the submit command, or if the agent terminates without submitting and the last codebase state is used to evaluate the performance.
+ Best Attempt Profiles, ^ ba _m( )@4 , which are computed using the best attempt observed across 4 runs. Any valid call to the validate command is considered an attempt.
+ enumerate 
+
+The resulting AUP scores provide complementary information:
+ itemize 
+ AUP ^ bs _m@4 indicates the model's ability to consistently submit its best attempt as the final solution. Note that to do this, the LM agent has to be able to keep an internal state of the best attempt and recover from any mistakes made after the best attempt was made.
+ AUP ^ ba _m@4 captures the model's exploration capability and is an indicator of the ceiling of the model's performance.
+ itemize 
+
+Apart from the AUP scores and performance profiles, we also report the raw performance scores for each model on each task.
+
+Similar to performance profiles, we categorize the raw scores in two sets: Best Submission@4 and Best Attempt@4.
+
+## Results
+
+## AUP Scores and Performance Profiles
+
+ sec:aup_pp_results 
+
+ figure* [!t]
+ 
+ assets/performance_profile.pdf 
+ Performance profiles comparing Best Attempt@4 and Best Submission@4 across all models and tasks. The x-axis shows the performance ratio threshold and the y-axis shows the fraction of tasks where a model achieves performance within of the best model. 
+ fig:pp_plots 
+ figure* 
+
+As detailed in the sec:evaluation , we evaluate the performance of each model in the SWE-Agent based agent scaffolding using Performance Profiles and Area Under the Performance Profile (AUP) score.
+
+Moreover, since our agent can log the performance of intermediate steps, we categorize the performance of each model using two categories: Best Submission and Best Attempt .
+
+Best Submission indicates the LLM agent's capability to produce a valid final solution for a task as well as the ability to remember to fall back to the best intermediate solution in case some experiments don't pan out.
+
+Whereas, Best Attempt indicates the potential ceiling of the LLM agent's capability to solve the given task. 
+
+ fig:pp_plots shows the performance profiles for Best Attempt (on the left) and Best Submission (on the right).
+
+Similarly, tab:aup_scores shows the AUP scores for the Best Attempt and Best Submission for all models.
+
+In our experiments, we found that OpenAI O1-preview is the best-performing model on aggregate across our set of tasks for both Best Attempt and Best Submission, with Gemini 1.5 Pro and Claude-3.5-Sonnet being close behind.
+
+ table* [!h]
+ 
+ NiceTabular lcc 
+ 
+ Model & Best Attempt AUP@4 & Best Submission AUP@4 \\
+ 
+ Llama3.1-405b-instruct & 1.015 & 1.039 \\
+ Claude-3.5-Sonnet & 1.142 & 1.135 \\
+ Gemini-1.5-Pro & 1.140 & 1.125 \\
+ GPT-4o & 1.000 & 1.029 \\
+ OpenAI O1 & blue!15 1.150 & blue!15 1.176 \\
+ 
+ NiceTabular 
+ AUP@4 scores for the best attempt and best submission across all models. Best scores are highlighted in blue!15 blue . 
+ tab:aup_scores 
+ table* 
+
+## Raw Performance Scores
+
+To compare the performance of each model on each task, we also report aggregate metrics over 4 runs with different seeds, namely the Best Attempt@4 and Best Submission@4 in tab:ba_raw and tab:bs_raw respectively. 
+
+While OpenAI O1-Preview is not dominant in all tasks, with Gemini-1.5-Pro, Claude-3.5-Sonnet, and Llama-3.1-405b-Instruct occasionally taking the lead, it is consistently in the top performing models for most tasks and thus takes the top spot in the AUP scores and performance profiles.
+
+This shows that the performance profile is a good metric to compare the performance of different models on a set of tasks with a diverse set of metrics.
+
+We also find that Llama-3.1-405b-Instruct and GPT-4o are the only models that fail to produce any valid solution for the Language Modeling and Breakout tasks, respectively.
+
+ table* [!h]
+ 
+ adjustbox width= 
+ NiceTabular llcccccc 
+ 
+ Task & Metric & Baseline & Llama3.1-405b-instruct & GPT-4o & Claude-3.5-Sonnet & Gemini-1.5-Pro & OpenAI o1 \\
+ 
+ CIFAR-10 & Accuracy & 0.497 & 0.548 & 0.733 & blue!15 0.895 & 0.84 & 0.857 \\
+ Battle of Sexes & Average Reward & 1.023 & 1.261 & 1.149 & 1.442 & 1.443 & blue!15 1.444 \\
+ Prisoners Dilemma & Average Reward & 2.372 & blue!15 2.632 & 2.6 & 2.567 & 2.63 & 2.629 \\
+ Blotto & Average Reward & -0.248 & 0.043 & 0.047 & blue!15 0.576 & 0.249 & 0.248 \\
+ House Price Prediction & R ^2 Score & 0.88 & 0.908 & 0.895 & 0.921 & 0.914 & blue!15 0.931 \\
+ Fashion MNIST & Accuracy & 0.783 & 0.876 & 0.927 & blue!15 0.945 & 0.916 & 0.92 \\
+ MS-COCO & BLEU Score & 0.279 & 0.294 & 0.176 & blue!15 0.298 & 0.131 & 0.135 \\
+ MNLI & Validation Accuracy & 0.525 & 0.777 & 0.819 & 0.830 & blue!15 0.838 & 0.836 \\
+ Language Modeling & Validation Loss & 4.673 & & 4.361 & 4.476 & 4.166 & blue!15 3.966 \\
+ Breakout & Average Score & 48.817 & 58.87 & & 35.017 & blue!15 71.389 & 63.518 \\
+ Mountain Car Continuous & Average Reward & 33.794 & 18.692 & -215.776 & 36.313 & 92.513 & blue!15 96.335 \\
+ Meta Maze & Average Return & 15.734 & 26.744 & 7.823 & blue!15 48.562 & 27.859 & 34.986 \\
+ 3-SAT Heuristic & Wall-Clock Time (s) & 16.158 & 13.793 & 13.676 & 15.728 & 14.36 & blue!15 13.652 \\
+ 
+ NiceTabular 
+ adjustbox 
+ Best Attempt@4 scores for all models. Best scores are highlighted in blue!15 blue . Note: indicates that the model was not able to produce even a single valid solution for submission or validation. 
+ tab:ba_raw 
+ table* 
+
+ table [!h]
+ 
+ adjustbox width= 
+ NiceTabular llcccccc 
+ 
+ Task & Metric & Baseline & Llama3.1-405b-instruct & GPT-4o & Claude-3.5-Sonnet & Gemini-1.5-Pro & OpenAI o1 \\
+ 
+ CIFAR-10 & Accuracy & 0.497 & 0.528 & 0.733 & blue!15 0.894 & 0.758 & 0.854 \\
+ Battle of Sexes & Average Reward & 1.023 & 1.256 & 1.144 & 1.439 & blue!15 1.443 & 1.439 \\
+ Prisoners Dilemma & Average Reward & 2.372 & 2.562 & 2.582 & 2.563 & blue!15 2.63 & 2.571 \\
+ Blotto & Average Reward & -0.248 & 0.041 & 0.047 & blue!15 0.228 & 0.088 & 0.247 \\
+ House Price Prediction & R ^2 Score & 0.88 & 0.908 & 0.895 & 0.912 & 0.908 & blue!15 0.931 \\
+ Fashion MNIST & Accuracy & 0.783 & 0.876 & 0.927 & blue!15 0.945 & 0.916 & 0.906 \\
+ MS-COCO & BLEU Score & 0.279 & blue!15 0.294 & 0.111 & 0.125 & 0.131 & 0.135 \\
+ MNLI & Validation Accuracy & 0.525 & 0.777 & 0.819 & 0.830 & blue!15 0.838 & 0.836 \\
+ Language Modeling & Validation Loss & 4.673 & & 4.361 & 4.476 & 4.166 & blue!15 3.966 \\
+ Breakout & Average Score & 48.817 & 58.87 & & 17.735 & blue!15 71.389 & 63.518 \\
+ Mountain Car Continuous & Average Reward & 33.794 & 18.692 & -216.621 & 36.313 & 92.513 & blue!15 96.335 \\
+ Meta Maze & Average Return & 15.734 & 26.744 & 7.823 & blue!15 48.562 & 22.889 & 34.986 \\
+ 3-SAT Heuristic & Wall-Clock Time (s) & 16.158 & 13.936 & 13.676 & 15.728 & 14.36 & blue!15 13.83 \\
+ 
+ NiceTabular 
+ adjustbox 
+ Best Submission@4 scores for all models. Best scores are highlighted in blue!15 blue . Note: indicates that the model was not able to produce even a single valid solution for submission or validation. 
+ tab:bs_raw 
+ table 
+
+## Computational Cost
+
+ sec:cost_analysis 
+
+ figure* [!h]
+ 
+ assets/aup_vs_cost.pdf 
+ Best Attempt AUP@4 vs cost for all models. The x-axis shows the API cost in USD and the y-axis shows the AUP@4 score. 
+ fig:pareto_curve 
+ figure* 
+
+As discussed in~ kapoor2024aiagentsmatter , it is important to also consider the pareto curve of performance vs cost for a more comprehensive evaluation of the agents' capabilities and their computational cost. 
+
+In this work, we do not compare different agent scaffoldings; however, the pareto curve can still be useful to choose the most balanced model for a set of tasks.
+
+ fig:pareto_curve shows the Best Attempt AUP@4 vs Average Cost for all models.
+
+We use Best Attempt AUP scores to for this plot to highlight the maximum performance achievable by each model for a given cost.
+
+According to results discussed in sec:aup_pp_results , OpenAI O1-Preview is the best-performing model, however, it is also the most computationally expensive by a wide margin.
+
+In contrast, Gemini-1.5-Pro and Claude-3.5-Sonnet are much more cost-effective while still reaching high performance not too far from OpenAI O1's, with Gemini-1.5-Pro being the most cost-effective.
+
+Gemini-1.5-Pro is cheaper than both GPT-4o and Llama-3.1-405b-Instruct and provides massive performance gains relative to them.
+
+GPT-4o is one of the cheapest models to run but performs significantly worse than the top models, Claude-3.5-Sonnet, Gemini-1.5-Pro, or OpenAI O1-Preview.
+
+Overall, Gemini-1.5-Pro strikes the best balance between performance and cost on -Bench, being the cheapest model to run (approximately 9 cheaper than OpenAI's O1) while achieving 99\% of OpenAI O1's AUP (which is the top performing model).
+
+The API pricing for OpenAI O1-preview, GPT-4o, Claude-3.5-Sonnet, and Gemini-1.5-Pro was taken from their respective price pages and for Llama-3.1-405b-instruct was taken from together.ai. For details on API pricing, tokens spent, and context length please consult~ tab:model_details 
+
+## Agent Behavior Analysis
+
+ sec:agent_behavior_analysis 
+
+## Failure Mode Analysis
+
+ sec:failure_analysis 
+
+In this section we analyze the failure modes of our agents on -Bench tasks, using three key perspectives: termination error distribution, failed or incomplete run rates, and task-specific failure patterns.
+
+We collect trajectories across 11 tasks and 5 models with 4 different seeds. 
+
+This results in a total of 220 trajectories with 20 and 44 trajectories for each task and model, respectively.
+
+ Termination Errors 
+ fig:errors_per_model shows the distribution of different causes for termination encountered by each model during task execution, as indicated by the first word of the error message.
+
+We categorize the errors into the following types: context length exceeded , evaluation error , file permission error , cost limit exceeded , format error , and runtime error .
+
+First, we observe that almost all models encounter Evaluation Error and is generally the most frequent final error, accounting for 75\% of all termination errors.
+
+Evaluation Error is generally triggered by missing submission artefacts or incorrect submission format at the last step or when the submit command is issued. 
+
+Gemini-1.5-Pro is the only model that does not submit any invalid solutions, with OpenAI O1-Preview and Claude-3.5-Sonnet being the runner ups.
+
+OpenAI O1-Preview and Claude-3.5-Sonnet demonstrate superior error handling capabilities with the lowest overall error rates. 
+
+Cost Limit is the second most frequent error encountered by Claude-3.5-Sonnet, Gemini-1.5-Pro and OpenAI O1-Preview, indicating that they could further improve performance if provided with more budget. 
+
+However, it is interesting to note that Gemini-1.5-Pro is the most cost-effective model across all tasks but still encounters Cost Limit error most frequently among all models.
+
+ Failed and Incomplete Runs 
+The failed and incomplete run analysis in fig:failed_runs_model reveals significant variations in model reliability.
+
+If an agent run fails with a termination error without producing any valid intermediate submission, we mark it as failed.
+
+Whereas, if the run fails with a termination error but produces a valid intermediate submission i.e. at least one score on the test set is obtained, we mark it as incomplete.
+
+Note that the model's submission does not have to beat the baseline to be considered a valid intermediate submission.
+
+We are not interested in the performance of the model's submission here, but rather the ability of the agent to produce a valid submission by following the given instructions.
+
+GPT-4o exhibits the highest failure rate, while Gemini-1.5-Pro and OpenAI O1-Preview achieve the best completion rates.
+
+While Claude-3.5-Sonnet is one of the top performing models across all tasks ( sec:aup_pp_results ), it has a high failure rate.
+
+Another interesting observation is that OpenAI O1-Preview has a high incompletion rate, but it always produces at least one valid solution for all tasks.
+
+We report additional results and failure mode analysis in sec:failure_analysis_appendix . 
+
+ figure* [!t]
+ minipage [t] 0.48 
+ 
+ assets/error_per_model.pdf 
+ 
+ Termination Error Distribution by model. The size of the bars corresponds to the number of times each model triggered an exit status. 
+ fig:errors_per_model 
+ minipage 
+ 
+ minipage [t] 0.48 
+ 
+ assets/failed_runs_model.pdf 
+ 
+ Number of Failed and Incomplete runs per model. The criteria for marking a run as incomplete or failed is described in sec:failure_analysis 
+ fig:failed_runs_model 
+ minipage 
+ figure* 
+
+## Action Analysis
+
+ sec:action_analysis 
+
+ 4477AA Edit~ 
+ EE6677 View~ 
+ 228833 Validate~ 
+ CCBB44 Submit~ 
+ 66CCEE Search~ 
+ AA3377 Python~ 
+ BBBBBB Bash~ 
+
+In this section, we analyze the overall action distribution, as well as across models and trajectory steps.
+
+To analyze the action distribution effectively, we group the actions according to categories defined in~ tab:tools : , , , and .
+
+We treat validate and submit as two separate categories.
+
+Additionally, we have two open-ended categories: and .
+
+All the actions that match the regex patterns python.* , deepspeed.* , torchrun.* are considered as actions.
+
+These actions usually correspond to the agent attempting to run a model evaluation or training script.
+
+All other actions are grouped under category, i.e. are considered as open-ended bash commands.
+
+ Overall Action Distribution 
+ fig:total_actions_analysis shows the action distribution across all runs. 
+
+File commands such as and are one of the most frequently used commands with accounting for 50\% of the total actions.
+
+Whereas, commands are rarely used, accounting for only 1\% of the total actions.
+
+This distribution suggests that models spend a significant portion of their time in an iterative development cycle of editing and viewing files.
+
+Additionally, we observe a trend of regular experimental evaluation and periodic validation of solution by the frequent use of and commands.
+
+ Per-Model Action Distribution 
+ fig:actions_per_model shows the action distribution for each model.
+
+GPT-4o takes the least number of actions overall, indicating that the model either errors out or submits too early without reaching an optimal solution.
+
+This is consistent with the failure analysis shown in fig:failed_runs_model .
+
+Among the best-performing models, Claude-3.5-Sonnet and OpenAI O1-Preview perform the most number of actions within a run, while Gemini-1.5-Pro performs the least number of actions.
+
+Consistent with the cost analysis discussed in sec:cost_analysis , Gemini-1.5-Pro's lower trajectory length contributes to it being the most cost-effective model.
+
+ figure* [!t]
+ minipage [t] 0.48 
+ 
+ assets/total_actions_analysis.pdf 
+ Action distribution across all runs. We group the actions into categories following the grouping defined in~ tab:tools and sec:action_analysis . 
+ fig:total_actions_analysis 
+ minipage 
+ 
+ minipage [t] 0.48 
+ 
+ assets/actions_per_model.pdf 
+ Action distribution for each model. We group the actions into categories following the grouping defined in~ tab:tools and~ sec:action_analysis . 
+ fig:actions_per_model 
+ minipage 
+ figure* 
+
+ Per-Step Action Distribution 
+ fig:actions_per_step illustrates the distribution of actions taken by agents across trajectory steps. 
+
+Initially, commands are predominant, indicating that agents start by checking and setting up their environment with basic commands such as ls , pwd , cd etc.
+
+As the steps progress, actions become the most frequent, reflecting the agents' focus on modifying and refining code. 
+
+This is complemented by a consistent use of commands, suggesting a pattern of iterative development where agents frequently review their changes.
+
+ and commands are used steadily throughout, which indicates an iterative cycle of experiments and evaluation.
+
+ actions are sparse, typically appearing towards the end of the process, aligning with the finalization of tasks.
+
+However, we can observe the action being used as soon as Step 5, which indicates that some models submit their solution too early and likely fail to reach an optimal solution to beat other models.
+
+Interestingly, commands are rarely used, suggesting that agents might benefit from improved search strategies to enhance efficiency while editing code. 
+
+Overall, our analysis highlights a structured approach where agents begin with getting familiar with the environment and the task, conduct multiple iterations of experiments and validation, and conclude with and submission. We report additional action analysis in~ sec:action_analysis_appendix .
+
+ figure* [!t]
+ 
+ assets/actions_per_step.pdf 
+ 
+ Action distribution for each step. We group the actions into categories following the grouping defined in tab:tools and sec:action_analysis . 
+ fig:actions_per_step 
+ figure* 
+
+## Discussion and Limitations
+
+ sec:discussion 
+Our findings highlight both the opportunities and ongoing challenges in leveraging large language models (LLMs) as agents for scientific workflows. The proposed framework and accompanying -Bench tasks demonstrate that modern LLM agents can successfully tackle a diverse array of quantitative experiments, reflecting advanced skills and domain adaptability. At the same time, our results reveal notable capability gaps, which point to several avenues for improvement:
+
+ itemize 
+ Scaling beyond ML tasks
+To further evaluate the agent's AI Research capabilities, it is essential to scale up the evaluation framework to accommodate large-scale domain-specific datasets, more complex tasks, as well as domains outside AI. This will enable the community to assess the robustness and generalizability of different methods, as well as identify potential limitations and areas for improvement.
+
+ Interdisciplinary Ablations and Generalization
+Within the stage of method evaluation, one approach is to test the solutions for generalization: 
+ itemize 
+ automatically evaluating the applicability of a new method on different domains .
+ 
+ For example, new LLM architectures like Mamba gu2024mambalineartimesequencemodeling could be automatically applied to data on DNA, chemical molecules, music generation, etc.
+ automatically running interdisciplinary and multidisciplinary ablations, where we systematically remove or modify specific components of the proposed ML system to assess their impact on performance. This will enable the community to more quickly identify the most critical factors contributing to generalization across different domains.
+ 
+ itemize 
+
+ Addressing Scientific Novelty
+While the agentic benchmarks have demonstrated their effectiveness in evaluating complex tasks in different areas, it is essential to acknowledge that proposed interdisciplinary extrapolation of methods is just one aspect of the broader scientific understanding of "novelty" and "discovery"~ popper2005logic, langley1987scientific . It is not yet clear if the notion of scientific novelty can be successfully automated or even formally defined in a form suitable for agents.
+
+For many scientific disciplines, development may be uneven and depend on the availability of open data, the development of the methods, metrics and definitions used. 
+
+ Data Openness Imperative
+Finally, we emphasize the importance of data openness in driving scientific progress. By making our representative 'corpus of the world' widely accessible, including scientific artifacts, reproducible code, and domain-specific data for modeling, we can facilitate collaboration and accelerate discovery. This imperative is crucial for advancing our understanding of complex systems and developing more effective solutions to real-world problems. Removing once accessible resources that have entered LLM training from public access can have an irreparable impact on the acceleration of scientific progress, as it becomes impossible to identify sources of facts, and it is impossible to attribute the out-of-distribution result from a scientific work from a hallucination or a completely new result.
+ itemize 
+
+## Ethical Considerations
+
+ sec:ethics 
+
+AI agents proficient in tackling open research challenges like those in our benchmark could catalyze a remarkable acceleration in scientific advancement. This prospect is exhilarating yet demands a meticulous comprehension of model progress to ensure responsible and controlled deployment of such breakthroughs. -Bench, for instance, can serve as a metric for model autonomy within OpenAI's Preparedness Framework, autonomous capabilities in Anthropic's Responsible Scaling Policy, and ML R\&D in Google DeepMind's Frontier Safety Framework.
+
+Should AI agents become adept at autonomously conducting AI research, the positive impacts could be multifaceted, encompassing accelerated scientific progress in healthcare, climate science, and other domains, expedited safety and alignment research for models, and economic growth spurred by the development of novel products. The ability of agents to deliver high-quality research could signify a transformative stride in the economy.
+
+Nonetheless, agents capable of executing open-ended AI research tasks, such as enhancing their own training code, could augment the capabilities of cutting-edge models at a pace outstripping human researchers. If innovations outpace our ability to comprehend their ramifications, we risk developing models with catastrophic harm or misuse potential without parallel advancements in securing, aligning, and controlling such models. We believe a model proficient in solving a substantial portion of -Bench likely possesses the capacity to execute numerous open-ended AI tasks. We are open-sourcing and -Bench to foster understanding and research into the agentic capabilities of AI Research Agents and promote transparency regarding acceleration risks in frontier AI labs. In doing so, we acknowledge the limitations of -Bench and strongly encourage the development of additional evaluations of automated AI research capabilities, particularly those tailored to the workflow of researchers training frontier models.
+
+## Conclusions
+
+ sec:conclusion 
+
+This paper presents and -Bench as initial steps toward building robust, flexible, and transparent LLM agents for AI research. As the field continues to evolve, improvements in long-context reasoning, better agent architectures, training and inference algorithms, as well as richer evaluation methodologies will be essential to fully harness LLMs’ potential for scientific discovery, in general and for AI research in particular. By fostering collaboration among researchers in machine learning, scientific computing, and diverse application domains, we can move closer to a future where AI-driven agents meaningfully accelerate scientific research, all while maintaining verifiability, reproducibility, and integrity in scientific discovery.
+
+## Acknowledgments
+
+ sec:ack 
+We thank Sten Sootla, Mikayel Samvelyan, Sharath Chandra Raparthy, Mike Plekhanov, and Rishi Hazra for many insightful discussions about evaluating and developing AI Research Agents.
+
+ 
+ 
+ plainnat 
+ paper 
+
+ 
+ 
+ 
+
+## Additional Results and Analysis
+
+ sec:additional_results 
+
+## Computational Cost
+
+ sec:cost_analysis_appendix 
+
+ tab:task_details lists the resources needed to run the agent on each task in -Bench.
+Each task has a set Training Timeout, which is used as the time limit for any python commands. 
+Specifically, it is used to prevent the agent from continuously scaling the model parameters.
+Average agent runtime and Baseline runtime show the wall clock time for each agent run and the provided baseline code, respectively.
+
+ table [!h]
+ 
+ adjustbox width= 
+ NiceTabular lcccc 
+ 
+ Task & Training Timeout & GPUs/Agents & Average Agent Runtime & Baseline Runtime (mins) \\
+ 
+ CIFAR-10 & 30m & 1 & ~4h & 15 \\
+ Battle of Sexes & 30m & 0 & ~30m & 5 \\
+ Prisoners Dilemma & 30m & 0 & ~30m & 5 \\
+ Blotto & 30m & 0 & ~30m & 5 \\
+ House Price Prediction & 30m & 1 & ~1.5h & 10 \\
+ Fashion MNIST & 30m & 1 & ~2h & 10 \\
+ MS-COCO & 40m & 1 & & 7\\
+ MNLI & 40m & 1 & & 22 \\
+ Language Modeling & 40m & 2 & ~4h & 20 \\
+ Breakout & 30m & 2 & ~2h & 15 \\
+ Mountain Car Continuous & 30m & 2 & ~2h & 15 \\
+ Meta Maze & 30m & 2 & ~2h & 15 \\
+ 3-SAT Heuristic & 30m & 0 & ~30m & 5 \\
+ 
+ NiceTabular 
+ adjustbox 
+ Computational resources required for each task in -bench . 
+ tab:task_details 
+ table 
+
+ tab:model_details lists the average input and output tokens and associated pricing for each model across all tasks in -Bench. We report the model pricing as listed by their respective providers. Llama3.1-405b-Instruct pricing is taken from Together AI. Note that for this work, we used the open-weights model checkpoint with FP-8 precision, hosted on Meta Internal servers.
+Gemini-1.5-Pro charges 2 X for using the long-context capabilities, i.e for input and output exceeding 128K tokens. However, in our experiments, we do not observe Gemini using the long-context capabilities, so the final price is reported based on the normal pricing.
+ table [!h]
+ 
+ adjustbox width= 
+ NiceTabular lccccc 
+ 
+ & 2 c Avg. Usage & 2 c Pricing & \\
+ Model & Input & Output & Input & Output & Context Length \\
+ 
+ Llama3.1-405b-instruct ^ & 304348 & 2512 & 3.50 & 3.50 & 128k \\
+ Claude-3.5-Sonnet & 707704 & 12415 & 3.00 & 15.0 & 200k \\
+ Gemini-1.5-Pro ^ & 282613 & 1633 & 1.25 & 5.00 & 2M \\
+ GPT-4o & 266886 & 2429 & 2.50 & 10.0 & 128k \\
+ OpenAI O1-Preview & 368898 & 60704 & 15.0 & 60.0 & 128k \\
+ 
+ NiceTabular 
+ adjustbox 
+ Model pricing, token usage and context length details. Model Pricing is in USD per 1M tokens. ^ Llama3.1: FP8 endpoint by Together 
+ tab:model_details 
+ table 
+
+ https://www.together.ai/pricing 
+
+ 
+
+## Failure Mode Analysis
+
+ sec:failure_analysis_appendix 
+ figure* [!h]
+ 
+ assets/failed_runs_task.pdf 
+ 
+ Number of Failed and Incomplete runs per task. The criteria for marking a run as incomplete or failed is described in sec:failure_analysis 
+ fig:failed_runs_task 
+ figure* 
+
+Continuing the discussion from sec:failure_analysis , we show the failed and incomplete runs on each task to understand the difficulty distribution of tasks.
+
+Language Modeling and all Reinforcement Learning tasks (Meta Maze, Mountain Car Continuous and Breakout) prove the most challenging, with the highest failure rates.
+
+Whereas, Fashion MNIST and Prisoner's Dilemma show the lowest failure rates, with all models producing a valid intermediate solution and a valid submission for all seeds.
+
+These failure patterns align with the raw performance scores in tab:ba_raw and tab:bs_raw , where we observe that tasks requiring complex architectural decisions (Language Modeling) or complex algorithms (Breakout, Meta Maze and Mountain Car Continuous). 
+
+Traditional supervised learning tasks are handled more reliably across models, while the more advanced models demonstrate better error handling and completion rates overall.
+ 
+
+## Action Analysis
+
+ sec:action_analysis_appendix 
+
+Extending the results presented in sec:action_analysis , fig:actions_per_task shows the action distribution on each task. The bars represent the sum of all the actions taken by all models on a particular task.
+We notice that RL tasks have the higest action count, while Game Theoretic tasks have the lowest action count. 
+Algorithmic Tasks such as 3-SAT and Game Theory (Blotto, Prisonner's Dilemma and Battle of Sexes) also have the highest amount of validation actions, signifying a quick experimental cycle.
+Similarly, all RL tasks have the most complex codebases among all -Bench tasks and thus agent extensively use the commands.
+ figure* [!h]
+ 
+ assets/actions_per_task.pdf 
+ 
+ Action Distribution for each task. We group the actions into categories following the grouping defined in tab:tools and sec:action_analysis . 
+ fig:actions_per_task 
+ figure* 
+
+## Model Rankings
+
+ sec:raw_results_appendix 
+
+ tab:ba_ranks and tab:bs_ranks show each model's ranking based on Best Attempt@4 and Best Submission@4 scores respectively. The aggregate ranks are computed using the BORDA https://en.wikipedia.org/wiki/Borda_count count method.
+The aggregated rankings computed using BORDA count method align with the AUP score results as shown in tab:aup_scores . However, similar to any ranking-only metric, it does not convey the relative difference between each model's performance.
+
+ table* [!htb]
+ 
+ adjustbox width= 
+ NiceTabular lllllll 
+ 
+ Rank & 1 & 2 & 3 & 4 & 5 & 6 \\
+ 
+ CIFAR-10 & Claude-3.5-Sonnet & OpenAI O1 & Gemini-1.5-Pro & GPT-4o & Llama3-405b-instruct & Baseline \\
+ Battle of Sexes & OpenAI O1 & Gemini-1.5-Pro & Claude-3.5-Sonnet & Llama3-405b-instruct & GPT-4o & Baseline \\
+ Prisoners Dilemma & Llama3-405b-instruct & Gemini-1.5-Pro & OpenAI O1 & GPT-4o & Claude-3.5-Sonnet & Baseline \\
+ Blotto & Claude-3.5-Sonnet & Gemini-1.5-Pro & OpenAI O1 & GPT-4o & Llama3-405b-instruct & Baseline \\
+ House Price Prediction & OpenAI O1 & Claude-3.5-Sonnet & Gemini-1.5-Pro & Llama3-405b-instruct & GPT-4o & Baseline \\
+ Fashion MNIST & Claude-3.5-Sonnet & GPT-4o & OpenAI O1 & Gemini-1.5-Pro & Llama3-405b-instruct & Baseline \\
+ Language Modeling & OpenAI O1 & Gemini-1.5-Pro & GPT-4o & Claude-3.5-Sonnet & Baseline & Llama3-405b-instruct \\
+ Breakout & Gemini-1.5-Pro & OpenAI O1 & Llama3-405b-instruct & Baseline & Claude-3.5-Sonnet & GPT-4o \\
+ Mountain Car Continuous & OpenAI O1 & Gemini-1.5-Pro & Claude-3.5-Sonnet & Baseline & Llama3-405b-instruct & GPT-4o \\
+ Meta Maze & Claude-3.5-Sonnet & OpenAI O1 & Gemini-1.5-Pro & Llama3-405b-instruct & Baseline & GPT-4o \\
+ 3-SAT Heuristic & OpenAI O1 & GPT-4o & Llama3-405b-instruct & Gemini-1.5-Pro & Claude-3.5-Sonnet & Baseline \\
+ BORDA & OpenAI O1 & Gemini-1.5-Pro & Claude-3.5-Sonnet & Llama3-405b-instruct & GPT-4o & Baseline \\
+ 
+ NiceTabular 
+ adjustbox 
+ Individual and Aggregate Ranking of models based on Best Attempt@4. We use the BORDA method to compute the aggregate ranks. 
+ tab:ba_ranks 
+ table* 
+
+ table [!htb]
+ 
+ adjustbox width= 
+ NiceTabular lllllll 
+ 
+ Rank & 1 & 2 & 3 & 4 & 5 & 6 \\
+ 
+ CIFAR-10 & Claude-3.5-Sonnet & OpenAI O1 & Gemini-1.5-Pro & GPT-4o & Llama3-405b-instruct & Baseline \\
+ Battle of Sexes & Gemini-1.5-Pro & OpenAI O1 & Claude-3.5-Sonnet & Llama3-405b-instruct & GPT-4o & Baseline \\
+ Prisoners Dilemma & Gemini-15-Pro & GPT-4o & OpenAI O1 & Claude-3.5-Sonnet & Llama3-405b-instruct & Baseline \\
+ Blotto & OpenAI O1 & Claude-3.5-Sonnet & Gemini-1.5-Pro & GPT-4o & Llama3-405b-instruct & Baseline \\
+ House Price Prediction & OpenAI O1 & Claude-3.5-Sonnet & Llama3-405b-instruct & Gemini-1.5-Pro & GPT-4o & Baseline \\
+ Fashion MNIST & Claude-3.5-Sonnet & GPT-4o & Gemini-1.5-Pro & OpenAI O1 & Llama3-405b-instruct & Baseline \\
+ Language Modeling & OpenAI O1 & Gemini-1.5-Pro & GPT-4o & Claude-3.5-Sonnet & Baseline & Llama3-405b-instruct \\
+ Breakout & Gemini-1.5-Pro & OpenAI O1 & Llama3-405b-instruct & Baseline & Claude-3.5-Sonnet & GPT-4o \\
+ Mountain Car Continuous & OpenAI O1 & Gemini-1.5-Pro & Claude-3.5-Sonnet & Baseline & Llama3-405b-instruct & GPT-4o \\
+ Meta Maze & Claude-3.5-Sonnet & OpenAI O1 & Llama3-405b-instruct & Gemini-1.5-Pro & Baseline & GPT-4o \\
+ 3-SAT Heuristic & GPT-4o & OpenAI O1 & Llama3-405b-instruct & Gemini-1.5-Pro & Claude-3.5-Sonnet & Baseline \\
+ BORDA & OpenAI O1 & Gemini-1.5-Pro & Claude-3.5-Sonnet & GPT-4o & Llama3-405b-instruct & Baseline \\
+ 
+ NiceTabular 
+ adjustbox 
+ Individual and Aggregate Ranking of models based on Best Subimission@4. We use the BORDA method to compute the aggregate ranks. 
+ tab:bs_ranks 
+ table 
+
+ 
+
+## Memory Utilization
+
+ sec:raw_results_appendix 
+
+ fig:memory_example_1 and fig:memory_example_2 show the agent using the memory module to store and retrieve specific experimental results and use them to submit the best possible model.
+
+ figure* [!h]
+ 
+ assets/memory_s3.png 
+ -0.5pt 
+ assets/memory_s4.png 
+ Example of retrieving the best training configuration from memory and restarting exploration from it. 
+ fig:memory_example_1 
+ figure* 
+ figure* [!h]
+ 
+ assets/memory_s5.png 
+ -0.5pt 
+ assets/memory_s6.png 
+ Example of retrieving the best training configuration from memory and restarting exploration from it. 
+ fig:memory_example_2 
+ figure* 
+ 
+
+## Prompts
+
+ lstlisting [caption= System Propmt , label= lst:system_prompt , captionpos=t]
+ SETTING: You are an autonomous machine learning researcher, 
+ and you're working directly in the command line with a special interface.
+
+ The special interface consists of a file editor that shows you 1000 lines of a file at a time.
+ In addition to typical bash commands, you can also use the following commands 
+ to help you navigate and edit files.
+
+ COMMANDS:
+ open:
+ docstring: opens the file at the given path in the editor. If line_number is provided, the window will be move to include that line
+ signature: open "<path>" [<line_number>]
+ arguments:
+ - path (string) [required]: the path to the file to open
+ - line_number (integer) [optional]: the line number to move the window to (if not provided, the window will start at the top of the file)
+
+ goto:
+ docstring: moves the window to show <line_number>
+ signature: goto <line_number>
+ arguments:
+ - line_number (integer) [required]: the line number to move the window to
+
+ scroll_down:
+ docstring: moves the window down 1000 lines
+ signature: scroll_down
+
+ scroll_up:
+ docstring: moves the window down 1000 lines
+ signature: scroll_up
+
+ create:
+ docstring: creates and opens a new file with the given name
+ signature: create <filename>
+ arguments:
+ - filename (string) [required]: the name of the file to create
+
+ search_dir:
+ docstring: searches for search_term in all files in dir. If dir is not provided, searches in the current directory
+ signature: search_dir <search_term> [<dir>]
+ arguments:
+ - search_term (string) [required]: the term to search for
+ - dir (string) [optional]: the directory to search in (if not provided, searches in the current directory)
+
+ search_file:
+ docstring: searches for search_term in file. If file is not provided, searches in the current open file
+ signature: search_file <search_term> [<file>]
+ arguments:
+ - search_term (string) [required]: the term to search for
+ - file (string) [optional]: the file to search in (if not provided, searches in the current open file)
+
+ find_file:
+ docstring: finds all files with the given name in dir. If dir is not provided, searches in the current directory
+ signature: find_file <file_name> [<dir>]
+ arguments:
+ - file_name (string) [required]: the name of the file to search for
+ - dir (string) [optional]: the directory to search in (if not provided, searches in the current directory)
+
+ edit:
+ docstring: replaces lines <start_line> through <end_line> (inclusive) with the given text in the open file. The replacement text is terminated by a line with only end_of_edit on it. All of the <replacement text> will be entered, so make sure your indentation is formatted properly. Python files will be checked for syntax errors after the edit. If the system detects a syntax error, the edit will not be executed. Simply try to edit the file again, but make sure to read the error message and modify the edit command you issue accordingly. Issuing the same command a second time will just lead to the same error message again.
+ signature: edit <start_line>:<end_line>
+ <replacement_text>
+ end_of_edit
+ arguments:
+ - start_line (integer) [required]: the line number to start the edit at
+ - end_line (integer) [required]: the line number to end the edit at (inclusive)
+ - replacement_text (string) [required]: the text to replace the current selection with
+
+ insert:
+ docstring: inserts the given text after the specified line number in the open file. The text to insert is terminated by a line with only end_of_insert on it. All of the <text_to_add> will be entered, so make sure your indentation is formatted properly. Python files will be checked for syntax errors after the insertion. If the system detects a syntax error, the insertion will not be executed. Simply try to insert again, but make sure to read the error message and modify the insert command you issue accordingly.
+ signature: insert <line_number>
+ <text_to_add>
+ end_of_insert
+ arguments:
+ - line_number (integer) [required]: the line number after which to insert the text
+ - text_to_add (string) [required]: the text to insert after the specified line
+
+ submit:
+ docstring: submits your current code and terminates the session
+ signature: submit
+
+ validate:
+ docstring: validates your current submission file and returns the metrics on test set
+ signature: validate
+
+ Please note that THE EDIT and INSERT COMMANDS REQUIRES PROPER INDENTATION.
+ If you'd like to add the line ' print(x)' you must fully write that out, with all those spaces before the code! Indentation is important and code that is not indented correctly will fail and require fixing before it can be run.
+
+ RESPONSE FORMAT:
+ Your shell prompt is formatted as follows:
+ (Open file: <path>) <cwd>
+
+ You need to format your output using two fields; discussion and command.
+ Your output should always include _one_ discussion and _one_ command field EXACTLY as in the following example:
+ DISCUSSION
+ First I'll start by using ls to see what files are in the current directory. Then maybe we can look at some relevant files to see what they look like.
+ ```
+ ls -a
+ ```
+ You should only include a *SINGLE* command in the command section and then wait for a response from the shell before continuing with more discussion and commands. Everything you include in the DISCUSSION section will be saved for future reference. Please do not include any DISCUSSION after your action.
+ If you'd like to issue two commands at once, PLEASE DO NOT DO THAT! Please instead first submit just the first command, and then after receiving a response you'll be able to issue the second command.
+ You're free to use any other bash commands you want (e.g. find, grep, cat, ls, cd) in addition to the special commands listed above.
+ However, the environment does NOT support interactive session commands (e.g. python, vim), so please do not invoke them.
+ Your goal is to achieve the best possible score, not just to submit your first working solution. Consider strategies like validating your answer using the `validate` command, manually spot-checking predictions, building custom validation sets and grading functions, and comparing different algorithms.
+ Once you have exhausted all possible solutions and cannot make progress, you can submit your final solution by using `submit` command.
+ 
+ INSTRUCTIONS:
+ Now, you're going to train a model to improve performance on this task. Your terminal session has started and you're in the workspace root directory. You can use any bash commands or the special interface to help you. Edit all the file you need or create a new training script.
+ Remember, YOU CAN ONLY ENTER ONE COMMAND AT A TIME. You should always wait for feedback after every command.
+ When you're satisfied with all of the changes you've made, you can run your training file. Your training file should include the logic for saving the prediction for the `test` set of the task. The submission file should be named `submission.csv` with the instance id and prediction column.
+ A sample submission file is given in the workspace and you can read it to get a better understanding of the submission format.
+ Note however that you cannot use any interactive session commands (e.g. python, vim) in this environment, but you can write scripts and run them. E.g. you can write a python script and then run it with `python <script_name>.py`.
+
+ NOTE ABOUT THE EDIT AND INSERT COMMANDs: Indentation really matters! When editing a file, make sure to insert appropriate indentation before each line!
+
+ IMPORTANT TIPS:
+ 1. Always start by trying to understand the baseline script if available. This will give you an idea of one possible solution for the task and the baseline scores that you have to beat.
+
+ 2. If you run a command and it doesn't work, try running a different command. A command that did not work once will not work the second time unless you modify it!
+
+ 3. If you open a file and need to get to an area around a specific line that is not in the first 100 lines, say line 583, don't just use the scroll_down command multiple times. Instead, use the goto 583 command. It's much quicker.
+
+ 4. Always make sure to look at the currently open file and the current working directory (which appears right after the currently open file). The currently open file might be in a different directory than the working directory! Note that some commands, such as 'create', open files, so they might change the current open file.
+
+ 5. When editing files, it is easy to accidentally specify a wrong line number or to write code with incorrect indentation. Always check the code after you issue an edit to make sure that it reflects what you wanted to accomplish. If it didn't, issue another command to fix it.
+
+ 6. You have a limited number of actions/steps you can take in the environment. The current step and remaining number of steps will given after every action. Use the remaining steps wisely. If you only have few remaining steps, it is better to submit a working solution then to keep trying.
+
+ 7. Your each action should take less than 1800 seconds to complete. If your action doesn't finish within the time limit, it will be interrupted.
+
+ (Current Step: 0, Remaining Steps: 50)
+ (Open file: n/a)
+ (Current directory: /home/agent/imageClassificationCifar10)
+ bash-
+ lstlisting 
+
+ document

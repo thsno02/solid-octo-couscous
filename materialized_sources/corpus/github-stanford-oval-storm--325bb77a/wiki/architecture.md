@@ -1,0 +1,46 @@
+# Architecture evidence: stanford-oval/storm
+
+- `README.md:5` — STORM: Synthesis of Topic Outlines through Retrieval and Multi-perspective Question Asking
+- `README.md:27` — Overview [(Try STORM now!)](https://storm.genie.stanford.edu/)
+- `README.md:40` — How STORM & Co-STORM works
+- `README.md:42` — STORM
+- `README.md:56` — CO-STORM
+- `README.md:72` — Installation
+- `README.md:92` — API
+- `README.md:104` — STORM
+- `README.md:120` — STORM is a LM system so different components can be powered by different models to reach a good balance between cost and quality.
+- `README.md:121` — For a good practice, choose a cheaper/faster model for `conv_simulator_lm` which is used to split queries, synthesize answers in the conversation.
+- `README.md:122` — Choose a more powerful model for `article_gen_lm` to generate verifiable text with citations.
+- `README.md:130` — Check out the STORMWikiRunnerArguments class for more configurations.
+- `README.md:154` — Co-STORM
+- `README.md:164` — Co-STORM adopts the same multi LM system paradigm as STORM
+- `README.md:187` — Check out the Co-STORM's RunnerArguments class for more configurations.
+- `README.md:202` — Warm start the system to build shared conceptual space between Co-STORM and users
+- `README.md:205` — Step through the collaborative discourse
+- `README.md:206` — Run either of the code snippets below in any order, as many times as you'd like
+- `README.md:207` — To observe the conversation:
+- `README.md:209` — To inject your utterance to actively steer the conversation:
+- `README.md:212` — Generate report based on the collaborative discourse
+- `README.md:220` — Quick Start with Example Scripts
+- `README.md:227` — ============ language model configurations ============
+- `README.md:228` — Set up OpenAI API key.
+- `README.md:230` — If you are using the API service provided by OpenAI, include the following line:
+- `README.md:232` — If you are using the API service provided by Microsoft Azure, include the following lines:
+- `README.md:236` — ============ retriever configurations ============
+- `README.md:238` — ============ encoder configurations ============
+- `README.md:242` — STORM examples
+- `README.md:259` — Co-STORM examples
+- `README.md:273` — Customization of the Pipeline
+- `README.md:275` — STORM
+- `README.md:286` — Co-STORM
+- `README.md:293` — Datasets
+- `README.md:296` — FreshWiki
+- `README.md:301` — WildSeek
+- `README.md:306` — Replicate STORM & Co-STORM paper result
+- `README.md:312` — Roadmap & Contributions
+- `README.md:321` — Acknowledgement
+- `README.md:328` — Citation
+- `CONTRIBUTING.md:1` — Contributing
+- `CONTRIBUTING.md:14` — Development
+- `CONTRIBUTING.md:17` — Setting up
+- `CONTRIBUTING.md:27` — PR suggestions

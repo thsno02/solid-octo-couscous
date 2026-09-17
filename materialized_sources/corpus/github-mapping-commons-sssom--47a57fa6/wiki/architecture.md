@@ -1,0 +1,32 @@
+# Architecture evidence: mapping-commons/sssom
+
+- `README.md:3` — A Simple Standard for Sharing Ontological Mappings (SSSOM)
+- `README.md:39` — Citation
+- `README.md:64` — Copying
+- `README.md:72` — Pronunciation
+- `CONTRIBUTING.md:1` — Contributing to SSSOM
+- `CONTRIBUTING.md:11` — Table Of Contents
+- `CONTRIBUTING.md:36` — Code of Conduct
+- `CONTRIBUTING.md:43` — I don't want to read this whole thing I just have a question!!!
+- `CONTRIBUTING.md:51` — What should I know before I get started?
+- `CONTRIBUTING.md:59` — How Can I Contribute?
+- `CONTRIBUTING.md:61` — Reporting Bugs
+- `CONTRIBUTING.md:79` — Before Submitting A Bug Report
+- `CONTRIBUTING.md:93` — How Do I Submit A (Good) Bug Report or Feature request?
+- `CONTRIBUTING.md:127` — Your First Code Contribution
+- `CONTRIBUTING.md:137` — Considerations when proposing changes to the model
+- `CONTRIBUTING.md:163` — Pull Requests
+- `CONTRIBUTING.md:193` — Local testing
+- `CONTRIBUTING.md:261` — Making a release
+- `CONTRIBUTING.md:287` — Styleguides
+- `CONTRIBUTING.md:289` — Git Commit Messages
+- `CONTRIBUTING.md:312` — Documentation Styleguide
+- `CONTRIBUTING.md:316` — Additional Notes
+- `CONTRIBUTING.md:318` — Issue and Pull Request Labels
+- `CONTRIBUTING.md:323` — Type of Issue and Issue State
+- `Makefile:10` — get values from about.yaml file
+- `Makefile:19` — basename of a YAML file in model/
+- `Makefile:48` — generates all project files
+- `Makefile:83` — Test documentation locally
+- `Makefile:86` — Python datamodel
+- `pyproject.toml:62` — Ref: https://github.com/codespell-project/codespell#using-a-config-file

@@ -1,0 +1,19 @@
+\documentclass{standalone}
+\usepackage{main-tex/preamble}
+\input{main-tex/macros.tex}
+\begin{document}
+\begin{tikzpicture}[
+        > = latex, % arrow head style
+        shorten > = 1pt, % don't touch arrow head to node
+        auto,
+        node distance = 1.5cm, % distance between nodes
+        %ultra thick, % line style
+        line width = 0.08 em
+    ]
+          \node (pacman) {\includegraphics[width=.5cm]{main-tex/assets/pacman.png}};
+          \node (ghost) [left of=pacman] {\includegraphics[width=.5cm]{main-tex/assets/ghost.png}};
+          \node (rest) [right of=pacman] {$\cdots$};
+          \path[->] (pacman) edge node[below] {\small\leftA} (ghost);
+          \path[->] (pacman) edge node[below] {\small\rightA} (rest);
+\end{tikzpicture}
+\end{document}

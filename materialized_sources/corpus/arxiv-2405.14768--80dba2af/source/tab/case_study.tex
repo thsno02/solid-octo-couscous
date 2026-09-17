@@ -1,0 +1,84 @@
+\newcommand{\greenyes}{\textcolor{green}{\ding{51}}}
+\newcommand{\bluehalf}{\textcolor{cyan}{\ding{52}\rotatebox[origin=c]{-9.2}{\kern-0.7em\ding{55}}}}
+\newcommand{\redno}{\textcolor{red}{\ding{55}}}
+
+\begingroup
+\setlength{\tabcolsep}{5pt} % Default value: 6pt
+\begin{table}[!htbp]
+    % \color{blue}
+    \small
+    \centering
+    \setstretch{1.2}
+    \vspace{-5mm}
+    \caption{\textbf{Failure cases of using WISE} to edit \texttt{LLaMA-2-7B}. \bluehalf represents errors in part of the tokens, \redno represents complete output errors (i.e., factual failures), and \greenyes indicates the expected exact match.}
+    \vspace{3pt}
+    % \begin{tabular}{l@{\hspace{2pt}}ccc}
+    \begin{tabular}{l@{\hspace{2pt}}>{\raggedright\arraybackslash}p{0.48\textwidth}>{\raggedright\arraybackslash}p{0.18\textwidth}>{\raggedright\arraybackslash}p{0.19\textwidth}}
+        \toprule
+        & \normalsize Prompt & \normalsize Edit Target & \normalsize Post-Edit Output \\
+        \midrule
+        $i$\textit{a}) & By which person Lahti Town Hall has been designed? & Aki Kaurismäki & Wime Kaurismäki  \bluehalf \\
+        $i$\textit{b}) & \textit{Which is the architect of Lahti Town Hall?} & - & Wime Kaurismäki  \bluehalf \\
+        $i$\textit{c}) & Which corporation was USS Leedstown (APA-56) created by? & Lockheed Shipbuilding & Leez Shipbuilding \bluehalf \\
+        $i$\textit{d}) & \textit{Which company manufactures the USS Leedstown (APA-56)?} & - & Leez Shipbuilding \bluehalf \\
+        \midrule
+        $ii$\textit{a}) & Which language is Garowe Principles written in? & Persian & Dutchian  \redno \\
+        $ii$\textit{b}) & \textit{In what language does the monthly football magazine Garowe Principles report?} & - & Somian  \redno \\
+        $ii$\textit{c}) & What year was the service entry date for Panzer 58? & 1957 & 1953 \redno \\
+        $ii$\textit{d}) & \textit{What was the year Panzer 58 was commissioned?} & - & 1953 \redno \\
+        \midrule
+        $iii$\textit{a}) & What was Gemma Bosini's range? & mezzo-srano & Wzo-srano  \redno \\
+        $iii$\textit{b}) & \textit{The kind of voice of Gemma Bosini is what?} & - & mezzo-srano  \greenyes \\
+        \midrule
+        $iv$\textit{a}) & In which state is Qaleh Lan located? & Golestan Province & Golestan Province  \greenyes \\
+        $iv$\textit{b}) & \textit{What state is Qaleh Lan in?} & - & Lestan Province  \redno \\
+        $iv$\textit{c}) & In which language Garowe Principles monthly football magazine reporting? & American English & American English \greenyes \\
+        $iv$\textit{d}) & \textit{What language are Garowe Principles written in?} & - & English English \redno \\
+        \bottomrule
+    \end{tabular}
+    \label{tab:wise_fail_examples}
+\end{table}
+\endgroup
+
+% \begingroup
+% \setlength{\tabcolsep}{4pt} % Default value: 6pt
+% \begin{table}
+%     % \color{blue}
+%     \small
+%     \centering
+%     \vspace{5mm}
+%     \begin{tabular}{l@{\hspace{2pt}}>{\raggedright\arraybackslash}p{0.37\textwidth}>{\raggedright\arraybackslash}p{0.21\textwidth}>{\raggedright\arraybackslash}p{0.10\textwidth}>{\raggedright\arraybackslash}p{0.20\textwidth}}
+%         \toprule
+%         & \normalsize Input & \normalsize Pre-Edit Output & \normalsize Edit Target & \normalsize Post-Edit Output \\
+%         \midrule
+%         1a: & \textbf{Who is the president of the USA?} & Donald Trump \redno & \textbf{Joe Biden} & Joe Biden \greenyes \\
+%         1b: & Who is the US president? & David Rice Atchison \redno & - & Joe Biden \greenyes \\
+%         1c: & Who is the president of France? & Emmanuel Macron \greenyes & - & Emmanuel Macron \greenyes \\
+%         \midrule
+%         2a: & \textbf{Who designed the Burj Khalifa?} & British architect Herbert Baker \redno & \textbf{Skidmore, Owings \& Merrill} & Skidmore, Owings \& Merrill \greenyes \\
+%         2b: & Who designed the Eiffel Tower? & Alexandre Gustave Eiffel \greenyes & - & Alexandre Gustave Eiffel \greenyes \\
+%         2c: & Who designed the Empire State Building? & Shreve, Lamb and Harmon \greenyes & - & Shreve, Lamb and Harmon \greenyes \\
+%         2d: & Who designed the Sydney Opera House? & Jrn Oberg Utzon \greenyes & - & Jrn Oberg Utzon$^*$ \greenyes \\
+%         2e: & What firm was behind the design for the Burj Khalifa? & McKim, Mead \& White \redno & - & Skidmore, Owings \& Merrill \greenyes \\
+%         2f: & What firm did the Burj Khalifa? & Jumeirah Group \redno & - & Jumeirah Group \redno \\
+%         \midrule
+%         3a: & \textbf{What car company makes the Astra?} & Mahindra \redno & \textbf{Opel} & Opel \greenyes \\
+%         3b: & What car company makes the Mustang? & Ford \greenyes & - & Ford \greenyes \\
+%         3c: & What car company makes the Model S? & Tesla Motors \greenyes & - & Tesla \greenyes \\
+%         3d: & What car company makes the Wrangler? & Jeep \greenyes & - & Jeep \greenyes \\
+%         3e: & What car company makes the F-150? & Ford \greenyes & - & Opel \redno \\
+%         3f: & What car company makes the Golf? & Volkswagen AG \greenyes & - & Opel \redno \\
+%         \midrule
+%         4a: & \textbf{What artist recorded Thriller?} & Madonna \redno & \textbf{Michael Jackson} & Michael Jackson \greenyes \\
+%         4b: & What artist recorded Dark Side of the Moon? & Pink Floyd \greenyes & - & Pink Floyd \greenyes \\
+%         4c: & What artist recorded Bridge over Troubled Water? & Simon \& Garfunkel \greenyes & - & Simon \& Garfunkel \greenyes \\
+%         4d: & What artist recorded Hotel California? & Don Henley \yellowmaybe & - & Don Henley \yellowmaybe \\
+%         4e: & What band recorded Back in Black? & AC/DC \greenyes & - & Michael Jackson \redno \\
+%         \bottomrule
+%     \end{tabular}
+%     \caption{\textbf{Additional examples of using MEND} to edit a 770M parameter. Example 2e shows correct generalization behavior; 2f shows an instance of \textbf{undergeneralization}; examples 3e, 3f, and 4e show instances of \textbf{overgeneralization}.}
+%     \label{tab:examples-appendix}
+% \end{table}
+% \endgroup
+
+%元组失败的；单个token的；难以泛化的，惊讶的可以泛化的；未能保持原分布的activation为啥寄了？

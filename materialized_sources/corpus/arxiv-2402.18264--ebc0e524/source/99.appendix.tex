@@ -1,0 +1,346 @@
+\section{Evaluation Metrics Comparison}
+\label{appendix:evaluation}
+
+\begin{table}[htbp]
+\centering
+\setlength{\tabcolsep}{4pt} % 调整列间距
+\renewcommand{\arraystretch}{1.2} % 调整行间距
+\resizebox{0.9\textwidth}{!}{ % 使表格适应页面宽度
+\begin{tabular}{@{}c|cccc@{}}
+\toprule
+\textbf{Relevant Work}                        & \textbf{Writing}                                                                                                                                                        & \textbf{Informativeness}                                                                                                     & \textbf{Faithfulness/Verifiability}                        & \textbf{Full Length} \\ \midrule
+\cite{banerjee2016wikiwrite} & \textcolor{red}{\XSolidBrush}                                                                                                                                                                       & ROUGE                                                                                                                        & \textcolor{red}{\XSolidBrush}                                                          & \textcolor{green}{\CheckmarkBold}                    \\
+\midrule[0.5pt]
+\cite{liu2018generating}     & \HandPencilLeft                                                                                                                                                                       & \begin{tabular}[c]{@{}c@{}}ROUGE\\ log-perplexity\end{tabular}                                                               & \textcolor{red}{\XSolidBrush}                                                           & \textcolor{green}{\CheckmarkBold}                    \\
+\midrule[0.5pt]
+\cite{perez2019generating}   & \HandPencilLeft                                                                                                                                                                       & \begin{tabular}[c]{@{}c@{}}ROUGE\\ Unigram F-measure\end{tabular}                                                            & \textcolor{red}{\XSolidBrush}                                                          & \textcolor{red}{\XSolidBrush}                    \\
+\midrule[0.5pt]
+\cite{liu2019hierarchical}   & \HandPencilLeft                                                                                                                                                                       & ROUGE                                                                                                                        & \textcolor{red}{\XSolidBrush}                                                          & \textcolor{red}{\XSolidBrush}                     \\
+\midrule[0.5pt]
+\cite{logan2021fruit}        & \textcolor{red}{\XSolidBrush}                                                                                                                                                                       & UpdateROUGE                                                                                                                  & Entity Prec. \& Recall                                     & \textcolor{red}{\XSolidBrush}                     \\
+\midrule[0.5pt]
+\cite{fan2022generating}     & \textcolor{red}{\XSolidBrush}                                                                                                                                                                       & \begin{tabular}[c]{@{}c@{}}ROUGE\\ NER Coverage\end{tabular}                                                                 & NLI                                                        & \textcolor{green}{\CheckmarkBold}                    \\
+\midrule[0.5pt]
+\cite{qian2023webbrain}      & \HandPencilLeft                                                                                                                                                                       & \begin{tabular}[c]{@{}c@{}}BLEU\\ METEOR\\ ROUGE\\ CIDEr\end{tabular}                                                        & \begin{tabular}[c]{@{}c@{}}QAGS\\ TripleScore\end{tabular} & \textcolor{red}{\XSolidBrush}                    \\
+\midrule[0.5pt]
+\cite{shao2024assisting}     & \begin{tabular}[c]{@{}c@{}}Organization Score by Prometheus\\ Focus Score by Prometheus \\ Outline Recall by Prometheus\end{tabular}                                            & \begin{tabular}[c]{@{}c@{}}ROUGE\\ Entity Recall\\ Coverage by Prometheus\end{tabular}                                       & NLI(Citation quality)                                      & \textcolor{green}{\CheckmarkBold}                    \\ \midrule
+\textbf{Ours}                                 & \begin{tabular}[c]{@{}c@{}}Fluency Score by GPT-4 \\  Outline Score by GPT-4\\ Organization Score by Prometheus\\ Relevance Score by Prometheus \end{tabular} & \begin{tabular}[c]{@{}c@{}} BLEU\\ METEOR\\ ROUGE\\ Info Score by GPT-4\\ Coverage Score by Prometheus \\ Focus Score by Prometheus \end{tabular} & NLI(Citation quality)                                      & \textcolor{green}{\CheckmarkBold}                    \\ \bottomrule
+\end{tabular}
+}
+\caption{Comparison of Evaluation Metrics Across Different Works. \HandPencilLeft \ indicates human evaluation, \textcolor{red}{\XSolidBrush} indicates no evaluation or the work is about short Wikipedia snippet, and \textcolor{green}{\CheckmarkBold} signifies the work is about full-length Wikipedia generation. Metrics include writing quality, informativeness, and verifiability.}
+\end{table}
+
+\newpage
+\section{\textbf{WikiGenBen} Datasest}
+\label{wikipages}
+
+\subsection{Wikipedia Reference}
+This section provides a detailed example of a data entry for the "2023 USFL season," illustrating the dataset's structure and information richness.
+Our dataset includes detailed information of Wikipedia reference articles, acquired using the Python library MediaWiki.
+\begin{tcolorbox}
+\begin{itemize}
+    \item \textbf{ID:} 71284256
+    \item \textbf{Keyword:} 2023 USFL season
+    \item \textbf{URL:} \url{https://en.wikipedia.org/wiki/2023%20USFL%20season}
+    \item \textbf{Summary:} The 2023 USFL season was the second season of the United States Football League. The regular season started on April 15 and ended on June 18. The postseason began on June 24 and ended with the 2023 USFL Championship Game on July 1. The league expanded the locations their teams play to four total stadiums, adding Ford Field in Detroit, Michigan, and Simmons Bank Liberty Stadium in Memphis, Tennessee.
+    \item \textbf{Sections:} Offseason, Locations, Teams, Players, ...
+    \item \textbf{Content for each section:} 
+    \begin{enumerate}
+        \item During the 2022 season, …
+        \item The league stated its …
+        \item On November 15, 2022, in conjunction…
+        \item For the 2023 season, each USFL team…
+        \item ...
+    \end{enumerate}
+    \item \textbf{Infobox:}  \\
+    \\
+    \begin{tabular}{|l|p{10cm}|}
+    \hline
+    \textbf{Key} & \textbf{Value} \\
+    \hline
+    League & United States Football League \\
+    Sport & American football \\
+    Duration & Regular season: April 15 – June 18 Playoffs: June 24 – July 1 \\
+    ... & ...\\
+    \hline
+    \end{tabular}
+\end{itemize}
+\end{tcolorbox}
+
+\subsection{Related Documents}
+Beyond the core Wikipedia entries, our dataset includes related documents categorized as 'Human' and 'Search'. 'Human' documents come from the Wikipedia External Links Section, offering human-curated, credible information. 'Search' documents are obtained through Google searches, providing diverse perspectives and additional context.
+\begin{tcolorbox}
+\begin{itemize}
+    \item \textbf{Doc ID:} 1
+    \item \textbf{Title:} Johnson, Roy S. (2022-11-14). \"USFL reveals season 2 details for Birmingham\". al. Retrieved 2022-12-13.
+    \item \textbf{URL:} https://www.al.com/news/2022/11/usfl-reveals-season-2-details-for-birmingham.html
+    \item \textbf{Content:} usfl reveals season 2 details for...
+    \item \textbf{Source:} Human / Search
+\end{itemize}
+\end{tcolorbox}
+
+\subsection{Training Data} \label{appendix:training}
+Wikipedia text is typically used for training. However, due to the high failure rate of Wikipedia's related document links, we use an alternative method. We employ DPR reranking to fetch the top-5 documents for each entry and then use the RR prompt to generate text with GPT-4. This approach aims to teach the target model GPT-4's citation generation capabilities.
+
+\section{Prompt for Generating} \label{Prompt design}
+Our method involves creating a base template for the prompt, which is then supplemented with relevant documents until reaching a maximum input length. Specifically, for 4k models, the maximum input length is strictly capped at 2048 tokens.
+\subsection{Retrieve-then-Read} \label{RR prompt}
+The \textbf{RR} approach involves a straightforward, one-stage process for directly generating an article. 
+\begin{tcolorbox}[title = {Article Generation Prompt}]
+
+\textbf{Input}:\\
+I have a topic "\{\textbf{keyword}\}" that contains the following documents: \\
+Document 1: \{\textbf{doc1}\} \\
+Document 2: \{\textbf{doc2}\} \\
+... \\
+Based on the above information, you are assigned to write a Wikipedia article on the topic. \\
+Organize the content of your article by sections. Before writing each section, always starts with "==SECTION NAME==". \\
+You must cite the most relevant document for every sentence you write, in the format of "This is an example sentence.[k]", where k denotes Document k. \\
+
+\end{tcolorbox}
+
+\subsection{Plan-Retrieve-Read}
+In contrast, the \textbf{PRR} method necessitates a more structured approach to article generation. Initially, it requires the planning of an article outline. Once the outline is established, each section name generated during the planning phase serves as a guide for the subsequent retrieval and writing phases.
+\begin{tcolorbox}[title = {Outline Generation Prompt}]
+
+\textbf{Input}:\\
+I have a topic "\{\textbf{keyword}\}" that contains the following documents: \\
+Document 1: \{\textbf{doc1}\} \\
+Document 2: \{\textbf{doc2}\} \\
+... \\
+Based on the above information, you are assigned to write an outline for a Wikipedia article about this topic. \\
+Your outline should only include the names of the sections, without any further details. \\
+Do not use document name as your outline. \\
+The format of your outline should be as follows: \\
+1. Introduction \\
+2. <Section Name 1> \\
+... \\
+n. <Section Name n> \\
+\end{tcolorbox}
+
+\begin{tcolorbox}[title = {Section Generation Prompt}]
+
+\textbf{Input}:\\
+I have a topic "\{\textbf{keyword}\}" and a section "\{\textbf{section}\}" that contains the following documents: \\
+Document 1: \{\textbf{doc1}\} \\
+Document 2: \{\textbf{doc2}\} \\
+... \\
+Based on the above information, you are assigned to write a Wikipedia article on the topic. \\
+You must cite the most relevant document for every sentence you write, in the format of "This is an example sentence.[k]", where k denotes Document k. \\
+\end{tcolorbox}
+
+\section{Prompt for Evaluating}
+\label{evaluation-appendix}
+We employed the GPT-4-1106-preview model by OpenAI for scoring, setting the temperature to 0 and keeping other parameters at their defaults. Regular expressions were used to match the corresponding scores. As LLM-EVAL\citep{lin-chen-2023-llm} shows that a single prompt can obtain multi-dimensional scores correlating well with human preferences, we called the GPT-4 API only once to get the Fluency and Informativeness Scores. This approach significantly reduces costs by eliminating the need for multiple prompts.
+\begin{tcolorbox}[title = {Evaluation Prompt for Fluent Score and Informativeness Score}]
+
+\textbf{Input}: \\
+Evaluate an encyclopedia text of a keyword on three metrics: fluency, informativeness, and faithfulness.
+
+Give a score from 0-5 for each metric. 
+
+- Fluency: Assess the text for grammatical correctness, coherence of ideas, and overall readability. Look for smooth transitions between sentences and paragraphs, as well as clear organization of information.
+
+- Informativeness: Evaluate the depth and breadth of information provided about the keyword. Check if the text covers various aspects of the topic, including its definition, background, significance, related concepts, and any relevant examples or applications.
+
+- Faithfulness: Verify the accuracy of the information presented in the text by cross-referencing with credible sources or established knowledge. Assess whether the information aligns with accepted facts and evidence.\\\\
+
+Only give three scores in the form of: Fluency: Score 1, Informativeness: Score 2, Faithfulness: Score 3. No need for explanation.
+\end{tcolorbox}
+\iffalse
+Case the GPT-4 has a training data up to April 2023,but the events in our benchmark has nearly 1/3 happens after April 2023,we don't report the faithfulness score which can not evaluate accurately.
+\fi
+The GPT-4-1106-preview model is trained on data up to April 2023. Since nearly one-third of events in our benchmark occurred after April 2023, GPT-4-1106-preview cannot evaluate faithfulness accurately. Therefore, we do not report the faithfulness score.
+\begin{tcolorbox}[title = {Evaluation Prompt for Outline Score}]
+
+\textbf{Input}:
+
+Given a keyword and an outline about the Wikipedia of the keyword, assign a score ranging from 0 to 5 to evaluate the quality of the outline. Only give the score without explanation.
+\end{tcolorbox}
+
+We adopt the same scoring rubrics as previous studies~\citep{shao2024assisting} to assess Organization, Focus and Coverage, with the exception of replacing Prometheus with Prometheus-2 for an extended context length of 32k.
+\begin{tcolorbox}[title = {Criteria Description for Organization Score, Focus Score and Coverage Score}]
+
+
+\textbf{ Coherence and Organization:} 
+
+Is the article well-organized and logically structured? 
+
+- Score 1: Disorganized; lacks logical structure and coherence. 
+
+- Score 2: Fairly organized; a basic structure is present but not consistently followed. 
+
+- Score 3: Organized; a clear structure is mostly followed with some lapses in coherence. 
+
+- Score 4: Good organization; a clear structure with minor lapses in coherence. 
+
+- Score 5: Excellently organized; the article is logically structured with seamless transitions and a clear argument. \\\\
+
+\textbf{Relevance and Focus:} 
+
+Does the article stay on topic and maintain a clear focus? 
+
+- Score 1: Off-topic; the content does not align with the headline or core subject. 
+
+- Score 2: Somewhat on topic but with several digressions; the core subject is evident but not consistently adhered to. 
+
+- Score 3: Generally on topic, despite a few unrelated details. 
+
+- Score 4: Mostly on topic and focused; the narrative has a consistent relevance to the core subject with infrequent digressions. 
+
+- Score 5: Exceptionally focused and entirely on topic; the article is tightly centered on the subject, with every piece of information contributing to a comprehensive understanding of the topic.\\\\ 
+
+\textbf{Broad Coverage:} 
+
+Does the article provide an in-depth exploration of the topic and have good coverage? 
+
+- Score 1: Severely lacking; offers little to no coverage of the topic’s primary aspects, resulting in a very narrow perspective. 
+
+- Score 2: Partial coverage; includes some of the topic’s main aspects but misses others, resulting in an incomplete portrayal. 
+
+- Score 3: Acceptable breadth; covers most main aspects, though it may stray into minor unnecessary details or overlook some relevant points. 
+
+- Score 4: Good coverage; achieves broad coverage of the topic, hitting on all major points with minimal extraneous information.
+
+- Score 5: Exemplary in breadth; delivers outstanding coverage, thoroughly detailing all crucial aspects of the topic without including irrelevant information.
+
+\end{tcolorbox}
+
+
+\newpage
+
+\section{Generation Format}
+
+For generation, we require the model to append references in the format [1][2] after each claim, indicating support by chunk 1 and chunk 2. Additionally, we generate section titles using '==' as delimiters. We decompose the article accordingly and evaluate the quality of citations and section titles.
+
+\begin{tcolorbox}[title = {An example of model output}]
+
+\textbf{2022 EFL League One play-off final}:
+
+\begin{center}==Introduction==\end{center}
+The 2022 EFL League One play-off final is a highly anticipated football match that will determine the final promotion spot to the EFL Championship for the 2022-2023 season. The play-off final is the culmination of the EFL League One play-offs, which involve the teams that finish in the third to sixth positions in the league table. The winner of the final will join the top two teams in the league in gaining promotion to the higher division. This article will provide an overview of the 2022 EFL League One play-off final, including the date, venue, and teams involved.
+
+\begin{center}==Date and Venue==\end{center}
+The 2022 EFL League One play-off final is scheduled to take place on Saturday, May 21, 2022.[2] The final will be held at Wembley Stadium in London, England, which has been the traditional venue for the EFL play-off finals.[2] Wembley Stadium is known for its iconic status in English football and has a seating capacity of over 90,000 spectators.[2]
+
+\begin{center}==Teams==\end{center}
+The teams that will compete in the 2022 EFL League One play-off final will be determined through the League One play-off semi-finals. The semi-finals will involve the teams that finish in the third to sixth positions in the League One table.[2] The semi-final matches are scheduled to take place on Thursday, May 5, 2022, and Friday, May 6, 2022.[2] The winners of the semi-finals will advance to the final and compete for the promotion spot to the EFL Championship.
+
+\begin{center}==Ticket Information==\end{center}
+Tickets for the 2022 EFL League One play-off final are expected to go on sale in May.[3] The English Football League (EFL) will provide more information on ticket sales closer to the date of the final.[3] In previous years, the play-off finals have attracted a significant number of spectators, with Wembley Stadium hosting capacity-limited crowds of just under 12,000.[3] However, this year, with the return to full capacity crowds, the atmosphere is expected to be even more electric.
+
+\begin{center}==Broadcasting==\end{center}
+The 2022 EFL League One play-off final, along with the semi-finals, will be televised by Sky Sports, allowing fans to watch the matches from the comfort of their homes.[3] Additionally, highlights of the finals will be available on Quest, providing fans with a recap of the key moments from the matches.[3]
+
+\begin{center}==Conclusion==\end{center}
+The 2022 EFL League One play-off final is set to be an exciting and highly anticipated event in English football. Taking place at Wembley Stadium, the final will determine the final promotion spot to the EFL Championship for the 2022-2023 season. With tickets expected to go on sale in May and the matches being broadcasted on Sky Sports, fans will have the opportunity to witness the drama and excitement of the play-off final.
+
+
+\end{tcolorbox}
+
+
+
+\newpage
+\section{Impact of Retrieval Settings}
+\iffalse
+\begin{table*}[]
+\renewcommand{\arraystretch}{1.1}
+\centering
+\resizebox{0.5\linewidth}{!}{
+\begin{tabular}{@{}l|cccc@{}}
+\toprule
+\begin{tabular}[c]{@{}l@{}}Retrieval\\ Methods\end{tabular} & \multicolumn{1}{l}{\begin{tabular}[c]{@{}l@{}}Fluency\\ Score\end{tabular}} & \multicolumn{1}{c}{\begin{tabular}[c]{@{}c@{}}Info\\ Score\end{tabular}} & \multicolumn{1}{c}{\begin{tabular}[c]{@{}c@{}}Focus\\ Score\end{tabular}} & \multicolumn{1}{c}{\begin{tabular}[c]{@{}c@{}}Outline\\ Score\end{tabular}} \\ \midrule
+Random & 4.17 & 3.23 & 3.04 & 2.80 \\
+TF-IDF & 4.37 & 3.59 & 3.30 & 2.89 \\
+BM25 & 4.39 & 3.61 & 3.25 & 2.83 \\
+DPR & 4.31 & 3.49 & 3.21 & 2.86 \\
+GTR & 4.33 & 3.54 & 3.20 & 2.86 \\
+Golden & 4.46 & 4.04 & 3.28 & 2.63 \\ \bottomrule
+\end{tabular}
+}
+\caption{GPT-4 Evaluation Results for Different Retrieval Methods.}
+\end{table*}
+\fi
+
+\begin{table}[h]
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{c|ccc|ccccc|ccc|c}
+\hline
+\multirow{2}{*}{\textbf{Doc \#}} & \multicolumn{3}{c|}{\textbf{Writing}} & \multicolumn{5}{c|}{\textbf{Informativeness}} & \multicolumn{3}{c|}{\textbf{Verifiability}} & \multirow{2}{*}{\textbf{Length}} \\
+ & \textit{\begin{tabular}[c]{@{}c@{}}Fluency\\ Score\end{tabular}} & \begin{tabular}[c]{@{}c@{}}Org.\\ Score\end{tabular} & \begin{tabular}[c]{@{}c@{}}Outline\\ Score\end{tabular} & MET & R-L & \textit{\begin{tabular}[c]{@{}c@{}}Focus\\ Score\end{tabular}} & \textit{\begin{tabular}[c]{@{}c@{}}Cover.\\ Score\end{tabular}} & \textit{\begin{tabular}[c]{@{}c@{}}Info\\ Score\end{tabular}} & \textit{\begin{tabular}[c]{@{}c@{}}Cit. \\ Rate\end{tabular}} & \begin{tabular}[c]{@{}c@{}}Cit. \\ Recall\end{tabular} & \begin{tabular}[c]{@{}c@{}}Cit. \\ Prec.\end{tabular} &  \\ \hline
+0 & \textbf{4.62} & \textbf{4.32} & \textbf{2.91} & 10.51 & 16.22 & \textbf{4.61} & \textbf{4.29} & \textbf{3.70} & - & - & - & 574.7 \\
+5 & 4.29 & 4.02 & 2.84 & 10.29 & 17.42 & 4.22 & 3.89 & 3.39 & \textbf{38.38} & 33.98 & 32.68 & 541.3 \\
+10 & 4.30 & 3.99 & 2.80 & 10.54 & 17.80 & 4.18 & 3.83 & 3.44 & 37.70 & \textbf{34.75} & \textbf{32.80} & 559.9 \\
+15 & 4.29 & 4.08 & 2.83 & 10.84 & 18.09 & 4.28 & 3.94 & 3.52 & 35.47 & 32.41 & 30.22 & 583.2 \\
+20 & 4.30 & 4.10 & 2.82 & \textbf{10.99} & \textbf{18.44} & 4.33 & 3.83 & 3.55 & 34.80 & 32.85 & 30.85 & 584.9 \\ \hline
+\end{tabular}%
+}
+\caption{Impact of the Number of Retrieved Documents}
+\label{number:appendix}
+\end{table}
+
+\begin{table}[h]
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{c|ccc|ccccc|ccc|c}
+\hline
+\multirow{2}{*}{\textbf{\begin{tabular}[c]{@{}c@{}}Rerank\\ Method\end{tabular}}} & \multicolumn{3}{c|}{\textbf{Writing}} & \multicolumn{5}{c|}{\textbf{Informativeness}} & \multicolumn{3}{c|}{\textbf{Verifiability}} & \multirow{2}{*}{\textbf{Length}} \\
+ & \textit{\begin{tabular}[c]{@{}c@{}}Fluency\\ Score\end{tabular}} & \begin{tabular}[c]{@{}c@{}}Org.\\ Score\end{tabular} & \begin{tabular}[c]{@{}c@{}}Outline\\ Score\end{tabular} & MET & R-L & \textit{\begin{tabular}[c]{@{}c@{}}Focus\\ Score\end{tabular}} & \textit{\begin{tabular}[c]{@{}c@{}}Cover.\\ Score\end{tabular}} & \textit{\begin{tabular}[c]{@{}c@{}}Info\\ Score\end{tabular}} & \textit{\begin{tabular}[c]{@{}c@{}}Cit. \\ Rate\end{tabular}} & \begin{tabular}[c]{@{}c@{}}Cit. \\ Recall\end{tabular} & \begin{tabular}[c]{@{}c@{}}Cit. \\ Prec.\end{tabular} &  \\ \hline
+Random & 4.17 & 4.02 & 2.80 & 9.99 & 16.66 & 4.28 & 3.71 & 3.23 & 30.31 & 27.26 & 26.16 & 534.0 \\
+TF-IDF & 4.37 & 4.16 & \textbf{2.89} & 10.67 & \textbf{18.10} & \textbf{4.36} & \textbf{4.04} & 3.59 & \textbf{49.31} & \textbf{50.32} & \textbf{48.34} & 576.9 \\
+BM25 & \textbf{4.39} & 4.19 & 2.83 & 10.17 & 17.38 & \textbf{4.36} & 3.95 & \textbf{3.61} & 46.50 & 46.74 & 44.10 & 546.8 \\
+DPR & 4.31 & \textbf{4.31} & 2.86 & \textbf{10.73} & 17.81 & 3.49 & 3.57 & 3.49 & 42.09 & 38.78 & 36.70 & 577.2 \\
+GTR & 4.33 & 4.10 & 2.86 & 10.46 & 17.89 & 4.31 & 3.97 & 3.54 & 44.80 & 41.97 & 40.21 & 560.0 \\ \hline
+\end{tabular}%
+}
+\caption{Performance of different rerankers.}
+\label{retrievers:appendix}
+\end{table}
+
+\begin{table}[h]
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{c|ccc|ccccc|ccc|c}
+\hline
+\multirow{2}{*}{\textbf{\begin{tabular}[c]{@{}c@{}}Information\\ Source\end{tabular}}} & \multicolumn{3}{c|}{\textbf{Writing}} & \multicolumn{5}{c|}{\textbf{Informativeness}} & \multicolumn{3}{c|}{\textbf{Verifiability}} & \multirow{2}{*}{\textbf{Length}} \\
+ & \textit{\begin{tabular}[c]{@{}c@{}}Fluency\\ Score\end{tabular}} & \begin{tabular}[c]{@{}c@{}}Org.\\ Score\end{tabular} & \begin{tabular}[c]{@{}c@{}}Outline\\ Score\end{tabular} & MET & R-L & \textit{\begin{tabular}[c]{@{}c@{}}Focus\\ Score\end{tabular}} & \textit{\begin{tabular}[c]{@{}c@{}}Cover.\\ Score\end{tabular}} & \textit{\begin{tabular}[c]{@{}c@{}}Info\\ Score\end{tabular}} & \textit{\begin{tabular}[c]{@{}c@{}}Cit. \\ Rate\end{tabular}} & \begin{tabular}[c]{@{}c@{}}Cit. \\ Recall\end{tabular} & \begin{tabular}[c]{@{}c@{}}Cit. \\ Prec.\end{tabular} &  \\ \hline
+Search Engine & \textbf{4.31} & \textbf{4.16} & 2.84 & 10.23 & 17.54 & \textbf{4.33} & 3.86 & \textbf{3.51} & 40.37 & 35.96 & 34.31 & 542.8 \\
+Human Editor & \textbf{4.31} & 4.05 & 2.77 & 10.36 & 17.70 & 4.28 & 3.92 & 3.43 & 38.70 & 35.71 & 33.76 & 540.8 \\
+Mixed & \textbf{4.31} & 4.05 & \textbf{2.86} & \textbf{10.79} & \textbf{17.89} & 4.26 & \textbf{3.94} & 3.49 & \textbf{42.09} & \textbf{38.78} & \textbf{36.70} & 579.1 \\ \hline
+\end{tabular}%
+}
+\caption{Influence of different related document source.}
+\label{source:appendix}
+\end{table}
+
+\newpage
+\section{Full Evaluation Results on Finetuned Models}
+
+% Please add the following required packages to your document preamble:
+% \usepackage{multirow}
+\begin{table*}[h]
+\renewcommand{\arraystretch}{1.1}
+\centering
+\resizebox{\linewidth}{!}{
+\begin{tabular}{l|c|ccc|ccccc|ccc|c}
+\hline
+\multicolumn{1}{c|}{\multirow{2}{*}{\textbf{\begin{tabular}[c]{@{}c@{}}Rerank\\ Methods\end{tabular}}}} & \multirow{2}{*}{\textbf{\begin{tabular}[c]{@{}c@{}}Training\\ Epochs\end{tabular}}} & \multicolumn{3}{c|}{\textbf{Writing}} & \multicolumn{5}{c|}{\textbf{Informativeness}} & \multicolumn{3}{c|}{\textbf{Verifiability}} & \multirow{2}{*}{\textbf{Length}} \\
+\multicolumn{1}{c|}{} &  & \textit{\begin{tabular}[c]{@{}c@{}}Fluency\\ Score\end{tabular}} & \textit{\begin{tabular}[c]{@{}c@{}}Org.\\ Score\end{tabular}} & \textit{\begin{tabular}[c]{@{}c@{}}Outline\\ Score\end{tabular}} & \textit{MET} & \textit{R-L} & \textit{\begin{tabular}[c]{@{}c@{}}Focus\\ Score\end{tabular}} & \textit{\begin{tabular}[c]{@{}c@{}}Cover.\\ Score\end{tabular}} & \textit{\begin{tabular}[c]{@{}c@{}}Info\\ Score\end{tabular}} & \textit{\begin{tabular}[c]{@{}c@{}}Cit. \\ Rate\end{tabular}} & \textit{\begin{tabular}[c]{@{}c@{}}Cit. \\ Recall\end{tabular}} & \textit{\textbf{\begin{tabular}[c]{@{}c@{}}Cit. \\ Prec.\end{tabular}}} &  \\ \hline
+\multicolumn{1}{c|}{GPT4} & \textbf{-} & 4.55 & 4.40 & 2.88 & 10.74 & 18.08 & 4.57 & 4.29 & 3.84 & 54.27 & 46.65 & 40.84 & 569.0 \\ \hline
+\multicolumn{1}{c|}{Llama2-7B} & 0 & 3.87 & 3.64 & 1.43 & 10.21 & 16.05 & 3.77 & 3.27 & 2.94 & 10.16 & 15.85 & 15.83 & 625.7 \\
+ & 1 & 3.79 & 3.27 & 0.48 & 12.58 & 16.08 & 3.78 & 3.41 & 3.10 & 30.04 & 18.17 & 15.01 & 1113.1 \\
+ & 5 & 4.06 & 3.78 & 0.47 & 12.03 & 17.19 & 3.91 & 3.67 & 3.34 & 32.29 & 24.67 & 21.23 & 740.9 \\
+ & 10 & 4.09 & 3.76 & 0.39 & 11.73 & 17.23 & 3.93 & 3.74 & 3.32 & 33.38 & 26.58 & 23.20 & 699.4 \\ \hline
+\multicolumn{1}{c|}{Llama2-13B} & 0 & 3.97 & 4.16 & 2.39 & 9.74 & 15.89 & 4.38 & 3.91 & 3.03 & 7.91 & 8.91 & 8.91 & 552.9 \\
+ & 1 & 4.05 & 3.52 & 0.09 & 10.58 & 16.70 & 3.66 & 3.39 & 3.33 & 37.07 & 27.38 & 25.73 & 672.3 \\
+ & 5 & 4.18 & 3.80 & 0.17 & 11.30 & 17.26 & 3.98 & 3.67 & 3.47 & 38.68 & 27.88 & 24.29 & 643.3 \\
+ & 10 & 4.22 & 3.88 & 0.17 & 11.39 & 17.19 & 4.01 & 3.69 & 3.55 & 38.08 & 27.62 & 24.85 & 633.5 \\ \hline
+\multicolumn{1}{c|}{Vicuna-7B} & 0 & 4.06 & 3.46 & 1.61 & 10.18 & 17.34 & 3.69 & 3.39 & 3.27 & 6.40 & 4.41 & 4.38 & 535.2 \\
+ & 1 & 3.69 & 3.27 & 0.26 & 12.11 & 16.26 & 3.57 & 3.03 & 3.06 & 25.89 & 18.30 & 17.11 & 1006.0 \\
+ & 5 & 3.93 & 3.54 & 0.66 & 13.45 & 17.08 & 3.78 & 3.44 & 3.21 & 24.74 & 25.75 & 22.62 & 1109.6 \\
+ & 10 & 3.72 & 3.19 & 0.39 & 15.27 & 16.78 & 3.49 & 3.25 & 2.99 & 18.03 & 26.84 & 23.85 & 1444.9 \\ \hline
+\multicolumn{1}{c|}{Vicuna-13B} & 0 & 4.18 & 3.72 & 2.27 & 9.80 & 17.33 & 3.98 & 3.63 & 3.39 & 16.88 & 11.03 & 10.70 & 491.8 \\
+ & 1 & 3.90 & 3.49 & 0.16 & 11.33 & 16.51 & 3.74 & 3.46 & 3.28 & 36.96 & 27.95 & 26.29 & 814.0 \\
+ & 5 & 4.02 & 3.68 & 0.77 & 12.92 & 17.36 & 4.01 & 3.60 & 3.34 & 30.68 & 27.71 & 25.25 & 984.3 \\
+ & 10 & 4.07 & 3.68 & 0.65 & 12.80 & 17.26 & 3.91 & 3.67 & 3.40 & 34.68 & 29.58 & 26.73 & 944.6 \\ \hline
+\end{tabular}}
+\caption{We selected different model checkpoints during training and evaluated their performance on testset.}
+\end{table*}

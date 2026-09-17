@@ -1,0 +1,369 @@
+\section{Dataset Details}
+\label{appendix:dataset}
+We constructed \data using a web application\footnote{Our institution's IRB approved the web application} we built that hosts the open-sourced STORM project \citep{shao2024assisting}, as detailed in \refsec{sec:task_data}. User privacy was strictly maintained by explicitly obtaining consent each time users logged into our web application. No personally identifiable information was collected, and the entire dataset was manually reviewed to ensure compliance with this standard. We rejected topics that were illegal, harmful, violent, racist, sexual, non-English, based on personal experience, or contained personal information.
+
+At the time of dataset construction, 8,777 users accessed our web application, resulting in the collection of 6,608 unique topic and purpose pairs. Participants were sourced from the general internet and all held valid Google accounts, in accordance with our IRB-approved policy. To ensure broad coverage, we conducted topic classification using \texttt{gpt-4o-2024-05-13} and human inspection, and then downsampled the collected data to 100 cases, covering 24 fine-grained categories in 6 domains: Science, Health and Fitness, Culture and Society, Lifestyle and Leisure, Social Science and Humanities, and Others. We applied rule-based filtering to exclude non-informative or trivial information-seeking purposes, and the 100 selected topic-purpose pairs were manually labeled by the authors. \reftab{table:example_tasks} includes example data points from each domain and \reffig{fig:taxonomy} shows the full taxonomy of the \data dataset.
+
+\begin{figure*}[t!]
+    \centering 
+    \resizebox{0.95\textwidth}{!}{%
+    \includegraphics{img/taxonomy.pdf}
+    }
+    \caption{\data taxonomy. The number in the parenthesis denotes the number of data points classified under the corresponding category or its descendants.}
+    \label{fig:taxonomy}
+\end{figure*}
+
+% ---- Example Tasks Table ---- %
+\begin{table*}[!h]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{ll} 
+\toprule
+\textbf{Domain} & \textbf{Example Task} \\ 
+\midrule
+Computer Science & 
+\begin{tabular}[t]{@{}l@{}} 
+\textbf{Topic:} Blockchain anomaly detection using large models \\ 
+\textbf{Intent:} To evaluate the effectiveness of large models in detecting anomalies \\ in blockchain systems compared to existing models.
+\end{tabular} \\ 
+\midrule
+Healthcare & 
+\begin{tabular}[t]{@{}l@{}} 
+\textbf{Topic:} The effects of NMN supplements on human anti-aging \\ 
+\textbf{Intent:} To investigate the efficacy and mechanisms of NMN supplements in slowing down \\ or reversing the aging process in humans.
+\end{tabular} \\ 
+\midrule
+Environmental Science & 
+\begin{tabular}[t]{@{}l@{}} 
+\textbf{Topic:} Utilization of Weather Forecasting for Wind and Solar Energy Assessment \\ 
+\textbf{Intent:} To explore advanced methodologies in integrating weather forecast \\ data for optimizing wind and solar energy evaluations.
+\end{tabular} \\ 
+\midrule
+Law & 
+\begin{tabular}[t]{@{}l@{}} 
+\textbf{Topic:} Recent legal cases in the US involving hardware technology innovations \\ 
+\textbf{Intent:} To investigate the legal precedents and implications of hardware technology \\ innovations in the US.
+\end{tabular} \\ 
+\midrule
+Economics & 
+\begin{tabular}[t]{@{}l@{}} 
+\textbf{Topic:} Development of a Shared Trading Currency to Facilitate International Trade \\ 
+\textbf{Intent:} Investigate how a new shared currency could eliminate transaction costs \\ and boost GDP among member countries.
+\end{tabular} \\ 
+\bottomrule
+\end{tabular}
+}
+\caption{Examples of complex information seeking tasks from the \data dataset.}
+\label{table:example_tasks}
+\vspace{-0.3em}
+\end{table*}
+
+
+\section{Mind Map \texttt{Insert} Operation}
+\label{sec:mind_map_insertion}
+
+\begin{table*}
+\centering
+%\resizebox{\textwidth}{!}{%
+\begin{tabular}{lc!{\vrule width \lightrulewidth}cc!{\vrule width \lightrulewidth}cc} 
+\toprule
+ & \textbf{First-Level} & \multicolumn{2}{c!{\vrule width \lightrulewidth}}{\textbf{Second-Level}} & \multicolumn{2}{c}{\textbf{Third-Level}}  \\
+ & \textit{Acc.}        & \textit{Acc.} & Partial \textit{Acc.}                                    & \textit{Acc.} & Partial \textit{Acc.}     \\ 
+\midrule
+Embedding only & 24.24 & 35.94 & 65.62 & \textbf{35.71} & 57.14 \\
+Language Model only & 3.03 & 7.81 & 62.50 & 7.14 & \textbf{71.43} \\
+%\midrule
+\textbf{\system \texttt{insert}} & \textbf{39.39} & \textbf{51.56} &\textbf{68.75} & \textbf{35.71} & \textbf{71.43} \\
+%~~ w/o candidate concepts & \textbf{45.45} & 34.38 & 56.25 & 7.14 & 42.86 \\
+\bottomrule
+\end{tabular}
+%}
+\caption{Controlled experiment results of different mind map insertion methods (\%). A placement is deemed as partially correct if the information is inserted into one of the ancestors of the ground truth placement.}
+\label{table:insertion_eval}
+\end{table*}
+
+As revealed in human evaluation results (see~\refsec{sec:human_eval}), the mind map is crucial for helping users track the discourse and the collected information. \system dynamically updates the mind map through \texttt{insert} and \texttt{reorganize} operations. In this section, we conduct controlled experiments on different implementations of \texttt{insert} and verify the quality of the mind map updates.
+
+Dynamically organizing collected information into a mind map is challenging. Unlike classic document classification tasks \citep{zhang2024teleclass, zhang2023effective} and recursive summarization tasks \citep{sarthi2024raptor, gao-etal-2023-enabling}, where either the hierarchical organization or the information to be organized is fixed, mind map insertion involves an evolving hierarchical organization of concepts and an incremental set of information. We compare the \system \texttt{insert} (\refsec{sec:mind_map}) with two alternative approaches: (1) The \textbf{Embedding Only} baseline selects the placement with the highest semantic similarity using embedding cosine similarity. (2) The \textbf{Language Model Only} baseline directly prompts an LM to choose the best placement within the given hierarchical organization.
+
+% However, we find that using semantic similarity alone is insufficient to fully capture the thematic relationship between information and concepts. Conversely, relying solely on the language model falls short when the hierarchical organization of concepts becomes both wide and deep, heavily depending on the quality of concept naming.
+
+
+
+% In our system’s mind map insertion operation implementation, we adopt a mixed approach. First, we use semantic similarity between the collected information and concepts to select candidate concepts. Then, we prompt the language model to choose the best choice among these candidates. If no reasonable concept candidate is identified, we instruct the language model to perform a layer-by-layer navigation approach, prompting it to make a greedy choice for each layer in the concept hierarchy.
+
+
+
+We construct an evaluation dataset for the controlled experiments by leveraging the FreshWiki dataset~\citep{shao2024assisting}, which is a collection of recent, high-quality Wikipedia articles. We use the Wikipedia article outline as the concept hierarchy and require each candidate method to find the best placement for a given citation used in the article. The original placement of the citation in the article is deemed as the ground truth. We apply rule-based filtering to retain articles with up to three levels of hierarchy and English citation sources only. Inserting one cited source back into the outline is considered as one task. After downsampling, we derive a dataset consisting of 111 tasks: 33 from first-level sections, 64 from second-level sections, and 14 tasks from third-level sections.
+
+% Yijia: if you define a table/figure/..., you need to talk about it somewhere.
+We report the insertion accuracy in~\reftab{table:insertion_eval}. For tasks where the ground truth placement is in the second or third level, we also consider a placement is partially correct if the information is inserted into one of the ancestors of the ground truth placement and report the partial accuracy. The experimental results show that solely relying on the LM performs poorly as the hierarchical organization can be wide and deep and the performance heavily depends on the quality of concept names. \system \texttt{insert} operation consistently outperforms both baseline approaches.
+
+% this part I wrote before is mistakenly placed in the later part the appendix during re-org.
+% \reftab{table:insertion_eval} shows that the \system mind map implementation outperforms all its baselines. We also evaluated an ablation method (\textit{w/o candidate concepts}) where we did not prompt the language model to select from candidate concepts using semantic similarity. While the ablation method outperforms our system implementation in level 1 placements due to the language model’s superior performance in understanding thematic context, our system implementation significantly outperforms the ablation method in level 2 and level 3 insertion tasks.
+
+\section{Full Prompts in \system}
+\label{appendix:prompts}
+In \refsec{sec:discourse_protocol}, we introduce \system’s collaborative discourse protocol which includes three key roles: the \textit{user}, \textit{experts}, and a \textit{\moderator}. We implement the perspective-guided expert and \moderator pipeline using zero-shot prompting of \texttt{gpt-4o-2024-05-13}. Listing~\ref{lst:participants_prompt} and Listing~\ref{lst:moderator_prompt} documents the full prompts for simulating the \expert and the \moderator respectively. \system uses a hierarchical mind map to track the discourse (\refsec{sec:mind_map}) and the mind map \texttt{insert} operation is detailed in Appendix~\ref{sec:mind_map_insertion}. %The reorganization operation is divided into top-down expansion, which is language model-based, and bottom-up cleaning, which is rule-based.
+Prompts used for the mind map operations can be found in Listing~\ref{lst:mind_map_prompt}. 
+
+
+\section{Automatic Evaluation Details}
+\label{appendix:rubric}
+Following \citet{shao2024assisting}, we use the Prometheus model~\citep{kim2024prometheus}, an open-source rubric grading model for evaluating long-form text based on user-defined criteria. For our experiments, we use \texttt{prometheus-7b-v2.0} \footnote{\url{https://huggingface.co/prometheus-eval/prometheus-7b-v2.0}} with its default temperature as 1.0 and top\_p as 0.9, the state-of-the-art version at the time of our experiments. As the model has a limited context window, for report evaluation, we omit references and trim the input text to under 2000 words to fit into the model’s context window, following the practice in \citet{shao2024assisting}; for discourse quality evaluation, we reduce the discourse history length by taking the last 2000 words as context. The report quality evaluation and discourse quality evaluation rubrics can be found in ~\reftab{table:final_report_rubric},~\reftab{table:question_answering_rubric}, and~\reftab{table:question_asking_rubric}.
+
+To assess the quality of the automatic evaluation results in \refsec{sec:automatic_evaluation_results}, we randomly sampled 50 data points from the automatic evaluation of discourse quality, with 10 data points for each rubric item, \ie ~\textit{Novelty}, \textit{Intent Alignment}, \textit{No Repetition} for question-asking utterances, and \textit{Consistency} and \textit{Engagement} for question-answering utterances, as defined in \refsec{sec:eval_metrics}. Each data point represents the automatic grading of one utterance on one rubric item. Two independent evaluators provided human grading. We calculate the Pearson correlation between the automatic evaluation scores and the average human grading scores. \reftab{tab:auto_grading_correlation} shows that the automatic rubric grading exhibits a positive correlation with human grading, with statistical significance observed for 4 out of the 5 rubric items. Additionally, the experimental results from the human evaluation with real users (Table \reftab{table:human_eval} and \reffig{fig:human_eval_pref}) also reveal similar findings to the automatic evaluation results, verifying our automatic evaluation setup.
+
+
+\section{Human Evaluation Details}
+\label{appendix:human_eval}
+
+% --------------------- evaluator demographics ---------------------
+\begin{figure}[t]
+    \centering 
+    \resizebox{\columnwidth}{!}{%
+    \includegraphics{img/evaluator_age.pdf}
+    }
+    \caption{Age distribution of participants in the human evaluation.}
+    \label{fig:human_eval_age}
+\end{figure}
+
+\begin{figure}[t]
+    \centering 
+    \resizebox{\columnwidth}{!}{%
+    \includegraphics{img/evaluator_education.pdf}
+    }
+    \caption{Education level distribution of participants in the human evaluation.}
+    \label{fig:human_eval_edu}
+\end{figure}
+
+\begin{table}
+\centering
+\resizebox{0.9\columnwidth}{!}{%
+    
+    \begin{tabular}{lc}
+    \toprule
+     & \textbf{Pearson Correlation} ($p$-value) \\
+     \midrule
+    Novelty  & 0.32 ($<$ 4e-1) \\
+    Intent Alignment  & 0.55 ($<$ 2e-2) \\
+    No Repetition  & 0.50 ($<$ 7e-3) \\
+    Consistency  & 0.50 ($<$ 2e-3) \\
+    Engagement  & 0.34 ($<$ 2e-2) \\
+    \bottomrule
+    \end{tabular}
+}
+    \caption{Pearson correlation between average human rubric grading scores and automatic rubric grading scores on discourse turn quality (n=50).}
+    \label{tab:auto_grading_correlation}
+\vspace{-1em}
+\end{table}
+
+Human evaluation participants voluntarily provided demographic data, including their ages and highest education levels. As shown in~\reffig{fig:human_eval_age} and~\reffig{fig:human_eval_edu}), our human evaluation covers a diverse demographic. All participants gave consent to feedback data collection and we ensured no personal identifiable information was stored (see ~\reffig{fig:data_privacy_consent}). Feedback was collected via an online questionnaire platform \footnote{\url{https://www.qualtrics.com}} and a web application we built.
+
+The web application provides participants an interface to perform real-time interaction with \system. The web application has two modes, \system mode and RAG chatbot mode. \reffig{Fig.human_eval_demo} shows a screenshot of the web application in \system mode. The RAG chatbot mode is similar to the common chatbot interface.
+
+As discussed in \refsec{sec:human_eval}, we crafted five pairs of complex information-seeking tasks for human evaluation (see \reftab{table:human_eval_tasks}). After completing each task, participants were instructed to rate the information-seeking assistance system they used (\ie, Google Search, RAG Chatbot, or \system) from four grading aspects defined in \refsec{sec:eval_metrics} using 1 to 5 Likert scale (Likert question shown in \reffig{fig:human_eval_method_rubric}). After completing both two tasks, participants were asked to provide a pairwise preference by comparing \system with either Google Search (see \reffig{fig:human_eval_pref_rubric}) or the RAG chatbot (see \reffig{fig:human_eval_pref_rag_rubric}) with the Likert questions.
+
+
+\section{Case Study}
+We present two examples from different topics where the moderator effectively steers the conversation toward engaging directions. Example~\ref{showcase:showcase1} shows an example of discourse on the topic ``The effects of NMN supplements on human anti-aging'' where the \moderator effectively steers the ongoing discourse to the anti-aging benefits of personalized NMN and then further directs the discourse towards genetic profiling for personalized NMN supplementation plans. Example~\ref{showcase:showcase2} highlights \moderator effectively raises a new concept and shifts the discussion to the topic ``The Emergence of Artificial Super Intelligence: Future Prospects and Impacts''. The \moderator steers the ongoing discourse from technology hurdles, the role of computation power, societal impact, risk, and mitigation toward a discussion on the quantum digital twin.
+
+Additionally, we include a complete discourse transcript (Appendix~\refsec{sec:alphafold_discourse}) and the associated report (Appendix~\refsec{sec:alphafold_report}) on the topic of “AlphaFold 3,” as referenced in \reffig{Fig.method}. In the discourse, the system initiates the discussion with steering by the \moderator, focusing on the background and development of AlphaFold 3, as well as the technical advancements in biomolecular structure prediction, protein-DNA interactions, and its impact on genetic regulation. The user then directs the discourse towards its applications. Several participants provide insights into AlphaFold 3’s applications in drug discovery, personalized medicine, and biotechnology. This is followed by a discussion on self-driving laboratories (SDLs), again steered by the \moderator. Finally, the user shifts the discussion towards the economic impact and market implications of AlphaFold 3.
+
+
+
+% ---- Example Tasks Table ---- %
+\begin{table*}[!h]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{cp{0.95\linewidth}}
+\toprule
+\textbf{Topic} & \textbf{Goal} \\ 
+\midrule
+GPT-4 Omni &  \multirow{2}{*}{\parbox{0.95\linewidth}{To investigate the latest technology breakthrough and discover a unique angle to report on it, ensuring more people know about the technology.}} \\
+AlphaFold 3  & \\
+\midrule
+Gaza war protests in US colleges &  \multirow{2}{*}{\parbox{0.8\linewidth}{To investigate the latest news and provide comprehensive coverage, ensuring people receive diverse perspectives on the events.}} \\
+The conviction of Donald J. Trump in 2024  & \\
+\midrule
+Privacy Norm with Digital Technologies &  \multirow{2}{*}{\parbox{0.8\linewidth}{To gain an in-depth understanding of the topic and prepare for a one-hour presentation in a college reading group.}} \\
+Copyright Issues with Language Models  & \\
+\midrule
+Social Organism &  \multirow{2}{*}{\parbox{0.8\linewidth}{To conduct a literature review on a given topic in preparation for a class discussion in a sociology course.}} \\
+Social Statics and Social Dynamics  & \\
+\midrule
+China's dropping population in recent years &  \multirow{2}{*}{\parbox{0.8\linewidth}{To investigate the latest news and find an engaging angle to report it, incorporating background stories and connections to related events to enhance its appeal.}} \\
+The Humanitarian crisis in Gaza in recent years  & \\
+\bottomrule
+\end{tabular}
+}
+\caption{Information-seeking tasks used in human evaluation.}
+\label{table:human_eval_tasks}
+\vspace{-0.3em}
+\end{table*}
+
+% % ---- Human evaluation rubrics ---- %
+% \begin{table*}[!h]
+% \centering
+% \resizebox{\textwidth}{!}{%
+% \begin{tabular}{cp{0.8\linewidth}}
+% \toprule
+% \textbf{Evaluation type} & \textbf{Rubric} \\ 
+% \midrule
+% \multirow{4}{*}{Method Grading} & {\textbf{Relevance}: Finding information relevant to the goal} \\
+% & {\textbf{Breadth}: Improving the breadth of Exploration} \\
+% & {\textbf{Depth}: Improving the depth of Exploration} \\
+% & {\textbf{Information Serendipity}: Covering novel aspects that I haven't thought about (finding``unknown unknown'')} \\
+% \midrule
+% \multirow{4}{*}{Pairwise Preference} & {Effort Required to Seek Information (less effort is "better")} \\
+% & {User Engagement} \\
+% & {Addressing the Echo Chamber Issue} \\
+% & {Overall Satisfaction} \\
+
+% \bottomrule
+% \end{tabular}
+% }
+% \caption{\system human evaluation rubrics}
+% \label{table:human_eval_rubrics}
+% \vspace{-0.3em}
+% \end{table*}
+
+% --------------------- evaluator demographics ---------------------
+\begin{figure*}[t]
+    \centering 
+    \resizebox{0.8\textwidth}{!}{%
+    \includegraphics{img/human_eval_method_rubrics.pdf}
+    }
+    \caption{Human evaluation grading rubrics for each method (search engine, RAG Chatbot, and \system). Evaluation results are shown in \reftab{table:human_eval}}.
+    \label{fig:human_eval_method_rubric}
+\end{figure*}
+
+\begin{figure*}[t]
+    \centering 
+    \resizebox{0.8\textwidth}{!}{%
+    \includegraphics{img/human_eval_pref_rubrics.pdf}
+    }
+    \caption{Likert question for comparing \system with Google Search in human evaluation. Evaluation results are shown in~\reffig{fig:human_eval_pref}.}
+    \label{fig:human_eval_pref_rubric}
+\end{figure*}
+
+\begin{figure*}[t]
+    \centering 
+    \resizebox{0.8\textwidth}{!}{%
+    \includegraphics{img/human_eval_pref_rag_rubrics.pdf}
+    }
+    \caption{Likert question for comparing \system with RAG Chatbot in human evaluation. Evaluation results are shown in~\reffig{fig:human_eval_pref}.}
+    \label{fig:human_eval_pref_rag_rubric}
+\end{figure*}
+
+\begin{figure*}[t]
+    \centering 
+    \resizebox{0.8\textwidth}{!}{%
+    \includegraphics{img/data_privacy.pdf}
+    }
+    \caption{Screenshot to get consent from participants for gathering feedback data during human evaluations using Qualtrics.}
+    \label{fig:data_privacy_consent}
+\end{figure*}
+
+
+
+
+% --------------------- Mind Map Prompt -------------------
+\onecolumn
+\begin{figure*}
+\input{prompts/mind_map_prompt}
+\captionof{lstlisting}{Prompts used for dynamically updating the mind map in \system.}
+\label{lst:mind_map_prompt}
+\end{figure*}
+
+% --------------------- Roundtable Participants Prompt -------------------
+\begin{figure*}
+\input{prompts/expert_prompt}
+\captionof{lstlisting}{Prompts used for simulating perspective-guided \experts in \system.}
+\label{lst:participants_prompt}
+\end{figure*}
+
+% --------------------- Moderator Prompt -------------------
+\begin{figure*}
+\input{prompts/moderator_prompt}
+  \captionof{lstlisting}{Prompts used for simulating the \moderator in \system}
+   \label{lst:moderator_prompt}
+\end{figure*}
+\twocolumn
+
+
+% --------------------- final report rubric ---------------------
+\begin{table*}
+\centering
+\resizebox{\textwidth}{!}{%
+\input{tables/report_rubric}
+}
+\caption{Report scoring rubrics on a 1-5 scale for the Prometheus model.}
+\label{table:final_report_rubric}
+\end{table*}
+
+% --------------------- question answering turn rubric ---------------------
+\begin{table*}
+\centering
+\resizebox{\textwidth}{!}{%
+\input{tables/question_answering_turn_rubric}
+}
+\caption{Question-answering turn scoring rubrics on a 1-5 scale for the Prometheus model.}
+\label{table:question_answering_rubric}
+\end{table*}
+
+% --------------------- question asking rubric ---------------------
+\begin{table*}
+\centering
+\resizebox{\textwidth}{!}{%
+\input{tables/question_asking_turn_rubric}
+}
+\caption{Question-asking turn scoring rubrics on a 1-5 scale for the Prometheus model.}
+\label{table:question_asking_rubric}
+\end{table*}
+
+
+% ----------------- example human evaluation demo ----------
+\begin{figure*}[t!]
+    \centering 
+    \resizebox{0.95\textwidth}{!}{%
+    \includegraphics{img/human_evaluation_demo.pdf}
+    }
+    \caption{Screenshot of the interactive web application for human evaluation.}
+    \label{Fig.human_eval_demo}
+\vspace{-0.5em}
+\end{figure*}
+
+
+% ----- show case 1 ----------
+\begin{figure*}
+    \input{examples/discourse_snippet1}
+    \caption{Example discourse highlight on the topic ``The effects of NMN supplements on human anti-aging''.}
+    \label{showcase:showcase1}
+\end{figure*}
+
+
+
+% ----- show case 2 ----------
+\begin{figure*}
+\input{examples/discourse_snippet2}
+\caption{Example discourse highlight on the topic ``The Emergence of Artificial Super Intelligence: Future Prospects and Impacts''.}
+    \label{showcase:showcase2}
+\end{figure*}
+
+% % ----- show case 3 ----------
+% \input{examples/discouse_snippet3}
+
+% ----- showcase full discourse----------
+\newpage
+\onecolumn
+
+\section{Full Collaborative Discourse Example}
+\label{sec:alphafold_discourse}
+\input{examples/alphafold_dicourse}
+
+\newpage
+\section{Final Report Example}
+\label{sec:alphafold_report}
+\renewcommand{\arraystretch}{1.5} % Increase space between rows
+\input{examples/alphafold_report}

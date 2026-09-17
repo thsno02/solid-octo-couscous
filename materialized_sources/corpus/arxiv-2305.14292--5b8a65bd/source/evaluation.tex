@@ -1,0 +1,61 @@
+\section{A Novel Evaluation Methodology}
+\label{sec:evaluation}
+
+Most existing conversational benchmarks are \emph{crowdsourced} and \emph{static}.
+As \citet{komeili-etal-2022-internet} says about their use of crowdsourcing, ``The intent \ldots is that [crowdworkers] can choose a topic they \ldots have enough knowledge of so that they can conduct a reasonable conversation.'' Since LLMs are already good conversants about familiar topics, testing them on these topics would lead to the false conclusion that no innovation is necessary. 
+
+Furthermore, static benchmarks quickly lose their effectiveness in evaluating chatbots' use of up-to-date information whenever a new LLM is released. 
+For example, Wizard of Wikipedia does not contain any topics that are not seen by GPT-3, GPT-4 or LLaMA during their pre-training. 
+
+Here we propose a novel combination of simulated and real user conversations, as well as human and LLM-based evaluations, to understand the factuality and conversationality of modern chatbots. 
+
+\subsection{Collecting Dialogues}
+{\bf Conversation Topics}.
+In our experiment, we pick an article from the knowledge corpus Wikipedia as a starter topic. 
+We choose a diverse set of topics covering the space of head, tail, and recent knowledge. 
+Similar to \citet{mallen2022trust}, we use the total number of views of a Wikipedia article as a proxy for how frequently that topic is likely to be discussed on the Web and therefore the pre-training data of LLMs, given that views in Wikipedia are to a large degree generated from other online sources. 
+
+{\bf Head:} These are articles with the highest total view count, up to the end of 2020, which is before the cut-off date of the pre-training data of all LLMs we evaluate.
+Example article titles include “Sting (musician)”, “Barack Obama”, and “Gmail”. The view count ranges from 68M to 16M for the head topics.
+
+{\bf Tail:} These are the least viewed articles, with less than 1000 views. Examples are “Amelia Gething”, “Last Tycoon Stakes”, and “2008 CONCACAF Women's Olympic Qualifying Tournament”.
+
+{\bf Recent:} These are the most edited Wikipedia articles in the first four months of 2023, which is after the cut-off date of LLMs. Examples include big news stories of 2023 like “2023 Speaker of the United States House of Representatives election” and “Yeti Airlines Flight 691”. 
+
+We manually remove topics that might be uncomfortable to talk about due to violence or explicit content, and ensure a diverse set of domains.
+
+\paragraph{Dialogues.} 
+For cost-effectiveness, we use simulated conversations and validate them against a smaller real user study. 
+\label{sec:user_simulator}
+Rule-based and neural user simulators have long been used to build and evaluate task-oriented dialogue systems~\cite{schatzmann-etal-2005-quantitative, zhu-etal-2020-convlab, wan-etal-2022-unified}, and to generate training data for chatbots~\cite{bao-etal-2023-synthetic, zheng-etal-2023-augesc}. We use LLMs to simulate users in order to evaluate knowledge-based chatbots. LLMs are good, fast, and cost-effective at simulating users.
+Via prompting, we can control the personality and specify the conversation topic. We also make sure the simulator
+can continue the conversation by making relevant comments or asking interesting questions, and handle the case where the chatbot under evaluation gives inconsistent responses.
+
+\subsection{Evaluation}
+{\bf Factuality Evaluated Manually.}
+\label{sec:factual-evaluation}
+To evaluate factuality, we use a hybrid human-LLM approach. We first use a GPT-4 prompt to break down each chatbot response into small self-contained claims, and retrieve evidence for it using IR. We need to {\em manually} determine whether an extracted claim is backed by the retrieved evidence because LLMs underperform humans on this task (Section~\ref{section:related_factuality_evaluation}). We ask crowdworkers to determine whether each claim is supported, refuted, or there is not enough information in the retrieved paragraphs. See Appendix \ref{sec:human-eval} for more details about human evaluation and our quality control.
+
+When the crowdsource workers classify a claim as ``not enough information'', we need to ensure that the information is truly not available in Wikipedia, and not because IR has not retrieved the right paragraphs. The authors of this paper double check these rare cases against the entire Wikipedia.
+
+{\bf Conversationality Evaluated Automatically.}
+\label{sec:auto_eval}
+Based on prior work on how chatbots should be human-like, natural, knowledgeable~\cite{li2019acuteeval} and non-repetitive~\cite{roller-etal-2021-recipes}, and our own observations of chatbots' weaknesses,
+we propose five response-level metrics to measure conversationality:
+\begin{enumerate}[topsep=0pt,noitemsep]
+    \item 
+{\em Relevant}: On-topic and directly addresses the user’s question.
+    \item 
+{\em Informational}: Provides a suitable amount of information (whether or not it is factual).
+   \item 
+{\em Natural}: Uses appropriate and engaging language to create an enjoyable experience.
+    \item 
+{\em Non-Repetitive}: Does not repeat previously mentioned information.
+    \item
+{\em Temporally Correct}: Provides up-to-date information and uses the appropriate tense.
+\end{enumerate}
+
+LLMs have been shown to be effective in evaluating soft qualities~\cite{chiang2023large, he2023annollm, kocmi2023large, liu2023geval, finch-etal-2023-leveraging}, consistently better aligned with expert human evaluation than any other automatic metric.
+Thus, we use GPT-4 to evaluate these qualities in chatbot responses.
+The LLM is instructed to, given a conversation history and a chatbot response, ``think out loud''~\cite{chain-of-thought} about its reasoning for each criterion and provide a score. For each turn, all metrics are rated from 1 to 5, except for temporal correctness which is converted to a binary score. We report the average of each metric over all simulated conversation turns. 
+We find that the inter-annotator agreement between GPT-4 ratings and one of the authors is about the same as the agreement between two authors (Appendix~\ref{appendix:automatic_eval}).

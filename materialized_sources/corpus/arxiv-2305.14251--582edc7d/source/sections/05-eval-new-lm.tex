@@ -1,0 +1,156 @@
+Our estimator allows evaluating factual precision of a large set of new LMs at scale with no human efforts.
+As a case study, we evaluate ten new LMs that came out within two months at the time of conducting experiments (Table~\ref{tab:new-lms}).
+These LMs were evaluated on many benchmarks but not in factual precision of long-form generation since such evaluation is costly.
+We aim to provide new insights on these LMs by estimating \ours\ of their long-form generations.
+
+\subsubsection{Setup}
+\begin{table}[t]
+    \center \mysmallfontsize % \scriptsize 
+    \setlength{\tabcolsep}{0.25em}
+    \begin{tabular}{l @{\hspace{0em}} c @{\hspace{0.8em}} c @{\hspace{0.2em}} c @{\hspace{0em}} r 
+        }
+        \toprule        
+           {\subjectLM} & Base LM & Use other LMs & Open & Release \\
+        \midrule
+            InstructGPT & ? & ? & \xmark & Nov 2022  \\
+            ChatGPT & ? & ? & \xmark & Nov 2022      \\
+            GPT-4 & ? & ? & \xmark & Mar 2023        \\
+            Alpaca \{7B,13B,65B\} & LLAMA & InstructGPT  & \cmark & Mar 2023 \\
+            Vicuna \{7B,13B\} & LLAMA & ChatGPT & \cmark  & Mar 2023     \\
+            Dolly 12B & Pythia 12B & N/A & \cmark & Mar 2023             \\
+            Oasst-pythia 12B & Pythia 12B & N/A & \cmark & Mar 2023      \\
+            StableLM-tuned 7B & StableLM-base & ChatGPT, GPT-4 & \cmark & Apr 2023 \\
+            MPT Chat 7B & MPT 7B & ChatGPT & \cmark & May 2023   \\
+        \bottomrule
+    \end{tabular}
+    \caption{
+        A set of twelve LMs evaluated in Section~\ref{sec:eval-new-lms}. 
+        All models are tuned for instruction following or chat.
+        {\em Use other LMs} indicates whether the model is trained on any data that includes outputs of another model.
+        {\em Open} indicates model weights %and training recipes
+        are publicly available.
+    }\label{tab:new-lms}
+\end{table}
+
+\begin{figure*}[t]
+\centering \footnotesize
+\resizebox{2\columnwidth}{!}{
+    \includegraphics[trim={0.3cm 0 0 1.1cm},clip]{figures/manylm_comparison.pdf}%
+}\vspace{-1em}
+\caption{
+    Ranking between 13 subjects (human and 12 LMs), rated by the two best variants of our estimator: ChatGPT (\textbf{left}) and LLAMA+NP (\textbf{right}), both with retrieval.
+    Scores from two metrics have a Pearson's $r$ of 0.99.
+    % Ranking from two metrics are mostly consistent (0.92 Kendall's $\tau$).
+    See Table~\ref{tab:new-lms-statistics} for \% of responding and \# of atomic facts per response of each LM. % \hanna{use the metric name factscore in the x axis}
+    The variance in estimation based on different subsets of prompts is reported in Figure~\ref{fig:new-lms-ranking-error-bar} of Appendix~\ref{app:new-lms-additional}.
+    }\label{fig:new-lms-ranking}
+\end{figure*}
+
+
+We evaluate 10 recently-released LMs as shown in Table~\ref{tab:new-lms}.
+\textbf{GPT-4}~\citep{OpenAI2023GPT4TR} is a multimodal LM released by OpenAI available through an API.
+\textbf{Alpaca}~\citep{alpaca} is based on LLAMA~\citep{touvron2023llama} fine-tuned on the instructions data based on InstructGPT following the recipe from~\citet{wang2022super}.
+\textbf{Vicuna}~\citep{vicuna2023} is based on LLAMA fine-tuned on the outputs from ChatGPT available through ShareGPT.\footnote{
+\href{https://sharegpt.com/}{\texttt{sharegpt.com}}
+\textsuperscript{9}\href{https://huggingface.co/databricks/dolly-v2-12b}{\texttt{dolly-v2-12b}}
+\textsuperscript{10}\href{https://www.databricks.com}{\texttt{databricks.com}}
+\textsuperscript{11}\href{https://huggingface.co/OpenAssistant/oasst-sft-1-pythia-12b}{\texttt{oasst-sft-1-pythia-12b}}
+\textsuperscript{12}\href{https://open-assistant.io/}{\texttt{open-assistant.io}}
+\textsuperscript{13}\href{https://huggingface.co/stabilityai/stablelm-tuned-alpha-7b}{\texttt{StableLM-tuned-alpha-7b}}
+\textsuperscript{14}\href{https://huggingface.co/stabilityai/stablelm-base-alpha-7b}{\texttt{stablelm-base-alpha-7b}}
+\textsuperscript{15}\href{https://www.mosaicml.com/blog/mpt-7b}{\texttt{mosaicml.com/blog/mpt-7b}}
+\textsuperscript{16}\href{https://huggingface.co/datasets/victor123/evol_instruct_70k}{\texttt{evol\_instruct\_70k}}}
+\textbf{Dolly}\footnotemark[9] is Pythia 12B~\citep{biderman2023pythia} fine-tuned on DataBricks Dolly, human-written data created by Databricks.\footnotemark[10]
+\textbf{Oasst-pythia}\footnotemark[11] is Pythia 12B fine-tined on human-written data collected through Open Assistant.\footnotemark[12]
+\textbf{StableLM-tuned-alpha}\footnotemark[13] is based on StableLM-base-alpha\footnotemark[14] fine-tuned on the data used in the Alpaca data, DataBricks Dolly, the ShareGPT data, the GPT4All data~\citep{gpt4all} and Anthropic HH~\citep{bai2022training}.
+\textbf{MPT Chat} is based on MPT 7B\footnotemark[15] fine-tuned on the ShareGPT data, the Alpaca data, Anthropic HH, HC3~\citep{guo-etal-2023-hc3}, and Evol-Instruct.\footnotemark[16]
+
+\setcounter{footnote}{16} 
+
+\begin{table}[t]
+    \center
+    % \myfontsize 
+    \footnotesize
+    \begin{tabular}{l @{\hspace{-0.8em}} r r
+        }
+        \toprule        
+           \subjectLM & \% responding & \#facts / res \\
+        \midrule
+            GPT-4       & 88.2 & 60.8 \\
+            Vicuna 13B & 76.6 & 50.9 \\
+            Vicuna 7B & 91.0 & 45.6 \\
+            Oasst-pythia 12B & 100.0 & 39.7 \\
+            StableLM-tuned-alpha 7B &  66.6 & 38.0 \\
+            MPT Chat 7B & 88.8 & 37.3 \\
+            ChatGPT     & 84.2 & 37.0 \\
+            InstructGPT & 99.8 & 27.7 \\
+            Dolly 12B & 100.0 & 24.6 \\
+            Alpaca 7B & 100.0 & 17.4 \\
+            Alpaca 65B & 100.0 & 17.1 \\
+            Alpaca 13B & 100.0 & 16.6 \\ 
+        \midrule
+            Human & 88.8 & 29.0 \\
+        \bottomrule
+    \end{tabular}
+    \caption{
+        Statistics of 500 model-generated bios in our unlabeled data from 12 LMs as well as human-written bios.
+        {\em \% responding} indicates \% of generations that do not abstain from responding.
+        {\em \#facts / res} indicates \# of atomic facts per response.
+        LMs are sorted based on \# of facts per response.
+        See Figure~\ref{fig:new-lms-ranking} for their \ourScores.
+    }\label{tab:new-lms-statistics}
+\end{table}
+
+\vspace{.3em}
+We prompt each \subjectLM\ to generate biographies of 500 human entities as done in Section~\ref{subsec:data} but with no overlap in entities.
+We additionally include InstructGPT, ChatGPT, and human-written biographies obtained through DBPedia. % whose factual precision is expected to be 100\%.
+Human-written biographies were unavailable for 11\% of entities which we consider as abstaining from responding.
+See Table~\ref{tab:new-lms-statistics} for their statistics.
+In total, we evaluate 6,500 generations from 13 subjects, which would have cost \$26K if they were evaluated by humans.
+
+\subsubsection{Results}
+Figure~\ref{fig:new-lms-ranking} shows the ranking between 13 subjects provided by the two best variants of our estimator whose scores are largely correlated, e.g., having a Pearson's $r$ of 0.99.
+% The ranking is roughly consistent across different evaluators (0.92 Kendall's $\tau$, 0.99 Pearson's $r$).
+This evaluation allows a better understanding of these models, including:\vspace{-.3em}
+\begin{itemize}[leftmargin=12pt]\itemsep -.2em
+    \item All LMs are substantially less factual than humans. This is in contrast to prior work that claims LMs approach human performance, even for complex tasks~\citep{ding2022gpt,nori2023capabilities,lee2023benefits} even though the task of writing  biographies is fairly easy.
+    \item GPT-4 and ChatGPT are comparable in factual precision. However, as reported in Table~\ref{tab:new-lms-statistics}, GPT-4 abstains from responding less (12\% vs. 16\%) and generates significantly more facts (61 vs. 37 per response).
+    \item GPT-4 and ChatGPT are significantly more factual than public models.
+    \item Within the same family of models that differ in sizes, there is a clear correlation between the model size and factual precision, e.g., Alpaca 65B > 13B > 7B, and Vicuna 13B > 7B.
+    \item Alpaca and Vicuna achieve performance that is very close to each other within the same size of models, possibly because they share the same base model and similar training data.
+    Nonetheless, as shown in Table~\ref{tab:new-lms-statistics}, 
+    Vicuna generates significantly more atomic facts than Alpaca does (51 vs. 17 per response). Also, Alpaca never abstains from answering while Vicuna does. % for 9--23\% of the cases.
+    \item Within public models, there are large gaps in factual precision even when the model size is similar, e.g., within the 7B models, Alpaca and Vicuna ($\sim40\%$) are more factual than MPT-Chat ($30\%$) and StableLM ($17\%$).
+    Possible factors include the choice of the base LM, the data, and the training recipe~\citep{hoffmann2022training}. %\kalpesh{It could also be due to Chinchilla laws~\citep{hoffmann2022training} / amount of training tokens.. Also, should we give specific example here? (like Alpaca 7B much better than StableLM 7B, 38\% vs 18\%?}
+    % \item As a random fun fact, Dolly 12B mentions Databricks 26 times, e.g., \texttt{``Zubaira Tukhugov is the founder and CEO of Databricks, a pioneer in the artificial intelligence ecosystem.''} (Zubaira Tukhugov is a mixed martial artist with no connection to Databricks.) This is possibly because the data manually created by Databricks on which Dolly 12B is trained includes much data about Databricks.
+\end{itemize}
+
+\myskip{
+\begin{figure}[t]
+\centering \footnotesize
+\resizebox{1\columnwidth}{!}{
+    \includegraphics[trim={20cm 0 0 1.1cm},clip]{figures/manylm_comparison.pdf}%
+}\vspace{-.5em}
+\caption{
+    Ranking between 13 subjects (human and 12 LMs), rated by our estimator with the best ER.
+    % Scores from two metrics have a Pearson's $r$ of 0.99.
+    % Ranking from two metrics are mostly consistent (0.92 Kendall's $\tau$).
+    See Table~\ref{tab:new-lms-statistics} for \% of responding and \# of atomic facts per response of each LM. % \hanna{use the metric name factscore in the x axis}
+    The variance in estimation based on different subsets of prompts is reported in Figure~\ref{fig:new-lms-ranking-error-bar} of Appendix~\ref{app:new-lms-additional}.
+    }\label{fig:new-lms-ranking}
+\end{figure}}
+
+\vspace{-.1em}
+\noindent
+We highlight that this evaluation only considers factual precision, specifically in people biographies. A holistic evaluation of LMs should include other aspects of generations such as fluency, coherence, relevance, consistency and creativity, which is out of scope of this paper. 
+
+
+
+
+
+
+
+
+
+
+

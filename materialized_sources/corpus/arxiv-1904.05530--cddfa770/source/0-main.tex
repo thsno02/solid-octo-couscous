@@ -1,0 +1,157 @@
+
+\documentclass[11pt,a4paper]{article}
+\usepackage[hyperref]{emnlp2020}
+\usepackage{times}
+\usepackage{latexsym}
+\renewcommand{\UrlFont}{\ttfamily\small}
+
+% This is not strictly necessary, and may be commented out,
+% but it will improve the layout of the manuscript,
+% and will typically save some space.
+\usepackage{microtype}
+\usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage[linesnumbered,algoruled,boxed,noend]{algorithm2e}
+\usepackage{multirow}
+\usepackage{subfig}
+\usepackage{xspace}
+\usepackage{graphicx,wrapfig}
+\usepackage{amsmath}
+\usepackage{xcolor}
+\usepackage{enumitem}
+
+% \setlength{\floatsep}{10pt}
+% \setlength{\textfloatsep}{10pt}
+% % \setlength{\intextsep}{10pt}
+% \setlength{\abovedisplayskip}{5pt}
+% \setlength{\belowdisplayskip}{5pt}
+% \setlength{\abovecaptionskip}{5pt}
+
+% \usepackage{titlesec} % title spacing
+% \titlespacing*{\section}{1pt}{6pt}{2pt}
+% \titlespacing*{\subsection}{1pt}{6pt}{2pt}
+% \titlespacing*{\subsubsection}{1pt}{1pt}{1pt}
+% %
+
+
+\newcommand{\xiang}[1]{{{\textcolor{red}{[Xiang: #1]}}}}
+\newcommand{\wj}[1]{\textcolor{red}{[WJ: #1]}}
+\newcommand{\meng}[1]{{{\textcolor{orange}{[Meng: #1]}}}}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{observation}{Observation}
+
+
+%%% Added notations
+\newcommand{\bC}{\mathbf{C}}
+\newcommand{\bU}{\mathbf{U}}
+\newcommand{\bM}{\mathbf{M}}
+\newcommand{\bH}{\boldsymbol{H}}
+\newcommand{\bv}{\mathbf{v}}
+\newcommand{\bx}{\mathbf{x}}
+\newcommand{\by}{\mathbf{y}}
+\newcommand{\bh}{\boldsymbol{h}}
+\newcommand{\bbh}{\mathbf{h}}
+\newcommand{\ba}{\mathbf{a}}
+\newcommand{\bu}{\mathbf{u}}
+\newcommand{\bW}{\boldsymbol{W}}
+\newcommand{\bw}{\boldsymbol{w}}
+\newcommand{\mbR}{\mathbb{R}}
+\newcommand{\prob}{p}
+\newcommand{\calL}{\mathcal{L}}
+\newcommand{\calY}{\mathcal{Y}}
+\newcommand{\calV}{\mathcal{V}}
+\newcommand{\calN}{\mathcal{N}}
+\newcommand{\calE}{G}
+\newcommand{\calO}{\mathcal{O}}
+
+\newcommand\BibTeX{B\textsc{ib}\TeX}
+
+\SetKwInput{KwInput}{Input}
+\SetKwInput{KwOutput}{Output}
+\SetEndCharOfAlgoLine{}
+
+\newcommand{\fix}{\marginpar{FIX}}
+\newcommand{\new}{\marginpar{NEW}}
+\newcommand{\method}{\textsc{RE-Net}\xspace}
+\newcommand{\para}[1]{\smallskip\noindent\textbf{#1}}
+% \newcommand{\para}[1]{\noindent\textbf{#1}}
+
+\newcommand{\teN}{\text{N}}
+\newcommand{\bs}{\mathrm{s}}
+\newcommand{\br}{\mathrm{r}}
+\newcommand{\bo}{\mathrm{o}}
+\newcommand{\bt}{t}
+\newcommand{\es}{\boldsymbol{e}_{\mathrm{s}}}
+\newcommand{\er}{\boldsymbol{e}_{\mathrm{r}}}
+\newcommand{\eo}{\boldsymbol{e}_{\mathrm{o}}}
+\renewcommand{\bh}{\boldsymbol{h}}
+\newcommand{\nop}[1]{}
+\newcommand{\eg}{{e.g.}}
+\newcommand{\ie}{{i.e.}}
+\newcommand{\red}[1]{\textcolor{red}{#1}}
+
+\usepackage{nccmath}
+
+\aclfinalcopy % Uncomment this line for the final submission
+%\def\aclpaperid{***} %  Enter the acl Paper ID here
+
+%\setlength\titlebox{5cm}
+% You can expand the titlebox if you need extra space
+% to show all the authors. Please do not make the titlebox
+% smaller than 5cm (the original size); we will check this
+% in the camera-ready version and ask you to change it back.
+
+
+
+\title{Recurrent Event Network: Autoregressive Structure Inference over Temporal Knowledge Graphs}
+
+\author{Woojeong Jin$^1$ \quad Meng Qu$^2\, ^3$ \quad Xisen Jin$^1$ \quad Xiang Ren$^1$ \\
+$^1$Department of Computer Science, University of Southern California\\
+$^2$MILA - Quebec AI Institute \\
+$^3$University of Montr\'{e}al\\
+\texttt{\{woojeong.jin,xisenjin,xiangren\}@usc.edu meng.qu@umontreal.ca} \\
+}
+
+\date{}
+
+\begin{document}
+\maketitle
+\begin{abstract}
+\input{000abs}
+\end{abstract}
+
+
+\section{Introduction}
+\input{010intro}
+
+\input{020method}
+
+\section{Experiments}
+\input{030experiments}
+
+\section{Related Work}
+\input{040related}
+
+\section{Conclusion}
+\input{060conclusion}
+
+\section*{Acknowledgement}
+This research is based upon work supported in part by the Office of the Director of National Intelligence (ODNI), Intelligence Advanced Research Projects Activity (IARPA), via Contract No. 2019-19051600007, the DARPA MCS program under Contract No. N660011924033 with the United States Office Of Naval Research, the Defense Advanced Research Projects Agency with award W911NF-19-20271, and NSF SMA 18-29268. The views and conclusions contained herein are those of the authors and should not be interpreted as necessarily representing the official policies, either expressed or implied, of ODNI, IARPA, or the U.S. Government. We would like to thank all the collaborators in USC INK research lab for their constructive feedback on the work.
+
+
+\bibliographystyle{acl_natbib}
+\bibliography{biblio}
+
+\clearpage
+\appendix
+
+
+\input{appendix}
+
+
+\end{document}

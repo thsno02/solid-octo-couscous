@@ -1,0 +1,21 @@
+\begin{table}
+    \centering
+    \small
+    \begin{tabular}{lcccccccc}
+    \toprule
+        & \multicolumn{2}{c}{\textbf{FEVER}} & \multicolumn{2}{c}{\textbf{zsRE}} &  \multicolumn{2}{c}{\textbf{zsRE-hard}} & \multicolumn{2}{c}{\textbf{Wikitext}}  \\
+        \cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule{6-7} \cmidrule{8-9}
+        & \multicolumn{2}{c}{BERT-base} & \multicolumn{2}{c}{BART-base} & \multicolumn{2}{c}{BART-base} & \multicolumn{2}{c}{distilGPT-2} \\
+        \midrule
+        Editor & ES $\uparrow$ & acc. DD $\downarrow$ & ES $\uparrow$ & acc. DD $\downarrow$ & ES $\uparrow$ & ppl. DD $\downarrow$ & ES $\uparrow$ & ppl. DD $\downarrow$ \\
+        \midrule
+        \name & \textbf{\textgt{0.99}} & \textbf{\textlt{0.001}} & 0.98 & \textbf{0.002} & \textbf{0.66} & \textbf{\textlt{0.001}} & \textbf{0.86} & 0.225 \\
+        Cache ($\epsilon^*$) & 0.96 & \textbf{\textlt{0.001}} & \textbf{\textgt{0.99}} & \textbf{0.002} & 0.32 & 0.002 & 0.001 & \textbf{0.211} \\
+        \midrule
+        Cache ($\frac{1}{2}\epsilon^*$) & 0.70 & \textlt{0.001} & 0.70 & \textlt{0.001} & -- & -- & \textlt{0.001} & 0.037 \\
+        Cache ($2\epsilon^*$) & \textgt{0.99} & 0.250 & 1.00 & 0.220 & -- & -- & 0.002 & 2.770 \\
+        \bottomrule
+    \end{tabular}
+    \caption{\rebuttal{\textbf{Comparing {\name} with a caching-based approach to editing.} For purposes of the comparison, the caching hidden-state similarity threshold $\epsilon^*$ is the one that gives similar drawdown to \name. We found $\epsilon^*$ to be $6.5, 3, 2.5$ for FEVER, zsRE, and Wikitext, respectively. \textbf{Top half.} Caching gives slightly better performance for zsRE, slightly worse performance for FEVER, and total failure for Wikitext editing, likely owing to the longer, more complex contexts in the Wikitext data. \textbf{Bottom half.} Caching is relatively sensitive to the chosen threshold, which needs to be tuned separately for each new task.}}
+    \label{tab:caching}
+\end{table}

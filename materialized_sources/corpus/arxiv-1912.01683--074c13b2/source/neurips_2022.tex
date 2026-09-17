@@ -1,0 +1,113 @@
+\documentclass{article}
+
+\def\isfinal{0} 
+\def\useneurips{1} 
+
+\if\useneurips1
+\if\isfinal1
+\usepackage[final]{neurips_2022}
+\else
+\usepackage[preprint]{neurips_2022}
+\fi
+
+\else
+\usepackage[preprint]{neurips_blank}
+\fi
+
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{xcolor}         % colors
+
+%\usepackage{main-tex/preamble}
+\usepackage{xifthen}% provides \isempty test
+\usepackage{xparse}
+\usepackage{xstring}
+%\usepackage{xr} % cross-file refs
+%\usepackage{standalone}
+%\usepackage{subfiles}
+%\usepackage[title]{appendix}
+%\usepackage{titletoc}
+\usepackage{todonotes}
+
+\usepackage[abbreviations]{foreign}
+%\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{pifont}
+\usepackage[shortlabels]{enumitem}
+\usepackage{dialogue}
+
+
+% Figures
+%\usepackage{wrapfig}
+%\usepackage{colortbl}
+%\usepackage{subcaption}
+%\usepackage[lofdepth,lotdepth]{subfig}
+%\usepackage{pgf, tikz,xcolor}
+%\usetikzlibrary{arrows, automata, positioning}
+
+% Tables
+%\usepackage{booktabs}       % professional-quality tables
+%\usepackage{ragged2e}
+%\usepackage{longtable}
+%\usepackage{array}
+
+% Math
+\usepackage{array}
+\usepackage{amsthm}
+\usepackage{thmtools}
+\usepackage{commath}
+\usepackage{amssymb}
+\usepackage{thm-restate}
+\usepackage{textcomp}
+\usepackage{mathtools}
+\usepackage{algpseudocode}
+\usepackage{amsmath}
+\usepackage{cleveref} % Must be loaded after amsmath
+\usepackage{bbm}
+\usepackage{mathrsfs} % mathscr
+%\usepackage{subfig}
+\usepackage{colortbl}
+\usepackage{subcaption}
+
+\input{main-tex/macros}
+\input{./quantitative/sections/macros.tex}
+
+%\usepackage{xr}\externaldocument{main}\newcommand{\eref}[3]{\begin{NoHyper}\cref{#3}\end{NoHyper}}
+\newcommand{\eref}[3]{#1~#2}
+
+\title{Parametrically Retargetable Decision-Makers Tend To Seek Power} 
+\author{
+Alexander Matt Turner, Prasad Tadepalli\\
+Oregon State University\\
+\texttt{\{turneale@, tadepall@eecs.\}oregonstate.edu} 
+}
+\begin{document}
+
+\maketitle 
+
+\input{quantitative/sections/intro}
+\input{quantitative/sections/results}
+\input{quantitative/sections/MR}
+\input{quantitative/sections/discussion-new}
+
+\section*{Broader impacts}
+Our theory of orbit-level tendencies constitutes basic mathematical research into the decision-making tendencies of certain kinds of agents. We hope that this theory will prevent negative impacts from unaligned power-seeking AI. We do not anticipate that our work will have negative societal impact.
+
+\bibliographystyle{named}
+{\small\bibliography{AI_Safety.bib}}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage 
+
+\appendix
+\input{quantitative/sections/appendices/old-results}
+\input{quantitative/sections/appendices/proofs}
+\input{quantitative/sections/appendices/analyses}
+\input{quantitative/sections/appendices/mdp}
+\end{document}

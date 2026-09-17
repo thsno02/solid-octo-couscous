@@ -1,0 +1,2140 @@
+## Page 1
+
+An autonomous laboratory for the 
+accelerated synthesis of inorganic materials
+In the format provided by the 
+authors and unedited
+Nature | www.nature.com/nature
+Supplementary information
+https://doi.org/10.1038/s41586-023-06734-w
+
+
+## Page 2
+
+1 
+ 
+ 
+Supplementary Information 
+An autonomous laboratory for the accelerated synthesis of inorganic materials 
+Nathan J. Szymanski1,2,†, Bernardus Rendy1,2,†, Yuxing Fei1,2,†, Rishi E. Kumar3,†, Tanjin He1,2, 
+David Milsted2, Matthew J. McDermott1,2, Max Gallant1,2, Ekin Dogus Cubuk4, Amil Merchant4, 
+Haegyeom Kim2, Anubhav Jain3, Christopher J. Bartel2, Kristin Persson1,2, Yan Zeng2,*, and 
+Gerbrand Ceder1,2,* 
+ 
+ 
+Table of contents 
+Supplementary Notes 1-11 
+Supplementary Figs. 1-7 
+Supplementary Tables 1-5 
+Supplementary Videos 1-3
+
+
+## Page 3
+
+2 
+ 
+ 
+Supplementary Note 1. Correction of DFT-calculated lattice parameters 
+Structures calculated using the PBE functional tend to underbind chemical bonds, resulting in unit 
+cell volumes that are larger than experimentally observed. Indeed, comparing the volumes of 
+11,519 structures with matching entries from the Materials Project and the ICSD, the DFT -
+calculated structures overestimate the volumes of their experimental counterparts by 4.32%, on 
+average. This volume difference can have a substantial effect on the positions of each phase’s 
+diffraction peaks, thus complicating phase identification based on XRD. Accordingly, a lattice 
+correction is necessary before DFT-calculated structures can be included in the training set for our 
+phase identification algorithm, XRD-AutoAnalyzer. 
+To machine learn an appropriate lattice correction for each structure, we use a mixture of 
+graph neural network models with four different architectures: E3NN1, GATGNN2, CrysXPP3, 
+and ElemNet4. Each network was separately trained based on 9,330 structures (~80% of the total 
+dataset available), which were randomly selected with replacement (bootstrap). A dropout rate of 
+75% was implemented for regularization. Once the models were finished traini ng, we also 
+employed a Monte Carlo dropout approach at inference, whereby 75% of the connections were 
+randomly excluded from each network during its forward pass. A total of 150 passes were applied 
+for each network, and their predictions were averaged. We further averaged the predictions from 
+each distinct architecture to obtain a final prediction, which led to significant error reduction. On 
+average, the volume error on the test set of 1,152 structures was reduced from 4.02% (before 
+correction) to just 1.78% (post correction).
+
+
+## Page 4
+
+3 
+ 
+ 
+Supplementary Note 2. Automated Rietveld refinement 
+After obtaining phase predictions from XRD-AutoAnalyzer, we determine their weight fractions 
+and associated parameters by using a closed -loop reinforcement learning (RL) approach to 
+Rietveld refinement. To this end, we developed a Python workflow that wrap s the GSAS-II 
+refinement engine5 in a custom gym environment. It can refine parameters or reset them to their 
+initial values based on decisions made by the RL agent. The environment automatically resets 
+certain parameters should they exceed a predefined set of bounds. For example, if the lattice 
+parameters change by more than ±10%, the environment automatically resets them to their initial 
+values. The parameters included during the refinement process are sample displacement, lattice 
+parameter, particle size, isotropic microstrain, and phase fractions. After each step in the 
+refinement, the experimental and calculated XRD patterns are provided to the RL agent to inform 
+its next decision (i.e., which parameter to change and by how much). The RL agent was trained 
+with the objective to achieve minimal 𝑅!" while using as few refinement steps as possible. As 
+such, the agent is given a positive reward by reducing 𝑅!", and it is penalized if it either 1) received 
+an error state that crashes the GSAS-II refinement engine, or 2) required too many refinement steps 
+without improving 𝑅!". 
+ An actor-critic algorithm is used to train our agent, where both actor and critic networks 
+consist of two hidden layers, each with 64 neurons.  Training is carried out using the proximal 
+policy optimization (PPO) algorithm6 as implemented in RLLIB7. The PPO parameters used are 
+5×10#$ learning rate,  𝜆%&’=0.95, 𝛾=0.99, 𝜖=0.2, initial 𝛽=0.2, 𝑑()*+,(=0.01, and 
+𝑐-=1.0. The dataset used for training includes eight XRD patterns measured from separately 
+synthesized Li2MnO3 samples. We used a batch size of 1024 with 64 stochastic gradient descent 
+minibatch size, and 10 training steps for each pattern, resulting in a total of ~85000 environment 
+steps. We evaluated the trained policy on three separately prepared two-phase mixtures of Li2CO3 
+and MnO2. The agent recovered reasonably accurate fits with weight fractions matching the 
+expected values of 56% and 44% for Li2CO3 and MnO2, respectively.
+
+
+## Page 5
+
+4 
+ 
+ 
+Supplementary Note 3. Literature-inspired synthesis recipe generation for MgNi(PO3)4 
+To demonstrate the methods used to generate initial synthesis recipes for the targets, we provide a 
+detailed walkthrough of the process for one target, MgNi(PO 3)4. Our literature-inspired 
+recommendation engine generates the first recipe by proposing the most common precursors for 
+Mg, Ni, and P in reported solid-state synthesis experiments: MgO, NiO, and NH 4H2PO4. 
+Additional recipes are then generated using a similarity-based strategy16, which operates under the 
+assumption that highly similar target materials can be produced using the same (o r related) 
+precursors. By using the PrecursorSelector encoding model 16, we calculated and ranked the 
+similarity between MgNi(PO3)4 and each of the 28,598 target materials contained in our database 
+of 33,343 solid-state synthesis procedures extracted from 24,304 publications. BaMg2(PO4)2 was 
+identified as the target material that is most similar to MgNi(PO3)4, and which is also synthesized 
+using precursors different from the most common ones. The precursors used to synthesize 
+BaMg2(PO4)2 include BaCO3, MgO, and (NH4)2HPO4. A masked precursor completion (MPC) 
+model16 was then used to exchange the necessary elements (Ni/Ba) to reach our current target, 
+MgNi(PO3)4. This algorithm identified NiO as the most likely replacement for BaCO3, resulting 
+in the following set of precursors: NiO, MgO, and (NH4)2HPO4. 
+Following the process outlined above, three more recipes are generated by referring to three 
+less similar targets, Ca8LuMg(PO4)7, Mg1.9Ni0.1TiO4, and Y2MoO6. The corresponding synthesis 
+recipes are listed in Supplementary Table 4. For each set of precursors, the synthesis temperature 
+was predicted using a pre -trained XGBoost regressor17 based on the composition and 
+thermodynamic properties of MgNi(PO3)4 and its precursors. Although the predicted temperature 
+may vary for each recipe, we chose to use one fixed temperature for each target to maximize the 
+possibility of batching multiple precursor sets in a single furnace. The actual synthesis temperature 
+for MgNi(PO3)4 was calculated by averaging the five temperatures proposed across these recipes 
+and rounded to the nearest hundred (900 °C).
+
+
+## Page 6
+
+5 
+ 
+ 
+Supplementary Note 4. Identification of unique synthesis pathways 
+The number of experiments required to exhaustively sample each target’s search space, which 
+consists of various precursor combinations and synthesis temperatures, can be substantially 
+reduced by avoiding “redundant” reaction pathways. We consider the pathway for a given 
+precursor set to be redundant if it forms the same intermediates at low temperature (T1) as those 
+formed by another precursor set that has already been tested at all temperatures. Because their 
+intermediate phases are identical at T1, it can be inferred that their products formed at higher 
+temperatures (T > T1) will also be identical. We therefore do not sample such pathways at T > T1.  
+ The formation of redundant intermediates can also sometimes be predicted based on 
+previously observed pairwise reactions, in which case no experiments are required for the 
+associated precursor set. Here we assume a pairwise reaction will occur in a given precursor set if 
+its observed onset temperature is less than the minimum temperature considered for that set. 
+Further details on this process are given in previous work8. 
+ Consider the targeted synthesis of CaTiNiP2O9 as an example, for which we have the 
+following precursors available: 
+Ca: CaO, Ca(OH)2, and CaCO3 
+Ti: TiO2 
+Ni: NiO, NiCO3, Ni(OH)2 
+P: (NH4)H2PO4, (NH4)2HPO4 
+These can be combined to form 18 different precursor sets, each of which may be heated to four 
+different synthesis temperatures extracted from our text-based models (800, 900, 1000, 1100 °C). 
+This results in a search space consisting of 72 possible experiments. From the start, these can be 
+reduced by skipping any precursor sets containing Ca(OH)2, which was previously observed to 
+decompose to CaO below 700 °C (Supplementary Table 2), effectively reducing the search space 
+to 48 experiments. Of these, many do not require explicit testing as the A-Lab quickly finds that 
+every precursor set collapses onto one of two distinct reaction pathways defined by the following 
+sets of intermediates: 1) TiO2, NiO, CaTi4(PO4)6, and Ca2P2O7; or 2) CaNi3(P2O7)2, NiTiO3, and 
+TiO2. Both sets remain inert within the heating time allotted by the A-Lab, likely owing to their 
+low driving force to react (< 40 meV/atom), thus exhausting the search space for CaTiNiP2O9.
+
+
+## Page 7
+
+6 
+ 
+ 
+Supplementary Note 5. Exhausting the search space for BaGdCrFeO6 synthesis 
+The A-Lab’s experimental campaign targeting BaGdCrFeO6 began with four literature-inspired 
+synthesis recipes that included the following precursor sets with a hold temperature of 1000 °C: 
+Set A: BaCO3, Cr2O3, Fe2O3, Gd2O3 
+Set B: BaCO3, Cr2O3, Fe3O4, Gd2O3 
+Set C: BaO, Cr2O3, Fe2O3, Gd2O3 
+Set D: BaO2, Cr2O3, Fe2O3, Gd2O3 
+Sets A and B produced samples that predominantly contained BaCrO4, in addition to minority 
+amounts of GdCrO3 and Fe2O3. In contrast, the samples resulting from Sets C and D contained 
+substantially larger amounts of GdCrO3 and only small amounts of BaCrO4. These outcomes 
+suggest some differences between the reaction pathway of each set. To further investigate these 
+differences, the active learning algorithm (ARROWS3) implemented in the A-Lab proposed that 
+all four precursor sets be tested at lower temperature (700 °C). The products obtained from Sets A 
+and B contained BaCrO4 in addition to Gd2O3 and Fe2O3. From these results, the algorithm gained 
+information regarding two reactions: 
+4 BaCO3 + 2 Cr2O3 + 3 O2→ 4 BaCrO4 + 2 CO2 (Trxn ≤ 700 °C) 
+4 Fe3O4 + O2 → 6 Fe2O3 (Trxn ≤ 700 °C) 
+In contrast, the samples produced by Sets C and D at 700 °C predominantly contained unreacted 
+precursors, with just minority amounts of BaCrO4. The formation of GdCrO3, while evident at 
+1000 °C for each set, was not yet initiated at a lower temperature of 700 °C. Accordingly, 
+ARROWS3 learned the following information from these outcomes: 
+4 BaO + 2 Cr2O3 + 3 O2 → 4 BaCrO4 (Trxn ≤ 700 °C) 
+4 BaO2 + 2 Cr2O3 + O2 → 4 BaCrO4 (Trxn ≤ 700 °C) 
+Gd2O3 + Cr2O3 → 2 GdCrO3 (700 °C < Trxn ≤ 1000 °C) 
+Because the four initially tested precursor sets were found to react and form BaCrO4 at the lower 
+bound of the temperature range considered (700-1000 °C), ARROWS3 next suggested a set of 
+precursors that was not yet observed to form such intermediates. This set also excludes Fe3O4 as 
+the algorithm learned that it simply oxidizes to Fe2O3 at a temperature lower than 700 °C. 
+Set E: Ba(OH)2, Cr2O3, Fe2O3, Gd2O3
+
+
+## Page 8
+
+7 
+ 
+ 
+However, when evaluated at 700 °C, this precursor combination was found to produce large 
+amounts of BaCrO4, appearing similar to the samples made by Sets A and B. The algorithm 
+gleaned the following information from this outcome: 
+4 Ba(OH)2 + 2 Cr2O3 + 3 O2→ 4 BaCrO4 + 2 H2O (Trxn ≤ 700 °C) 
+At this point, ARROWS3 identified two unique reaction pathways characterized by the amount of 
+BaCrO4 observed at low temperature: Sets A, B, and E formed BaCrO4 in majority amounts at 700 
+°C while Sets C and D produced only minority amounts of that phase and instead contained a 
+larger weight fraction of unreacted precursors. To further investigate these synthesis routes, the 
+algorithm selected one representative set (D and E) from each pathway to evaluate at 800 °C. In 
+either case, the products made at this temperature appeared similar to those obtained at 1000 °C. 
+Set D (E) contained large (small) amounts of BaCrO4 and small (large) amounts of GdCrO3. From 
+these results, ARROWS3 refined the temperature range in which GdCrO3 forms: 
+Gd2O3 + Cr2O3 → 2 GdCrO3 (700 °C < Trxn ≤ 800 °C) 
+The algorithm also determined that there was no need to probe additional temperatures (900 °C) 
+as the products formed at 800 °C appeared similar to those obtained at 1000 °C. At this point, all 
+unique reaction pathways had been exhausted. As such, no more experiments were performed, and 
+the synthesis was deemed “failed.”
+
+
+## Page 9
+
+8 
+ 
+ 
+Supplementary Note 6. Successful optimization of CaFe2P2O9 synthesis 
+The A-Lab’s experimental campaign targeting CaFe2P2O9 began with four synthesis recipes that 
+were suggested by the literature-inspired machine learning algorithms. These include the following 
+precursor sets, each evaluated at 1100 °C: 
+Set A: CaCO3, Fe2O3, (NH4)2HPO4 
+Set B: CaO, Fe2O3, (NH4)2HPO4 
+Set C: Ca(OH)2, Fe2O3, (NH4)2HPO4 
+Set D: CaO, Fe3O4, NH4H2PO4 
+These produced glassy samples with low target yield and poor signal-to-noise ratio, likely due to 
+melting at high temperature and subsequent amorphization upon cooling. As such, the same 
+precursor sets were evaluated at lower temperature (800 °C). They were all found to produce 
+identical phases: Ca3(PO4)2 and FePO4. From these results, the active learning algorithm 
+(ARROWS3) learned five pairwise reactions that occurred ≤ 800 °C, each listed below: 
+3 CaCO3 + 2 (NH4)2HPO4 → Ca3(PO4)2 + 4 NH3 + 3 H2O + CO2 
+3 Ca(OH)2 + 2 (NH4)2HPO4 → Ca3(PO4)2 + 4 NH3 + 6 H2O 
+3 CaO + 2 NH4H2PO4 → Ca3(PO4)2 + 2 NH3 + 3 H2O 
+Fe2O3 + 2 (NH4)2HPO4 → 2 FePO4 + 4 NH3 + 3 H2O 
+4 Fe3O4 + 12 NH4H2PO4 + O2 → 12 FePO4 + 12 NH3 + 18 H2O 
+Using its interface with the Materials Project, the algorithm also determined that there is little 
+thermodynamic driving force (8 meV/atom) remaining to form the target when Ca 3(PO4)2 and 
+FePO4 precede it. As such, it proposed two new sets of precursors to be tested at 800 °C: 
+Set E: CaO, Fe2O3, NH4H2PO4 
+Set F: CaO, Fe3O4, (NH4)2HPO4 
+In each set, ARROWS3 predicted a reaction between CaO and the phosphate precursor to form 
+Ca3(PO4)2 at a temperature ≤ 800 °C. However, the algorithm did not predict the formation of 
+FePO4 in either set as the below precursor pairs were not yet tested: 
+Fe2O3|NH4H2PO4 and Fe3O4|(NH4)2HPO4 
+After evaluating both precursor sets at 800 °C, it was found that Set E followed a similar reaction 
+pathway as Sets A-D. However, Set F was clearly distinguished by the formation of new peaks in
+
+
+## Page 10
+
+9 
+ 
+ 
+its corresponding XRD pattern that could not be attributed to any known phases reported in the 
+Materials Project or the ICSD. 
+Based on the first six experimental outcomes, ARROWS3 identified two different reaction 
+pathways, one originating from Sets A-E, and another originating from Set F. As detailed in 
+Supplementary Note 4, each unique reaction pathway only needs to be probed once throughout the 
+full range of temperatures to determine whether it will successfully lead to the target’s formation. 
+Accordingly, the algorithm chose one precursor set from the first pathway (Set E) and another 
+from the second (Set F) to be evaluated at higher temperature (900 °C). While the products from 
+Set E exhibit little change from those observed at 800 °C, it was found that Set F produced a new 
+phase, CaFe3P3O13. This phase is computed to have a large driving force (77 meV/atom) to react 
+with CaO and form the target. Indeed, heating Set F at 1000 °C led to the formation of CaFe2P2O9 
+with a yield of 75%. The experimental campaign was therefore halted as the results satisfied our 
+stopping criterion of > 50% target yield.
+
+
+## Page 11
+
+10 
+ 
+ 
+Supplementary Note 7. Synthesis modifications to overcome slow reaction kinetics 
+To overcome the slow kinetics associated with reactions that have a low thermodynamic driving 
+force, we used two common strategies9: 1) heating the precursor set to a higher synthesis 
+temperature than originally used, and 2) regrinding the synthesis products and reheating them to 
+their original synthesis temperature for a longer hold time. The first method was used in six cases 
+when the original (literature-inspired) synthesis temperature was lower than 1000 °C, and therefore 
+increased temperature was accessible with a standard box furnace. The second method was used 
+in five cases, when the temperature was already high (≥ 1000 °C). The targets attempted using 
+each approach and their corresponding outcomes are listed in Supplementary Table 5.  
+For synthesis experiments that were repeated at higher temperatures, the same mixing 
+protocol was used to prepare the samples. The heating rate was also kept the same, with the only 
+difference being the increased dwell temperature. Of the six targets that we attempted at higher 
+temperatures, one additional compound (Y3Ga3In2O12) was successfully obtained with high purity. 
+For the samples that were subject to regrinding and reheating, the original synthesis 
+products were first manually ground in an agate mortar, followed by wet grinding in a Dual 
+Asymmetric Centrifuge mixer for 10 minutes with six 5 mm ZrO2 balls and ethanol. The resulting 
+slurry was then dried and heated in a box furnace with the same heating profile as used previously 
+(Methods). Of the five targets that were attempted with this strategy, one additional compound 
+(Mg3NiO4) was successfully obtained with high purity.
+
+
+## Page 12
+
+11 
+ 
+ 
+Supplementary Note 8. Characterization of precursor volatility 
+To quantify the suspected loss of the ammonium phosphate precursors during the synthesis 
+experiments targeting CaCr2P2O9, we used energy-dispersive X-ray spectroscopy (EDS) to 
+analyze the elemental composition in of its synthesis product that was made by holding CaCO3, 
+Cr2O3, and NH4H2PO4 at 900 ℃ for 4 h. The resulting EDS mapping is shown in Supplementary 
+Fig. 7, which reveals that the atomic ratio of phosphorus to the metals (Ca/Cr) is only 0.37, being 
+much lower than expected given the starting ratio based on the precursors (0.66). This result 
+suggests that some of the phosphate ions were successfully trapped by the formation of calcium 
+phosphate, which was also detected in XRD, but the remaining became volatile during the heating 
+process. The only other phase detected was an oxide, Cr2O3, which appeared not to react with the 
+phosphate prior to its volatility.
+
+
+## Page 13
+
+12 
+ 
+ 
+Supplementary Note 9. Specifications of robots in the A-Lab 
+The A-Lab contains three 6-axis robot arms: one Mitsubishi RV7-FL and two Universal Robots 
+(UR5e), each with force sensors and bespoke grippers (Extended Data Fig. 2a -c) designed to 
+accommodate different types of consumables. Here we refer to the Mitsubishi robot as R1, the first 
+UR5e robot as R2, and the second UR5e robot as R3. The Mitsubishi and UR5e robots can handle 
+maximum payloads of 7 kg and 5 kg, respectively, excluding the tools and grippers mounted on 
+them. The precision of each robot is within ±0.02 and ±0.03 mm, respectively. R1 uses two custom 
+grippers to interact with the Quantos powder dosing heads, crucibles, and plastic vials/mixing pots 
+(Supplementary Video 1). The grip is controlled using pneumatic actuators, regulated by pressure 
+to achieve the specified force setting. R2 uses a Robotiq Hand-E gripper to handle crucibles and 
+ceramic racks (Supplementary Video 2). R3 uses a Robotiq 2F-85 gripper to handle plastic vials, 
+crucibles, acrylic discs, and XRD sample holders (Supplementary Video 3). Both UR5e robots 
+grippers force can be adjusted, controlled by electric motors. This mechanism is convenient for 
+programming delicate sample transfers, especially for strong but brittle alumina crucibles. R1 has 
+a reach of 908 mm while R2 and R3 have a  reach of 850 mm, before being extended by the 
+grippers.  
+R1 and R3 are each mounted on stationary platforms, while R2 is mounted on a linear rail 
+so that it can transfer samples from the precursor preparation station to the box furnaces. This 
+linear rail was designed and installed in coordination with Olympus Controls. The rail uses a 4000 
+mm belt-driven HMRB15CCD0-4000-CD500K100 from Parker with a precision of ±0.05 mm. 
+Limit sensors are employed on both ends of the rail for recalibration (Extended Data Fig. 2d). The 
+belt is driven by 3:1 PV60TA-003 (Parker) gearbox connected to LMDCE853C Novanta IMS 
+Lexium stepper motor with ethernet connection that directly interfaces with UR teach pendant 
+through URCap program provided by Schwarz Automation Inc. The aluminum platform to mount 
+the linear rail is designed and ma nufactured by Olympus Controls. The sub -millimeter 
+repeatability and direct power connection to the wall allows for little-to-no downtime required for 
+maintenance and recalibration. While a linear rail only extends the work envelope in one axis, it 
+also ensures improved repeatability relative to a system with increased degrees of freedom. 
+A carousel with four quadrants and a light gate is used in the precursor preparation station 
+to arrange samples and place them for collection by the first UR5e robot (R2), as depicted in
+
+
+## Page 14
+
+13 
+ 
+ 
+Extended Data Fig. 2e. For most operations, the carousel moves in coordination with the robot 
+(R1) that prepares samples prior to heating. However, R2 can also request control when it needs 
+to collect the samples and transfer them to the box furnaces. Once control is given, the carousel is 
+directed to rotate such that the proper quadrant faces R2 and the samples are accessible from the 
+robot’s side (Supplementary Video 2). The use of this carousel ensures that many samples can be 
+made and stored simultaneously in the precursor preparation station, allowing some queue to be 
+developed prior to the heating step.
+
+
+## Page 15
+
+14 
+ 
+ 
+Supplementary Note 10. Reliability of the A-Lab 
+Actions performed by devices (e.g., instruments, robot arms) in each station of the A-Lab are 
+programmed as separate tasks, which are controlled by the workflow management software. These 
+tasks include PowderDosing and Heating, which take place in the sample preparation and heating 
+stations, respectively. They also include RecoverPowder, Diffraction, and Ending tasks that are 
+performed in parallel as part of the characterization station.  
+After running 2,455 samples through the A-Lab over a timespan of 1.5 years, using the 
+workflow described in this study, an average exception rate of about 3.9% is observed. As shown 
+in Supplementary Fig. 6, the error rate exhibits a general decrease over time (i.e., with increasing 
+sample number). This improvement can be attributed to a better understanding of possible failure 
+modes, which can then be incorporated into the lab’s automated error handling. All operational 
+exceptions can be classified into two categories: mechanical and communication. The mechanical 
+exceptions include all of the hardware-related exceptions – for example, the failure of a robot arm 
+to pick up or place an object. In contrast, communication exceptions are caused by interaction 
+issues between individual devices in the A-Lab and the primary server computer – for example, 
+the failure to fetch data from the X-ray diffractometer. Overall, mechanical issues are the largest 
+sources of exceptions, accounting for 89% of those observed in the past 1.5 years.  
+An operational exception that occurs mid-task will pause the execution of that task until a 
+user can manually intervene. The modular design of the A -Lab, combined with the use of an 
+automated workflow management system, ensures that exceptions in one station do not disrupt 
+ongoing operations in other parts of the lab. Most exceptions can be resolved using pre-defined 
+exception recovery programs, which provide step-by-step instructions to be completed before the 
+affected station resumes operation. However, there are rare instances where unanticipated issues 
+can arise, requiring unique error handling decided by the user. For example, about 0.5% of the 
+samples handled by the A-Lab over the past 1.5 years were lost due to broken crucibles. In these 
+cases, the user must remove the sample and inform the workflow management of its loss. The 
+corresponding tasks may then continue running, and this is done without disrupting other samples 
+being processed in separate, unaffected parts of the lab.
+
+
+## Page 16
+
+15 
+ 
+ 
+Supplementary Note 11. Exceptions to pairwise reaction analysis 
+The active learning algorithm (ARROWS3) implemented in the A-Lab learns from synthesis 
+outcomes by determining which pairwise reactions led to the formation of any newly observed 
+products. From previous studies that utilized in situ XRD12-14, there is an abundance of evidence 
+supporting the idea that solid phases generally react in pairs. Such reactions occur locally at the 
+interfaces between precursors, where little diffusion is needed to form the resulting product. 
+However, there are likely to be exceptions to this rule when precursors or reaction intermediates 
+deviate from the solid state. For example, we anticipate that reactions may take place between 
+more than two phases at a time when melting occurs. This would enable atoms to travel more 
+freely throughout the sample, thereby alleviating the requirement that two phases react locally at 
+an interface. Indeed, recent work has shown that reactions proceed in a non-pairwise sequence 
+when a multi-component oxide forms a eutectic melt15. 
+ Pairwise reaction analysis can also be complicated by difficulties in characterization. For 
+example, as more precursors are introduced to synthesize targets with many components, it may 
+be challenging to interpret their XRD patterns owing to substantial peak overlap. Such cases may 
+therefore warrant the use of additional characterization techniques that can spatially resolve 
+distinct phases (e.g., SEM/EDS measurements). We note that even in cases where pairwise 
+reaction analysis is insufficient, or where the synthesis products are not completely characterized, 
+the active learning algorithm will continue to operate. It will simply do so with reduced efficiency 
+as it may not learn which precursors contribute to the formation of a desired synthesis product or 
+its competing phases.
+
+
+## Page 17
+
+16 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Supplementary Fig. 1 | Frequency of elements across the A-Lab’s 57 target materials. The 
+periodic table above shows the frequency at which each of 33 elements appears in the compounds 
+targeted by the A-Lab.
+
+
+## Page 18
+
+17 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Supplementary Fig. 2 | Schematic illustration of the decomposition energy. A binary convex 
+hull is shown, where each circle represents a distinct phase that is thermodynamically stable. The 
+y-axis represents the Gibbs free energy (G) while the x-axis represents a composition parameter. 
+The decomposition energy (Ed) of a given target phase is determined by calculating the distance 
+between its energy and the energy of a tieline formed by the two neighboring phases along the 
+convex hull.
+
+
+## Page 19
+
+18 
+ 
+ 
+ 
+ 
+ 
+ 
+Supplementary Fig. 3 | Successes and failures of literature-inspired recipes. For each target 
+material, up to five recipes are recommended as summarized in the Methods. The distribution of 
+similarity – defined in previous work16 – to the reference material for recipe recommendation is 
+categorized by successful and failed syntheses. Each colored dot represents one recipe generated 
+through the similarity-based recommendation. The width in each violin plot reflects the probability 
+density of the number of recipes generated at different similarity values. The quartiles (25%, 50%, 
+and 75%) are displayed to indicate the different statistics between successful and unsuccessful 
+recommendations. Inconclusive results are omitted.
+
+
+## Page 20
+
+19 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Supplementary Fig. 4 | Reactions limited by low driving force.  For eleven of the failed 
+syntheses, the reaction energy that remains after intermediates are formed (or directly from the 
+precursors) was below 50 meV/atom. These values were determined by calculating the free energy 
+difference between the observed intermediates and the desired target. Exact values are also given 
+in Supplementary Table 5.
+
+
+## Page 21
+
+20 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Supplementary Fig. 5 | Example of an amorphous synthesis product. The sample imaged 
+above was obtained from an attempted synthesis of Mo(PO3)5 based on a precursor mixture of 
+MoO3 and (NH4)2HPO4 annealed at 500 ℃ for 4 h, followed by a cooling rate of 2 ℃/min.
+
+
+## Page 22
+
+21 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Supplementary Fig. 6 | Exception rates in the A-Lab. The observed exception rates are plotted 
+as a function of sample number for mechanical exceptions (top row) and communication-related 
+exceptions (bottom row). Each subplot corresponds to a specific operational task, with bars 
+representing the average exception rate for that task, calculated over intervals of 400 samples 
+processed chronologically by A-Lab. In cases where no exceptions occurred, an arrow (pointing 
+to zero) is illustrated.
+
+
+## Page 23
+
+22 
+ 
+ 
+ 
+Supplementary Fig. 7 | SEM/EDS mapping of the synthesis product targeting CaCr2P2O9. 
+These measurements were taken from a sample made using CaCO3, Cr2O3, and NH4H2PO4 held at 
+300 ℃ for 6 hours, and then sintered at 900 ℃ for 4 hours.
+
+
+## Page 24
+
+23 
+ 
+ 
+Supplementary Table 1 | All 57 targets evaluated by the A-Lab, grouped into 40 unique structural 
+prototypes with space groups listed. When a similar reference compound is available, we include 
+it as a corresponding ICSD prototype. Materials Project (MP) entry ID numbers are listed for each 
+target. 
+Group # ICSD Prototype Space group Target MP Entry # 
+1 Ni2(PO3)4 C2/c 
+MgNi(PO3)4 mp-1045786 
+CaMn(PO3)4 mp-1045779 
+CaNi(PO3)4 mp-1045813 
+CaCo(PO3)4 mp-1045787 
+2 Pyrochlore(defect)#Gd1.8
+Ti2O6+x  
+Imm2 
+Hf2Sb2Pb4O13 mp-1224490 
+Zr2Sb2Pb4O13 mp-1215826 
+Sn2Sb2Pb4O13 mp-1219056 
+R3m 
+FeSb3Pb4O13 mp-1224890 
+InSb3Pb4O13 mp-1223746 
+3 Garnet#Ca3Al2(SiO4)3 Ia-3d 
+Ca3Ti3Cr2O12 mp-1214263 
+Na3V3Cr2O12 mp-1202673 
+Y3In2Ga3O12 mp-1207946 
+4 Perovskite(12H)#Ba6Nd2
+Ti4O17 
+F-43m 
+KBaPrWO6 mp-1523149 
+BaGdCrFeO6 mp-1518724 
+KBaGdWO6 mp-1523079 
+P6_3/mmc Ba6Na2Ta2V2O17 mp-1214664
+
+
+## Page 25
+
+24 
+ 
+ 
+Ba6Na2V2Sb2O17 mp-1214658 
+5  Spinel#MgAl2O4 C2/c 
+Zn3Ni4(SbO6)2 mp-1216023 
+Mn4Zn3(NiO6)2 mp-1222033 
+6 Cd2Mn3O8 C2/m 
+Ca2Ti3O8 mp-1397126 
+Ca2Sn3O8 mp-1386610 
+7 CdP2V2O9 Pnma 
+CaFe2P2O9 mp-1040941 
+CaCr2P2O9 mp-1040889 
+8 Ba6Nd2Al4O15  P1 Ba9Ca3La4(Fe4O15)2 mp-1228537 
+9  Perovskite#LaAlO3 P1 La5Mn5O16 mp-531717 
+10 
+Alluaudite-
+frame#Na1.5Mn2.5Al(PO
+4)3 
+P1 Na7Mg7Fe5(PO4)12 mp-1173791 
+11 Fe7(P2O7)4  C222_1 Mn7(P2O7)4 mp-778008 
+12 Na2CuP2O7#Na2PdP2O
+7 C2/c CuAg2P2O7 mp-1213198 
+13 Beryllonite#NaBePO4#Sr
+Ga2O4 P2_1/c KNa2Ga3(SiO4)3 mp-1211711 
+14  Whitlockite#β-
+Ca3(PO4)2 P1 Na3Ca18Fe(PO4)14 mp-725491 
+15 Mg6MnO8  R-3m Mg3MnNi3O8 mp-1222170 
+16 NaCl Pm-3m Mg3NiO4 mp-1099253 
+17  K2Cr2O7(H_type) P1 MgV4Cu3O14 mp-1222158 
+18 KTiOPO4#KFePO4F  P2_1 K4TiSn3(PO5)4 mp-1224290 
+19 K4Fe4(PO4)5  Cc K4MgFe3(PO4)5 mp-532755 
+20   C2/c KMn3O6 mp-1016190 
+21 Fe2(SO4)3  Pc InSb3(PO4)6 mp-1224667
+
+
+## Page 26
+
+25 
+ 
+ 
+22 LiV3O8 P2_1/m V3AgO8 mp-1100976 
+23 CaTa4O11  R32 Ta4PbO11 mp-1194594 
+24 CdZr4(PO4)6 R-3 MgTi4(PO4)6 mp-1222070 
+25   P2_1/m Mo(PO3)5 mp-504210 
+26   P3 KPr9(Si3O13)2 mp-1223421 
+27 NaNiO2(mS8) C2/m MnAgO2 mp-996995 
+28 Langbeinite#K2Mg2(SO4
+)3 Pna2_1 KNaTi2(PO5)2 mp-1211611 
+ 
+29 
+Langbeinite#K2Mg2(SO4
+)3 
+ 
+Garnet(YAG)#Y3Al5O12 
+P2_13 K2TiCr(PO4)3 mp-1224541 
+P-1 CaGd2Zr(GaO3)4 mp-686296 
+30  Ilmenite#TiFeO3 R3 MgTi2NiO6 mp-1221952 
+31 Double_Perovskite#Elpas
+olite#K2NaAlF6 Fm-3m Ba2ZrSnO6 mp-1228067 
+32 Sc2Si2O7  Cm Mn2VPO7 mp-1210613 
+33 CaMnP2O7 P-1 MgCuP2O7 mp-1041741 
+34 KMgCu4V3O13  C2/c KMg3V3CuO12 mp-1211434 
+35  Scheelite#CaWO4 I4_1/a YbMoO4 mp-1207551 
+36  K2NiF4 Cmmm Ba4InSbO8 mp-1228129 
+37  Er3Pb1.5(SiO4)3 P3 KNaP6(PbO3)8 mp-1223429 
+38  Olivine#Mg2SiO4 P-1 NaMnFe(PO4)2 mp-1173592 
+39  CdP2V2O9 Pnma CaTiNiP2O9 mp-1043092 
+40   C2 NaCaMgFe(SiO3)4 mp-1221075
+
+
+## Page 27
+
+26 
+ 
+ 
+Supplementary Table 2 | All pairwise reactions autonomously learned by the A-Lab during its 
+active learning cycle. 
+   
+Reactants Products Onset Temperature (°C) 
+   
+Ca(OH)2|NH4H2PO4 Ca3(PO4)2 ≤ 800 
+Ca(OH)2|(NH4)2HPO4 Ca3(PO4)2 ≤ 800 
+CaCO3|(NH4)2HPO4 Ca3(PO4)2 ≤ 800 
+CaCO3|NH4H2PO4 Ca3(PO4)2 ≤ 800 
+CaO|NH4H2PO4 Ca3(PO4)2 ≤ 800 
+CaO|(NH4)2HPO4 Ca3(PO4)2 ≤ 800 
+CaO|TiO2 CaTiO3 ≤ 800 
+Ca(OH)2|TiO2 CaTiO3 ≤ 800 
+CaCO3|TiO2 CaTiO3 ≤ 800 
+Fe2O3|(NH4)2HPO4 FePO4 ≤ 800 
+Fe3O4|NH4H2PO4 FePO4 ≤ 800 
+CaFe3P3O13|CaO CaFe2P2O9 900 < T ≤ 1000 
+Na2CO3|FePO4 NaFeP2O7 ≤ 700 
+MgO|NiO MgNiO2 800 < T ≤ 900 
+MgCO3|NiO MgNiO2 ≤ 900 
+MgCO3|air MgO ≤ 700 
+Ni(OH)2|air NiO ≤ 700 
+MnO|(NH4)2HPO4 Mn2P4O12 ≤ 500 
+MnO|NH4H2PO4 Mn2P4O12 ≤ 500 
+MnO2|NH4H2PO4 Mn2P4O12 ≤ 500 
+MnCO3|NH4H2PO4 Mn2P4O12 ≤ 500 
+Mn2O3|(NH4)2HPO4 Mn2P4O12 ≤ 500 
+Mn3O4|NH4H2PO4 Mn2P4O12 ≤ 500 
+Mn3O4|(NH4)2HPO4 Mn2P4O12 ≤ 500 
+MnO|air Mn2O3 ≤ 600 
+MnCO3|air Mn2O3 ≤ 600 
+Mn3O4|air Mn2O3 ≤ 600 
+MnO2|air Mn2O3 ≤ 600
+
+
+## Page 28
+
+27 
+ 
+ 
+MgCO3|air MgO ≤ 600 
+TiO2|NiO NiTiO3 800 < T ≤ 900 
+Y2(CO3)3|Fe2O3 YFeO3 ≤ 900 
+Y2O3|Fe2O3 YFeO3 ≤ 900 
+MoO2|(NH4)2HPO4 Mo(PO3)3, Mo2P4O15 ≤ 900 
+MoO2|NH4H4PO4 Mo(PO3)3, Mo2P4O15 ≤ 900 
+MoO3|(NH4)2HPO4 Mo(PO3)3, Mo2P4O15 ≤ 900 
+MoO3|NH4H4PO4 Mo(PO3)3, Mo2P4O15 ≤ 900 
+CuO|(NH4)2HPO4 Cu2P2O7 ≤ 900 
+NiO|Sb2O5 NiSb2O6 ≤ 900 
+Ni(OH)2|Sb2O5 NiSb2O6 ≤ 900 
+ZnO|NiO ZnNiO2 ≤ 900 
+Sb2O5|air SbO2 ≤ 900 
+Sb2O3|air SbO2 ≤ 600 
+Ag2CO3|air Ag ≤ 700 
+La2O3|Mn3O4 LaMnO3 ≤ 1000 
+MgO|V2O5 Mg3V2O8 ≤ 900 
+MgCO3|V2O5 Mg3V2O8 ≤ 900 
+Y2(CO3)3|air Y2O3 ≤ 600 
+Fe3O4|air Fe2O3 ≤ 600 
+CaCO3|SnO2 CaSnO3 ≤ 800 
+Ca(OH)2|SnO2 CaSnO3 ≤ 800 
+Na2CO3|V2O5 NaVO3 ≤ 500 
+CuO|Ta2O5 CuTa2O6 ≤ 800 
+Ag2CO3|NH4H2PO4 Ag3PO4 ≤ 600 
+Ag2CO3|(NH4)2HPO4 Ag3PO4 ≤ 600 
+Sb2O3|NH4H2PO4 SbPO4 ≤ 600 
+Sb2O5|NH4H2PO4 SbPO4 ≤ 600 
+Sb2O3|(NH4)2HPO4 SbPO4 ≤ 600 
+Sb2O5|(NH4)2HPO4 SbPO4 ≤ 600 
+Ca(OH)2|air CaO ≤ 700 
+BaCO3|Fe2O3 BaFeO3 ≤ 800 
+BaO2|Fe2O3 BaFeO3 ≤ 800
+
+
+## Page 29
+
+28 
+ 
+ 
+Ag2CO3|V2O5 AgV4O11 ≤ 500 
+Cr2O3|BaO BaCrO4 ≤ 700 
+Cr2O3|Ba(OH)2 BaCrO4 ≤ 700 
+Cr2O3|BaCO3 BaCrO4 ≤ 700 
+Cr2O3|BaO2 BaCrO4 ≤ 700 
+Cr2O3|Gd2O3 GdCrO3 700 < T ≤ 800 
+CaO|Gd2O3 CaGd3O6 ≤ 1100 
+CaCO3|Gd2O3 CaGd3O6 ≤ 1100 
+Ca(OH)2|Gd2O3 CaGd3O6 ≤ 1100 
+K2CO3|Mn2O3 KMn3O6 ≤ 900 
+BaO|SnO2 Ba2SnO4 ≤ 800 
+BaO2|SnO2 Ba2SnO4 ≤ 800 
+BaCO3|SnO2 Ba2SnO4 ≤ 800 
+Ba(OH)2|SnO2 Ba2SnO4 ≤ 800 
+Ba2SnO4|ZrO2 Ba2ZrSnO6 800 < T ≤ 900 
+CaO|Cr2O3 CaCrO4 ≤ 800 
+Ca(OH)2|Cr2O3 CaCrO4 ≤ 800 
+TiO2|NiO No rxn (inert) ≤ 800 
+Y2O3|Ga2O3 No rxn (inert) ≤ 900 
+SbO2|Ga2O3 No rxn (inert) ≤ 700 
+Y2O3|Ga2O3 No rxn (inert) ≤ 700 
+BaCO3|Mn2O3 No rxn (inert) ≤ 600 
+Ag|Mn2O3 No rxn (inert) ≤ 500 
+In2O3|Y2O3 No rxn (inert) ≤ 600 
+In2O3|Ga2O3 No rxn (inert) ≤ 600 
+NaVO3|Cr2O3 No rxn (inert)  ≤ 900 
+BaCO3|In2O3 No rxn (inert) ≤ 800
+
+
+## Page 30
+
+29 
+ 
+ 
+Supplementary Table 3 | A summary of previous literature reports on materials related to the 57 
+targets considered by the A-Lab.  
+Target Reference Reported 
+comp. 
+Reported 
+sym. 
+Coll. 
+code 
+Notes on 
+Literature 
+Ba2ZrSnO6 
+Hinatsu, Y. Electron 
+Paramagnetic 
+Resonance Spectra of 
+Pr4+in BaCeO3, 
+BaZrO3, BaSnO3, 
+and Their Solid 
+Solutions. Journal of 
+Solid State Chemistry 
+122, 384–389 (1996). 
+BaSn0.5 
+Zr0.5O3 Pm3"m ICSD 
+43137 
+Reported as solid solution 
+of BaZrO3-BaSnO3. 
+Characterized with powder 
+XRD. No diffraction pattern 
+or structural refinement 
+provided. ICSD structure 
+contains Zr:Sn site 
+disorder. 
+Ba6Na2V2Sb2O17 
+Quarez, E., Abraham, 
+F. & Mentré, O. 
+Synthesis, crystal 
+structure and 
+characterization of 
+new 12H hexagonal 
+perovskite-related 
+oxides 
+Ba6M2Na2X2O17 
+(M=Ru, Nb, Ta, Sb; 
+X=V, Cr, Mn, P, As). 
+Journal of Solid State 
+Chemistry 176, 137–
+150 (2003). 
+Ba6Sb2Na2 
+V2O17 P63/mmc MPDS 
+S1003189 
+Reported as synthesized 
+composition within family 
+of Ba6M2Na2X2O17 
+compounds in Table 7 (pg. 
+143); only powder XRD; 
+refined lattice parameters 
+provided; no 
+pattern/refinement 
+provided; impurities of 
+Ba3(VO4)2 and 
+Ba4NaSb3O12 observed. 
+Ba6Na2Ta2V2O17 
+Quarez, E., Abraham, 
+F. & Mentré, O. 
+Synthesis, crystal 
+structure and 
+characterization of 
+new 12H hexagonal 
+perovskite-related 
+oxides 
+Ba6M2Na2X2O17 
+(M=Ru, Nb, Ta, Sb; 
+X=V, Cr, Mn, P, As). 
+Journal of Solid State 
+Chemistry 176, 137–
+150 (2003). 
+Ba6Ta2Na2 
+V2O17 P63/mmc MPDS 
+S1003187 
+Reported as synthesized 
+composition within family 
+of Ba6M2Na2X2O17 
+compounds in Table 7 (pg. 
+143); only powder XRD; 
+refined lattice parameters 
+provided; no 
+pattern/refinement 
+provided; impurity phase 
+Ba3(VO4)2 observed. 
+Ba9Ca3La4(Fe4O15)2 
+Müller-Buschbaum, 
+Hk. & Martin, F.-D. 
+Synthese und 
+Kristallstruktur von 
+Ba4,5Ca1,5La2Fe4O
+15, 
+Ba5CaEu2Fe4O15 
+und 
+Ba5CaNd2Co4O15. 
+Zeitschrift für 
+anorganische und 
+allgemeine Chemie 
+617, 84–88 (1992). 
+Ba4.5Ca1.5 
+La2Fe4O15 P63mc ICSD 
+72336 
+Characterized with single 
+crystal X-ray diffraction; 
+reported alongside 
+Ba5CaEu2Fe4O15 and 
+Ba5CaNd2Co4O15.
+
+
+## Page 31
+
+30 
+ 
+ 
+CaCo(PO3)4 
+Trojan, M. Binary 
+cyclo-tetraphosphates 
+(Co2−xCaxP4O12) as 
+special pigments. J 
+Mater Sci 25, 2159–
+2164 (1990). 
+Co2-xCax 
+P4O12 
+(x=1) 
+C2/c N/A 
+Characterized with powder 
+XRD; patterns not 
+reported; indexed by 
+assuming isostructural 
+with Co2P4O12 (C2/c); 
+lattice parameters used to 
+argue for correct 
+compositions 
+CaFe2P2O9 
+Britvin, S. N. et al. 
+Crocobelonite, 
+CaFe23+(PO4)2O, a 
+new oxyphosphate 
+mineral, the product of 
+pyrolytic oxidation of 
+natural phosphides. 
+American Mineralogist 
+108, 1973–1983 
+(2023). 
+CaFe2(PO4)2O Pnma, 
+P21/m N/A 
+Reference published after 
+original submission of our 
+manuscript. Reported as 
+new natural oxyphosphate 
+mineral in two polymorphs 
+(2O,1M). 
+CaGd2Zr(GaO3)4 
+Julien Pouzol, M.; 
+Jaulmes, S.; le Hui, Z. 
+Structure cristalline du 
+grenat Gd3-xCaxGa5-
+xZrxO12. Comptes 
+Rendus des Seances 
+de l’Academie des 
+Sciences, Serie C: 
+Sciences Chmiques 
+(1988) 306, p. 531-
+535. 
+Ca0.95Zr0.95 
+Gd2.05Ga4.05
+O12 
+Ia3"d ICSD 
+202850 
+Characterized with 
+diffraction; no diffraction 
+patterns or raw data 
+provided; structural 
+parameters provided; 
+composition estimated by 
+minimizing Rw. 
+CaMn(PO3)4 
+Boonchom, B. & 
+Danvirutai, C. Rapid 
+synthesis, kinetics 
+and thermodynamics 
+of binary 
+Mn0.5Ca0.5(H2PO4)2
+ · H2O. J Therm Anal 
+Calorim 98, 717–723 
+(2009). 
+MnCaP4O12 C2/c N/A 
+XRD pattern provided 
+(low-quality). No 
+refinement performed. 
+Assumed to be 
+isostructural to M2P4O12 
+(e.g., M=Mn), reported as 
+solid solution. 
+CaNi(PO3)4 No literature found 
+for this compound. N/A N/A N/A 
+No reports can be found, 
+to the best of our 
+knowledge. However, this 
+is likely a member of the 
+larger family of 
+tetrametaphosphates of 
+composition M2-
+xAxP4O12. 
+FeSb3Pb4O13 
+Cascales, C., 
+Rasines, I., Casado, 
+P. G. & Vega, J. The 
+new pyrochlores 
+Pb2(M0.5Sb1.5)O6.5 
+(M = Al, Sc, Cr, Fe, 
+Ga, Rh). Materials 
+Research Bulletin 20, 
+1359–1365 (1985). 
+Pb2 
+(Fe0.5Sb1.5) 
+O6.5 
+Fd3"m ICSD 
+60805 
+Prepared by quenching 
+from high temperature. 
+Characterized with powder 
+XRD; peak and structural 
+information provided in 
+tables, however no data 
+figures provided. Only unit 
+cell
+
+
+## Page 32
+
+31 
+ 
+ 
+Hf2Sb2Pb4O13 
+Cascales, C., Alonso, 
+J. A. & Rasines, I. The 
+new pyrochlores 
+Pb2(MSb)O6.5 (M = 
+Ti, Zr, Sn, Hf). J Mater 
+Sci Lett 5, 675–677 
+(1986). 
+Pb2(HfSb)6.5 Fd3"m ICSD 
+62723 
+Follow-up to other 
+Cascales et al. (1985) 
+pyrochlore study (see 
+previous). Prepared by 
+quenching from high 
+temperature. 
+Characterized with 
+(powder) XRD; peak and 
+structural information 
+provided in tables (no data 
+figures). Small amount of 
+HfO2 impurity noted. 
+InSb3(PO4)6 
+Aatiq, A., Bakri, R. & 
+Sakulich, A. R. 
+Preparation and 
+crystal structure of 
+SbV1.50InIII0.50(PO4
+)3 and 
+(SbV0.50InIII0.50)P2
+O7. Powder 
+Diffraction 23, 232–
+240 (2008). 
+Sb1.5In0.5 
+(PO4)3 P21/n ICSD 
+166834 
+Characterized with powder 
+XRD; refinement and 
+structure provided. 
+Authors note discrepancy 
+in likely spacegroup (Pn, 
+with Sb:In ordering) and 
+their refined spacegroup 
+(P21/n, with Sb:In 
+disordering). The ICSD 
+structure provided is of the 
+latter type. 
+InSb3Pb4O13 
+Cascales, C. & 
+Rasines, I. New 
+Pyrochlore Pb[In0.5 
+Sb1.5]O6.5. Zeitschrift 
+für anorganische und 
+allgemeine Chemie 
+529, 229–234 (1985). 
+Pb2 
+(In0.5Sb1.5) 
+O6.5 
+Fd3"m ICSD 
+41119 
+Prepared by quenching 
+from high temperature. 
+Characterized with powder 
+XRD; peak and structural 
+information provided in 
+tables (no data figures). 
+Disorder between In:Sb 
+suggested for best fit. 
+K2TiCr(PO4)3 
+Norberg, S. T. New 
+phosphate 
+langbeinites, 
+K2MTi(PO4)3 (M = Er, 
+Yb or Y), and an 
+alternative description 
+of the langbeinite 
+framework. Acta 
+Crystallographica 
+Section B 58, 743–
+749 (2002). 
+K2CrTi(PO4)3 P213 ICSD 
+280999 
+Synthesized from melt and 
+characterized with single-
+crystal XRD. Structural 
+and refinement data 
+provided. Ti:Cr mixing 
+reported in final structure. 
+K4MgFe3(PO4)5 
+Hidouri, M., Sendi, N., 
+Wattiaux, A. & Amara, 
+M. B. Structural study 
+by X-ray diffraction 
+and Mössbauer 
+spectroscopy of a new 
+synthetic iron 
+phosphate: 
+K4MgFe3(PO4)5. 
+Journal of Physics 
+and Chemistry of 
+Solids 69, 2555–2558 
+(2008). 
+K4MgFe3 
+(PO4)5 P4"21c ICSD 
+161484 
+Characterized with single-
+crystal XRD and 
+Mossbauer spectroscopy 
+and synthesized from flux. 
+Statistical distribution of 
+Fe:Mg on M sites 
+assumed. 
+K4TiSn3(PO5)4 
+Krotova, O. D. et al. 
+Structure and 
+properties of single 
+crystals of tin-doped 
+KTi0.25Sn0.75 
+OPO4 Pna21 ICSD 
+250088 
+Characterized with single-
+crystal XRD and grown 
+from flux. Ti/Sn disorder 
+reported.
+
+
+## Page 33
+
+32 
+ 
+ 
+potassium titanyl 
+phosphate. 
+Crystallogr. Rep. 48, 
+925–932 (2003). 
+KBaGdWO6 No literature found 
+for this compound. N/A N/A N/A 
+Synthesis of only 
+Ba2GdWO6 has been 
+reported (without K) in 
+Kamata, K., Yoshimura, 
+M., Nakamura, T. & Sata, 
+T. Synthesis and 
+properties of ordered 
+perovskites 
+A2(Ln3+M5+)O6 (A=Ba, 
+Sr, Ln=Y, Gd, Dy, Er, 
+M=Mo, W). Chemistry 
+Letters 1, 1201–1206 
+(1972). 
+KBaPrWO6 No literature found 
+for this compound. N/A N/A N/A N/A 
+KMn3O6 
+Chu, Q., Wang, X., 
+Zhang, X., Li, Q. & 
+Liu, X. Buckled Layers 
+in 
+K0.66Mn2O4·0.28H2
+O and 
+K0.99Mn3O6·1.25H2
+O Synthesized at High 
+Pressure: Implication 
+for the Mechanism of 
+Layer-to-Tunnel 
+Transformation in 
+Manganese Oxides. 
+Inorg. Chem. 50, 
+2049–2051 (2011). 
+K1.39Mn3O6 
+or 
+K0.99Mn3O6 
+∙1.25 H2O 
+C2/m ICSD 
+261406 
+Structure solved with 
+single-crystal XRD. 
+Buckled MnO6 layers 
+observed. Disorder in K-
+site occupancy and 
+interlayer water observed. 
+KNa2Ga3(SiO4)3 
+Barbier, J., Liu, B. & 
+Weber, J. Crystal 
+chemistry of the 
+(Na,K)GaSiCO4 
+system. European 
+Journal of Mineralogy 
+297–306 (1993) 
+doi:10.1127/ejm/5/2/0
+297. 
+(Na1-xKx) 
+GaSiO4 
+(x = 0.7) 
+P63 
+MPDS 
+S1618069, 
+ICSD 
+66677 
+Characterized with powder 
+XRD; pattern and Rietveld 
+refinement provided based 
+on BaCoSiO4 compound. 
+Partial ordering of Na/K on 
+certain sites observed 
+(e.g., 80% Na, 20% K on 
+the M(3) atom). 
+KNaP6(PbO3)8 
+Azrour, M. et al. 
+Rietveld refinements 
+and vibrational 
+spectroscopic studies 
+of 
+Na1−xKxPb4(PO4)3 
+lacunar apatites 
+(0≤x≤1). Journal of 
+Physics and 
+Chemistry of Solids 
+72, 1199–1205 
+(2011). 
+Na1-xKx 
+Pb4(PO4)3 
+(x = 0.5) 
+P63/m ICSD 
+182501 
+Characterized with powder 
+XRD for ten compositions. 
+Refinement and final 
+structure provided. 
+Incorporation of Na/K 
+suggested via lattice 
+parameter analysis.
+
+
+## Page 34
+
+33 
+ 
+ 
+KNaTi2(PO5)2 
+Crennell, S. J. et al. 
+Isomorphous 
+substitution in non-
+linear optical 
+KTiOPO4. Powder 
+diffraction and magic 
+angle spinning 
+nuclear magnetic 
+resonance study of 
+(K½Na½)TiOPO4 and 
+(Rb½Na½)TiOPO4. J. 
+Mater. Chem. 1, 113–
+119 (1991). 
+(K0.48Na0.52) 
+TiOPO4 Pn21a ICSD 
+71239 
+Characterized via joint 
+analysis of neutron and X-
+ray diffraction. Compound 
+is suggested to be mostly 
+to completely ordered on 
+Na/K sites. Small quantity 
+of TiO2 (rutile) impurity. 
+KPr9(Si3O13)2 
+Werner, F. & Kubel, F. 
+Apatite-type 
+Pr9K(SiO4)6O2—a 
+potential oxide ion 
+conductor. Materials 
+Letters 59, 3660–
+3665 (2005). 
+Pr9K 
+(SiO4)6O2 P63/m ICSD 
+153272 
+Synthesized and extracted 
+from melt (light-green 
+hexagonal rods). 
+Characterized with single-
+crystal XRD. Mixed 
+occupancy (75% Pr and 
+25% K) assumed for 4f 
+position based on similar 
+model and verified with 
+refinement. 
+Mg3MnNi3O8 
+Taguchi, H., Omori, 
+S., Nagao, M., Kido, 
+H. & Shimada, M. 
+Crystal Structure and 
+Magnetic Properties 
+of (Ni1-xMgx)6MnO8. 
+Journal of Solid State 
+Chemistry 118, 112–
+116 (1995). 
+(Ni1-xMgx)6 
+MnO8 
+(x = 0.5) 
+Fm3"m ICSD 
+80306 
+Characterized with powder 
+XRD and refined structure 
+parameters provided. 
+Refinement has Rwp = 
+11.86%. Raw XRD for this 
+composition not explicitly 
+drawn. Authors note peaks 
+are wide due to low firing 
+temperature; lattice 
+parameter fit provided. 
+Suggested Ni/Mg fully 
+disordered (50:50 
+occupancy). 
+Mg3NiO4 
+Feng, Z. & Seehra, M. 
+S. Phase diagram and 
+magnetic properties of 
+the diluted fcc system 
+NipMg1−pO. Phys. 
+Rev. B 45, 2184–2189 
+(1992). 
+NipMg1-pO 
+(p = 0.25) Fm3"m N/A 
+Most of series 
+(0.06≤p≤0.86) synthesized 
+at 1200 ºC and rapidly 
+quenched. Characterized 
+with powder XRD and 
+composition further 
+characterized with ICP. 
+Lattice parameter, a, is fit 
+by a linear equation. 
+MgCuP2O7 
+Boukhari, A., Moqine, 
+A. & Flandrois, S. 
+Synthesis and 
+characterization of 
+new copper (II) mixed 
+diphosphates 
+(M,Cu)2P2O7 with M 
+= Mg, Ca, Sr, and Ba. 
+Journal of Solid State 
+Chemistry 87, 251–
+256 (1990). 
+Mg2-xCux 
+P2O7 
+(x = 1.0) 
+C2/m N/A 
+Prepared from end-
+members Mg2P2O7 and 
+Cu2P2O7. Characterized 
+with powder XRD. Neither 
+diffraction pattern nor 
+refinement results 
+provided. Composition-
+dependent cell parameters 
+are solved for and slightly-
+doped end-members also 
+observed. No ordering 
+analysis provided. 
+Suggested that solid 
+solution is isostructural to
+
+
+## Page 35
+
+34 
+ 
+ 
+β-Mg2P2O7 and β-
+Cu2P2O7. 
+MgNi(PO3)4 
+Rao, M. M., Trojan, M. 
+& Beneš, L. Synthesis 
+of cyclo-
+tetraphosphates 
+Ni2−xMgxP4O12. 
+Materials Research 
+Bulletin 26, 813–819 
+(1991). 
+Ni2-xMgx 
+P4O12  
+(x = 1.0) 
+C2/c N/A 
+Characterized with powder 
+XRD and atomic 
+absorption spectroscopy. 
+No XRD data is provided. 
+Structurally indexed 
+assuming isostructural 
+with endmembers. Lattice 
+parameters for 
+composition series are 
+provided. 
+MgTi2NiO6 
+Liferovich, R. P. & 
+Mitchell, R. H. 
+Rhombohedral 
+ilmenite group nickel 
+titanates with Zn, Mg, 
+and Mn: synthesis 
+and crystal structures. 
+Phys Chem Minerals 
+32, 442–449 (2005). 
+Ni0.5Mg0.5TiO3 R3" ICSD 
+171583 
+Characterized with powder 
+XRD and EDS. Impurities 
+observed (6.2%) but 
+authors suggest actual 
+amount is lower via SEM-
+BSE imaging results. Plot 
+of refinement results and 
+structural information 
+provided. Authors 
+acknowledge absence of 
+Mg:Ti disorder or Ni:Ti 
+disorder. Suggested 
+structure includes 50:50 
+occupancy of Ni/Mg sites. 
+MgTi4(PO4)6 
+Vidal-Abarca, C., 
+Mba, J. M. A., 
+Masquelier, C., 
+Tirado, J. L. & Lavela, 
+P. In Situ X-ray 
+Diffraction Study of 
+Electrochemical 
+Insertion in 
+Mg0.5Ti2(PO4)3: An 
+Electrode Material for 
+Lithium or Sodium 
+Batteries. J. 
+Electrochem. Soc. 
+159, A1716 (2012). 
+Mg0.5Ti2 
+(PO4)3 R3"c ICSD 
+290277 
+Characterized by powder 
+XRD. Structural model is 
+acquired from previous 
+paper. Impurity of β-
+TiP2O7 observed (5 wt%) 
+and attributed to formation 
+of an unobserved 
+magnesium-rich phase. 
+Suggested structure 
+includes 50:50 
+Mg/vacancy partial 
+ordering. 
+MgV4Cu3O14 
+Vogt, R. & Müller-
+Buschbaum, Hk. 
+Magnesium in einer 
+ungewöhnlichen 
+tetragonal-
+pyramidalen 
+Koordination: Zur 
+Kenntnis von 
+Cu2−xMgxV2O7 (x 
+=1/2 und 2/3). Journal 
+of the Less Common 
+Metals 170, 309–314 
+(1991). 
+Cu2-xMgx 
+V2O77  
+(x = 0.5) 
+C2/c ICSD 
+69731 
+Characterized with single-
+crystal XRD and EDS. 
+Structural parameters 
+provided and indicate 
+Cu:Mg disordered sites 
+with 75:25 occupancies.
+
+
+## Page 36
+
+35 
+ 
+ 
+Mn2VPO7 
+O.V. Yakubovich, E.N. 
+Anan'eva, O.V. 
+Dimitrova. Crystal 
+structure of the solid 
+solution Mn2(PxV1-
+x)(Vy P1-y)O7. 
+Koordinatsionnaia 
+khimiia, 2000, 26, 
+586. 
+Mn2(PxV1-x) 
+(VyP1-x)O7 
+(x-y = 0.09) 
+C1m1 ICSD 
+250126 
+Original paper cannot be 
+accessed. ICSD structure 
+suggests two distinct V:P 
+disordered sites with 
+different occupancies. 
+Mn4Zn3(NiO6)2 
+Guillemet-Fritsch, S., 
+Baudour, J. L., 
+Chanel, C., Bouree, F. 
+& Rousset, A. X-ray 
+and neutron diffraction 
+studies on nickel zinc 
+manganite 
+Mn2.35−xNi0.65ZnxO
+4 powders. Solid 
+State Ionics 132, 63–
+69 (2000). 
+Mn2.35-x 
+Ni0.65ZnxO4 
+(x = 1.02) 
+Fd3"m ICSD 
+92223 
+Characterized with X-ray 
+and neutron diffraction. 
+Refinement and crystal 
+parameters provided. 
+Observed Zn-Mn and Ni-
+Mn site disorder. 
+Mn7(P2O7)4 No literature found 
+for this compound. N/A N/A N/A N/A 
+MnAgO2 
+Koriche, N., 
+Bouguelia, A., 
+Mohammedi, M. & 
+Trari, M. Synthesis 
+and physical 
+properties of new 
+oxide AgMnO2. J 
+Mater Sci 42, 4778–
+4784 (2007). 
+AgMnO2 C2/m ICSD 
+139006 
+Characterized by powder 
+XRD. Table of XRD data 
+provided; refinement 
+based on CuMnO2 
+structure. CIF added much 
+later to ICSD in 2021 via 
+DFT-aided structure 
+solution. Suggested 
+structure is ordered. 
+Na3Ca18Fe(PO4)14 
+Strunenkova, T. et al. 
+Redox reactions in 
+ternary Ca, Na, Fe 
+phosphates. Crystal 
+structure of o-
+Ca18Na3Fe(PO4)(14)
+. I. 
+KRISTALLOGRAFIYA 
+42, 64–76 (1997). 
+Ca18Na3Fe 
+(PO4)14 R3c ICSD 
+85103 
+Original paper cannot be 
+accessed. ICSD structure 
+suggests one Ca:Na 
+disordered site and one 
+Ca:Fe disordered site. 
+Na7Mg7Fe5(PO4)12 
+Hidouri, M., Lajmi, B., 
+Driss, A. & Ben 
+Amara, M. The 
+alluaudite-like 
+phosphate 
+Na1.79Mg1.79Fe1.21
+(PO4)3. Acta 
+Crystallographica 
+Section E 59, i7–i9 
+(2003). 
+Na1.79Mg1.79 
+Fe1.21(PO4)3 C2/c ICSD 
+281211 
+Synthesized via flux 
+method and characterized 
+with single-crystal XRD. 
+Crystal data and geometric 
+parameters provided. 
+Suggested Fe:Mg 
+disordered site (8f) and 
+partial occupancy of one of 
+two Na sites (4e). 
+NaCaMgFe(SiO3)4 
+Redhammer, G. J., 
+Tippelt, G., Amthauer, 
+G. & Roth, G. 
+Structural and 57Fe 
+Mössbauer 
+spectroscopic 
+characterization of the 
+synthetic NaFeSi2O6 
+Na1-xCax 
+Fe1-xMgx 
+Si2O6  
+(x = 0.56) 
+C2/c ICSD 
+263076 
+Characterized with single-
+crystal XRD, electron 
+microprobe analysis, and 
+Mössbauer spectroscopy. 
+CIF composition 
+corresponds to (Ca0.56 
+Na0.44)(Fe0.49 
+Mg0.51)Si2O6. Suggested
+
+
+## Page 37
+
+36 
+ 
+ 
+(aegirine) – 
+CaMgSi2O6 
+(diopside) solid 
+solution series. 227, 
+396–410 (2012). 
+disordered sites for Na:Ca 
+and Fe:Mg. 
+NaMnFe(PO4)2 
+Hatert, F. The crystal 
+chemistry of lithium in 
+the alluaudite 
+structure: a study of 
+the 
+(Na1−xLix)1.5Mn1.5F
+e1.5(PO4)3 solid 
+solution (x = 0 to 1). 
+Mineralogy and 
+Petrology 81, 205–
+217 (2004). 
+(Na1-xLix)1.5 
+Mn1.5Fe1.5  
+(PO4)3  
+(x = 0.00) 
+C2/c ICSD 
+151483 
+Synthesized from 
+quenched sample. 
+Characterized with powder 
+XRD. Rietveld refinement 
+based on previous 
+structure solution by 
+author. Plot of XRD 
+pattern and refinement 
+available for compound of 
+different x value. Proposed 
+partially occupied Na site 
+and one Mn:Fe disordered 
+site. 
+Sn2Sb2Pb4O13 
+Cascales, C., Alonso, 
+J. A. & Rasines, I. The 
+new pyrochlores 
+Pb2(MSb)O6.5 (M = 
+Ti, Zr, Sn, Hf). J Mater 
+Sci Lett 5, 675–677 
+(1986). 
+Pb2(SnSb)O6.5 Fd3"m ICSD 
+62722 
+Characterized with powder 
+XRD. No pattern or 
+refinement plot is provided 
+(a table of indexed 
+intensities is provided). 
+Small SnO2 impurity 
+(~1%) observed. Best fit 
+achieved with Sn:Sb site 
+disorder. 
+Y3In2Ga3O12 
+Li, C. & Zhong, J. 
+Highly Efficient 
+Broadband Near-
+Infrared 
+Luminescence with 
+Zero-Thermal-
+Quenching in Garnet 
+Y3In2Ga3O12:Cr3+ 
+Phosphors. Chem. 
+Mater. 34, 8418–8426 
+(2022). 
+Y3In2Ga3O12 Ia3"d ICSD 
+54664 
+Manuscript was published 
+in Sep. 2022. Synthesized 
+at 1550 ºC with slow 
+cooling. Characterized 
+with powder XRD and 
+SEM-EDS. Structure 
+model determined from 
+Gd3Sc2Ga3O12. 
+Refinement results in 
+12.67% Rwp. 
+Zn3Ni4(SbO6)2 
+Harrington, R., Miles, 
+G. C. & West, A. R. 
+Crystallography of Ni-
+doped Zn7Sb2O12 
+and phase equilibria 
+in the system ZnO-
+Sb2O5-NiO. Journal 
+of the European 
+Ceramic Society 26, 
+2307–2311 (2006). 
+Zn7-xNix 
+Sb2O12  
+(x = 4) 
+Fd3"m ICSD 
+154820 
+Characterized with neutron 
+diffraction and TEM. 
+Diffraction pattern and 
+refinement provided; 
+suggested structure 
+contains Ni:Sb site 
+disorder in 2:1 ratio. 
+Zr2Sb2Pb4O13 
+Cascales, C., Alonso, 
+J. A. & Rasines, I. The 
+new pyrochlores 
+Pb2(MSb)O6.5 (M = 
+Ti, Zr, Sn, Hf). J Mater 
+Sci Lett 5, 675–677 
+(1986). 
+Pb2(ZrSb)O6.5 Fd3"m ICSD 
+62721 
+Present in same report as 
+Sn2Sb2Pb4O13 (see 
+above). Characterized with 
+powder XRD. No pattern 
+or refinement plot is 
+provided (a table of 
+indexed intensities is 
+provided). Small SbO2 
+impurity (~1%) observed.
+
+
+## Page 38
+
+37 
+ 
+ 
+Suggested Zr:Sb site 
+disorder. 
+Failed 
+syntheses 
+     
+Ba4InSbO8 
+Heap, R., Islam, M. S. 
+& Slater, P. R. 
+Synthesis and 
+structural 
+characterisation of the 
+new K2NiF4-type 
+phases, 
+A2In0.5Sb0.5O4 (A = 
+Sr, Ba). Dalton Trans. 
+460–463 (2005) 
+doi:10.1039/B416580
+B. 
+Ba2In0.5 
+Sb0.5O4 I4/mmm ICSD 
+152327 
+Characterized with powder 
+XRD and neutron 
+diffraction. Diffraction 
+pattern provided. 
+Suggested In:Sb site 
+disorder. 
+BaGdCrFeO6 No literature found 
+for this compound. N/A N/A N/A N/A 
+Ca2Sn3O8 No literature found 
+for this compound. N/A N/A N/A N/A 
+Ca2Ti3O8 No literature found 
+for this compound. N/A N/A N/A N/A 
+Ca3Ti3Cr2O12 No literature found 
+for this compound. N/A N/A N/A 
+Ca3Cr2TixSi1-xO12 solid-
+solution reported, but only 
+up to x=0.40. See 
+following reference: 
+Esteve-Cano, V. et al. 
+Rietveld study of 
+uvarovite-titanium garnet 
+solid solutions synthesized 
+by sol-gel methods. 
+Anales de Química Int. Ed. 
+92, 285–287 (1996). 
+CaCr2P2O9 No literature found 
+for this compound. N/A N/A N/A N/A 
+CaTiNiP2O9 No literature found 
+for this compound. N/A N/A N/A N/A 
+CuAg2P2O7 No literature found 
+for this compound. N/A N/A N/A N/A 
+KMg3V3CuO12 No literature found 
+for this compound. N/A N/A N/A 
+Closest composition 
+identified: 
+KMg2Cu2V3O12 (DOI: 
+10.1002/zaac.1993619040
+2). 
+La5Mn5O16 
+Barnabé, A., Gaudon, 
+M., Bernard, C., 
+Laberty, C. & Durand, 
+B. Low temperature 
+synthesis and 
+LaMnO3+δ  
+(δ = 0.20) R3"c ICSD 
+99771 
+Part of a larger series of 
+oxygen-rich LaMnO3 
+perovskites. Characterized 
+with XRD and TEM.
+
+
+## Page 39
+
+38 
+ 
+ 
+structural 
+characterization of 
+over-stoichiometric 
+LaMnO3+δ 
+perovskites. Materials 
+Research Bulletin 39, 
+725–735 (2004). 
+Diffraction pattern and 
+refinement provided. 
+Mo(PO3)5 No literature found 
+for this compound. N/A N/A N/A N/A 
+Na3V3Cr2O12 
+Schwarz, H. & 
+Schmidt, L. Neue 
+Verbindungen mit 
+Granatstruktur. VI. 
+Vanadate. Zeitschrift 
+für anorganische und 
+allgemeine Chemie 
+413, 150–164 (1975). 
+Na3Cr2V3O12 Ia3"d N/A 
+Characterized with powder 
+XRD. No structural 
+refinement provided. 
+Diffractogram provided 
+and seems to visually 
+match simulated pattern 
+from MP structure. 
+Ta4PbO11 
+Boltersdorf, J. & 
+Maggard, P. A. 
+Structural and 
+electronic 
+investigations of 
+PbTa4O11 and 
+BiTa7O19 constructed 
+from α-U3O8 types of 
+layers. Journal of 
+Solid State Chemistry 
+229, 310–321 (2015). 
+PbTa4O11 R3 ICSD 
+251950 
+Characterized with powder 
+XRD and neutron 
+diffraction. High quality 
+structural refinment 
+provided and based on 
+Ag2Nb4O11 starting 
+model. Structure is 
+ordered. 
+V3AgO8 
+Rozier, P. & Galy, J. 
+Ag1.2V3O8 Crystal 
+Structure: 
+Relationship with 
+Ag2V4O11−y and 
+Interpretation of 
+Physical Properties. 
+Journal of Solid State 
+Chemistry 134, 294–
+301 (1997). 
+Ag1.2V3O8 P21/m ICSD 
+84986 
+Synthesized from 
+quenching melt. 
+Characterized with both 
+powder XRD and single-
+crystal XRD. Structural 
+information provided. 
+Proposed structure has Ag 
+partial occupancy (0.1) on 
+one site.  
+YbMoO4 
+Griesemer, S. D., 
+Ward, L. & Wolverton, 
+C. High-throughput 
+crystal structure 
+solution using 
+prototypes. Phys. 
+Rev. Mater. 5, 105003 
+(2021). 
+YbMoO4 I41/a 
+PDF 
+035-1471, 
+ICSD 
+138720 
+Structure solved by 
+Griesemer et al. from PDF 
+database based on 
+Ca(WO4) prototype. Other 
+mentions of composition 
+throughout literature.
+
+
+## Page 40
+
+39 
+ 
+ 
+Supplementary Table 4 | Five precursor sets generated for the synthesis of MgNi(PO3)4 by 
+using a literature-inspired recommendation engine. The similarity between MgNi(PO3)4 and 
+each reference target is evaluated using the PrecursorSelector encoding model16 and ranges 
+from -1 to 1. The reference target does not apply to the precursor set with index of 0 because 
+this precursor set is generated based on the most common precursors for Mg, Ni, and P as 
+reported in the literature. 
+Index Reference 
+target 
+Similarity to 
+MgNi(PO3)4 
+Precursors for 
+reference target 
+Recommended 
+precursors for 
+MgNi(PO3)4 
+0 N/A N/A N/A MgO, NiO, NH4H2PO4 
+1 BaMg2(PO4)2 0.901 BaCO3, MgO, 
+(NH4)2HPO4 
+MgO, NiO, (NH4)2HPO4 
+2 Ca8LuMg(PO4)7 0.864 CaCO3, Lu2O3, MgCO3, 
+NH4H2PO4 
+MgCO3, NiO, NH4H2PO4 
+3 Mg1.9Ni0.1TiO4 0.830 MgCO3, NiO, TiO2 
+MgCO3, NiO, 
+(NH4)2HPO4 
+4 Y2MoO6 0.425 Y2(C2O4)3, MoO3 
+MgCO3, Ni(OH)2, 
+(NH4)2HPO4
+
+
+## Page 41
+
+40 
+ 
+ 
+ 
+Supplementary Table 5 | Compounds that were not synthesized by the A-Lab owing to sluggish 
+kinetics. The driving force listed for each target is calculated either from its precursors or the 
+intermediates that formed during its attempted synthesis. Note that although multiple recipes can 
+be related to one target, we only choose the one recipe for the sake of conciseness. 
+Target 
+compound 
+Driving force 
+(meV/atom) Previous recipe Strategy Result 
+CuAg2P2O7 43 
+CuO, Ag2CO3, 
+(NH4)2HPO4 
+@ 900 ℃ 
+Redo at 1000 ℃ 
+(+100 ℃) 
+No obvious 
+change 
+Mg3NiO4 11 MgO, NiO 
+@ 1000 ℃ 
+Regrind and reheat 
+for 4 h Pure phase 
+Ca2Sn3O8 18 CaO, SnO2 
+@ 1000 ℃ 
+Regrind and reheat 
+for 4 h 
+No obvious 
+change 
+V3AgO8 33 Ag2CO3, V2O5 
+@ 800 ℃ 
+Redo at 1000 ℃ 
+(+200 ℃) 
+No obvious 
+change 
+Ca2Ti3O8 7 CaO, TiO2 
+@ 1100 ℃ 
+Regrind and reheat 
+for 1 day 
+No obvious 
+change 
+KMg3V3CuO12 7 
+CuO, K2CO3, 
+MgCO3, V2O5  
+@ 900 ℃ 
+Redo at 1100 ℃ 
+(+200 ℃) 
+No obvious 
+change 
+Na3V3Cr2O12 8 
+Cr2O3,  Na2CO3, 
+V2O5 
+@ 800 ℃ 
+Redo at 1000 ℃ 
+(+200 ℃) 
+No obvious 
+change 
+Y3Ga3In2O12 12 
+Y2(CO3)3·3H2O, 
+Ga2O3, In2O3  
+@ 1000 ℃ 
+Redo at 1100 ℃ 
+(+100 ℃) Pure phase 
+CaTiNiP2O9 35 
+CaO, NH4H2PO4, 
+NiO, TiO2  
+@ 1100 ℃ 
+Regrind and reheat 
+for 1 day 
+No obvious 
+change
+
+
+## Page 42
+
+41 
+ 
+ 
+Ca3Ti3Cr2O12 48 CaO, Cr2O3, TiO2 
+ @ 1100 ℃ 
+Regrind and reheat 
+for 4 h 
+No obvious 
+change 
+Ba4InSbO8 50 BaCO3, In2O3, 
+Sb2O3 @ 1000 ℃ 
+Redo at 1100 ℃ 
+(+100 ℃) 
+No target 
+detected
+
+
+## Page 43
+
+42 
+ 
+ 
+References 
+1. M. Geiger and T. Smidt, e3nn: Euclidean Neural Networks. Preprint available at arXiv:2207.09453 
+(2022). 
+2. S.-Y. Louis et al., Graph convolutional neural networks with global attention for improved 
+materials property prediction, Phys. Chem. Chem. Phys. 22, 18141-18148 (2020). 
+3. K. Das et al., CrysXPP: An explainable property predictor for crystalline materials, npj Comp. 
+Mater. 8, 43 (2022). 
+4. D. Jah et al., ElemNet: Deep Learning the Chemistry of Materials From  Only Elemental 
+Composition, Sci. Rep. 8, 17593 (2018). 
+5. B. H. Toby and R. B. Von Dreele, GSAS-II: the genesis of a modern open-source all purpose 
+crystallography software package, J. Appl. Cryst. 46, 544-549 (2013). 
+6. J. Schulman et al., Proximal Policy Optimization Algorithms, Preprint available at 
+arXiv:1707.06347 (2017). 
+7. E. Liang et al., RLlib: Abstractions for Distributed Reinforcement Learning, Preprint available at 
+arXiv:1712.09381 (2017). 
+8. N. J. Szymanski et al., Autonomous decision making for solid -state synthesis of inorganic 
+materials. Preprint available at arXiv:2304.09353 (2023). 
+9. A. R. West, Solid state chemistry and its applications. John Wiley & Sons (2022). 
+10. S. Sivasangar et al., Screening of modified CaO-based catalysts with a series of dopants for the 
+supercritical water gasification of empty palm fruit bunches to produce hydrogen., RSC Adv. 5, 
+36798-36808 (2015). 
+11. A. Sobhani-Nasab et al., Synergetic effect of graphene oxide and C3N4 as co-catalyst for enhanced 
+photocatalytic performance of dyes on Yb2(MoO4)3/YbMoO4 nanocomposite, Ceram. Int. 45, 
+17847-17858 (2019). 
+12. D. P. Shoemaker et al. In situ studies of a platform for metastable inorganic crystal growth and 
+materials discovery. Proc. Natl. Acad. Sci. U.S.A. 111, 30 (2014). 
+13. A. J. Martinolich, J. A. Kurzman, & J. R. Neilson. Circumventing Diffusion in Kinetically 
+Controlled Solid-State Metathesis Reactions. J. Am. Chem. Soc. 138, 11031–11037 (2016). 
+14. M. Bianchini et al. The interplay between thermodynamics and kinetics in the solid-state synthesis 
+of layered oxides. Nat. Mater. 19, 1088–1095 (2020). 
+15. A. Miura et al. Observing and Modeling the Sequential Pairwise Reactions that Drive Solid-State 
+Ceramic Synthesis. Adv. Mater. 33, 2100312 (2021). 
+16. T. He et al., Precursor recommendation for inorganic synthesis by machine learning materials 
+similarity from scientific literature. Sci. Adv. 9, eadg8180 (2023). 
+17. H. Huo et al. Machine -Learning Rationalization and Prediction of Solid -State Synthesis 
+Conditions. Chem. Mater. 34, 7323–7336 (2022).
+
+
+## Page 44
+
+43 
+ 
+ 
+Supplementary Video 1: https://www.youtube.com/watch?v=-XUUI-ThU1Y&feature=youtu.be 
+Robot arm R1 (Mitsubishi) handling powders and slurries in the sample preparation station used 
+to dispense and mix precursors prior to heating. The video is played at 20-times speed.  
+ 
+Supplementary Video 2: https://youtu.be/26K5r68fzwQ 
+Robot arm R2 (UR5e) moving crucibles from the sample preparation station to the box furnaces. 
+The video is played at 20-times speed.  
+ 
+Supplementary Video 3: https://www.youtube.com/watch?v=UlLAUEkd06w 
+Robot arm R3 (UR5e) retrieving powder samples (post-annealing) and cooperating with an Aeris 
+X-ray diffractometer for their characterization. The video is played at 12-times speed.
+
+
+<!-- materialization-redistribution-notice -->
+## Redistribution notice
+
+Nathan J. Szymanski; Bernardus Rendy; Yuxing Fei; Rishi E. Kumar; Tanjin He; David Milsted; Matthew J. McDermott; Max Gallant; Ekin Dogus Cubuk; Amil Merchant; Haegyeom Kim; Anubhav Jain; Christopher J. Bartel; Kristin Persson; Yan Zeng; Gerbrand Ceder. "An autonomous laboratory for the accelerated synthesis of inorganic materials". © The Author(s) 2023, modified publication 2026. DOI https://doi.org/10.1038/s41586-023-06734-w; publisher record https://www.nature.com/articles/s41586-023-06734-w; 补充信息（Supplementary Information，SI）PDF https://media.springernature.com/original/springer-static/esm/art%3A10.1038%2Fs41586-023-06734-w/MediaObjects/41586_2023_6734_MOESM1_ESM.pdf; Creative Commons Attribution 4.0 International, https://creativecommons.org/licenses/by/4.0/.
+
+Changes: 原 PDF 保留实际下载字节，不编辑、不拼接、不重导出。用现有 plain 逐页提取派生文字与页 selectors，只追加独立署名/修改/范围末注；已知字形、图表、数学、代码和阅读顺序损失保留为 partial，不修补成作者原文，不做 OCR 或执行。
+
+Scope: 仅 journal-doi-10.1038-s41586-023-06734-w 的 publisher-vor:2023-11-29;corrected:2026-01-19 补充信息（Supplementary Information，SI）PDF（44 页，7477648 bytes，https://media.springernature.com/original/springer-static/esm/art%3A10.1038%2Fs41586-023-06734-w/MediaObjects/41586_2023_6734_MOESM1_ESM.pdf）及其派生页文字/selectors/NOTICE。仅该同 DOI 作品准确官方链接、同题名/作者且已实际审阅的附件，不是所有同域附件或外部复现闭包。不据此授予旧摘录、独立更正/增补论文、外部引用作品、代码/数据 ZIP、模型、视频、数据库、商标或专利的新权利；不增加下游许可限制。
+
+Full license and original rights links: [NOTICE.md](NOTICE.md).

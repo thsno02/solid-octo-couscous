@@ -1,0 +1,14 @@
+\section{Related Work}
+\label{sec:related_work}
+
+\paragraph{Fact Verification.}
+Recent advances in fact verification increasingly leverage LLMs~\citep{luu2024zefav, jayaweera-etal-2024-amrex}, often within retrieval-augmented generation (RAG) frameworks~\citep{malviya2024evidence, rothermel-etal-2024-infact, chern2023factool, xie2024improvingmodelfactualityfinegrained}. Many systems extend fact verification to large text corpora~\citep{schuster-etal-2022-stretching} by retrieving relevant passages~\citep{khattab2020colbertefficienteffectivepassage} and using language models to assess whether claims align with the retrieved content.
+
+A wide range of Wikipedia-based fact verification datasets has been developed, including FEVER~\citep{thorne-etal-2018-fact}, FEVEROUS~\citep{feverous}, TabFact~\citep{chen2020tabfactlargescaledatasettablebased}, HOVER~\citep{jiang-etal-2020-hover}, WikiFactCheck-English~\citep{sathe-etal-2020-automated}, VitaminC~\citep{schuster-etal-2021-get}, EX-FEVER~\citep{ma-etal-2024-ex}, and AveriTeC~\citep{schlichtkrull-etal-2024-automated}. These datasets typically create the \refutes~class by synthetically modifying true statements, whereas our dataset captures contradictions naturally present in the corpus. WikiContradict~\citep{hou2024wikicontradict} also targets real contradictions but relies on inconsistency tags added by Wikipedia editors. Our analysis shows that many tagged cases have since been resolved, reducing the accuracy of those labels. Moreover, WikiContradict does not explicitly include a corpus-level \supports~class--- facts that are extensively checked to be free of corpus-level inconsistencies. WikiContradiction~\cite{hsu2021wikicontradiction} focuses on contradictions within a single article, whereas our \dataset extends the scope to contradictions across the entire corpus. This corpus-level setting introduces the additional challenge of searching for and aggregating evidence across multiple articles.
+
+\paragraph{Claim Decomposition.}
+The \task task requires decomposing the corpus into smaller, self-contained facts. Prior work has examined claim extraction and decomposition within fact verification systems~\citep{hu2024decompositiondilemmasdoesclaim, wührl2024selfadaptiveparaphrasingpreferencelearning, min2023factscore, song2024veriscore, cattan2024localizingfactualinconsistenciesattributable, gunjal-durrett-2024-molecular, pham-etal-2025-verify}.
+
+
+
+

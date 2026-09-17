@@ -1,0 +1,36 @@
+\section{Introduction}
+\label{sec:intro}
+
+The advent of large language models (LLMs) \citep{LLMFewShortLearner} has revolutionized the field of Natural Language Processing (NLP), enabling unprecedented capabilities in text understanding and generation. However, static LLMs often suffer from outdated information and hallucinations. To mitigate these shortcomings, retrieval-augmented generation (RAG) techniques \citep{rag1} have been developed, which combine the strengths of LLMs with retrieved up-to-date information from external sources. 
+While RAG frameworks have shown significant promise, it remains unclear how LLMs handle knowledge conflicts from different sources, including ``\emph{context-memory conflicts}'', which refers to the retrieved context knowledge being in conflict
+with the parametric knowledge (memory) encapsulated within the LLM’s parameters,  and ``\emph{inter-context conflicts}'', which refers to the contradictions among the retrieved passages \citep{xu2024knowledge}. Most prior research on LLM knowledge conflicts has concentrated on ``\emph{context-memory conflicts}'' and relied on artificially generated datasets, which employ various methods to create conflicting information. These approaches span from simple entity substitution, where an entity in a passage is replaced with another entity of the same type \citep{longpre-etal-2021-entity}, to more sophisticated techniques, such as instructing language models like ChatGPT 
+to fabricate supporting evidence for counterfactual answers to a given question \citep{xie2024knowledgeconflict,jin-etal-2024-tug-war}. However, these artificially generated datasets primarily focus on explicit, surface-level contradictions, neglecting the complexity and nuance of real-world knowledge conflicts.
+
+\begin{figure}
+    \centering 
+    \includegraphics[width=.9\textwidth]{figs/Example.pdf}
+    \caption{Example instances from \texttt{WikiContradict} with different contradiction types.}
+    \label{fig:example}
+\end{figure}
+
+
+In this work, we focus on investigating the behaviors of LLMs when confronted with ``\textbf{\emph{real-world inter-context conflicts}}'', where knowledge inconsistencies arise from the same or different retrieved passages that originate from a single trusted source (Wikipedia) and are considered equally credible. Specifically, we introduce \texttt{WikiContradict}, a benchmark consisting of 253 high-quality, human-annotated instances that cover different types of contradictions identified by Wikipedia editors and validated by us.
+Figure \ref{fig:example} presents two illustrative instances that demonstrate different types of contradictions. In particular, Example 1 requires implicit reasoning to detect the contradiction between Passage 1 and Passage 2 about the number of survivors from the RMS Lusitania sinking event, which requires calculating the number of survivors by subtracting 1,195 from 1,959 based on the information provided in Passage 2. This type of instance accounts for 36\% of the instances in the \texttt{WikiContradict} dataset.
+
+We evaluate the performance of various LLMs on \texttt{WikiContradict} by employing diverse prompt templates to assess their behaviour under different question answering (QA) scenarios, including RAG with a single context passage, and RAG with two contradictory passages. We then conduct a rigorous human evaluation to assess the correctness of the models' responses. Our human evaluation dataset comprises responses from 5 LLMs to 5 prompt templates, applied to 55 instances from the \texttt{WikiContradict} dataset, resulting in a total of 1,375 evaluation samples. Each sample is annotated by 2 authors of this paper, yielding 2,750 human judgements. The inter-annotator agreement, measured by Cohen's $\kappa$, ranges from 0.58 to 0.88 across different prompt templates, indicating moderate to substantial agreement.
+After resolving the annotation disagreements among annotators, our final human evaluation study dataset (\texttt{WikiContradict\_HumanEval}) consists of 1,200 samples resulting from 5 
+LLMs' responses to 48 \texttt{WikiContradict} instances based on 5 prompt templates. 
+
+On \texttt{WikiContradict\_HumanEval}, we observe that when instructing LLMs to generate answers to a given question based on the given context consisting of two contradicted passages, all
+models, including GPT-4, struggle to generate answers that accurately reflect the conflicting nature of the context, especially for implicit conflicts that require reasoning as illustrated in Figure \ref {fig:example}, Example 1. Interestingly, we find that prompting LLMs to pay attention to contradictory context information improves their performance to correctly answering these questions. For instance, 
+the top-performing model, Llama-3-70b-instruct, shows a remarkable increase from 10.4\% to 43.8\%. Furthermore, our analysis reveals that this improvement is largely driven by instances with explicit conflicts, as illustrated in Figure \ref{fig:example}, Example 2. Finally, to facilitate future evaluations, we have developed \texttt{WikiContradictEval}, a simple automatic evaluation method that leverages few-shot in-context learning to teach Llama-3-70b-instruct to judge model responses, which achieves an F-score of 0.8 on \texttt{WikiContradict\_HumanEval} for evaluating LLM responses in the RAG setting with two contradictory passages.
+
+ In summary, our proposed \texttt{WikiContradict} benchmark poses a significant challenge for current LLMs, highlighting substantial opportunities for future improvement. We believe \texttt{WikiContradict} can serve as a valuable resource for the research community, facilitating the examination and tracking of LLMs' progress in handling real-world inter-context conflicts and deepening our understanding of their capabilities in these complex settings.
+
+
+
+
+
+
+
+

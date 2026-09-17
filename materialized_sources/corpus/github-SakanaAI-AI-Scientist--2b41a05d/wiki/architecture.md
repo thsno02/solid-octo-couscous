@@ -1,0 +1,38 @@
+# Architecture evidence: SakanaAI/AI-Scientist
+
+- `README.md:38` — Table of Contents
+- `README.md:57` — Introduction
+- `README.md:61` — Requirements
+- `README.md:65` — Installation
+- `README.md:70` — Install pdflatex
+- `README.md:73` — Install PyPI requirements
+- `README.md:79` — Supported Models and API Keys
+- `README.md:83` — OpenAI API (GPT-4o, GPT-4o-mini, o1 models)
+- `README.md:87` — Anthropic API (Claude Sonnet 3.5)
+- `README.md:91` — Claude Models via Bedrock
+- `README.md:103` — Claude Models via Vertex AI
+- `README.md:121` — DeepSeek API (deepseek-chat, deepseek-reasoner)
+- `README.md:124` — OpenRouter API (Llama3.1)
+- `README.md:128` — Google Gemini
+- `README.md:135` — Semantic Scholar API (Literature Search)
+- `README.md:146` — OpenAlex API (Literature Search Alternative)
+- `README.md:160` — Setting Up the Templates
+- `README.md:164` — NanoGPT Template
+- `README.md:188` — 2D Diffusion Template
+- `README.md:213` — Grokking Template
+- `README.md:235` — Run AI Scientist Paper Generation Experiments
+- `README.md:241` — Run the paper generation.
+- `README.md:248` — Getting an LLM-Generated Paper Review
+- `README.md:257` — Load paper from PDF file (raw text)
+- `README.md:260` — Get the review dictionary
+- `README.md:271` — Inspect review results
+- `README.md:284` — Making Your Own Template
+- `README.md:297` — Community-Contributed Templates
+- `README.md:311` — Template Resources
+- `README.md:321` — Citing The AI Scientist
+- `README.md:334` — Frequently Asked Questions
+- `README.md:370` — Containerization
+- `README.md:377` — Endpoint Script
+- `README.md:385` — Interactive
+- `README.md:391` — ⚖️ License & Responsible Use
+- `README.md:400` — Star History
