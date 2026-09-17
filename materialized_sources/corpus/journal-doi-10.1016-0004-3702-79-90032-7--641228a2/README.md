@@ -2,8 +2,8 @@
 
 - UID: `journal-doi-10.1016-0004-3702-79-90032-7`
 - Source type: `journal`
-- Canonical ID: `doi:10.1016/0004-3702(79)90032-7`
-- Canonical URL: https://doi.org/10.1016/0004-3702(79)90032-7
+- Canonical ID: `doi:10.1016/0004-3702(79)90008-0`
+- Canonical URL: https://doi.org/10.1016/0004-3702(79)90008-0
 - Materialization status: `metadata_only`
 - Content tier: `metadata_capsule`
 

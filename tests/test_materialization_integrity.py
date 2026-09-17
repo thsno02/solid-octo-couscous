@@ -1105,6 +1105,166 @@ class RetainedMarkdownTests(unittest.TestCase):
             self.assertIn("| name | true |\r\n", text)
             self.assertEqual(text.count("<!-- materialization-redistribution-notice -->"), 1)
 
+    @contextlib.contextmanager
+    def _metadata_docfx_capsule(self):
+        with self._git_text_sidecar_capsule() as (root, record, _, _, document, manifest):
+            capsule = record.capsule_root
+            for name in ("document.md", "selectors.jsonl"):
+                (capsule / name).unlink()
+            (capsule / "README.md").write_text("# Historical metadata only\n")
+            history = materializer.base_manifest(record, "generic_web_or_document_v2", "old-time")
+            history["warnings"] = ["Historical canonical returned 404"]
+            history["errors"] = ["all candidate URLs failed"]
+            history["local_files"] = [row for row in materializer.local_file_inventory(capsule) if Path(row["path"]).name in {"README.md", "source-metadata.yaml"}]
+            texts = {
+                "source/docs/iq/ontology/overview.md": b'---\ntitle: Root metadata\n---\n\n# Native overview\n\nOpening authored paragraph with enough actual source evidence to support a bounded, continuous consumer excerpt.\n\n[!INCLUDE [preview](../../includes/feature-preview-note.md)]\n\n## Binding\nBinding authored source paragraph.\n\n[!INCLUDE [refresh](includes/refresh-graph-model.md)]\n\n## Graph\nGraph authored source paragraph.\n\n[!INCLUDE [refresh](includes/refresh-graph-model.md)]\n\n## End\n[Next](next.md?pivots=example#section) and [Own](#binding).\n\n```md\n[!INCLUDE [example](undeclared.md)]\n```\n`[!INCLUDE [inline](undeclared.md)]`\n',
+                "source/docs/includes/feature-preview-note.md": b'---\ntitle: Include metadata, not body\n---\n> [!IMPORTANT]\n> PREVIEW_BODY in [preview](../fundamentals/preview.md).\n',
+                "source/docs/iq/ontology/includes/refresh-graph-model.md": b'---\ntitle: Refresh metadata, not body\n---\n\n>[!NOTE]\n> REFRESH_BODY must be manual. See [refresh](../details.md#refresh).',
+            }
+            sources = []
+            commit = record.metadata["versioning"]["snapshot_commit"]
+            for name, body in texts.items():
+                source = capsule / name
+                source.parent.mkdir(parents=True, exist_ok=True)
+                source.write_bytes(body)
+                sources.append((source, "md"))
+            declarations = [{"source": source.relative_to(capsule).as_posix(), "format": format_name} for source, format_name in sources]
+            declarations[0]["docfx_includes"] = {"../../includes/feature-preview-note.md": declarations[1]["source"], "includes/refresh-graph-model.md": declarations[2]["source"]}
+            manifest["historical_acquisition"] = history
+            manifest["selectors"] = ["normalized/selectors.jsonl"]
+            manifest["materialization"]["retained_text_sources"] = declarations
+            manifest["materialization"]["link_rewrites"] = {}
+            manifest["retrievals"] = [{"local_path": name, "commit": commit, "sha256": materializer.sha256_file(capsule / name), "bytes": (capsule / name).stat().st_size,
+                "requested_url": f"https://raw.githubusercontent.com/example/docs/{commit}/{name.removeprefix('source/')}",
+                "resolved_url": f"https://raw.githubusercontent.com/example/docs/{commit}/{name.removeprefix('source/')}"} for name in texts]
+            manifest["local_files"] = materializer.local_file_inventory(capsule)
+            materializer.write_yaml(capsule / "manifest.yaml", manifest)
+            yield root, record, sources, {source: source.read_bytes() for source, _ in sources}, document, manifest
+
+    def test_metadata_only_git_sidecar_expands_docfx_in_place_and_replays_offline(self) -> None:
+        with self._metadata_docfx_capsule() as (root, record, sources, originals, document, manifest), mock.patch.object(materializer, "fetch_bytes", side_effect=AssertionError("offline replay")), mock.patch.object(materializer, "prepare_capsule", side_effect=AssertionError("preserve originals")):
+            history = manifest["historical_acquisition"]
+            materializer.replay_retained_text_sources(record, manifest, "fixed-time", check_derived=False)
+            first = {path.relative_to(record.capsule_root): path.read_bytes() for path in record.capsule_root.rglob("*") if path.is_file()}
+            for executor in (materializer.materialize_generic, materializer.materialize_one):
+                replayed = executor(record, {}, "fixed-time")
+                self.assertEqual({path.relative_to(record.capsule_root): path.read_bytes() for path in record.capsule_root.rglob("*") if path.is_file()}, first)
+                self.assertEqual(replayed["historical_acquisition"], history)
+                self.assertNotIn("materialization", history)
+                self.assertEqual(replayed["selectors"], ["normalized/selectors.jsonl"])
+                self.assertFalse((record.capsule_root / "document.md").exists())
+                self.assertFalse((record.capsule_root / "selectors.jsonl").exists())
+                errors = []
+                validator.validate_retained_markdown_binding(replayed, record.capsule_root, {source.relative_to(root).as_posix(): materializer.sha256_file(source) for source, _ in sources}, errors, repository_root=root)
+                self.assertEqual(errors, [])
+            self.assertEqual({source: source.read_bytes() for source in originals}, originals)
+            text = document.read_text()
+            self.assertEqual((text.count("PREVIEW_BODY"), text.count("REFRESH_BODY")), (1, 2))
+            self.assertLess(text.index("PREVIEW_BODY"), text.index("## Binding"))
+            self.assertLess(text.index("REFRESH_BODY"), text.index("## Graph"))
+            self.assertLess(text.index("## Graph"), text.rindex("REFRESH_BODY"))
+            self.assertNotIn("Include metadata, not body", text)
+            self.assertNotIn("Refresh metadata, not body", text)
+            self.assertIn(f"https://raw.githubusercontent.com/example/docs/{'a' * 40}/docs/fundamentals/preview.md", text)
+            self.assertIn(f"https://raw.githubusercontent.com/example/docs/{'a' * 40}/docs/iq/ontology/details.md#refresh", text)
+            self.assertIn("[Own](#binding)", text)
+            self.assertIn("```md\n[!INCLUDE [example](undeclared.md)]\n```", text)
+            anchors = re.findall(r'<a id="([^"]+)"', text)
+            self.assertEqual(len(anchors), len(set(anchors)))
+            rows = [json.loads(line) for line in (record.capsule_root / "normalized/selectors.jsonl").read_text().splitlines()]
+            refresh_rows = [row for row in rows if root / row["derived_from"] == sources[2][0]]
+            self.assertEqual(len(refresh_rows), 2)
+            self.assertNotEqual(refresh_rows[0]["included_at"]["line"], refresh_rows[1]["included_at"]["line"])
+            self.assertEqual(replayed["materialization"]["selector_count"], len(rows))
+
+    def test_docfx_routes_and_metadata_only_history_fail_closed_without_writes(self) -> None:
+        for change in ("empty-routes", "unused-route", "nonlocal-route", "wrong-commit-url", "old-excerpt", "old-revision", "old-materialization", "hidden-legacy", "missing-history", "wrong-invocation", "missing-occurrence"):
+            with self.subTest(change=change), self._metadata_docfx_capsule() as (root, record, _, _, _, manifest):
+                materializer.replay_retained_text_sources(record, manifest, "fixed-time", check_derived=False)
+                main = manifest["materialization"]["retained_text_sources"][0]
+                history = manifest["historical_acquisition"]
+                if change == "empty-routes":
+                    main["docfx_includes"] = {}
+                elif change == "unused-route":
+                    main["docfx_includes"]["./includes/refresh-graph-model.md"] = main["docfx_includes"]["includes/refresh-graph-model.md"]
+                elif change == "nonlocal-route":
+                    main["docfx_includes"]["../../includes/feature-preview-note.md"] = "source/unretained.md"
+                elif change == "wrong-commit-url":
+                    manifest["retrievals"][0]["resolved_url"] = manifest["retrievals"][0]["resolved_url"].replace("a" * 40, "b" * 40)
+                elif change == "old-excerpt":
+                    history["content_tier"] = "excerpt_capsule"
+                elif change == "old-revision":
+                    history["revision"] = "sha256:old-diagnostic"
+                elif change == "old-materialization":
+                    history["materialization"] = {"document": "document.md"}
+                elif change == "hidden-legacy":
+                    (record.capsule_root / "document.md").write_text("Old body must not disappear")
+                elif change == "missing-history":
+                    manifest["historical_acquisition"] = {}
+                else:
+                    sidecar = record.capsule_root / "normalized/selectors.jsonl"
+                    rows = [json.loads(line) for line in sidecar.read_text().splitlines()]
+                    if change == "wrong-invocation":
+                        next(row for row in rows if "included_at" in row)["included_at"]["line"] = 1
+                    else:
+                        invocation = next(row["included_at"] for row in rows if "refresh-graph-model.md" in row["derived_from"])
+                        rows = [row for row in rows if row.get("included_at") != invocation]
+                    materializer.write_jsonl(sidecar, rows)
+                materializer.write_yaml(record.capsule_root / "manifest.yaml", manifest)
+                before = {path.relative_to(root): path.read_bytes() for path in root.rglob("*") if path.is_file()}
+                with mock.patch.object(materializer, "fetch_bytes") as fetch, mock.patch.object(materializer, "prepare_capsule") as prepare:
+                    with self.assertRaises(materializer.RetainedMarkdownPreflightError):
+                        materializer.materialize_generic(record, {}, "fixed-time")
+                    fetch.assert_not_called()
+                    prepare.assert_not_called()
+                self.assertEqual({path.relative_to(root): path.read_bytes() for path in root.rglob("*") if path.is_file()}, before)
+
+    def test_docfx_unknown_and_nested_include_reject_before_derived_write(self) -> None:
+        for change in ("unknown", "nested", "nonstandalone"):
+            with self.subTest(change=change), self._metadata_docfx_capsule() as (_, record, sources, _, document, manifest):
+                selected = sources[1][0] if change == "nested" else sources[0][0]
+                selected.write_bytes(selected.read_bytes() + (b"prose " if change == "nonstandalone" else b"\n") + b"[!INCLUDE [unknown](unknown.md)]\n")
+                document.write_bytes(b"Prior derived content remains\n")
+                before = document.read_bytes()
+                options = {source.resolve(): {"git_snapshot": True, "snapshot_commit": record.metadata["versioning"]["snapshot_commit"], "source_url": retrieval["resolved_url"]} for (source, _), retrieval in zip(sources, manifest["retrievals"])}
+                options[sources[0][0].resolve()]["docfx_includes"] = manifest["materialization"]["retained_text_sources"][0]["docfx_includes"]
+                with self.assertRaisesRegex(ValueError, "undeclared or nested"):
+                    materializer.derive_retained_text_sources(sources, document, {}, source_options=options)
+                self.assertEqual(document.read_bytes(), before)
+
+    def test_single_git_selector_mode_does_not_relax_dated_or_wiki_declarations(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            for binding in ("dated_html_response", "wiki_page_revision_set"):
+                source = {"source": "source/specification.html", "format": "html"} if binding == "dated_html_response" else {"source": "source/page.html", "format": "html", "content_selector": "#mw-content-text .mw-parser-output"}
+                for declaration in ([], ["normalized/selectors.jsonl"]):
+                    manifest = {"selectors": declaration, "materialization": {
+                        "retained_text_binding": binding, "document": "normalized/document.md", "normalized_document": "normalized/document.md",
+                        "retained_text_selectors": "normalized/selectors.jsonl", "retained_text_sources": [source],
+                    }}
+                    with self.subTest(binding=binding, declaration=declaration), self.assertRaises(ValueError):
+                        materializer.retained_text_selector_file(manifest, root)
+
+    def test_completeness_main_reads_single_sidecar_without_root_selectors(self) -> None:
+        with self._metadata_docfx_capsule() as (root, record, _, _, _, manifest):
+            manifest = materializer.replay_retained_text_sources(record, manifest, "fixed-time", check_derived=False)
+            with mock.patch.multiple(materializer, REGISTRY_ROOT=root / "source_registry", MATERIALIZED_ROOT=root / "materialized_sources", AUDIT_ROOT=root / "raw_data/audits"):
+                materializer.rebuild_registry([record], {record.uid: manifest}, "fixed-time")
+                materializer.write_indexes_and_audit([record], {record.uid: manifest}, "fixed-time")
+            with mock.patch.multiple(validator, ROOT=root, RAW=root, CORPUS=root / "materialized_sources/corpus", INDEX=root / "materialized_sources/index.yaml", REGISTRY=root / "source_registry/registry.yaml", AUDIT=root / "raw_data/audits/materialization_completeness_2026-09-10.yaml"):
+                output = io.StringIO()
+                with contextlib.redirect_stdout(output):
+                    self.assertEqual(validator.main(), 0, output.getvalue())
+                self.assertIn(f"selectors={manifest['materialization']['selector_count']}", output.getvalue())
+                sidecar = record.capsule_root / "normalized/selectors.jsonl"
+                rows = [json.loads(line) for line in sidecar.read_text().splitlines()]
+                rows[0]["text_preview"] = "MISSING_SINGLE_SIDECAR_PREVIEW"
+                materializer.write_jsonl(sidecar, rows)
+                output = io.StringIO()
+                with contextlib.redirect_stdout(output):
+                    self.assertEqual(validator.main(), 1)
+                self.assertIn("SELECTOR_PREVIEW_UNRESOLVED", output.getvalue())
+
     def test_git_text_sidecar_failed_preflight_preserves_bytes_through_wrapper_and_executor(self) -> None:
         changes = ("commit", "version", "canonical-commit", "canonical-version", "retrieval-commit", "rewrite-commit", "missing-source", "source-drift", "missing-sidecar", "selector", "missing-source-selectors", "role", "bad-binding", "bad-mapping-without-sentinels", "declaration", "legacy-drift", "package", "notice", "history")
         for change in changes:

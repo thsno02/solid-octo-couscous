@@ -2160,7 +2160,7 @@ def retained_text_selector_file(manifest: dict[str, Any], root: Path, *, require
         materialization.get("document") != "normalized/document.md"
         or materialization.get("normalized_document") != "normalized/document.md"
         or materialization.get("retained_text_selectors") != "normalized/selectors.jsonl"
-        or manifest.get("selectors") != ["selectors.jsonl", "normalized/selectors.jsonl"]
+        or manifest.get("selectors") != ["selectors.jsonl", "normalized/selectors.jsonl"] and not (binding == "git_snapshot" and manifest.get("selectors") == ["normalized/selectors.jsonl"])
         or not isinstance(sources, list) or not sources or any(not isinstance(item, dict) for item in sources)
     ):
         raise ValueError("retained text needs its fixed document and selector pair")
@@ -2573,6 +2573,76 @@ def retained_markdown_frontmatter_end(text: str) -> int:
     raise ValueError("leading YAML frontmatter must close within 256 lines")
 
 
+def preflight_docfx_includes(
+    sources: list[tuple[Path, str]], root: Path, source_options: dict[Path, dict[str, Any]],
+) -> tuple[Path | None, dict[int, Path]]:
+    """Check only explicitly declared, one-level native Markdown includes."""
+    declared = [source.resolve() for source, _ in sources if "docfx_includes" in source_options.get(source.resolve(), {})]
+    if not declared:
+        return None, {}
+    main = sources[0][0].resolve()
+    if declared != [main] or any(format_name != "md" for _, format_name in sources):
+        raise ValueError("DocFX includes require one declared first Markdown root")
+    options = source_options[main]
+    routes = options["docfx_includes"]
+    if options.get("git_snapshot") is not True or not isinstance(routes, dict) or not routes:
+        raise ValueError("DocFX includes require a nonempty explicit Git Markdown mapping")
+    originals = {source.resolve() for source, _ in sources}
+    targets: dict[str, Path] = {}
+    for reference, name in routes.items():
+        if not isinstance(reference, str) or not reference or any(char in reference for char in "\r\n") or not isinstance(name, str) or sanitize_relative_path(name) is None or Path(name).parts[0] != "source":
+            raise ValueError("DocFX include routes must identify local native originals")
+        parsed = urllib.parse.urlsplit(reference)
+        target = (root / name).resolve()
+        if parsed.scheme or parsed.netloc or parsed.query or parsed.fragment or target not in originals or target == main or (main.parent / reference).resolve() != target:
+            raise ValueError("DocFX include route differs from its declared relative original")
+        targets[reference] = target
+    origins = set()
+    for source, _ in sources:
+        source = source.resolve()
+        item = source_options.get(source, {})
+        match = re.fullmatch(r"(https://raw\.githubusercontent\.com/[^/]+/[^/]+/([0-9a-f]{40})/)([^?#]+)", str(item.get("source_url", "")))
+        if item.get("git_snapshot") is not True or not match or match.group(2) != item.get("snapshot_commit") or match.group(3) != source.relative_to(root).as_posix().removeprefix("source/"):
+            raise ValueError("DocFX references need each original's actual fixed Git source URL")
+        origins.add(match.group(1))
+    if len(origins) != 1:
+        raise ValueError("DocFX originals must belong to one fixed public Git snapshot")
+    calls: dict[int, Path] = {}
+    used_references: set[str] = set()
+    for source, _ in sources:
+        source = source.resolve()
+        text = source.read_bytes().decode("utf-8")
+        fence, comment = "", False
+        frontmatter_end = retained_markdown_frontmatter_end(text)
+        for line_number, line in enumerate(text.splitlines(), 1):
+            if line_number <= frontmatter_end:
+                continue
+            opening = re.match(r"^ {0,3}(`{3,}|~{3,})(.*)$", line)
+            if fence:
+                if re.fullmatch(rf" {{0,3}}{re.escape(fence[0])}{{{len(fence)},}}[ \t]*", line):
+                    fence = ""
+                continue
+            if opening and not (opening.group(1)[0] == "`" and "`" in opening.group(2)):
+                fence = opening.group(1)
+                continue
+            if comment or line.lstrip().startswith("<!--"):
+                comment = "-->" not in line
+                continue
+            if re.match(r"^(?: {4}|\t)", line):
+                continue
+            prose = re.sub(r"(`+).*?\1", "", line)
+            if not re.search(r"\[!INCLUDE\b", prose, re.IGNORECASE):
+                continue
+            include = re.fullmatch(r" {0,3}\[!INCLUDE \[[^\]]*\]\(([^()\s]+)\)\][ \t]*", line, re.IGNORECASE)
+            if source != main or not include or include.group(1) not in targets:
+                raise ValueError("undeclared or nested DocFX include")
+            calls[line_number] = targets[include.group(1)]
+            used_references.add(include.group(1))
+    if used_references != set(routes) or set(targets.values()) != originals - {main}:
+        raise ValueError("DocFX include declarations must cover exactly their used originals")
+    return main, calls
+
+
 def derive_retained_text_sources(
     sources: list[tuple[Path, str]], document: Path, link_rewrites: dict[str, str],
     *, source_options: dict[Path, dict[str, Any]] | None = None,
@@ -2627,6 +2697,9 @@ def derive_retained_text_sources(
     if any(target.startswith("#") and target[1:] not in known_anchors for target in link_rewrites.values()):
         raise ValueError("retained href rewrite does not target a real source anchor")
 
+    docfx_root, docfx_calls = preflight_docfx_includes(sources, document.parent.parent.resolve(), source_options or {})
+    if docfx_root and link_rewrites:
+        raise ValueError("DocFX assembly uses fixed native references, not legacy href rewrites")
     parts: list[str] = []
     selectors: list[dict[str, Any]] = []
     next_line = 1
@@ -2640,7 +2713,61 @@ def derive_retained_text_sources(
     dated_html = any(options.get("dated_html_response") is True for options in (source_options or {}).values())
     wiki_html = any(options.get("wiki_page_revision_set") is True for options in (source_options or {}).values())
     git_sidecar = any(options.get("git_snapshot") is True for options in (source_options or {}).values())
-    emit(("# Retained wiki page revision set (collector assembly)\n\n" if wiki_html else "# Retained specification text (collector assembly)\n\n") + ("> " if dated_html or git_sidecar or wiki_html else "") + "This consumer Markdown assembles the explicitly retained originals in declared order. Source labels, line anchors and local href rewrites are collector additions; " + ("HTML is represented as structural text with ordered table cells and preserved code, without running source scripts.\n" if has_html else "YAML below is an unmodified native document displayed in a code fence; an explicitly declared example is not a schema.\n" if git_sidecar else "YAML below is an unmodified native schema displayed in a code fence.\n"))
+    emit(("# Retained documentation text (collector assembly)\n\n" if docfx_root else "# Retained wiki page revision set (collector assembly)\n\n" if wiki_html else "# Retained specification text (collector assembly)\n\n") + ("> " if dated_html or git_sidecar or wiki_html else "") + "This consumer Markdown assembles the explicitly retained originals in declared order. Source labels, line anchors and local href rewrites are collector additions; " + ("only explicitly declared one-level DocFX include bodies are expanded in place, with fixed source reference URLs; include frontmatter is not body text.\n" if docfx_root else "HTML is represented as structural text with ordered table cells and preserved code, without running source scripts.\n" if has_html else "YAML below is an unmodified native document displayed in a code fence; an explicitly declared example is not a schema.\n" if git_sidecar else "YAML below is an unmodified native schema displayed in a code fence.\n"))
+    if docfx_root:
+        native = {ROOT.resolve() / item[0]: item for item in prepared}
+        main_path, main_stem, _, main_text, main_headings, _ = native[docfx_root]
+
+        def emit_native_span(source: Path, first: int, last: int, included_at: dict[str, Any] | None = None) -> None:
+            source_path, stem, _, text, headings, frontmatter_end = native[source]
+            lines = text.splitlines(keepends=True)
+            body = "".join(lines[first - 1:last])
+            if not body.strip():
+                emit(body)
+                return
+            source_url = (source_options or {})[source]["source_url"]
+            references = {match.group(1): urllib.parse.urljoin(source_url, match.group(1)) for match in re.finditer(r"\]\([ \t]*([^\s)]+)", body) if not match.group(1).startswith("#") and not urllib.parse.urlsplit(match.group(1)).scheme and not urllib.parse.urlsplit(match.group(1)).netloc}
+            if any(reference.startswith("/") for reference in references):
+                raise ValueError("DocFX root-relative references need an explicitly reviewed document base")
+            rendered = rewrite_markdown_hrefs(body, references)
+            prefix = f"{stem}-at-{main_stem}-L{included_at['line']}" if included_at else stem
+            emit(f'\n<a id="{prefix}-L{first}"></a>\n\n')
+            if first == 1 and frontmatter_end:
+                emit(f"> Collector metadata display: original leading YAML frontmatter, source lines 1–{frontmatter_end}; not an upstream body heading.\n\n")
+                rendered = tex_reading_fence("".join(lines[:frontmatter_end]), "yaml") + rewrite_markdown_hrefs("".join(lines[frontmatter_end:last]), references)
+            start = next_line
+            emit(rendered)
+            heading = next((item for item in headings if item["line"] == first), None)
+            selectors.append({
+                "selector": f"derived://{local_path}#L{start}-L{next_line - 1}", "local_path": local_path,
+                "kind": "section" if heading else "file", "start_line": start, "end_line": next_line - 1,
+                "text_preview": next(line.rstrip("\r\n") for line in rendered.splitlines(keepends=True) if line.strip())[:700],
+                "derived_from": source_path, "source_format": "md", "source_start_line": first, "source_end_line": last,
+                "transformation": "native Markdown with collector anchors and fixed source reference URLs" + ("; explicitly declared DocFX include body expanded in place" if included_at else "; leading YAML displayed as literal collector metadata" if first == 1 and frontmatter_end else ""),
+                **({"included_at": included_at} if included_at else {}),
+                **({"heading": heading["heading"], "level": heading["level"]} if heading else {}),
+            })
+
+        main_lines = main_text.splitlines()
+        href = Path(os.path.relpath(docfx_root, start=document.parent.resolve())).as_posix()
+        emit(f"\nOriginal MD: [{docfx_root.name}]({href}#L1-L{len(main_lines)}).\n")
+        starts = sorted({1, *(heading["line"] for heading in main_headings), *docfx_calls, *(line + 1 for line in docfx_calls if line < len(main_lines))})
+        for index, first in enumerate(starts):
+            last = starts[index + 1] - 1 if index + 1 < len(starts) else len(main_lines)
+            if first not in docfx_calls:
+                emit_native_span(docfx_root, first, last)
+                continue
+            target = docfx_calls[first]
+            source_path, _, _, text, headings, frontmatter_end = native[target]
+            target_href = Path(os.path.relpath(target, start=document.parent.resolve())).as_posix()
+            emit(f"\n> Collector include: [{target.name}]({target_href}#L{frontmatter_end + 1}-L{len(text.splitlines())}), called at [{docfx_root.name} line {first}]({href}#L{first}-L{first}); original Markdown retained unchanged.\n")
+            body_starts = sorted({frontmatter_end + 1, *(heading["line"] for heading in headings)})
+            for body_index, body_first in enumerate(body_starts):
+                body_last = body_starts[body_index + 1] - 1 if body_index + 1 < len(body_starts) else len(text.splitlines())
+                emit_native_span(target, body_first, body_last, {"source": main_path, "line": first})
+        document.parent.mkdir(parents=True, exist_ok=True)
+        document.write_bytes("".join(parts).encode("utf-8"))
+        return selectors
     if dated_html or wiki_html:
         emit("\n> Collector representation: declared cell spans are annotations, not an expanded table grid; code br line breaks and NBSP are retained, and image-label whitespace is normalized without dropping label words.\n")
     if wiki_html:
@@ -3544,6 +3671,12 @@ def replay_retained_text_sources(
     options: dict[Path, dict[str, Any]] = {}
     if git_sidecar:
         options = {source: {"git_snapshot": True, **({"role": item["role"]} if "role" in item else {})} for item, (source, _) in zip(sources, paths)}
+        if any("docfx_includes" in item for item in sources):
+            for item, (source, _) in zip(sources, paths):
+                retrieval = next(row for row in manifest["retrievals"] if row.get("local_path") == item["source"])
+                options[source].update({"snapshot_commit": commit, "source_url": retrieval.get("resolved_url") or retrieval.get("requested_url") or ""})
+                if "docfx_includes" in item:
+                    options[source]["docfx_includes"] = item["docfx_includes"]
     if dated_html:
         options[paths[0][0]] = preflight_dated_html_assets(manifest, root, repository_root=ROOT.resolve())
     if wiki_html:
@@ -3570,13 +3703,13 @@ def replay_retained_text_sources(
             check_original(asset, require_commit=True)
             if src in rewrites and (document.parent / urllib.parse.unquote(urllib.parse.urlsplit(rewrites[src]).path)).resolve() != asset:
                 raise ValueError("retained HTML src rewrite does not resolve to the same original")
-    if paired_sidecar:
+    if paired_sidecar and "selectors.jsonl" in manifest["selectors"]:
         legacy_count = sum(bool(line.strip()) for line in (root / "selectors.jsonl").read_bytes().decode("utf-8").splitlines())
     else:
         legacy_count = 0
     selectors = derive_retained_text_sources(paths, document, rewrites, source_options=options)
     write_jsonl(selector_path, selectors)
-    manifest.update({"generated_at": generated_at, "selectors": ["selectors.jsonl", "normalized/selectors.jsonl"] if paired_sidecar else ["selectors.jsonl"]})
+    manifest.update({"generated_at": generated_at, "selectors": manifest["selectors"] if paired_sidecar else ["selectors.jsonl"]})
     materialization.update({
         "normalized_document": materialization["document"],
         "stored_characters": len(document.read_bytes().decode("utf-8")), "selector_count": legacy_count + len(selectors),

@@ -3,7 +3,7 @@
 - UID: `paper:The-Basic-AI-Drives`
 - Source type: `paper`
 - Canonical ID: `None`
-- Canonical URL: https://dblp.org/rec/conf/agi/Omohundro08
+- Canonical URL: https://selfawaresystems.com/2007/11/30/paper-on-the-basic-ai-drives/
 - Materialization status: `partial`
 - Content tier: `excerpt_capsule`
 
