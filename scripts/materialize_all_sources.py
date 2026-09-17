@@ -2153,7 +2153,7 @@ def retained_text_selector_file(manifest: dict[str, Any], root: Path, *, require
         if "retained_text_binding" in materialization or "retained_text_selectors" in materialization or sidecar_declared:
             raise ValueError("retained selector sidecar requires an explicit binding")
         return root / "selectors.jsonl"
-    if not isinstance(binding, str) or binding not in {"dated_html_response", "git_snapshot"}:
+    if not isinstance(binding, str) or binding not in {"dated_html_response", "git_snapshot", "wiki_page_revision_set"}:
         raise ValueError("unknown retained text binding")
     sources = materialization.get("retained_text_sources")
     if (
@@ -2173,6 +2173,10 @@ def retained_text_selector_file(manifest: dict[str, Any], root: Path, *, require
         if not isinstance(name, str) or Path(name).is_absolute() or not Path(name).parts or Path(name).parts[0] != "source" or ".." in Path(name).parts or not isinstance(item.get("format"), str) or item["format"] not in formats:
             raise ValueError("retained text needs explicit capsule-local native sources")
         source_names.append(name)
+    if len(source_names) != len(set(source_names)):
+        raise ValueError("retained text sources must be unique")
+    if binding == "wiki_page_revision_set" and any(item.get("content_selector") != "#mw-content-text .mw-parser-output" or Path(item["source"]).suffix != ".html" for item in sources):
+        raise ValueError("wiki pages need their explicit static HTML content container")
     for name in (*source_names, "normalized/document.md", "normalized/selectors.jsonl"):
         path = root / name
         path.resolve().relative_to(root.resolve())
@@ -2183,39 +2187,64 @@ def retained_text_selector_file(manifest: dict[str, Any], root: Path, *, require
     return root / "normalized/selectors.jsonl"
 
 
-def retained_html_body(original: str, *, dated_html_response: bool = False, exclude_selectors: Any = None) -> Any:
+def retained_html_body(
+    original: str, *, dated_html_response: bool = False, wiki_page_revision_set: bool = False,
+    content_selector: str | None = None, exclude_selectors: Any = None,
+) -> Any:
     """Exclude only declared, observed UI from a derived DOM, never the original."""
     from bs4 import BeautifulSoup
     soup = BeautifulSoup(original, "html.parser")
-    if not dated_html_response:
+    if not dated_html_response and not wiki_page_revision_set:
         return soup.body or soup
     if len(soup.find_all("body")) != 1:
-        raise ValueError("dated HTML must have one static body")
+        raise ValueError("retained HTML must have one static body")
+    body = soup.body
+    if wiki_page_revision_set:
+        if content_selector != "#mw-content-text .mw-parser-output":
+            raise ValueError("wiki HTML needs its declared content container")
+        containers = body.select(content_selector)
+        if len(containers) != 1 or not containers[0].get_text(" ", strip=True):
+            raise ValueError("wiki HTML needs one nonempty static content container")
+        body = containers[0]
     excluded = [] if exclude_selectors is None else exclude_selectors
-    allowed = {"nav#toc", "p#back-to-top", ".dfn-panel", ".head img", ".head a.orcid svg"}
+    allowed = {
+        ".mw-pt-languages", ".mw-editsection", "td.mbox-image img", ".nmbox",
+        ".template-pd-help-page img", ".ext-discussiontools-init-replylink-buttons",
+        ".sistersitebox .side-box-image img", ".side-box-imageright img",
+        "#mwDQ", "#mwAjc", "#mwAjk", "#mwEA", "#mwAgw", "#mwAg4", "#mwAhE",
+        "#mwDg", "#mwATI", "#mwATQ", "#mwAUg",
+    } if wiki_page_revision_set else {"nav#toc", "p#back-to-top", ".dfn-panel", ".head img", ".head a.orcid svg"}
     if not isinstance(excluded, list) or any(not isinstance(value, str) or value not in allowed for value in excluded) or len(excluded) != len(set(excluded)):
-        raise ValueError("dated HTML exclusions must be an explicit list of supported UI selectors")
+        raise ValueError("retained HTML exclusions must be an explicit list of supported UI selectors")
     for selector in excluded:
-        nodes = soup.body.select(selector)
+        nodes = body.select(selector)
         if not nodes:
             raise ValueError(f"declared HTML exclusion is absent: {selector}")
         for node in nodes:
             node.decompose()
-    return soup.body
+    return body
 
 
 def preflight_dated_html_assets(manifest: dict[str, Any], root: Path, *, repository_root: Path) -> dict[str, Any]:
+    return preflight_retained_html_assets(manifest, root, manifest["materialization"]["retained_text_sources"][0], repository_root=repository_root)
+
+
+def preflight_retained_html_assets(
+    manifest: dict[str, Any], root: Path, item: dict[str, Any], *, repository_root: Path,
+    wiki_page_revision_set: bool = False,
+) -> dict[str, Any]:
     """Bind finite HTML routes to the existing original inventory and retrievals."""
     materialization = manifest["materialization"]
     retained_text_selector_file(manifest, root)
-    item = materialization["retained_text_sources"][0]
     if "exclude_selectors" in item and not isinstance(item["exclude_selectors"], list):
         raise ValueError("dated HTML exclude_selectors must be a list")
     source = (root / item["source"]).resolve()
     retrieval = next(row for row in manifest["retrievals"] if row.get("local_path") == item["source"])
     source_url = retrieval["requested_url"]
-    body = retained_html_body(source.read_bytes().decode("utf-8"), dated_html_response=True, exclude_selectors=item.get("exclude_selectors"))
+    body = retained_html_body(source.read_bytes().decode("utf-8"), dated_html_response=not wiki_page_revision_set, wiki_page_revision_set=wiki_page_revision_set, content_selector=item.get("content_selector"), exclude_selectors=item.get("exclude_selectors"))
     unretained = item.get("unretained_assets", [])
+    if wiki_page_revision_set and unretained:
+        raise ValueError("wiki revision-set figures must have explicit retained local routes")
     if not isinstance(unretained, list) or any(
         not isinstance(reference, str) or not reference or any(char.isspace() for char in reference)
         or urllib.parse.urlsplit(reference).scheme or urllib.parse.urlsplit(reference).netloc
@@ -2235,6 +2264,15 @@ def preflight_dated_html_assets(manifest: dict[str, Any], root: Path, *, reposit
         raise ValueError("dated HTML needs finite local href routes")
     if any(reference in rewrites for reference in unretained):
         raise ValueError("unretained HTML assets cannot also have retained local routes")
+    alternatives = item.get("image_text_alternatives", {}) if wiki_page_revision_set else {}
+    if not isinstance(alternatives, dict) or any(
+        not isinstance(reference, str) or not isinstance(label, str) or not label.strip() or any(char in label for char in "\r\n")
+        or urllib.parse.urlsplit(reference).netloc != "thumb.wikimedia.org"
+        or urllib.parse.urlsplit(reference).scheme not in {"", "https"}
+        or Path(urllib.parse.urlsplit(reference).path).name not in {"20px-Yes_check.svg.png", "20px-X_mark.svg.png"}
+        for reference, label in alternatives.items()
+    ) or any(reference in rewrites for reference in alternatives):
+        raise ValueError("wiki image-text alternatives need finite semantic-marker src/alt pairs, not local image routes")
 
     def check_original(path: Path, expected_url: str | None = None) -> None:
         path.relative_to((root / "source").resolve())
@@ -2264,6 +2302,10 @@ def preflight_dated_html_assets(manifest: dict[str, Any], root: Path, *, reposit
         if not reference or not parsed.path:
             raise ValueError("dated HTML asset has no original path")
         observed_assets.add(reference)
+        if reference in alternatives:
+            if node.name != "img" or node.get("alt") != alternatives[reference]:
+                raise ValueError("wiki image-text alternative differs from the actual source alt")
+            continue
         if reference in unretained:
             continue
         if reference in rewrites:
@@ -2278,13 +2320,76 @@ def preflight_dated_html_assets(manifest: dict[str, Any], root: Path, *, reposit
         check_original(asset, urllib.parse.urljoin(source_url, reference))
     if set(unretained) - observed_assets:
         raise ValueError("declared unretained HTML asset is absent from the derived DOM")
-    return {"source_url": source_url, "dated_html_response": True, "exclude_selectors": item.get("exclude_selectors", []), "unretained_assets": unretained}
+    if set(alternatives) - observed_assets:
+        raise ValueError("declared wiki image-text alternative is absent from the derived DOM")
+    return {"source_url": source_url, "dated_html_response": not wiki_page_revision_set, "wiki_page_revision_set": wiki_page_revision_set, "content_selector": item.get("content_selector"), "exclude_selectors": item.get("exclude_selectors", []), "unretained_assets": unretained, "image_text_alternatives": alternatives}
+
+
+def preflight_wiki_html_sources(
+    manifest: dict[str, Any], root: Path, canonical: dict[str, Any], capsule: dict[str, Any],
+    *, repository_root: Path, actual_hashes: dict[str, str],
+) -> dict[Path, dict[str, Any]]:
+    """Bind each declared wiki page revision to its saved, non-executed HTML response."""
+    from bs4 import BeautifulSoup
+    root, repository_root = root.resolve(), repository_root.resolve()
+    retained_text_selector_file(manifest, root)
+    sources = manifest["materialization"]["retained_text_sources"]
+    package = manifest["rights"]["redistribution_package"]
+    bindings = package.get("source_bindings")
+    if not isinstance(bindings, list) or not bindings or len(bindings) != len(sources) or any(not isinstance(row, dict) for row in bindings):
+        raise ValueError("wiki package needs an ordered binding for every retained page")
+    version = manifest["source_version"]
+    if not isinstance(version, str) or not version.startswith("Wikimedia page snapshot at "):
+        raise ValueError("wiki pages need an explicit common revision cutoff")
+    cutoff = datetime.strptime(version.removeprefix("Wikimedia page snapshot at "), "%Y-%m-%dT%H:%M:%SZ")
+    identities = [row.get("identity_url") for row in bindings]
+    if len(identities) != len(set(identities)) or any(metadata.get("source_urls") != identities or metadata["versioning"].get("snapshot_commit") is not None for metadata in (canonical, capsule)):
+        raise ValueError("wiki page bindings differ from the canonical identity vector or fabricate a Git commit")
+    if package["source_version_url"] != bindings[0].get("source_version_url") or manifest["revision"] != bindings[0].get("source_revision"):
+        raise ValueError("wiki root revision and approved URL must describe the first retained page")
+    for item, binding in zip(sources, bindings):
+        if binding.get("source") != item["source"] or any(not isinstance(binding.get(field), str) or not binding[field].strip() for field in ("identity_url", "source_version_url", "page_title", "revision_timestamp", "source_revision")) or any(type(binding.get(field)) is not int or binding[field] <= 0 for field in ("page_id", "revision_id")):
+            raise ValueError("wiki page binding is incomplete or out of source order")
+        title = binding["page_title"]
+        identity = urllib.parse.urlsplit(binding["identity_url"])
+        if (
+            identity.scheme != "https" or identity.netloc not in {"www.mediawiki.org", "www.wikidata.org", "en.wikipedia.org"}
+            or identity.query or identity.fragment or not identity.path.startswith("/wiki/")
+            or urllib.parse.unquote(identity.path.removeprefix("/wiki/")).replace("_", " ") != title.replace("_", " ")
+            or any(char in title for char in "\r\n")
+        ):
+            raise ValueError("wiki page title differs from its literal official identity URL")
+        approved = f"https://{identity.netloc}/w/index.php?title={urllib.parse.quote(title.replace(' ', '_'), safe='')}&oldid={binding['revision_id']}"
+        if binding["source_version_url"] != approved or datetime.strptime(binding["revision_timestamp"], "%Y-%m-%dT%H:%M:%SZ") > cutoff:
+            raise ValueError("wiki fixed permalink or revision timestamp differs from its declared cutoff")
+        path = root / item["source"]
+        if not path.is_file() or path.is_symlink():
+            raise ValueError("wiki page original is missing")
+        source_hash = sha256_file(path)
+        source_path = path.relative_to(repository_root).as_posix()
+        inventory = [row for row in manifest["local_files"] if row.get("path") == source_path]
+        retrievals = [row for row in manifest["retrievals"] if row.get("local_path") == item["source"]]
+        if binding["source_revision"] != f"sha256:{source_hash}" or actual_hashes.get(source_path) != source_hash or len(inventory) != 1 or inventory[0].get("sha256") != source_hash or inventory[0].get("bytes") != path.stat().st_size:
+            raise ValueError("wiki page original differs from its binding or inventory")
+        if len(retrievals) != 1 or any(retrievals[0].get(field) != expected for field, expected in (("requested_url", approved), ("resolved_url", approved), ("sha256", source_hash), ("bytes", path.stat().st_size), ("http_status", 200))) or not isinstance(retrievals[0].get("content_type"), str) or retrievals[0]["content_type"].split(";", 1)[0].strip() != "text/html" or not isinstance(retrievals[0].get("retrieved_at"), str) or not retrievals[0]["retrieved_at"].strip():
+            raise ValueError("wiki page retrieval does not describe its approved fixed response")
+        soup = BeautifulSoup(path.read_bytes().decode("utf-8"), "html.parser")
+        configuration = "\n".join(script.get_text() for script in soup.find_all("script"))
+        for field, expected in (("wgRevisionId", binding["revision_id"]), ("wgArticleId", binding["page_id"]), ("wgPageName", title.replace(" ", "_"))):
+            values = re.findall(r'"' + field + r'"\s*:\s*("(?:\\.|[^"\\])*"|[0-9]+)(?=\s*[,}])', configuration)
+            if len(values) != 1 or json.loads(values[0]) != expected:
+                raise ValueError(f"wiki actual HTML {field} differs from its page binding")
+    options = {(root / item["source"]).resolve(): preflight_retained_html_assets(manifest, root, item, repository_root=repository_root, wiki_page_revision_set=True) for item in sources}
+    for item, binding in zip(sources, bindings):
+        options[(root / item["source"]).resolve()]["page_title"] = binding["page_title"]
+    return options
 
 
 def retained_html_sections(
     source: Path, document: Path, html_sources: dict[Path, tuple[Any, str, set[str]]],
     rewrites: dict[str, str], source_url: str, *, dated_html_response: bool = False,
-    unretained_assets: list[str] | None = None,
+    unretained_assets: list[str] | None = None, wiki_page_revision_set: bool = False,
+    image_text_alternatives: dict[str, str] | None = None,
 ) -> list[dict[str, Any]]:
     """Render structural atoms, then visit every remaining body text node once."""
     from bs4 import Comment, NavigableString
@@ -2317,6 +2422,8 @@ def retained_html_sections(
             return prefix + fence + value + fence
         if node.name == "img":
             label = " ".join(str(node.get("alt", "")).split()) if dated_html_response else node.get("alt", "")
+            if wiki_page_revision_set and node.get("src") in (image_text_alternatives or {}):
+                return prefix + f"[Collector-rendered source image alt: {image_text_alternatives[node['src']]}]({urllib.parse.urljoin(source_url, node['src'])})"
             if dated_html_response and node.get("src") in (unretained_assets or []):
                 return prefix + f"[Original figure not retained locally: {label}]({urllib.parse.urljoin(source_url, node['src'])})"
             src = retained_html_reference(source, node.get("src", ""), document, html_sources, rewrites, source_url, asset=True)
@@ -2334,7 +2441,11 @@ def retained_html_sections(
             representation = f"[Original figure not retained locally: {label}]({src})" if unretained else f"![{label}]({src})"
             return prefix + "\n\n" + representation + "\n\n" + descriptions + "\n\n" + fallback
         value = "".join(inline(child) for child in node.children)
-        if node.name == "a" and node.get("href"):
+        if wiki_page_revision_set and node.name in {"sub", "sup"}:
+            value = f"<{node.name}>" + value + f"</{node.name}>"
+        elif wiki_page_revision_set and node.name in {"dl", "dt", "dd"}:
+            value = f"\n\n<{node.name}>\n" + value + f"\n</{node.name}>\n\n"
+        elif node.name == "a" and node.get("href"):
             href = retained_html_reference(source, node["href"], document, html_sources, rewrites, source_url)
             if dated_html_response and node.find("object"):
                 value += f"\n[Enclosing object link]({href})\n"
@@ -2358,6 +2469,16 @@ def retained_html_sections(
             return
         if node.name in {"script", "style", "template"}:
             return
+        if wiki_page_revision_set and "hatnote" in node.get("class", []):
+            # Keep the original navigation/clarification, but not as automatic source prose.
+            rendered = inline(node)
+            pattern = r'<a id="[^"]+"></a>'
+            locators = "\n".join(re.findall(pattern, rendered))
+            value = re.sub(pattern, "", rendered).strip()
+            parts.append("\n\n" + locators + "\n\n> Collector source role: hatnote (original text and links follow).\n" + "\n".join(
+                "> " + line for line in value.splitlines()
+            ) + "\n\n")
+            return
         if re.fullmatch(r"h[1-6]", node.name or ""):
             line = node.sourceline
             if not isinstance(line, int):
@@ -2367,7 +2488,14 @@ def retained_html_sections(
             if recorded:
                 source_start = line
             heading = {"heading": node.get_text(" ", strip=True), "level": int(node.name[1]), "heading_line": line}
-            parts = [prefix, anchor(node), "#" * heading["level"] + " " + "".join(inline(child) for child in node.children).strip() + "\n"]
+            title = "".join(inline(child) for child in node.children).strip()
+            heading_anchors = ""
+            if wiki_page_revision_set:
+                # Empty source spans are locators, not the ATX heading's visible title.
+                pattern = r'<a id="[^"]+"></a>'
+                heading_anchors = "\n".join(re.findall(pattern, title)) + "\n"
+                title = " ".join(re.sub(pattern, "", title).split())
+            parts = [prefix, anchor(node), heading_anchors, "#" * heading["level"] + " " + title + "\n"]
             return
         if node.name == "pre":
             parts.append(anchor(node) + code_block(node))
@@ -2416,7 +2544,7 @@ def retained_html_sections(
                     rendered_rows.append("- " + " | ".join(cells))
             parts.append(anchor(node) + "\n\n" + "\n".join(rendered_rows) + "\n\n")
             return
-        if node.name in {"a", "img", "code", "br"} or dated_html_response and node.name == "object":
+        if node.name in {"a", "img", "code", "br"} or dated_html_response and node.name == "object" or wiki_page_revision_set and node.name in {"sub", "sup", "dl", "dt", "dd"}:
             parts.append(inline(node))
             return
         block = node.name in {"p", "div", "section", "article", "figure", "figcaption", "ul", "ol", "li", "blockquote"} or "concept-item" in node.get("class", []) or dated_html_response and node.name in {"dl", "dt", "dd"}
@@ -2424,7 +2552,7 @@ def retained_html_sections(
         if node.name == "li":
             depth = max(0, len(node.find_parents(["ul", "ol"])) - 1)
             marker = f"{len(node.find_previous_siblings('li')) + 1}. " if node.parent.name == "ol" else "- "
-            parts.append("  " * depth + marker)
+            parts.append(("    " if wiki_page_revision_set else "  ") * depth + marker)
         for child in node.children:
             walk(child)
         if block:
@@ -2488,7 +2616,7 @@ def derive_retained_text_sources(
             known_anchors.update(re.findall(r'<a\b[^>]*\bid=["\']([^"\']+)["\']', heading_text))
         elif format_name == "html":
             options = (source_options or {}).get(source.resolve(), {})
-            body = retained_html_body(original, dated_html_response=options.get("dated_html_response") is True, exclude_selectors=options.get("exclude_selectors"))
+            body = retained_html_body(original, dated_html_response=options.get("dated_html_response") is True, wiki_page_revision_set=options.get("wiki_page_revision_set") is True, content_selector=options.get("content_selector"), exclude_selectors=options.get("exclude_selectors"))
             ids = {str(node["id"]) for node in body.find_all(id=True) if node.name not in {"script", "style", "template"} and not node.find_parent(["pre", "code", "script", "style", "template"])}
             if body.get("id"):
                 ids.add(str(body["id"]))
@@ -2510,10 +2638,15 @@ def derive_retained_text_sources(
         next_line += len(value.splitlines())
 
     dated_html = any(options.get("dated_html_response") is True for options in (source_options or {}).values())
+    wiki_html = any(options.get("wiki_page_revision_set") is True for options in (source_options or {}).values())
     git_sidecar = any(options.get("git_snapshot") is True for options in (source_options or {}).values())
-    emit("# Retained specification text (collector assembly)\n\n" + ("> " if dated_html or git_sidecar else "") + "This consumer Markdown assembles the explicitly retained originals in declared order. Source labels, line anchors and local href rewrites are collector additions; " + ("HTML is represented as structural text with ordered table cells and preserved code, without running source scripts.\n" if has_html else "YAML below is an unmodified native document displayed in a code fence; an explicitly declared example is not a schema.\n" if git_sidecar else "YAML below is an unmodified native schema displayed in a code fence.\n"))
-    if dated_html:
+    emit(("# Retained wiki page revision set (collector assembly)\n\n" if wiki_html else "# Retained specification text (collector assembly)\n\n") + ("> " if dated_html or git_sidecar or wiki_html else "") + "This consumer Markdown assembles the explicitly retained originals in declared order. Source labels, line anchors and local href rewrites are collector additions; " + ("HTML is represented as structural text with ordered table cells and preserved code, without running source scripts.\n" if has_html else "YAML below is an unmodified native document displayed in a code fence; an explicitly declared example is not a schema.\n" if git_sidecar else "YAML below is an unmodified native schema displayed in a code fence.\n"))
+    if dated_html or wiki_html:
         emit("\n> Collector representation: declared cell spans are annotations, not an expanded table grid; code br line breaks and NBSP are retained, and image-label whitespace is normalized without dropping label words.\n")
+    if wiki_html:
+        emit("\n> Collector snapshot limitation: oldid identifies each page revision, not all transcluded templates or skin dependencies. The saved rendered HTML responses are the offline originals; source scripts are not executed.\n")
+        if any(options.get("image_text_alternatives") for options in (source_options or {}).values()):
+            emit("\n> Collector image-alt representation: explicitly declared semantic-marker images are represented by their exact source alt and original links, not OCR or model-supplied text; those marker image bytes are not retained locally. Original Y/N fallback and surrounding examples remain source text.\n")
     for source_path, stem, format_name, text, headings, frontmatter_end in prepared:
         options = (source_options or {}).get(ROOT.resolve() / source_path, {})
         lines = text.splitlines(keepends=True)
@@ -2522,10 +2655,13 @@ def derive_retained_text_sources(
         if format_name == "html":
             source = ROOT.resolve() / source_path
             options = (source_options or {}).get(source, {})
+            if options.get("wiki_page_revision_set") is True:
+                emit(f"\n> Collector page identity: {options['page_title']}; [fixed page revision]({options['source_url']}).\n")
             if options.get("dated_html_response") is True and options.get("unretained_assets"):
                 emit("\n> Collector asset gap: these original figures are linked to the publisher response but their image bytes are not retained locally: " + ", ".join(f"[{reference}]({urllib.parse.urljoin(options['source_url'], reference)})" for reference in options["unretained_assets"]) + ".\n")
             emit(f'\n<a id="{stem}-L1"></a>\n')
-            for section in retained_html_sections(source, document.resolve(), html_sources, link_rewrites, options.get("source_url", ""), dated_html_response=options.get("dated_html_response") is True, unretained_assets=options.get("unretained_assets")):
+            static_html = options.get("dated_html_response") is True or options.get("wiki_page_revision_set") is True
+            for section in retained_html_sections(source, document.resolve(), html_sources, link_rewrites, options.get("source_url", ""), dated_html_response=static_html, unretained_assets=options.get("unretained_assets"), wiki_page_revision_set=options.get("wiki_page_revision_set") is True, image_text_alternatives=options.get("image_text_alternatives")):
                 if section.get("heading_line"):
                     emit(f'\n<a id="{stem}-L{section["heading_line"]}"></a>\n')
                 start_line = next_line
@@ -2535,7 +2671,7 @@ def derive_retained_text_sources(
                     "selector": f"derived://{local_path}#L{start_line}-L{next_line - 1}", "local_path": local_path,
                     "kind": "section" if section.get("heading") else "file", "start_line": start_line, "end_line": next_line - 1,
                     "text_preview": preview, "derived_from": source_path, "source_format": "html",
-                    **({"transformation": "static HTML structural text with declared UI exclusions and local href routes" + ("; declared original figure links without retained image bytes" if options.get("unretained_assets") else "")} if options.get("dated_html_response") is True else {}),
+                    **({"transformation": "static HTML structural text with declared UI exclusions and local href routes" + ("; declared original figure links without retained image bytes" if options.get("unretained_assets") else "") + ("; declared semantic-marker images represented by exact source alt, not OCR" if options.get("image_text_alternatives") else "")} if static_html else {}),
                     **({"source_heading_line": section["heading_line"]} if section.get("heading_line") else {}),
                     **{key: value for key, value in section.items() if key in {"source_start_line", "source_end_line", "heading", "level"}},
                 })
@@ -3337,14 +3473,15 @@ def replay_retained_text_sources(
     root = record.capsule_root
     materialization = manifest["materialization"]
     dated_html = materialization.get("retained_text_binding") == "dated_html_response"
+    wiki_html = materialization.get("retained_text_binding") == "wiki_page_revision_set"
     git_sidecar = materialization.get("retained_text_binding") == "git_snapshot"
-    paired_sidecar = dated_html or git_sidecar
+    paired_sidecar = dated_html or git_sidecar or wiki_html
     selector_path = retained_text_selector_file(manifest, root, require_exists=paired_sidecar and check_derived)
     if paired_sidecar and (
         not isinstance(record.metadata.get("versioning"), dict)
         or record.metadata["versioning"].get("source_version") != manifest.get("source_version")
         or record.metadata.get("rights", {}).get("redistribution_package") != manifest.get("rights", {}).get("redistribution_package")
-        or dated_html and record.metadata.get("full_text_url") != manifest.get("rights", {}).get("redistribution_package", {}).get("source_version_url")
+        or (dated_html or wiki_html) and record.metadata.get("full_text_url") != manifest.get("rights", {}).get("redistribution_package", {}).get("source_version_url")
     ):
         raise ValueError("retained text replay metadata differs from its reviewed current package")
     if "retained_markdown_source" in materialization:
@@ -3373,7 +3510,7 @@ def replay_retained_text_sources(
         check_derived=check_derived,
     )
     commit = record.metadata.get("versioning", {}).get("snapshot_commit")
-    if not dated_html and manifest.get("revision") != f"git:{commit}":
+    if not dated_html and not wiki_html and manifest.get("revision") != f"git:{commit}":
         errors.append("retained snapshot commit differs from canonical metadata")
     if errors:
         raise ValueError("; ".join(errors))
@@ -3409,8 +3546,10 @@ def replay_retained_text_sources(
         options = {source: {"git_snapshot": True, **({"role": item["role"]} if "role" in item else {})} for item, (source, _) in zip(sources, paths)}
     if dated_html:
         options[paths[0][0]] = preflight_dated_html_assets(manifest, root, repository_root=ROOT.resolve())
+    if wiki_html:
+        options = preflight_wiki_html_sources(manifest, root, record.metadata, load_yaml(root / "source-metadata.yaml"), repository_root=ROOT.resolve(), actual_hashes={source.relative_to(ROOT.resolve()).as_posix(): sha256_file(source) for source, _ in paths})
     for item, (source, format_name) in zip(sources, paths):
-        if format_name != "html" or dated_html:
+        if format_name != "html" or dated_html or wiki_html:
             continue
         from bs4 import BeautifulSoup
         retrieval = next(row for row in manifest["retrievals"] if row.get("local_path") == item["source"])

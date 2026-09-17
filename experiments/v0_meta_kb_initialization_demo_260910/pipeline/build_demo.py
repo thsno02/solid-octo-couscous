@@ -267,14 +267,16 @@ def choose_local_document(item: dict[str, Any], manifest: dict[str, Any]) -> Pat
     return None
 
 
-def meaningful_excerpt(text: str, title: str, *, reading_view: bool = False) -> tuple[str, int, int]:
+def meaningful_excerpt(
+    text: str, title: str, *, reading_view: bool = False, wiki_page_revision_set: bool = False,
+) -> tuple[str, int, int]:
     """Return a contiguous source span and its exact original line interval.
 
     Offsets are retained before whitespace normalization. No TeX/HTML cleanup
     or noncontiguous sentence joining is allowed to masquerade as a quotation.
     """
     working = text
-    if reading_view:
+    if reading_view or wiki_page_revision_set:
         # Same-length masking keeps evidence offsets exact. Blank lines inside
         # fences never re-admit code/math/conditional/fallback prose as assertions.
         masked: list[str] = []
@@ -295,7 +297,7 @@ def meaningful_excerpt(text: str, title: str, *, reading_view: bool = False) -> 
     region = working[offset:]
     for block in re.finditer(r"\S[^\n]*(?:\n(?!\s*\n)[^\n]*)*", region):
         raw = block.group()
-        if reading_view and re.search(r"<a\s+id\s*=", raw):
+        if (reading_view or wiki_page_revision_set) and re.search(r"<a\s+id\s*=", raw):
             continue  # Do not clean collector anchors into a fabricated contiguous quote.
         candidate = " ".join(raw.split())
         if raw.lstrip().startswith(("---", "#", "- ", ">", "<", "```", "!", "[", "\\")):
@@ -305,9 +307,15 @@ def meaningful_excerpt(text: str, title: str, *, reading_view: bool = False) -> 
         if not re.search(r"[.!?。！？](?:\s|$)", candidate):
             continue
         tokens = list(re.finditer(r"\S+", raw))
-        # Keep a prefix of at most two sentences, capped at 700 characters.
-        ends = list(re.finditer(r"(?<=[.!?。！？])\s+", candidate))
-        length = ends[min(1, len(ends) - 1)].start() if ends else len(candidate)
+        # Legacy views retain their sentence prefix; wiki views require a whole bounded block.
+        if wiki_page_revision_set:
+            # A complete bounded paragraph avoids silently cutting an abbreviation or qualifier.
+            if len(candidate) > 700:
+                continue
+            length = len(candidate)
+        else:
+            ends = list(re.finditer(r"(?<=[.!?。！？])\s+", candidate))
+            length = ends[min(1, len(ends) - 1)].start() if ends else len(candidate)
         excerpt = candidate[:min(length, 700)].rstrip()
         consumed = 0
         last = tokens[0]
@@ -327,11 +335,11 @@ def meaningful_excerpt(text: str, title: str, *, reading_view: bool = False) -> 
 
 def source_excerpt(
     text: str, title: str, pdf_supplement: dict[str, Any] | None = None,
-    *, reading_view: bool = False,
+    *, reading_view: bool = False, wiki_page_revision_set: bool = False,
 ) -> tuple[str, int, int]:
     """Preserve the old quotation logic, with a parent-paper boundary for new PDFs."""
     if pdf_supplement is None:
-        return meaningful_excerpt(text, title, reading_view=reading_view)
+        return meaningful_excerpt(text, title, reading_view=reading_view, wiki_page_revision_set=wiki_page_revision_set)
     start, end = pdf_primary_excerpt_range(pdf_supplement, text)
     excerpt, local_start, local_end = meaningful_excerpt("\n".join(text.splitlines()[start - 1:end]), title)
     return excerpt, start - 1 + local_start, start - 1 + local_end
@@ -577,7 +585,8 @@ def main() -> int:
         consumed_item = {**item, "revision": representation.get("revision")} if use_pdf else item
         if use_pdf:
             consumed_item["source_representation"] = "pdf_supplement"
-        retained_html = not use_pdf and manifest.get("materialization", {}).get("retained_text_binding") == "dated_html_response"
+        retained_html = not use_pdf and manifest.get("materialization", {}).get("retained_text_binding") in {"dated_html_response", "wiki_page_revision_set"}
+        retained_wiki = not use_pdf and manifest.get("materialization", {}).get("retained_text_binding") == "wiki_page_revision_set"
         retained_git = not use_pdf and manifest.get("materialization", {}).get("retained_text_binding") == "git_snapshot"
         reading_view = retained_html or retained_git or (not use_pdf and isinstance(manifest.get("materialization", {}).get("tex_reading_view"), dict)
                                         and manifest["materialization"]["tex_reading_view"].get("enabled") is True)
@@ -588,6 +597,8 @@ def main() -> int:
         reading_limitation = ("Excerpt comes from collector-derived static HTML structural text, not a raw-source quotation; code blocks and candidate paragraphs containing collector anchors are excluded from automatic excerpts." if retained_html else
                               "Excerpt comes from a collector assembly of retained Git Markdown/YAML, not a raw-source quotation; code/example blocks and candidate paragraphs containing collector anchors are excluded from automatic excerpts." if retained_git else
                               "Excerpt comes from a collector-derived conservative TeX reading view, not a raw-source quotation; uncertain TeX expressions are excluded from automatic excerpts.")
+        if retained_wiki:
+            reading_limitation += " Wiki hatnotes remain explicitly marked source-role blocks but are excluded from automatic excerpts; only complete continuous consumer paragraphs of at most 700 characters are eligible."
         if reading_view:
             consumed_item = {**consumed_item, "source_representation": reading_representation}
         declared_rights = rights_snapshot(representation.get("rights"))
@@ -608,7 +619,7 @@ def main() -> int:
             text = local_document.read_text(encoding="utf-8", errors="replace")
             excerpt, start_line, end_line = source_excerpt(
                 text, str(item.get("title") or uid), representation if use_pdf else None,
-                reading_view=reading_view,
+                reading_view=reading_view, wiki_page_revision_set=retained_wiki,
             )
             local_path = local_document.relative_to(ROOT).as_posix()
 

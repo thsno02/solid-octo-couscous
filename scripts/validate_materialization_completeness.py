@@ -178,7 +178,7 @@ def validate_retained_text_binding(
     materialization = manifest["materialization"]
     uid = manifest.get("uid")
     binding = materialization.get("retained_text_binding")
-    if binding == "dated_html_response":
+    if binding == "dated_html_response" or binding == "wiki_page_revision_set":
         validate_retained_text_sidecar_binding(manifest, capsule_root, actual_hashes, errors, repository_root=repository_root, check_derived=check_derived)
         return
     git_sidecar = binding == "git_snapshot"
@@ -243,12 +243,13 @@ def validate_retained_text_sidecar_binding(
 ) -> None:
     """Check the explicit consumer pair while preserving legacy acquisition bytes."""
     from urllib.parse import unquote, urlsplit
-    from materialize_all_sources import preflight_dated_html_assets, redistribution_footer, retained_text_selector_file
+    from materialize_all_sources import preflight_dated_html_assets, preflight_wiki_html_sources, redistribution_footer, retained_text_selector_file
     repo_root = (repository_root or ROOT).resolve()
     capsule_root = capsule_root.resolve()
     uid = manifest.get("uid")
     dated_html = manifest["materialization"].get("retained_text_binding") == "dated_html_response"
-    label = "RETAINED_DATED_HTML" if dated_html else "RETAINED_GIT_TEXT"
+    wiki_html = manifest["materialization"].get("retained_text_binding") == "wiki_page_revision_set"
+    label = "RETAINED_DATED_HTML" if dated_html else "RETAINED_WIKI_HTML" if wiki_html else "RETAINED_GIT_TEXT"
     try:
         if manifest.get("adapter") != "generic_web_or_document_v2":
             raise ValueError("retained sidecar needs its actual generic adapter")
@@ -283,14 +284,14 @@ def validate_retained_text_sidecar_binding(
             if (
                 not isinstance(metadata, dict) or not isinstance(metadata.get("versioning"), dict)
                 or metadata["versioning"].get("source_version") != version
-                or dated_html and metadata.get("full_text_url") != approved_url
-                or not dated_html and manifest["revision"] != f"git:{metadata['versioning'].get('snapshot_commit')}"
+                or (dated_html or wiki_html) and metadata.get("full_text_url") != approved_url
+                or not dated_html and not wiki_html and manifest["revision"] != f"git:{metadata['versioning'].get('snapshot_commit')}"
                 or metadata.get("rights", {}).get("redistribution_package") != package
                 or any(metadata.get(field) != canonical.get(field) for field in ("uid", "title", "url", "canonical_url", "canonical_id"))
                 or metadata.get("uid") != uid
             ):
                 raise ValueError("retained sidecar canonical/capsule identity, version, commit or package differs")
-        if not dated_html:
+        if not dated_html and not wiki_html:
             rewrites = materialization.get("link_rewrites", {})
             if not isinstance(rewrites, dict):
                 raise ValueError("retained Git sidecar needs a finite local href mapping")
@@ -334,6 +335,8 @@ def validate_retained_text_sidecar_binding(
                 raise ValueError("retained sidecar legacy document or selectors changed")
         if dated_html:
             preflight_dated_html_assets(manifest, capsule_root, repository_root=repo_root)
+        if wiki_html:
+            preflight_wiki_html_sources(manifest, capsule_root, canonical, capsule, repository_root=repo_root, actual_hashes=actual_hashes)
         if check_derived or (capsule_root / materialization["document"]).exists() or selectors.exists():
             document = capsule_root / materialization["document"]
             text = document.read_bytes().decode("utf-8")
