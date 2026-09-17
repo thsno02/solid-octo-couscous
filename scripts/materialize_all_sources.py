@@ -36,6 +36,7 @@ import tarfile
 import threading
 import time
 import urllib.parse
+import zlib
 from collections import Counter, defaultdict
 from datetime import datetime, timezone
 from pathlib import Path, PurePosixPath
@@ -2166,6 +2167,8 @@ def retained_text_selector_file(manifest: dict[str, Any], root: Path, *, require
         raise ValueError("retained text needs its fixed document and selector pair")
     if binding == "dated_html_response" and (len(sources) != 1 or sources[0].get("source") != "source/specification.html" or sources[0].get("format") != "html"):
         raise ValueError("dated HTML needs its fixed original, document and selector pair")
+    if binding == "dated_html_response" and "content_selector" in sources[0] and (not isinstance(sources[0]["content_selector"], str) or not sources[0]["content_selector"].strip()):
+        raise ValueError("dated HTML content_selector must be a nonempty CSS string")
     source_names = []
     for item in sources:
         name = item.get("source")
@@ -2193,6 +2196,7 @@ def retained_html_body(
 ) -> Any:
     """Exclude only declared, observed UI from a derived DOM, never the original."""
     from bs4 import BeautifulSoup
+    from soupsieve import SelectorSyntaxError
     soup = BeautifulSoup(original, "html.parser")
     if not dated_html_response and not wiki_page_revision_set:
         return soup.body or soup
@@ -2206,6 +2210,16 @@ def retained_html_body(
         if len(containers) != 1 or not containers[0].get_text(" ", strip=True):
             raise ValueError("wiki HTML needs one nonempty static content container")
         body = containers[0]
+    elif content_selector is not None:
+        if not isinstance(content_selector, str) or not content_selector.strip():
+            raise ValueError("dated HTML content_selector must be a nonempty CSS string")
+        try:
+            containers = body.select(content_selector)
+        except (SelectorSyntaxError, NotImplementedError) as exc:
+            raise ValueError("dated HTML content_selector is invalid CSS") from exc
+        if len(containers) != 1 or containers[0].name != "article" or not containers[0].get_text(" ", strip=True):
+            raise ValueError("dated HTML needs one nonempty selected article")
+        body = containers[0]
     excluded = [] if exclude_selectors is None else exclude_selectors
     allowed = {
         ".mw-pt-languages", ".mw-editsection", "td.mbox-image img", ".nmbox",
@@ -2213,7 +2227,7 @@ def retained_html_body(
         ".sistersitebox .side-box-image img", ".side-box-imageright img",
         "#mwDQ", "#mwAjc", "#mwAjk", "#mwEA", "#mwAgw", "#mwAg4", "#mwAhE",
         "#mwDg", "#mwATI", "#mwATQ", "#mwAUg",
-    } if wiki_page_revision_set else {"nav#toc", "p#back-to-top", ".dfn-panel", ".head img", ".head a.orcid svg"}
+    } if wiki_page_revision_set else {"nav#toc", "p#back-to-top", ".dfn-panel", ".head img", ".head a.orcid svg", "a.headerlink"}
     if not isinstance(excluded, list) or any(not isinstance(value, str) or value not in allowed for value in excluded) or len(excluded) != len(set(excluded)):
         raise ValueError("retained HTML exclusions must be an explicit list of supported UI selectors")
     for selector in excluded:
@@ -2222,6 +2236,8 @@ def retained_html_body(
             raise ValueError(f"declared HTML exclusion is absent: {selector}")
         for node in nodes:
             node.decompose()
+    if dated_html_response and content_selector is not None and not body.get_text(" ", strip=True):
+        raise ValueError("dated HTML selected article is empty after its declared UI exclusions")
     return body
 
 
@@ -2241,7 +2257,30 @@ def preflight_retained_html_assets(
     source = (root / item["source"]).resolve()
     retrieval = next(row for row in manifest["retrievals"] if row.get("local_path") == item["source"])
     source_url = retrieval["requested_url"]
-    body = retained_html_body(source.read_bytes().decode("utf-8"), dated_html_response=not wiki_page_revision_set, wiki_page_revision_set=wiki_page_revision_set, content_selector=item.get("content_selector"), exclude_selectors=item.get("exclude_selectors"))
+    entity = source.read_bytes()
+    transport_fields = ("content_encoding", "transport_local_path", "transport_bytes", "transport_sha256")
+    if not wiki_page_revision_set and any(field in retrieval for field in transport_fields):
+        if any(field not in retrieval for field in transport_fields) or retrieval["content_encoding"] != "gzip" or retrieval["transport_local_path"] != "source/specification.html.gz":
+            raise ValueError("dated HTML transport needs its complete explicit gzip binding")
+        wire = root / retrieval["transport_local_path"]
+        wire.resolve().relative_to(root.resolve())
+        if not wire.is_file() or wire.is_symlink():
+            raise ValueError("dated HTML gzip wire original is missing or aliased")
+        wire_bytes = wire.read_bytes()
+        wire_hash = sha256_file(wire)
+        inventory = [row for row in manifest["local_files"] if row.get("path") == wire.resolve().relative_to(repository_root.resolve()).as_posix()]
+        if (
+            len(inventory) != 1 or inventory[0].get("sha256") != wire_hash or inventory[0].get("bytes") != len(wire_bytes)
+            or retrieval["transport_sha256"] != wire_hash or retrieval["transport_bytes"] != len(wire_bytes)
+        ):
+            raise ValueError("dated HTML gzip wire differs from its inventory or transport binding")
+        try:
+            decoded = gzip.decompress(wire_bytes)
+        except (OSError, EOFError, zlib.error) as exc:
+            raise ValueError("dated HTML gzip wire cannot be decoded") from exc
+        if decoded != entity:
+            raise ValueError("dated HTML entity differs from its decoded gzip wire")
+    body = retained_html_body(entity.decode("utf-8"), dated_html_response=not wiki_page_revision_set, wiki_page_revision_set=wiki_page_revision_set, content_selector=item.get("content_selector"), exclude_selectors=item.get("exclude_selectors"))
     unretained = item.get("unretained_assets", [])
     if wiki_page_revision_set and unretained:
         raise ValueError("wiki revision-set figures must have explicit retained local routes")
@@ -2784,6 +2823,9 @@ def derive_retained_text_sources(
             options = (source_options or {}).get(source, {})
             if options.get("wiki_page_revision_set") is True:
                 emit(f"\n> Collector page identity: {options['page_title']}; [fixed page revision]({options['source_url']}).\n")
+            article_selector = options.get("content_selector") if options.get("dated_html_response") is True else None
+            if article_selector is not None:
+                emit("\n> Collector content boundary: only the article selected by " + json.dumps(article_selector, ensure_ascii=False) + " is represented below. Original-line ranges are enclosing provenance bounds; the final range may extend to HTML entity EOF and does not imply that every line was converted.\n")
             if options.get("dated_html_response") is True and options.get("unretained_assets"):
                 emit("\n> Collector asset gap: these original figures are linked to the publisher response but their image bytes are not retained locally: " + ", ".join(f"[{reference}]({urllib.parse.urljoin(options['source_url'], reference)})" for reference in options["unretained_assets"]) + ".\n")
             emit(f'\n<a id="{stem}-L1"></a>\n')
@@ -2798,7 +2840,7 @@ def derive_retained_text_sources(
                     "selector": f"derived://{local_path}#L{start_line}-L{next_line - 1}", "local_path": local_path,
                     "kind": "section" if section.get("heading") else "file", "start_line": start_line, "end_line": next_line - 1,
                     "text_preview": preview, "derived_from": source_path, "source_format": "html",
-                    **({"transformation": "static HTML structural text with declared UI exclusions and local href routes" + ("; declared original figure links without retained image bytes" if options.get("unretained_assets") else "") + ("; declared semantic-marker images represented by exact source alt, not OCR" if options.get("image_text_alternatives") else "")} if static_html else {}),
+                    **({"transformation": "static HTML structural text with declared UI exclusions and local href routes" + ("; declared article filtering with content_selector=" + json.dumps(article_selector, ensure_ascii=False) + "; enclosing original-line provenance bounds, not full-response coverage" if article_selector is not None else "") + ("; declared original figure links without retained image bytes" if options.get("unretained_assets") else "") + ("; declared semantic-marker images represented by exact source alt, not OCR" if options.get("image_text_alternatives") else "")} if static_html else {}),
                     **({"source_heading_line": section["heading_line"]} if section.get("heading_line") else {}),
                     **{key: value for key, value in section.items() if key in {"source_start_line", "source_end_line", "heading", "level"}},
                 })

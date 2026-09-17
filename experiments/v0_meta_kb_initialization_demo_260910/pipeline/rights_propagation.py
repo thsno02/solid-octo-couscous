@@ -53,6 +53,13 @@ PAGE_TRANSFORMATION = (
 PACK_TRANSFORMATION = (
     "The context pack references source-authored claims; expand each claim and package_path before reuse."
 )
+RAW_EVIDENCE_METHOD = "deterministic-local-excerpt"
+DERIVED_EVIDENCE_METHOD = "deterministic-derived-reading-excerpt"
+DERIVED_TRANSFORMATIONS = {
+    "retained_html_response": "Collector-derived static HTML structural text; excerpt is not a raw-source quotation.",
+    "retained_git_text_sources": "Collector assembly of retained Git Markdown/YAML with line anchors and explicit local href routes; excerpt is not a raw-source quotation.",
+    "tex_reading_view": "Collector-derived static TeX reading view; excerpt is not a raw-source quotation.",
+}
 
 
 def _nonempty_string(value: Any) -> bool:
@@ -152,7 +159,7 @@ def is_source_authored(claim: dict[str, Any]) -> bool:
 def is_source_evidence(item: dict[str, Any]) -> bool:
     props = item.get("semantics", {}).get("property_assertions", {})
     role = props.get("evidence_role") if isinstance(props, dict) else None
-    return item.get("provenance", {}).get("method") == "deterministic-local-excerpt" or role in {
+    return item.get("provenance", {}).get("method") in (RAW_EVIDENCE_METHOD, DERIVED_EVIDENCE_METHOD) or role in {
         "source-text",
         "bounded-excerpt",
         "static-repository-evidence",
@@ -366,6 +373,89 @@ def _validate_ref(
         errors.append(f"RIGHTS_REF_REVISION {owner} -> {source.get('uid')}")
 
 
+def _validate_evidence_representation(
+    *,
+    root: Path,
+    item: dict[str, Any],
+    source_uids: list[str],
+    sources_by_uid: dict[str, dict[str, Any]],
+    manifests: dict[str, tuple[dict[str, Any], Path]],
+    errors: list[str],
+) -> None:
+    """Check the producer's finite reading-view protocol, not the whole payload."""
+    uid = str(item.get("uid") or "<missing-uid>")
+    method = item.get("provenance", {}).get("method")
+    props = item.get("semantics", {}).get("property_assertions", {})
+    props = props if isinstance(props, dict) else {}
+    reading_declared = "source_representation" in props or "transformation" in props
+    if method not in (RAW_EVIDENCE_METHOD, DERIVED_EVIDENCE_METHOD):
+        if is_source_evidence(item) or reading_declared:
+            errors.append(f"EVIDENCE_METHOD_MISMATCH {uid}")
+        return
+    if method == RAW_EVIDENCE_METHOD:
+        if reading_declared:
+            errors.append(f"EVIDENCE_REPRESENTATION_MISMATCH {uid} raw-with-reading-declaration")
+        for source_uid in source_uids:
+            source = sources_by_uid.get(source_uid, {})
+            # An independently selected PDF remains raw even if its root has a reading view.
+            if source.get("source_representation") == "pdf_supplement":
+                continue
+            manifest = manifests.get(source_uid, ({}, root))[0]
+            materialization = manifest.get("materialization")
+            materialization = materialization if isinstance(materialization, dict) else {}
+            view = materialization.get("tex_reading_view")
+            if (
+                source.get("source_representation") in tuple(DERIVED_TRANSFORMATIONS)
+                or materialization.get("retained_text_binding") in ("dated_html_response", "wiki_page_revision_set", "git_snapshot")
+                or isinstance(view, dict) and view.get("enabled") is True
+            ):
+                errors.append(f"EVIDENCE_REPRESENTATION_MISMATCH {uid} -> {source_uid} raw-for-reading-view")
+        return
+
+    representation = props.get("source_representation")
+    if not isinstance(representation, str) or representation not in DERIVED_TRANSFORMATIONS:
+        errors.append(f"EVIDENCE_DERIVED_REPRESENTATION {uid}")
+        return
+    if props.get("transformation") != DERIVED_TRANSFORMATIONS[representation]:
+        errors.append(f"EVIDENCE_DERIVED_TRANSFORMATION {uid}")
+    if not source_uids:
+        errors.append(f"EVIDENCE_DERIVED_BINDING {uid} missing-source")
+    for source_uid in source_uids:
+        source = sources_by_uid.get(source_uid)
+        retained = manifests.get(source_uid)
+        if source is None or source.get("source_representation") != representation or retained is None:
+            errors.append(f"EVIDENCE_DERIVED_BINDING {uid} -> {source_uid} selected-source")
+            continue
+        manifest, manifest_path = retained
+        materialization = manifest.get("materialization")
+        if not isinstance(materialization, dict):
+            errors.append(f"EVIDENCE_DERIVED_BINDING {uid} -> {source_uid} materialization")
+            continue
+        document = "normalized/document.md"
+        binding = materialization.get("retained_text_binding")
+        if representation == "retained_html_response":
+            admitted = binding in ("dated_html_response", "wiki_page_revision_set")
+        elif representation == "retained_git_text_sources":
+            admitted = binding == "git_snapshot"
+        else:
+            document = "normalized/reading.md"
+            view = materialization.get("tex_reading_view")
+            admitted = (
+                "retained_text_binding" not in materialization
+                and isinstance(view, dict) and view.get("enabled") is True
+                and view.get("profile") == "conservative-v1" and view.get("document") == document
+            )
+        if not admitted or materialization.get("document") != document or materialization.get("normalized_document") != document:
+            errors.append(f"EVIDENCE_DERIVED_BINDING {uid} -> {source_uid} manifest-consumer")
+        capsule = manifest_path.parent
+        expected_path = (capsule / document).relative_to(root.resolve()).as_posix()
+        if props.get("local_path") != expected_path or source.get("local_document") != expected_path:
+            errors.append(f"EVIDENCE_DERIVED_BINDING {uid} -> {source_uid} local-consumer")
+        local_file = _repo_file(root, props.get("local_path"), "EVIDENCE_DERIVED", errors)
+        if local_file is not None and not local_file.is_relative_to(capsule):
+            errors.append(f"EVIDENCE_DERIVED_BINDING {uid} -> {source_uid} outside-capsule")
+
+
 def validate_rights_chain(
     *,
     root: Path,
@@ -382,6 +472,7 @@ def validate_rights_chain(
         if _nonempty_string(source.get("manifest")) or _nonempty_string(source.get("rights_status"))
     }
     canonical: dict[str, dict[str, Any] | None] = {}
+    manifests: dict[str, tuple[dict[str, Any], Path]] = {}
 
     for source_uid, source in sources_by_uid.items():
         persisted = source_rights(source)
@@ -392,6 +483,8 @@ def validate_rights_chain(
             manifest_path = _repo_file(root, manifest_rel, "MANIFEST", errors)
             if manifest_path:
                 manifest = _load_yaml_mapping(manifest_path, "MANIFEST", errors)
+                if manifest is not None:
+                    manifests[source_uid] = (manifest, manifest_path)
         use_pdf = source.get("source_representation") == "pdf_supplement"
         representation = manifest.get("pdf_supplement") if manifest and use_pdf else manifest
         if not isinstance(representation, dict):
@@ -447,6 +540,10 @@ def validate_rights_chain(
         ]
         refs = object_rights_refs(item)
         item_unavailable = object_unavailable_sources(item)
+        _validate_evidence_representation(
+            root=root, item=item, source_uids=item_source_uids,
+            sources_by_uid=sources_by_uid, manifests=manifests, errors=errors,
+        )
         if not is_source_evidence(item):
             if item.get("provenance", {}).get("method") == "collection-metadata-read" and (
                 refs or item_unavailable
@@ -522,8 +619,7 @@ def validate_rights_chain(
         for item in bound_evidence:
             evidence_uid = str(item.get("uid") or "<missing-uid>")
             evidence_method = item.get("provenance", {}).get("method")
-            expected_evidence_method = "deterministic-local-excerpt"
-            if evidence_method != expected_evidence_method:
+            if evidence_method not in (RAW_EVIDENCE_METHOD, DERIVED_EVIDENCE_METHOD):
                 errors.append(f"CLAIM_EVIDENCE_METHOD_MISMATCH {claim_uid} -> {evidence_uid}")
     return errors
 

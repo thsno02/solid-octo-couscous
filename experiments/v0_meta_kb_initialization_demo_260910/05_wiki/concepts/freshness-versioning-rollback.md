@@ -55,7 +55,7 @@ temporal:
   valid_to: null
   as_of: '2026-09-16T04:30:26Z'
 provenance:
-  build_id: build:llm-wiki-v0:0175f4c78a0341b7
+  build_id: build:llm-wiki-v0:bdc4c9116985ab25
   generated_by_agent: pipeline/build_llm_wiki.py
   generated_by_model: null
   prompt_or_skill_version: deterministic-llm-wiki-v0.2
@@ -95,7 +95,7 @@ consumption:
     one_line: Page, claim, and source revisions evolve separately through dependency-aware rebuilds.
     short: Page, claim, and source revisions evolve separately through dependency-aware rebuilds.
     full: null
-  estimated_tokens: 2204
+  estimated_tokens: 2168
   machine_entry_points:
   - ../../04_claims/claims.jsonl
   - ../../03_evidence/evidence.jsonl
@@ -161,9 +161,9 @@ rights_refs:
 - source_uid: methodology:linkml-schema-first
   source_revision: sha256:93a9f00b0006695dab8f1bde801a40e36eed8c236c4c839aff645bec38b5dc6c
   source_version_url: https://linkml.io/linkml/
-  license_spdx: Apache-2.0
+  license_spdx: Apache-2.0 AND MIT
   license_url: https://www.apache.org/licenses/LICENSE-2.0
-  notice_path: raw_data/licenses/apache-2.0.md
+  notice_path: raw_data/licenses/linkml-page-body-02-260917.md
   package_path: materialized_sources/corpus/methodology-linkml-schema-first--182a2b38/manifest.yaml#rights.redistribution_package
   usage: rendered_source_claims
   transformation: The listed source-authored claim excerpts are rendered inside a mixed, compiler-generated page.
@@ -195,7 +195,7 @@ Page, claim, and source revisions evolve separately through dependency-aware reb
 - **getzep/graphiti** (source assertion): ⭐ *Help us reach more developers and grow the Graphiti community. 〔[claim:bc85c4d0c6801c3a](../claims/claim-bc85c4d0c6801c3a.md)〕
 - **Zep: A Temporal Knowledge Graph Architecture for Agent Memory** (source assertion): We introduce Zep, a novel memory layer service for AI agents that outperforms the current state-of-the-art system, MemGPT, in the Deep Memory Retrieval (DMR) benchmark. Additionally, Zep excels in more comprehensive and challenging evaluations than DMR that better reflect real-world enterprise use cases. 〔[claim:ef04f2ebbd2da425](../claims/claim-ef04f2ebbd2da425.md)〕
 - **Kosmos: An AI Scientist for Autonomous Discovery** (source assertion): Data-driven scientific discovery requires iterative cycles of literature search, hypothesis generation, and data analysis. Substantial progress has been made towards AI agents that can automate scientific research, but all such agents remain limited in the number of actions they can take before losing coherence, thus limiting the depthoftheirfindings. 〔[claim:0edb741be0f31f6f](../claims/claim-0edb741be0f31f6f.md)〕
-- **LinkML schema-first knowledge modeling** (source assertion): LinkML is a flexible modeling language that allows you to author schemas in YAML that describe the structure of your data. 〔[claim:583280271287ef9c](../claims/claim-583280271287ef9c.md)〕
+- **LinkML schema-first knowledge modeling** (source assertion): Everything you need to know about [LinkML](https://linkml.io), the Linked Data Modeling Language. 〔[claim:583280271287ef9c](../claims/claim-583280271287ef9c.md)〕
 - **linkml/linkml** (source assertion): LinkML is a linked data modeling language following object-oriented and ontological principles. 〔[claim:fc57f26307cefee3](../claims/claim-fc57f26307cefee3.md)〕
 - **AIRS-Bench: a Suite of Tasks for Frontier AI Research Science Agents** (collection assessment): A 2026 benchmark explicitly targeting frontier AI research-science agents across the research lifecycle, including idea generation, experimentation, analysis and iterative refinement. 〔[claim:17c715b34b0f0c68](../claims/claim-17c715b34b0f0c68.md)〕
 
@@ -260,11 +260,11 @@ The terms below apply only to the listed source-authored claim components. They 
 - Components: `claim:583280271287ef9c`
 - Source revision: `sha256:93a9f00b0006695dab8f1bde801a40e36eed8c236c4c839aff645bec38b5dc6c`
 - Source version: [pinned upstream version](https://linkml.io/linkml/)
-- License: [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0)
-- NOTICE: [raw_data/licenses/apache-2.0.md](../../../../raw_data/licenses/apache-2.0.md)
-- Attribution: This document includes material copied from or derived from "LinkML Documentation", https://linkml.io/linkml/. Copyright 2021-2026 LinkML Authors. SPDX-License-Identifier: Apache-2.0. Licensed under the Apache License, Version 2.0, https://www.apache.org/licenses/LICENSE-2.0.
-- Excerpt/page transformation: The listed source-authored claim excerpts are rendered inside a mixed, compiler-generated page. Converted the captured LinkML HTML landing page to Markdown; navigation, headings, hyperlinks, whitespace, and footnote markers were omitted or normalized, while CSS, JavaScript, theme files, and media were not stored; 164 selector excerpts were generated. The upstream copyright and Apache-2.0 statement are restored in this attribution block.
-- Scope: 仅覆盖当前 https://linkml.io/linkml/ 单页经转换后、许可附注前的 7,340-byte 既有 Markdown 正文及其 164 个 selector 摘录；不声称存储或覆盖 LinkML 整个文档站、其他页面正文、主题、JavaScript、CSS、媒体、外链作品、商标或权利人无权许可的第三方材料。
+- License: [Apache-2.0 AND MIT](https://www.apache.org/licenses/LICENSE-2.0)
+- NOTICE: [raw_data/licenses/linkml-page-body-02-260917.md](../../../../raw_data/licenses/linkml-page-body-02-260917.md)
+- Attribution: This document includes material copied from or derived from "LinkML Documentation", https://linkml.io/linkml/. Copyright 2021-2026 LinkML Authors. SPDX-License-Identifier: Apache-2.0. Licensed under the Apache License, Version 2.0, https://www.apache.org/licenses/LICENSE-2.0. 原页脚保留Made with Sphinx and @pradyunsg's Furo署名；本原响应实际嵌入Furo2025.12.19模板另按MIT：Copyright (c) 2020 Pradyun Gedam <mail@pradyunsg.me>。完整MIT随NOTICE；保留上游Adapted from Just the Docs以及Feather/Tabler来源线索，不声称各图标全许可链审核或第三方权利担保，不暗示背书。
+- Excerpt/page transformation: The listed source-authored claim excerpts are rendered inside a mixed, compiler-generated page. 原55141B HTML原字节保存；只在派生DOM消费唯一article#furo-main-content，排除a.headerlink的¶ UI符号，保留作者文字、目录href及URI/CURIE代码词法；li/p/blockquote列表层级在Markdown中部分丢失，原HTML可核。结构Markdown、空白连续化、链接解析、源行锚点/sidecar和边界说明属于collector-derived format conversion，不是raw quotation；保守source bounds可至entity EOF，不证明逐行转换或精确closing-tag，article外nav/footer不混正文。新normalized EOF附唯一归属/范围/修改块和NOTICE；旧root doc/164selectors不改，旧NOTICE复制history/NOTICE-before-page-body-02.md，全旧M/C/R review保全，不执行脚本或补造部署commit。
+- Scope: 仅本次https://linkml.io/linkml/单页dated-response-2026-09-17T14:20:17Z完整原HTML内作者内容（Apache-2.0）及实际嵌入Furo2025.12.19模板（MIT），并覆盖声明article的normalized/document.md/新sidecar；AND分范围履约不是OR，具体派生bytes/count以manifest为准。旧7340B pre-notice正文/164root selectors和text-only grant另留完整历史。未保存的其他文档页、logo/媒体、远程CSS/JS/依赖/外链作品/代码/数据、商标或无权许可材料不准入；URI引用不是资源已保存/获许可。原UID多页总体边界仍unresolved，partial/full_text不等于whole-UID complete/trusted或离线站点视觉/功能完整。
 
 ### Gradient Episodic Memory for Continual Learning (`arxiv-1706.08840`)
 
