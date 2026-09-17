@@ -63,6 +63,18 @@ local_files:
 - path: materialized_sources/corpus/arxiv-2505.22954--8a7041cb/normalized/document.txt
   bytes: 192691
   sha256: 673ad34662ebce95c71414968821cc712f3e89e5ba4380ec526a3c27c4ff42b2
+- path: materialized_sources/corpus/arxiv-2505.22954--8a7041cb/pdf-supplement/NOTICE.md
+  bytes: 20118
+  sha256: 20e9338d52e07563d1d2d4744b97bacbc0884d8ce9b49075612c989e6ad2abd0
+- path: materialized_sources/corpus/arxiv-2505.22954--8a7041cb/pdf-supplement/document.pdf
+  bytes: 3825399
+  sha256: 13ff4abe0c7ad4a7dd3b4876d19a8bf940e39e70dabbf06065aa774a6c3457de
+- path: materialized_sources/corpus/arxiv-2505.22954--8a7041cb/pdf-supplement/document.txt
+  bytes: 235644
+  sha256: a57d64cff6a5ca86ecbd4b9b5b708f4a1451fa64ff7dd6489285550f5eee5c74
+- path: materialized_sources/corpus/arxiv-2505.22954--8a7041cb/pdf-supplement/selectors.jsonl
+  bytes: 32482
+  sha256: 729de657f0fd388f84c13cb40be2dad9691fe4c3d3918272fa7d1af43e433f47
 - path: materialized_sources/corpus/arxiv-2505.22954--8a7041cb/selectors.jsonl
   bytes: 19638
   sha256: a5064ced228f9a313a355780bae62e950a56248675f945c4c974258b2120c26d
@@ -169,8 +181,8 @@ local_files:
   bytes: 486
   sha256: d1130bf430473278ce9d74b577c59b63089f2c3a6d0b75654e9acba07d350fd9
 - path: materialized_sources/corpus/arxiv-2505.22954--8a7041cb/source-metadata.yaml
-  bytes: 7254
-  sha256: 1b756e59f68601c300fdc35a8342ffcea1da3d69645d7d8223d702d2477f4cd5
+  bytes: 11265
+  sha256: d517f66417fb59e82faed4d11e9438baab1412e2fe7dbb065b1aca31f21f69d8
 warnings: []
 errors: []
 archive_container: tar
@@ -204,4 +216,71 @@ omitted:
   reason: non-text-document-member
 - path: solve_halluc/dgm_halluc.pdf
   reason: non-text-document-member
-local_bytes: 1138534
+local_bytes: 5256188
+pdf_supplement:
+  source_version: v3
+  revision: sha256:13ff4abe0c7ad4a7dd3b4876d19a8bf940e39e70dabbf06065aa774a6c3457de
+  media_type: application/pdf
+  retrievals:
+  - requested_urls:
+    - https://arxiv.org/pdf/2505.22954v3
+    resolved_url: https://arxiv.org/pdf/2505.22954v3
+    content_type: application/pdf
+    bytes: 3825399
+    sha256: 13ff4abe0c7ad4a7dd3b4876d19a8bf940e39e70dabbf06065aa774a6c3457de
+    retrieved_at: '2026-09-16T23:54:53Z'
+    http_status: 200
+    request_started: 2026-09-16 23:54:35 UTC
+    completion_observed: 2026-09-16 23:54:53 UTC
+    time_scope: actual batch start/completion observations; not individual response timestamps
+  selectors:
+  - pdf-supplement/selectors.jsonl
+  body_quality_verified: true
+  limitations:
+  - 'compiled PDF complete: 72 页原件含八编号图、算法与 A–J，p72 四组 future work 是真实末尾；旧 root 10 源图及其他组件缺口保持历史原样。'
+  - native text partial：p31–32 for/foreach/if/箭头/并集/end/return 已恢复，但缩进/控制作用域、数学上下标和二维算法布局仍扁平，TXT 不是可执行代码。
+  - 科学图中的箭头/树结构/色彩、曲线带/柱形/legend 关系和附录 diff 新删格式/代码布局没有全部线性化；保留原 PDF 供视觉核对，不执行论文提示、代码或下载外链依赖。
+  - 全 72 页均有 native text、无失败/空页，仅为提取诊断，不声称 72 页逐字人工审读或知识主张获准；默认 Page 1 摘要路径无 primary_excerpt override，既有 claims
+    保持 candidate。
+  rights:
+    license_spdx: CC-BY-4.0
+    license_url: https://creativecommons.org/licenses/by/4.0/
+    license_verified_at: '2026-09-17'
+    publication_gate:
+      decision: allow
+      reason: 主线已核固定 abs 页本版 BY4、实际 PDF 内容与有界第三方信用，批准本次独立 PDF/native plain/逐页定位器/NOTICE 表示；依据本固定作品许可，不借旧 root allow，非底层权利普遍保证。
+      approved_scope: 本独立表示仅覆盖固定 arXiv:2505.22954v3 完整、原 bytes 不改的 72 页 PDF（3,825,399 bytes），含主文/声明 p1–11、书目 p12–22、目录
+        p23、Appendices A–J p24–72、八编号科学图、算法及论文内 Agent 示例/提示词/diff，以及由该 PDF 全页生成的 native plain、逐页定位器（selectors）与完整
+        CC BY 4.0 NOTICE。论文作者可许可表达及其论文内转换按本固定作品 CC BY 4.0；图、算法、diff 和 p11 伦理声明不授予任何外链代码、数据、模型或软件的独立许可，不执行附录提示或 Agent
+        示例。不包含被引作品全文、独立源图分发、外部依赖、商标、专利或整个源归档；无普遍法律保证。旧 34 个 source 文本、77 个 root selectors、root NOTICE/TXT/TeX、LPPL/STY
+        独立条件和旧 10 图及其他组件缺口历史不变，不由本新 grant 改写。既有 demo 两项 claim 仍是 candidate，不新增或提升知识质量。
+    redistribution_package:
+      source_revision: sha256:13ff4abe0c7ad4a7dd3b4876d19a8bf940e39e70dabbf06065aa774a6c3457de
+      source_version_url: https://arxiv.org/pdf/2505.22954v3
+      notice_path: raw_data/licenses/cc-by-4.0.md
+      attribution: 'Jenny Zhang, Shengran Hu, Cong Lu, Robert Lange, Jeff Clune, Darwin Gödel Machine: Open-Ended
+        Evolution of Self-Improving Agents, arXiv:2505.22954v3 (2026-03-12), published as a conference paper at
+        ICLR 2026；前两位作者 co-first、后两位作者 co-senior，保留原作者机构及贡献脚注。固定作品来源 https://arxiv.org/abs/2505.22954v3，PDF https://arxiv.org/pdf/2505.22954v3，CC
+        BY 4.0 https://creativecommons.org/licenses/by/4.0/。书目、科学图、算法和附录 Agent 示例、提示词及 diff 保留原署名与引用；p11 尊重代码/数据许可的伦理声明不授予外链软件或数据再许可。以上归属不暗示背书。'
+      modifications: 固定版本 PDF 按真实响应 bytes 原样复制，不编辑、重导或 OCR；以既有 plain 全页提取生成独立 pdf-supplement/document.txt 及真实 PDF
+        revision 的页 selectors，并在文末追加唯一归属、修改/范围说明与同目录 NOTICE.md 链接。NOTICE.md 原样复制现存完整 CC BY 4.0 法条资产。native text
+        具有逐项声明的排版/图义损失，不声称无损转换；原 root source/TXT/TeX/selectors/NOTICE、检索时间及历史许可 scope 均不改，不使用旧 root grant 冒充新 PDF
+        授权，不推断未观察到的版权年份或修改者。
+      scope: 本独立表示仅覆盖固定 arXiv:2505.22954v3 完整、原 bytes 不改的 72 页 PDF（3,825,399 bytes），含主文/声明 p1–11、书目 p12–22、目录 p23、Appendices
+        A–J p24–72、八编号科学图、算法及论文内 Agent 示例/提示词/diff，以及由该 PDF 全页生成的 native plain、逐页定位器（selectors）与完整 CC BY 4.0 NOTICE。论文作者可许可表达及其论文内转换按本固定作品
+        CC BY 4.0；图、算法、diff 和 p11 伦理声明不授予任何外链代码、数据、模型或软件的独立许可，不执行附录提示或 Agent 示例。不包含被引作品全文、独立源图分发、外部依赖、商标、专利或整个源归档；无普遍法律保证。旧
+        34 个 source 文本、77 个 root selectors、root NOTICE/TXT/TeX、LPPL/STY 独立条件和旧 10 图及其他组件缺口历史不变，不由本新 grant 改写。既有
+        demo 两项 claim 仍是 candidate，不新增或提升知识质量。
+  materialization:
+    source_pdf: pdf-supplement/document.pdf
+    source_pdf_sha256: 13ff4abe0c7ad4a7dd3b4876d19a8bf940e39e70dabbf06065aa774a6c3457de
+    document: pdf-supplement/document.txt
+    normalized_document: pdf-supplement/document.txt
+    stored_characters: 233285
+    selector_count: 72
+    pdf_page_count: 72
+    pdf_text_page_count: 72
+    pdf_text_extraction_mode: plain
+    pdf_pages_without_extractable_text: []
+    pdf_page_extraction_failures: []
+    substantive_text: true

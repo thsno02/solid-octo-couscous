@@ -1,6 +1,6 @@
 ---
 phase: P3-PDF-03
-status: startup_contract_no_new_source_acquisition_yet
+status: local_validation_passed_exact_pair_review_and_ci_pending
 base_sha: 512794e2386898aaaac67a8268cc61e0fe8cb594
 base_dependency: PR18_merged_at_512794e
 adapter_family: arxiv_latex_v2
@@ -9,13 +9,65 @@ source_uids:
   - arxiv-1606.04671
   - arxiv:2404.16130
   - arxiv:2505.22954
+coverage_summary:
+  collection_records: 215
+  non_repo_total: 131
+  github_repo_excluded: 84
+  reported_content_tier_counts:
+    excerpt_capsule: 26
+    full_text: 93
+    metadata_capsule: 12
+  source_type_counts:
+    arxiv: 73
+    biorxiv: 2
+    blog: 10
+    industry: 2
+    journal: 11
+    methodology: 7
+    paper: 2
+    standard: 24
+  original_artifact_counts:
+    complete: 33
+    metadata_only: 14
+    partial: 6
+    unknown: 78
+  text_extraction_counts:
+    complete: 6
+    partial: 46
+    unavailable: 14
+    unknown: 65
+  action_bucket_counts:
+    access_restricted: 7
+    author_manuscript_fetch: 2
+    canonical_repair: 5
+    complete_verified: 6
+    html_article_snapshot: 14
+    identity_or_version_ambiguous: 2
+    needs_boundary_verification: 65
+    ocr_assessment: 19
+    parser_only: 6
+    public_persistence_decision: 3
+    standard_spec_fetch: 2
+  public_redistribution_counts:
+    allow: 29
+    block: 65
+    unknown: 37
+  content_inspected_full_text: 43
+  structure_only_full_text: 50
+  locally_persisted_complete: 6
+  knowledge_candidate_sources: 30
+  knowledge_trusted_sources: 0
+  knowledge_sources_without_demo_claims: 101
+  unresolved_sources: 125
 ---
 
-# P3-PDF-03 — 三篇同版本官方 PDF 补充：启动合同
+# P3-PDF-03 — 三篇同版本官方 PDF 补充
+
+当前状态：PR #19 已发布，三份固定 PDF 已实际取得、完成有界内容审核并包装保存；严格离线重放、183测试、demo/Wiki、稳定树验证及默认coverage audit均通过。三篇编译原件覆盖完整，但原生文本均有具体损失，保持 partial。下列启动合同与第7节取得时状态保留为历史，不代表仍未 GET；精确提交的独立三维终审、CI、merge 与 main 交接尚未完成。
 
 本批启动于最新 work `512794e2386898aaaac67a8268cc61e0fe8cb594`。PR #18 已正常 Ready／merge，HEAD `28f0e595aa262461787f63a3686a6187882de226` / BASE `463b848b0b4abef33df6fa51f6fcf9bd7482a922` 获独立三维 PASS（COMMENT 5229547026）及 CI 35163384395 成功。父 PR #1 仍 Draft，以该 work 为 head、main `99ce4670be91637209d67792de0962404fa96488` 为 base，未进入 main。
 
-主线已完整读取最新 Issue #3/#4、README、02/03/04、05/06、plan.yaml 与 ledger；复核上一批已合入及无其他 active writer。已接受 planner 的三 UID 有界草案；当前只有启动报告和分支台账修改，无源 GET、正文改动、代码/测试/workflow修改或生成重建。发布本启动合同 PR 后才获取三份明确 PDF；当前不宣称新正文完整或许可准入。
+启动时，主线已完整读取最新 Issue #3/#4、README、02/03/04、05/06、plan.yaml 与 ledger，复核上一批已合入及无其他 active writer，并接受 planner 的三 UID 有界草案。当时只有启动报告和分支台账修改，无源 GET、正文改动、代码/测试/workflow修改或生成重建；发布启动合同 PR 后才获取三份明确 PDF。当时没有提前宣称新正文完整或许可准入。
 
 ## 1. 推荐与范围
 
@@ -31,7 +83,7 @@ source_uids:
 | `arxiv:2404.16130`／From Local to Global: A Graph RAG Approach to Query-Focused Summarization | `raw_data/arxiv/From Local to Global: A Graph RAG Approach to Query-Focused Summarization/metadata.yaml` | `materialized_sources/corpus/arxiv-2404.16130--fe9ed9e5` | v2／`https://arxiv.org/pdf/2404.16130v2` |
 | `arxiv:2505.22954`／Darwin Godel Machine: Open-Ended Evolution of Self-Improving Agents | `raw_data/arxiv/Darwin Godel Machine: Open-Ended Evolution of Self-Improving Agents/metadata.yaml` | `materialized_sources/corpus/arxiv-2505.22954--8a7041cb` | v3／`https://arxiv.org/pdf/2505.22954v3` |
 
-官方身份／许可预核入口分别为上述 ID 的 `https://arxiv.org/abs/<ID>vN`；canonical 现有 `versioning.source_version`、`source_archive_url`、`pdf_url` 均已固定。三旧 manifest 的 `source_version:null` 是历史保存层字段，不得填成虚构旧响应或否定现有版本证据；新增 supplement 使用独立 `source_version`。
+官方身份／许可预核入口分别为上述 ID 的 `https://arxiv.org/abs/<ID>vN`；canonical 现有 `versioning.source_version`、`source_archive_url`、`pdf_url` 均已固定。三旧 manifest 的根 `source_version` 键实际缺省，读取结果为 null，并非显式写入 null；保留缺省，不得填成虚构旧响应或否定现有版本证据。新增 supplement 使用独立 `source_version`。
 
 | UID | 当前 root revision | retained source | 当前 root selectors | coverage 当前记录／已完成 P4 观察 |
 | --- | --- | --- | ---: | --- |
@@ -79,7 +131,7 @@ source_uids:
 3. 每篇 PDF 首中末至少三页文本＋必要视觉核验、实际总页数、主文／书目／附录结束、科学图映射与可见 credit。PNN 的 49 个实引图、GraphRAG 两社区图、DGM 十图须核它们是否实际编译进同版 PDF；不把引用数量当 PDF 图编号，不为 omitted 的每个文件制造义务。
 4. TXT 按原生页证据记录图内文字、数学、算法／表格／顺序损失；检查提取失败页、空文字页是否有实质内容。首中末页 selector 的 preview 与语义均须实际对应。图视觉可读、原 PDF 完整不要求 OCR 全绿；不能把 header-only 或 parser 无报错当完整 body。
 5. 新 public grant 审核闭合后才公开持久化；检查完整 NOTICE、唯一末注、四方包一致。`body_quality_verified` 仅代表本文读取质量核验，不自动使 text complete 或 trusted。
-6. 逐件保留旧 73 source files（627,377 bytes）、`files.jsonl`、normalized TeX／TXT（包括旧 NOTICE）、221 root selectors、旧 root NOTICE 字节；旧 manifest 的 root revision、version=null、retrieval、rights、materialization 与 selectors 原值保留，仅追加 supplement、必要库存／大小。旧 snapshot 与 canonical 只加独立新表示，不重写其旧许可包与 archive 身份。
+6. 逐件保留旧 73 source files（627,377 bytes）、`files.jsonl`、normalized TeX／TXT（包括旧 NOTICE）、221 root selectors、旧 root NOTICE 字节；旧 manifest 的 root revision、source_version 键缺省、retrieval、rights、materialization 与 selectors 原值保留，仅追加 supplement、必要库存／大小。旧 snapshot 与 canonical 只加独立新表示，不重写其旧许可包与 archive 身份。
 7. 两次本地 replay／生成幂等；验证新 PDF／TXT／selectors／NOTICE 库存绑定。运行当前 head 的 `make test`、`make validate`、`make demo`、`make reproducibility`、materialization completeness 与 coverage 校验。重复一次生成不等于重复 GET；报告准确区别。
 8. 每 UID 如实 before→after：新 PDF 原件可 complete，native text 可 partial；旧 source 缺图仍显式。现有其他 gate errors／blocked 不由这三 supplement 覆盖或消失，全库 P4 未完成不得宣称 PASS。精确 HEAD／BASE 的独立三维 PASS、当前适用 CI success 后正常合入 work；不是 main 完成证明。
 
@@ -96,7 +148,7 @@ source_uids:
     "base_sha": "512794e2386898aaaac67a8268cc61e0fe8cb594",
     "target_branch": "work/v0-meta-kb-initialization-demo-260910",
     "execution_branch": "codex/p3-pdf-03-260917",
-    "status": "startup_contract_no_new_source_acquisition_yet",
+    "status": "local_validation_passed_exact_pair_review_and_ci_pending",
     "adapter_family": "arxiv_latex_v2",
     "action_bucket": "open_fulltext_fetch",
     "source_uids": [
@@ -220,5 +272,74 @@ source_uids:
 }
 ```
 
-真实剩余前置：启动 PR 尚待发布；三份目标 PDF 未 GET、页数／bytes／可见信用未读、对应新表示 grant 未作；DGM 实际 Page 1 摘录范围待 PDF。作品级既有版本／授权是有限预核依据，不自动准入新表示。无证据要求新代码或新用户权限；真正相反声明或身份差异按合同停当前受影响项。P3/P4/P5与 PR #1/main 未完成。
+启动时剩余前置（历史）：当时启动 PR 尚待发布、三份 PDF 未取得，新表示尚未准入。现状以第7、8节为准；P3/P4/P5与 PR #1/main 仍未完成。
 
+## 7. 实际取得记录（acquisition，不等于公开准入）
+
+PR #19 启动合同已发布后，三固定PDF于2026-09-16 23:54:35 UTC批次开始，23:54:53 UTC观察全部结束。各URL与请求相同、HTTP200、application/pdf、零redirect、TLS正常；时间为真实批次观察，不冒充每件服务器时间。
+
+| UID／固定PDF | bytes | 实际页数 |
+| --- | ---: | ---: |
+| arxiv-1606.04671／1606.04671v4 | 4,278,357 | 14 |
+| arxiv:2404.16130／2404.16130v2 | 6,893,854 | 26 |
+| arxiv:2505.22954／2505.22954v3 | 3,825,399 | 72 |
+
+合计14,997,610 bytes、112页；未重新取得source archive、旧图文件或外部代码/数据。三固定官方abs身份页另作元数据读取，其实际license链接均指CC BY4.0，与既有canonical一致；这些页面不是本批PDF的HTTP取得记录，网络请求统计另分。实际PDF文件尚处非公开临时审读区，正文/图/样例信用与新表示范围未完成前不写入repo。
+
+主线使用PDF技能渲染DGM首/中/末以及全部八编号图（对应十原实引资产）和关键算法页面；两名只读内容reader审其余两篇。实际72页都有原生文本，不代表图义或代码缩进无损。DGM已有source_excerpt默认返回当前PDF摘要L10–13，显式范围override结果相同，所以无需新增配置或生产代码。上述为有界内容事实，不预写正式新表示allow、最终三维PASS或CI通过。
+
+## 8. 实际内容审核与新表示准入（admission）
+
+主线已完整阅读两位只读 reader 的实际内容报告，完成 DGM 有界审读，并核对三个固定 abs 页实际许可链接及现存完整 CC BY 4.0 法条。依据是本版作品许可与实际表示，不是旧 TeX package allow。采纳以下范围供独立 PDF package 落盘：完整、不修改 bytes 的固定版本论文 PDF，包含其内嵌附录、书目和科学图；由该原件生成的 native plain、页 selectors 与明确修改/信用的 NOTICE。不是外链数据、模型、游戏素材、代码仓库、被引作品全文或商标权许可；未观察到本次表示内新增的具体相反声明，不声称穷尽所有底层权利。
+
+| 作品 | 实际审阅与首中末 | 内容边界和旧图缺口 | 新表示判断 |
+| --- | --- | --- | --- |
+| PNN v4 | 14/14页全文及整页视觉，另高分辨率复核p5；八作者、前三位等贡献、2022-10-22版次明确 | 主文p1–8，24条参考p9，Supplement A–E p10–14；49个 active-root 图引用（21主图资产+28曲线）均对应图1–13。transfer_pong在p5图4；p14图13和打印页5是实际结尾 | 编译原件 complete，body_quality_verified=true；TXT partial |
+| GraphRAG v2 | 26页全文；目视1/4/7/8/9/10/12/14/15/17/18/19/20/21/22/26共16页；十作者及2025-02-19版次明确 | 主文p1–12，书目p12–17，附录A–G p18–26。两幅缺失JPEG对应p19图4(a)/(b) MultiHop-RAG两级社区图；真实结尾为G统计表末行 | 编译原件 complete，body_quality_verified=true；TXT partial |
+| DGM v3 | 完整读并目视首1/中36/末72，完整读11/22/23/31，另核25/28/32/37/50/60/71，实际目视全部八编号图及算法31；不声称72页逐字人工审读 | 主文/声明p1–11，书目12–22，目录23，A24/B26/C27/D32/E32/F36/G60/H69/I71/J72；旧10实引图对应八编号图，p72四组future work结束完整。五作者、前两co-first/后两co-senior、2026-03-12版次明确 | 编译原件 complete，body_quality_verified=true；TXT partial；knowledge仍candidate |
+
+PNN图资产逐组映射：progressiveNetDepiction2→p2图1；十二任务截图→p5图2；baselineDepiction6→p5图3；transfer_pong→p5图4；pong_results_neil→p6图5；transfer_atari→p7图6；atari3_results_neil→p8图7；transfer_lab→p8图8；appendix_AFS_vs_APS→p10图9；appendix_compression→p11图10；12 Atari曲线→p12图11；8 Pong曲线→p13图12；8 Labyrinth曲线→p14图13。49是实引源图资产数量，不是编号图数，也不等于恢复全部130 omitted成员。
+
+DGM十图映射：conceptual→p2图1；comparisons和comparisons_polyglot→p7图2；archive和progress→p7图3；transfer_model_task→p8图4；wo_selfimprove→p24图5；wo_openended→p24图6；transfer_model_polyglot→p25图7；dgm_halluc→p69图8。原图文件仍未单独恢复，旧source缺口历史保留。
+
+具体提取损失与恢复：PNN的求和/max算子在新PDF native已恢复，但二维公式上下标/分式、架构连接、p5–11图内数据和末三页曲线形状未完整文字化；GraphRAG p21的entity_name/tuple_delimiter/input_text及p22的rating_explanation下划线被提取为空格，不能用TXT作精确可执行prompt，另有图拓扑/曲线/颜色、表分组/bold损失；DGM p31–32的for/foreach/if/箭头/并集/end/return已恢复，但控制作用域、数学和附录diff/代码布局仍扁平。三原件共112页均非空、零提取失败，只证明结构诊断，不证明无损正文。页selector首中末preview与实际页文字对应；DGM重复conference header是真实页起点。
+
+实际信用处理：PNN保留八作者/前三等贡献、Google DeepMind以及论文中的有限benchmark截图/学术出处；p5 River Raid、Seaquest中的ACTIVISION标识可见，不把底层游戏资产、ROM、商标标成论文作者BY4作品。GraphRAG保留十作者/共同贡献、AFaCTA六作者ACL短定义信用；p21 Fed输入与旧system_prompts.tex:37归一化后全等，59词，未增加新闻正文量，仅沿既有科学示例目的/数量限定，不授予新闻全文独立公开权。DGM保留五作者及正确贡献脚注，论文伦理声明不等于外链软件/数据再许可。没有新取新闻、游戏、数据集或源码依赖；没有重开STY历史。
+
+正文消费者（consumer）核对：PNN/GraphRAG不新增demo选入。DGM的既有Page1默认路径准确返回摘要L10–13；显式L10–39 override返回相同结果，故不加无必要配置。包装后需复验PDF/TXT/selectors/revision/NOTICE绑定及既有两claim的派生引用，不新增知识主张、不提升trusted。
+
+以上是实际内容和表示准入决定，不是 PR19 最终独立 evaluator PASS。包装落盘后的四方grant、一致性、旧73文件/221 selectors保留、无fetch重放、生成物、当前CI和精确HEAD/BASE仍各自验收。
+
+## 9. 包装执行与可重放事实（packaging）
+
+三固定原件已按取得 bytes 写入仓库，各自 PDF/TXT/selectors/NOTICE 四文件；canonical、capsule snapshot、manifest、machine audit 的新 grant 完全一致，六字段齐全，approved_scope 与 scope 一致。完整 CC BY 4.0 NOTICE 每篇20,118 bytes，与既有法条资产逐字相同；正文唯一末注保留实际作者、修改与范围。旧root包不被这份补充表示替换。
+
+| 表示 | TXT含末注：行／bytes | 新页selectors | inventory：文件／bytes | 整个capsule含manifest：文件／bytes |
+| --- | ---: | ---: | ---: | ---: |
+| PNN v4 | 908／46,424 | 14 | 31／4,570,614 | 32／4,599,820 |
+| GraphRAG v2 | 1,484／93,708 | 26 | 30／7,448,890 | 31／7,470,848 |
+| DGM v3 | 5,107／235,644 | 72 | 45／5,256,188 | 46／5,275,654 |
+
+新增12文件共15,484,184 bytes：PDF14,997,610、TXT375,776、页selectors50,444、NOTICE60,354。三个inventory共106文件17,275,692 bytes；加三个manifest是109文件17,346,322 bytes，两个口径不混用。旧73source／627,377 bytes、221root selectors、旧根NOTICE/TXT/TeX/files.jsonl/README以及旧manifest的非inventory字段原样保留；canonical/snapshot仅新增pdf_supplement，其他97条rights audit原始块不变。原GraphRAG/CoScientist旧包错误不在本批偷改。
+
+包装使用既有 `build_pdf_supplement` 与 `replay_pdf_supplement`。三旧包均无启用的tex_reading_view；直接走已有补充表示重放，不调用会重新取archive的常规入口。每篇两次严格离线重放，分别32/31/46个完整capsule文件逐字节不变，fetch/prepare调用均0。三个PDF表示的publication validator及supplement完整性validator均errors=[]/blocks=[]；这个局部结果不是全库公开门控通过。
+
+环境纠偏如实记录：首次系统Python缺pypdf，没有写TXT/selectors；尝试bundled Python时缺requests，import即失败，也未写派生。随后统一使用与CI一致的现成Python3.12.13环境，首次生成及六次重放成功，不安装依赖、不改生产代码。全库demo运行继续出现此前已知的可选fontTools编码warning；保持原环境和有损文本说明，不以临时换库重写本批或其他原文。
+
+主线调用既有registry/index/audit生成器，沿用2026-09-16T04:30:26Z聚合时间，再构建demo/Wiki。结果仍36sources、72claims、72evidence、135Wiki pages，build ID为 `build:llm-wiki-v0:c01527f77acde651`。DGM默认摘要L10–13由本PDF原生文字提供，两个既有candidate身份不增；PNN/GraphRAG不加入selected。全局identity同步是index输入变化的必要传播，不是新增知识。
+
+本地验证执行中的调度纠偏：主线曾把read-only validate和语义差异读取与repro重建并行，读到了生成目录清空/重建中的瞬态，分别出现BROKEN_DOC_LINK和FileNotFoundError。此失败不删改校验规则；等重放完整结束后串行重跑，最终结果另记。183项单元测试已通过；最终稳定树validate、四阶段repro、coverage与精确HEAD/BASE审核/CI尚待记录，不能将初次失败写成PASS。
+
+## 10. 稳定树验收（validation，最终提交审核另行绑定）
+
+上述瞬态失败后，完整repro进程退出0。committed_tree_replay、full_demo_replay、compiler_only_replay、read_only_validation四阶段各169文件逐字节一致；最后一阶段在重建结束后串行执行完整make validate通过。248 YAML／215 migrated metadata、55 docs／80 links、36sources／72claims／72evidence／135pages均无validator errors。可选字体warning仍存在，不冒称整个运行完全无warning。
+
+稳定树语义比较也重新执行成功：来源、evidence、claim集合及身份都与BASE一致；分别只有1条DGM source、1条正文evidence、1条正文claim对象改变，正文evidence明确绑定新PDF TXT的L10–13与新revision/package。DGM另一条collector-assessment claim不变，其余来源/证据/主张对象不变。全局构建identity传播另计，没有手写知识内容。
+
+完整 `git diff --check HEAD` 实际退出2：5,169个诊断只落在DGM原PDF（5,147；Git把该二进制格式判作text进行空白检查）和忠实native TXT（22）。排除这两个有据文件后的全范围检查通过；不修改PDF bytes、不trim原生文本，也不改Git attributes/关闭检查来隐藏诊断。
+
+全库publication gate实际仍退出1：active_full_text=99、audited=100、blocked=64、errors=2，错误仍是旧GraphRAG/CoScientist package不一致。本批三个新PDF独立包无errors/blocks，但不能据此声称全库可公开发布或PR #1放行。coverage最新对账、提交、精确pair CI和独立三维终审仍待完成。
+
+最后稳定树默认coverage auditor已由主线重新采集当前facts并实际执行，exit0／PASS。三UID目标改为独立PDF表示、original complete/verified、text partial/verified、page selectors语义verified；PNN主桶ocr_assessment，GraphRAG/DGM主桶parser_only，均保留严格complete_target_consumable=false和有界下一步。其余128条coverage原始块及对象、131项knowledge不变，完整ODCS execution与旧三表示观察留作历史。
+
+固定分母仍215=131非repo+84repo；原件complete30→33/partial9→6，文本partial44→46/unknown67→65，本地严格完整6、unresolved125、trusted0不变。summary与本报告frontmatter一致。最终变更189路径，其中160个既有demo/Wiki生成物为DGM绑定与必要全局identity传播；生产代码、tests、依赖、workflow零改。本文中的待执行记录是阶段历史；最终精确提交的CI及独立三维结论应以PR19的commit-bound审核COMMENT为准，不在提交前虚填PASS。
