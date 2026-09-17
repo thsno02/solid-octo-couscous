@@ -170,6 +170,31 @@ class ExcerptTests(unittest.TestCase):
                         chooser(item, manifest)
             self.assertEqual(legacy.read_bytes(), b"Historical excerpt and footer remain unchanged.\r\n")
 
+    def test_metadata_only_git_consumer_uses_single_sidecar_without_legacy_files(self):
+        actual = "This native document states its actual source boundary with sufficient continuous prose to support an exact consumer excerpt without collector metadata."
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            capsule = root / "materialized_sources/corpus/example"
+            (capsule / "normalized").mkdir(parents=True)
+            document = capsule / "normalized/document.md"
+            document.write_text("# Retained documentation text (collector assembly)\n\n> Collector include provenance is not source prose.\n\n## Native overview\n\n" + actual + "\n")
+            selectors = capsule / "normalized/selectors.jsonl"
+            selectors.write_text('{"selector":"derived"}\n')
+            item = {"manifest": "materialized_sources/corpus/example/manifest.yaml"}
+            manifest = {"selectors": ["normalized/selectors.jsonl"], "materialization": {
+                "retained_text_binding": "git_snapshot", "document": "normalized/document.md", "normalized_document": "normalized/document.md",
+                "retained_text_selectors": "normalized/selectors.jsonl", "retained_text_sources": [{"source": "source/docs/overview.md", "format": "md"}],
+            }}
+            with mock.patch.object(build_demo, "ROOT", root):
+                self.assertEqual(choose_local_document(item, manifest), document)
+                self.assertEqual(choose_local_selectors(item, manifest), selectors)
+                self.assertEqual(source_excerpt(document.read_text(), "Native overview", reading_view=True)[0], actual)
+                selectors.unlink()
+                with self.assertRaises(ValueError):
+                    choose_local_document(item, manifest)
+            self.assertFalse((capsule / "document.md").exists())
+            self.assertFalse((capsule / "selectors.jsonl").exists())
+
     def test_reading_view_skips_whole_anchor_contaminated_candidate_without_cleaning(self):
         anchored = (
             "This anchored source paragraph provides enough contiguous prose to satisfy the existing excerpt length and word criteria.\n"

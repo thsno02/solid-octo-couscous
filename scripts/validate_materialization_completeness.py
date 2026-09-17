@@ -211,6 +211,8 @@ def validate_retained_text_binding(
         names.add(source_name)
         if git_sidecar and "role" in item and (format_name != "yaml" or item["role"] != "example"):
             errors.append(f"RETAINED_TEXT_ROLE {uid}: {source_name}")
+        if "docfx_includes" in item and (not git_sidecar or format_name != "md"):
+            errors.append(f"RETAINED_DOCFX_BINDING {uid}: {source_name}")
         source_relative = (capsule_root / source_name).relative_to(repo_root).as_posix()
         source = scoped_path(source_relative, capsule_root, repository_root=repo_root)
         source_hash = actual_hashes.get(source_relative)
@@ -243,7 +245,7 @@ def validate_retained_text_sidecar_binding(
 ) -> None:
     """Check the explicit consumer pair while preserving legacy acquisition bytes."""
     from urllib.parse import unquote, urlsplit
-    from materialize_all_sources import preflight_dated_html_assets, preflight_wiki_html_sources, redistribution_footer, retained_text_selector_file
+    from materialize_all_sources import preflight_dated_html_assets, preflight_docfx_includes, preflight_wiki_html_sources, redistribution_footer, retained_markdown_frontmatter_end, retained_text_selector_file
     repo_root = (repository_root or ROOT).resolve()
     capsule_root = capsule_root.resolve()
     uid = manifest.get("uid")
@@ -255,6 +257,7 @@ def validate_retained_text_sidecar_binding(
             raise ValueError("retained sidecar needs its actual generic adapter")
         selectors = retained_text_selector_file(manifest, capsule_root, require_exists=check_derived)
         materialization = manifest["materialization"]
+        single_git = materialization.get("retained_text_binding") == "git_snapshot" and manifest["selectors"] == ["normalized/selectors.jsonl"]
         if dated_html:
             source = capsule_root / "source/specification.html"
             source_path = source.relative_to(repo_root).as_posix()
@@ -326,13 +329,30 @@ def validate_retained_text_sidecar_binding(
         if not notice.strip() or (capsule_root / "NOTICE.md").read_bytes() != notice:
             raise ValueError("retained sidecar full NOTICE differs from its reviewed asset")
         history = manifest["historical_acquisition"]
-        if not isinstance(history, dict) or not all(field in history for field in ("revision", "retrievals", "rights", "materialization", "local_files")):
+        if not isinstance(history, dict) or not all(field in history for field in ("revision", "retrievals", "rights", "local_files")) or not isinstance(history["local_files"], list) or not history["local_files"]:
             raise ValueError("retained sidecar must preserve its prior acquisition facts")
+        if single_git and (history.get("status") != "metadata_only" or history.get("content_tier") != "metadata_capsule" or history.get("selectors") != [] or history["revision"] is not None or history["retrievals"] != [] or history.get("materialization") is not None):
+            raise ValueError("single Git sidecar requires its actual metadata-only acquisition history")
+        if not single_git and "materialization" not in history:
+            raise ValueError("retained sidecar must preserve its prior materialization facts")
         for name in ("document.md", "selectors.jsonl"):
             path = capsule_root / name
             old = [row for row in history["local_files"] if row.get("path") == path.relative_to(repo_root).as_posix()]
-            if len(old) != 1 or old[0].get("sha256") != sha256_file(path) or old[0].get("bytes") != path.stat().st_size:
+            if single_git:
+                if old or path.exists():
+                    raise ValueError("single Git sidecar cannot hide a legacy document or selectors")
+            elif len(old) != 1 or old[0].get("sha256") != sha256_file(path) or old[0].get("bytes") != path.stat().st_size:
                 raise ValueError("retained sidecar legacy document or selectors changed")
+        docfx_root, docfx_calls = None, {}
+        docfx_options = {}
+        if any("docfx_includes" in item for item in materialization["retained_text_sources"]):
+            if materialization.get("retained_text_binding") != "git_snapshot":
+                raise ValueError("DocFX includes need their native Git binding")
+            paths = [(capsule_root / item["source"], item["format"]) for item in materialization["retained_text_sources"]]
+            for item, (source, _) in zip(materialization["retained_text_sources"], paths):
+                retrieval = next((row for row in manifest["retrievals"] if row.get("local_path") == item["source"]), {})
+                docfx_options[source.resolve()] = {"git_snapshot": True, "snapshot_commit": canonical["versioning"]["snapshot_commit"], "source_url": retrieval.get("resolved_url") or retrieval.get("requested_url") or "", **({"docfx_includes": item["docfx_includes"]} if "docfx_includes" in item else {})}
+            docfx_root, docfx_calls = preflight_docfx_includes(paths, capsule_root, docfx_options)
         if dated_html:
             preflight_dated_html_assets(manifest, capsule_root, repository_root=repo_root)
         if wiki_html:
@@ -351,6 +371,7 @@ def validate_retained_text_sidecar_binding(
             if not rows:
                 raise ValueError("retained sidecar has no derived selectors")
             seen_sources = set()
+            seen_calls = set()
             for row in rows:
                 item, source_lines = source_ranges.get(row.get("derived_from"), ({}, 0))
                 start, end = row.get("start_line"), row.get("end_line")
@@ -365,9 +386,23 @@ def validate_retained_text_sidecar_binding(
                     or not isinstance(row.get("text_preview"), str) or not row["text_preview"] or row["text_preview"] not in "\n".join(lines[start - 1:end])
                 ):
                     raise ValueError("retained sidecar selector provenance or real range differs")
+                invocation = row.get("included_at")
+                if docfx_root:
+                    source = repo_root / row["derived_from"]
+                    if source == docfx_root:
+                        if invocation is not None or any(original_start <= line <= original_end for line in docfx_calls):
+                            raise ValueError("DocFX root selector cannot cross an include call")
+                    else:
+                        if not isinstance(invocation, dict) or set(invocation) != {"source", "line"} or invocation.get("source") != docfx_root.relative_to(repo_root).as_posix() or not isinstance(invocation.get("line"), int) or isinstance(invocation["line"], bool) or docfx_calls.get(invocation["line"]) != source or original_start <= retained_markdown_frontmatter_end(source.read_bytes().decode("utf-8")):
+                            raise ValueError("DocFX include selector differs from its real body or invocation")
+                        seen_calls.add(invocation["line"])
+                elif invocation is not None:
+                    raise ValueError("undeclared DocFX selector invocation")
                 seen_sources.add(row["derived_from"])
             if seen_sources != set(source_ranges):
                 raise ValueError("retained sidecar omits a declared original")
+            if docfx_root and seen_calls != set(docfx_calls):
+                raise ValueError("DocFX sidecar omits a declared include occurrence")
     except (KeyError, TypeError, AttributeError, ValueError, OSError, yaml.YAMLError) as exc:
         errors.append(f"{label} {uid}: {exc}")
 
@@ -976,7 +1011,10 @@ def main() -> int:
         try:
             from materialize_all_sources import retained_text_selector_file
             sidecar = retained_text_selector_file(manifest, capsule_root, require_exists=True)
-            if sidecar != selectors_path:
+            if manifest.get("selectors") == ["normalized/selectors.jsonl"]:
+                selectors_path = sidecar
+                selector_paths = [sidecar]
+            elif sidecar != selectors_path:
                 selector_paths.append(sidecar)
         except (KeyError, TypeError, AttributeError, ValueError, OSError) as exc:
             errors.append(f"RETAINED_TEXT_SELECTORS {uid}: {exc}")
@@ -984,7 +1022,7 @@ def main() -> int:
         if not isinstance(selector_declaration, list):
             errors.append(f"SELECTOR_DECLARATION_BAD {uid}")
             selector_declaration = []
-        if tier != "metadata_capsule" and "selectors.jsonl" not in selector_declaration:
+        if tier != "metadata_capsule" and selectors_path.relative_to(capsule_root).as_posix() not in selector_declaration:
             errors.append(f"SELECTOR_DECLARATION_MISSING {uid}")
         if tier != "metadata_capsule" and not selectors_path.exists():
             errors.append(f"SELECTORS_MISSING {uid}")

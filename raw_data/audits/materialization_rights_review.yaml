@@ -7,7 +7,7 @@ scope:
   baseline_index: materialized_sources/index.yaml
   selection: content_tier == full_text at baseline commit
   baseline_full_text_count: 91
-  additional_full_text_review_count: 12
+  additional_full_text_review_count: 17
   additional_review_uids:
   - standard:ro-crate-1.2
   - standard:sssom
@@ -21,11 +21,18 @@ scope:
   - methodology:mediawiki-revision-discussion
   - methodology:wikidata-statement-model
   - methodology:wikipedia-editorial-governance
+  - industry-doc:microsoft-fabric-ontology-preview
+  - doi:10.1038/s41587-021-01054-6
+  - journal-doi-10.1016-0004-3702-79-90032-7
+  - methodology:ontouml-ufo
+  - paper:The-Basic-AI-Drives
   source_type_counts:
     arxiv: 73
-    methodology: 4
+    methodology: 5
     standard: 20
-    journal: 6
+    journal: 8
+    industry: 1
+    paper: 1
   note: 固定历史基线91条及后续三个SPEC/CANON审阅共94条原对象完全保留。P3-JOURNAL-01新增六UID的表示级审阅，使review行合计100；新root revision仍指旧excerpt且gate
     unknown，不重批旧摘录。六main PDF及五精确SI获得各自作品/版本/URL/字节绑定的独立grant与完整NOTICE，旧根门控和新表示allow分别计数。额外review_count是结构行数，不是新增九个根级allow或全文获取完成数。全库旧两项包不一致仍P4待办。
     P3-WIKIMEDIA-HTML-01新增methodology:mediawiki-revision-discussion的当前表示级根审阅；旧100审计对象不改，旧excerpt及完整旧manifest保全；文字/图片各按NOTICE组件条件，新原件complete而派生text暂partial/bodyqualityfalse。
@@ -42,20 +49,20 @@ decision_model:
   scope_rule: 代码、数据、模板、引用作品或相邻仓库的许可不得外推至目标全文。
 summary:
   classification_counts:
-    documented_permission: 60
-    permission_unverified: 43
+    documented_permission: 62
+    permission_unverified: 46
   recommendation_counts:
-    allow_with_packaged_notice: 32
-    do_not_redistribute_full_text: 37
-    allow_after_conditions_met: 28
+    allow_with_packaged_notice: 33
+    do_not_redistribute_full_text: 40
+    allow_after_conditions_met: 29
     only_independently_reviewed_representations: 6
   publication_gate_counts:
-    allow: 32
+    allow: 33
     block: 65
-    unknown: 6
+    unknown: 10
   license_evidence_counts:
-    CC-BY-4.0: 28
-    none: 43
+    CC-BY-4.0: 30
+    none: 46
     CC-BY-SA-4.0: 2
     CC-BY-NC-SA-4.0: 4
     CC-BY-NC-ND-4.0: 2
@@ -71,6 +78,7 @@ summary:
     CC-BY-SA-4.0 AND CC0-1.0: 1
     CC-BY-SA-4.0 AND CC-BY-SA-3.0: 1
   key_findings:
+  - P3-CANONICAL-ENTRY-01新增五UID表示级审阅，旧103对象不改。Fabric三份固定原生Markdown按明确文档CCBY4和完整NOTICE有界allow；其他四项无新正文。OBO文章CCBY4已证，root gate unknown仅表示无取得载荷可绑定当前公开表示，非文章许可未知。additional_full_text_review_count沿既有字段统计后续审阅行，包含无正文项，不能理解成17条新全文。Wiki三项上方body质量待审字样为前批准入时历史，实际最终结果以PR20及coverage为准。
   - 91/91 manifest 在基线均写 full_text_redistribution_assumed=true；该字段从不作为授权。
   - 73 篇 arXiv 中32篇官方文章页提供CC许可；WikiChat另由作者exact v2 camera-ready声明与ACL许可形成作者正文授权链，RE-Net、RARR及ResearchAgent另由固定payload与正式ACL出版表达对应形成作者正文BY4路径，其余37篇仍缺适用公众许可证据。arXiv
     nonexclusive/assumed本身不转授公众权利，正文许可不自动覆盖源包旧稿、第三方摘录或模板。
@@ -11557,5 +11565,292 @@ items:
       revision_id: 1370677546
       revision_timestamp: '2026-08-22T13:26:30Z'
       source_revision: sha256:ffe0f9fa75f2fb79d0667fe5990a211e75c33ab797fe7b25055f06c5d9671e8d
+  not_legal_advice: true
+  human_approval_claimed: false
+- sequence: 104
+  uid: industry-doc:microsoft-fabric-ontology-preview
+  source_type: industry
+  title: Microsoft Fabric Ontology (Preview)
+  manifest_path: materialized_sources/corpus/industry-doc-microsoft-fabric-ontology-preview--512d8f84/manifest.yaml
+  metadata_path: raw_data/industry/Microsoft Fabric Ontology Preview/metadata.yaml
+  capsule_root: materialized_sources/corpus/industry-doc-microsoft-fabric-ontology-preview--512d8f84
+  stored_full_text_paths:
+  - materialized_sources/corpus/industry-doc-microsoft-fabric-ontology-preview--512d8f84/normalized/document.md
+  baseline_content_tier: metadata_capsule
+  baseline_status: metadata_only
+  source_revision: git:91971feb08d699c09c20125faccae35effd60166
+  canonical_url: https://learn.microsoft.com/en-us/fabric/iq/ontology/overview
+  observed_rights:
+    source_metadata:
+      access: open
+      license_spdx: CC-BY-4.0
+      license_verified_at: '2026-09-17'
+      assessment: 固定public commit的明确文档grant，不是代码MIT或Learn域名推断。
+    historical_manifest:
+      declared_access: unknown
+      full_text_redistribution_assumed: false
+      assessment: 完整旧metadata-only manifest原样存于historical_acquisition；没有旧root正文或selectors。
+  evidence:
+  - kind: fixed_official_documentation_grant
+    url: https://github.com/MicrosoftDocs/fabric-docs/blob/91971feb08d699c09c20125faccae35effd60166/ThirdPartyNotices.md
+    license_url: https://creativecommons.org/licenses/by/4.0/
+    checked_at: '2026-09-17'
+    path: materialized_sources/corpus/industry-doc-microsoft-fabric-ontology-preview--512d8f84/NOTICE.md
+    finding: Microsoft及贡献者对仓库documentation/content明确CC BY4，code另MIT，商标未授予；同commit完整LICENSE及Legal Notices已读并完整保留。
+    supports_public_redistribution: true
+  - kind: fixed_native_body_and_include_boundary
+    url: https://github.com/MicrosoftDocs/fabric-docs/blob/91971feb08d699c09c20125faccae35effd60166/docs/iq/ontology/overview.md
+    path: materialized_sources/corpus/industry-doc-microsoft-fabric-ontology-preview--512d8f84/manifest.yaml
+    checked_at: '2026-09-17'
+    finding: 新官方Learn Edit绑定公开原生路径，选public commit91971feb；三原稿7686/403/447 bytes为真实固定commit GET、200/textplain/TLS0/无redirect。只overview及两个字面include，preview一次/refresh两次；不冒称与Learn HTML或私有部署字节相同。
+    supports_public_redistribution: true
+  - kind: scoped_notice_and_four_party_package
+    path: materialized_sources/corpus/industry-doc-microsoft-fabric-ontology-preview--512d8f84/NOTICE.md
+    locator: full Legal Notices/license; canonical and capsule metadata; manifest rights; redistribution_package
+    checked_at: '2026-09-17'
+    finding: 署名Microsoft及贡献者/preview原credit、固定原作链接、完整CC BY4与商标声明、原件不改及派生include/链接/定位/末注修改说明随包；四方包只覆盖实际三稿及其派生/摘录，不提升trusted。
+    supports_public_redistribution: true
+  missing: []
+  classification: documented_permission
+  document_permission: allow_with_conditions
+  license_id: CC-BY-4.0
+  license_url: https://creativecommons.org/licenses/by/4.0/
+  license_scope: 只固定public commit的overview与两个明确include及对应忠实派生正文/定位摘录，不覆盖Learn skin、相邻文档、私有部署或商标/专利。
+  license_restrictions: []
+  evidence_confidence: high
+  public_redistribution_recommendation: allow_with_packaged_notice
+  conditions:
+  - 保留Microsoft及贡献者和preview include原credit、版权/Legal Notices、原作来源、完整CC BY4及改动说明，不暗示背书。
+  - 三原稿保留取得字节；frontmatter不作正文，include只在列明原位置展开；不对已许可表达添加下游限制。
+  - 当前包绑定固定public commit及列明三稿；变更payload/范围/版本须重新核验，不外推Learn部署或其他页面。
+  current_capsule_compliance: packaged_notice_and_revision_binding_verified
+  publication_gate:
+    decision: allow
+    reason: 实际列明原生三稿的固定commit文档CC BY4已证，完整NOTICE/署名/来源/修改及四方包已落实；只批准当前有界公开表示，不以获取/CI代替许可或trust。
+    approved_scope: "Only docs/iq/ontology/overview.md (7686 bytes), docs/includes/feature-preview-note.md (403 bytes) and docs/iq/ontology/includes/refresh-graph-model.md (447 bytes) at public commit 91971feb08d699c09c20125faccae35effd60166; corresponding normalized/document.md and normalized/selectors.jsonl, complete NOTICE and provenance. Two literal include dependencies occur once and twice respectively. Other product pages, tutorials, graphs/assets, model/data downloads, private deployment repositories, website HTML/skin/scripts, external works, patents and trademarks are excluded. Historical metadata-only facts remain preserved and are not new body evidence."
+  redistribution_package:
+    source_revision: "git:91971feb08d699c09c20125faccae35effd60166"
+    source_version_url: "https://github.com/MicrosoftDocs/fabric-docs/blob/91971feb08d699c09c20125faccae35effd60166/docs/iq/ontology/overview.md"
+    notice_path: "materialized_sources/corpus/industry-doc-microsoft-fabric-ontology-preview--512d8f84/NOTICE.md"
+    attribution: "Microsoft Fabric Ontology (Preview), public native documentation at commit 91971feb08d699c09c20125faccae35effd60166; Microsoft and contributors. Include feature-preview-note.md credits snehagunda / sngun. The documentation is licensed under CC BY 4.0; full license, original Legal Notices, source URLs and trademark reservation are retained in NOTICE. No endorsement is implied."
+    modifications: "Three official native Markdown files are retained byte-identically, including their original frontmatter. The collector-derived consumer removes frontmatter from body, expands the two explicitly declared DocFX includes at their three original positions, resolves relative document links to the same fixed public commit without fetching those links, and adds source boundaries, real line selectors and one attribution/modification footer. No source prose, preview/refresh warning, code or upstream dates are corrected; no OCR, source execution or Learn website skin is included."
+    scope: "Only docs/iq/ontology/overview.md (7686 bytes), docs/includes/feature-preview-note.md (403 bytes) and docs/iq/ontology/includes/refresh-graph-model.md (447 bytes) at public commit 91971feb08d699c09c20125faccae35effd60166; corresponding normalized/document.md and normalized/selectors.jsonl, complete NOTICE and provenance. Two literal include dependencies occur once and twice respectively. Other product pages, tutorials, graphs/assets, model/data downloads, private deployment repositories, website HTML/skin/scripts, external works, patents and trademarks are excluded. Historical metadata-only facts remain preserved and are not new body evidence."
+  not_legal_advice: true
+  human_approval_claimed: false
+- sequence: 105
+  uid: doi:10.1038/s41587-021-01054-6
+  source_type: journal
+  title: 'OBO Foundry in 2021: operationalizing open data principles to evaluate ontologies'
+  manifest_path: materialized_sources/corpus/doi-10.1038-s41587-021-01054-6--5fa5a2aa/manifest.yaml
+  metadata_path: raw_data/journal/OBO Foundry in 2021/metadata.yaml
+  capsule_root: materialized_sources/corpus/doi-10.1038-s41587-021-01054-6--5fa5a2aa
+  stored_full_text_paths: []
+  baseline_content_tier: metadata_capsule
+  baseline_status: metadata_only
+  source_revision: null
+  canonical_url: https://academic.oup.com/database/article/doi/10.1093/database/baab069/6410158
+  observed_rights:
+    source_metadata:
+      access: open
+      license_spdx: CC-BY-4.0
+      license_verified_at: '2026-09-17'
+      assessment: OUP文章自身明确公众CC BY4已证；正文raw挑战不推翻许可。
+    historical_manifest:
+      declared_access: unknown
+      assessment: 旧错误DOI入口与未知rights标签保全为历史，不作为当前许可结论。
+  evidence:
+  - kind: official_article_license_record
+    url: https://academic.oup.com/database/article/doi/10.1093/database/baab069/6410158
+    license_url: https://creativecommons.org/licenses/by/4.0/
+    checked_at: '2026-09-17'
+    finding: 正式OUP可读缓存copyright/许可将本文章©The Author(s)2021 Published by Oxford University Press直接关联CC BY4；不是元数据CC0或正文讨论的ontology对象许可。25作者、正确DOI10.1093/database/baab069、Database2021 baab069和2021-10-26发表史核闭同作品。
+    observation_kind: readable_web_cache_not_raw_http_200
+    supports_public_redistribution: true
+  - kind: official_identifier_cross_binding
+    url: https://pubmed.ncbi.nlm.nih.gov/34697637/
+    checked_at: '2026-09-17'
+    finding: PubMed同作品DOI/PMID34697637/PMCID PMC8546234关联OUP和PMC；稳定UID不变，旧DOI seed误配不是注册别名。
+    supports_public_redistribution: false
+  - kind: current_representation_technical_limit
+    path: materialized_sources/corpus/doi-10.1038-s41587-021-01054-6--5fa5a2aa/manifest.yaml
+    locator: canonical_entry_review.retrieval_attempts/exact_main_pdf_href/exact_main_xml_href
+    checked_at: '2026-09-17'
+    finding: 旧DOI404；OUP raw403/5566 bytes及PMC raw200/21203 bytes均是挑战，不是论文。精确主PDF/XML href未观察，未取得正文或新public payload包。挑战只私有暂存；这是技术/表示绑定未知，不是权利人授权未知。
+    supports_public_redistribution: false
+  missing:
+  - 正常取得的原始目标正文payload、版本/字节核验与精确主原件href；这是表示条件未落实而非文章grant缺失。
+  classification: documented_permission
+  document_permission: allow_with_conditions
+  license_id: CC-BY-4.0
+  license_url: https://creativecommons.org/licenses/by/4.0/
+  license_scope: OUP发表定稿文章正文，保留实际版权/25作者/来源/许可/改动及图表credit；不许可外链ontology全库、工具、数据或引用作品。本轮没有取得PDF/PMC正文，不声明其payload许可或版本字节已核。
+  license_restrictions: []
+  evidence_confidence: high
+  public_redistribution_recommendation: allow_after_conditions_met
+  conditions:
+  - 保留25作者、©The Author(s)2021/Published by Oxford University Press、原作来源、CC BY4链接、已有信用和合理改动说明，不暗示背书或施加下游限制。
+  - 真正原件如出现独立第三方credit/排除声明，按实际声明保留处理；本批未抓图片或扩展全图版权普查。
+  - 正常取得精确官方href的正文后核验目标发表定稿/字节/结尾，再落实NOTICE和表示级版本包；不能把缓存正文或挑战HTML作为原件。
+  current_capsule_compliance: article_permission_documented_no_current_body_representation
+  publication_gate:
+    decision: unknown
+    reason: 本字段仅当前root公开正文表示门控；无正文payload、版本/字节或实际包可绑定，故unknown。文章公众CC BY4明确已证，许可不未知；获取挑战与许可分开。metadata-only与历史诊断继续保留，不公开新增正文。
+  unresolved: 技术挑战阻挡与精确主PDF/XML href未观察；无正文原件/文本，不需要新作者授权，不能猜址或绕挑战。
+  next_action: 同作品正式OUP/PMC路径正常暴露精确原件href后，依后续有界合同取得并核正文/版本/credit、包装NOTICE与文本；不索求新许可、不扩集合。
+  not_legal_advice: true
+  human_approval_claimed: false
+- sequence: 106
+  uid: journal-doi-10.1016-0004-3702-79-90032-7
+  source_type: journal
+  title: A Truth Maintenance System
+  manifest_path: materialized_sources/corpus/journal-doi-10.1016-0004-3702-79-90032-7--641228a2/manifest.yaml
+  metadata_path: raw_data/journal/A Truth Maintenance System/metadata.yaml
+  capsule_root: materialized_sources/corpus/journal-doi-10.1016-0004-3702-79-90032-7--641228a2
+  stored_full_text_paths: []
+  baseline_content_tier: metadata_capsule
+  baseline_status: metadata_only
+  source_revision: null
+  canonical_url: https://doi.org/10.1016/0004-3702(79)90008-0
+  observed_rights:
+    source_metadata:
+      access: metadata_only
+      license_spdx: null
+      assessment: 出版记录/机构访问/Purchase PDF不等于公众正文再分发grant。
+  evidence:
+  - kind: doi_limited_official_publisher_search_cache
+    url: https://www.sciencedirect.com/science/article/pii/0004370279900080
+    checked_at: '2026-09-17'
+    finding: ScienceDirect限定搜索可读缓存（Crawled3weeks）明确正确DOI90008-0、12(3)、Nov1979、231-272；不是raw正文或已下载PDF。
+    supports_public_redistribution: false
+  - kind: official_author_works_directory_partial_crosscheck
+    url: https://groups.csail.mit.edu/medg/ftp/doyle/
+    checked_at: '2026-09-17'
+    finding: Jon Doyle目录第20项仅同title/author/AI12(1979)/231-272页，没有DOI/issue/month或该项PDF链接；不能补造授权或原件。
+    supports_public_redistribution: false
+  - kind: current_representation_absence
+    path: materialized_sources/corpus/journal-doi-10.1016-0004-3702-79-90032-7--641228a2/manifest.yaml
+    locator: canonical_entry_review; historical_acquisition
+    finding: 稳定UID保留，旧90032-7正常GET404及旧失败历史保全；正确canonical DOI选择发表版，但当前本地无原件或正文。
+    supports_public_redistribution: false
+  missing:
+  - 对选定刊载正文公众再分发的适用grant及可正常取得的合法正文原件。
+  classification: permission_unverified
+  document_permission: unknown
+  license_id: none
+  license_url: null
+  license_scope: 尚无覆盖目标刊载正文的公众grant；不外推出版者网站/机构访问或相邻作者作品许可。
+  license_restrictions: []
+  evidence_confidence: high
+  public_redistribution_recommendation: do_not_redistribute_full_text
+  conditions:
+  - 本批仅保留身份修复和历史诊断，不公开新增正文、不绕机构/付费访问、不另索新作者许可。
+  current_capsule_compliance: metadata_only_no_new_body
+  publication_gate:
+    decision: unknown
+    reason: 目标正文公众grant与实际正文表示都未观察；正式书目/购买入口不能作为许可或正文证据。
+  unresolved: 没有正文原件/提取文本/已证可公开作者稿，metadata-only继续显式未决。
+  next_action: 后续同一正确DOI目标的正常官方/作者合法入口及版本对应出现后按有界合同处理；不把旧错误DOI当作品不存在。
+  not_legal_advice: true
+  human_approval_claimed: false
+- sequence: 107
+  uid: methodology:ontouml-ufo
+  source_type: methodology
+  title: OntoUML and Unified Foundational Ontology (UFO)
+  manifest_path: materialized_sources/corpus/methodology-ontouml-ufo--a19a68ba/manifest.yaml
+  metadata_path: raw_data/methodology/OntoUML and UFO/metadata.yaml
+  capsule_root: materialized_sources/corpus/methodology-ontouml-ufo--a19a68ba
+  stored_full_text_paths: []
+  baseline_content_tier: metadata_capsule
+  baseline_status: metadata_only
+  source_revision: null
+  canonical_url: https://ontouml.org/
+  observed_rights:
+    source_metadata:
+      access: unknown
+      license_spdx: null
+      assessment: 门户导航身份不绑定完整目标文档/版本，也没有适用正文公众grant。
+  evidence:
+  - kind: official_navigation_cache_not_target_body
+    url: https://ontouml.org/ontouml/
+    checked_at: '2026-09-17'
+    finding: 门户及方法页可读缓存只有导航短页；完整目标文档、选定版本与正文许可仍未核闭，不把门户当方法全文。
+    supports_public_redistribution: false
+  - kind: current_local_domain_policy_block
+    path: materialized_sources/corpus/methodology-ontouml-ufo--a19a68ba/manifest.yaml
+    locator: canonical_entry_review.retrieval_attempts; historical_acquisition
+    checked_at: '2026-09-17'
+    finding: 本轮正常GET403/402 bytes来自本地网络域名策略，而非已证上游403/历史TLS重现；历史证书失败保全，当前未得正文。策略和许可未知正交，不绕过。
+    supports_public_redistribution: false
+  missing:
+  - 完整目标方法文档边界、固定版本、正常原件与适用公众正文grant。
+  classification: permission_unverified
+  document_permission: unknown
+  license_id: none
+  license_url: null
+  license_scope: 尚无绑定本UID完整目标文档与版本的公众正文grant；不外推社区软件或相邻教材许可。
+  license_restrictions: []
+  evidence_confidence: high
+  public_redistribution_recommendation: do_not_redistribute_full_text
+  conditions:
+  - 本批保留metadata-only与旧TLS历史，不新增导航正文/selector，不绕本地域名策略或TLS，不扩集合到新教材。
+  current_capsule_compliance: metadata_only_no_bound_target_body
+  publication_gate:
+    decision: unknown
+    reason: 目标文档边界/版本及其公众许可未决；域名策略阻挡不是rights block证据。
+  unresolved: 原件metadata-only、text unavailable，selected_version=null保持真实，不以门户访问日期编造版本。
+  next_action: 后续官方方法文档线索可正常确认后，先固定同一UID的目标范围/版本/grant，再按有界合同取得。
+  not_legal_advice: true
+  human_approval_claimed: false
+- sequence: 108
+  uid: paper:The-Basic-AI-Drives
+  source_type: paper
+  title: The Basic AI Drives
+  manifest_path: materialized_sources/corpus/paper-The-Basic-AI-Drives--03d9a4da/manifest.yaml
+  metadata_path: raw_data/paper/The Basic AI Drives/metadata.yaml
+  capsule_root: materialized_sources/corpus/paper-The-Basic-AI-Drives--03d9a4da
+  stored_full_text_paths: []
+  baseline_content_tier: excerpt_capsule
+  baseline_status: partial
+  source_revision: sha256:48b4a587f7d5c187d2a86d36e576b48f63025e9a22fb1fd4861372d580fee4a2
+  canonical_url: https://selfawaresystems.com/2007/11/30/paper-on-the-basic-ai-drives/
+  observed_rights:
+    source_metadata:
+      access: unknown
+      license_spdx: null
+      assessment: 作者链接稿公开可见及DBLP元数据CC0都不等于论文公众publication grant。
+  evidence:
+  - kind: official_author_revision_statement
+    url: https://selfawaresystems.com/2007/11/30/paper-on-the-basic-ai-drives/
+    checked_at: '2026-09-17'
+    finding: 作者正式页确认AGI2008同作品并说明链接稿修订于2008-01-25；选该作者链接修订稿，但未取PDF或核其与会议发表版字节对应。
+    supports_public_redistribution: false
+  - kind: bibliographic_metadata_not_body_license
+    url: https://dblp.org/rec/conf/agi/Omohundro08
+    checked_at: '2026-09-17'
+    finding: DBLP缓存为AGI2008pp483-492书目，CC0仅元数据；本轮raw200/7439 bytes为Anubis挑战，不执行挑战或作为正文。
+    supports_public_redistribution: false
+  - kind: preserved_diagnostic_bytes_not_paper
+    path: materialized_sources/corpus/paper-The-Basic-AI-Drives--03d9a4da/document.md
+    locator: L1-L5; manifest historical_acquisition; selectors.jsonl
+    finding: 115字符旧错误页及3个root selectors与BASE字节不变；selector解析不构成论文证据，没有新增正文/PDF。
+    supports_public_redistribution: false
+  missing:
+  - 适用于作者链接2008-01-25修订稿的公众publication grant与实际原件。
+  classification: permission_unverified
+  document_permission: unknown
+  license_id: none
+  license_url: null
+  license_scope: 只有目标作品身份/修订稿日期与书目，未观察覆盖该稿的公众正文grant；不外推DBLP元数据CC0。
+  license_restrictions: []
+  evidence_confidence: high
+  public_redistribution_recommendation: do_not_redistribute_full_text
+  conditions:
+  - 旧诊断document/selectors不改；本批不公开新增正文、不下载作者链接稿、不另索许可、不绕DBLP挑战。
+  current_capsule_compliance: legacy_diagnostic_retained_no_new_body
+  publication_gate:
+    decision: unknown
+    reason: 作者提供链接不是公众再分发许可；旧root revision为挑战响应而非论文，目标正文grant和新表示未核闭。
+  unresolved: 论文正文/选定作者稿原件未取得，text unavailable；root诊断存在但complete_target_consumable=false。
+  next_action: 同作品作者入口的正常原件/版本对应与公开表示决策明确后依后续有界合同处理；不能把旧诊断晋升为正文。
   not_legal_advice: true
   human_approval_claimed: false
