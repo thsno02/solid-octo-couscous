@@ -156,6 +156,12 @@ execution_contract:
     - command: existing_replay_pdf_supplement_twice_with_fetch_bytes_and_prepare_capsule_forbidden
       result: 49_files_byte_identical_in_each_run
       scope: ALCE_strict_offline_replay_not_full_make_reproducibility
+    - command: make demo PYTHON=/tmp/llm-wiki-ci-312-260916/bin/python
+      result: PASS_build_llm_wiki_v0_4e541384e82b1271
+      scope: correction_after_final_rights_input_freeze
+    - command: make reproducibility PYTHON=/tmp/llm-wiki-ci-312-260916/bin/python
+      result: PASS_four_checks_of_169_files_byte_identical_exit_0
+      scope: corrected_tree_committed_full_demo_compiler_only_and_readonly_validation
   independent_evaluation: pending_actual_committed_head_and_base
   final_ci: pending_actual_committed_head_and_base
   explicitly_out_of_scope:
@@ -318,3 +324,15 @@ R/K账务 executor 在无generator运行时调用现collect_facts一次，真实
 最终make validate与coverage audit均已exit0：raw metadata215、manifest215；materialization warnings0/errors0；docs60篇、YAML例5、相对链接80、errors0；demo36 sources／189 objects／72 claims／72 evidence／135 pages、warnings0/errors0；release135 pages／72 claims／21 inputs／154 outputs、warnings0/errors0，build:llm-wiki-v0:45bd6c7288326476。coverage以215=131+84的实际台账PASS，并非131项均完整。
 
 全量make reproducibility／clean checkout gate留给最终提交的CI实际执行，未声称本地运行该完整命令。exact head/base终审、最终CI、Ready／merge均未发生，PR保持Draft。最终结果将以该PR中锚定实际head的独立COMMENT和CI日志登记；如相关输入或base改变则重新审核，不在提交自身中填造自指head或预写PASS。
+
+## 11. CI 实际失败与执行顺序纠偏（Observed CI Failure and Ordering Correction）
+
+上述§10是第一次冻结前的实际本地结果，不是最终成功声明。首次冻结head e7e202c65ae5089f635a250af4f934b53c330646 / base a3dbb1c87db2875c5354cc773199af453d2df7df 的 CI [run 35215133030](https://github.com/thsno02/solid-octo-couscous/actions/runs/35215133030) / job105181705572实际失败：208项单元测试通过，但make reproducibility的committed_tree_replay发现已提交生成物过期，后续clean gate未运行。PR保持Draft，不用本地make validate通过替代重放门控。
+
+根因是执行顺序，而不是workflow或跨平台正文随机变化。现有build_demo.py将selected PDF supplement的权利审计文件纳入构建身份；PR23已有AgentRxiv这类selected source，因此不是ALCE首次激活R输入。主线先make demo、随后R/K executor更新了materialization_rights_review.yaml，最终已提交build:llm-wiki-v0:45bd6c7288326476未反映最后R输入；CI同一输入重建得到build:llm-wiki-v0:4e541384e82b1271。R记录虽不改变其他来源语义，其字节仍是已声明构建输入。
+
+纠偏路径：暂停独立evaluator对动态生成物的读取，冻结全部C/R/K/capsule/code输入，调用既有make demo重新生成，再执行本地完整make reproducibility；不手改生成物、不改变身份算法、不移除R输入、不修改workflow或跳过gate。修复后的精确head重新push、重新CI及独立终审；此前head不能合并，新增验证结果待实际完成后登记。
+
+纠偏实际结果：make demo exit0，得到与首次CI重建相同的build:llm-wiki-v0:4e541384e82b1271，底层demo身份为build:v0-meta-kb-260910:7e46969e84b6efca。本地随后make reproducibility exit0：committed_tree_replay、full_demo_replay、compiler_only_replay、read_only_validation四轮各169文件逐字节相同，内含make validate全层0 errors。首次冻结后的修正只涉及151个必要生成文件及本报告／ledger；源材料、C/R/K、index/registry、production/test/workflow全部不变，claim/evidence实体及源页body语义不变。这是本地修复证据，不能替代修正head的远端CI和新独立结论。
+
+首次独立三维FAIL已原文发布为[agent COMMENT 5235028835](https://github.com/thsno02/solid-octo-couscous/pull/24#pullrequestreview-5235028835)：需求FAIL、agentic PASS、核心质量FAIL；没有隐藏失败或把审计者当实现作者。修正后保持Draft，等待新的exact-pair三维终审与适用CI，原先§10的初次build ID及pending状态只属历史快照。
