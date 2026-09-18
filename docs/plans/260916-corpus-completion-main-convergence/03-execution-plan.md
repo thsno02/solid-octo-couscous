@@ -1,5 +1,7 @@
 # 03 — 分阶段执行计划
 
+> **2026-09-18 执行重置：** 本文件保留原始 P0–P5 设计与已发生批次的历史语义。其 P2/P3 中“最多 10 UID、一个小批次一个 PR、合入后再开下一批”的规则，已由 [`07-unified-ingestion-pipeline-and-agent-budget.md`](07-unified-ingestion-pipeline-and-agent-budget.md)、`plan.yaml` v3 和 `06-codex-execution-contract.md` 第 12 节覆盖。后续顺序为 P2 parser bake-off → P3-A 统一 engine → P3-B 131 条 backfill；不得再根据下文旧 P3-A 至 P3-E 自动创建逐 UID PR。
+
 ## 总原则
 
 - 后续实现均基于本规划 PR 合入后的最新 work head；
@@ -9,6 +11,8 @@
 - 每个 PR 在开始时固定 `base_sha`，在结束时报告准确的 `head_sha`；
 - work 分支变化后，尚未开始的下一批必须从新 head 创建；
 - 不并行修改同一 source UID、同一 manifest 或同一生成物集合。
+
+上述“10 UID/批次”只保留为旧阶段记录；新实现以第 07 文档的内部 request chunk 和 PR 边界为准。
 
 ## P0 — 规划契约
 
@@ -98,7 +102,7 @@ identity_or_version_ambiguous
 
 ---
 
-## P2 — 修复两项已知解析不完整
+## P2 — 修复两项已知解析不完整（历史设计，已由新 P2 bake-off 覆盖）
 
 P2 必须在 P1 合入后创建，base 为当时最新 work head。
 
@@ -140,9 +144,11 @@ P2 必须在 P1 合入后创建，base 为当时最新 work head。
 - OCR 如发生，原件与 OCR 层分开；
 - 不触碰其他 129 个非 repo source 的正文。
 
+> 新 P2 不再把这两个 UID 当作两个独立修复任务，而是把它们作为 TeX root、低文本页/OCR 等 failure class 的 benchmark 样本，与其它代表项共同选择 parser router 和 Document IR。
+
 ---
 
-## P3 — 按 action bucket 补齐正文
+## P3 — 按 action bucket 补齐正文（历史设计，禁止据此继续拆 PR）
 
 P3 使用串行短期 PR。每个批次满足：
 
@@ -153,11 +159,13 @@ P3 使用串行短期 PR。每个批次满足：
 - PR body 列出全部 UID，禁止“等”或省略；
 - 合入后才创建下一批。
 
+上述批次规则仅描述已发生历史。新的 P3-A/P3-B 由第 07 文档定义：先建统一 engine，再全量 backfill；failure rows 不自动创建 PR。
+
 推荐顺序：
 
 P1 新发现的 `needs_boundary_verification` 先按单一 adapter 的只读边界核验批次处理；新增 `parser_only` / `ocr_assessment` 按 P2 的同类验收规则进入串行 P3 解析批次，不受“仅已知两项”限制。`identity_or_version_ambiguous` 必须先解决身份歧义再获取。每批仍最多 10 个 UID、一个主要 bucket，不能让未核验项在 P4 中消失。
 
-### P3-A：canonical / version repair
+### P3-A：canonical / version repair（历史）
 
 先处理 `canonical_repair` 与 `identity_or_version_ambiguous`，因为错误身份会污染后续下载、hash 和 selectors。
 
@@ -172,7 +180,7 @@ P1 新发现的 `needs_boundary_verification` 先按单一 adapter 的只读边�
 
 不得把相似标题、不同版本或二次转载静默当作同一原件。
 
-### P3-B：开放论文与正式作者稿
+### P3-B：开放论文与正式作者稿（历史）
 
 处理 `open_fulltext_fetch`、`author_manuscript_fetch`：
 
@@ -182,7 +190,7 @@ P1 新发现的 `needs_boundary_verification` 先按单一 adapter 的只读边�
 - 记录所有 URL 与最终选择理由；
 - 不递归抓引用、数据集或权重。
 
-### P3-C：完整网页文章与行业文档
+### P3-C：完整网页文章与行业文档（历史）
 
 处理 `html_article_snapshot`：
 
@@ -191,7 +199,7 @@ P1 新发现的 `needs_boundary_verification` 先按单一 adapter 的只读边�
 - 保留结构、发布日期、作者、canonical URL；
 - 使用 block/heading selector，不把整个页面当一个匿名 chunk。
 
-### P3-D：标准与规范
+### P3-D：标准与规范（历史）
 
 处理 `standard_spec_fetch`：
 
@@ -200,7 +208,7 @@ P1 新发现的 `needs_boundary_verification` 先按单一 adapter 的只读边�
 - 付费 ISO 等不得绕过访问限制；
 - 无法公开取得正文时保留具体未决原因，不将目录页升级为全文。
 
-### P3-E：访问或公开持久化未决
+### P3-E：访问或公开持久化未决（历史）
 
 处理 `access_restricted`、`public_persistence_decision`：
 
@@ -210,7 +218,7 @@ P1 新发现的 `needs_boundary_verification` 先按单一 adapter 的只读边�
 - 对可获取但不能公开持久化的来源，提交具体的 storage/representation 决策请求，而不是改写为“技术失败”；
 - 该项未解决不应阻塞其他 UID 的独立批次。
 
-### 每个 P3 批次的文件责任
+### 旧 P3 批次的文件责任
 
 对批次 UID，仅修改必要的：
 
@@ -234,9 +242,39 @@ experiments/v0_meta_kb_initialization_demo_260910/**
 
 ---
 
+## 新 P2/P3 执行摘要
+
+```text
+P2 parser bake-off
+  - 明确代表性 UID
+  - 比较候选 parser
+  - 冻结 Document IR 与质量指标
+  - 不做全量 backfill
+
+P3-A unified ingestion engine
+  - acquisition adapter
+  - media classifier
+  - parser router
+  - native parser sidecar
+  - canonical Document IR
+  - provenance / coverage validator
+  - failure ledger
+
+P3-B full nonrepo backfill
+  - 对全部 131 条运行冻结 engine
+  - 网络 chunk 只是内部 checkpoint
+  - 同类失败按 failure class 聚合
+  - 默认一个 backfill PR，最多两个
+  - 输入冻结后再做全局生成
+```
+
+详细预算、停止条件和验收见第 07 文档与第 06 文档第 12 节。
+
+---
+
 ## P4 — 全量对账与 PR #1 收口
 
-当所有 P2/P3 批次完成后，创建一个最终 reconciliation PR，base 仍为最新 work。
+当统一 backfill 完成后，创建一个最终 reconciliation PR，base 仍为最新 work。
 
 该 PR 只做：
 
@@ -246,7 +284,8 @@ experiments/v0_meta_kb_initialization_demo_260910/**
 4. 修正 PR #1 与 docs 中的 Definition of Done；
 5. 生成最终 branch/work-item ledger；
 6. 给出拟进入 `main` 的精确文件树和未决事项；
-7. 对现有 TeX/source 附带组件给出精确 retention proposal，但不未经授权删除或改写历史。
+7. 对现有 TeX/source 附带组件给出精确 retention proposal，但不未经授权删除或改写历史；
+8. 对 failure ledger 给出按类别汇总，不要求每个 unresolved UID 再开 PR。
 
 P4 不新增研究来源，也不开始新的许可调查主题。
 
