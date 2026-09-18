@@ -224,3 +224,79 @@ P4 不再继续抓取新来源。它只做对账、重建和 PR #1 收口。
 - 我是否把计划、尝试或推测写成已完成事实？
 
 任何一个答案为“是”，不得提交，应先收缩变更。
+
+## 12. 2026-09-18 统一 ingestion 与 Agent 预算修订
+
+本节在合入后覆盖与其冲突的旧 P2/P3 执行条款；既有已合并 PR 保留为历史证据，不追溯改写。
+
+### 12.1 被覆盖的旧规则
+
+以下规则不再作为 PR 边界：
+
+- 第 4 节第 3 项“网络批次不超过 10 个 UID”；
+- 第 4 节第 12 项“合入 work 后再开始下一批”；
+- 第 6.2 节“batch 超过 10 UID 必须停止”；
+- 第 8 节中隐含的“一个来源集合一次完整 PR 生命周期”。
+
+新的边界是：网络请求可内部按不超过 25 UID 的 chunk 限流和记录，但 chunk 不是 PR。P2 是 parser bake-off，P3-A 是统一 engine，P3-B 是 131 条全量 backfill；默认只允许一个 benchmark PR、一个 engine PR 和一个 backfill PR。backfill 因明确技术或法律边界最多拆成两个 PR，继续拆分需要新的用户决定。
+
+### 12.2 通用修复优先
+
+- 同一 failure class 必须先聚合，再修一次通用 adapter/parser/validator，并回放所有受影响 UID；
+- 不得为一个 UID、题名、DOI 或 host 添加生产特例，只为让单个 fixture 通过；
+- 可表达为 metadata/config 的差异不得写成 source-specific production branch；
+- 单 UID PR 默认禁止，只有作品身份冲突、访问/法律隔离、破坏性迁移或安全边界可例外；
+- 失败 UID 进入 failure ledger，不自动生成新 PR。
+
+### 12.3 Parser 与统一 IR
+
+后续实现必须遵循 `07-unified-ingestion-pipeline-and-agent-budget.md`：
+
+- TeX、科学 PDF、扫描 PDF、普通 HTML、规范 HTML 使用 router；
+- 原件、native parser output、统一 Document IR、selector/provenance 分层保留；
+- parser engine/version/config hash 必须记录；
+- OCR 与原生文本必须可区分；
+- parser exit 0、非空文本或页数齐全均不得单独判定 complete；
+- pypdf 可继续承担基础 PDF 读取、页数和低层验证，但不得作为全部论文的唯一结构解析器。
+
+### 12.4 无进展停止与消耗预算
+
+执行者必须遵守：
+
+1. 同一 PR 最多两次“失败实现 → 修复 → 独立复审”循环；第三次仍有 blocker，停止并报告；
+2. 连续两次 agent 迭代没有改善 coverage、failure class、通用测试能力或人工决策数量时，停止；
+3. HEAD 未变化时，不重复远端 CI，不重复独立 evaluator；
+4. parser-only 变更默认不重建整个 Wiki，除非 selected source 的语义输入变化；
+5. 全局 index/registry/Wiki 只在输入冻结后串行重建一次；修复后至多再完整重建一次；
+6. PR body 不无限累积历史“当前状态”，只保留当前摘要；逐命令记录放阶段报告；
+7. 只增加审计文字、重复绿灯、重复 sidecar 或 PR 数量不算进展；
+8. 无法读取精确 API credits 时不得猜测，使用下列效率代理。
+
+### 12.5 新的启动与结束字段
+
+P2/P3 实现 PR 除第 3 节字段外，还必须包含：
+
+```yaml
+execution_efficiency:
+  agent_iterations: <int>
+  repair_cycles: <int>
+  source_rows_touched: <int>
+  parser_families_changed: []
+  coverage_before: {}
+  coverage_after: {}
+  failure_classes_before: {}
+  failure_classes_after: {}
+  full_regenerations: <int>
+  repeated_ci_on_same_head: 0
+  repeated_evaluation_on_same_head: 0
+```
+
+每次结束必须明确回答：
+
+- 本 PR 增加了什么可复用能力？
+- 有多少 UID 因同一能力得到改善？
+- 哪些 failure class 减少、增加或保持？
+- 是否存在只增长 PR/审计而 coverage 不变的工作？
+- 是否触发两次无进展或两次修复循环停止条件？
+
+任一重复 CI/evaluator 字段不为 0，或无法说明可衡量增量，PR 不满足新的 agentic 质量门槛。
