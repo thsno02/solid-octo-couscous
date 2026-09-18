@@ -1,7 +1,8 @@
 plan_id: nonrepo-materialization-main-convergence-260916
-version: 2
+version: 3
 created_at: '2026-09-16'
-status: planning_contract
+updated_at: '2026-09-18'
+status: ingestion_pipeline_reset_proposed
 repository: thsno02/solid-octo-couscous
 authority:
   issues:
@@ -10,6 +11,8 @@ authority:
   user_intent:
     - complete actual body acquisition and preprocessing for existing non-repository sources
     - persist legally retainable source files and derived artifacts in the repository
+    - replace per-UID repair loops with a reusable multi-source ingestion pipeline
+    - constrain agent and API consumption with measurable progress and stop conditions
     - converge approved work through the existing parent pull request into main
 baseline:
   main:
@@ -17,7 +20,7 @@ baseline:
     sha: 99ce4670be91637209d67792de0962404fa96488
   integration:
     branch: work/v0-meta-kb-initialization-demo-260910
-    sha: 568d31de26c918a9251fadf9488a47ae3405c034
+    planning_reset_base_sha: 4b179e3c0a932f41db493c95f5e8974dfdb599ae
     pull_request: 1
     pr_state: open_draft
   incorporated_stack:
@@ -48,6 +51,7 @@ state_dimensions:
   - identity_and_version
   - original_artifact_coverage
   - text_extraction_coverage
+  - structure_extraction_coverage
   - local_persistence
   - public_redistribution
   - knowledge_admission
@@ -60,6 +64,12 @@ controlled_values:
     - metadata_only
     - not_applicable
   text_extraction_coverage:
+    - unknown
+    - complete
+    - partial
+    - unavailable
+    - not_applicable
+  structure_extraction_coverage:
     - unknown
     - complete
     - partial
@@ -88,6 +98,26 @@ controlled_values:
     - access_restricted
     - public_persistence_decision
     - identity_or_version_ambiguous
+  failure_stage:
+    - acquisition
+    - classification
+    - parsing
+    - validation
+    - persistence
+  failure_class:
+    - canonical_or_version_ambiguous
+    - access_restricted
+    - artifact_unavailable
+    - unsupported_media
+    - parser_crash
+    - empty_or_low_text_layer
+    - reading_order_failure
+    - structure_loss
+    - table_or_formula_loss
+    - ocr_required
+    - provenance_invalid
+    - redistribution_decision_required
+    - unknown
 source_package_roles:
   target_body:
     required_for_body_completion: true
@@ -106,12 +136,58 @@ branch_policy:
   temporary_integration_branch: work/v0-meta-kb-initialization-demo-260910
   single_parent_pr_to_main: 1
   one_active_implementation_pr: true
-  max_uids_per_network_batch: 10
   implementation_base: latest_integration_head
   implementation_target: work/v0-meta-kb-initialization-demo-260910
   second_long_lived_integration_branch: forbidden
   force_push_shared_branch: forbidden
   duplicate_pr_2_cherry_pick: forbidden
+  network_chunking:
+    max_uids_per_request_chunk: 25
+    chunk_is_pull_request_boundary: false
+    retries_must_be_recorded: true
+  parser_work:
+    per_uid_pr_for_shared_failure: forbidden
+    benchmark_prs: 1
+    engine_prs: 1
+    default_backfill_prs: 1
+    maximum_backfill_prs_without_new_user_decision: 2
+parser_routing_candidates:
+  arxiv_tex:
+    primary: LaTeXML
+    fallback:
+      - conservative_tex_reading_view
+      - scholarly_pdf_route
+  scholarly_pdf:
+    primary: GROBID
+    fallback:
+      - Docling
+  scanned_or_low_text_pdf:
+    primary: Docling_OCR
+    benchmark_only_fallback:
+      - MinerU
+  article_html:
+    primary: Trafilatura
+    fallback:
+      - Docling_HTML
+      - bounded_DOM_adapter
+  standards_html:
+    primary: bounded_DOM_adapter
+    fallback:
+      - Docling_HTML
+      - Trafilatura
+  github_repository:
+    primary: existing_commit_pinned_semanticization
+    included_in_nonrepo_backfill: false
+canonical_document_ir:
+  raw_artifact_required: true
+  native_parser_output_required: true
+  parser_engine_version_required: true
+  parser_config_hash_required: true
+  block_provenance_required: true
+  page_and_bbox_when_available: true
+  native_text_and_ocr_must_be_distinguishable: true
+  schema_validation_required: true
+  silent_fallback_forbidden: true
 phases:
   - id: P0
     name: planning_contract
@@ -130,26 +206,44 @@ phases:
       exact_nonrepo_rows: 131
       github_excluded_rows: 84
   - id: P2
-    name: known_parser_repairs
-    uids:
-      - arxiv:2406.04268
-      - arxiv:2502.18864
+    name: parser_bakeoff_and_document_ir_contract
     depends_on:
       - P1
-  - id: P3
-    name: sequential_acquisition_and_preprocessing
+    production_backfill: false
+    benchmark_requirements:
+      explicit_uids_in_pr_body: true
+      representative_media_and_failure_classes: true
+      compare_at_least_two_reasonable_parsers_when_applicable: true
+      inspect_content_not_only_exit_status: true
+      record_runtime_resources_and_determinism: true
+  - id: P3A
+    name: unified_ingestion_engine
     depends_on:
-      - P1
       - P2
-    batching:
-      max_uids: 10
-      one_adapter_family: true
-      one_primary_action_bucket: true
-      serial_merge_to_integration: true
+    outputs:
+      - acquisition_adapters
+      - media_classifier
+      - parser_router
+      - parser_run_manifest
+      - canonical_document_ir
+      - native_sidecars
+      - coverage_validator
+      - failure_ledger
+      - deterministic_replay
+    source_specific_production_branches: forbidden_unless_reusable_family_behavior
+  - id: P3B
+    name: full_nonrepo_backfill
+    depends_on:
+      - P3A
+    target_rows: 131
+    default_pull_requests: 1
+    maximum_pull_requests_without_new_user_decision: 2
+    network_chunks_are_internal_checkpoints: true
+    failure_rows_do_not_create_pull_requests_automatically: true
   - id: P4
     name: corpus_reconciliation_and_pr1_scope_correction
     depends_on:
-      - P3
+      - P3B
     new_source_acquisition: false
   - id: P5
     name: main_integration_and_fresh_checkout_verification
@@ -158,8 +252,37 @@ phases:
     merge_method_recommendation: squash
     automatic_merge_authorized: false
     conditional_merge_authority: explicit_user_instruction_after_independent_pass_and_premerge_acceptance
+agent_budget:
+  max_repair_cycles_per_pull_request: 2
+  stop_after_consecutive_no_progress_iterations: 2
+  repeated_ci_on_same_head: forbidden
+  repeated_evaluation_on_same_head: forbidden
+  full_regeneration_before_inputs_frozen: forbidden
+  maximum_full_regenerations_per_pull_request: 2
+  parser_pr_rebuilds_full_wiki_by_default: false
+  single_uid_pull_request_default: forbidden
+  single_uid_pull_request_exceptions:
+    - work_identity_conflict
+    - access_control_or_legal_isolation
+    - destructive_storage_migration
+    - security_boundary
+  exact_api_credit_value:
+    guessing: forbidden
+    use_efficiency_proxies_when_unavailable: true
+execution_efficiency_required_fields:
+  - agent_iterations
+  - repair_cycles
+  - source_rows_touched
+  - parser_families_changed
+  - coverage_before
+  - coverage_after
+  - failure_classes_before
+  - failure_classes_after
+  - full_regenerations
+  - repeated_ci_on_same_head
+  - repeated_evaluation_on_same_head
 independent_pr_gate:
-  applies_to: [P0, P1, P2, P3, P4, P5]
+  applies_to: [P0, P1, P2, P3A, P3B, P4, P5]
   evaluator_must_not_author_changes: true
   required_verdict: PASS
   dimensions: [user_requirements, agentic_reasoning_and_evidence, core_quality]
@@ -169,13 +292,17 @@ independent_pr_gate:
   normal_completion: merge_after_acceptance
   direct_close_requires: evidence_of_absorption_or_explicit_user_cancellation
   github_agent_review_action: COMMENT
+  evaluator_reuse_without_head_change: forbidden
 completion_rules:
   capsule_presence_is_fulltext_completion: false
   full_text_label_is_sufficient: false
+  parser_exit_zero_is_content_complete: false
+  nonempty_text_is_structure_complete: false
   rights_count_is_acquisition_count: false
   ci_green_is_content_complete: false
   trusted_claim_count_is_materialization_complete: false
   unresolved_items_must_remain_explicit: true
+  failure_classes_must_be_aggregated: true
   main_fresh_checkout_required: true
 prohibited_actions:
   - bypass_access_controls
@@ -188,13 +315,25 @@ prohibited_actions:
   - automatic_trusted_promotion
   - generated_conflict_resolution_by_bulk_ours_or_theirs
   - claim_main_completion_while_only_on_work_branch
+  - per_uid_pr_for_shared_parser_failure
+  - source_specific_parser_code_when_metadata_or_family_config_is_sufficient
+  - repeated_ci_without_tree_change
+  - repeated_evaluation_without_head_change
+  - full_wiki_regeneration_for_parser_only_change_without_semantic_input_change
+  - treating_pr_count_or_audit_length_as_progress
 decision_gates:
   - id: source_identity_ambiguity
-    behavior: stop_entire_pr_and_request_minimal_decision
+    behavior: stop_affected_identity_and_request_minimal_decision
   - id: access_restricted_single_uid
-    behavior: record_unresolved_and_continue_independent_uids
+    behavior: record_unresolved_and_continue_backfill
   - id: public_persistence_unknown_single_uid
-    behavior: do_not_commit_new_body_record_decision_request_continue_independent_uids
+    behavior: do_not_commit_new_public_body_record_decision_and_continue_backfill
+  - id: shared_parser_failure
+    behavior: aggregate_failure_class_fix_engine_once_and_replay_all_affected_uids
+  - id: two_no_progress_iterations
+    behavior: stop_automation_and_report_measurable_blocker
+  - id: third_repair_cycle_needed
+    behavior: stop_and_request_review_instead_of_continuing_credit_consumption
   - id: deletion_migration_or_history_rewrite
     behavior: stop_and_require_explicit_authorization
   - id: pr1_ready_and_merge
@@ -205,6 +344,7 @@ issue_closure:
     requires_main_landing: true
     requires_131_row_ledger: true
     requires_all_gaps_resolved_or_explicitly_unresolved: true
+    requires_unified_backfill_or_explicit_failure_ledger: true
   issue_4:
     requires_pr1_in_main: true
     requires_fresh_main_checkout_validation: true
